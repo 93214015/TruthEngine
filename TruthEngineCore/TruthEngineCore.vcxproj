@@ -130,7 +130,7 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir)src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Dependencies;$(ProjectDir)src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -158,6 +158,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\Core\Entity\CameraOrthographic.h" />
+    <ClInclude Include="src\Core\Entity\CameraPerspective.h" />
+    <ClInclude Include="src\Core\Entity\ICamera.h" />
     <ClInclude Include="src\Core\Input\InputManager.h" />
     <ClInclude Include="src\Core\Input\Keyboard.h" />
     <ClInclude Include="src\Core\Input\KeyboardEvent.h" />
@@ -170,6 +173,9 @@
     <ClInclude Include="src\TruthEngineApp.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Core\Entity\CameraOrthographic.cpp" />
+    <ClCompile Include="src\Core\Entity\CameraPerspective.cpp" />
+    <ClCompile Include="src\Core\Entity\ICamera.cpp" />
     <ClCompile Include="src\Core\Input\InputManager.cpp" />
     <ClCompile Include="src\Core\Input\Keyboard.cpp" />
     <ClCompile Include="src\Core\Input\KeyboardEvent.cpp" />

@@ -13,3 +13,9 @@
 #include <sstream>
 #include <array> //std::array
 #include <chrono>
+
+
+#include "DirectXMath/Inc/DirectXMath.h"
+#include "DirectXMath/Inc/DirectXColors.h"
+#include "DirectXMath/Inc/DirectXPackedVector.h"
+#include "DirectXMath/Inc/DirectXCollision.h"
