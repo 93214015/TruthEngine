@@ -4,7 +4,7 @@
 
 namespace TruthEngine::Core {
 
-	class TRUTHENGINE_API TruthEngineApp {
+	class TruthEngineApp {
 
 	public:
 		TruthEngineApp(uint32_t clientWidth, uint32_t clientHeight);

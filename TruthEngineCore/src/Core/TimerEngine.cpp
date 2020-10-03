@@ -69,7 +69,17 @@ namespace TruthEngine::Core {
 
 	double TimerEngine::TotalTime() const
 	{
+		if (m_Stopped)
+		{
+			auto d = std::chrono::duration<double, std::milli>(m_StoppedTimePoint - m_BaseTimePoint).count();
 
+			return d - m_PausedTime;
+		}
+		else
+		{
+			auto d = std::chrono::duration<double, std::milli>(m_CurrentTimePoint - m_BaseTimePoint).count();
+			return d - m_PausedTime;
+		}
 	}
 
 	double TimerEngine::DeltaTime() const

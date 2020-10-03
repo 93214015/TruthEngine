@@ -7,7 +7,7 @@
 
 namespace TruthEngine::Core {
 
-	class TRUTHENGINE_API Log {
+	class Log {
 
 	public:
 		static void Init();

@@ -15,27 +15,27 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{7B2CE1FE-E7B7-4EC3-F0C8-D1B75CD3AAC3}</ProjectGuid>
+    <ProjectGuid>{E2CEDBB2-4E3B-97AD-172F-2F0B835AB915}</ProjectGuid>
     <IgnoreWarnCompileDuplicatedFilename>true</IgnoreWarnCompileDuplicatedFilename>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>TruthEngineCore</RootNamespace>
+    <RootNamespace>TruthEngineSandboxApp</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
     <PlatformToolset>v142</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
     <PlatformToolset>v142</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Dist|x64'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
     <PlatformToolset>v142</PlatformToolset>
@@ -54,22 +54,25 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <OutDir>..\bin\Debug-windows-x86_64\TruthEngineCore\</OutDir>
-    <IntDir>..\bin-int\Debug-windows-x86_64\TruthEngineCore\</IntDir>
-    <TargetName>TruthEngineCore</TargetName>
-    <TargetExt>.lib</TargetExt>
+    <LinkIncremental>true</LinkIncremental>
+    <OutDir>..\bin\Debug-windows-x86_64\TruthEngineSandboxApp\</OutDir>
+    <IntDir>..\bin-int\Debug-windows-x86_64\TruthEngineSandboxApp\</IntDir>
+    <TargetName>TruthEngineSandboxApp</TargetName>
+    <TargetExt>.exe</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <OutDir>..\bin\Release-windows-x86_64\TruthEngineCore\</OutDir>
-    <IntDir>..\bin-int\Release-windows-x86_64\TruthEngineCore\</IntDir>
-    <TargetName>TruthEngineCore</TargetName>
-    <TargetExt>.lib</TargetExt>
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>..\bin\Release-windows-x86_64\TruthEngineSandboxApp\</OutDir>
+    <IntDir>..\bin-int\Release-windows-x86_64\TruthEngineSandboxApp\</IntDir>
+    <TargetName>TruthEngineSandboxApp</TargetName>
+    <TargetExt>.exe</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Dist|x64'">
-    <OutDir>..\bin\Dist-windows-x86_64\TruthEngineCore\</OutDir>
-    <IntDir>..\bin-int\Dist-windows-x86_64\TruthEngineCore\</IntDir>
-    <TargetName>TruthEngineCore</TargetName>
-    <TargetExt>.lib</TargetExt>
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>..\bin\Dist-windows-x86_64\TruthEngineSandboxApp\</OutDir>
+    <IntDir>..\bin-int\Dist-windows-x86_64\TruthEngineSandboxApp\</IntDir>
+    <TargetName>TruthEngineSandboxApp</TargetName>
+    <TargetExt>.exe</TargetExt>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -87,7 +90,7 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
-      <SubSystem>Windows</SubSystem>
+      <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
@@ -109,7 +112,7 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
-      <SubSystem>Windows</SubSystem>
+      <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
@@ -132,46 +135,25 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
-      <SubSystem>Windows</SubSystem>
+      <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="src\Core\Entity\CameraOrthographic.h" />
-    <ClInclude Include="src\Core\Entity\CameraPerspective.h" />
-    <ClInclude Include="src\Core\Entity\ICamera.h" />
-    <ClInclude Include="src\Core\Input\InputManager.h" />
-    <ClInclude Include="src\Core\Input\KeyCodes.h" />
-    <ClInclude Include="src\Core\Input\Keyboard.h" />
-    <ClInclude Include="src\Core\Input\KeyboardEvent.h" />
-    <ClInclude Include="src\Core\Input\Mouse.h" />
-    <ClInclude Include="src\Core\Input\MouseEvent.h" />
-    <ClInclude Include="src\Core\Log.h" />
-    <ClInclude Include="src\Core\TimerEngine.h" />
-    <ClInclude Include="src\Core\TimerProfile.h" />
-    <ClInclude Include="src\EntryPoint.h" />
-    <ClInclude Include="src\TruthEngine.Core.h" />
-    <ClInclude Include="src\TruthEngine.h" />
-    <ClInclude Include="src\TruthEngineApp.h" />
+    <ClInclude Include="src\SandboxApp.h" />
     <ClInclude Include="src\pch.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\Core\Entity\CameraOrthographic.cpp" />
-    <ClCompile Include="src\Core\Entity\CameraPerspective.cpp" />
-    <ClCompile Include="src\Core\Entity\ICamera.cpp" />
-    <ClCompile Include="src\Core\Input\InputManager.cpp" />
-    <ClCompile Include="src\Core\Input\Keyboard.cpp" />
-    <ClCompile Include="src\Core\Input\KeyboardEvent.cpp" />
-    <ClCompile Include="src\Core\Input\Mouse.cpp" />
-    <ClCompile Include="src\Core\Input\MouseEvent.cpp" />
-    <ClCompile Include="src\Core\Log.cpp" />
-    <ClCompile Include="src\Core\TimerEngine.cpp" />
-    <ClCompile Include="src\Core\TimerProfile.cpp" />
-    <ClCompile Include="src\TruthEngineApp.cpp" />
+    <ClCompile Include="src\SandboxApp.cpp" />
     <ClCompile Include="src\pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\TruthEngineCore\TruthEngineCore.vcxproj">
+      <Project>{7B2CE1FE-E7B7-4EC3-F0C8-D1B75CD3AAC3}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
