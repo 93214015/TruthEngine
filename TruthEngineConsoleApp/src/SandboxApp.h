@@ -1,7 +1,6 @@
 #pragma once
 
 #include "TruthEngine.h"
-#include "EntryPoint.h"
 
 
 namespace TruthEngine::Sandbox {
