@@ -104,9 +104,14 @@ namespace TruthEngine::Core {
 		return m_Mouse.GetDY();
 	}
 
-	TruthEngine::MousePoint InputManager::GetPos() const
+	MousePoint InputManager::GetPos() const
 	{
 		return m_Mouse.GetPos();
+	}
+
+	InputManager::InputManager()
+	{
+
 	}
 
 	InputManager InputManager::m_InputManager;

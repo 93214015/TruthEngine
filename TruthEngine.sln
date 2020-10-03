@@ -9,6 +9,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TruthEngineWin32App", "Trut
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TruthEngineCore", "TruthEngineCore\TruthEngineCore.vcxproj", "{23F47938-4468-490A-B4FA-4BB6DEF8D85E}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TruthEngineConsoleApp", "TruthEngineConsoleApp\TruthEngineConsoleApp.vcxproj", "{B24823BA-0FB4-463D-9992-06507D6F1B7B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -27,6 +29,10 @@ Global
 		{23F47938-4468-490A-B4FA-4BB6DEF8D85E}.Debug|x64.Build.0 = Debug|x64
 		{23F47938-4468-490A-B4FA-4BB6DEF8D85E}.Release|x64.ActiveCfg = Release|x64
 		{23F47938-4468-490A-B4FA-4BB6DEF8D85E}.Release|x64.Build.0 = Release|x64
+		{B24823BA-0FB4-463D-9992-06507D6F1B7B}.Debug|x64.ActiveCfg = Debug|x64
+		{B24823BA-0FB4-463D-9992-06507D6F1B7B}.Debug|x64.Build.0 = Debug|x64
+		{B24823BA-0FB4-463D-9992-06507D6F1B7B}.Release|x64.ActiveCfg = Release|x64
+		{B24823BA-0FB4-463D-9992-06507D6F1B7B}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

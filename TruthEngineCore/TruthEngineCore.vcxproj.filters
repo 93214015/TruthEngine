@@ -92,5 +92,14 @@
     <ClInclude Include="src\Core\Entity\CameraOrthographic.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\TruthEngine.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\TruthEngine.Core.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\EntryPoint.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

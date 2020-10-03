@@ -34,25 +34,25 @@ namespace TruthEngine::Core {
 		void LookAt(const DirectX::XMFLOAT3& pos, const DirectX::XMFLOAT3& target, const DirectX::XMFLOAT3& up);
 
 		// Get View/Proj matrices.
-		DirectX::XMFLOAT4X4 GetView()const noexcept;
-		DirectX::XMMATRIX GetViewXM()const noexcept;
+		DirectX::XMFLOAT4X4 GetView()const;
+		DirectX::XMMATRIX GetViewXM()const;
 
-		DirectX::XMFLOAT4X4 GetViewInv()const noexcept;
-		DirectX::XMMATRIX GetViewInvXM()const noexcept;
+		DirectX::XMFLOAT4X4 GetViewInv()const;
+		DirectX::XMMATRIX GetViewInvXM()const;
 
-		DirectX::XMFLOAT4X4 GetProj()const noexcept;
-		DirectX::XMMATRIX GetProjXM()const noexcept;
+		DirectX::XMFLOAT4X4 GetProj()const;
+		DirectX::XMMATRIX GetProjXM()const;
 
-		DirectX::XMFLOAT4X4 GetProjInv()const noexcept;
-		DirectX::XMMATRIX GetProjInvXM()const noexcept;
+		DirectX::XMFLOAT4X4 GetProjInv()const;
+		DirectX::XMMATRIX GetProjInvXM()const;
 
-		DirectX::XMFLOAT4X4 GetViewProj()const noexcept;
-		DirectX::XMMATRIX GetViewProjXM()const noexcept;
+		DirectX::XMFLOAT4X4 GetViewProj()const;
+		DirectX::XMMATRIX GetViewProjXM()const;
 
-		DirectX::XMFLOAT4X4 GetViewProjInv()const noexcept;
-		DirectX::XMMATRIX GetViewProjInvXM()const noexcept;
+		DirectX::XMFLOAT4X4 GetViewProjInv()const;
+		DirectX::XMMATRIX GetViewProjInvXM()const;
 
-		DirectX::XMFLOAT4 GetPerspectiveValues()const noexcept;
+		DirectX::XMFLOAT4 GetPerspectiveValues()const;
 
 		// Strafe/Walk the camera a distance d.
 		void Strafe(float d);

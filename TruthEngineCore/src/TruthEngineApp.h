@@ -1,19 +1,21 @@
 #pragma once
 
+#include "TruthEngine.Core.h"
 
 namespace TruthEngine::Core {
 
-	class TruthEngineApp {
+	class TRUTHENGINE_API TruthEngineApp {
 
 	public:
-		TruthEngineApp(unsigned int clientWidth, unsigned int clientHeight);
+		TruthEngineApp(uint32_t clientWidth, uint32_t clientHeight);
 		virtual ~TruthEngineApp();
 
 
-		unsigned int GetClientWidth() const noexcept;
-		unsigned int GetClientHeight() const noexcept;
+		uint32_t GetClientWidth() const noexcept;
+		uint32_t GetClientHeight() const noexcept;
 		const char* GetTitle() const noexcept;
 
+		virtual void Run();
 		virtual void OnInit() = 0;
 		virtual void OnUpdate() = 0;
 		virtual void OnProcess() = 0;
@@ -26,11 +28,14 @@ namespace TruthEngine::Core {
 
 	protected:
 
-		unsigned int mClientWidth;
-		unsigned int mClientHeight;
+		uint32_t mClientWidth;
+		uint32_t mClientHeight;
 
 		std::string mTitle;
 
 	};
+
+	//to be defined in client
+	TruthEngineApp* CreateApplication();
 
 }

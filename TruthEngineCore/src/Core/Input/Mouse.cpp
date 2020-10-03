@@ -57,11 +57,6 @@ namespace TruthEngine::Core {
 		mX = x;
 		mY = y;
 		m_eventBuffer.push(MouseEvent(MouseEvent::EventType::Move, x, y));
-
-		for (auto& func : mListenersOnMove)
-		{
-			func(this);
-		}
 	}
 
 	void Mouse::OnMouseMoveRaw(int x, int y)

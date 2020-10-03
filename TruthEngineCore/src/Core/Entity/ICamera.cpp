@@ -129,7 +129,6 @@ namespace TruthEngine::Core {
 
 	XMMATRIX ICamera::GetViewProjInvXM() const
 	{
-		//return XMMatrixInverse(nullptr, Proj()) * XMMatrixInverse(nullptr, View());
 		return XMMatrixInverse(nullptr, XMMatrixMultiply(GetViewXM(), GetProjXM()));
 	}
 
@@ -152,13 +151,13 @@ namespace TruthEngine::Core {
 	}
 
 
-	XMFLOAT4X4 ICamera::GetView() const noexcept
+	XMFLOAT4X4 ICamera::GetView() const 
 	{
 		return m_View;
 	}
 
 
-	XMFLOAT4X4 ICamera::GetViewInv() const noexcept
+	XMFLOAT4X4 ICamera::GetViewInv() const 
 	{
 		const auto viewInv = XMMatrixInverse(nullptr, GetViewXM());
 		XMFLOAT4X4 r;
@@ -167,13 +166,13 @@ namespace TruthEngine::Core {
 	}
 
 
-	XMFLOAT4X4 ICamera::GetProj() const noexcept
+	XMFLOAT4X4 ICamera::GetProj() const 
 	{
 		return m_Proj;
 	}
 
 
-	DirectX::XMFLOAT4X4 ICamera::GetProjInv() const noexcept
+	DirectX::XMFLOAT4X4 ICamera::GetProjInv() const
 	{
 		const auto viewInv = XMMatrixInverse(nullptr, GetProjXM());
 		XMFLOAT4X4 r;
@@ -182,7 +181,7 @@ namespace TruthEngine::Core {
 	}
 
 
-	XMFLOAT4X4 ICamera::GetViewProj() const noexcept
+	XMFLOAT4X4 ICamera::GetViewProj() const
 	{
 		XMFLOAT4X4 vp;
 		XMStoreFloat4x4(&vp, XMMatrixMultiply(GetViewXM(), GetProjXM()));
@@ -198,7 +197,7 @@ namespace TruthEngine::Core {
 	}
 
 
-	XMFLOAT4 ICamera::GetPerspectiveValues()const noexcept
+	XMFLOAT4 ICamera::GetPerspectiveValues()const 
 	{
 		return 	XMFLOAT4((1 / m_Proj._11), (1 / m_Proj._22), m_Proj._33, m_Proj._43);
 	}

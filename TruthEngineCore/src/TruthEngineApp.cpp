@@ -3,18 +3,18 @@
 
 namespace TruthEngine::Core {
 
-	TruthEngineApp::TruthEngineApp(unsigned int clientWidth, unsigned int clientHeight) : mClientWidth(clientWidth), mClientHeight(clientHeight)
+	TruthEngineApp::TruthEngineApp(uint32_t clientWidth, uint32_t clientHeight) : mClientWidth(clientWidth), mClientHeight(clientHeight)
 	{
 	}
 
 	TruthEngineApp::~TruthEngineApp() = default;
 
-	unsigned int TruthEngineApp::GetClientWidth() const noexcept
+	uint32_t TruthEngineApp::GetClientWidth() const noexcept
 	{
 		return mClientWidth;
 	}
 
-	unsigned int TruthEngineApp::GetClientHeight() const noexcept
+	uint32_t TruthEngineApp::GetClientHeight() const noexcept
 	{
 		return mClientHeight;
 	}
@@ -22,6 +22,11 @@ namespace TruthEngine::Core {
 	const char* TruthEngineApp::GetTitle() const noexcept
 	{
 		return mTitle.c_str();
+	}
+
+	void TruthEngineApp::Run()
+	{
+		while (true);
 	}
 
 }

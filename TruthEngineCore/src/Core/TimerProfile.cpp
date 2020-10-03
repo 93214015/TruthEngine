@@ -14,7 +14,9 @@ namespace TruthEngine::Core {
 	{
 		auto endTimePoint = std::chrono::high_resolution_clock::now();
 		
-		return std::chrono::duration_cast<std::chrono::duration<double, std::chrono::milliseconds>>(endTimePoint - m_startTimePoint).count();
+		std::chrono::duration<double, std::milli> d = (endTimePoint - m_startTimePoint);
+
+		return d.count();
 	}
 
 }
