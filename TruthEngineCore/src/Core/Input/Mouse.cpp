@@ -116,7 +116,7 @@ namespace TruthEngine::Core {
 		if (m_eventBuffer.empty())
 			return MouseEvent();
 
-		auto e = m_eventBuffer.front();
+		auto& e = m_eventBuffer.front();
 		m_eventBuffer.pop();
 		return e;
 	}

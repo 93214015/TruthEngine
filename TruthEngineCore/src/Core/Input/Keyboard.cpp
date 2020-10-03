@@ -32,7 +32,7 @@ namespace TruthEngine::Core {
 		if (m_keyBuffer.empty())
 			return KeyboardEvent();
 
-		KeyboardEvent e = m_keyBuffer.front();
+		KeyboardEvent& e = m_keyBuffer.front();
 		m_keyBuffer.pop();
 		return e;
 	}
@@ -42,7 +42,7 @@ namespace TruthEngine::Core {
 		if (m_keyBuffer.empty())
 			return nullptr;
 
-		KeyboardEvent e = m_keyBuffer.front();
+		KeyboardEvent& e = m_keyBuffer.front();
 		return &e;
 	}
 

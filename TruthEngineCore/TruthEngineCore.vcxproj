@@ -138,14 +138,19 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="src\Core\Entity\CameraOrthographic.h" />
-    <ClInclude Include="src\Core\Entity\CameraPerspective.h" />
-    <ClInclude Include="src\Core\Entity\ICamera.h" />
+    <ClInclude Include="src\Core\Entity\Camera\CameraOrthographic.h" />
+    <ClInclude Include="src\Core\Entity\Camera\CameraPerspective.h" />
+    <ClInclude Include="src\Core\Entity\Camera\ICamera.h" />
+    <ClInclude Include="src\Core\Event\Event.h" />
+    <ClInclude Include="src\Core\Event\EventApplication.h" />
+    <ClInclude Include="src\Core\Event\EventKey.h" />
+    <ClInclude Include="src\Core\Event\EventMouse.h" />
     <ClInclude Include="src\Core\Input\InputManager.h" />
     <ClInclude Include="src\Core\Input\KeyCodes.h" />
     <ClInclude Include="src\Core\Input\Keyboard.h" />
     <ClInclude Include="src\Core\Input\KeyboardEvent.h" />
     <ClInclude Include="src\Core\Input\Mouse.h" />
+    <ClInclude Include="src\Core\Input\MouseCodes.h" />
     <ClInclude Include="src\Core\Input\MouseEvent.h" />
     <ClInclude Include="src\Core\Log.h" />
     <ClInclude Include="src\Core\TimerEngine.h" />
@@ -157,9 +162,13 @@
     <ClInclude Include="src\pch.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\Core\Entity\CameraOrthographic.cpp" />
-    <ClCompile Include="src\Core\Entity\CameraPerspective.cpp" />
-    <ClCompile Include="src\Core\Entity\ICamera.cpp" />
+    <ClCompile Include="src\Core\Entity\Camera\CameraOrthographic.cpp" />
+    <ClCompile Include="src\Core\Entity\Camera\CameraPerspective.cpp" />
+    <ClCompile Include="src\Core\Entity\Camera\ICamera.cpp" />
+    <ClCompile Include="src\Core\Event\Event.cpp" />
+    <ClCompile Include="src\Core\Event\EventApplication.cpp" />
+    <ClCompile Include="src\Core\Event\EventKey.cpp" />
+    <ClCompile Include="src\Core\Event\EventMouse.cpp" />
     <ClCompile Include="src\Core\Input\InputManager.cpp" />
     <ClCompile Include="src\Core\Input\Keyboard.cpp" />
     <ClCompile Include="src\Core\Input\KeyboardEvent.cpp" />
