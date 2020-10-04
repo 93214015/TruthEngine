@@ -7,7 +7,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TruthEngineCore", "TruthEng
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TruthEngineDX12", "TruthEngineDX12\TruthEngineDX12.vcxproj", "{714EE1FE-DDD9-4EC3-E6EA-D1B752F5AAC3}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TruthEngineWin32App", "TruthEngineWin32App\TruthEngineWin32App.vcxproj", "{A649CF46-12AB-AC54-9B18-F3060779E313}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TruthEngineWin32", "TruthEngineWin32\TruthEngineWin32.vcxproj", "{65446DDC-513D-8C2E-7A6F-71B366C76B3A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -34,12 +34,12 @@ Global
 		{714EE1FE-DDD9-4EC3-E6EA-D1B752F5AAC3}.Dist|x64.Build.0 = Dist|x64
 		{714EE1FE-DDD9-4EC3-E6EA-D1B752F5AAC3}.Release|x64.ActiveCfg = Release|x64
 		{714EE1FE-DDD9-4EC3-E6EA-D1B752F5AAC3}.Release|x64.Build.0 = Release|x64
-		{A649CF46-12AB-AC54-9B18-F3060779E313}.Debug|x64.ActiveCfg = Debug|x64
-		{A649CF46-12AB-AC54-9B18-F3060779E313}.Debug|x64.Build.0 = Debug|x64
-		{A649CF46-12AB-AC54-9B18-F3060779E313}.Dist|x64.ActiveCfg = Dist|x64
-		{A649CF46-12AB-AC54-9B18-F3060779E313}.Dist|x64.Build.0 = Dist|x64
-		{A649CF46-12AB-AC54-9B18-F3060779E313}.Release|x64.ActiveCfg = Release|x64
-		{A649CF46-12AB-AC54-9B18-F3060779E313}.Release|x64.Build.0 = Release|x64
+		{65446DDC-513D-8C2E-7A6F-71B366C76B3A}.Debug|x64.ActiveCfg = Debug|x64
+		{65446DDC-513D-8C2E-7A6F-71B366C76B3A}.Debug|x64.Build.0 = Debug|x64
+		{65446DDC-513D-8C2E-7A6F-71B366C76B3A}.Dist|x64.ActiveCfg = Dist|x64
+		{65446DDC-513D-8C2E-7A6F-71B366C76B3A}.Dist|x64.Build.0 = Dist|x64
+		{65446DDC-513D-8C2E-7A6F-71B366C76B3A}.Release|x64.ActiveCfg = Release|x64
+		{65446DDC-513D-8C2E-7A6F-71B366C76B3A}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

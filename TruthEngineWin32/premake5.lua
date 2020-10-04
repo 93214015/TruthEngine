@@ -1,5 +1,5 @@
-project "TruthEngineWin32App"
-	kind "WindowedApp"
+project "TruthEngineWin32"
+	kind "StaticLib"
 	language "C++"
 	cppdialect "C++17"
 	staticruntime "on"
@@ -22,7 +22,7 @@ project "TruthEngineWin32App"
 	}
 
 	includedirs{
-		IncludeDir["TruthEngineWin32App"],
+		IncludeDir["TruthEngineWin32"],
 		IncludeDir["TruthEngineCore"],
 		IncludeDir["spdlog"],
 		IncludeDir["Dependencies"]
@@ -42,7 +42,8 @@ project "TruthEngineWin32App"
 		systemversion "latest"
 
 		defines{
-			"TE_PLATFORM_WINDOWS"
+			"TE_PLATFORM_WINDOWS",
+			"TE_WIN32"
 		}
 
 	filter "configurations:Debug"

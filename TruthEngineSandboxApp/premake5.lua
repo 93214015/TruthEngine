@@ -29,7 +29,8 @@ project "TruthEngineSandboxApp"
 	}
 
 	links{
-		"TruthEngineCore"
+		"TruthEngineCore",
+		"TruthEngineWin32"
 	}
 
 	floatingpoint "Fast"

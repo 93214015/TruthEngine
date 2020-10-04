@@ -15,27 +15,27 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{A649CF46-12AB-AC54-9B18-F3060779E313}</ProjectGuid>
+    <ProjectGuid>{65446DDC-513D-8C2E-7A6F-71B366C76B3A}</ProjectGuid>
     <IgnoreWarnCompileDuplicatedFilename>true</IgnoreWarnCompileDuplicatedFilename>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>TruthEngineWin32App</RootNamespace>
+    <RootNamespace>TruthEngineWin32</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
     <PlatformToolset>v142</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
     <PlatformToolset>v142</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Dist|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
     <PlatformToolset>v142</PlatformToolset>
@@ -54,32 +54,29 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LinkIncremental>true</LinkIncremental>
-    <OutDir>..\bin\Debug-windows-x86_64\TruthEngineWin32App\</OutDir>
-    <IntDir>..\bin-int\Debug-windows-x86_64\TruthEngineWin32App\</IntDir>
-    <TargetName>TruthEngineWin32App</TargetName>
-    <TargetExt>.exe</TargetExt>
+    <OutDir>..\bin\Debug-windows-x86_64\TruthEngineWin32\</OutDir>
+    <IntDir>..\bin-int\Debug-windows-x86_64\TruthEngineWin32\</IntDir>
+    <TargetName>TruthEngineWin32</TargetName>
+    <TargetExt>.lib</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <LinkIncremental>false</LinkIncremental>
-    <OutDir>..\bin\Release-windows-x86_64\TruthEngineWin32App\</OutDir>
-    <IntDir>..\bin-int\Release-windows-x86_64\TruthEngineWin32App\</IntDir>
-    <TargetName>TruthEngineWin32App</TargetName>
-    <TargetExt>.exe</TargetExt>
+    <OutDir>..\bin\Release-windows-x86_64\TruthEngineWin32\</OutDir>
+    <IntDir>..\bin-int\Release-windows-x86_64\TruthEngineWin32\</IntDir>
+    <TargetName>TruthEngineWin32</TargetName>
+    <TargetExt>.lib</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Dist|x64'">
-    <LinkIncremental>false</LinkIncremental>
-    <OutDir>..\bin\Dist-windows-x86_64\TruthEngineWin32App\</OutDir>
-    <IntDir>..\bin-int\Dist-windows-x86_64\TruthEngineWin32App\</IntDir>
-    <TargetName>TruthEngineWin32App</TargetName>
-    <TargetExt>.exe</TargetExt>
+    <OutDir>..\bin\Dist-windows-x86_64\TruthEngineWin32\</OutDir>
+    <IntDir>..\bin-int\Dist-windows-x86_64\TruthEngineWin32\</IntDir>
+    <TargetName>TruthEngineWin32</TargetName>
+    <TargetExt>.lib</TargetExt>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>TE_PLATFORM_WINDOWS;TE_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>TE_PLATFORM_WINDOWS;TE_WIN32;TE_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>src;..\TruthEngineCore\src;..\Dependencies\spdlog\include;..\Dependencies;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
@@ -99,7 +96,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>TE_PLATFORM_WINDOWS;TE_RELEASE;TE_NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>TE_PLATFORM_WINDOWS;TE_WIN32;TE_RELEASE;TE_NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>src;..\TruthEngineCore\src;..\Dependencies\spdlog\include;..\Dependencies;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -122,7 +119,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>TE_PLATFORM_WINDOWS;TE_DIST;TE_NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>TE_PLATFORM_WINDOWS;TE_WIN32;TE_DIST;TE_NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>src;..\TruthEngineCore\src;..\Dependencies\spdlog\include;..\Dependencies;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>

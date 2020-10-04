@@ -341,3 +341,4 @@ healthchecksdb
 /bin-int/Debug-x64
 /bin-int/Debug-windows-x86_64/TruthEngineCore
 /bin-int/Debug-windows-x86_64/TruthEngineWin32App
+/bin-int/Debug-windows-x86_64/TruthEngineSandboxApp

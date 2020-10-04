@@ -25,7 +25,7 @@ outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 IncludeDir = {}
 IncludeDir["TruthEngineCore"] = "%{wks.location}/TruthEngineCore/src"
 IncludeDir["TruthEngineDX12"] = "%{wks.location}/TruthEngineDX12/src"
-IncludeDir["TruthEngineWin32App"] = "%{wks.location}/TruthEngineWin32App/src"
+IncludeDir["TruthEngineWin32"] = "%{wks.location}/TruthEngineWin32/src"
 IncludeDir["TruthEngineSandboxApp"] = "%{wks.location}/TruthEngineSandboxApp/src"
 IncludeDir["Dependencies"] = "%{wks.location}/Dependencies"
 IncludeDir["spdlog"] = "%{wks.location}/Dependencies/spdlog/include"
@@ -40,7 +40,7 @@ filter{}
 include "TruthEngineCore"
 include "TruthEngineSandboxApp"
 include "TruthEngineDX12"
-include "TruthEngineWin32App"
+include "TruthEngineWin32"
 
 
 	

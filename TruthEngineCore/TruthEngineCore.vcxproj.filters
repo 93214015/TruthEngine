@@ -124,10 +124,12 @@
     <ClCompile Include="src\Core\TimerProfile.cpp">
       <Filter>Core</Filter>
     </ClCompile>
-    <ClCompile Include="src\Core\Window.cpp">
-      <Filter>Core</Filter>
-    </ClCompile>
     <ClCompile Include="src\TruthEngineApp.cpp" />
     <ClCompile Include="src\pch.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="src\Core\Window.cpp">
+      <Filter>Core</Filter>
+    </None>
   </ItemGroup>
 </Project>

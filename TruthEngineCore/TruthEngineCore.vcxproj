@@ -178,7 +178,7 @@
     <ClCompile Include="src\Core\Log.cpp" />
     <ClCompile Include="src\Core\TimerEngine.cpp" />
     <ClCompile Include="src\Core\TimerProfile.cpp" />
-    <ClCompile Include="src\Core\Window.cpp" />
+    <None Include="src\Core\Window.cpp" />
     <ClCompile Include="src\TruthEngineApp.cpp" />
     <ClCompile Include="src\pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>

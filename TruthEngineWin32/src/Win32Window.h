@@ -3,17 +3,26 @@
 
 namespace TruthEnigne::Win32 {
 
+
 	class Win32Window : public TruthEngine::Core::Window {
 
-	public:
-		void OnUpdate() override;
 
+	public:
+		Win32Window(const char* title, uint16_t width, uint16_t height);
+
+		void OnUpdate() override;
 
 		void SetEventCallBack(const EventCallBack& fn) override;
 
+		HWND GetHandle();
 
-		std::unique_ptr<Window> Create() override;
+	private:
+
+
+	private:
+		HWND m_HWND;
 
 	};
+
 
 }
