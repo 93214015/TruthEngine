@@ -10,4 +10,19 @@
 // add headers that you want to pre-compile here
 #include "framework.h"
 
+
+// C RunTime Header Files
+#include <stdlib.h>
+#include <malloc.h>
+#include <memory>
+#include <tchar.h>
+#include <vector>
+#include <cassert>
+#include <queue>
+#include <functional>
+#include <sstream>
+#include <array> //std::array
+#include <chrono>
+#include <future> //std::async & std::future
+
 #endif //PCH_H

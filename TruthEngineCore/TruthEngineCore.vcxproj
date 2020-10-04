@@ -155,6 +155,7 @@
     <ClInclude Include="src\Core\Log.h" />
     <ClInclude Include="src\Core\TimerEngine.h" />
     <ClInclude Include="src\Core\TimerProfile.h" />
+    <ClInclude Include="src\Core\Window.h" />
     <ClInclude Include="src\EntryPoint.h" />
     <ClInclude Include="src\TruthEngine.Core.h" />
     <ClInclude Include="src\TruthEngine.h" />
@@ -177,6 +178,7 @@
     <ClCompile Include="src\Core\Log.cpp" />
     <ClCompile Include="src\Core\TimerEngine.cpp" />
     <ClCompile Include="src\Core\TimerProfile.cpp" />
+    <ClCompile Include="src\Core\Window.cpp" />
     <ClCompile Include="src\TruthEngineApp.cpp" />
     <ClCompile Include="src\pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>

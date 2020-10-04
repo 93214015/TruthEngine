@@ -22,7 +22,8 @@ project "TruthEngineDX12"
 	}
 
 	includedirs{
-		"src",
+		IncludeDir["TruthEngineDX12"],
+		IncludeDir["TruthEngineCore"],
 		IncludeDir["spdlog"],
 		IncludeDir["Dependencies"]
 	}

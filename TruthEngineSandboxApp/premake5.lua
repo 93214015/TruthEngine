@@ -22,7 +22,8 @@ project "TruthEngineSandboxApp"
 	}
 
 	includedirs{
-		"src",
+		IncludeDir["TruthEngineSandboxApp"],		
+		IncludeDir["TruthEngineCore"],
 		IncludeDir["spdlog"],
 		IncludeDir["Dependencies"]
 	}

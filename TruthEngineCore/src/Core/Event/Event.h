@@ -4,15 +4,16 @@
 
 namespace TruthEngine::Core {
 
-	enum class EventType {
+	enum class EventType : uint8_t {
 		None = 0,
 		WindowClose, WindowResize, WindowFocus, WindowLostFocus, WindowMoved,
 		AppTick, AppUpdate, AppProcess,
 		KeyPressed, KeyReleased, KeyTyped,
-		MouseButtonPressed, MouseButtonReleased, MouseMoved, MouseScrolled
+		MouseButtonPressed, MouseButtonReleased, MouseMoved, MouseScrolled,
+		EventTypeNum
 	};
 
-	enum EventCategory : int {
+	enum EventCategory : uint16_t {
 		None = 0,
 		EventCategoryApplication =		BIT(0),
 		EventCategoryInput =			BIT(1),
@@ -50,5 +51,20 @@ namespace TruthEngine::Core {
 	inline std::ostream& operator<<(std::ostream& os, const Event& event) {
 		return os << event.ToString();
 	}
+
+
+
+	class EventDispatcher
+	{
+	public:
+		using EventListener = std::function<void(const Event&)>;
+
+		void RegisterListener(const EventType eventType, const EventListener& eventFunc);
+		void OnEvent(const Event& event);
+
+	protected:
+		std::vector<EventListener> m_EventListerns[static_cast<uint8_t>(EventType::EventTypeNum)];
+
+	};
 
 }

@@ -13,6 +13,7 @@
 #include <sstream>
 #include <array> //std::array
 #include <chrono>
+#include <future> //std::async & std::future
 
 
 #include "DirectXMath/Inc/DirectXMath.h"

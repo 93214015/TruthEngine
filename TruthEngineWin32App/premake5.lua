@@ -22,7 +22,8 @@ project "TruthEngineWin32App"
 	}
 
 	includedirs{
-		"src",
+		IncludeDir["TruthEngineWin32App"],
+		IncludeDir["TruthEngineCore"],
 		IncludeDir["spdlog"],
 		IncludeDir["Dependencies"]
 	}

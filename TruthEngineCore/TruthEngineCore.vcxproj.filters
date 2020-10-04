@@ -7,14 +7,38 @@
     <Filter Include="Core\Entity">
       <UniqueIdentifier>{BA809273-2636-0B69-AF2A-05401BDF016D}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Core\Entity\Camera">
+      <UniqueIdentifier>{F2BFEAD2-DEA3-AB28-4704-A67B330796AA}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Event">
+      <UniqueIdentifier>{FF1F37CD-EBD7-781A-54DF-517640B6130B}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Core\Input">
       <UniqueIdentifier>{AD4E7BCD-9906-BD1A-020E-9676EEE4570B}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Core\Entity\Camera">
-      <UniqueIdentifier>{d7f5da09-c974-45a9-8ef1-29e7428bc170}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Core\Entity\Camera\CameraOrthographic.h">
+      <Filter>Core\Entity\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Entity\Camera\CameraPerspective.h">
+      <Filter>Core\Entity\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Entity\Camera\ICamera.h">
+      <Filter>Core\Entity\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Event\Event.h">
+      <Filter>Core\Event</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Event\EventApplication.h">
+      <Filter>Core\Event</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Event\EventKey.h">
+      <Filter>Core\Event</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Event\EventMouse.h">
+      <Filter>Core\Event</Filter>
+    </ClInclude>
     <ClInclude Include="src\Core\Input\InputManager.h">
       <Filter>Core\Input</Filter>
     </ClInclude>
@@ -30,6 +54,9 @@
     <ClInclude Include="src\Core\Input\Mouse.h">
       <Filter>Core\Input</Filter>
     </ClInclude>
+    <ClInclude Include="src\Core\Input\MouseCodes.h">
+      <Filter>Core\Input</Filter>
+    </ClInclude>
     <ClInclude Include="src\Core\Input\MouseEvent.h">
       <Filter>Core\Input</Filter>
     </ClInclude>
@@ -42,27 +69,37 @@
     <ClInclude Include="src\Core\TimerProfile.h">
       <Filter>Core</Filter>
     </ClInclude>
+    <ClInclude Include="src\Core\Window.h">
+      <Filter>Core</Filter>
+    </ClInclude>
     <ClInclude Include="src\EntryPoint.h" />
     <ClInclude Include="src\TruthEngine.Core.h" />
     <ClInclude Include="src\TruthEngine.h" />
     <ClInclude Include="src\TruthEngineApp.h" />
     <ClInclude Include="src\pch.h" />
-    <ClInclude Include="src\Core\Entity\Camera\CameraOrthographic.h">
-      <Filter>Core\Entity\Camera</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Core\Entity\Camera\CameraPerspective.h">
-      <Filter>Core\Entity\Camera</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Core\Entity\Camera\ICamera.h">
-      <Filter>Core\Entity\Camera</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Core\Event\Event.h" />
-    <ClInclude Include="src\Core\Event\EventKey.h" />
-    <ClInclude Include="src\Core\Event\EventMouse.h" />
-    <ClInclude Include="src\Core\Input\MouseCodes.h" />
-    <ClInclude Include="src\Core\Event\EventApplication.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Core\Entity\Camera\CameraOrthographic.cpp">
+      <Filter>Core\Entity\Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Entity\Camera\CameraPerspective.cpp">
+      <Filter>Core\Entity\Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Entity\Camera\ICamera.cpp">
+      <Filter>Core\Entity\Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Event\Event.cpp">
+      <Filter>Core\Event</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Event\EventApplication.cpp">
+      <Filter>Core\Event</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Event\EventKey.cpp">
+      <Filter>Core\Event</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Event\EventMouse.cpp">
+      <Filter>Core\Event</Filter>
+    </ClCompile>
     <ClCompile Include="src\Core\Input\InputManager.cpp">
       <Filter>Core\Input</Filter>
     </ClCompile>
@@ -87,20 +124,10 @@
     <ClCompile Include="src\Core\TimerProfile.cpp">
       <Filter>Core</Filter>
     </ClCompile>
+    <ClCompile Include="src\Core\Window.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
     <ClCompile Include="src\TruthEngineApp.cpp" />
     <ClCompile Include="src\pch.cpp" />
-    <ClCompile Include="src\Core\Entity\Camera\CameraOrthographic.cpp">
-      <Filter>Core\Entity\Camera</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Core\Entity\Camera\CameraPerspective.cpp">
-      <Filter>Core\Entity\Camera</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Core\Entity\Camera\ICamera.cpp">
-      <Filter>Core\Entity\Camera</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Core\Event\Event.cpp" />
-    <ClCompile Include="src\Core\Event\EventKey.cpp" />
-    <ClCompile Include="src\Core\Event\EventMouse.cpp" />
-    <ClCompile Include="src\Core\Event\EventApplication.cpp" />
   </ItemGroup>
 </Project>

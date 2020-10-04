@@ -22,7 +22,7 @@ project "TruthEngineCore"
 	}
 
 	includedirs{
-		"src",
+		IncludeDir["TruthEngineCore"],
 		IncludeDir["spdlog"],
 		IncludeDir["Dependencies"]
 	}
