@@ -23,17 +23,7 @@ namespace TruthEngine::Sandbox {
 
 	}
 
-	void SandboxApp::OnKeyDown(const unsigned char key)
-	{
-
-	}
-
-	void SandboxApp::OnKeyUp(const unsigned char key)
-	{
-
-	}
-
-	SandboxApp::SandboxApp(uint32_t clientWidth, uint32_t clientHeight) : Core::TruthEngineApp(clientWidth, clientHeight)
+	SandboxApp::SandboxApp(uint16_t clientWidth, uint16_t clientHeight) : Core::Application("SandBox", clientWidth, clientHeight)
 	{
 
 	}

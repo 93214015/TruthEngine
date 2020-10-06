@@ -3,7 +3,7 @@
 
 #ifdef TE_PLATFORM_WINDOWS
 
-extern TruthEngine::Core::TruthEngineApp* TruthEngine::Core::CreateApplication();
+extern TruthEngine::Core::Application* TruthEngine::Core::CreateApplication();
 
 #ifdef TE_WIN32
 
@@ -18,7 +18,7 @@ extern TruthEngine::Core::TruthEngineApp* TruthEngine::Core::CreateApplication()
 		TE_LOG_APP_INFO("The App Started!");
 
 
-		TruthEngine::Core::TruthEngineApp* app = TruthEngine::Core::CreateApplication();
+		TruthEngine::Core::Application* app = TruthEngine::Core::CreateApplication();
 		app->Run();
 		delete app;
 		
@@ -33,7 +33,7 @@ extern TruthEngine::Core::TruthEngineApp* TruthEngine::Core::CreateApplication()
 		TE_LOG_APP_INFO("The App Started!");
 
 
-		TruthEngine::Core::TruthEngineApp* app = TruthEngine::Core::CreateApplication();
+		TruthEngine::Core::Application* app = TruthEngine::Core::CreateApplication();
 		app->Run();
 		delete app;
 	}

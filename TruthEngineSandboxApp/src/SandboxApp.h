@@ -5,10 +5,10 @@
 
 namespace TruthEngine::Sandbox {
 
-	class SandboxApp : public TruthEngine::Core::TruthEngineApp {
+	class SandboxApp : public TruthEngine::Core::Application {
 
 	public:
-		SandboxApp(uint32_t clientWidth, uint32_t clientHeight);
+		SandboxApp(uint16_t clientWidth, uint16_t clientHeight);
 
 		void OnInit() override;
 
@@ -21,18 +21,12 @@ namespace TruthEngine::Sandbox {
 
 		void OnDestroy() override;
 
-
-		void OnKeyDown(const unsigned char key) override;
-
-
-		void OnKeyUp(const unsigned char key) override;
-
 	private:
 
 	};
 
 }
 
-TruthEngine::Core::TruthEngineApp* TruthEngine::Core::CreateApplication() {
-	return new TruthEngine::Sandbox::SandboxApp(0, 0);
+TruthEngine::Core::Application* TruthEngine::Core::CreateApplication() {
+	return new TruthEngine::Sandbox::SandboxApp(1024, 768);
 }
