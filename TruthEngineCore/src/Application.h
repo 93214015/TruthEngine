@@ -2,18 +2,21 @@
 
 #include "TruthEngine.Core.h"
 #include "Core/Window.h"
+#include "Core/Event/Event.h"
 
 namespace TruthEngine::Core {
 
-	class TruthEngineApp {
+	class Application {
 
 	public:
-		TruthEngineApp(const char* title, uint32_t clientWidth, uint32_t clientHeight);
-		virtual ~TruthEngineApp();
+		Application(const char* title, uint32_t clientWidth, uint32_t clientHeight);
+		virtual ~Application();
 
 
 		uint32_t GetClientWidth() const noexcept;
+
 		uint32_t GetClientHeight() const noexcept;
+
 		const char* GetTitle() const noexcept;
 
 		virtual void Run();
@@ -21,27 +24,27 @@ namespace TruthEngine::Core {
 		virtual void OnUpdate() = 0;
 		virtual void OnProcess() = 0;
 		virtual void OnDestroy() = 0;
+		virtual void OnEvent(const Event& e);
 
-
-		virtual void OnKeyDown(const unsigned char key) = 0;
-		virtual void OnKeyUp(const unsigned char key) = 0;
-
-		static TruthEngineApp* GetApplication();
+		static Application* GetApplication();
 
 	protected:
 
-		static TruthEngineApp* s_Instance;
+		static Application* s_Instance;
 
 		std::unique_ptr<Window> m_Window;
+		EventDispatcher m_EventDispatcher;
 
 		uint32_t m_ClientWidth;
 		uint32_t m_ClientHeight;
 
 		std::string m_Title;
 
+		bool m_Running = true;
+
 	};
 
 	//to be defined in client
-	TruthEngineApp* CreateApplication();
+	Application* CreateApplication();
 
 }

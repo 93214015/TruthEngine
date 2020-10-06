@@ -75,8 +75,9 @@
     <ClInclude Include="src\EntryPoint.h" />
     <ClInclude Include="src\TruthEngine.Core.h" />
     <ClInclude Include="src\TruthEngine.h" />
-    <ClInclude Include="src\TruthEngineApp.h" />
     <ClInclude Include="src\pch.h" />
+    <ClInclude Include="src\Core\Platforms\Windows\WindowWindows.h" />
+    <ClInclude Include="src\Application.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\Entity\Camera\CameraOrthographic.cpp">
@@ -124,8 +125,9 @@
     <ClCompile Include="src\Core\TimerProfile.cpp">
       <Filter>Core</Filter>
     </ClCompile>
-    <ClCompile Include="src\TruthEngineApp.cpp" />
     <ClCompile Include="src\pch.cpp" />
+    <ClCompile Include="src\Core\Platforms\Windows\WindowWindows.cpp" />
+    <ClCompile Include="src\Application.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="src\Core\Window.cpp">

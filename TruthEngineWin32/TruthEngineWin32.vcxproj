@@ -140,14 +140,12 @@
   <ItemGroup>
     <ClInclude Include="src\Resource.h" />
     <ClInclude Include="src\TruthEngineWin32App.h" />
-    <ClInclude Include="src\Win32Window.h" />
     <ClInclude Include="src\framework.h" />
     <ClInclude Include="src\pch.h" />
     <ClInclude Include="src\targetver.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\TruthEngineWin32App.cpp" />
-    <ClCompile Include="src\Win32Window.cpp" />
     <ClCompile Include="src\pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
