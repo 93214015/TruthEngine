@@ -18,7 +18,7 @@ project "TruthEngineCore"
 
 
 	defines{
-
+		"TE_API_DX12"
 	}
 
 	includedirs{

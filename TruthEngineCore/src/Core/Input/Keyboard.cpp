@@ -61,8 +61,7 @@ namespace TruthEngine::Core {
 		if (m_charBuffer.empty())
 			return nullptr;
 
-		unsigned char c = m_charBuffer.front();
-		return &c;
+		return &m_charBuffer.front();
 	}
 
 	void Keyboard::OnKeyPressed(const KeyCode key)

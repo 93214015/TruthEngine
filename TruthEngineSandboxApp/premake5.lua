@@ -18,7 +18,7 @@ project "TruthEngineSandboxApp"
 
 
 	defines{
-
+		"TE_API_DX12"
 	}
 
 	includedirs{
@@ -29,8 +29,7 @@ project "TruthEngineSandboxApp"
 	}
 
 	links{
-		"TruthEngineCore",
-		"TruthEngineWin32"
+		"TruthEngineCore"
 	}
 
 	floatingpoint "Fast"

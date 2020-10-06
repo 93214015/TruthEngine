@@ -78,6 +78,7 @@
     <ClInclude Include="src\pch.h" />
     <ClInclude Include="src\Core\Platforms\Windows\WindowWindows.h" />
     <ClInclude Include="src\Application.h" />
+    <ClInclude Include="src\lib.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\Entity\Camera\CameraOrthographic.cpp">

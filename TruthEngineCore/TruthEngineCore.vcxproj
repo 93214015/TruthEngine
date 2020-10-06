@@ -158,6 +158,7 @@
     <ClInclude Include="src\Core\TimerProfile.h" />
     <ClInclude Include="src\Core\Window.h" />
     <ClInclude Include="src\EntryPoint.h" />
+    <ClInclude Include="src\lib.h" />
     <ClInclude Include="src\TruthEngine.Core.h" />
     <ClInclude Include="src\TruthEngine.h" />
     <ClInclude Include="src\Application.h" />
