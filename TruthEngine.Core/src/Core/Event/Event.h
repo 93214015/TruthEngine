@@ -56,10 +56,10 @@ namespace TruthEngine::Core {
 	class EventDispatcher
 	{
 	public:
-		using EventListener = std::function<void(const Event&)>;
+		using EventListener = std::function<void(Event&)>;
 
 		void RegisterListener(const EventType eventType, const EventListener& eventFunc);
-		void OnEvent(const Event& event);
+		void OnEvent(Event& event);
 
 	protected:
 		std::vector<EventListener> m_EventListerns[static_cast<uint8_t>(EventType::EventTypeNum)];

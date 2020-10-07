@@ -49,3 +49,6 @@ namespace TruthEngine {
 }
 
 #define TE_INSTANCE_THREADPOOL ::TruthEngine::ThreadPool::Get()
+
+#define TE_RUN_TASK(x) TE_INSTANCE_THREADPOOL.Queue(x)
+#define TE_RUN_THREAD(x, ...)  std::async(std::launch::async, x, __VA_ARGS__)

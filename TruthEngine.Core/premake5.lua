@@ -30,7 +30,7 @@ project "TruthEngine.Core"
 	}
 
 	links{
-
+		"ImGui"
 	}
 
 	floatingpoint "Fast"

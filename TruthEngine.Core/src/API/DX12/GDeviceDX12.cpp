@@ -1,9 +1,9 @@
 #include "pch.h"
 #include "GDeviceDX12.h"
-#include "Core/API/IDXGI.h"
-#include "Core/API/DX12/DescriptorHeap.h"
+#include "API/IDXGI.h"
+#include "API/DX12/DescriptorHeap.h"
 
-namespace TruthEngine::Core::API::DX12
+namespace TruthEngine::API::DX12
 {
 
 	void GDeviceDX12::Init(UINT adapterIndex)
@@ -49,6 +49,6 @@ namespace TruthEngine::Core::API::DX12
 		m_Device->CreateCommandQueue(&desc, IID_PPV_ARGS(m_CommandQueueCopy.ReleaseAndGetAddressOf()));
 	}
 
-	TruthEngine::Core::API::DX12::GDeviceDX12 GDeviceDX12::s_PrimaryDevice(0);
+	TruthEngine::API::DX12::GDeviceDX12 GDeviceDX12::s_PrimaryDevice(0);
 
 }

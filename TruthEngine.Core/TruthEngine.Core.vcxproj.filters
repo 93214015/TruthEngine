@@ -19,6 +19,9 @@
     <Filter Include="Core\Event">
       <UniqueIdentifier>{FF1F37CD-EBD7-781A-54DF-517640B6130B}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Core\ImGui">
+      <UniqueIdentifier>{D8137ACD-C4CB-BB1A-2DD3-947619AA560B}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Core\Input">
       <UniqueIdentifier>{AD4E7BCD-9906-BD1A-020E-9676EEE4570B}</UniqueIdentifier>
     </Filter>
@@ -31,15 +34,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Application.h" />
-    <ClInclude Include="src\Core\API\DX12\DescriptorHeap.h">
-      <Filter>Core\API\DX12</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Core\API\DX12\GDeviceDX12.h">
-      <Filter>Core\API\DX12</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Core\API\IDXGI.h">
-      <Filter>Core\API</Filter>
-    </ClInclude>
     <ClInclude Include="src\Core\Entity\Camera\CameraOrthographic.h">
       <Filter>Core\Entity\Camera</Filter>
     </ClInclude>
@@ -60,6 +54,9 @@
     </ClInclude>
     <ClInclude Include="src\Core\Event\EventMouse.h">
       <Filter>Core\Event</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\ImGui\ImGuiLayer.h">
+      <Filter>Core\ImGui</Filter>
     </ClInclude>
     <ClInclude Include="src\Core\Input\InputManager.h">
       <Filter>Core\Input</Filter>
@@ -82,11 +79,14 @@
     <ClInclude Include="src\Core\Input\MouseEvent.h">
       <Filter>Core\Input</Filter>
     </ClInclude>
-    <ClInclude Include="src\Core\Log.h">
+    <ClInclude Include="src\Core\Layer.h">
       <Filter>Core</Filter>
     </ClInclude>
-    <ClInclude Include="src\Core\Platform\Windows\WindowWindows.h">
-      <Filter>Core\Platform\Windows</Filter>
+    <ClInclude Include="src\Core\LayerStack.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Log.h">
+      <Filter>Core</Filter>
     </ClInclude>
     <ClInclude Include="src\Core\TimerEngine.h">
       <Filter>Core</Filter>
@@ -98,25 +98,31 @@
       <Filter>Core</Filter>
     </ClInclude>
     <ClInclude Include="src\EntryPoint.h" />
+    <ClInclude Include="src\ThreadPool.h" />
     <ClInclude Include="src\TruthEngine.Core.h" />
     <ClInclude Include="src\TruthEngine.h" />
     <ClInclude Include="src\lib.h" />
     <ClInclude Include="src\pch.h" />
-    <ClInclude Include="src\Core\Layer.h" />
-    <ClInclude Include="src\Core\API\DX12\SwapChain.h" />
-    <ClInclude Include="src\ThreadPool.h" />
+    <ClInclude Include="src\Platform\Windows\WindowWindows.h">
+      <Filter>Core\Platform\Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="src\API\DX12\DescriptorHeap.h">
+      <Filter>Core\API\DX12</Filter>
+    </ClInclude>
+    <ClInclude Include="src\API\DX12\GDeviceDX12.h">
+      <Filter>Core\API\DX12</Filter>
+    </ClInclude>
+    <ClInclude Include="src\API\DX12\SwapChain.h">
+      <Filter>Core\API\DX12</Filter>
+    </ClInclude>
+    <ClInclude Include="src\API\IDXGI.h">
+      <Filter>Core\API</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\GPU\GDevice.h" />
+    <ClInclude Include="src\API\DX12\Fence.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Application.cpp" />
-    <ClCompile Include="src\Core\API\DX12\DescriptorHeap.cpp">
-      <Filter>Core\API\DX12</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Core\API\DX12\GDeviceDX12.cpp">
-      <Filter>Core\API\DX12</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Core\API\IDXGI.cpp">
-      <Filter>Core\API</Filter>
-    </ClCompile>
     <ClCompile Include="src\Core\Entity\Camera\CameraOrthographic.cpp">
       <Filter>Core\Entity\Camera</Filter>
     </ClCompile>
@@ -138,6 +144,9 @@
     <ClCompile Include="src\Core\Event\EventMouse.cpp">
       <Filter>Core\Event</Filter>
     </ClCompile>
+    <ClCompile Include="src\Core\ImGui\ImGuiLayer.cpp">
+      <Filter>Core\ImGui</Filter>
+    </ClCompile>
     <ClCompile Include="src\Core\Input\InputManager.cpp">
       <Filter>Core\Input</Filter>
     </ClCompile>
@@ -153,11 +162,14 @@
     <ClCompile Include="src\Core\Input\MouseEvent.cpp">
       <Filter>Core\Input</Filter>
     </ClCompile>
-    <ClCompile Include="src\Core\Log.cpp">
+    <ClCompile Include="src\Core\Layer.cpp">
       <Filter>Core</Filter>
     </ClCompile>
-    <ClCompile Include="src\Core\Platform\Windows\WindowWindows.cpp">
-      <Filter>Core\Platform\Windows</Filter>
+    <ClCompile Include="src\Core\LayerStack.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Log.cpp">
+      <Filter>Core</Filter>
     </ClCompile>
     <ClCompile Include="src\Core\TimerEngine.cpp">
       <Filter>Core</Filter>
@@ -168,9 +180,23 @@
     <ClCompile Include="src\Core\Window.cpp">
       <Filter>Core</Filter>
     </ClCompile>
-    <ClCompile Include="src\pch.cpp" />
-    <ClCompile Include="src\Core\Layer.cpp" />
-    <ClCompile Include="src\Core\API\DX12\SwapChain.cpp" />
     <ClCompile Include="src\ThreadPool.cpp" />
+    <ClCompile Include="src\pch.cpp" />
+    <ClCompile Include="src\Platform\Windows\WindowWindows.cpp">
+      <Filter>Core\Platform\Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="src\API\DX12\DescriptorHeap.cpp">
+      <Filter>Core\API\DX12</Filter>
+    </ClCompile>
+    <ClCompile Include="src\API\DX12\GDeviceDX12.cpp">
+      <Filter>Core\API\DX12</Filter>
+    </ClCompile>
+    <ClCompile Include="src\API\DX12\SwapChain.cpp">
+      <Filter>Core\API\DX12</Filter>
+    </ClCompile>
+    <ClCompile Include="src\API\IDXGI.cpp">
+      <Filter>Core\API</Filter>
+    </ClCompile>
+    <ClCompile Include="src\API\DX12\Fence.cpp" />
   </ItemGroup>
 </Project>

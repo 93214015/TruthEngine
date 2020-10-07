@@ -1,7 +1,7 @@
 #pragma once
 
 
-namespace TruthEngine::Core::API::DX12 {
+namespace TruthEngine::API::DX12 {
 
 	class GDeviceDX12 {
 
@@ -68,7 +68,3 @@ namespace TruthEngine::Core::API::DX12 {
 	};
 
 }
-
-#define TE_INSTANCE_GDEVICEDX12 TruthEngine::Core::API::DX12::GDeviceDX12::GetPrimaryDevice()
-#define TE_INSTANCE_COMMANDQUEUEDIRECT TruthEngine::Core::API::DX12::GDeviceDX12::GetPrimaryDevice().GetCommandQueuDirect()
-#define TE_INSTANCE_COMMANDQUEUECOPY TruthEngine::Core::API::DX12::GDeviceDX12::GetPrimaryDevice().GetCommandQueuCopy()

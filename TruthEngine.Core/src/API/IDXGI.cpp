@@ -3,7 +3,7 @@
 
 using namespace Microsoft::WRL;
 
-namespace TruthEngine::Core::API {
+namespace TruthEngine::API {
 
 
 
@@ -48,6 +48,6 @@ namespace TruthEngine::Core::API {
 		}
 	}
 
-	TruthEngine::Core::API::IDXGI IDXGI::s_IDXGI;
+	TruthEngine::API::IDXGI IDXGI::s_IDXGI;
 
 }

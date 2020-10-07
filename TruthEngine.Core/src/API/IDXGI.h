@@ -1,7 +1,7 @@
 #pragma once
 
 
-namespace TruthEngine::Core::API {
+namespace TruthEngine::API {
 
 	class IDXGI {
 
@@ -26,4 +26,4 @@ namespace TruthEngine::Core::API {
 
 }
 
-#define TE_INSTANCE_IDXGI TruthEngine::Core::API::IDXGI::GetIDXGI()
+#define TE_INSTANCE_IDXGI TruthEngine::API::IDXGI::GetIDXGI()

@@ -1,11 +1,12 @@
 #include "pch.h"
 #include "SwapChain.h"
 #include "Application.h"
-#include "Core/API/IDXGI.h"
+#include "API/IDXGI.h"
+#include "Core/GPU/GDevice.h"
 
 using namespace Microsoft::WRL;
 
-namespace TruthEngine::Core::API::DX12 {
+namespace TruthEngine::API::DX12 {
 
 
 	SwapChain::SwapChain() = default;
@@ -52,7 +53,7 @@ namespace TruthEngine::Core::API::DX12 {
 		desc.Windowed = true;
 		desc.OutputWindow = *outputHWND;
 
-		TE_INSTANCE_IDXGI.GetDXGIFactory()->CreateSwapChain(TE_INSTANCE_COMMANDQUEUEDIRECT, &desc, m_SwapChain.ReleaseAndGetAddressOf());
+		TE_INSTANCE_IDXGI.GetDXGIFactory()->CreateSwapChain(TE_INSTANCE_API_DX12_COMMANDQUEUEDIRECT, &desc, m_SwapChain.ReleaseAndGetAddressOf());
 
 		m_BackBuffers.clear();
 		m_BackBuffers.resize(m_BackBufferNum);
@@ -82,7 +83,7 @@ namespace TruthEngine::Core::API::DX12 {
 		m_MSAAQualityLevels.NumQualityLevels = 0;
 		m_MSAAQualityLevels.SampleCount = 4;
 
-		TE_INSTANCE_GDEVICEDX12.GetDevice()->CheckFeatureSupport(D3D12_FEATURE_MULTISAMPLE_QUALITY_LEVELS
+		TE_INSTANCE_API_DX12_GDEVICE.GetDevice()->CheckFeatureSupport(D3D12_FEATURE_MULTISAMPLE_QUALITY_LEVELS
 			, &m_MSAAQualityLevels
 			, sizeof(m_MSAAQualityLevels));
 

@@ -1,6 +1,6 @@
 #pragma once
 
-namespace TruthEngine::Core::API::DX12
+namespace TruthEngine::API::DX12
 {
 
 #define DESCRIPTORHEAP_GETHANDLES	inline CD3DX12_CPU_DESCRIPTOR_HANDLE GetCPUHandle(UINT index) const override { return CD3DX12_CPU_DESCRIPTOR_HANDLE(m_DescriptorHeap->GetCPUDescriptorHandleForHeapStart(), index, m_DescriptorSize); };\

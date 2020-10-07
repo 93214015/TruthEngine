@@ -7,7 +7,7 @@ namespace TruthEngine::Core {
 	class Window {
 
 	public:
-		using EventCallBack = std::function<void(const Event&)>;
+		using EventCallBack = std::function<void(Event&)>;
 
 		Window(const char* title, uint16_t width, uint16_t height) : m_Data{ title, width , height, nullptr }
 		{

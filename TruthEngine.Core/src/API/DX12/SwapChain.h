@@ -1,9 +1,9 @@
 #pragma once
-#include "Core/API/DX12/GDeviceDX12.h"
-#include "Core/API/DX12/DescriptorHeap.h"
+#include "API/DX12/GDeviceDX12.h"
+#include "API/DX12/DescriptorHeap.h"
 
 
-namespace TruthEngine::Core::API::DX12 {
+namespace TruthEngine::API::DX12 {
 
 	class SwapChain
 	{

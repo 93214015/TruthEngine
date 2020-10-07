@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "DescriptorHeap.h"
 
-namespace TruthEngine::Core::API::DX12
+namespace TruthEngine::API::DX12
 {
 
 	TE_RESULT DescriptorHeapRTV::Init(ID3D12Device* device, UINT descriptorNum, D3D12_DESCRIPTOR_HEAP_FLAGS flags /*= D3D12_DESCRIPTOR_HEAP_FLAG_NONE*/, UINT nodeMask /*= 0*/)

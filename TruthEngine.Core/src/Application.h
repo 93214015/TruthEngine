@@ -19,12 +19,14 @@ namespace TruthEngine::Core {
 
 		const char* GetTitle() const noexcept;
 
+		void* GetWindow() { return static_cast<void*>(m_Window.get()); }
+
 		virtual void Run();
 		virtual void OnInit() = 0;
 		virtual void OnUpdate() = 0;
 		virtual void OnProcess() = 0;
 		virtual void OnDestroy() = 0;
-		virtual void OnEvent(const Event& e);
+		virtual void OnEvent(Event& e);
 
 		static Application& GetApplication();
 
