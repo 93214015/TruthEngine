@@ -33,6 +33,10 @@ namespace TruthEngine::Core {
 
 	void Application::Run()
 	{
+
+		TE_INSTANCE_THREADPOOL.Start(std::thread::hardware_concurrency());
+
+
 		m_Window->Show();
 
 		m_EventDispatcher.RegisterListener(EventType::WindowClose, [this](const Event& e) { this->m_Running = false; });

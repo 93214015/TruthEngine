@@ -164,6 +164,7 @@
     <ClInclude Include="src\Core\TimerProfile.h" />
     <ClInclude Include="src\Core\Window.h" />
     <ClInclude Include="src\EntryPoint.h" />
+    <ClInclude Include="src\ThreadPool.h" />
     <ClInclude Include="src\TruthEngine.Core.h" />
     <ClInclude Include="src\TruthEngine.h" />
     <ClInclude Include="src\lib.h" />
@@ -196,6 +197,7 @@
     <ClCompile Include="src\pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="src\ThreadPool.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
