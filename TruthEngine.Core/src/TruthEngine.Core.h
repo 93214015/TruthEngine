@@ -25,3 +25,9 @@
 
 
 #define BIT(x) (1 << x)
+
+
+enum TE_RESULT : int {
+	TE_FAIL = -1,
+	TE_SUCCESFUL = 0
+};

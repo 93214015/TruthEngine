@@ -1,5 +1,4 @@
 #pragma once
-#include "TruthEngine.Core.h"
 
 
 namespace TruthEngine::Core {

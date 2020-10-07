@@ -1,4 +1,4 @@
-project "TruthEngineSandboxApp"
+project "TruthEngine.Sandbox"
 	kind "ConsoleApp"
 	language "C++"
 	cppdialect "C++17"
@@ -22,14 +22,14 @@ project "TruthEngineSandboxApp"
 	}
 
 	includedirs{
-		IncludeDir["TruthEngineSandboxApp"],		
-		IncludeDir["TruthEngineCore"],
+		IncludeDir["TruthEngine.Sandbox"],
+		IncludeDir["TruthEngine.Core"],
 		IncludeDir["spdlog"],
 		IncludeDir["Dependencies"]
 	}
 
 	links{
-		"TruthEngineCore"
+		"TruthEngine.Core"
 	}
 
 	floatingpoint "Fast"
