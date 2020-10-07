@@ -7,3 +7,6 @@
 [submodule "Dependencies/imgui"]
 	path = Dependencies/imgui
 	url = https://github.com/ocornut/imgui
+[submodule "Dependencies/DirectXGraphicsSamples"]
+	path = Dependencies/DirectXGraphicsSamples
+	url = https://github.com/microsoft/DirectX-Graphics-Samples

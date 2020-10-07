@@ -26,7 +26,7 @@ namespace TruthEngine::Core {
 		virtual void OnDestroy() = 0;
 		virtual void OnEvent(const Event& e);
 
-		static Application* GetApplication();
+		static Application& GetApplication();
 
 	protected:
 
@@ -48,3 +48,5 @@ namespace TruthEngine::Core {
 	Application* CreateApplication();
 
 }
+
+#define TE_INSTANCE_APPLICATION TruthEngine::Core::Application::GetApplication()

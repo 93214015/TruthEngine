@@ -1,4 +1,4 @@
-project "TruthEngineCore"
+project "TruthEngine.Core"
 	kind "StaticLib"
 	language "C++"
 	cppdialect "C++17"
@@ -22,9 +22,11 @@ project "TruthEngineCore"
 	}
 
 	includedirs{
-		IncludeDir["TruthEngineCore"],
+		IncludeDir["TruthEngine.Core"],
 		IncludeDir["spdlog"],
-		IncludeDir["Dependencies"]
+		IncludeDir["Dependencies"],
+		IncludeDir["imgui"],
+		IncludeDir["d3dx12"]
 	}
 
 	links{

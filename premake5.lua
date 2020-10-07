@@ -2,7 +2,7 @@
 
 workspace "TruthEngine"
 	architecture "x64"
-	startproject "TruthEngineSandboxApp"
+	startproject "TruthEngine.Sandbox"
 
 	configurations{
 		"Debug",
@@ -18,10 +18,12 @@ workspace "TruthEngine"
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
 IncludeDir = {}
-IncludeDir["TruthEngineCore"] = "%{wks.location}/TruthEngineCore/src"
-IncludeDir["TruthEngineSandboxApp"] = "%{wks.location}/TruthEngineSandboxApp/src"
-IncludeDir["Dependencies"] = "%{wks.location}/Dependencies"
-IncludeDir["spdlog"] = "%{wks.location}/Dependencies/spdlog/include"
+IncludeDir["TruthEngine.Core"] 		= 	"%{wks.location}/TruthEngine.Core/src"
+IncludeDir["TruthEngine.Sandbox"] 	= 	"%{wks.location}/TruthEngine.Sandbox/src"
+IncludeDir["Dependencies"] 			= 	"%{wks.location}/Dependencies"
+IncludeDir["spdlog"] 				= 	"%{wks.location}/Dependencies/spdlog/include"
+IncludeDir["imgui"] 				= 	"%{wks.location}/Dependencies/imgui"
+IncludeDir["d3dx12"] 				= 	"%{wks.location}/Dependencies/DirectXGraphicsSamples/Libraries/D3DX12"
 
 filter ("configurations.Debug")
 		defines{
@@ -30,8 +32,8 @@ filter ("configurations.Debug")
 filter{}
 
 
-include "TruthEngineCore"
-include "TruthEngineSandboxApp"
+include "TruthEngine.Core"
+include "TruthEngine.Sandbox"
 
 
 	

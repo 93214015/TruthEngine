@@ -50,9 +50,9 @@ namespace TruthEngine::Core {
 		m_EventDispatcher.OnEvent(e);
 	}
 
-	Application* Application::GetApplication()
+	Application& Application::GetApplication()
 	{
-		return s_Instance;
+		return *s_Instance;
 	}
 
 	Application* Application::s_Instance = nullptr;
