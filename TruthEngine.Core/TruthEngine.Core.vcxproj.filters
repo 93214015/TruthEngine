@@ -64,19 +64,7 @@
     <ClInclude Include="src\Core\Input\KeyCodes.h">
       <Filter>Core\Input</Filter>
     </ClInclude>
-    <ClInclude Include="src\Core\Input\Keyboard.h">
-      <Filter>Core\Input</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Core\Input\KeyboardEvent.h">
-      <Filter>Core\Input</Filter>
-    </ClInclude>
     <ClInclude Include="src\Core\Input\Mouse.h">
-      <Filter>Core\Input</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Core\Input\MouseCodes.h">
-      <Filter>Core\Input</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Core\Input\MouseEvent.h">
       <Filter>Core\Input</Filter>
     </ClInclude>
     <ClInclude Include="src\Core\Layer.h">
@@ -120,6 +108,9 @@
     </ClInclude>
     <ClInclude Include="src\Core\GPU\GDevice.h" />
     <ClInclude Include="src\API\DX12\Fence.h" />
+    <ClInclude Include="src\Core\Input\MouseButtons.h">
+      <Filter>Core\Input</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Application.cpp" />
@@ -150,16 +141,7 @@
     <ClCompile Include="src\Core\Input\InputManager.cpp">
       <Filter>Core\Input</Filter>
     </ClCompile>
-    <ClCompile Include="src\Core\Input\Keyboard.cpp">
-      <Filter>Core\Input</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Core\Input\KeyboardEvent.cpp">
-      <Filter>Core\Input</Filter>
-    </ClCompile>
     <ClCompile Include="src\Core\Input\Mouse.cpp">
-      <Filter>Core\Input</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Core\Input\MouseEvent.cpp">
       <Filter>Core\Input</Filter>
     </ClCompile>
     <ClCompile Include="src\Core\Layer.cpp">
@@ -198,5 +180,6 @@
       <Filter>Core\API</Filter>
     </ClCompile>
     <ClCompile Include="src\API\DX12\Fence.cpp" />
+    <ClCompile Include="src\Platform\Windows\WindowInputManager.cpp" />
   </ItemGroup>
 </Project>

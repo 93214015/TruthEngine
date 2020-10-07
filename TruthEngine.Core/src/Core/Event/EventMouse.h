@@ -1,6 +1,6 @@
 #pragma once
 #include "Event.h"
-#include "Core/Input/MouseCodes.h"
+#include "Core/Input/MouseButtons.h"
 
 namespace TruthEngine::Core {
 
@@ -47,15 +47,15 @@ namespace TruthEngine::Core {
 
 	class EventMouseButton : public Event {
 	public:
-		MouseCode GetButtonCode() const { return m_Button; }
+		MouseButton GetButtonCode() const { return m_Button; }
 
 		EVENT_CLASS_CATEGORY(EventCategoryMouse  | EventCategoryMouseButton | EventCategoryInput)
 
 	protected:
-		EventMouseButton(const MouseCode mouseCode) : m_Button(mouseCode)
+		EventMouseButton(const MouseButton mouseCode) : m_Button(mouseCode)
 		{}
 
-		MouseCode m_Button;
+		MouseButton m_Button;
 
 	};
 
@@ -63,7 +63,7 @@ namespace TruthEngine::Core {
 	class EventMouseButtonPressed : public EventMouseButton {
 
 	public:
-		EventMouseButtonPressed(const MouseCode buttonCode) : EventMouseButton(buttonCode){}
+		EventMouseButtonPressed(const MouseButton buttonCode) : EventMouseButton(buttonCode){}
 
 		std::string ToString() const {
 			std::stringstream ss;
@@ -82,7 +82,7 @@ namespace TruthEngine::Core {
 	{
 	public:
 
-		EventMouseButtonReleased(const MouseCode buttonCode) : EventMouseButton(buttonCode){}
+		EventMouseButtonReleased(const MouseButton buttonCode) : EventMouseButton(buttonCode){}
 
 		std::string ToString() const
 		{

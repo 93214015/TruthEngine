@@ -155,11 +155,8 @@
     <ClInclude Include="src\Core\ImGui\ImGuiLayer.h" />
     <ClInclude Include="src\Core\Input\InputManager.h" />
     <ClInclude Include="src\Core\Input\KeyCodes.h" />
-    <ClInclude Include="src\Core\Input\Keyboard.h" />
-    <ClInclude Include="src\Core\Input\KeyboardEvent.h" />
     <ClInclude Include="src\Core\Input\Mouse.h" />
-    <ClInclude Include="src\Core\Input\MouseCodes.h" />
-    <ClInclude Include="src\Core\Input\MouseEvent.h" />
+    <ClInclude Include="src\Core\Input\MouseButtons.h" />
     <ClInclude Include="src\Core\Layer.h" />
     <ClInclude Include="src\Core\LayerStack.h" />
     <ClInclude Include="src\Core\Log.h" />
@@ -190,13 +187,11 @@
     <ClCompile Include="src\Core\Event\EventMouse.cpp" />
     <ClCompile Include="src\Core\ImGui\ImGuiLayer.cpp" />
     <ClCompile Include="src\Core\Input\InputManager.cpp" />
-    <ClCompile Include="src\Core\Input\Keyboard.cpp" />
-    <ClCompile Include="src\Core\Input\KeyboardEvent.cpp" />
     <ClCompile Include="src\Core\Input\Mouse.cpp" />
-    <ClCompile Include="src\Core\Input\MouseEvent.cpp" />
     <ClCompile Include="src\Core\Layer.cpp" />
     <ClCompile Include="src\Core\LayerStack.cpp" />
     <ClCompile Include="src\Core\Log.cpp" />
+    <ClCompile Include="src\Platform\Windows\WindowInputManager.cpp" />
     <ClCompile Include="src\Platform\Windows\WindowWindows.cpp" />
     <ClCompile Include="src\Core\TimerEngine.cpp" />
     <ClCompile Include="src\Core\TimerProfile.cpp" />

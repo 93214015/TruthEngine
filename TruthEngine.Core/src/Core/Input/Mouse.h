@@ -1,7 +1,13 @@
 #pragma once
-#include "MouseEvent.h"
+#include "MouseButtons.h"
 
 namespace TruthEngine::Core {
+
+	struct MousePoint
+	{
+		int x;
+		int y;
+	};
 
 	class Mouse
 	{
@@ -27,21 +33,17 @@ namespace TruthEngine::Core {
 		int GetDY() const;
 		MousePoint GetPos() const;
 
-		bool IsEventBufferEmpty() const;
-		MouseEvent PopEvent();
-		MouseEvent* ReadEvent();
 
 	private:
 
-		std::queue<MouseEvent> m_eventBuffer;
 		bool b_leftIsDown = false;
 		bool b_rightIsDown = false;
 		bool b_middleIsDown = false;
 
-		int mX = 0;
-		int mY = 0;
-		int mLastX = 0;
-		int mLastY = 0;
+		int m_X = 0;
+		int m_Y = 0;
+		int m_LastX = 0;
+		int m_LastY = 0;
 
 	};
 

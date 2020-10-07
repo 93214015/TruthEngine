@@ -2,11 +2,11 @@
 
 namespace TruthEngine::Core {
 
-	using MouseCode = uint16_t;
+	using MouseButton = uint16_t;
 
-	namespace Mouse
+	namespace MouseButtons
 	{
-		enum : MouseCode
+		enum : MouseButton
 		{
 			// From glfw3.h
 			Button0 = 0,

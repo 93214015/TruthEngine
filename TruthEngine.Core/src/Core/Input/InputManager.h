@@ -1,5 +1,4 @@
 #pragma once
-#include "Keyboard.h"
 #include "Mouse.h"
 #include "KeyCodes.h"
 
@@ -8,39 +7,35 @@ namespace TruthEngine::Core {
 	class InputManager {
 
 	public:
-		static InputManager* Get() noexcept;
+		static void OnKeyPressed(const KeyCode key);
+		static void OnKeyReleased(const KeyCode key);
 
+		static bool IsKeyPressed(const KeyCode key);
 
-		void OnKeyPressed(const KeyCode key);
-		void OnKeyReleased(const KeyCode key);
-		bool IsKeyPressed(const KeyCode key) const;
-
-		void OnMouseMove(int x, int y);
-		void OnMouseLeftPressed(int x, int y);
-		void OnMouseLeftReleased(int x, int y);
-		void OnMouseRightPressed(int x, int y);
-		void OnMouseRightReleased(int x, int y);
-		void OnMouseMiddlePressed(int x, int y);
-		void OnMouseMiddleReleased(int x, int y);
-		void OnMouseWheelDown(int x, int y);
-		void OnMouseWheelUp(int x, int y);
-		bool IsMouseLeftDown() const;
-		bool IsMouseRightDown() const;
-		bool IsMouseMiddleDown() const;
-		int GetPosX() const;
-		int GetPosY() const;
-		int GetDX() const;
-		int GetDY() const;
-		MousePoint GetPos() const;
+		static void OnMouseMove(int x, int y);
+		static void OnMouseLeftPressed(int x, int y);
+		static void OnMouseLeftReleased(int x, int y);
+		static void OnMouseRightPressed(int x, int y);
+		static void OnMouseRightReleased(int x, int y);
+		static void OnMouseMiddlePressed(int x, int y);
+		static void OnMouseMiddleReleased(int x, int y);
+		static void OnMouseWheelDown(int x, int y);
+		static void OnMouseWheelUp(int x, int y);
+		static bool IsMouseLeftDown();
+		static bool IsMouseRightDown();
+		static bool IsMouseMiddleDown();
+		static int GetPosX();
+		static int GetPosY();
+		static int GetDX();
+		static int GetDY();
+		static MousePoint GetPos();
 
 	private:
-		InputManager();
+		InputManager() = default;
 
 	private:
-		static InputManager m_InputManager;
 
-		Keyboard m_Keyboard;
-		Mouse m_Mouse;
+		static Mouse m_Mouse;
 
 	};
 

@@ -3,7 +3,7 @@
 namespace TruthEngine::Core
 {
 	using KeyCode = uint16_t;
-
+	
 	namespace Key
 	{
 		enum : KeyCode
