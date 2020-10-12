@@ -1,5 +1,3 @@
-
-
 workspace "TruthEngine"
 	architecture "x64"
 	startproject "TruthEngine.Sandbox"
@@ -34,7 +32,7 @@ filter{}
 
 include "TruthEngine.Core"
 include "TruthEngine.Sandbox"
-include "Dependencies/imgui"
+include "Dependencies"
 
 
 	
