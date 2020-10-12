@@ -138,7 +138,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\API\DX12\CommandAllocator.h" />
+    <ClInclude Include="src\API\DX12\CommandList.h" />
+    <ClInclude Include="src\API\DX12\CommandQueue.h" />
     <ClInclude Include="src\API\DX12\Fence.h" />
+    <ClInclude Include="src\API\DX12\FrameContext.h" />
+    <ClInclude Include="src\API\DX12\ImGuiLayerDX12.h" />
     <ClInclude Include="src\Application.h" />
     <ClInclude Include="src\API\DX12\DescriptorHeap.h" />
     <ClInclude Include="src\API\DX12\GDeviceDX12.h" />
@@ -172,7 +177,12 @@
     <ClInclude Include="src\pch.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\API\DX12\CommandAllocator.cpp" />
+    <ClCompile Include="src\API\DX12\CommandQueue.cpp" />
+    <ClCompile Include="src\API\DX12\CommandList.cpp" />
     <ClCompile Include="src\API\DX12\Fence.cpp" />
+    <ClCompile Include="src\API\DX12\FrameContext.cpp" />
+    <ClCompile Include="src\API\DX12\ImGuiLayerDX12.cpp" />
     <ClCompile Include="src\Application.cpp" />
     <ClCompile Include="src\API\DX12\DescriptorHeap.cpp" />
     <ClCompile Include="src\API\DX12\GDeviceDX12.cpp" />
@@ -185,7 +195,6 @@
     <ClCompile Include="src\Core\Event\EventApplication.cpp" />
     <ClCompile Include="src\Core\Event\EventKey.cpp" />
     <ClCompile Include="src\Core\Event\EventMouse.cpp" />
-    <ClCompile Include="src\Core\ImGui\ImGuiLayer.cpp" />
     <ClCompile Include="src\Core\Input\InputManager.cpp" />
     <ClCompile Include="src\Core\Input\Mouse.cpp" />
     <ClCompile Include="src\Core\Layer.cpp" />

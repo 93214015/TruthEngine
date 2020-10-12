@@ -11,12 +11,13 @@ namespace TruthEngine::API::DX12 {
 
 	SwapChain::SwapChain() = default;
 
-	TE_RESULT SwapChain::Init(UINT clientWidth, UINT clientHeight, HWND* outputHWND)
+	TE_RESULT SwapChain::Init(UINT clientWidth, UINT clientHeight, HWND* outputHWND, UINT backBufferNum)
 	{
+		m_BackBufferNum = backBufferNum;
 
 		CreateSwapChain(outputHWND);
 
-		return TE_SUCCESFUL;
+		return TE_SUCCESSFUL;
 
 	}
 
@@ -24,36 +25,41 @@ namespace TruthEngine::API::DX12 {
 	{
 		m_DescHeapRTV = descHeap;
 		CreateSwapChainRTVs();
-		return TE_SUCCESFUL;
+		return TE_SUCCESSFUL;
 	}
 
 	void SwapChain::Present()
 	{
 		m_SwapChain->Present(1, 0);
-
-		m_BackBufferIndex ^= 1;
 	}
 
 	void SwapChain::CreateSwapChain(HWND* outputHWND)
 	{
-		DXGI_SWAP_CHAIN_DESC desc = {};
-		desc.BufferDesc.Width = TE_INSTANCE_APPLICATION.GetClientWidth();
-		desc.BufferDesc.Height = TE_INSTANCE_APPLICATION.GetClientHeight();
-		desc.BufferDesc.Format = m_BackbufferFormat;
-		desc.BufferDesc.RefreshRate.Denominator = 1;
-		desc.BufferDesc.RefreshRate.Numerator = 60;
-		desc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
-		desc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
-		desc.BufferCount = m_BackBufferNum;
-		desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-		desc.Flags = 0;
-		desc.SampleDesc.Count = m_UseMSAA4X ? 4 : 1;
-		desc.SampleDesc.Quality = m_UseMSAA4X ? m_MSAAQualityLevels.NumQualityLevels - 1 : 0;
-		desc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
-		desc.Windowed = true;
-		desc.OutputWindow = *outputHWND;
+		{
 
-		TE_INSTANCE_IDXGI.GetDXGIFactory()->CreateSwapChain(TE_INSTANCE_API_DX12_COMMANDQUEUEDIRECT, &desc, m_SwapChain.ReleaseAndGetAddressOf());
+			COMPTR<IDXGISwapChain1> swapChain1;
+
+			DXGI_SWAP_CHAIN_DESC1 desc1;
+			desc1.AlphaMode = DXGI_ALPHA_MODE_STRAIGHT;
+			desc1.BufferCount = m_BackBufferNum;
+			desc1.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+			desc1.Flags = 0;
+			desc1.Format = m_BackbufferFormat;
+			desc1.Width = TE_INSTANCE_APPLICATION.GetClientWidth();
+			desc1.Height = TE_INSTANCE_APPLICATION.GetClientHeight();
+			desc1.SampleDesc.Count = m_UseMSAA4X ? 4 : 1;
+			desc1.SampleDesc.Quality = m_UseMSAA4X ? m_MSAAQualityLevels.NumQualityLevels - 1 : 0;
+			desc1.Scaling = DXGI_SCALING_NONE;
+			desc1.Stereo = FALSE;
+			desc1.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
+
+			TE_ASSERT_CORE(TE_SUCCEEDED(TE_INSTANCE_IDXGI.GetDXGIFactory()->CreateSwapChainForHwnd(TE_INSTANCE_API_DX12_COMMANDQUEUEDIRECT, *outputHWND, &desc1, NULL, NULL, &swapChain1)), "API::DX12 Creation of 'SwapChain' factory is failed!");
+
+			swapChain1->QueryInterface(m_SwapChain.ReleaseAndGetAddressOf());
+
+		}
+
+		m_SwapChain->SetMaximumFrameLatency(m_BackBufferNum);
 
 		m_BackBuffers.clear();
 		m_BackBuffers.resize(m_BackBufferNum);
@@ -92,6 +98,28 @@ namespace TruthEngine::API::DX12 {
 		{
 			m_UseMSAA4X = false;
 		}
+	}
+
+	TE_RESULT SwapChain::Resize(UINT width, UINT height, UINT backBufferNum)
+	{
+		m_BackBufferNum = backBufferNum;
+
+		m_SwapChain->SetMaximumFrameLatency(backBufferNum);
+
+		m_BackBuffers.clear();
+		m_BackBuffers.resize(backBufferNum);
+
+		auto hr = m_SwapChain->ResizeBuffers(backBufferNum, width, height, m_BackbufferFormat, 0);
+
+		for (UINT i = 0; i < backBufferNum; i++)
+		{
+			m_SwapChain->GetBuffer(i, IID_PPV_ARGS(m_BackBuffers[i].ReleaseAndGetAddressOf()));
+		}
+
+		if (SUCCEEDED(hr))
+			return TE_SUCCESSFUL;
+		else
+			return TE_FAIL;
 	}
 
 }

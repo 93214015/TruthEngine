@@ -13,7 +13,7 @@ namespace TruthEngine::Core {
 		virtual void OnDetach() = 0;
 		virtual void OnUpdate(double deltaFrameTime) = 0;
 		virtual void OnImGuiRender() = 0;
-		virtual void OnEvent(const Event & event) = 0;
+		virtual void OnEvent(TruthEngine::Core::Event & event) = 0;
 
 		inline const std::string& GetName() const { return m_DebugName; }
 	protected:

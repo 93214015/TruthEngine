@@ -13,11 +13,16 @@ namespace TruthEngine::Core {
 		virtual ~Application();
 
 
-		uint32_t GetClientWidth() const noexcept;
+		inline uint32_t GetClientWidth() const noexcept { return m_ClientWidth; }
 
-		uint32_t GetClientHeight() const noexcept;
+		inline uint32_t GetClientHeight() const noexcept { return m_ClientHeight; }
 
-		const char* GetTitle() const noexcept;
+		inline uint32_t GetFramesInFlightNum() const noexcept { return m_FramesInFlightNum; }
+
+		inline uint32_t GetCurrentFrameIndex() const noexcept { return m_CurrentFrameIndex; }
+
+
+		inline const char* GetTitle() const noexcept { return m_Title.c_str(); }
 
 		void* GetWindow() { return static_cast<void*>(m_Window.get()); }
 
@@ -28,7 +33,7 @@ namespace TruthEngine::Core {
 		virtual void OnDestroy() = 0;
 		virtual void OnEvent(Event& e);
 
-		static Application& GetApplication();
+		static inline Application& GetApplication() { return *s_Instance; }
 
 	protected:
 
@@ -37,8 +42,10 @@ namespace TruthEngine::Core {
 		std::unique_ptr<Window> m_Window;
 		EventDispatcher m_EventDispatcher;
 
-		uint32_t m_ClientWidth;
-		uint32_t m_ClientHeight;
+		uint32_t m_ClientWidth = 0;
+		uint32_t m_ClientHeight = 0;
+		uint32_t m_FramesInFlightNum = 2;
+		uint32_t m_CurrentFrameIndex = 0;
 
 		std::string m_Title;
 

@@ -19,9 +19,9 @@ namespace TruthEngine::Core {
 			Button7 = 7,
 
 			ButtonLast = Button7,
-			ButtonLeft = Button0,
-			ButtonRight = Button1,
-			ButtonMiddle = Button2
+			ButtonLeft = Button1,
+			ButtonRight = Button2,
+			ButtonMiddle = Button3
 		};
 	}
 

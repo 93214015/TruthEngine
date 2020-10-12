@@ -111,6 +111,11 @@
     <ClInclude Include="src\Core\Input\MouseButtons.h">
       <Filter>Core\Input</Filter>
     </ClInclude>
+    <ClInclude Include="src\API\DX12\ImGuiLayerDX12.h" />
+    <ClInclude Include="src\API\DX12\FrameContext.h" />
+    <ClInclude Include="src\API\DX12\CommandQueue.h" />
+    <ClInclude Include="src\API\DX12\CommandAllocator.h" />
+    <ClInclude Include="src\API\DX12\CommandList.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Application.cpp" />
@@ -134,9 +139,6 @@
     </ClCompile>
     <ClCompile Include="src\Core\Event\EventMouse.cpp">
       <Filter>Core\Event</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Core\ImGui\ImGuiLayer.cpp">
-      <Filter>Core\ImGui</Filter>
     </ClCompile>
     <ClCompile Include="src\Core\Input\InputManager.cpp">
       <Filter>Core\Input</Filter>
@@ -181,5 +183,10 @@
     </ClCompile>
     <ClCompile Include="src\API\DX12\Fence.cpp" />
     <ClCompile Include="src\Platform\Windows\WindowInputManager.cpp" />
+    <ClCompile Include="src\API\DX12\ImGuiLayerDX12.cpp" />
+    <ClCompile Include="src\API\DX12\FrameContext.cpp" />
+    <ClCompile Include="src\API\DX12\CommandQueue.cpp" />
+    <ClCompile Include="src\API\DX12\CommandAllocator.cpp" />
+    <ClCompile Include="src\API\DX12\CommandList.cpp" />
   </ItemGroup>
 </Project>

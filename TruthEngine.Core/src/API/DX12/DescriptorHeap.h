@@ -23,6 +23,8 @@ namespace TruthEngine::API::DX12
 
 		inline ID3D12DescriptorHeap* GetDescriptorHeap() const { return m_DescriptorHeap.Get(); }
 
+		inline void Release() { m_DescriptorHeap->Release(); }
+
 		virtual inline CD3DX12_CPU_DESCRIPTOR_HANDLE GetCPUHandle(UINT index) const = 0;
 		virtual inline CD3DX12_CPU_DESCRIPTOR_HANDLE GetCPUHandleLast() const = 0;
 		virtual inline CD3DX12_GPU_DESCRIPTOR_HANDLE GetGPUHandle(UINT index) const = 0;

@@ -10,63 +10,58 @@ namespace TruthEngine::Core {
 
 	void InputManager::OnMouseMove(int x, int y)
 	{
-		m_Mouse.OnMouseMove(x, y);
+		m_MouseLastX = m_MouseX;
+		m_MouseLastY = m_MouseY;
+		m_MouseX = x;
+		m_MouseY = y;
 		auto event = EventMouseMoved(x, y);
 		TE_INSTANCE_APPLICATION.OnEvent(event);
 	}
 
 	void InputManager::OnMouseLeftPressed(int x, int y)
 	{
-		m_Mouse.OnLeftPressed(x, y);
 		auto event = EventMouseButtonPressed(MouseButtons::ButtonLeft);
 		TE_INSTANCE_APPLICATION.OnEvent(event);
 	}
 
 	void InputManager::OnMouseLeftReleased(int x, int y)
 	{
-		m_Mouse.OnLeftReleased(x, y);
 		auto event = EventMouseButtonReleased(MouseButtons::ButtonLeft);
 		TE_INSTANCE_APPLICATION.OnEvent(event);
 	}
 
 	void InputManager::OnMouseRightPressed(int x, int y)
 	{
-		m_Mouse.OnRightPressed(x, y);
 		auto event = EventMouseButtonPressed(MouseButtons::ButtonRight);
 		TE_INSTANCE_APPLICATION.OnEvent(event);
 	}
 
 	void InputManager::OnMouseRightReleased(int x, int y)
 	{
-		m_Mouse.OnRightReleased(x, y);
 		auto event = EventMouseButtonReleased(MouseButtons::ButtonRight);
 		TE_INSTANCE_APPLICATION.OnEvent(event);
 	}
 
 	void InputManager::OnMouseMiddlePressed(int x, int y)
 	{
-		m_Mouse.OnMiddlePressed(x, y);
 		auto event = EventMouseButtonPressed(MouseButtons::ButtonMiddle);
 		TE_INSTANCE_APPLICATION.OnEvent(event);
 	}
 
 	void InputManager::OnMouseMiddleReleased(int x, int y)
 	{
-		m_Mouse.OnMiddleReleased(x, y);
 		auto event = EventMouseButtonReleased(MouseButtons::ButtonMiddle);
 		TE_INSTANCE_APPLICATION.OnEvent(event);
 	}
 
 	void InputManager::OnMouseWheelDown(int x, int y)
 	{
-		m_Mouse.OnWheelDown(x, y);
 		auto event = EventMouseScrolled(x, y);
 		TE_INSTANCE_APPLICATION.OnEvent(event);
 	}
 
 	void InputManager::OnMouseWheelUp(int x, int y)
 	{
-		m_Mouse.OnWheelUp(x, y);
 		auto event = EventMouseScrolled(x, y);
 		TE_INSTANCE_APPLICATION.OnEvent(event);
 	}
@@ -83,44 +78,31 @@ namespace TruthEngine::Core {
 		TE_INSTANCE_APPLICATION.OnEvent(event);
 	}
 
-	bool InputManager::IsMouseLeftDown()
-	{
-		return m_Mouse.IsLeftDown();
-	}
-
-	bool InputManager::IsMouseRightDown()
-	{
-		return m_Mouse.IsRightDown();
-	}
-
-	bool InputManager::IsMouseMiddleDown()
-	{
-		return m_Mouse.IsMiddleDown();
-	}
+	
 
 	int InputManager::GetPosX()
 	{
-		return m_Mouse.GetPosX();
+		return m_MouseX;
 	}
 
 	int InputManager::GetPosY()
 	{
-		return m_Mouse.GetPosY();
+		return m_MouseY;
 	}
 
 	int InputManager::GetDX()
 	{
-		return m_Mouse.GetDX();
+		return m_MouseX - m_MouseLastX;
 	}
 
 	int InputManager::GetDY()
 	{
-		return m_Mouse.GetDY();
+		return m_MouseY - m_MouseLastY;
 	}
 
 	MousePoint InputManager::GetPos()
 	{
-		return m_Mouse.GetPos();
+		return MousePoint{m_MouseX, m_MouseY};
 	}
 
 

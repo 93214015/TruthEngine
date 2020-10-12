@@ -1,10 +1,19 @@
 #pragma once
+#include "CommandQueue.h"
+#include "Fence.h"
+
+
+#define TE_INSTANCE_API_DX12_GDEVICE			TruthEngine::API::DX12::GDeviceDX12::GetPrimaryDevice()
+#define TE_INSTANCE_API_DX12_COMMANDQUEUEDIRECT TruthEngine::API::DX12::GDeviceDX12::GetPrimaryDevice().GetCommandQueuDirect()
+#define TE_INSTANCE_API_DX12_COMMANDQUEUECOPY	TruthEngine::API::DX12::GDeviceDX12::GetPrimaryDevice().GetCommandQueuCopy()
 
 
 namespace TruthEngine::API::DX12 {
 
 	class GDeviceDX12 {
-
+		friend class CommandQueue;
+		friend class CommandList;
+		friend class CommandAllocator;
 	public:
 
 
@@ -14,57 +23,49 @@ namespace TruthEngine::API::DX12 {
 		}
 
 
-		inline ID3D12Device* GetDevice() const noexcept { return m_Device.Get(); }
+		inline ID3D12Device8* GetDevice() const noexcept { return m_Device.Get(); }
 
 
-		inline void CreateCommandQueue(COMPTR<ID3D12CommandQueue>& cmdQueue, D3D12_COMMAND_LIST_TYPE type){
-			D3D12_COMMAND_QUEUE_DESC desc;
-			desc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
-			desc.NodeMask = 0;
-			desc.Priority = 0;
-			desc.Type = type;
-			m_Device->CreateCommandQueue(&desc, IID_PPV_ARGS(cmdQueue.ReleaseAndGetAddressOf()));
-		}
+		
 
-		inline void CreateCommandList(COMPTR<ID3D12CommandList>& cmdList, D3D12_COMMAND_LIST_TYPE type, ID3D12CommandAllocator* cmdAllocator, ID3D12PipelineState* pipelineState) {
-			D3D12_COMMAND_QUEUE_DESC desc;
-			desc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
-			desc.NodeMask = 0;
-			desc.Priority = 0;
-			desc.Type = type;
-			m_Device->CreateCommandList(0, type, cmdAllocator, pipelineState, IID_PPV_ARGS(cmdList.ReleaseAndGetAddressOf()));
-		}
+		inline CommandQueue& GetCommandQueuDirect() { return m_CommandQueueDirect; }
+		inline CommandQueue& GetCommandQueuCopy() { return m_CommandQueueCopy; }
 
-		inline void CreateCommandAllocator(COMPTR<ID3D12CommandAllocator>& cmdAlloc, D3D12_COMMAND_LIST_TYPE type)
-		{
-			m_Device->CreateCommandAllocator(type, IID_PPV_ARGS(cmdAlloc.ReleaseAndGetAddressOf()));
-		}
-
-		inline ID3D12CommandQueue* GetCommandQueuDirect() { return m_CommandQueueDirect.Get(); }
-		inline ID3D12CommandQueue* GetCommandQueuCopy() { return m_CommandQueueCopy.Get(); }
+		inline Fence& GetFence() { return m_Fence; }
 
 		static inline GDeviceDX12& GetPrimaryDevice() { return s_PrimaryDevice; }
 
 	private:
-		void Init(UINT adapterIndex);
-		void CreateDevice(UINT adapterIndex);
-		void CreateCommandQueues();
+		TE_RESULT Init(UINT adapterIndex);
+		TE_RESULT CreateDevice(UINT adapterIndex);
+		TE_RESULT InitCommandQueues();
 		void InitDescriptorSize()const;
 
-		inline UINT GetDescriptorSizeRTV() const noexcept{ return m_Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV); }
+		inline UINT GetDescriptorSizeRTV() const noexcept { return m_Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV); }
 		inline UINT GetDescriptorSizeSRV() const noexcept { return m_Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV); }
 		inline UINT GetDescriptorSizeDSV() const noexcept { return m_Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV); }
 		inline UINT GetDescriptorSizeSampler() const noexcept { return m_Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER); }
 
+		TE_RESULT CreateCommandQueue(COMPTR<ID3D12CommandQueue>& cmdQueue, D3D12_COMMAND_LIST_TYPE type) const;
 
+		TE_RESULT CreateCommandList(COMPTR<ID3D12GraphicsCommandList>& cmdList, D3D12_COMMAND_LIST_TYPE type) const;
+
+		TE_RESULT CreateCommandAllocator(COMPTR<ID3D12CommandAllocator>& cmdAlloc, D3D12_COMMAND_LIST_TYPE type) const;
 	private:
 
-		Microsoft::WRL::ComPtr<ID3D12Device> m_Device;
-		Microsoft::WRL::ComPtr<ID3D12CommandQueue> m_CommandQueueDirect;
-		Microsoft::WRL::ComPtr<ID3D12CommandQueue> m_CommandQueueCopy;
+		Microsoft::WRL::ComPtr<ID3D12Device8> m_Device;
+
+		CommandQueue m_CommandQueueDirect;
+		CommandQueue m_CommandQueueCopy;
+
+		Fence m_Fence;
 
 		static GDeviceDX12 s_PrimaryDevice;
 
 	};
 
 }
+
+
+
+

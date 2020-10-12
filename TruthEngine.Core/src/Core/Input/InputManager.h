@@ -35,6 +35,8 @@ namespace TruthEngine::Core {
 
 	private:
 
+		static int m_MouseX, m_MouseY, m_MouseLastX, m_MouseLastY;
+
 		static Mouse m_Mouse;
 
 	};

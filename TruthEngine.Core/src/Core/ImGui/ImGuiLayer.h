@@ -10,24 +10,30 @@ namespace TruthEngine::Core
 
 
 	public:
-		void OnAttach() override;
+
+		static ImGuiLayer* Factory();
 
 
-		void OnDetach() override;
+		virtual ~ImGuiLayer();
 
 
-		void OnUpdate(double deltaFrameTime) override;
+		void OnAttach() override = 0;
 
 
-		void OnImGuiRender() override;
+		void OnDetach() override = 0;
 
 
-		void OnEvent(const Event& event) override;
+		void OnUpdate(double deltaFrameTime) override = 0;
 
-	private:
-		#ifdef TE_API_DX12
-			TruthEngine::API::DX12::DescriptorHeapSRV m_DescHeapSRV;
-		#endif
+
+		void OnImGuiRender() override = 0;
+
+
+		void OnEvent(TruthEngine::Core::Event& event) override = 0;
+
+	protected:
+		ImGuiLayer() = default;
+
 
 	};
 }

@@ -29,5 +29,8 @@
 
 enum TE_RESULT : int {
 	TE_FAIL = -1,
-	TE_SUCCESFUL = 0
+	TE_SUCCESSFUL = 0
 };
+
+#define TE_SUCCEEDED(te_result) (((TE_RESULT)te_result) >= 0)
+#define TE_FAILED(te_result) (((TE_RESULT)te_result) < 0)

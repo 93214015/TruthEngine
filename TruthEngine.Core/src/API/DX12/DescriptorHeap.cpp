@@ -16,7 +16,7 @@ namespace TruthEngine::API::DX12
 
 		device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(m_DescriptorHeap.ReleaseAndGetAddressOf()));
 
-		return TE_SUCCESFUL;
+		return TE_SUCCESSFUL;
 	}
 
 	UINT DescriptorHeapRTV::AddDescriptor(ID3D12Resource* resource)
@@ -39,7 +39,7 @@ namespace TruthEngine::API::DX12
 
 		device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(m_DescriptorHeap.ReleaseAndGetAddressOf()));
 
-		return TE_SUCCESFUL;
+		return TE_SUCCESSFUL;
 	}
 
 	UINT DescriptorHeapSRV::AddDescriptorSRV(ID3D12Resource* resource, const D3D12_SHADER_RESOURCE_VIEW_DESC* srvDesc)
@@ -78,7 +78,7 @@ namespace TruthEngine::API::DX12
 
 		device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(m_DescriptorHeap.ReleaseAndGetAddressOf()));
 
-		return TE_SUCCESFUL;
+		return TE_SUCCESSFUL;
 	}
 
 	UINT DescriptorHeapDSV::AddDescriptor(ID3D12Resource* resource, const D3D12_DEPTH_STENCIL_VIEW_DESC* dsvDesc)
@@ -101,7 +101,7 @@ namespace TruthEngine::API::DX12
 
 		device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(m_DescriptorHeap.ReleaseAndGetAddressOf()));
 
-		return TE_SUCCESFUL;
+		return TE_SUCCESSFUL;
 	}
 
 	UINT DescriptorHeapSampler::AddDescriptor(const D3D12_SAMPLER_DESC* samplerDesc)

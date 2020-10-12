@@ -16,20 +16,6 @@ namespace TruthEngine::Core {
 
 	Application::~Application() = default;
 
-	uint32_t Application::GetClientWidth() const noexcept
-	{
-		return m_ClientWidth;
-	}
-
-	uint32_t Application::GetClientHeight() const noexcept
-	{
-		return m_ClientHeight;
-	}
-
-	const char* Application::GetTitle() const noexcept
-	{
-		return m_Title.c_str();
-	}
 
 	void Application::Run()
 	{
@@ -53,11 +39,6 @@ namespace TruthEngine::Core {
 	void Application::OnEvent(Event& e)
 	{
 		m_EventDispatcher.OnEvent(e);
-	}
-
-	Application& Application::GetApplication()
-	{
-		return *s_Instance;
 	}
 
 	Application* Application::s_Instance = nullptr;
