@@ -34,7 +34,7 @@ filter{}
 
 include "TruthEngine.Core"
 include "TruthEngine.Sandbox"
-include "Dependencies/imgui"
+include "Dependencies"
 
 
 	
