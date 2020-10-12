@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="API">
-      <UniqueIdentifier>{FFD1870B-6BDB-877C-F456-9E7C605F937C}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="API\DX12">
-      <UniqueIdentifier>{AD2F5F34-99FC-B93F-C215-A8E7AE41EFCD}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Core">
       <UniqueIdentifier>{2EB4837C-1AEB-840D-C3D7-6A10AFED000F}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\API">
+      <UniqueIdentifier>{170099C2-03CD-F3CD-2CE6-E1751812295C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\API\DX12">
+      <UniqueIdentifier>{C5EC5883-31AD-D4B9-FAE7-1D3766671996}</UniqueIdentifier>
     </Filter>
     <Filter Include="Core\Entity">
       <UniqueIdentifier>{BA809273-2636-0B69-AF2A-05401BDF016D}</UniqueIdentifier>
@@ -19,53 +19,20 @@
     <Filter Include="Core\Event">
       <UniqueIdentifier>{FF1F37CD-EBD7-781A-54DF-517640B6130B}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Core\GPU">
-      <UniqueIdentifier>{A91999C2-95E6-F3CD-BEFF-E175AA2B295C}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Core\ImGui">
       <UniqueIdentifier>{D8137ACD-C4CB-BB1A-2DD3-947619AA560B}</UniqueIdentifier>
     </Filter>
     <Filter Include="Core\Input">
       <UniqueIdentifier>{AD4E7BCD-9906-BD1A-020E-9676EEE4570B}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Platform">
-      <UniqueIdentifier>{2AC788B4-1694-E3BF-3FAD-D1672BD9184E}</UniqueIdentifier>
+    <Filter Include="Core\Platform">
+      <UniqueIdentifier>{42848203-AE44-FE39-777F-47B7E3FE4216}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Platform\Windows">
-      <UniqueIdentifier>{64FBD71A-50F4-F66C-7926-DCF1657ED678}</UniqueIdentifier>
+    <Filter Include="Core\Platform\Windows">
+      <UniqueIdentifier>{7C50E91D-E8BC-A418-B1B0-3C761DDCC680}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\API\DX12\CommandAllocator.h">
-      <Filter>API\DX12</Filter>
-    </ClInclude>
-    <ClInclude Include="src\API\DX12\CommandList.h">
-      <Filter>API\DX12</Filter>
-    </ClInclude>
-    <ClInclude Include="src\API\DX12\CommandQueue.h">
-      <Filter>API\DX12</Filter>
-    </ClInclude>
-    <ClInclude Include="src\API\DX12\DescriptorHeap.h">
-      <Filter>API\DX12</Filter>
-    </ClInclude>
-    <ClInclude Include="src\API\DX12\Fence.h">
-      <Filter>API\DX12</Filter>
-    </ClInclude>
-    <ClInclude Include="src\API\DX12\FrameContext.h">
-      <Filter>API\DX12</Filter>
-    </ClInclude>
-    <ClInclude Include="src\API\DX12\GDeviceDX12.h">
-      <Filter>API\DX12</Filter>
-    </ClInclude>
-    <ClInclude Include="src\API\DX12\ImGuiLayerDX12.h">
-      <Filter>API\DX12</Filter>
-    </ClInclude>
-    <ClInclude Include="src\API\DX12\SwapChain.h">
-      <Filter>API\DX12</Filter>
-    </ClInclude>
-    <ClInclude Include="src\API\IDXGI.h">
-      <Filter>API</Filter>
-    </ClInclude>
     <ClInclude Include="src\Application.h" />
     <ClInclude Include="src\Core\Entity\Camera\CameraOrthographic.h">
       <Filter>Core\Entity\Camera</Filter>
@@ -88,9 +55,6 @@
     <ClInclude Include="src\Core\Event\EventMouse.h">
       <Filter>Core\Event</Filter>
     </ClInclude>
-    <ClInclude Include="src\Core\GPU\GDevice.h">
-      <Filter>Core\GPU</Filter>
-    </ClInclude>
     <ClInclude Include="src\Core\ImGui\ImGuiLayer.h">
       <Filter>Core\ImGui</Filter>
     </ClInclude>
@@ -101,9 +65,6 @@
       <Filter>Core\Input</Filter>
     </ClInclude>
     <ClInclude Include="src\Core\Input\Mouse.h">
-      <Filter>Core\Input</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Core\Input\MouseButtons.h">
       <Filter>Core\Input</Filter>
     </ClInclude>
     <ClInclude Include="src\Core\Layer.h">
@@ -125,46 +86,38 @@
       <Filter>Core</Filter>
     </ClInclude>
     <ClInclude Include="src\EntryPoint.h" />
-    <ClInclude Include="src\Platform\Windows\WindowWindows.h">
-      <Filter>Platform\Windows</Filter>
-    </ClInclude>
     <ClInclude Include="src\ThreadPool.h" />
     <ClInclude Include="src\TruthEngine.Core.h" />
     <ClInclude Include="src\TruthEngine.h" />
     <ClInclude Include="src\lib.h" />
     <ClInclude Include="src\pch.h" />
+    <ClInclude Include="src\Platform\Windows\WindowWindows.h">
+      <Filter>Core\Platform\Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="src\API\DX12\DescriptorHeap.h">
+      <Filter>Core\API\DX12</Filter>
+    </ClInclude>
+    <ClInclude Include="src\API\DX12\GDeviceDX12.h">
+      <Filter>Core\API\DX12</Filter>
+    </ClInclude>
+    <ClInclude Include="src\API\DX12\SwapChain.h">
+      <Filter>Core\API\DX12</Filter>
+    </ClInclude>
+    <ClInclude Include="src\API\IDXGI.h">
+      <Filter>Core\API</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\GPU\GDevice.h" />
+    <ClInclude Include="src\API\DX12\Fence.h" />
+    <ClInclude Include="src\Core\Input\MouseButtons.h">
+      <Filter>Core\Input</Filter>
+    </ClInclude>
+    <ClInclude Include="src\API\DX12\ImGuiLayerDX12.h" />
+    <ClInclude Include="src\API\DX12\FrameContext.h" />
+    <ClInclude Include="src\API\DX12\CommandQueue.h" />
+    <ClInclude Include="src\API\DX12\CommandAllocator.h" />
+    <ClInclude Include="src\API\DX12\CommandList.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\API\DX12\CommandAllocator.cpp">
-      <Filter>API\DX12</Filter>
-    </ClCompile>
-    <ClCompile Include="src\API\DX12\CommandList.cpp">
-      <Filter>API\DX12</Filter>
-    </ClCompile>
-    <ClCompile Include="src\API\DX12\CommandQueue.cpp">
-      <Filter>API\DX12</Filter>
-    </ClCompile>
-    <ClCompile Include="src\API\DX12\DescriptorHeap.cpp">
-      <Filter>API\DX12</Filter>
-    </ClCompile>
-    <ClCompile Include="src\API\DX12\Fence.cpp">
-      <Filter>API\DX12</Filter>
-    </ClCompile>
-    <ClCompile Include="src\API\DX12\FrameContext.cpp">
-      <Filter>API\DX12</Filter>
-    </ClCompile>
-    <ClCompile Include="src\API\DX12\GDeviceDX12.cpp">
-      <Filter>API\DX12</Filter>
-    </ClCompile>
-    <ClCompile Include="src\API\DX12\ImGuiLayerDX12.cpp">
-      <Filter>API\DX12</Filter>
-    </ClCompile>
-    <ClCompile Include="src\API\DX12\SwapChain.cpp">
-      <Filter>API\DX12</Filter>
-    </ClCompile>
-    <ClCompile Include="src\API\IDXGI.cpp">
-      <Filter>API</Filter>
-    </ClCompile>
     <ClCompile Include="src\Application.cpp" />
     <ClCompile Include="src\Core\Entity\Camera\CameraOrthographic.cpp">
       <Filter>Core\Entity\Camera</Filter>
@@ -211,13 +164,29 @@
     <ClCompile Include="src\Core\Window.cpp">
       <Filter>Core</Filter>
     </ClCompile>
-    <ClCompile Include="src\Platform\Windows\WindowInputManager.cpp">
-      <Filter>Platform\Windows</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Platform\Windows\WindowWindows.cpp">
-      <Filter>Platform\Windows</Filter>
-    </ClCompile>
     <ClCompile Include="src\ThreadPool.cpp" />
     <ClCompile Include="src\pch.cpp" />
+    <ClCompile Include="src\Platform\Windows\WindowWindows.cpp">
+      <Filter>Core\Platform\Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="src\API\DX12\DescriptorHeap.cpp">
+      <Filter>Core\API\DX12</Filter>
+    </ClCompile>
+    <ClCompile Include="src\API\DX12\GDeviceDX12.cpp">
+      <Filter>Core\API\DX12</Filter>
+    </ClCompile>
+    <ClCompile Include="src\API\DX12\SwapChain.cpp">
+      <Filter>Core\API\DX12</Filter>
+    </ClCompile>
+    <ClCompile Include="src\API\IDXGI.cpp">
+      <Filter>Core\API</Filter>
+    </ClCompile>
+    <ClCompile Include="src\API\DX12\Fence.cpp" />
+    <ClCompile Include="src\Platform\Windows\WindowInputManager.cpp" />
+    <ClCompile Include="src\API\DX12\ImGuiLayerDX12.cpp" />
+    <ClCompile Include="src\API\DX12\FrameContext.cpp" />
+    <ClCompile Include="src\API\DX12\CommandQueue.cpp" />
+    <ClCompile Include="src\API\DX12\CommandAllocator.cpp" />
+    <ClCompile Include="src\API\DX12\CommandList.cpp" />
   </ItemGroup>
 </Project>
