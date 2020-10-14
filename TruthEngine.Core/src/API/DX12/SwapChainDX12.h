@@ -1,43 +1,44 @@
 #pragma once
 #include "API/DX12/GDeviceDX12.h"
+#include "API/DX12/CommandList.h"
 #include "API/DX12/DescriptorHeap.h"
-#include "Application.h"
+#include "Core/Application.h"
+#include "Core/SwapChain.h"
+
 
 
 namespace TruthEngine::API::DX12 {
 
-	class SwapChain
+	class SwapChainDX12 : public TruthEngine::Core::SwapChain
 	{
 
 	public:
-		static inline SwapChain& Get() { return s_SwapChain; }
+		static inline SwapChainDX12& Get() { return s_SwapChain; }
 
 
 		TE_RESULT Init(UINT clientWidth, UINT clientHeight, HWND* outputHWND, UINT backBufferNum = 2);
 
 		TE_RESULT Resize(UINT width, UINT height, UINT backBufferNum);
 
-		TE_RESULT InitRTVs(DescriptorHeapRTV* descHeap);
+		uint32_t InitRTVs(DescriptorHeapRTV* descHeap);
 
-		inline void ChangeResourceState(std::vector<D3D12_RESOURCE_BARRIER>& barriers, D3D12_RESOURCE_STATES stateBefore, D3D12_RESOURCE_STATES stateAfter) { barriers.emplace_back(CD3DX12_RESOURCE_BARRIER::Transition(GetBackBufferResource(), stateBefore, stateAfter)); }
+		inline void ChangeResourceState(D3D12_RESOURCE_BARRIER& barrier, D3D12_RESOURCE_STATES stateBefore, D3D12_RESOURCE_STATES stateAfter) { barrier = CD3DX12_RESOURCE_BARRIER::Transition(GetBackBufferResource(), stateBefore, stateAfter); }
 
 		inline UINT GetCurrentFrameIndex() const noexcept { return TE_INSTANCE_APPLICATION.GetCurrentFrameIndex(); };
-
-		inline CD3DX12_CPU_DESCRIPTOR_HANDLE GetCurrentBackBufferRTV() const { return m_DescHeapRTV->GetCPUHandle(static_cast<INT>(GetCurrentFrameIndex() + m_BackBufferDescOffset)); }
 
 		inline ID3D12Resource* GetBackBufferResource() const { return m_BackBuffers[GetCurrentFrameIndex()].Get(); };
 
 		inline UINT GetBackBufferNum()const noexcept { return m_BackBufferNum; }
 
-		void Present();
+		void Present() override;
 
 
 	protected:
-		SwapChain();
+		SwapChainDX12();
 
 		void CreateSwapChain(HWND* outputHWND);
 
-		void CreateSwapChainRTVs();
+		uint32_t CreateSwapChainRTVs(DescriptorHeapRTV* descHeap);
 
 		void CheckDeviceFeatures();
 
@@ -45,7 +46,7 @@ namespace TruthEngine::API::DX12 {
 
 		Microsoft::WRL::ComPtr<IDXGISwapChain4> m_SwapChain = nullptr;
 
-		DescriptorHeapRTV* m_DescHeapRTV = nullptr;
+		CommandList m_CommandList;
 
 		std::vector<Microsoft::WRL::ComPtr<ID3D12Resource>> m_BackBuffers{};
 
@@ -53,17 +54,16 @@ namespace TruthEngine::API::DX12 {
 
 		D3D12_FEATURE_DATA_MULTISAMPLE_QUALITY_LEVELS m_MSAAQualityLevels{};
 
-		UINT m_BackBufferDescOffset = 0;
 		UINT m_BackBufferNum = 2;
 
 		bool m_UseMSAA4X = false;
 
-		D3D12_RESOURCE_STATES m_CurrentBackBufferResourceState;
+		D3D12_RESOURCE_STATES m_CurrentBackBufferResourceState = D3D12_RESOURCE_STATE_PRESENT;
 
-		static SwapChain s_SwapChain;
+		static SwapChainDX12 s_SwapChain;
 
 	};
 
 }
 
-#define TE_INSTANCE_API_DX12_SWAPCHAIN TruthEngine::API::DX12::SwapChain::Get()
+#define TE_INSTANCE_API_DX12_SWAPCHAIN TruthEngine::API::DX12::SwapChainDX12::Get()

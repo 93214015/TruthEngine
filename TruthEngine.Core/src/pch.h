@@ -34,8 +34,8 @@
 //////////////////////////////////////////////////////////////////////////
 //// TE Headers
 //////////////////////////////////////////////////////////////////////////
-#include "TruthEngine.Core.h"
-#include "ThreadPool.h"
+#include "Core/TruthEngine.Core.h"
+#include "Core/ThreadPool.h"
 #include "Core/Log.h"
 
 
@@ -77,9 +77,14 @@ using COMPTR = Microsoft::WRL::ComPtr<T>;
 //
 #include <d3dcompiler.h>
 
+
+#ifdef TE_API_DX12
+
 //
 //DirectX12
 //
 #include <d3d12.h>
 #include <d3dcompiler.h>
 #include "d3dx12.h"
+
+#endif

@@ -3,6 +3,9 @@
 #include "TruthEngine.Core.h"
 #include "Core/Window.h"
 #include "Core/Event/Event.h"
+#include "Core/ImGui/ImGuiLayer.h"
+#include "Core/LayerStack.h"
+#include "Core/TimerEngine.h"
 
 namespace TruthEngine::Core {
 
@@ -24,7 +27,7 @@ namespace TruthEngine::Core {
 
 		inline const char* GetTitle() const noexcept { return m_Title.c_str(); }
 
-		void* GetWindow() { return static_cast<void*>(m_Window.get()); }
+		Window* GetWindow() { return m_Window.get(); }
 
 		virtual void Run();
 		virtual void OnInit() = 0;
@@ -41,6 +44,15 @@ namespace TruthEngine::Core {
 
 		std::unique_ptr<Window> m_Window;
 		EventDispatcher m_EventDispatcher;
+
+		LayerStack m_LayerStack;
+
+		ImGuiLayer* m_ImGuiLayer;
+
+
+		TimerEngine m_Timer;
+
+
 
 		uint32_t m_ClientWidth = 0;
 		uint32_t m_ClientHeight = 0;

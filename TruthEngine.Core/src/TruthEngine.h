@@ -1,10 +1,10 @@
 #pragma once
 
-#include "TruthEngine.Core.h"
-#include "Application.h"
+#include "Core/TruthEngine.Core.h"
+#include "Core/Application.h"
 #include "Core/Log.h"
 
 
 //---------EntryPoint-----------------------
-#include "EntryPoint.h"
+#include "Core/EntryPoint.h"
 //------------------------------------------

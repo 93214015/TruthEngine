@@ -11,6 +11,8 @@ namespace TruthEngine::API::DX12 {
 
 	TE_RESULT CommandQueue::ExecuteCommandList(CommandList& cmdList) const
 	{
+		cmdList->Close();
+
 		ID3D12CommandList* l[1] = { cmdList.Get() };
 		m_CommandQueue->ExecuteCommandLists(1, l);
 

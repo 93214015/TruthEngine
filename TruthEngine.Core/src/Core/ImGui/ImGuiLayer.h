@@ -14,22 +14,17 @@ namespace TruthEngine::Core
 		static ImGuiLayer* Factory();
 
 
-		virtual ~ImGuiLayer();
+		virtual ~ImGuiLayer() = default;
 
 
-		void OnAttach() override = 0;
+		virtual void OnAttach() override = 0;
 
 
-		void OnDetach() override = 0;
+		virtual void OnDetach() override = 0;
 
 
-		void OnUpdate(double deltaFrameTime) override = 0;
-
-
-		void OnImGuiRender() override = 0;
-
-
-		void OnEvent(TruthEngine::Core::Event& event) override = 0;
+		virtual void Begin() = 0;
+		virtual void End() = 0;
 
 	protected:
 		ImGuiLayer() = default;

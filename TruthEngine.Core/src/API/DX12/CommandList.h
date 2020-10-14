@@ -17,7 +17,7 @@ namespace TruthEngine::API::DX12
 
 		inline CommandAllocator* GetActiveCommandAllocator() const { return m_ActiveCommandAllocator; }
 
-		inline void Reset(uint32_t frameIndex, ID3D12PipelineState* pipelineState);
+		void Reset(uint32_t frameIndex, ID3D12PipelineState* pipelineState);
 
 		inline void Release() {
 			for (auto& cmdAlloc : m_CommandAllocators)

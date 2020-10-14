@@ -5,6 +5,8 @@
 #include "WindowWindows.h"
 #include "Core/Event/EventApplication.h"
 
+#include "Core/SwapChain.h"
+
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	static TruthEngine::Core::Window::WindowData* windowData = nullptr;
@@ -119,6 +121,9 @@ namespace TruthEngine::Platforms::Windows {
 
 		if(msg.message == WM_QUIT)
 			m_Data.CallBack(TruthEngine::Core::EventWindowClose());
+
+		TE_INSTANCE_SWAPCHAIN->Present();
+
 	}
 
 	HWND WindowWindows::GetHandle()

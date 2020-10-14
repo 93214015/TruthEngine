@@ -29,3 +29,7 @@ namespace TruthEngine::Sandbox {
 	}
 
 }
+
+TruthEngine::Core::Application* TruthEngine::Core::CreateApplication() {
+	return new TruthEngine::Sandbox::SandboxApp(1024, 768);
+}

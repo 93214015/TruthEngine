@@ -1,5 +1,6 @@
 #include "pch.h"
-#include "Application.h"
+#include "Core/Application.h"
+#include "Core/GPU/GDevice.h"
 
 namespace TruthEngine::Core {
 
@@ -11,6 +12,11 @@ namespace TruthEngine::Core {
 		m_Window = TruthEngine::Core::TECreateWindow(title, clientWidth, clientHeight);
 
 		m_Window->SetEventCallBack(std::bind(&EventDispatcher::OnEvent, &m_EventDispatcher, std::placeholders::_1));
+
+		m_ImGuiLayer = TruthEngine::Core::ImGuiLayer::Factory();
+
+		s_Instance = this;
+
 
 	}
 
@@ -24,15 +30,40 @@ namespace TruthEngine::Core {
 
 		TE_RUN_TASK([]() { TE_LOG_CORE_INFO("This message is snet by threadID = {0}", std::this_thread::get_id()); });
 
+		auto r = CreateGDevice(0);
+		TE_ASSERT_CORE(r, "Creation of GDevice is failed!");
+
 		m_Window->Show();
 
 		m_EventDispatcher.RegisterListener(EventType::WindowClose, [this](const Event& e) { this->m_Running = false; });
 
+		m_LayerStack.PushOverlay(m_ImGuiLayer);
+
+		m_Timer.Reset();
+
 		while (m_Running) 
 		{
 
+			m_Timer.Tick();
+
+
+			for (auto layer : m_LayerStack)
+			{
+				layer->OnUpdate(m_Timer.DeltaTime());
+			}
+
+			m_ImGuiLayer->Begin();
+			for (auto layer : m_LayerStack)
+			{
+				layer->OnImGuiRender();
+			}
+			m_ImGuiLayer->End();
+
+
 			m_Window->OnUpdate();
 
+
+			m_CurrentFrameIndex = (m_CurrentFrameIndex + 1) % m_FramesInFlightNum;
 		}
 	}
 

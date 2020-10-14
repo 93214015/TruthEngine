@@ -12,6 +12,8 @@ namespace TruthEngine::Platforms::Windows {
 
 		void OnUpdate() override;
 
+		void* GetNativeWindowHandle() override { return &m_HWND; }
+
 		HWND GetHandle();
 
 	private:

@@ -27,6 +27,8 @@ namespace TruthEngine::Core {
 
 		virtual void OnUpdate() = 0;
 
+		virtual void* GetNativeWindowHandle() = 0;
+
         virtual void SetEventCallBack(const EventCallBack& fn) { m_Data.CallBack = fn; };
 
 		uint16_t GetWidth() { return m_Data.Width; }

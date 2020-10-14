@@ -8,8 +8,6 @@ namespace TruthEngine::API {
 	public:
 		static inline IDXGI& GetIDXGI() { return s_IDXGI; }
 
-		IDXGI() { Init(); }
-
 		void Init();
 		void CreateFactory();
 		void EnumAdapters();

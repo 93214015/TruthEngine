@@ -1,14 +1,19 @@
 #include "pch.h"
 #include "API/DX12/ImGuiLayerDX12.h"
 
-#include "Application.h"
+#include "Core/Application.h"
 #include "Platform/Windows/WindowWindows.h"
 #include "API/DX12/GDeviceDX12.h"
 #include "API/IDXGI.h"
-#include "API/DX12/SwapChain.h"
+#include "API/DX12/SwapChainDX12.h"
 
 
 #ifdef TE_API_DX12
+
+TruthEngine::Core::ImGuiLayer* TruthEngine::Core::ImGuiLayer::Factory() {
+
+	return new API::DX12::ImGuiLayerDX12();
+};
 
 namespace TruthEngine::API::DX12 {
 
@@ -18,7 +23,10 @@ namespace TruthEngine::API::DX12 {
 	{
 		m_CommandList.Init(TE_INSTANCE_APPLICATION.GetFramesInFlightNum(), D3D12_COMMAND_LIST_TYPE_DIRECT, TE_INSTANCE_API_DX12_GDEVICE);
 
-		m_DescHeapSRV.Init(TE_INSTANCE_API_DX12_GDEVICE.GetDevice(), TE_INSTANCE_APPLICATION.GetFramesInFlightNum());
+		m_DescHeapSRV.Init(TE_INSTANCE_API_DX12_GDEVICE, TE_INSTANCE_APPLICATION.GetFramesInFlightNum());
+		m_DescHeapRTV.Init(TE_INSTANCE_API_DX12_GDEVICE, TE_INSTANCE_APPLICATION.GetFramesInFlightNum());
+
+		TE_INSTANCE_API_DX12_SWAPCHAIN.InitRTVs(&m_DescHeapRTV);
 
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
@@ -30,11 +38,17 @@ namespace TruthEngine::API::DX12 {
 
 		ImGui::StyleColorsDark();
 
+		ImGuiStyle& style = ImGui::GetStyle();
+		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+		{
+			style.WindowRounding = 0.0f;
+			style.Colors[ImGuiCol_WindowBg].w = 1.0f;
+		}
 
-		auto window = reinterpret_cast<TruthEngine::Platforms::Windows::WindowWindows*>(TE_INSTANCE_APPLICATION.GetWindow());
-		ImGui_ImplWin32_Init(window->GetHandle());
+		auto hwnd = (TE_INSTANCE_APPLICATION.GetWindow()->GetNativeWindowHandle());
+		ImGui_ImplWin32_Init(hwnd);
 		ImGui_ImplDX12_Init(TE_INSTANCE_API_DX12_GDEVICE.GetDevice()
-			, 2
+			, TE_INSTANCE_APPLICATION.GetFramesInFlightNum()
 			, DXGI_FORMAT_R8G8B8A8_UNORM
 			, m_DescHeapSRV.GetDescriptorHeap()
 			, m_DescHeapSRV.GetCPUHandleLast()
@@ -53,21 +67,6 @@ namespace TruthEngine::API::DX12 {
 
 		m_DescHeapSRV.Release();
 		m_CommandList.Release();
-	}
-
-	void ImGuiLayerDX12::OnUpdate(double deltaFrameTime)
-	{
-
-	}
-
-	void ImGuiLayerDX12::OnImGuiRender()
-	{
-
-	}
-
-	void ImGuiLayerDX12::OnEvent(TruthEngine::Core::Event& event)
-	{
-
 	}
 
 	void ImGuiLayerDX12::Begin()
@@ -130,12 +129,20 @@ namespace TruthEngine::API::DX12 {
 		m_CommandList.Reset(currentFrameIndex, nullptr);
 
 		ID3D12DescriptorHeap* descheaps[] = { m_DescHeapSRV.GetDescriptorHeap() };
+		D3D12_RESOURCE_BARRIER barrier;
+		TE_INSTANCE_API_DX12_SWAPCHAIN.ChangeResourceState(barrier, D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
+		m_CommandList->ResourceBarrier(1, &barrier);
 		m_CommandList->SetDescriptorHeaps(1, descheaps);
-		m_CommandList->OMSetRenderTargets(1, &TE_INSTANCE_API_DX12_SWAPCHAIN.GetCurrentBackBufferRTV(), FALSE, NULL);
+		m_CommandList->OMSetRenderTargets(1, &m_DescHeapRTV.GetCPUHandle(currentFrameIndex), FALSE, NULL);
 		ImGui::Render();
 		ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), m_CommandList.Get());
+		TE_INSTANCE_API_DX12_SWAPCHAIN.ChangeResourceState(barrier, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
+		m_CommandList->ResourceBarrier(1, &barrier);
 
 		TE_INSTANCE_API_DX12_COMMANDQUEUEDIRECT.ExecuteCommandList(m_CommandList);
+
+		ImGui::UpdatePlatformWindows();
+		ImGui::RenderPlatformWindowsDefault();
 	}
 
 }

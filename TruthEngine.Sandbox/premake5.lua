@@ -25,7 +25,8 @@ project "TruthEngine.Sandbox"
 		IncludeDir["TruthEngine.Sandbox"],
 		IncludeDir["TruthEngine.Core"],
 		IncludeDir["spdlog"],
-		IncludeDir["Dependencies"]
+		IncludeDir["Dependencies"],
+		IncludeDir["d3dx12"]
 	}
 
 	links{

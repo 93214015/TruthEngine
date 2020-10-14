@@ -1,17 +1,29 @@
 #include "pch.h"
-#include "SwapChain.h"
-#include "Application.h"
-#include "API/IDXGI.h"
+#include "SwapChainDX12.h"
+
+#include "Core/Application.h"
 #include "Core/GPU/GDevice.h"
 
+#include "API/IDXGI.h"
+
 using namespace Microsoft::WRL;
+
+
+#ifdef TE_API_DX12
+
+TruthEngine::Core::SwapChain* TruthEngine::Core::SwapChain::Get()
+{
+	return &TruthEngine::API::DX12::SwapChainDX12::Get();
+}
+
+#endif
 
 namespace TruthEngine::API::DX12 {
 
 
-	SwapChain::SwapChain() = default;
+	SwapChainDX12::SwapChainDX12() = default;
 
-	TE_RESULT SwapChain::Init(UINT clientWidth, UINT clientHeight, HWND* outputHWND, UINT backBufferNum)
+	TE_RESULT SwapChainDX12::Init(UINT clientWidth, UINT clientHeight, HWND* outputHWND, UINT backBufferNum)
 	{
 		m_BackBufferNum = backBufferNum;
 
@@ -21,29 +33,27 @@ namespace TruthEngine::API::DX12 {
 
 	}
 
-	TE_RESULT SwapChain::InitRTVs(DescriptorHeapRTV* descHeap)
+	uint32_t SwapChainDX12::InitRTVs(DescriptorHeapRTV* descHeap)
 	{
-		m_DescHeapRTV = descHeap;
-		CreateSwapChainRTVs();
-		return TE_SUCCESSFUL;
+		return CreateSwapChainRTVs(descHeap);
 	}
 
-	void SwapChain::Present()
+	void SwapChainDX12::Present()
 	{
 		m_SwapChain->Present(1, 0);
 	}
 
-	void SwapChain::CreateSwapChain(HWND* outputHWND)
+	void SwapChainDX12::CreateSwapChain(HWND* outputHWND)
 	{
 		{
 
 			COMPTR<IDXGISwapChain1> swapChain1;
 
 			DXGI_SWAP_CHAIN_DESC1 desc1;
-			desc1.AlphaMode = DXGI_ALPHA_MODE_STRAIGHT;
+			desc1.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
 			desc1.BufferCount = m_BackBufferNum;
 			desc1.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-			desc1.Flags = 0;
+			desc1.Flags = DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT;
 			desc1.Format = m_BackbufferFormat;
 			desc1.Width = TE_INSTANCE_APPLICATION.GetClientWidth();
 			desc1.Height = TE_INSTANCE_APPLICATION.GetClientHeight();
@@ -53,7 +63,9 @@ namespace TruthEngine::API::DX12 {
 			desc1.Stereo = FALSE;
 			desc1.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 
-			TE_ASSERT_CORE(TE_SUCCEEDED(TE_INSTANCE_IDXGI.GetDXGIFactory()->CreateSwapChainForHwnd(TE_INSTANCE_API_DX12_COMMANDQUEUEDIRECT, *outputHWND, &desc1, NULL, NULL, &swapChain1)), "API::DX12 Creation of 'SwapChain' factory is failed!");
+			auto r = TE_INSTANCE_IDXGI.GetDXGIFactory()->CreateSwapChainForHwnd(TE_INSTANCE_API_DX12_COMMANDQUEUEDIRECT.m_CommandQueue.Get(), *outputHWND, &desc1, NULL, NULL, &swapChain1);
+
+			TE_ASSERT_CORE(r, "API::DX12 Creation of 'SwapChain' factory is failed!");
 
 			swapChain1->QueryInterface(m_SwapChain.ReleaseAndGetAddressOf());
 
@@ -70,19 +82,21 @@ namespace TruthEngine::API::DX12 {
 		}
 	}
 
-	void SwapChain::CreateSwapChainRTVs()
+	uint32_t SwapChainDX12::CreateSwapChainRTVs(DescriptorHeapRTV* descHeap)
 	{
-		m_BackBufferDescOffset = m_DescHeapRTV->GetCurrentIndex();
+		auto index = descHeap->GetCurrentIndex();
 
 		for (UINT i = 0; i < m_BackBufferNum; i++)
 		{
 			ComPtr<ID3D12Resource> buffer;
 			m_SwapChain->GetBuffer(i, IID_PPV_ARGS(buffer.ReleaseAndGetAddressOf()));
-			m_DescHeapRTV->AddDescriptor(buffer.Get());
+			descHeap->AddDescriptor(buffer.Get());
 		}
+
+		return index;
 	}
 
-	void SwapChain::CheckDeviceFeatures()
+	void SwapChainDX12::CheckDeviceFeatures()
 	{
 		m_MSAAQualityLevels.Format = m_BackbufferFormat;
 		m_MSAAQualityLevels.Flags = D3D12_MULTISAMPLE_QUALITY_LEVELS_FLAG_NONE;
@@ -100,7 +114,7 @@ namespace TruthEngine::API::DX12 {
 		}
 	}
 
-	TE_RESULT SwapChain::Resize(UINT width, UINT height, UINT backBufferNum)
+	TE_RESULT SwapChainDX12::Resize(UINT width, UINT height, UINT backBufferNum)
 	{
 		m_BackBufferNum = backBufferNum;
 
@@ -121,5 +135,7 @@ namespace TruthEngine::API::DX12 {
 		else
 			return TE_FAIL;
 	}
+
+	TruthEngine::API::DX12::SwapChainDX12 SwapChainDX12::s_SwapChain;
 
 }

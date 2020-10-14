@@ -20,20 +20,12 @@ namespace TruthEngine::API::DX12
 
 		void OnDetach() override;
 
-
-		void OnUpdate(double deltaFrameTime) override;
-
-
-		void OnImGuiRender() override;
-
-
-		void OnEvent(TruthEngine::Core::Event& event) override;
-
-		void Begin();
-		void End();
+		void Begin() override;
+		void End() override;
 
 	private:
 		DescriptorHeapSRV m_DescHeapSRV;
+		DescriptorHeapRTV m_DescHeapRTV;
 		CommandList m_CommandList;
 
 	};

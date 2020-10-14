@@ -3,14 +3,16 @@
 #include "API/IDXGI.h"
 #include "API/DX12/DescriptorHeap.h"
 
-#include "Application.h"
-#include "API/DX12/SwapChain.h"
+#include "Core/Application.h"
+#include "API/DX12/SwapChainDX12.h"
 
 namespace TruthEngine::API::DX12
 {
 
 	TE_RESULT GDeviceDX12::Init(UINT adapterIndex)
 	{
+		TE_INSTANCE_IDXGI.Init();
+
 		CreateDevice(adapterIndex);
 		InitCommandQueues();
 		InitDescriptorSize();
@@ -18,7 +20,7 @@ namespace TruthEngine::API::DX12
 		m_Fence.Initialize(*this);
 
 		// init singleton object of dx12 swap chain
-		SwapChain::Get().Init(TE_INSTANCE_APPLICATION.GetClientWidth(), TE_INSTANCE_APPLICATION.GetClientHeight(), reinterpret_cast<HWND*>(TE_INSTANCE_APPLICATION.GetWindow()), TE_INSTANCE_APPLICATION.GetFramesInFlightNum());
+		SwapChainDX12::Get().Init(TE_INSTANCE_APPLICATION.GetClientWidth(), TE_INSTANCE_APPLICATION.GetClientHeight(), reinterpret_cast<HWND*>(TE_INSTANCE_APPLICATION.GetWindow()->GetNativeWindowHandle()), TE_INSTANCE_APPLICATION.GetFramesInFlightNum());
 
 		return TE_SUCCESSFUL;
 	}
@@ -106,6 +108,17 @@ namespace TruthEngine::API::DX12
 		}
 	}
 
-	TruthEngine::API::DX12::GDeviceDX12 GDeviceDX12::s_PrimaryDevice(0);
+	TruthEngine::API::DX12::GDeviceDX12 GDeviceDX12::s_PrimaryDevice;
 
 }
+
+#ifdef TE_API_DX12
+
+TE_RESULT TruthEngine::Core::CreateGDevice(uint32_t adapterIndex)
+{
+	return TruthEngine::API::DX12::GDeviceDX12::GetPrimaryDeviceDX12().Init(adapterIndex);
+}
+
+TruthEngine::Core::GDevice* TruthEngine::Core::GDevice::s_GDevice = &TruthEngine::API::DX12::GDeviceDX12::GetPrimaryDeviceDX12();
+
+#endif

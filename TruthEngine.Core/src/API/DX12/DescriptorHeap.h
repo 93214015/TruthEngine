@@ -3,9 +3,11 @@
 namespace TruthEngine::API::DX12
 {
 
-#define DESCRIPTORHEAP_GETHANDLES	inline CD3DX12_CPU_DESCRIPTOR_HANDLE GetCPUHandle(UINT index) const override { return CD3DX12_CPU_DESCRIPTOR_HANDLE(m_DescriptorHeap->GetCPUDescriptorHandleForHeapStart(), index, m_DescriptorSize); };\
+	class GDeviceDX12;
+
+#define DESCRIPTORHEAP_GETHANDLES	inline CD3DX12_CPU_DESCRIPTOR_HANDLE GetCPUHandle(uint32_t index) const override { return CD3DX12_CPU_DESCRIPTOR_HANDLE(m_DescriptorHeap->GetCPUDescriptorHandleForHeapStart(), index, m_DescriptorSize); };\
 									inline CD3DX12_CPU_DESCRIPTOR_HANDLE GetCPUHandleLast() const override { return CD3DX12_CPU_DESCRIPTOR_HANDLE(m_DescriptorHeap->GetCPUDescriptorHandleForHeapStart(), m_CurrentIndex, m_DescriptorSize); }\
-									inline CD3DX12_GPU_DESCRIPTOR_HANDLE GetGPUHandle(UINT index) const override { return CD3DX12_GPU_DESCRIPTOR_HANDLE(m_DescriptorHeap->GetGPUDescriptorHandleForHeapStart(), index, m_DescriptorSize); }\
+									inline CD3DX12_GPU_DESCRIPTOR_HANDLE GetGPUHandle(uint32_t index) const override { return CD3DX12_GPU_DESCRIPTOR_HANDLE(m_DescriptorHeap->GetGPUDescriptorHandleForHeapStart(), index, m_DescriptorSize); }\
 									inline CD3DX12_GPU_DESCRIPTOR_HANDLE GetGPUHandleLast() const override { return CD3DX12_GPU_DESCRIPTOR_HANDLE(m_DescriptorHeap->GetGPUDescriptorHandleForHeapStart(), m_CurrentIndex, m_DescriptorSize); }
 
 
@@ -17,25 +19,25 @@ namespace TruthEngine::API::DX12
 		DescriptorHeap() = default;
 		virtual ~DescriptorHeap() = default;
 
-		virtual TE_RESULT Init(ID3D12Device* device, UINT descriptorNum, D3D12_DESCRIPTOR_HEAP_FLAGS flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE, UINT nodeMask = 0) = 0;
+		virtual TE_RESULT Init(GDeviceDX12& gDeviceDX12, uint32_t descriptorNum, D3D12_DESCRIPTOR_HEAP_FLAGS flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE, uint32_t nodeMask = 0) = 0;
 
-		inline UINT GetCurrentIndex()const noexcept { return m_CurrentIndex; }
+		inline uint32_t GetCurrentIndex()const noexcept { return m_CurrentIndex; }
 
 		inline ID3D12DescriptorHeap* GetDescriptorHeap() const { return m_DescriptorHeap.Get(); }
 
 		inline void Release() { m_DescriptorHeap->Release(); }
 
-		virtual inline CD3DX12_CPU_DESCRIPTOR_HANDLE GetCPUHandle(UINT index) const = 0;
+		virtual inline CD3DX12_CPU_DESCRIPTOR_HANDLE GetCPUHandle(uint32_t index) const = 0;
 		virtual inline CD3DX12_CPU_DESCRIPTOR_HANDLE GetCPUHandleLast() const = 0;
-		virtual inline CD3DX12_GPU_DESCRIPTOR_HANDLE GetGPUHandle(UINT index) const = 0;
+		virtual inline CD3DX12_GPU_DESCRIPTOR_HANDLE GetGPUHandle(uint32_t index) const = 0;
 		virtual inline CD3DX12_GPU_DESCRIPTOR_HANDLE GetGPUHandleLast() const = 0;
 
-		virtual UINT AddDescriptor(ID3D12Resource* resource) = 0;
+		virtual uint32_t AddDescriptor(ID3D12Resource* resource) = 0;
 
 	protected:
-		ID3D12Device* m_Device;
+		GDeviceDX12* m_Device;
 		Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_DescriptorHeap;
-		UINT m_CurrentIndex = 0;
+		uint32_t m_CurrentIndex = 0;
 	};
 
 
@@ -44,15 +46,15 @@ namespace TruthEngine::API::DX12
 	public:
 		virtual ~DescriptorHeapRTV() = default;
 
-		virtual TE_RESULT Init(ID3D12Device* device, UINT descriptorNum, D3D12_DESCRIPTOR_HEAP_FLAGS flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE, UINT nodeMask = 0) override;
-		virtual UINT AddDescriptor(ID3D12Resource* resource) override;
+		virtual TE_RESULT Init(GDeviceDX12& device, uint32_t descriptorNum, D3D12_DESCRIPTOR_HEAP_FLAGS flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE, uint32_t nodeMask = 0) override;
+		virtual uint32_t AddDescriptor(ID3D12Resource* resource) override;
 
 		DESCRIPTORHEAP_GETHANDLES
 
-		static inline UINT GetDescriptorSize() { return m_DescriptorSize; }
+		static inline uint32_t GetDescriptorSize() { return m_DescriptorSize; }
 
 	protected:
-		static UINT m_DescriptorSize;
+		static uint32_t m_DescriptorSize;
 	};
 
 
@@ -61,21 +63,21 @@ namespace TruthEngine::API::DX12
 	public:
 		virtual ~DescriptorHeapSRV() = default;
 
-		virtual TE_RESULT Init(ID3D12Device* device, UINT descriptorNum, D3D12_DESCRIPTOR_HEAP_FLAGS flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE, UINT nodeMask = 0) override;
-		virtual UINT AddDescriptorSRV(ID3D12Resource* resource, const D3D12_SHADER_RESOURCE_VIEW_DESC* srvDesc);
-		virtual UINT AddDescriptorCBV(const D3D12_CONSTANT_BUFFER_VIEW_DESC* cbvDesc);
-		virtual UINT AddDescriptorUAV(ID3D12Resource* resource, ID3D12Resource* counterResource, const D3D12_UNORDERED_ACCESS_VIEW_DESC* uavDesc);
+		virtual TE_RESULT Init(GDeviceDX12& device, uint32_t descriptorNum, D3D12_DESCRIPTOR_HEAP_FLAGS flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE, uint32_t nodeMask = 0) override;
+		virtual uint32_t AddDescriptorSRV(ID3D12Resource* resource, const D3D12_SHADER_RESOURCE_VIEW_DESC* srvDesc);
+		virtual uint32_t AddDescriptorCBV(const D3D12_CONSTANT_BUFFER_VIEW_DESC* cbvDesc);
+		virtual uint32_t AddDescriptorUAV(ID3D12Resource* resource, ID3D12Resource* counterResource, const D3D12_UNORDERED_ACCESS_VIEW_DESC* uavDesc);
 
 		DESCRIPTORHEAP_GETHANDLES
 
-		static inline UINT GetDescriptorSize() { return m_DescriptorSize; }
+		static inline uint32_t GetDescriptorSize() { return m_DescriptorSize; }
 
 	protected:
-		UINT AddDescriptor(ID3D12Resource* resource) override { return TE_FAIL; };
+		uint32_t AddDescriptor(ID3D12Resource* resource) override { return TE_FAIL; };
 
 	protected:
 
-		static UINT m_DescriptorSize;
+		static uint32_t m_DescriptorSize;
 
 	};
 
@@ -85,19 +87,19 @@ namespace TruthEngine::API::DX12
 	public:
 		virtual ~DescriptorHeapDSV() = default;
 
-		virtual TE_RESULT Init(ID3D12Device* device, UINT descriptorNum, D3D12_DESCRIPTOR_HEAP_FLAGS flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE, UINT nodeMask = 0) override;
-		virtual UINT AddDescriptor(ID3D12Resource* resource, const D3D12_DEPTH_STENCIL_VIEW_DESC* dsvDesc);
+		virtual TE_RESULT Init(GDeviceDX12& device, uint32_t descriptorNum, D3D12_DESCRIPTOR_HEAP_FLAGS flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE, uint32_t nodeMask = 0) override;
+		virtual uint32_t AddDescriptor(ID3D12Resource* resource, const D3D12_DEPTH_STENCIL_VIEW_DESC* dsvDesc);
 
 		DESCRIPTORHEAP_GETHANDLES
 
-		static inline UINT GetDescriptorSize() { return m_DescriptorSize; }
+		static inline uint32_t GetDescriptorSize() { return m_DescriptorSize; }
 
 	protected:
-		UINT AddDescriptor(ID3D12Resource* resource) override { return TE_FAIL; }
+		uint32_t AddDescriptor(ID3D12Resource* resource) override { return TE_FAIL; }
 
 	protected:
 
-		static UINT m_DescriptorSize;
+		static uint32_t m_DescriptorSize;
 
 	};
 
@@ -107,18 +109,18 @@ namespace TruthEngine::API::DX12
 	public:
 		virtual ~DescriptorHeapSampler() = default;
 
-		virtual TE_RESULT Init(ID3D12Device* device, UINT descriptorNum, D3D12_DESCRIPTOR_HEAP_FLAGS flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE, UINT nodeMask = 0) override;
-		virtual UINT AddDescriptor(const D3D12_SAMPLER_DESC* samplerDesc);
+		virtual TE_RESULT Init(GDeviceDX12& device, uint32_t descriptorNum, D3D12_DESCRIPTOR_HEAP_FLAGS flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE, uint32_t nodeMask = 0) override;
+		virtual uint32_t AddDescriptor(const D3D12_SAMPLER_DESC* samplerDesc);
 
 		DESCRIPTORHEAP_GETHANDLES
 
-		static inline UINT GetDescriptorSize() { return m_DescriptorSize; }
+		static inline uint32_t GetDescriptorSize() { return m_DescriptorSize; }
 
 	protected:
-		UINT AddDescriptor(ID3D12Resource* resource) override { return TE_FAIL; };
+		uint32_t AddDescriptor(ID3D12Resource* resource) override { return TE_FAIL; };
 
 	protected:
-		static UINT m_DescriptorSize;
+		static uint32_t m_DescriptorSize;
 
 	};
 

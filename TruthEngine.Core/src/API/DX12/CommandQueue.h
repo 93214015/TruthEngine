@@ -9,6 +9,7 @@ namespace TruthEngine::API::DX12 {
 
 	class CommandQueue {
 		friend class GDeviceDX12;
+		friend class SwapChainDX12;
 	public:
 		CommandQueue();
 		TE_RESULT Init(D3D12_COMMAND_LIST_TYPE type, GDeviceDX12& gDevice);
