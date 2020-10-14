@@ -7,9 +7,14 @@
 
 #include "Core/SwapChain.h"
 
+//forward declaration of ImGui function for processing window events.
+extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	static TruthEngine::Core::Window::WindowData* windowData = nullptr;
+
+	ImGui_ImplWin32_WndProcHandler(hwnd, message, wParam, lParam);
 
 	switch (message)
 	{
