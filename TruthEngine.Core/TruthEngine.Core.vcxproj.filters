@@ -54,9 +54,6 @@
     <ClInclude Include="src\API\DX12\FrameContext.h">
       <Filter>API\DX12</Filter>
     </ClInclude>
-    <ClInclude Include="src\API\DX12\GDeviceDX12.h">
-      <Filter>API\DX12</Filter>
-    </ClInclude>
     <ClInclude Include="src\API\DX12\ImGuiLayerDX12.h">
       <Filter>API\DX12</Filter>
     </ClInclude>
@@ -89,9 +86,6 @@
     </ClInclude>
     <ClInclude Include="src\Core\Event\EventMouse.h">
       <Filter>Core\Event</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Core\GPU\GDevice.h">
-      <Filter>Core\GPU</Filter>
     </ClInclude>
     <ClInclude Include="src\Core\ImGui\ImGuiLayer.h">
       <Filter>Core\ImGui</Filter>
@@ -142,6 +136,12 @@
       <Filter>API\DX12</Filter>
     </ClInclude>
     <ClInclude Include="src\Core\SwapChain.h" />
+    <ClInclude Include="src\Core\Renderer\GraphicDevice.h">
+      <Filter>Core\GPU</Filter>
+    </ClInclude>
+    <ClInclude Include="src\API\DX12\GraphicDeviceDX12.h">
+      <Filter>API\DX12</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\API\DX12\CommandAllocator.cpp">
@@ -160,9 +160,6 @@
       <Filter>API\DX12</Filter>
     </ClCompile>
     <ClCompile Include="src\API\DX12\FrameContext.cpp">
-      <Filter>API\DX12</Filter>
-    </ClCompile>
-    <ClCompile Include="src\API\DX12\GDeviceDX12.cpp">
       <Filter>API\DX12</Filter>
     </ClCompile>
     <ClCompile Include="src\API\DX12\ImGuiLayerDX12.cpp">
@@ -233,5 +230,8 @@
       <Filter>API\DX12</Filter>
     </ClCompile>
     <ClCompile Include="src\Core\SwapChain.cpp" />
+    <ClCompile Include="src\API\DX12\GraphicDeviceDX12.cpp">
+      <Filter>API\DX12</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

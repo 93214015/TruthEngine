@@ -144,7 +144,7 @@
     <ClInclude Include="src\API\DX12\DescriptorHeap.h" />
     <ClInclude Include="src\API\DX12\Fence.h" />
     <ClInclude Include="src\API\DX12\FrameContext.h" />
-    <ClInclude Include="src\API\DX12\GDeviceDX12.h" />
+    <ClInclude Include="src\API\DX12\GraphicDeviceDX12.h" />
     <ClInclude Include="src\API\DX12\ImGuiLayerDX12.h" />
     <ClInclude Include="src\API\DX12\SwapChainDX12.h" />
     <ClInclude Include="src\API\IDXGI.h" />
@@ -157,7 +157,7 @@
     <ClInclude Include="src\Core\Event\EventApplication.h" />
     <ClInclude Include="src\Core\Event\EventKey.h" />
     <ClInclude Include="src\Core\Event\EventMouse.h" />
-    <ClInclude Include="src\Core\GPU\GDevice.h" />
+    <ClInclude Include="src\Core\Renderer\GraphicDevice.h" />
     <ClInclude Include="src\Core\ImGui\ImGuiLayer.h" />
     <ClInclude Include="src\Core\Input\InputManager.h" />
     <ClInclude Include="src\Core\Input\KeyCodes.h" />
@@ -184,7 +184,7 @@
     <ClCompile Include="src\API\DX12\DescriptorHeap.cpp" />
     <ClCompile Include="src\API\DX12\Fence.cpp" />
     <ClCompile Include="src\API\DX12\FrameContext.cpp" />
-    <ClCompile Include="src\API\DX12\GDeviceDX12.cpp" />
+    <ClCompile Include="src\API\DX12\GraphicDeviceDX12.cpp" />
     <ClCompile Include="src\API\DX12\ImGuiLayerDX12.cpp" />
     <ClCompile Include="src\API\DX12\SwapChainDX12.cpp" />
     <ClCompile Include="src\API\IDXGI.cpp" />

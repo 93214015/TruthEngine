@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "CommandList.h"
-#include "GDeviceDX12.h"
+#include "GraphicDeviceDX12.h"
 
 namespace TruthEngine::API::DX12
 {
@@ -8,7 +8,7 @@ namespace TruthEngine::API::DX12
 	CommandList::CommandList() = default;
 
 
-	void CommandList::Init(uint32_t FrameInFlyNum, D3D12_COMMAND_LIST_TYPE type, GDeviceDX12& gDevice)
+	void CommandList::Init(uint32_t FrameInFlyNum, D3D12_COMMAND_LIST_TYPE type, GraphicDeviceDX12& gDevice)
 	{
 		m_CommandAllocators.reserve(FrameInFlyNum);
 		for (uint32_t i = 0; i < FrameInFlyNum; ++i)

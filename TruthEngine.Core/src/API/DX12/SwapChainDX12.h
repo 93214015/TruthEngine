@@ -1,5 +1,5 @@
 #pragma once
-#include "API/DX12/GDeviceDX12.h"
+#include "API/DX12/GraphicDeviceDX12.h"
 #include "API/DX12/CommandList.h"
 #include "API/DX12/DescriptorHeap.h"
 #include "Core/Application.h"

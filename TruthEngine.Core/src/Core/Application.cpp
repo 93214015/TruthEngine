@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "Core/Application.h"
-#include "Core/GPU/GDevice.h"
+#include "Core/Renderer/GraphicDevice.h"
 
 namespace TruthEngine::Core {
 

@@ -5,11 +5,11 @@ namespace TruthEngine::API::DX12
 {
 
 	class CommandList {
-		friend class GDeviceDX12;
+		friend class GraphicDeviceDX12;
 	public:
 		CommandList();
 
-		void Init(uint32_t FrameInflyNum, D3D12_COMMAND_LIST_TYPE type, GDeviceDX12& gDevice);
+		void Init(uint32_t FrameInflyNum, D3D12_COMMAND_LIST_TYPE type, GraphicDeviceDX12& gDevice);
 
 		inline ID3D12GraphicsCommandList* Get() { return m_CommandList.Get(); }
 

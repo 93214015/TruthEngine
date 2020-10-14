@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "DescriptorHeap.h"
-#include "GDeviceDX12.h"
+#include "GraphicDeviceDX12.h"
 
 namespace TruthEngine::API::DX12
 {
@@ -11,7 +11,7 @@ namespace TruthEngine::API::DX12
 	uint32_t DescriptorHeapSampler::m_DescriptorSize = 0;
 
 
-	TE_RESULT DescriptorHeapRTV::Init(GDeviceDX12& device, uint32_t descriptorNum, D3D12_DESCRIPTOR_HEAP_FLAGS flags /*= D3D12_DESCRIPTOR_HEAP_FLAG_NONE*/, uint32_t nodeMask /*= 0*/)
+	TE_RESULT DescriptorHeapRTV::Init(GraphicDeviceDX12& device, uint32_t descriptorNum, D3D12_DESCRIPTOR_HEAP_FLAGS flags /*= D3D12_DESCRIPTOR_HEAP_FLAG_NONE*/, uint32_t nodeMask /*= 0*/)
 	{
 		m_Device = &device;
 
@@ -35,7 +35,7 @@ namespace TruthEngine::API::DX12
 	}
 
 
-	TE_RESULT DescriptorHeapSRV::Init(GDeviceDX12& device, uint32_t descriptorNum, D3D12_DESCRIPTOR_HEAP_FLAGS flags /*= D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE*/, uint32_t nodeMask /*= 0*/)
+	TE_RESULT DescriptorHeapSRV::Init(GraphicDeviceDX12& device, uint32_t descriptorNum, D3D12_DESCRIPTOR_HEAP_FLAGS flags /*= D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE*/, uint32_t nodeMask /*= 0*/)
 	{
 		m_Device = &device;
 
@@ -74,7 +74,7 @@ namespace TruthEngine::API::DX12
 		return insertedIndex;
 	}
 
-	TE_RESULT DescriptorHeapDSV::Init(GDeviceDX12& device, uint32_t descriptorNum, D3D12_DESCRIPTOR_HEAP_FLAGS flags /*= D3D12_DESCRIPTOR_HEAP_FLAG_NONE*/, uint32_t nodeMask /*= 0*/)
+	TE_RESULT DescriptorHeapDSV::Init(GraphicDeviceDX12& device, uint32_t descriptorNum, D3D12_DESCRIPTOR_HEAP_FLAGS flags /*= D3D12_DESCRIPTOR_HEAP_FLAG_NONE*/, uint32_t nodeMask /*= 0*/)
 	{
 		m_Device = &device;
 
@@ -97,7 +97,7 @@ namespace TruthEngine::API::DX12
 		return insertedIndex;
 	}
 
-	TE_RESULT DescriptorHeapSampler::Init(GDeviceDX12& device, uint32_t descriptorNum, D3D12_DESCRIPTOR_HEAP_FLAGS flags /*= D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE*/, uint32_t nodeMask /*= 0*/)
+	TE_RESULT DescriptorHeapSampler::Init(GraphicDeviceDX12& device, uint32_t descriptorNum, D3D12_DESCRIPTOR_HEAP_FLAGS flags /*= D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE*/, uint32_t nodeMask /*= 0*/)
 	{
 		m_Device = &device;
 

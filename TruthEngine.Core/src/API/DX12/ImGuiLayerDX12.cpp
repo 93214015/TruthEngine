@@ -3,7 +3,7 @@
 
 #include "Core/Application.h"
 #include "Platform/Windows/WindowWindows.h"
-#include "API/DX12/GDeviceDX12.h"
+#include "API/DX12/GraphicDeviceDX12.h"
 #include "API/IDXGI.h"
 #include "API/DX12/SwapChainDX12.h"
 
@@ -21,10 +21,10 @@ namespace TruthEngine::API::DX12 {
 
 	void ImGuiLayerDX12::OnAttach()
 	{
-		m_CommandList.Init(TE_INSTANCE_APPLICATION.GetFramesInFlightNum(), D3D12_COMMAND_LIST_TYPE_DIRECT, TE_INSTANCE_API_DX12_GDEVICE);
+		m_CommandList.Init(TE_INSTANCE_APPLICATION.GetFramesInFlightNum(), D3D12_COMMAND_LIST_TYPE_DIRECT, TE_INSTANCE_API_DX12_GRAPHICDEVICE);
 
-		m_DescHeapSRV.Init(TE_INSTANCE_API_DX12_GDEVICE, TE_INSTANCE_APPLICATION.GetFramesInFlightNum());
-		m_DescHeapRTV.Init(TE_INSTANCE_API_DX12_GDEVICE, TE_INSTANCE_APPLICATION.GetFramesInFlightNum());
+		m_DescHeapSRV.Init(TE_INSTANCE_API_DX12_GRAPHICDEVICE, TE_INSTANCE_APPLICATION.GetFramesInFlightNum());
+		m_DescHeapRTV.Init(TE_INSTANCE_API_DX12_GRAPHICDEVICE, TE_INSTANCE_APPLICATION.GetFramesInFlightNum());
 
 		TE_INSTANCE_API_DX12_SWAPCHAIN.InitRTVs(&m_DescHeapRTV);
 
@@ -47,7 +47,7 @@ namespace TruthEngine::API::DX12 {
 
 		auto hwnd = (TE_INSTANCE_APPLICATION.GetWindow()->GetNativeWindowHandle());
 		ImGui_ImplWin32_Init(hwnd);
-		ImGui_ImplDX12_Init(TE_INSTANCE_API_DX12_GDEVICE.GetDevice()
+		ImGui_ImplDX12_Init(TE_INSTANCE_API_DX12_GRAPHICDEVICE.GetDevice()
 			, TE_INSTANCE_APPLICATION.GetFramesInFlightNum()
 			, DXGI_FORMAT_R8G8B8A8_UNORM
 			, m_DescHeapSRV.GetDescriptorHeap()

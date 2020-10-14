@@ -2,7 +2,6 @@
 #include "SwapChainDX12.h"
 
 #include "Core/Application.h"
-#include "Core/GPU/GDevice.h"
 
 #include "API/IDXGI.h"
 
@@ -103,7 +102,7 @@ namespace TruthEngine::API::DX12 {
 		m_MSAAQualityLevels.NumQualityLevels = 0;
 		m_MSAAQualityLevels.SampleCount = 4;
 
-		TE_INSTANCE_API_DX12_GDEVICE.GetDevice()->CheckFeatureSupport(D3D12_FEATURE_MULTISAMPLE_QUALITY_LEVELS
+		TE_INSTANCE_API_DX12_GRAPHICDEVICE.GetDevice()->CheckFeatureSupport(D3D12_FEATURE_MULTISAMPLE_QUALITY_LEVELS
 			, &m_MSAAQualityLevels
 			, sizeof(m_MSAAQualityLevels));
 

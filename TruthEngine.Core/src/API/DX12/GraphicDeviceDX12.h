@@ -1,17 +1,17 @@
 #pragma once
 #include "CommandQueue.h"
 #include "Fence.h"
-#include "Core/GPU/GDevice.h"
+#include "Core/Renderer/GraphicDevice.h"
 
 
-#define TE_INSTANCE_API_DX12_GDEVICE			TruthEngine::API::DX12::GDeviceDX12::GetPrimaryDeviceDX12()
-#define TE_INSTANCE_API_DX12_COMMANDQUEUEDIRECT TruthEngine::API::DX12::GDeviceDX12::GetPrimaryDeviceDX12().GetCommandQueuDirect()
-#define TE_INSTANCE_API_DX12_COMMANDQUEUECOPY	TruthEngine::API::DX12::GDeviceDX12::GetPrimaryDeviceDX12().GetCommandQueuCopy()
+#define TE_INSTANCE_API_DX12_GRAPHICDEVICE			TruthEngine::API::DX12::GraphicDeviceDX12::GetPrimaryDeviceDX12()
+#define TE_INSTANCE_API_DX12_COMMANDQUEUEDIRECT TruthEngine::API::DX12::GraphicDeviceDX12::GetPrimaryDeviceDX12().GetCommandQueuDirect()
+#define TE_INSTANCE_API_DX12_COMMANDQUEUECOPY	TruthEngine::API::DX12::GraphicDeviceDX12::GetPrimaryDeviceDX12().GetCommandQueuCopy()
 
 
 namespace TruthEngine::API::DX12 {
 
-	class GDeviceDX12 : public TruthEngine::Core::GDevice {
+	class GraphicDeviceDX12 : public TruthEngine::Core::GraphicDevice {
 		friend class CommandQueue;
 		friend class CommandList;
 		friend class CommandAllocator;
@@ -28,7 +28,7 @@ namespace TruthEngine::API::DX12 {
 
 		inline Fence& GetFence() { return m_Fence; }
 
-		static inline GDeviceDX12& GetPrimaryDeviceDX12() { return s_PrimaryDevice; }
+		static inline GraphicDeviceDX12& GetPrimaryDeviceDX12() { return s_PrimaryDevice; }
 
 	private:
 		TE_RESULT CreateDevice(UINT adapterIndex);
@@ -54,7 +54,7 @@ namespace TruthEngine::API::DX12 {
 
 		Fence m_Fence;
 
-		static GDeviceDX12 s_PrimaryDevice;
+		static GraphicDeviceDX12 s_PrimaryDevice;
 
 	};
 

@@ -5,12 +5,12 @@ namespace TruthEngine::API::DX12 {
 	class CommandList;
 
 	class CommandAllocator {
-		friend class GDeviceDX12;
+		friend class GraphicDeviceDX12;
 		friend class CommandQueue;
 		friend class CommandList;
 	public:
 		CommandAllocator();
-		TE_RESULT Init(D3D12_COMMAND_LIST_TYPE commandListType, GDeviceDX12& gDevice);
+		TE_RESULT Init(D3D12_COMMAND_LIST_TYPE commandListType, GraphicDeviceDX12& gDevice);
 		TE_RESULT Reset();
 		ID3D12CommandAllocator* Get() { return m_CommandAllocator.Get(); }
 		ID3D12CommandAllocator* operator->() { return m_CommandAllocator.Get(); }
