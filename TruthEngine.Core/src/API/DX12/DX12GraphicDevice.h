@@ -4,14 +4,14 @@
 #include "Core/Renderer/GraphicDevice.h"
 
 
-#define TE_INSTANCE_API_DX12_GRAPHICDEVICE			TruthEngine::API::DX12::GraphicDeviceDX12::GetPrimaryDeviceDX12()
-#define TE_INSTANCE_API_DX12_COMMANDQUEUEDIRECT TruthEngine::API::DX12::GraphicDeviceDX12::GetPrimaryDeviceDX12().GetCommandQueuDirect()
-#define TE_INSTANCE_API_DX12_COMMANDQUEUECOPY	TruthEngine::API::DX12::GraphicDeviceDX12::GetPrimaryDeviceDX12().GetCommandQueuCopy()
+#define TE_INSTANCE_API_DX12_GRAPHICDEVICE			TruthEngine::API::DX12::DX12GraphicDevice::GetPrimaryDeviceDX12()
+#define TE_INSTANCE_API_DX12_COMMANDQUEUEDIRECT		TruthEngine::API::DX12::DX12GraphicDevice::GetPrimaryDeviceDX12().GetCommandQueuDirect()
+#define TE_INSTANCE_API_DX12_COMMANDQUEUECOPY		TruthEngine::API::DX12::DX12GraphicDevice::GetPrimaryDeviceDX12().GetCommandQueuCopy()
 
 
 namespace TruthEngine::API::DX12 {
 
-	class GraphicDeviceDX12 : public TruthEngine::Core::GraphicDevice {
+	class DX12GraphicDevice : public TruthEngine::Core::GraphicDevice {
 		friend class CommandQueue;
 		friend class CommandList;
 		friend class CommandAllocator;
@@ -28,7 +28,7 @@ namespace TruthEngine::API::DX12 {
 
 		inline Fence& GetFence() { return m_Fence; }
 
-		static inline GraphicDeviceDX12& GetPrimaryDeviceDX12() { return s_PrimaryDevice; }
+		static inline DX12GraphicDevice& GetPrimaryDeviceDX12() { return s_PrimaryDevice; }
 
 	private:
 		TE_RESULT CreateDevice(UINT adapterIndex);
@@ -54,7 +54,7 @@ namespace TruthEngine::API::DX12 {
 
 		Fence m_Fence;
 
-		static GraphicDeviceDX12 s_PrimaryDevice;
+		static DX12GraphicDevice s_PrimaryDevice;
 
 	};
 

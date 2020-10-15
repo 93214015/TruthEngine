@@ -3,10 +3,10 @@
 
 namespace TruthEngine::Platforms::Windows {
 
-	class WindowWindows : public TruthEngine::Core::Window
+	class WindowsWindow : public TruthEngine::Core::Window
 	{
 	public:
-		WindowWindows(const char* title, uint16_t width, uint16_t height);
+		WindowsWindow(const char* title, uint16_t width, uint16_t height);
 
 		void Show() override;
 

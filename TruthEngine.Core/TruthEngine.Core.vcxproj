@@ -143,10 +143,9 @@
     <ClInclude Include="src\API\DX12\CommandQueue.h" />
     <ClInclude Include="src\API\DX12\DescriptorHeap.h" />
     <ClInclude Include="src\API\DX12\Fence.h" />
-    <ClInclude Include="src\API\DX12\FrameContext.h" />
-    <ClInclude Include="src\API\DX12\GraphicDeviceDX12.h" />
-    <ClInclude Include="src\API\DX12\ImGuiLayerDX12.h" />
-    <ClInclude Include="src\API\DX12\SwapChainDX12.h" />
+    <ClInclude Include="src\API\DX12\DX12GraphicDevice.h" />
+    <ClInclude Include="src\API\DX12\DX12ImGuiLayer.h" />
+    <ClInclude Include="src\API\DX12\DX12SwapChain.h" />
     <ClInclude Include="src\API\IDXGI.h" />
     <ClInclude Include="src\Core\Application.h" />
     <ClInclude Include="src\Core\Entity\Camera\CameraOrthographic.h" />
@@ -172,7 +171,7 @@
     <ClInclude Include="src\Core\TimerProfile.h" />
     <ClInclude Include="src\Core\TruthEngine.Core.h" />
     <ClInclude Include="src\Core\Window.h" />
-    <ClInclude Include="src\Platform\Windows\WindowWindows.h" />
+    <ClInclude Include="src\Platform\Windows\WindowsWindow.h" />
     <ClInclude Include="src\TruthEngine.h" />
     <ClInclude Include="src\lib.h" />
     <ClInclude Include="src\pch.h" />
@@ -183,10 +182,9 @@
     <ClCompile Include="src\API\DX12\CommandQueue.cpp" />
     <ClCompile Include="src\API\DX12\DescriptorHeap.cpp" />
     <ClCompile Include="src\API\DX12\Fence.cpp" />
-    <ClCompile Include="src\API\DX12\FrameContext.cpp" />
-    <ClCompile Include="src\API\DX12\GraphicDeviceDX12.cpp" />
-    <ClCompile Include="src\API\DX12\ImGuiLayerDX12.cpp" />
-    <ClCompile Include="src\API\DX12\SwapChainDX12.cpp" />
+    <ClCompile Include="src\API\DX12\DX12GraphicDevice.cpp" />
+    <ClCompile Include="src\API\DX12\DX12ImGuiLayer.cpp" />
+    <ClCompile Include="src\API\DX12\DX12SwapChain.cpp" />
     <ClCompile Include="src\API\IDXGI.cpp" />
     <ClCompile Include="src\Core\Application.cpp" />
     <ClCompile Include="src\Core\Entity\Camera\CameraOrthographic.cpp" />
@@ -206,8 +204,8 @@
     <ClCompile Include="src\Core\TimerEngine.cpp" />
     <ClCompile Include="src\Core\TimerProfile.cpp" />
     <ClCompile Include="src\Core\Window.cpp" />
-    <ClCompile Include="src\Platform\Windows\WindowInputManager.cpp" />
-    <ClCompile Include="src\Platform\Windows\WindowWindows.cpp" />
+    <ClCompile Include="src\Platform\Windows\WindowsInputManager.cpp" />
+    <ClCompile Include="src\Platform\Windows\WindowsWindow.cpp" />
     <ClCompile Include="src\pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>

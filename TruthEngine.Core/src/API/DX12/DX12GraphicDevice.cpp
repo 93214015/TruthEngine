@@ -1,16 +1,16 @@
 #include "pch.h"
-#include "GraphicDeviceDX12.h"
+#include "DX12GraphicDevice.h"
 
 #include "API/IDXGI.h"
 #include "API/DX12/DescriptorHeap.h"
-#include "API/DX12/SwapChainDX12.h"
+#include "API/DX12/DX12SwapChain.h"
 
 #include "Core/Application.h"
 
 namespace TruthEngine::API::DX12
 {
 
-	TE_RESULT GraphicDeviceDX12::Init(UINT adapterIndex)
+	TE_RESULT DX12GraphicDevice::Init(UINT adapterIndex)
 	{
 		TE_INSTANCE_IDXGI.Init();
 
@@ -21,12 +21,12 @@ namespace TruthEngine::API::DX12
 		m_Fence.Initialize(*this);
 
 		// init singleton object of dx12 swap chain
-		SwapChainDX12::Get().Init(TE_INSTANCE_APPLICATION.GetClientWidth(), TE_INSTANCE_APPLICATION.GetClientHeight(), static_cast<HWND>(TE_INSTANCE_APPLICATION.GetWindow()->GetNativeWindowHandle()), TE_INSTANCE_APPLICATION.GetFramesInFlightNum());
+		DX12SwapChain::Get().Init(TE_INSTANCE_APPLICATION.GetClientWidth(), TE_INSTANCE_APPLICATION.GetClientHeight(), static_cast<HWND>(TE_INSTANCE_APPLICATION.GetWindow()->GetNativeWindowHandle()), TE_INSTANCE_APPLICATION.GetFramesInFlightNum());
 
 		return TE_SUCCESSFUL;
 	}
 
-	TE_RESULT GraphicDeviceDX12::CreateDevice(UINT adapterIndex)
+	TE_RESULT DX12GraphicDevice::CreateDevice(UINT adapterIndex)
 	{
 
 #if defined(TE_DEBUG)
@@ -45,7 +45,7 @@ namespace TruthEngine::API::DX12
 		return TE_SUCCESSFUL;
 	}
 
-	void GraphicDeviceDX12::InitDescriptorSize() const
+	void DX12GraphicDevice::InitDescriptorSize() const
 	{
 		DescriptorHeapRTV::m_DescriptorSize = GetDescriptorSizeRTV();
 		DescriptorHeapSRV::m_DescriptorSize = GetDescriptorSizeSRV();
@@ -53,7 +53,7 @@ namespace TruthEngine::API::DX12
 		DescriptorHeapSampler::m_DescriptorSize = GetDescriptorSizeSampler();
 	}
 
-	TE_RESULT GraphicDeviceDX12::InitCommandQueues()
+	TE_RESULT DX12GraphicDevice::InitCommandQueues()
 	{
 		auto result = m_CommandQueueCopy.Init(D3D12_COMMAND_LIST_TYPE_COPY, *this);
 		TE_ASSERT_CORE(TE_SUCCEEDED(result), "API::DX12 PrimaryCopyCommandQueue Creation was failed!");
@@ -64,7 +64,7 @@ namespace TruthEngine::API::DX12
 		return TE_SUCCESSFUL;
 	}
 
-	TE_RESULT GraphicDeviceDX12::CreateCommandQueue(COMPTR<ID3D12CommandQueue>& cmdQueue, D3D12_COMMAND_LIST_TYPE type) const
+	TE_RESULT DX12GraphicDevice::CreateCommandQueue(COMPTR<ID3D12CommandQueue>& cmdQueue, D3D12_COMMAND_LIST_TYPE type) const
 	{
 		D3D12_COMMAND_QUEUE_DESC desc;
 		desc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
@@ -80,7 +80,7 @@ namespace TruthEngine::API::DX12
 		}
 	}
 
-	TE_RESULT GraphicDeviceDX12::CreateCommandList(COMPTR<ID3D12GraphicsCommandList>& cmdList, D3D12_COMMAND_LIST_TYPE type) const
+	TE_RESULT DX12GraphicDevice::CreateCommandList(COMPTR<ID3D12GraphicsCommandList>& cmdList, D3D12_COMMAND_LIST_TYPE type) const
 	{
 		D3D12_COMMAND_QUEUE_DESC desc;
 		desc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
@@ -98,7 +98,7 @@ namespace TruthEngine::API::DX12
 		}
 	}
 
-	TE_RESULT GraphicDeviceDX12::CreateCommandAllocator(COMPTR<ID3D12CommandAllocator>& cmdAlloc, D3D12_COMMAND_LIST_TYPE type) const
+	TE_RESULT DX12GraphicDevice::CreateCommandAllocator(COMPTR<ID3D12CommandAllocator>& cmdAlloc, D3D12_COMMAND_LIST_TYPE type) const
 	{
 		if (m_Device->CreateCommandAllocator(type, IID_PPV_ARGS(cmdAlloc.ReleaseAndGetAddressOf())) == S_OK)
 			return TE_SUCCESSFUL;
@@ -109,7 +109,7 @@ namespace TruthEngine::API::DX12
 		}
 	}
 
-	TruthEngine::API::DX12::GraphicDeviceDX12 GraphicDeviceDX12::s_PrimaryDevice;
+	TruthEngine::API::DX12::DX12GraphicDevice DX12GraphicDevice::s_PrimaryDevice;
 
 }
 
@@ -117,9 +117,9 @@ namespace TruthEngine::API::DX12
 
 TE_RESULT TruthEngine::Core::CreateGDevice(uint32_t adapterIndex)
 {
-	return TruthEngine::API::DX12::GraphicDeviceDX12::GetPrimaryDeviceDX12().Init(adapterIndex);
+	return TruthEngine::API::DX12::DX12GraphicDevice::GetPrimaryDeviceDX12().Init(adapterIndex);
 }
 
-TruthEngine::Core::GraphicDevice* TruthEngine::Core::GraphicDevice::s_GDevice = &TruthEngine::API::DX12::GraphicDeviceDX12::GetPrimaryDeviceDX12();
+TruthEngine::Core::GraphicDevice* TruthEngine::Core::GraphicDevice::s_GDevice = &TruthEngine::API::DX12::DX12GraphicDevice::GetPrimaryDeviceDX12();
 
 #endif

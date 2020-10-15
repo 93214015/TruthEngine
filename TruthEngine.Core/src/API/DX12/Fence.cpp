@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "Fence.h"
-#include "GraphicDeviceDX12.h"
+#include "DX12GraphicDevice.h"
 
 namespace TruthEngine::API::DX12 {
 
@@ -10,7 +10,7 @@ namespace TruthEngine::API::DX12 {
 	{
 	}
 
-	void Fence::Initialize(const GraphicDeviceDX12& device, D3D12_FENCE_FLAGS flags /*= D3D12_FENCE_FLAG_NONE*/)
+	void Fence::Initialize(const DX12GraphicDevice& device, D3D12_FENCE_FLAGS flags /*= D3D12_FENCE_FLAG_NONE*/)
 	{
 		device.GetDevice()->CreateFence(0, flags, IID_PPV_ARGS(m_Fence.ReleaseAndGetAddressOf()));
 	}

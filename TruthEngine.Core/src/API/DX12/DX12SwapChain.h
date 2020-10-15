@@ -1,5 +1,5 @@
 #pragma once
-#include "API/DX12/GraphicDeviceDX12.h"
+#include "API/DX12/DX12GraphicDevice.h"
 #include "API/DX12/CommandList.h"
 #include "API/DX12/DescriptorHeap.h"
 #include "Core/Application.h"
@@ -9,11 +9,11 @@
 
 namespace TruthEngine::API::DX12 {
 
-	class SwapChainDX12 : public TruthEngine::Core::SwapChain
+	class DX12SwapChain : public TruthEngine::Core::SwapChain
 	{
 
 	public:
-		static inline SwapChainDX12& Get() { return s_SwapChain; }
+		static inline DX12SwapChain& Get() { return s_SwapChain; }
 
 
 		TE_RESULT Init(UINT clientWidth, UINT clientHeight, HWND outputHWND, UINT backBufferNum = 2);
@@ -34,7 +34,7 @@ namespace TruthEngine::API::DX12 {
 
 
 	protected:
-		SwapChainDX12();
+		DX12SwapChain();
 
 		void CreateSwapChain(HWND outputHWND);
 
@@ -60,10 +60,10 @@ namespace TruthEngine::API::DX12 {
 
 		D3D12_RESOURCE_STATES m_CurrentBackBufferResourceState = D3D12_RESOURCE_STATE_PRESENT;
 
-		static SwapChainDX12 s_SwapChain;
+		static DX12SwapChain s_SwapChain;
 
 	};
 
 }
 
-#define TE_INSTANCE_API_DX12_SWAPCHAIN TruthEngine::API::DX12::SwapChainDX12::Get()
+#define TE_INSTANCE_API_DX12_SWAPCHAIN TruthEngine::API::DX12::DX12SwapChain::Get()

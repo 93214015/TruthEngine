@@ -2,7 +2,7 @@
 
 #ifdef TE_PLATFORM_WINDOWS
 
-#include "WindowWindows.h"
+#include "WindowsWindow.h"
 #include "Core/Event/EventApplication.h"
 
 #include "Core/SwapChain.h"
@@ -85,7 +85,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPara
 
 namespace TruthEngine::Platforms::Windows {
 
-	WindowWindows::WindowWindows(const char* title, uint16_t width, uint16_t height) : Window(title, width, height)
+	WindowsWindow::WindowsWindow(const char* title, uint16_t width, uint16_t height) : Window(title, width, height)
 	{
 
 		const auto hInstance = GetModuleHandle(NULL);
@@ -117,7 +117,7 @@ namespace TruthEngine::Platforms::Windows {
 
 	}
 
-	void WindowWindows::OnUpdate()
+	void WindowsWindow::OnUpdate()
 	{
 		MSG msg{};
 
@@ -134,12 +134,12 @@ namespace TruthEngine::Platforms::Windows {
 
 	}
 
-	HWND WindowWindows::GetHandle()
+	HWND WindowsWindow::GetHandle()
 	{
 		return m_HWND;
 	}
 
-	void WindowWindows::Show()
+	void WindowsWindow::Show()
 	{
 		ShowWindow(m_HWND, SW_SHOW);
 	}
@@ -149,7 +149,7 @@ namespace TruthEngine::Platforms::Windows {
 
 std::unique_ptr<TruthEngine::Core::Window> TruthEngine::Core::TECreateWindow(const char* title, uint32_t width, uint32_t height)
 {
-	return std::make_unique<TruthEngine::Platforms::Windows::WindowWindows>(title, width, height);
+	return std::make_unique<TruthEngine::Platforms::Windows::WindowsWindow>(title, width, height);
 }
 
 #endif

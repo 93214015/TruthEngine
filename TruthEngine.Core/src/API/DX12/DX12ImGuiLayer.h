@@ -11,7 +11,7 @@
 
 namespace TruthEngine::API::DX12
 {
-	class ImGuiLayerDX12 : public TruthEngine::Core::ImGuiLayer
+	class DX12ImGuiLayer : public TruthEngine::Core::ImGuiLayer
 	{
 
 	public:

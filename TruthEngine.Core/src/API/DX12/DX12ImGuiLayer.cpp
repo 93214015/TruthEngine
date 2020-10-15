@@ -1,25 +1,25 @@
 #include "pch.h"
-#include "API/DX12/ImGuiLayerDX12.h"
+#include "API/DX12/DX12ImGuiLayer.h"
 
 #include "Core/Application.h"
-#include "Platform/Windows/WindowWindows.h"
-#include "API/DX12/GraphicDeviceDX12.h"
+#include "Platform/Windows/WindowsWindow.h"
+#include "API/DX12/DX12GraphicDevice.h"
 #include "API/IDXGI.h"
-#include "API/DX12/SwapChainDX12.h"
+#include "API/DX12/DX12SwapChain.h"
 
 
 #ifdef TE_API_DX12
 
 TruthEngine::Core::ImGuiLayer* TruthEngine::Core::ImGuiLayer::Factory() {
 
-	return new API::DX12::ImGuiLayerDX12();
+	return new API::DX12::DX12ImGuiLayer();
 };
 
 namespace TruthEngine::API::DX12 {
 
 
 
-	void ImGuiLayerDX12::OnAttach()
+	void DX12ImGuiLayer::OnAttach()
 	{
 		m_CommandList.Init(TE_INSTANCE_APPLICATION.GetFramesInFlightNum(), D3D12_COMMAND_LIST_TYPE_DIRECT, TE_INSTANCE_API_DX12_GRAPHICDEVICE);
 
@@ -58,7 +58,7 @@ namespace TruthEngine::API::DX12 {
 
 	}
 
-	void ImGuiLayerDX12::OnDetach()
+	void DX12ImGuiLayer::OnDetach()
 	{
 		ImGui_ImplDX12_Shutdown();
 		ImGui_ImplWin32_Shutdown();
@@ -69,7 +69,7 @@ namespace TruthEngine::API::DX12 {
 		m_CommandList.Release();
 	}
 
-	void ImGuiLayerDX12::Begin()
+	void DX12ImGuiLayer::Begin()
 	{
 
 
@@ -122,7 +122,7 @@ namespace TruthEngine::API::DX12 {
 		}
 	}
 
-	void ImGuiLayerDX12::End()
+	void DX12ImGuiLayer::End()
 	{
 		const uint32_t currentFrameIndex = TE_INSTANCE_APPLICATION.GetCurrentFrameIndex();
 

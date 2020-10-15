@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "CommandAllocator.h"
-#include "GraphicDeviceDX12.h"
+#include "DX12GraphicDevice.h"
 
 namespace TruthEngine::API::DX12 {
 
@@ -20,7 +20,7 @@ namespace TruthEngine::API::DX12 {
 
 	}
 
-	TE_RESULT CommandAllocator::Init(D3D12_COMMAND_LIST_TYPE commandListType, GraphicDeviceDX12& gDevice)
+	TE_RESULT CommandAllocator::Init(D3D12_COMMAND_LIST_TYPE commandListType, DX12GraphicDevice& gDevice)
 	{
 		return gDevice.CreateCommandAllocator(m_CommandAllocator, commandListType);
 	}

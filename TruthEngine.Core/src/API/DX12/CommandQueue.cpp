@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "CommandQueue.h"
 #include "CommandList.h"
-#include "GraphicDeviceDX12.h"
+#include "DX12GraphicDevice.h"
 
 namespace TruthEngine::API::DX12 {
 
@@ -23,7 +23,7 @@ namespace TruthEngine::API::DX12 {
 		return TE_SUCCESSFUL;
 	}
 
-	TE_RESULT CommandQueue::Init(D3D12_COMMAND_LIST_TYPE type, GraphicDeviceDX12& gDevice)
+	TE_RESULT CommandQueue::Init(D3D12_COMMAND_LIST_TYPE type, DX12GraphicDevice& gDevice)
 	{
 		return gDevice.CreateCommandQueue(m_CommandQueue, type);
 	}

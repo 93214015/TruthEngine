@@ -51,12 +51,6 @@
     <ClInclude Include="src\API\DX12\Fence.h">
       <Filter>API\DX12</Filter>
     </ClInclude>
-    <ClInclude Include="src\API\DX12\FrameContext.h">
-      <Filter>API\DX12</Filter>
-    </ClInclude>
-    <ClInclude Include="src\API\DX12\ImGuiLayerDX12.h">
-      <Filter>API\DX12</Filter>
-    </ClInclude>
     <ClInclude Include="src\API\IDXGI.h">
       <Filter>API</Filter>
     </ClInclude>
@@ -126,20 +120,23 @@
     <ClInclude Include="src\Core\Window.h">
       <Filter>Core</Filter>
     </ClInclude>
-    <ClInclude Include="src\Platform\Windows\WindowWindows.h">
-      <Filter>Platform\Windows</Filter>
-    </ClInclude>
     <ClInclude Include="src\TruthEngine.h" />
     <ClInclude Include="src\lib.h" />
     <ClInclude Include="src\pch.h" />
-    <ClInclude Include="src\API\DX12\SwapChainDX12.h">
-      <Filter>API\DX12</Filter>
-    </ClInclude>
     <ClInclude Include="src\Core\SwapChain.h" />
     <ClInclude Include="src\Core\Renderer\GraphicDevice.h">
       <Filter>Core\GPU</Filter>
     </ClInclude>
-    <ClInclude Include="src\API\DX12\GraphicDeviceDX12.h">
+    <ClInclude Include="src\Platform\Windows\WindowsWindow.h">
+      <Filter>Platform\Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="src\API\DX12\DX12GraphicDevice.h">
+      <Filter>API\DX12</Filter>
+    </ClInclude>
+    <ClInclude Include="src\API\DX12\DX12ImGuiLayer.h">
+      <Filter>API\DX12</Filter>
+    </ClInclude>
+    <ClInclude Include="src\API\DX12\DX12SwapChain.h">
       <Filter>API\DX12</Filter>
     </ClInclude>
   </ItemGroup>
@@ -157,12 +154,6 @@
       <Filter>API\DX12</Filter>
     </ClCompile>
     <ClCompile Include="src\API\DX12\Fence.cpp">
-      <Filter>API\DX12</Filter>
-    </ClCompile>
-    <ClCompile Include="src\API\DX12\FrameContext.cpp">
-      <Filter>API\DX12</Filter>
-    </ClCompile>
-    <ClCompile Include="src\API\DX12\ImGuiLayerDX12.cpp">
       <Filter>API\DX12</Filter>
     </ClCompile>
     <ClCompile Include="src\API\IDXGI.cpp">
@@ -219,18 +210,21 @@
     <ClCompile Include="src\Core\Window.cpp">
       <Filter>Core</Filter>
     </ClCompile>
-    <ClCompile Include="src\Platform\Windows\WindowInputManager.cpp">
-      <Filter>Platform\Windows</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Platform\Windows\WindowWindows.cpp">
-      <Filter>Platform\Windows</Filter>
-    </ClCompile>
     <ClCompile Include="src\pch.cpp" />
-    <ClCompile Include="src\API\DX12\SwapChainDX12.cpp">
+    <ClCompile Include="src\Core\SwapChain.cpp" />
+    <ClCompile Include="src\Platform\Windows\WindowsWindow.cpp">
+      <Filter>Platform\Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Platform\Windows\WindowsInputManager.cpp">
+      <Filter>Platform\Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="src\API\DX12\DX12GraphicDevice.cpp">
       <Filter>API\DX12</Filter>
     </ClCompile>
-    <ClCompile Include="src\Core\SwapChain.cpp" />
-    <ClCompile Include="src\API\DX12\GraphicDeviceDX12.cpp">
+    <ClCompile Include="src\API\DX12\DX12ImGuiLayer.cpp">
+      <Filter>API\DX12</Filter>
+    </ClCompile>
+    <ClCompile Include="src\API\DX12\DX12SwapChain.cpp">
       <Filter>API\DX12</Filter>
     </ClCompile>
   </ItemGroup>
