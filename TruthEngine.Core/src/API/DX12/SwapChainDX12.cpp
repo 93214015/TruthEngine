@@ -22,7 +22,7 @@ namespace TruthEngine::API::DX12 {
 
 	SwapChainDX12::SwapChainDX12() = default;
 
-	TE_RESULT SwapChainDX12::Init(UINT clientWidth, UINT clientHeight, HWND* outputHWND, UINT backBufferNum)
+	TE_RESULT SwapChainDX12::Init(UINT clientWidth, UINT clientHeight, HWND outputHWND, UINT backBufferNum)
 	{
 		m_BackBufferNum = backBufferNum;
 
@@ -42,7 +42,7 @@ namespace TruthEngine::API::DX12 {
 		m_SwapChain->Present(1, 0);
 	}
 
-	void SwapChainDX12::CreateSwapChain(HWND* outputHWND)
+	void SwapChainDX12::CreateSwapChain(HWND outputHWND)
 	{
 		{
 
@@ -62,7 +62,7 @@ namespace TruthEngine::API::DX12 {
 			desc1.Stereo = FALSE;
 			desc1.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 
-			auto r = TE_INSTANCE_IDXGI.GetDXGIFactory()->CreateSwapChainForHwnd(TE_INSTANCE_API_DX12_COMMANDQUEUEDIRECT.m_CommandQueue.Get(), *outputHWND, &desc1, NULL, NULL, &swapChain1);
+			auto r = TE_INSTANCE_IDXGI.GetDXGIFactory()->CreateSwapChainForHwnd(TE_INSTANCE_API_DX12_COMMANDQUEUEDIRECT.m_CommandQueue.Get(), outputHWND, &desc1, NULL, NULL, &swapChain1);
 
 			TE_ASSERT_CORE(r, "API::DX12 Creation of 'SwapChain' factory is failed!");
 

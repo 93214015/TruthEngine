@@ -16,7 +16,7 @@ namespace TruthEngine::API::DX12 {
 		static inline SwapChainDX12& Get() { return s_SwapChain; }
 
 
-		TE_RESULT Init(UINT clientWidth, UINT clientHeight, HWND* outputHWND, UINT backBufferNum = 2);
+		TE_RESULT Init(UINT clientWidth, UINT clientHeight, HWND outputHWND, UINT backBufferNum = 2);
 
 		TE_RESULT Resize(UINT width, UINT height, UINT backBufferNum);
 
@@ -36,7 +36,7 @@ namespace TruthEngine::API::DX12 {
 	protected:
 		SwapChainDX12();
 
-		void CreateSwapChain(HWND* outputHWND);
+		void CreateSwapChain(HWND outputHWND);
 
 		uint32_t CreateSwapChainRTVs(DescriptorHeapRTV* descHeap);
 

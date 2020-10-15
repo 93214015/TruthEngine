@@ -14,7 +14,10 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPara
 {
 	static TruthEngine::Core::Window::WindowData* windowData = nullptr;
 
-	ImGui_ImplWin32_WndProcHandler(hwnd, message, wParam, lParam);
+	if (ImGui_ImplWin32_WndProcHandler(hwnd, message, wParam, lParam))
+	{
+		return true;
+	}
 
 	switch (message)
 	{
@@ -73,7 +76,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPara
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		return 0;
-		
+
 	}
 
 	//Handle any message that the switch statement didn't.
@@ -84,7 +87,7 @@ namespace TruthEngine::Platforms::Windows {
 
 	WindowWindows::WindowWindows(const char* title, uint16_t width, uint16_t height) : Window(title, width, height)
 	{
-	
+
 		const auto hInstance = GetModuleHandle(NULL);
 
 		WNDCLASSEXA wndclass = { 0 };
@@ -111,7 +114,7 @@ namespace TruthEngine::Platforms::Windows {
 			, nullptr
 			, hInstance
 			, &m_Data);
-	
+
 	}
 
 	void WindowWindows::OnUpdate()
@@ -124,7 +127,7 @@ namespace TruthEngine::Platforms::Windows {
 			DispatchMessageA(&msg);
 		}
 
-		if(msg.message == WM_QUIT)
+		if (msg.message == WM_QUIT)
 			m_Data.CallBack(TruthEngine::Core::EventWindowClose());
 
 		TE_INSTANCE_SWAPCHAIN->Present();

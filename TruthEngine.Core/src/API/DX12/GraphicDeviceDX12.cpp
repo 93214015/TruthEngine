@@ -21,7 +21,7 @@ namespace TruthEngine::API::DX12
 		m_Fence.Initialize(*this);
 
 		// init singleton object of dx12 swap chain
-		SwapChainDX12::Get().Init(TE_INSTANCE_APPLICATION.GetClientWidth(), TE_INSTANCE_APPLICATION.GetClientHeight(), reinterpret_cast<HWND*>(TE_INSTANCE_APPLICATION.GetWindow()->GetNativeWindowHandle()), TE_INSTANCE_APPLICATION.GetFramesInFlightNum());
+		SwapChainDX12::Get().Init(TE_INSTANCE_APPLICATION.GetClientWidth(), TE_INSTANCE_APPLICATION.GetClientHeight(), static_cast<HWND>(TE_INSTANCE_APPLICATION.GetWindow()->GetNativeWindowHandle()), TE_INSTANCE_APPLICATION.GetFramesInFlightNum());
 
 		return TE_SUCCESSFUL;
 	}

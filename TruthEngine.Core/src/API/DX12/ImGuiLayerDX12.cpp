@@ -45,7 +45,7 @@ namespace TruthEngine::API::DX12 {
 			style.Colors[ImGuiCol_WindowBg].w = 1.0f;
 		}
 
-		auto hwnd = (TE_INSTANCE_APPLICATION.GetWindow()->GetNativeWindowHandle());
+		HWND hwnd = static_cast<HWND>(TE_INSTANCE_APPLICATION.GetWindow()->GetNativeWindowHandle());
 		ImGui_ImplWin32_Init(hwnd);
 		ImGui_ImplDX12_Init(TE_INSTANCE_API_DX12_GRAPHICDEVICE.GetDevice()
 			, TE_INSTANCE_APPLICATION.GetFramesInFlightNum()
@@ -141,8 +141,12 @@ namespace TruthEngine::API::DX12 {
 
 		TE_INSTANCE_API_DX12_COMMANDQUEUEDIRECT.ExecuteCommandList(m_CommandList);
 
-		ImGui::UpdatePlatformWindows();
-		ImGui::RenderPlatformWindowsDefault();
+		auto& io = ImGui::GetIO();
+		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+		{
+			ImGui::UpdatePlatformWindows();
+			ImGui::RenderPlatformWindowsDefault(NULL, m_CommandList.Get());
+		}
 	}
 
 }
