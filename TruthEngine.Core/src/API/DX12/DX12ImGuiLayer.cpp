@@ -21,6 +21,8 @@ namespace TruthEngine::API::DX12 {
 
 	void DX12ImGuiLayer::OnAttach()
 	{
+		TE_TIMER_SCOPE_FUNC;
+
 		m_CommandList.Init(TE_INSTANCE_APPLICATION.GetFramesInFlightNum(), D3D12_COMMAND_LIST_TYPE_DIRECT, TE_INSTANCE_API_DX12_GRAPHICDEVICE);
 
 		m_DescHeapSRV.Init(TE_INSTANCE_API_DX12_GRAPHICDEVICE, TE_INSTANCE_APPLICATION.GetFramesInFlightNum());
@@ -60,6 +62,8 @@ namespace TruthEngine::API::DX12 {
 
 	void DX12ImGuiLayer::OnDetach()
 	{
+		TE_TIMER_SCOPE_FUNC;
+
 		ImGui_ImplDX12_Shutdown();
 		ImGui_ImplWin32_Shutdown();
 		ImGui::DestroyContext();
@@ -71,7 +75,7 @@ namespace TruthEngine::API::DX12 {
 
 	void DX12ImGuiLayer::Begin()
 	{
-
+		TE_TIMER_SCOPE_FUNC;
 
 		// Our state
 		bool show_demo_window = true;
@@ -124,6 +128,8 @@ namespace TruthEngine::API::DX12 {
 
 	void DX12ImGuiLayer::End()
 	{
+		TE_TIMER_SCOPE_FUNC;
+
 		const uint32_t currentFrameIndex = TE_INSTANCE_APPLICATION.GetCurrentFrameIndex();
 
 		m_CommandList.Reset(currentFrameIndex, nullptr);

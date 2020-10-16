@@ -165,11 +165,11 @@
     <ClInclude Include="src\Core\Layer.h" />
     <ClInclude Include="src\Core\LayerStack.h" />
     <ClInclude Include="src\Core\Log.h" />
-    <ClInclude Include="src\Core\SwapChain.h" />
+    <ClInclude Include="src\Core\Renderer\SwapChain.h" />
     <ClInclude Include="src\Core\ThreadPool.h" />
     <ClInclude Include="src\Core\TimerEngine.h" />
-    <ClInclude Include="src\Core\TimerProfile.h" />
-    <ClInclude Include="src\Core\TruthEngine.Core.h" />
+    <ClInclude Include="src\Core\Timer.h" />
+    <ClInclude Include="src\Core\Core.h" />
     <ClInclude Include="src\Core\Window.h" />
     <ClInclude Include="src\Platform\Windows\WindowsWindow.h" />
     <ClInclude Include="src\TruthEngine.h" />
@@ -199,10 +199,10 @@
     <ClCompile Include="src\Core\Layer.cpp" />
     <ClCompile Include="src\Core\LayerStack.cpp" />
     <ClCompile Include="src\Core\Log.cpp" />
-    <ClCompile Include="src\Core\SwapChain.cpp" />
+    <ClCompile Include="src\Core\Renderer\SwapChain.cpp" />
     <ClCompile Include="src\Core\ThreadPool.cpp" />
     <ClCompile Include="src\Core\TimerEngine.cpp" />
-    <ClCompile Include="src\Core\TimerProfile.cpp" />
+    <ClCompile Include="src\Core\Timer.cpp" />
     <ClCompile Include="src\Core\Window.cpp" />
     <ClCompile Include="src\Platform\Windows\WindowsInputManager.cpp" />
     <ClCompile Include="src\Platform\Windows\WindowsWindow.cpp" />

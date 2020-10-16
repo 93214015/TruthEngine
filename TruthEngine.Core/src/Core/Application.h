@@ -1,6 +1,5 @@
 #pragma once
 
-#include "TruthEngine.Core.h"
 #include "Core/Window.h"
 #include "Core/Event/Event.h"
 #include "Core/ImGui/ImGuiLayer.h"

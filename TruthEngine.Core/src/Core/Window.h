@@ -1,5 +1,4 @@
 #pragma once
-#include "TruthEngine.Core.h"
 #include "Event/Event.h"
 
 namespace TruthEngine::Core {

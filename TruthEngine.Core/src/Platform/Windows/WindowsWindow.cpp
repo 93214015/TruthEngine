@@ -5,7 +5,7 @@
 #include "WindowsWindow.h"
 #include "Core/Event/EventApplication.h"
 
-#include "Core/SwapChain.h"
+#include "Core/Renderer/SwapChain.h"
 
 //forward declaration of ImGui function for processing window events.
 extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);

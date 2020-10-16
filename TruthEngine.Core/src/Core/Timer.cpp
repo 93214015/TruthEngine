@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "TimerProfile.h"
+#include "Timer.h"
 
 namespace TruthEngine::Core {
 
