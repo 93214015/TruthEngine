@@ -1,6 +1,7 @@
 #pragma once
 #include "Core/Layer.h"
-#include "API/DX12/DescriptorHeap.h"
+//#include "API/DX12/DescriptorHeap.h"
+
 
 namespace TruthEngine::Core
 {
@@ -11,7 +12,7 @@ namespace TruthEngine::Core
 
 	public:
 
-		static ImGuiLayer* Factory();
+		static std::shared_ptr<TruthEngine::Core::ImGuiLayer> Factory();
 
 
 		virtual ~ImGuiLayer() = default;
@@ -27,7 +28,6 @@ namespace TruthEngine::Core
 		virtual void End() = 0;
 
 	protected:
-		ImGuiLayer() = default;
 
 
 	};

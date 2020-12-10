@@ -90,6 +90,9 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <Lib>
+      <AdditionalLibraryDirectories>..\Dependencies\DirectXShaderCompiler\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -113,6 +116,9 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
+    <Lib>
+      <AdditionalLibraryDirectories>..\Dependencies\DirectXShaderCompiler\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Dist|x64'">
     <ClCompile>
@@ -136,27 +142,38 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
+    <Lib>
+      <AdditionalLibraryDirectories>..\Dependencies\DirectXShaderCompiler\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="src\API\DX12\CommandAllocator.h" />
-    <ClInclude Include="src\API\DX12\CommandList.h" />
     <ClInclude Include="src\API\DX12\CommandQueue.h" />
-    <ClInclude Include="src\API\DX12\DescriptorHeap.h" />
-    <ClInclude Include="src\API\DX12\Fence.h" />
+    <ClInclude Include="src\API\DX12\DX12BufferManager.h" />
+    <ClInclude Include="src\API\DX12\DX12CommandAllocator.h" />
+    <ClInclude Include="src\API\DX12\DX12CommandList.h" />
     <ClInclude Include="src\API\DX12\DX12GraphicDevice.h" />
     <ClInclude Include="src\API\DX12\DX12ImGuiLayer.h" />
+    <ClInclude Include="src\API\DX12\DX12PipelineManager.h" />
+    <ClInclude Include="src\API\DX12\DX12ShaderManager.h" />
     <ClInclude Include="src\API\DX12\DX12SwapChain.h" />
+    <ClInclude Include="src\API\DX12\DescriptorHeap.h" />
+    <ClInclude Include="src\API\DX12\Fence.h" />
     <ClInclude Include="src\API\IDXGI.h" />
     <ClInclude Include="src\Core\Application.h" />
+    <ClInclude Include="src\Core\Core.h" />
     <ClInclude Include="src\Core\Entity\Camera\CameraOrthographic.h" />
     <ClInclude Include="src\Core\Entity\Camera\CameraPerspective.h" />
     <ClInclude Include="src\Core\Entity\Camera\ICamera.h" />
+    <ClInclude Include="src\Core\Entity\Model\Mesh.h" />
+    <ClInclude Include="src\Core\Entity\Model\Model.h" />
+    <ClInclude Include="src\Core\Entity\Model\Model2D.h" />
+    <ClInclude Include="src\Core\Entity\Model\Model3D.h" />
+    <ClInclude Include="src\Core\Entity\Model\ModelManager.h" />
     <ClInclude Include="src\Core\EntryPoint.h" />
     <ClInclude Include="src\Core\Event\Event.h" />
     <ClInclude Include="src\Core\Event\EventApplication.h" />
     <ClInclude Include="src\Core\Event\EventKey.h" />
     <ClInclude Include="src\Core\Event\EventMouse.h" />
-    <ClInclude Include="src\Core\Renderer\GraphicDevice.h" />
     <ClInclude Include="src\Core\ImGui\ImGuiLayer.h" />
     <ClInclude Include="src\Core\Input\InputManager.h" />
     <ClInclude Include="src\Core\Input\KeyCodes.h" />
@@ -165,11 +182,38 @@
     <ClInclude Include="src\Core\Layer.h" />
     <ClInclude Include="src\Core\LayerStack.h" />
     <ClInclude Include="src\Core\Log.h" />
+    <ClInclude Include="src\Core\Renderer\Buffer.h" />
+    <ClInclude Include="src\Core\Renderer\BufferManager.h" />
+    <ClInclude Include="src\Core\Renderer\CommandList.h" />
+    <ClInclude Include="src\Core\Renderer\ConstantBuffer.h" />
+    <ClInclude Include="src\Core\Renderer\GraphicDevice.h" />
+    <ClInclude Include="src\Core\Renderer\GraphicResouceConstants.h" />
+    <ClInclude Include="src\Core\Renderer\GraphicResource.h" />
+    <ClInclude Include="src\Core\Renderer\IndexBuffer.h" />
+    <ClInclude Include="src\Core\Renderer\Material.h" />
+    <ClInclude Include="src\Core\Renderer\MaterialManager.h" />
+    <ClInclude Include="src\Core\Renderer\Pipeline.h" />
+    <ClInclude Include="src\Core\Renderer\PipelineState.h" />
+    <ClInclude Include="src\Core\Renderer\RendererLayer.h" />
+    <ClInclude Include="src\Core\Renderer\Renderer3D.h" />
+    <ClInclude Include="src\Core\Renderer\RendererCommand.h" />
+    <ClInclude Include="src\Core\Renderer\Shader.h" />
+    <ClInclude Include="src\Core\Renderer\ShaderInputLayout.h" />
+    <ClInclude Include="src\Core\Renderer\ShaderManager.h" />
     <ClInclude Include="src\Core\Renderer\SwapChain.h" />
+    <ClInclude Include="src\Core\Renderer\Texture.h" />
+    <ClInclude Include="src\Core\Renderer\TextureDepthStencil.h" />
+    <ClInclude Include="src\Core\Renderer\TextureMaterial.h" />
+    <ClInclude Include="src\Core\Renderer\TextureRenderTarget.h" />
+    <ClInclude Include="src\Core\Renderer\VertexBuffer.h" />
+    <ClInclude Include="src\Core\Renderer\VertexBufferStream.h" />
+    <ClInclude Include="src\Core\Renderer\VertexDataStructures.h" />
+    <ClInclude Include="src\Core\Settings.h" />
+    <ClInclude Include="src\Core\StaticInstances.h" />
     <ClInclude Include="src\Core\ThreadPool.h" />
-    <ClInclude Include="src\Core\TimerEngine.h" />
     <ClInclude Include="src\Core\Timer.h" />
-    <ClInclude Include="src\Core\Core.h" />
+    <ClInclude Include="src\Core\TimerEngine.h" />
+    <ClInclude Include="src\Core\TypeConversions.h" />
     <ClInclude Include="src\Core\Window.h" />
     <ClInclude Include="src\Platform\Windows\WindowsWindow.h" />
     <ClInclude Include="src\TruthEngine.h" />
@@ -177,32 +221,62 @@
     <ClInclude Include="src\pch.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\API\DX12\CommandAllocator.cpp" />
-    <ClCompile Include="src\API\DX12\CommandList.cpp" />
     <ClCompile Include="src\API\DX12\CommandQueue.cpp" />
-    <ClCompile Include="src\API\DX12\DescriptorHeap.cpp" />
-    <ClCompile Include="src\API\DX12\Fence.cpp" />
+    <ClCompile Include="src\API\DX12\DX12BufferManager.cpp" />
+    <ClCompile Include="src\API\DX12\DX12CommandAllocator.cpp" />
+    <ClCompile Include="src\API\DX12\DX12CommandList.cpp" />
     <ClCompile Include="src\API\DX12\DX12GraphicDevice.cpp" />
     <ClCompile Include="src\API\DX12\DX12ImGuiLayer.cpp" />
+    <ClCompile Include="src\API\DX12\DX12PipelineManager.cpp" />
+    <ClCompile Include="src\API\DX12\DX12ShaderManager.cpp" />
     <ClCompile Include="src\API\DX12\DX12SwapChain.cpp" />
+    <ClCompile Include="src\API\DX12\DescriptorHeap.cpp" />
+    <ClCompile Include="src\API\DX12\Fence.cpp" />
     <ClCompile Include="src\API\IDXGI.cpp" />
     <ClCompile Include="src\Core\Application.cpp" />
     <ClCompile Include="src\Core\Entity\Camera\CameraOrthographic.cpp" />
     <ClCompile Include="src\Core\Entity\Camera\CameraPerspective.cpp" />
     <ClCompile Include="src\Core\Entity\Camera\ICamera.cpp" />
+    <ClCompile Include="src\Core\Entity\Model\Mesh.cpp" />
+    <ClCompile Include="src\Core\Entity\Model\Model.cpp" />
+    <ClCompile Include="src\Core\Entity\Model\Model2D.cpp" />
+    <ClCompile Include="src\Core\Entity\Model\Model3D.cpp" />
+    <ClCompile Include="src\Core\Entity\Model\ModelManager.cpp" />
     <ClCompile Include="src\Core\Event\Event.cpp" />
     <ClCompile Include="src\Core\Event\EventApplication.cpp" />
     <ClCompile Include="src\Core\Event\EventKey.cpp" />
     <ClCompile Include="src\Core\Event\EventMouse.cpp" />
+    <ClCompile Include="src\Core\ImGui\ImGuiLayer.cpp" />
     <ClCompile Include="src\Core\Input\InputManager.cpp" />
     <ClCompile Include="src\Core\Input\Mouse.cpp" />
     <ClCompile Include="src\Core\Layer.cpp" />
     <ClCompile Include="src\Core\LayerStack.cpp" />
     <ClCompile Include="src\Core\Log.cpp" />
+    <ClCompile Include="src\Core\Renderer\BufferManager.cpp" />
+    <ClCompile Include="src\Core\Renderer\CommandList.cpp" />
+    <ClCompile Include="src\Core\Renderer\ConstantBuffer.cpp" />
+    <ClCompile Include="src\Core\Renderer\GraphicResource.cpp" />
+    <ClCompile Include="src\Core\Renderer\IndexBuffer.cpp" />
+    <ClCompile Include="src\Core\Renderer\Material.cpp" />
+    <ClCompile Include="src\Core\Renderer\MaterialManager.cpp" />
+    <ClCompile Include="src\Core\Renderer\Pipeline.cpp" />
+    <ClCompile Include="src\Core\Renderer\RendererLayer.cpp" />
+    <ClCompile Include="src\Core\Renderer\Renderer3D.cpp" />
+    <ClCompile Include="src\Core\Renderer\RendererCommand.cpp" />
+    <ClCompile Include="src\Core\Renderer\Shader.cpp" />
+    <ClCompile Include="src\Core\Renderer\ShaderInputLayout.cpp" />
+    <ClCompile Include="src\Core\Renderer\ShaderManager.cpp" />
     <ClCompile Include="src\Core\Renderer\SwapChain.cpp" />
+    <ClCompile Include="src\Core\Renderer\Texture.cpp" />
+    <ClCompile Include="src\Core\Renderer\TextureDepthStencil.cpp" />
+    <ClCompile Include="src\Core\Renderer\TextureRenderTarget.cpp" />
+    <ClCompile Include="src\Core\Renderer\VertexBuffer.cpp" />
+    <ClCompile Include="src\Core\Renderer\VertexBufferStream.cpp" />
+    <ClCompile Include="src\Core\Settings.cpp" />
+    <ClCompile Include="src\Core\StaticInstances.cpp" />
     <ClCompile Include="src\Core\ThreadPool.cpp" />
-    <ClCompile Include="src\Core\TimerEngine.cpp" />
     <ClCompile Include="src\Core\Timer.cpp" />
+    <ClCompile Include="src\Core\TimerEngine.cpp" />
     <ClCompile Include="src\Core\Window.cpp" />
     <ClCompile Include="src\Platform\Windows\WindowsInputManager.cpp" />
     <ClCompile Include="src\Platform\Windows\WindowsWindow.cpp" />

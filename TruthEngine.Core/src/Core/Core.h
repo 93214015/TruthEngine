@@ -1,5 +1,6 @@
 #pragma once
 
+
 #ifdef TE_BUILD_DLL
 
 	#define TRUTHENGINE_API _declspec(dllexport)
@@ -29,8 +30,16 @@
 
 enum TE_RESULT : int {
 	TE_FAIL = -1,
-	TE_SUCCESSFUL = 0
+	TE_SUCCESSFUL = 0,
+	TE_RESULT_RENDERER_RESOURCECHANGESTATE_NOTNEEDED,
+	TE_RESULT_RENDERER_SHADER_HAS_EXIST
 };
 
 #define TE_SUCCEEDED(te_result) (((TE_RESULT)te_result) >= 0)
 #define TE_FAILED(te_result) (((TE_RESULT)te_result) < 0)
+
+#include "Core/Renderer/GraphicResouceConstants.h"
+#include "Core/Renderer/PipelineState.h"
+#include "Core/TypeConversions.h"
+#include "Core/Settings.h"
+#include "Core/StaticInstances.h"

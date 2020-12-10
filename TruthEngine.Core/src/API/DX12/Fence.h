@@ -1,6 +1,6 @@
 #pragma once
 
-namespace TruthEngine::API::DX12 {
+namespace TruthEngine::API::DirectX12 {
 
 	class DX12GraphicDevice;
 

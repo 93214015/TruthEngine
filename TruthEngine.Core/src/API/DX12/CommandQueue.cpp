@@ -1,26 +1,27 @@
 #include "pch.h"
 #include "CommandQueue.h"
-#include "CommandList.h"
+#include "DX12CommandList.h"
 #include "DX12GraphicDevice.h"
 
-namespace TruthEngine::API::DX12 {
+namespace TruthEngine::API::DirectX12 {
 
 
 
 	CommandQueue::CommandQueue() = default;
 
-	TE_RESULT CommandQueue::ExecuteCommandList(CommandList& cmdList) const
+	TE_RESULT CommandQueue::ExecuteCommandList(DX12CommandList& cmdList) const
 	{
-		cmdList->Close();
 
-		ID3D12CommandList* l[1] = { cmdList.Get() };
+		auto c = cmdList.GetNativeObject();
+		c->Close();
+
+		ID3D12CommandList* l[1] = { c };
 		m_CommandQueue->ExecuteCommandLists(1, l);
 
-		auto fenceValue = TE_INSTANCE_API_DX12_GRAPHICDEVICE.GetFence().SetFence(m_CommandQueue.Get());
-
-		cmdList.GetActiveCommandAllocator()->m_FenceValue = fenceValue;
+		cmdList.GetCommandAllocator()->m_FenceValue = TE_INSTANCE_API_DX12_GRAPHICDEVICE.GetFence().SetFence(m_CommandQueue.Get());
 
 		return TE_SUCCESSFUL;
+
 	}
 
 	TE_RESULT CommandQueue::Init(D3D12_COMMAND_LIST_TYPE type, DX12GraphicDevice& gDevice)

@@ -15,6 +15,8 @@
 #include <array> //std::array
 #include <chrono>
 #include <future> //std::async & std::future
+#include <unordered_map>
+#include <map>	
 
 
 #include "DirectXMath/Inc/DirectXMath.h"
@@ -78,14 +80,12 @@ using COMPTR = Microsoft::WRL::ComPtr<T>;
 //
 #include <d3dcompiler.h>
 
-
 #ifdef TE_API_DX12
 
 //
 //DirectX12
 //
 #include <d3d12.h>
-#include <d3dcompiler.h>
 #include "d3dx12.h"
 
 #endif

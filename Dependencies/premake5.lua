@@ -12,12 +12,12 @@ project "ImGui"
 	files{
 		"imgui/*.h",
 		"imgui/*.cpp",
-		"imgui/examples/imgui_impl_dx11.h",
-		"imgui/examples/imgui_impl_dx11.cpp",
-		"imgui/examples/imgui_impl_dx12.h",
-		"imgui/examples/imgui_impl_dx12.cpp",
-		"imgui/examples/imgui_impl_win32.h",
-		"imgui/examples/imgui_impl_win32.cpp"
+		"imgui/backends/imgui_impl_dx11.h",
+		"imgui/backends/imgui_impl_dx11.cpp",
+		"imgui/backends/imgui_impl_dx12.h",
+		"imgui/backends/imgui_impl_dx12.cpp",
+		"imgui/backends/imgui_impl_win32.h",
+		"imgui/backends/imgui_impl_win32.cpp"
 	}
 
 

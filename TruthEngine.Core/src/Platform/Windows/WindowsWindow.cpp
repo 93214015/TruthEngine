@@ -130,8 +130,6 @@ namespace TruthEngine::Platforms::Windows {
 		if (msg.message == WM_QUIT)
 			m_Data.CallBack(TruthEngine::Core::EventWindowClose());
 
-		TE_INSTANCE_SWAPCHAIN->Present();
-
 	}
 
 	HWND WindowsWindow::GetHandle()
