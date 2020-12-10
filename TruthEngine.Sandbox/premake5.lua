@@ -26,12 +26,19 @@ project "TruthEngine.Sandbox"
 		IncludeDir["TruthEngine.Core"],
 		IncludeDir["spdlog"],
 		IncludeDir["Dependencies"],
-		IncludeDir["d3dx12"]
+		IncludeDir["d3dx12"],
+		IncludeDir["imgui"]
 	}
 
+	libdirs { "%{wks.location}/Dependencies/DirectXShaderCompiler/lib/x64" }
+
 	links{
-		"TruthEngine.Core"
+		"TruthEngine.Core",
+		"ImGui",
+		"dxcompiler.dll"
 	}
+	
+	
 
 	floatingpoint "Fast"
 

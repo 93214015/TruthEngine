@@ -28,9 +28,12 @@ project "TruthEngine.Core"
 		IncludeDir["imgui"],
 		IncludeDir["d3dx12"]
 	}
+	
+	libdirs { "%{wks.location}/Dependencies/DirectXShaderCompiler/lib/x64" }
 
 	links{
-		"ImGui"
+		"ImGui",
+		"dxcompiler.dll"
 	}
 
 	floatingpoint "Fast"

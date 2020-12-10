@@ -7,7 +7,7 @@
 
 #include "Core/Application.h"
 
-namespace TruthEngine::API::DX12
+namespace TruthEngine::API::DirectX12
 {
 
 	TE_RESULT DX12GraphicDevice::Init(UINT adapterIndex)
@@ -21,7 +21,7 @@ namespace TruthEngine::API::DX12
 		m_Fence.Initialize(*this);
 
 		// init singleton object of dx12 swap chain
-		DX12SwapChain::Get().Init(TE_INSTANCE_APPLICATION.GetClientWidth(), TE_INSTANCE_APPLICATION.GetClientHeight(), static_cast<HWND>(TE_INSTANCE_APPLICATION.GetWindow()->GetNativeWindowHandle()), TE_INSTANCE_APPLICATION.GetFramesInFlightNum());
+		TE_INSTANCE_API_DX12_SWAPCHAIN.Init(TE_INSTANCE_APPLICATION->GetClientWidth(), TE_INSTANCE_APPLICATION->GetClientHeight(), static_cast<HWND>(TE_INSTANCE_APPLICATION->GetWindow()->GetNativeWindowHandle()), TE_INSTANCE_APPLICATION->GetFramesInFlightNum());
 
 		return TE_SUCCESSFUL;
 	}
@@ -34,13 +34,13 @@ namespace TruthEngine::API::DX12
 			Microsoft::WRL::ComPtr<ID3D12Debug> debuglayer;
 			auto result = D3D12GetDebugInterface(IID_PPV_ARGS(debuglayer.GetAddressOf()));
 
-			TE_ASSERT_CORE(TE_SUCCEEDED(result), "API::DX12 Enabling DX12 Debug Layer is failed!");
+			TE_ASSERT_CORE(TE_SUCCEEDED(result), "API::DirectX12  Enabling DX12 Debug Layer is failed!");
 
 			debuglayer->EnableDebugLayer();
 		}
 #endif
 		auto result = D3D12CreateDevice(TE_INSTANCE_IDXGI.GetAdapters()[adapterIndex].Get(), D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(m_Device.GetAddressOf()));
-		TE_ASSERT_CORE(TE_SUCCEEDED(result), "API::DX12 Creating DX12 device if failed!");
+		TE_ASSERT_CORE(TE_SUCCEEDED(result), "API::DirectX12  Creating DX12 device if failed!");
 
 		return TE_SUCCESSFUL;
 	}
@@ -56,9 +56,9 @@ namespace TruthEngine::API::DX12
 	TE_RESULT DX12GraphicDevice::InitCommandQueues()
 	{
 		auto result = m_CommandQueueCopy.Init(D3D12_COMMAND_LIST_TYPE_COPY, *this);
-		TE_ASSERT_CORE(TE_SUCCEEDED(result), "API::DX12 PrimaryCopyCommandQueue Creation was failed!");
+		TE_ASSERT_CORE(TE_SUCCEEDED(result), "API::DirectX12  PrimaryCopyCommandQueue Creation was failed!");
 		result = m_CommandQueueDirect.Init(D3D12_COMMAND_LIST_TYPE_DIRECT, *this);
-		TE_ASSERT_CORE(TE_SUCCEEDED(result), "API::DX12 PrimaryDirectCommandQueue Creation was failed!");
+		TE_ASSERT_CORE(TE_SUCCEEDED(result), "API::DirectX12  PrimaryDirectCommandQueue Creation was failed!");
 
 
 		return TE_SUCCESSFUL;
@@ -75,7 +75,7 @@ namespace TruthEngine::API::DX12
 			return TE_SUCCESSFUL;
 		else
 		{
-			TE_LOG_CORE_ERROR("API::DX12 CommandQueue creation was failed");
+			TE_LOG_CORE_ERROR("API::DirectX12  CommandQueue creation was failed");
 			return TE_FAIL;
 		}
 	}
@@ -93,7 +93,7 @@ namespace TruthEngine::API::DX12
 		}
 		else
 		{
-			TE_LOG_CORE_ERROR("API::DX12 CommandList creation was failed");
+			TE_LOG_CORE_ERROR("API::DirectX12  CommandList creation was failed");
 			return TE_FAIL;
 		}
 	}
@@ -104,12 +104,12 @@ namespace TruthEngine::API::DX12
 			return TE_SUCCESSFUL;
 		else
 		{
-			TE_LOG_CORE_ERROR("API::DX12 CommandAllocator creation was failed");
+			TE_LOG_CORE_ERROR("API::DirectX12  CommandAllocator creation was failed");
 			return TE_FAIL;
 		}
 	}
 
-	TruthEngine::API::DX12::DX12GraphicDevice DX12GraphicDevice::s_PrimaryDevice;
+	TruthEngine::API::DirectX12::DX12GraphicDevice DX12GraphicDevice::s_PrimaryDevice;
 
 }
 
@@ -117,9 +117,9 @@ namespace TruthEngine::API::DX12
 
 TE_RESULT TruthEngine::Core::CreateGDevice(uint32_t adapterIndex)
 {
-	return TruthEngine::API::DX12::DX12GraphicDevice::GetPrimaryDeviceDX12().Init(adapterIndex);
+	return TruthEngine::API::DirectX12::DX12GraphicDevice::GetPrimaryDeviceDX12().Init(adapterIndex);
 }
 
-TruthEngine::Core::GraphicDevice* TruthEngine::Core::GraphicDevice::s_GDevice = &TruthEngine::API::DX12::DX12GraphicDevice::GetPrimaryDeviceDX12();
+TruthEngine::Core::GraphicDevice* TruthEngine::Core::GraphicDevice::s_GDevice = &TruthEngine::API::DirectX12::DX12GraphicDevice::GetPrimaryDeviceDX12();
 
 #endif

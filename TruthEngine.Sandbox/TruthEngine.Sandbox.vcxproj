@@ -80,7 +80,7 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>TE_API_DX12;TE_PLATFORM_WINDOWS;TE_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;..\TruthEngine.Core\src;..\Dependencies\spdlog\include;..\Dependencies;..\Dependencies\DirectXGraphicsSamples\Libraries\D3DX12;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;..\TruthEngine.Core\src;..\Dependencies\spdlog\include;..\Dependencies;..\Dependencies\DirectXGraphicsSamples\Libraries\D3DX12;..\Dependencies\imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
       <MinimalRebuild>false</MinimalRebuild>
@@ -92,6 +92,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>..\Dependencies\DirectXShaderCompiler\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -100,7 +101,7 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>TE_API_DX12;TE_PLATFORM_WINDOWS;TE_RELEASE;TE_NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;..\TruthEngine.Core\src;..\Dependencies\spdlog\include;..\Dependencies;..\Dependencies\DirectXGraphicsSamples\Libraries\D3DX12;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;..\TruthEngine.Core\src;..\Dependencies\spdlog\include;..\Dependencies;..\Dependencies\DirectXGraphicsSamples\Libraries\D3DX12;..\Dependencies\imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -115,6 +116,7 @@
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalLibraryDirectories>..\Dependencies\DirectXShaderCompiler\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Dist|x64'">
@@ -123,7 +125,7 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>TE_API_DX12;TE_PLATFORM_WINDOWS;TE_DIST;TE_NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;..\TruthEngine.Core\src;..\Dependencies\spdlog\include;..\Dependencies;..\Dependencies\DirectXGraphicsSamples\Libraries\D3DX12;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;..\TruthEngine.Core\src;..\Dependencies\spdlog\include;..\Dependencies;..\Dependencies\DirectXGraphicsSamples\Libraries\D3DX12;..\Dependencies\imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -138,6 +140,7 @@
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalLibraryDirectories>..\Dependencies\DirectXShaderCompiler\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -153,6 +156,9 @@
   <ItemGroup>
     <ProjectReference Include="..\TruthEngine.Core\TruthEngine.Core.vcxproj">
       <Project>{E98D72D9-D586-912B-FEB8-76B0EA107137}</Project>
+    </ProjectReference>
+    <ProjectReference Include="\imgui\ImGui.vcxproj">
+      <Project>{C0FF640D-2C14-8DBE-F595-301E616989EF}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

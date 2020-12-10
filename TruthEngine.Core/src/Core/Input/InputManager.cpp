@@ -14,68 +14,68 @@ namespace TruthEngine::Core {
 		m_MouseLastY = m_MouseY;
 		m_MouseX = x;
 		m_MouseY = y;
-		auto event = EventMouseMoved(x, y);
-		TE_INSTANCE_APPLICATION.OnEvent(event);
+		auto event = EventMouseMoved(static_cast<float>(x), static_cast<float>(y));
+		TE_INSTANCE_APPLICATION->OnEvent(event);
 	}
 
 	void InputManager::OnMouseLeftPressed(int x, int y)
 	{
 		auto event = EventMouseButtonPressed(MouseButtons::ButtonLeft);
-		TE_INSTANCE_APPLICATION.OnEvent(event);
+		TE_INSTANCE_APPLICATION->OnEvent(event);
 	}
 
 	void InputManager::OnMouseLeftReleased(int x, int y)
 	{
 		auto event = EventMouseButtonReleased(MouseButtons::ButtonLeft);
-		TE_INSTANCE_APPLICATION.OnEvent(event);
+		TE_INSTANCE_APPLICATION->OnEvent(event);
 	}
 
 	void InputManager::OnMouseRightPressed(int x, int y)
 	{
 		auto event = EventMouseButtonPressed(MouseButtons::ButtonRight);
-		TE_INSTANCE_APPLICATION.OnEvent(event);
+		TE_INSTANCE_APPLICATION->OnEvent(event);
 	}
 
 	void InputManager::OnMouseRightReleased(int x, int y)
 	{
 		auto event = EventMouseButtonReleased(MouseButtons::ButtonRight);
-		TE_INSTANCE_APPLICATION.OnEvent(event);
+		TE_INSTANCE_APPLICATION->OnEvent(event);
 	}
 
 	void InputManager::OnMouseMiddlePressed(int x, int y)
 	{
 		auto event = EventMouseButtonPressed(MouseButtons::ButtonMiddle);
-		TE_INSTANCE_APPLICATION.OnEvent(event);
+		TE_INSTANCE_APPLICATION->OnEvent(event);
 	}
 
 	void InputManager::OnMouseMiddleReleased(int x, int y)
 	{
 		auto event = EventMouseButtonReleased(MouseButtons::ButtonMiddle);
-		TE_INSTANCE_APPLICATION.OnEvent(event);
+		TE_INSTANCE_APPLICATION->OnEvent(event);
 	}
 
 	void InputManager::OnMouseWheelDown(int x, int y)
 	{
-		auto event = EventMouseScrolled(x, y);
-		TE_INSTANCE_APPLICATION.OnEvent(event);
+		auto event = EventMouseScrolled(static_cast<float>(x), static_cast<float>(y));
+		TE_INSTANCE_APPLICATION->OnEvent(event);
 	}
 
 	void InputManager::OnMouseWheelUp(int x, int y)
 	{
-		auto event = EventMouseScrolled(x, y);
-		TE_INSTANCE_APPLICATION.OnEvent(event);
+		auto event = EventMouseScrolled(static_cast<float>(x), static_cast<float>(y));
+		TE_INSTANCE_APPLICATION->OnEvent(event);
 	}
 
 	void InputManager::OnKeyPressed(const KeyCode key)
 	{
 		auto event = TruthEngine::Core::EventKeyPressed(key, 0);
-		TE_INSTANCE_APPLICATION.OnEvent(event);
+		TE_INSTANCE_APPLICATION->OnEvent(event);
 	}
 
 	void InputManager::OnKeyReleased(const KeyCode key)
 	{
 		auto event = TruthEngine::Core::EventKeyReleased(key);
-		TE_INSTANCE_APPLICATION.OnEvent(event);
+		TE_INSTANCE_APPLICATION->OnEvent(event);
 	}
 
 	

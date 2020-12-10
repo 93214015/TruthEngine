@@ -2,7 +2,7 @@
 #include "DescriptorHeap.h"
 #include "DX12GraphicDevice.h"
 
-namespace TruthEngine::API::DX12
+namespace TruthEngine::API::DirectX12
 {
 
 	uint32_t DescriptorHeapRTV::m_DescriptorSize = 0;
@@ -34,6 +34,10 @@ namespace TruthEngine::API::DX12
 		return insertedIndex;
 	}
 
+	void DescriptorHeapRTV::ReplaceDescriptor(ID3D12Resource* resource, uint32_t index)
+	{
+		m_Device->GetDevice()->CreateRenderTargetView(resource, nullptr, GetCPUHandle(index));
+	}
 
 	TE_RESULT DescriptorHeapSRV::Init(DX12GraphicDevice& device, uint32_t descriptorNum, D3D12_DESCRIPTOR_HEAP_FLAGS flags /*= D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE*/, uint32_t nodeMask /*= 0*/)
 	{
@@ -58,6 +62,11 @@ namespace TruthEngine::API::DX12
 		return insertedIndex;
 	}
 
+	void DescriptorHeapSRV::ReplaceDescriptorSRV(ID3D12Resource* resource, const D3D12_SHADER_RESOURCE_VIEW_DESC* srvDesc, uint32_t index)
+	{
+		m_Device->GetDevice()->CreateShaderResourceView(resource, srvDesc, GetCPUHandle(index));
+	}
+
 	uint32_t DescriptorHeapSRV::AddDescriptorCBV(const D3D12_CONSTANT_BUFFER_VIEW_DESC* cbvDesc)
 	{
 		m_Device->GetDevice()->CreateConstantBufferView(cbvDesc, GetCPUHandle(m_CurrentIndex));
@@ -66,12 +75,22 @@ namespace TruthEngine::API::DX12
 		return insertedIndex;
 	}
 
+	void DescriptorHeapSRV::ReplaceDescriptorCBV(const D3D12_CONSTANT_BUFFER_VIEW_DESC* cbvDesc, uint32_t index)
+	{
+		m_Device->GetDevice()->CreateConstantBufferView(cbvDesc, GetCPUHandle(index));
+	}
+
 	uint32_t DescriptorHeapSRV::AddDescriptorUAV(ID3D12Resource* resource, ID3D12Resource* counterResource, const D3D12_UNORDERED_ACCESS_VIEW_DESC* uavDesc)
 	{
 		m_Device->GetDevice()->CreateUnorderedAccessView(resource, counterResource, uavDesc, GetCPUHandle(m_CurrentIndex));
 		auto insertedIndex = m_CurrentIndex;
 		m_CurrentIndex++;
 		return insertedIndex;
+	}
+
+	void DescriptorHeapSRV::ReplaceDescriptorUAV(ID3D12Resource* resource, ID3D12Resource* counterResource, const D3D12_UNORDERED_ACCESS_VIEW_DESC* uavDesc, uint32_t index)
+	{
+		m_Device->GetDevice()->CreateUnorderedAccessView(resource, counterResource, uavDesc, GetCPUHandle(index));
 	}
 
 	TE_RESULT DescriptorHeapDSV::Init(DX12GraphicDevice& device, uint32_t descriptorNum, D3D12_DESCRIPTOR_HEAP_FLAGS flags /*= D3D12_DESCRIPTOR_HEAP_FLAG_NONE*/, uint32_t nodeMask /*= 0*/)
@@ -91,10 +110,15 @@ namespace TruthEngine::API::DX12
 
 	uint32_t DescriptorHeapDSV::AddDescriptor(ID3D12Resource* resource, const D3D12_DEPTH_STENCIL_VIEW_DESC* dsvDesc)
 	{
-		m_Device->GetDevice()->CreateDepthStencilView(resource, dsvDesc, GetCPUHandle(m_CurrentIndex));
+		m_Device->GetDevice()->CreateDepthStencilView(resource, dsvDesc, GetCPUHandleLast());
 		auto insertedIndex = m_CurrentIndex;
 		m_CurrentIndex++;
 		return insertedIndex;
+	}
+
+	void DescriptorHeapDSV::ReplaceDescriptor(ID3D12Resource* resource, const D3D12_DEPTH_STENCIL_VIEW_DESC* dsvDesc, uint32_t index)
+	{
+		m_Device->GetDevice()->CreateDepthStencilView(resource, dsvDesc, GetCPUHandle(index));
 	}
 
 	TE_RESULT DescriptorHeapSampler::Init(DX12GraphicDevice& device, uint32_t descriptorNum, D3D12_DESCRIPTOR_HEAP_FLAGS flags /*= D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE*/, uint32_t nodeMask /*= 0*/)
@@ -114,10 +138,15 @@ namespace TruthEngine::API::DX12
 
 	uint32_t DescriptorHeapSampler::AddDescriptor(const D3D12_SAMPLER_DESC* samplerDesc)
 	{
-		m_Device->GetDevice()->CreateSampler(samplerDesc, GetCPUHandle(m_CurrentIndex));
+		m_Device->GetDevice()->CreateSampler(samplerDesc, GetCPUHandleLast());
 		auto insertedIndex = m_CurrentIndex;
 		m_CurrentIndex++;
 		return insertedIndex;
+	}
+
+	void DescriptorHeapSampler::ReplaceDescriptor(const D3D12_SAMPLER_DESC* samplerDesc, uint32_t index)
+	{
+		m_Device->GetDevice()->CreateSampler(samplerDesc, GetCPUHandle(index));
 	}
 
 }

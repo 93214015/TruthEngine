@@ -16,17 +16,20 @@
     <Filter Include="Core\Entity\Camera">
       <UniqueIdentifier>{F2BFEAD2-DEA3-AB28-4704-A67B330796AA}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Core\Entity\Model">
+      <UniqueIdentifier>{7A0D95D8-E623-936E-2F9B-1E909BF063F6}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Core\Event">
       <UniqueIdentifier>{FF1F37CD-EBD7-781A-54DF-517640B6130B}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Core\GPU">
-      <UniqueIdentifier>{A91999C2-95E6-F3CD-BEFF-E175AA2B295C}</UniqueIdentifier>
     </Filter>
     <Filter Include="Core\ImGui">
       <UniqueIdentifier>{D8137ACD-C4CB-BB1A-2DD3-947619AA560B}</UniqueIdentifier>
     </Filter>
     <Filter Include="Core\Input">
       <UniqueIdentifier>{AD4E7BCD-9906-BD1A-020E-9676EEE4570B}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Renderer">
+      <UniqueIdentifier>{948B5FDE-004C-DB14-C986-2492350620F1}</UniqueIdentifier>
     </Filter>
     <Filter Include="Platform">
       <UniqueIdentifier>{2AC788B4-1694-E3BF-3FAD-D1672BD9184E}</UniqueIdentifier>
@@ -36,13 +39,31 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\API\DX12\CommandAllocator.h">
-      <Filter>API\DX12</Filter>
-    </ClInclude>
-    <ClInclude Include="src\API\DX12\CommandList.h">
-      <Filter>API\DX12</Filter>
-    </ClInclude>
     <ClInclude Include="src\API\DX12\CommandQueue.h">
+      <Filter>API\DX12</Filter>
+    </ClInclude>
+    <ClInclude Include="src\API\DX12\DX12BufferManager.h">
+      <Filter>API\DX12</Filter>
+    </ClInclude>
+    <ClInclude Include="src\API\DX12\DX12CommandAllocator.h">
+      <Filter>API\DX12</Filter>
+    </ClInclude>
+    <ClInclude Include="src\API\DX12\DX12CommandList.h">
+      <Filter>API\DX12</Filter>
+    </ClInclude>
+    <ClInclude Include="src\API\DX12\DX12GraphicDevice.h">
+      <Filter>API\DX12</Filter>
+    </ClInclude>
+    <ClInclude Include="src\API\DX12\DX12ImGuiLayer.h">
+      <Filter>API\DX12</Filter>
+    </ClInclude>
+    <ClInclude Include="src\API\DX12\DX12PipelineManager.h">
+      <Filter>API\DX12</Filter>
+    </ClInclude>
+    <ClInclude Include="src\API\DX12\DX12ShaderManager.h">
+      <Filter>API\DX12</Filter>
+    </ClInclude>
+    <ClInclude Include="src\API\DX12\DX12SwapChain.h">
       <Filter>API\DX12</Filter>
     </ClInclude>
     <ClInclude Include="src\API\DX12\DescriptorHeap.h">
@@ -57,6 +78,9 @@
     <ClInclude Include="src\Core\Application.h">
       <Filter>Core</Filter>
     </ClInclude>
+    <ClInclude Include="src\Core\Core.h">
+      <Filter>Core</Filter>
+    </ClInclude>
     <ClInclude Include="src\Core\Entity\Camera\CameraOrthographic.h">
       <Filter>Core\Entity\Camera</Filter>
     </ClInclude>
@@ -65,6 +89,21 @@
     </ClInclude>
     <ClInclude Include="src\Core\Entity\Camera\ICamera.h">
       <Filter>Core\Entity\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Entity\Model\Mesh.h">
+      <Filter>Core\Entity\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Entity\Model\Model.h">
+      <Filter>Core\Entity\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Entity\Model\Model2D.h">
+      <Filter>Core\Entity\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Entity\Model\Model3D.h">
+      <Filter>Core\Entity\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Entity\Model\ModelManager.h">
+      <Filter>Core\Entity\Model</Filter>
     </ClInclude>
     <ClInclude Include="src\Core\EntryPoint.h">
       <Filter>Core</Filter>
@@ -105,49 +144,138 @@
     <ClInclude Include="src\Core\Log.h">
       <Filter>Core</Filter>
     </ClInclude>
+    <ClInclude Include="src\Core\Renderer\Buffer.h">
+      <Filter>Core\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Renderer\BufferManager.h">
+      <Filter>Core\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Renderer\CommandList.h">
+      <Filter>Core\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Renderer\ConstantBuffer.h">
+      <Filter>Core\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Renderer\GraphicDevice.h">
+      <Filter>Core\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Renderer\GraphicResouceConstants.h">
+      <Filter>Core\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Renderer\GraphicResource.h">
+      <Filter>Core\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Renderer\IndexBuffer.h">
+      <Filter>Core\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Renderer\Material.h">
+      <Filter>Core\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Renderer\MaterialManager.h">
+      <Filter>Core\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Renderer\Pipeline.h">
+      <Filter>Core\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Renderer\PipelineState.h">
+      <Filter>Core\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Renderer\Renderer3D.h">
+      <Filter>Core\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Renderer\RendererCommand.h">
+      <Filter>Core\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Renderer\Shader.h">
+      <Filter>Core\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Renderer\ShaderInputLayout.h">
+      <Filter>Core\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Renderer\ShaderManager.h">
+      <Filter>Core\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Renderer\SwapChain.h">
+      <Filter>Core\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Renderer\Texture.h">
+      <Filter>Core\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Renderer\TextureDepthStencil.h">
+      <Filter>Core\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Renderer\TextureMaterial.h">
+      <Filter>Core\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Renderer\TextureRenderTarget.h">
+      <Filter>Core\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Renderer\VertexBuffer.h">
+      <Filter>Core\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Renderer\VertexBufferStream.h">
+      <Filter>Core\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Renderer\VertexDataStructures.h">
+      <Filter>Core\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Settings.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\StaticInstances.h">
+      <Filter>Core</Filter>
+    </ClInclude>
     <ClInclude Include="src\Core\ThreadPool.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Timer.h">
       <Filter>Core</Filter>
     </ClInclude>
     <ClInclude Include="src\Core\TimerEngine.h">
       <Filter>Core</Filter>
     </ClInclude>
-    <ClInclude Include="src\Core\Window.h">
+    <ClInclude Include="src\Core\TypeConversions.h">
       <Filter>Core</Filter>
     </ClInclude>
-    <ClInclude Include="src\TruthEngine.h" />
-    <ClInclude Include="src\lib.h" />
-    <ClInclude Include="src\pch.h" />
-    <ClInclude Include="src\Core\Renderer\GraphicDevice.h">
-      <Filter>Core\GPU</Filter>
+    <ClInclude Include="src\Core\Window.h">
+      <Filter>Core</Filter>
     </ClInclude>
     <ClInclude Include="src\Platform\Windows\WindowsWindow.h">
       <Filter>Platform\Windows</Filter>
     </ClInclude>
-    <ClInclude Include="src\API\DX12\DX12GraphicDevice.h">
-      <Filter>API\DX12</Filter>
-    </ClInclude>
-    <ClInclude Include="src\API\DX12\DX12ImGuiLayer.h">
-      <Filter>API\DX12</Filter>
-    </ClInclude>
-    <ClInclude Include="src\API\DX12\DX12SwapChain.h">
-      <Filter>API\DX12</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Core\Core.h">
-      <Filter>Core</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Core\Renderer\SwapChain.h" />
-    <ClInclude Include="src\Core\Timer.h">
-      <Filter>Core</Filter>
+    <ClInclude Include="src\TruthEngine.h" />
+    <ClInclude Include="src\lib.h" />
+    <ClInclude Include="src\pch.h" />
+    <ClInclude Include="src\Core\Renderer\RendererLayer.h">
+      <Filter>Core\Renderer</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\API\DX12\CommandAllocator.cpp">
-      <Filter>API\DX12</Filter>
-    </ClCompile>
-    <ClCompile Include="src\API\DX12\CommandList.cpp">
-      <Filter>API\DX12</Filter>
-    </ClCompile>
     <ClCompile Include="src\API\DX12\CommandQueue.cpp">
+      <Filter>API\DX12</Filter>
+    </ClCompile>
+    <ClCompile Include="src\API\DX12\DX12BufferManager.cpp">
+      <Filter>API\DX12</Filter>
+    </ClCompile>
+    <ClCompile Include="src\API\DX12\DX12CommandAllocator.cpp">
+      <Filter>API\DX12</Filter>
+    </ClCompile>
+    <ClCompile Include="src\API\DX12\DX12CommandList.cpp">
+      <Filter>API\DX12</Filter>
+    </ClCompile>
+    <ClCompile Include="src\API\DX12\DX12GraphicDevice.cpp">
+      <Filter>API\DX12</Filter>
+    </ClCompile>
+    <ClCompile Include="src\API\DX12\DX12ImGuiLayer.cpp">
+      <Filter>API\DX12</Filter>
+    </ClCompile>
+    <ClCompile Include="src\API\DX12\DX12PipelineManager.cpp">
+      <Filter>API\DX12</Filter>
+    </ClCompile>
+    <ClCompile Include="src\API\DX12\DX12ShaderManager.cpp">
+      <Filter>API\DX12</Filter>
+    </ClCompile>
+    <ClCompile Include="src\API\DX12\DX12SwapChain.cpp">
       <Filter>API\DX12</Filter>
     </ClCompile>
     <ClCompile Include="src\API\DX12\DescriptorHeap.cpp">
@@ -170,6 +298,21 @@
     </ClCompile>
     <ClCompile Include="src\Core\Entity\Camera\ICamera.cpp">
       <Filter>Core\Entity\Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Entity\Model\Mesh.cpp">
+      <Filter>Core\Entity\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Entity\Model\Model.cpp">
+      <Filter>Core\Entity\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Entity\Model\Model2D.cpp">
+      <Filter>Core\Entity\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Entity\Model\Model3D.cpp">
+      <Filter>Core\Entity\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Entity\Model\ModelManager.cpp">
+      <Filter>Core\Entity\Model</Filter>
     </ClCompile>
     <ClCompile Include="src\Core\Event\Event.cpp">
       <Filter>Core\Event</Filter>
@@ -198,7 +341,73 @@
     <ClCompile Include="src\Core\Log.cpp">
       <Filter>Core</Filter>
     </ClCompile>
+    <ClCompile Include="src\Core\Renderer\BufferManager.cpp">
+      <Filter>Core\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Renderer\CommandList.cpp">
+      <Filter>Core\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Renderer\ConstantBuffer.cpp">
+      <Filter>Core\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Renderer\GraphicResource.cpp">
+      <Filter>Core\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Renderer\IndexBuffer.cpp">
+      <Filter>Core\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Renderer\Material.cpp">
+      <Filter>Core\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Renderer\MaterialManager.cpp">
+      <Filter>Core\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Renderer\Pipeline.cpp">
+      <Filter>Core\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Renderer\Renderer3D.cpp">
+      <Filter>Core\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Renderer\RendererCommand.cpp">
+      <Filter>Core\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Renderer\Shader.cpp">
+      <Filter>Core\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Renderer\ShaderInputLayout.cpp">
+      <Filter>Core\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Renderer\ShaderManager.cpp">
+      <Filter>Core\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Renderer\SwapChain.cpp">
+      <Filter>Core\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Renderer\Texture.cpp">
+      <Filter>Core\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Renderer\TextureDepthStencil.cpp">
+      <Filter>Core\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Renderer\TextureRenderTarget.cpp">
+      <Filter>Core\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Renderer\VertexBuffer.cpp">
+      <Filter>Core\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Renderer\VertexBufferStream.cpp">
+      <Filter>Core\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Settings.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\StaticInstances.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
     <ClCompile Include="src\Core\ThreadPool.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Timer.cpp">
       <Filter>Core</Filter>
     </ClCompile>
     <ClCompile Include="src\Core\TimerEngine.cpp">
@@ -207,25 +416,16 @@
     <ClCompile Include="src\Core\Window.cpp">
       <Filter>Core</Filter>
     </ClCompile>
-    <ClCompile Include="src\pch.cpp" />
-    <ClCompile Include="src\Platform\Windows\WindowsWindow.cpp">
-      <Filter>Platform\Windows</Filter>
-    </ClCompile>
     <ClCompile Include="src\Platform\Windows\WindowsInputManager.cpp">
       <Filter>Platform\Windows</Filter>
     </ClCompile>
-    <ClCompile Include="src\API\DX12\DX12GraphicDevice.cpp">
-      <Filter>API\DX12</Filter>
+    <ClCompile Include="src\Platform\Windows\WindowsWindow.cpp">
+      <Filter>Platform\Windows</Filter>
     </ClCompile>
-    <ClCompile Include="src\API\DX12\DX12ImGuiLayer.cpp">
-      <Filter>API\DX12</Filter>
-    </ClCompile>
-    <ClCompile Include="src\API\DX12\DX12SwapChain.cpp">
-      <Filter>API\DX12</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Core\Renderer\SwapChain.cpp" />
-    <ClCompile Include="src\Core\Timer.cpp">
-      <Filter>Core</Filter>
+    <ClCompile Include="src\pch.cpp" />
+    <ClCompile Include="src\Core\ImGui\ImGuiLayer.cpp" />
+    <ClCompile Include="src\Core\Renderer\RendererLayer.cpp">
+      <Filter>Core\Renderer</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

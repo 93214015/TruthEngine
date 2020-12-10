@@ -10,23 +10,26 @@ using namespace Microsoft::WRL;
 
 #ifdef TE_API_DX12
 
-TruthEngine::Core::SwapChain* TruthEngine::Core::SwapChain::Get()
+TruthEngine::Core::SwapChain* TruthEngine::Core::SwapChain::GetInstance()
 {
-	return &TruthEngine::API::DX12::DX12SwapChain::Get();
+	return &TruthEngine::API::DirectX12::DX12SwapChain::GetInstance();
 }
 
 #endif
 
-namespace TruthEngine::API::DX12 {
+namespace TruthEngine::API::DirectX12 {
 
 
 	DX12SwapChain::DX12SwapChain() = default;
 
 	TE_RESULT DX12SwapChain::Init(UINT clientWidth, UINT clientHeight, HWND outputHWND, UINT backBufferNum)
 	{
+
 		m_BackBufferNum = backBufferNum;
 
 		CreateSwapChain(outputHWND);
+
+		m_CurrentBackBufferResourceState.resize(backBufferNum, D3D12_RESOURCE_STATE_PRESENT);
 
 		return TE_SUCCESSFUL;
 
@@ -54,8 +57,8 @@ namespace TruthEngine::API::DX12 {
 			desc1.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 			desc1.Flags = DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT;
 			desc1.Format = m_BackbufferFormat;
-			desc1.Width = TE_INSTANCE_APPLICATION.GetClientWidth();
-			desc1.Height = TE_INSTANCE_APPLICATION.GetClientHeight();
+			desc1.Width = TE_INSTANCE_APPLICATION->GetClientWidth();
+			desc1.Height = TE_INSTANCE_APPLICATION->GetClientHeight();
 			desc1.SampleDesc.Count = m_UseMSAA4X ? 4 : 1;
 			desc1.SampleDesc.Quality = m_UseMSAA4X ? m_MSAAQualityLevels.NumQualityLevels - 1 : 0;
 			desc1.Scaling = DXGI_SCALING_NONE;
@@ -64,7 +67,7 @@ namespace TruthEngine::API::DX12 {
 
 			auto r = TE_INSTANCE_IDXGI.GetDXGIFactory()->CreateSwapChainForHwnd(TE_INSTANCE_API_DX12_COMMANDQUEUEDIRECT.m_CommandQueue.Get(), outputHWND, &desc1, NULL, NULL, &swapChain1);
 
-			TE_ASSERT_CORE(r, "API::DX12 Creation of 'SwapChain' factory is failed!");
+			TE_ASSERT_CORE(r, "API::DirectX12  Creation of 'SwapChain' factory is failed!");
 
 			swapChain1->QueryInterface(m_SwapChain.ReleaseAndGetAddressOf());
 
@@ -135,6 +138,6 @@ namespace TruthEngine::API::DX12 {
 			return TE_FAIL;
 	}
 
-	TruthEngine::API::DX12::DX12SwapChain DX12SwapChain::s_SwapChain;
+	TruthEngine::API::DirectX12::DX12SwapChain DX12SwapChain::s_SwapChain;
 
 }

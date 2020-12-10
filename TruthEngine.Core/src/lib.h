@@ -5,3 +5,4 @@
 #pragma comment(lib, "d3dCompiler.lib")
 #pragma comment(lib, "dxgi.lib")
 #pragma comment(lib, "dxguid.lib")
+#pragma comment(lib, "dxcompiler.lib")

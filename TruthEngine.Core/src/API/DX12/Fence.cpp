@@ -2,7 +2,7 @@
 #include "Fence.h"
 #include "DX12GraphicDevice.h"
 
-namespace TruthEngine::API::DX12 {
+namespace TruthEngine::API::DirectX12 {
 
 
 
@@ -18,9 +18,7 @@ namespace TruthEngine::API::DX12 {
 	uint64_t Fence::SetFence(ID3D12CommandQueue* cmdQueue)
 	{
 		cmdQueue->Signal(m_Fence.Get(), m_Value);
-		auto value = m_Value;
-		m_Value++;
-		return value;
+		return m_Value++;
 	}
 
 

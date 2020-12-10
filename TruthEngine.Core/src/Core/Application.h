@@ -2,8 +2,9 @@
 
 #include "Core/Window.h"
 #include "Core/Event/Event.h"
-#include "Core/ImGui/ImGuiLayer.h"
 #include "Core/LayerStack.h"
+#include "Core/ImGui/ImGuiLayer.h"
+#include "Core/Renderer/RendererLayer.h"
 #include "Core/TimerEngine.h"
 
 namespace TruthEngine::Core {
@@ -23,7 +24,6 @@ namespace TruthEngine::Core {
 
 		inline uint32_t GetCurrentFrameIndex() const noexcept { return m_CurrentFrameIndex; }
 
-
 		inline const char* GetTitle() const noexcept { return m_Title.c_str(); }
 
 		Window* GetWindow() { return m_Window.get(); }
@@ -35,7 +35,7 @@ namespace TruthEngine::Core {
 		virtual void OnDestroy() = 0;
 		virtual void OnEvent(Event& e);
 
-		static inline Application& GetApplication() { return *s_Instance; }
+		static inline Application* GetApplication() { return s_Instance; }
 
 	protected:
 
@@ -46,7 +46,7 @@ namespace TruthEngine::Core {
 
 		LayerStack m_LayerStack;
 
-		ImGuiLayer* m_ImGuiLayer;
+		std::shared_ptr<RendererLayer> m_RendererLayer;
 
 
 		TimerEngine m_Timer;

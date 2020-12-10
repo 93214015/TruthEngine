@@ -1,21 +1,24 @@
 #include "pch.h"
-#include "API/DX12/DX12ImGuiLayer.h"
+#include "DX12ImGuiLayer.h"
 
 #include "Core/Application.h"
+
 #include "Platform/Windows/WindowsWindow.h"
-#include "API/DX12/DX12GraphicDevice.h"
+
 #include "API/IDXGI.h"
+#include "API/DX12/DX12GraphicDevice.h"
 #include "API/DX12/DX12SwapChain.h"
+
 
 
 #ifdef TE_API_DX12
 
-TruthEngine::Core::ImGuiLayer* TruthEngine::Core::ImGuiLayer::Factory() {
+//TruthEngine::Core::ImGuiLayer* TruthEngine::Core::ImGuiLayer::Factory() {
+//
+//	return new API::DirectX12::DX12ImGuiLayer();
+//};
 
-	return new API::DX12::DX12ImGuiLayer();
-};
-
-namespace TruthEngine::API::DX12 {
+namespace TruthEngine::API::DirectX12 {
 
 
 
@@ -23,10 +26,10 @@ namespace TruthEngine::API::DX12 {
 	{
 		TE_TIMER_SCOPE_FUNC;
 
-		m_CommandList.Init(TE_INSTANCE_APPLICATION.GetFramesInFlightNum(), D3D12_COMMAND_LIST_TYPE_DIRECT, TE_INSTANCE_API_DX12_GRAPHICDEVICE);
+		m_CommandList = std::make_shared<DX12CommandList>(&TE_INSTANCE_API_DX12_GRAPHICDEVICE, TE_RENDERER_COMMANDLIST_TYPE::DIRECT, nullptr, nullptr);
 
-		m_DescHeapSRV.Init(TE_INSTANCE_API_DX12_GRAPHICDEVICE, TE_INSTANCE_APPLICATION.GetFramesInFlightNum());
-		m_DescHeapRTV.Init(TE_INSTANCE_API_DX12_GRAPHICDEVICE, TE_INSTANCE_APPLICATION.GetFramesInFlightNum());
+		m_DescHeapSRV.Init(TE_INSTANCE_API_DX12_GRAPHICDEVICE, TE_INSTANCE_APPLICATION->GetFramesInFlightNum());
+		m_DescHeapRTV.Init(TE_INSTANCE_API_DX12_GRAPHICDEVICE, TE_INSTANCE_APPLICATION->GetFramesInFlightNum());
 
 		TE_INSTANCE_API_DX12_SWAPCHAIN.InitRTVs(&m_DescHeapRTV);
 
@@ -47,10 +50,10 @@ namespace TruthEngine::API::DX12 {
 			style.Colors[ImGuiCol_WindowBg].w = 1.0f;
 		}
 
-		HWND hwnd = static_cast<HWND>(TE_INSTANCE_APPLICATION.GetWindow()->GetNativeWindowHandle());
+		HWND hwnd = static_cast<HWND>(TE_INSTANCE_APPLICATION->GetWindow()->GetNativeWindowHandle());
 		ImGui_ImplWin32_Init(hwnd);
 		ImGui_ImplDX12_Init(TE_INSTANCE_API_DX12_GRAPHICDEVICE.GetDevice()
-			, TE_INSTANCE_APPLICATION.GetFramesInFlightNum()
+			, TE_INSTANCE_APPLICATION->GetFramesInFlightNum()
 			, DXGI_FORMAT_R8G8B8A8_UNORM
 			, m_DescHeapSRV.GetDescriptorHeap()
 			, m_DescHeapSRV.GetCPUHandleLast()
@@ -70,7 +73,7 @@ namespace TruthEngine::API::DX12 {
 
 
 		m_DescHeapSRV.Release();
-		m_CommandList.Release();
+		m_CommandList->Release();
 	}
 
 	void DX12ImGuiLayer::Begin()
@@ -130,28 +133,37 @@ namespace TruthEngine::API::DX12 {
 	{
 		TE_TIMER_SCOPE_FUNC;
 
-		const uint32_t currentFrameIndex = TE_INSTANCE_APPLICATION.GetCurrentFrameIndex();
+		const uint32_t currentFrameIndex = TE_INSTANCE_APPLICATION->GetCurrentFrameIndex();
 
-		m_CommandList.Reset(currentFrameIndex, nullptr);
+		m_CommandList->GetCommandAllocator()->Reset();
+		auto dx12CmdList = m_CommandList->GetNativeObject();
+		dx12CmdList->Reset(m_CommandList->GetCommandAllocator()->GetNativeObject(), nullptr);
+
+		auto& sc = TE_INSTANCE_API_DX12_SWAPCHAIN;
 
 		ID3D12DescriptorHeap* descheaps[] = { m_DescHeapSRV.GetDescriptorHeap() };
-		D3D12_RESOURCE_BARRIER barrier;
-		TE_INSTANCE_API_DX12_SWAPCHAIN.ChangeResourceState(barrier, D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
-		m_CommandList->ResourceBarrier(1, &barrier);
-		m_CommandList->SetDescriptorHeaps(1, descheaps);
-		m_CommandList->OMSetRenderTargets(1, &m_DescHeapRTV.GetCPUHandle(currentFrameIndex), FALSE, NULL);
+		if (sc.GetBackBufferState() != D3D12_RESOURCE_STATE_RENDER_TARGET)
+		{
+			auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(sc.GetBackBufferResource(), sc.GetBackBufferState(), D3D12_RESOURCE_STATE_RENDER_TARGET);
+			dx12CmdList->ResourceBarrier(1, &barrier);
+		}
+		dx12CmdList->SetDescriptorHeaps(1, descheaps);
+		dx12CmdList->OMSetRenderTargets(1, &m_DescHeapRTV.GetCPUHandle(currentFrameIndex), FALSE, NULL);
 		ImGui::Render();
-		ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), m_CommandList.Get());
-		TE_INSTANCE_API_DX12_SWAPCHAIN.ChangeResourceState(barrier, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
-		m_CommandList->ResourceBarrier(1, &barrier);
+		ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), dx12CmdList);
 
-		TE_INSTANCE_API_DX12_COMMANDQUEUEDIRECT.ExecuteCommandList(m_CommandList);
+		/*barrier = CD3DX12_RESOURCE_BARRIER::Transition(sc.GetBackBufferResource(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
+		dx12CmdList->ResourceBarrier(1, &barrier);*/
+
+
+		TE_INSTANCE_API_DX12_COMMANDQUEUEDIRECT.ExecuteCommandList(*m_CommandList);
+
 
 		auto& io = ImGui::GetIO();
 		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
 		{
 			ImGui::UpdatePlatformWindows();
-			ImGui::RenderPlatformWindowsDefault(NULL, m_CommandList.Get());
+			ImGui::RenderPlatformWindowsDefault(NULL, dx12CmdList);
 		}
 	}
 
