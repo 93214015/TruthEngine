@@ -160,7 +160,7 @@ namespace TruthEngine::API::DirectX12
 
 		m_ResouceNameMap[tDS->m_Name.c_str()] = resource.Get();
 
-		D3D12_CLEAR_VALUE v{ GetFormat(tDS->m_Format), { tDS->m_ClearValue.depthValue, tDS->m_ClearValue.stencilValue } };
+		D3D12_CLEAR_VALUE v{ GetDSVFormat(tDS->m_Format), { tDS->m_ClearValue.depthValue, tDS->m_ClearValue.stencilValue } };
 
 		auto hr = TE_INSTANCE_API_DX12_GRAPHICDEVICE->CreateCommittedResource2(
 			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT)
@@ -332,7 +332,7 @@ namespace TruthEngine::API::DirectX12
 		for (uint32_t i = 0; i < vertexStreamsNum; ++i)
 		{
 			auto vs = vertexStreams[i];
-			TE_ASSERT_CORE(CreateResource(vs), "Creating vertex buffers failed!");
+			CreateResource(vs);
 
 			vs->m_ViewIndex = static_cast<uint32_t>(m_VertexBufferViews.size());
 			auto r = m_Resources[vs->m_ResourceIndex];
@@ -349,7 +349,7 @@ namespace TruthEngine::API::DirectX12
 
 	TE_RESULT DX12BufferManager::CreateIndexBuffer(Core::IndexBuffer* ib)
 	{
-		TE_ASSERT_CORE(CreateResource(ib), "Creating index buffer failed!");
+		CreateResource(ib);
 
 		//assing index buffer ID then increase the variable by 1
 		ib->m_ID = m_LastIndexBufferID++;

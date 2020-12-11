@@ -18,7 +18,7 @@ namespace TruthEngine::Core
 		"renderer3DDepth"
 		, TE_INSTANCE_APPLICATION->GetClientWidth()
 		, TE_INSTANCE_APPLICATION->GetClientHeight()
-		, TE_RESOURCE_FORMAT::R32_FLOAT
+		, TE_RESOURCE_FORMAT::R32_TYPELESS
 		, TextureDepthStencil::ClearValue{ 1.0f, 0 }
 		, false)
 	{};
@@ -51,7 +51,7 @@ namespace TruthEngine::Core
 
 			Shader* shader = nullptr;
 
-			m_ShaderMgr->AddShader(&shader, mat.GetRendererStates(), shaderName, "Assets/Shaders/renderer3D.hlsl", "vs", "ps");
+			m_ShaderMgr->AddShader(&shader, mat.GetRendererStates(), "Assets/Shaders/renderer3D.hlsl", "vs", "ps");
 
 			auto pipeline = std::make_shared<Pipeline>();
 			pipeline->SetShader(shader);

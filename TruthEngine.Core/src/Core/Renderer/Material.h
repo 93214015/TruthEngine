@@ -12,6 +12,8 @@ namespace TruthEngine
 		{
 
 		public:
+			Material();
+
 			inline RendererStateSet GetRendererStates() const noexcept
 			{
 				return m_RendererStates;

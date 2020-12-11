@@ -153,14 +153,18 @@ namespace TruthEngine
 				//
 				// COMMAND LINE: dxc myshader.hlsl -E main -T ps_6_0 -Zi -D MYDEFINE=1 -Fo myshader.bin -Fd myshader.pdb -Qstrip_reflect
 				//
+				auto entryL = to_wstring(entry);
+				auto binaryOutput = (name + L".bin");
+				auto debugOutput = (name + L".pdb");
+
 				LPCWSTR args[] =
 				{
 					name.c_str(),
-					L"-E", to_wstring(entry).c_str(),
+					L"-E", entryL.c_str(),
 					L"-T", target.c_str(),
 					L"-Zi",
-					L"-Fo",(name + L".bin").c_str(),
-					L"-Fd",(name + L".pdb").c_str(),
+					L"-Fo",binaryOutput.c_str(),
+					L"-Fd", debugOutput.c_str(),
 					L"-Qstrip_reflect"
 				};
 
@@ -168,7 +172,7 @@ namespace TruthEngine
 				// Open source file.  
 				//
 				COMPTR<IDxcBlobEncoding> pSource;
-				utils->LoadFile(filePathW.c_str(), nullptr, &pSource);
+				auto hr = utils->LoadFile(filePathW.c_str(), nullptr, &pSource);
 				DxcBuffer source;
 				source.Ptr = pSource->GetBufferPointer();
 				source.Size = pSource->GetBufferSize();
@@ -190,6 +194,7 @@ namespace TruthEngine
 				// IDxcCompiler3::Compile will always return an error buffer, but its length will be zero if there are no warnings or errors.
 				if (error != nullptr && error->GetStringLength() != 0)
 				{
+					OutputDebugStringA(error->GetStringPointer());
 					TE_LOG_CORE_ERROR("the shader compilation error: {0}", error->GetStringPointer());
 				}
 

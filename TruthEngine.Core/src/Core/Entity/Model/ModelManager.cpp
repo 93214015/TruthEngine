@@ -16,8 +16,9 @@ namespace TruthEngine::Core
 	void ModelManager::Init(BufferManager* bufferManager)
 	{
 		m_BufferManager = bufferManager;
+		m_MaterialManager.Init(m_BufferManager);
 
-		/*auto& mesh = m_Meshes.emplace_back();
+		auto& mesh = m_Meshes.emplace_back();
 		mesh.m_IndexBuffer = &m_IndexBuffer;
 		mesh.m_VertexBuffer = &m_VertexBuffer_PosNormTex;
 		mesh.m_IndexNum = 3;
@@ -55,7 +56,7 @@ namespace TruthEngine::Core
 
 
 		m_BufferManager->CreateVertexBuffer(&m_VertexBuffer_PosNormTex);
-		m_BufferManager->CreateIndexBuffer(&m_IndexBuffer);*/
+		m_BufferManager->CreateIndexBuffer(&m_IndexBuffer);
 
 	}
 

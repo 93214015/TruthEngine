@@ -9,7 +9,9 @@
 namespace TruthEngine::Core
 {
 
-	RendererLayer::RendererLayer() = default;
+	RendererLayer::RendererLayer() : m_ImGuiLayer(ImGuiLayer::Factory()), m_Renderer3D(std::make_shared<Renderer3D>())
+	{
+	}
 	RendererLayer::~RendererLayer() = default;
 
 	RendererLayer::RendererLayer(const RendererLayer& renderer) = default;
@@ -25,10 +27,9 @@ namespace TruthEngine::Core
 
 		m_ModelManagers = TE_INSTANCE_MODELMANAGER;
 
-		m_ImGuiLayer = ImGuiLayer::Factory();
 		m_ImGuiLayer->OnAttach();
 
-		//m_Renderer3D->Init(m_BufferManager.get(), m_ModelManagers->GetMaterials());
+	    m_Renderer3D->Init(m_BufferManager.get(), m_ModelManagers->GetMaterials());
 
 		for (auto& model : m_ModelManagers->GetModel3D())
 		{
@@ -48,11 +49,9 @@ namespace TruthEngine::Core
 
 	void RendererLayer::OnUpdate(double deltaFrameTime)
 	{
-		
-
-		/*m_Renderer3D.BeginScene();
-		m_Renderer3D.EndScene();
-		m_Renderer3D.Render(m_Model3DQueue);*/
+		m_Renderer3D->BeginScene();
+		m_Renderer3D->EndScene();
+		m_Renderer3D->Render(m_Model3DQueue);
 	}
 
 

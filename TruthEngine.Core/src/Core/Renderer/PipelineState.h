@@ -10,7 +10,7 @@ using RendererShaderIDSet = uint32_t;
 
 
 #define GET_RENDERER_STATE(x, y) ((x >> BIT_POS_##y) & ((1 << BIT_NUM_##y) - 1))
-#define SET_RENDERER_STATE(states, stateName, stateValue) ((states & ~(BIT_MASK_##stateName) ) | (stateValue << BIT_POS_##stateName))
+#define SET_RENDERER_STATE(states, stateName, stateValue) states = ((states & ~(BIT_MASK_##stateName) ) | (stateValue << BIT_POS_##stateName))
 
 
 #define BIT_NUM_TE_RENDERER_STATE_ENABLED_SHADER_HS 1

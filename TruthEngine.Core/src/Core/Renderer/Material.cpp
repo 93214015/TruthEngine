@@ -6,5 +6,10 @@ namespace TruthEngine
 	namespace Core
 	{
 
+		Material::Material()
+		{
+			
+		}
+
 	}
 }
