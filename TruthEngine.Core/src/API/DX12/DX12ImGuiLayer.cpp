@@ -156,7 +156,7 @@ namespace TruthEngine::API::DirectX12 {
 		dx12CmdList->ResourceBarrier(1, &barrier);*/
 
 
-		TE_INSTANCE_API_DX12_COMMANDQUEUEDIRECT.ExecuteCommandList(*m_CommandList);
+		TE_INSTANCE_API_DX12_COMMANDQUEUEDIRECT->ExecuteCommandList(m_CommandList.get());
 
 
 		auto& io = ImGui::GetIO();

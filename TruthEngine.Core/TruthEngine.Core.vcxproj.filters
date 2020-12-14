@@ -186,6 +186,9 @@
     <ClInclude Include="src\Core\Renderer\RendererCommand.h">
       <Filter>Core\Renderer</Filter>
     </ClInclude>
+    <ClInclude Include="src\Core\Renderer\RendererLayer.h">
+      <Filter>Core\Renderer</Filter>
+    </ClInclude>
     <ClInclude Include="src\Core\Renderer\Shader.h">
       <Filter>Core\Renderer</Filter>
     </ClInclude>
@@ -219,6 +222,9 @@
     <ClInclude Include="src\Core\Renderer\VertexDataStructures.h">
       <Filter>Core\Renderer</Filter>
     </ClInclude>
+    <ClInclude Include="src\Core\Renderer\Viewport.h">
+      <Filter>Core\Renderer</Filter>
+    </ClInclude>
     <ClInclude Include="src\Core\Settings.h">
       <Filter>Core</Filter>
     </ClInclude>
@@ -246,9 +252,6 @@
     <ClInclude Include="src\TruthEngine.h" />
     <ClInclude Include="src\lib.h" />
     <ClInclude Include="src\pch.h" />
-    <ClInclude Include="src\Core\Renderer\RendererLayer.h">
-      <Filter>Core\Renderer</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\API\DX12\CommandQueue.cpp">
@@ -326,6 +329,9 @@
     <ClCompile Include="src\Core\Event\EventMouse.cpp">
       <Filter>Core\Event</Filter>
     </ClCompile>
+    <ClCompile Include="src\Core\ImGui\ImGuiLayer.cpp">
+      <Filter>Core\ImGui</Filter>
+    </ClCompile>
     <ClCompile Include="src\Core\Input\InputManager.cpp">
       <Filter>Core\Input</Filter>
     </ClCompile>
@@ -371,6 +377,9 @@
     <ClCompile Include="src\Core\Renderer\RendererCommand.cpp">
       <Filter>Core\Renderer</Filter>
     </ClCompile>
+    <ClCompile Include="src\Core\Renderer\RendererLayer.cpp">
+      <Filter>Core\Renderer</Filter>
+    </ClCompile>
     <ClCompile Include="src\Core\Renderer\Shader.cpp">
       <Filter>Core\Renderer</Filter>
     </ClCompile>
@@ -398,6 +407,9 @@
     <ClCompile Include="src\Core\Renderer\VertexBufferStream.cpp">
       <Filter>Core\Renderer</Filter>
     </ClCompile>
+    <ClCompile Include="src\Core\Renderer\Viewport.cpp">
+      <Filter>Core\Renderer</Filter>
+    </ClCompile>
     <ClCompile Include="src\Core\Settings.cpp">
       <Filter>Core</Filter>
     </ClCompile>
@@ -423,9 +435,5 @@
       <Filter>Platform\Windows</Filter>
     </ClCompile>
     <ClCompile Include="src\pch.cpp" />
-    <ClCompile Include="src\Core\ImGui\ImGuiLayer.cpp" />
-    <ClCompile Include="src\Core\Renderer\RendererLayer.cpp">
-      <Filter>Core\Renderer</Filter>
-    </ClCompile>
   </ItemGroup>
 </Project>

@@ -56,6 +56,7 @@
 // Windows Header Files
 #include <windows.h>
 #include <wrl/client.h>
+#include <ppl.h>
 
 template<class T>
 using COMPTR = Microsoft::WRL::ComPtr<T>;

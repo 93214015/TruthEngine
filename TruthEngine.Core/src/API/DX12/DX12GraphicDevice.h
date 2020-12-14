@@ -27,8 +27,8 @@ namespace TruthEngine::API::DirectX12 {
 		inline ID3D12Device8* operator->() { return m_Device.Get(); }
 		
 
-		inline CommandQueue& GetCommandQueuDirect() { return m_CommandQueueDirect; }
-		inline CommandQueue& GetCommandQueuCopy() { return m_CommandQueueCopy; }
+		inline CommandQueue_Direct* GetCommandQueuDirect() { return &m_CommandQueueDirect; }
+		inline CommandQueue_Copy* GetCommandQueuCopy() { return &m_CommandQueueCopy; }
 		inline Fence& GetFence() { return m_Fence; }
 
 		static inline DX12GraphicDevice& GetPrimaryDeviceDX12() { return s_PrimaryDevice; }
@@ -52,8 +52,8 @@ namespace TruthEngine::API::DirectX12 {
 
 		Microsoft::WRL::ComPtr<ID3D12Device8> m_Device;
 
-		CommandQueue m_CommandQueueDirect;
-		CommandQueue m_CommandQueueCopy;
+		CommandQueue_Direct m_CommandQueueDirect;
+		CommandQueue_Copy m_CommandQueueCopy;
 
 		Fence m_Fence;
 

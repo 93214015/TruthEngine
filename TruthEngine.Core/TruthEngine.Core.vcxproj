@@ -194,9 +194,9 @@
     <ClInclude Include="src\Core\Renderer\MaterialManager.h" />
     <ClInclude Include="src\Core\Renderer\Pipeline.h" />
     <ClInclude Include="src\Core\Renderer\PipelineState.h" />
-    <ClInclude Include="src\Core\Renderer\RendererLayer.h" />
     <ClInclude Include="src\Core\Renderer\Renderer3D.h" />
     <ClInclude Include="src\Core\Renderer\RendererCommand.h" />
+    <ClInclude Include="src\Core\Renderer\RendererLayer.h" />
     <ClInclude Include="src\Core\Renderer\Shader.h" />
     <ClInclude Include="src\Core\Renderer\ShaderInputLayout.h" />
     <ClInclude Include="src\Core\Renderer\ShaderManager.h" />
@@ -208,6 +208,7 @@
     <ClInclude Include="src\Core\Renderer\VertexBuffer.h" />
     <ClInclude Include="src\Core\Renderer\VertexBufferStream.h" />
     <ClInclude Include="src\Core\Renderer\VertexDataStructures.h" />
+    <ClInclude Include="src\Core\Renderer\Viewport.h" />
     <ClInclude Include="src\Core\Settings.h" />
     <ClInclude Include="src\Core\StaticInstances.h" />
     <ClInclude Include="src\Core\ThreadPool.h" />
@@ -260,9 +261,9 @@
     <ClCompile Include="src\Core\Renderer\Material.cpp" />
     <ClCompile Include="src\Core\Renderer\MaterialManager.cpp" />
     <ClCompile Include="src\Core\Renderer\Pipeline.cpp" />
-    <ClCompile Include="src\Core\Renderer\RendererLayer.cpp" />
     <ClCompile Include="src\Core\Renderer\Renderer3D.cpp" />
     <ClCompile Include="src\Core\Renderer\RendererCommand.cpp" />
+    <ClCompile Include="src\Core\Renderer\RendererLayer.cpp" />
     <ClCompile Include="src\Core\Renderer\Shader.cpp" />
     <ClCompile Include="src\Core\Renderer\ShaderInputLayout.cpp" />
     <ClCompile Include="src\Core\Renderer\ShaderManager.cpp" />
@@ -272,6 +273,7 @@
     <ClCompile Include="src\Core\Renderer\TextureRenderTarget.cpp" />
     <ClCompile Include="src\Core\Renderer\VertexBuffer.cpp" />
     <ClCompile Include="src\Core\Renderer\VertexBufferStream.cpp" />
+    <ClCompile Include="src\Core\Renderer\Viewport.cpp" />
     <ClCompile Include="src\Core\Settings.cpp" />
     <ClCompile Include="src\Core\StaticInstances.cpp" />
     <ClCompile Include="src\Core\ThreadPool.cpp" />
@@ -285,7 +287,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="\imgui\ImGui.vcxproj">
+    <ProjectReference Include="..\Dependencies\imgui\ImGui.vcxproj">
       <Project>{C0FF640D-2C14-8DBE-F595-301E616989EF}</Project>
     </ProjectReference>
   </ItemGroup>

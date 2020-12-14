@@ -5,6 +5,7 @@
 #include "TextureDepthStencil.h"
 #include "BufferManager.h"
 #include "ShaderManager.h"
+#include "Viewport.h"
 
 namespace TruthEngine
 {
@@ -46,6 +47,9 @@ namespace TruthEngine
 
 			RenderTargetView m_RenderTartgetView;
 			DepthStencilView m_DepthStencilView;
+
+			Viewport m_Viewport;
+			ViewRect m_ViewREct;
 
 			std::shared_ptr<ShaderManager> m_ShaderMgr;
 

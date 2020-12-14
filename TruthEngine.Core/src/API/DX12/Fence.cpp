@@ -65,7 +65,7 @@ namespace TruthEngine::API::DirectX12 {
 		}
 	}
 
-	bool Fence::Check(uint64_t value)
+	bool Fence::Completed(uint64_t value)
 	{
 		if (m_Fence->GetCompletedValue() < value)
 		{

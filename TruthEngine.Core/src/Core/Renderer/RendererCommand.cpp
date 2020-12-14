@@ -9,6 +9,9 @@
 #include "Material.h"
 #include "ConstantBuffer.h"
 #include "CommandList.h"
+#include "Viewport.h"
+
+#include "Core/Entity/Model/Mesh.h"
 
 #include "API/DX12/DX12CommandList.h"
 
@@ -78,7 +81,10 @@ namespace TruthEngine::Core
 
 	void RendererCommand::DrawIndexed(Mesh* mesh, uint32_t cmdListIndex /*= 0*/)
 	{
+		m_CommandLists[cmdListIndex]->SetVertexBuffer(mesh->GetVertexBuffer());
+		m_CommandLists[cmdListIndex]->SetIndexBuffer(mesh->GetIndexBuffer());
 
+		m_CommandLists[cmdListIndex]->DrawIndexed(mesh->GetIndexNum(), mesh->GetIndexOffset(), mesh->GetVertexOffset());
 	}
 
 	void RendererCommand::Draw(Mesh* mesh, uint32_t cmdListIndex /*= 0*/)
@@ -120,6 +126,71 @@ namespace TruthEngine::Core
 	void RendererCommand::Begin(Pipeline* pipeline, uint32_t cmdListIndex /*= 0*/)
 	{
 		m_CommandLists[cmdListIndex]->Reset(pipeline);
+	}
+
+	void RendererCommand::SetViewPort(Viewport* viewport, ViewRect* rect, uint32_t cmdListIndex /* =0 */)
+	{
+		m_CommandLists[cmdListIndex]->SetViewport(viewport, rect);
+	}
+
+	TE_RESULT RendererCommand::CreateResource(TextureRenderTarget* tRT)
+	{
+		return TE_INSTANCE_BUFFERMANAGER->CreateResource(tRT);
+	}
+
+	TE_RESULT RendererCommand::CreateResource(TextureDepthStencil* tDS)
+	{
+		return TE_INSTANCE_BUFFERMANAGER->CreateResource(tDS);
+	}
+
+	TE_RESULT RendererCommand::CreateResource(BufferUpload* cb)
+	{
+		return TE_INSTANCE_BUFFERMANAGER->CreateResource(cb);
+	}
+
+	TruthEngine::Core::DepthStencilView RendererCommand::CreateDepthStencilView(TextureDepthStencil* DS)
+	{
+		return TE_INSTANCE_BUFFERMANAGER->CreateDepthStencilView(DS);
+	}
+
+	TruthEngine::Core::RenderTargetView RendererCommand::CreateRenderTargetView(TextureRenderTarget* RT)
+	{
+		return TE_INSTANCE_BUFFERMANAGER->CreateRenderTargetView(RT);
+	}
+
+	TruthEngine::Core::RenderTargetView RendererCommand::CreateRenderTargetView(SwapChain* swapChain)
+	{
+		return TE_INSTANCE_BUFFERMANAGER->CreateRenderTargetView(swapChain);
+	}
+
+	TruthEngine::Core::ShaderResourceView RendererCommand::CreateShaderResourceView(Texture* textures[], uint32_t textureNum)
+	{
+		return TE_INSTANCE_BUFFERMANAGER->CreateShaderResourceView(textures, textureNum);
+	}
+
+	TruthEngine::Core::ShaderResourceView RendererCommand::CreateShaderResourceView(Texture* texture)
+	{
+		return TE_INSTANCE_BUFFERMANAGER->CreateShaderResourceView(texture);
+	}
+
+	TruthEngine::Core::ConstantBufferView RendererCommand::CreateConstantBufferView(Buffer* CB)
+	{
+		return TE_INSTANCE_BUFFERMANAGER->CreateConstantBufferView(CB);
+	}
+
+	TE_RESULT RendererCommand::CreateVertexBuffer(VertexBufferBase* vb)
+	{
+		return TE_INSTANCE_BUFFERMANAGER->CreateVertexBuffer(vb);
+	}
+
+	TE_RESULT RendererCommand::CreateIndexBuffer(IndexBuffer* ib)
+	{
+		return TE_INSTANCE_BUFFERMANAGER->CreateIndexBuffer(ib);
+	}
+
+	bool RendererCommand::IsRunning(uint32_t cmdListIndex)
+	{
+		return m_CommandLists[cmdListIndex]->IsRunning();
 	}
 
 }

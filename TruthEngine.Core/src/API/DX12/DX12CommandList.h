@@ -1,11 +1,17 @@
 #pragma once
+
 #include "Core/Renderer/CommandList.h"
+
 #include "DX12CommandAllocator.h"
 
 
 namespace TruthEngine
 {
 	
+	namespace Core {
+		class BufferUploadIntermediate;
+	}
+
 	namespace API::DirectX12 
 	{
 
@@ -29,12 +35,12 @@ namespace TruthEngine
 
 			inline ID3D12GraphicsCommandList* GetNativeObject() const
 			{
-				return m_D3D12CommandList.Get();
+				return m_D3D12CommandList_Direct.Get();
 			}
 
 			inline DX12CommandAllocator* GetCommandAllocator()
 			{
-				return &m_CommandAllocator;
+				return &m_CommandAllocator_Direct;
 			}
 
 
@@ -67,6 +73,9 @@ namespace TruthEngine
 			void ChangeResourceState(Core::GraphicResource* resource, TE_RESOURCE_STATES newState) override;
 
 
+			void UploadData(Core::Buffer* buffer, void* data, size_t sizeInByte) override;
+
+
 			void SetVertexBuffer(Core::VertexBufferBase* vertexBuffer) override;
 
 
@@ -82,12 +91,16 @@ namespace TruthEngine
 			void ClearRenderTarget(const Core::SwapChain* swapChain, const Core::RenderTargetView RTV);
 			void ClearDepthStencil(const Core::DepthStencilView DSV);
 
+			void SetViewport(Core::Viewport* viewport, Core::ViewRect* rect);
+
 			void Submit() override;
 			void Commit() override;
 
 			void Present() override;
-		protected:
 
+			bool IsRunning() override;
+
+		protected:
 
 			inline void _ChangeResourceState(ID3D12Resource* resource, D3D12_RESOURCE_STATES before, D3D12_RESOURCE_STATES after)
 			{
@@ -100,6 +113,10 @@ namespace TruthEngine
 				);
 			}
 
+			void _ResetContainers();
+			void _SetDescriptorHeapSRV();
+
+			void _SubmitCopyCommands();
 
 		protected:
 
@@ -122,73 +139,55 @@ namespace TruthEngine
 				Core::TextureDepthStencil::ClearValue ClearValue;
 			};
 
-			COMPTR<ID3D12GraphicsCommandList> m_D3D12CommandList;
-			DX12CommandAllocator m_CommandAllocator;
-
+			struct CopyPending_DefaultResource {
+				uint32_t resourceIndex;
+				uint8_t* Data;
+				size_t size;
+			};
+			//
+			/*D3D12CommandList*/
+			//
+			COMPTR<ID3D12GraphicsCommandList> m_D3D12CommandList_Direct;
+			COMPTR<ID3D12GraphicsCommandList> m_D3D12CommandList_Copy;
+			//
+			/*D3D12CommandAllocators*/
+			//
+			DX12CommandAllocator m_CommandAllocator_Direct;
+			DX12CommandAllocator m_CommandAllocator_Copy;
+			//
+			/*Managers*/
+			//
 			DX12BufferManager* m_BufferManager;
 			DX12ShaderManager* m_ShaderManager;
-
+			//
+			/*Temp Command Queues*/
+			//
+			std::vector<D3D12_RESOURCE_BARRIER> m_ResourceBarriers;
 			std::map<uint32_t, D3D12_GPU_DESCRIPTOR_HANDLE> m_SRVHandles_CB;
 			std::map<uint32_t, D3D12_GPU_DESCRIPTOR_HANDLE> m_SRVHandles_Texture;
+			std::vector<ClearingRenderTarget> m_QueueClearRT;
+			std::vector<ClearingDepthStencil> m_QueueClearDS;
+			std::vector<CopyPending_DefaultResource> m_QueueCopyDefaultResource;
 
 			D3D12_CPU_DESCRIPTOR_HANDLE m_DSVHandle;
 			D3D12_CPU_DESCRIPTOR_HANDLE m_RTVHandles[8] = { D3D12_CPU_DESCRIPTOR_HANDLE(), D3D12_CPU_DESCRIPTOR_HANDLE() , D3D12_CPU_DESCRIPTOR_HANDLE() , D3D12_CPU_DESCRIPTOR_HANDLE(), D3D12_CPU_DESCRIPTOR_HANDLE(), D3D12_CPU_DESCRIPTOR_HANDLE(), D3D12_CPU_DESCRIPTOR_HANDLE() , D3D12_CPU_DESCRIPTOR_HANDLE() };
 			uint32_t m_RTVHandleNum = 0;
 			uint32_t m_DSVHandleNum = 0;
+			size_t m_CopyQueueRequiredSize = 0;
 
-			std::vector<D3D12_RESOURCE_BARRIER> m_ResourceBarriers;
 
-			std::vector<ClearingRenderTarget> m_QueueClearRT;
-			std::vector<ClearingDepthStencil> m_QueueClearDS;
+			HANDLE m_eventCopy;
+
 
 
 			//
 			// friend class
 			//
 			friend class CommandQueue;
+			friend class CommandQueue_Direct;
+			friend class CommandQueue_Copy;
 
 		};
-
-		/*class DX12CommandList
-		{
-
-		public:
-			DX12CommandList() = default;
-
-			void Init(uint32_t FrameInflyNum, D3D12_COMMAND_LIST_TYPE type, DX12GraphicDevice& gDevice);
-
-			inline ID3D12GraphicsCommandList* Get() { return m_CommandList.Get(); }
-
-			ID3D12GraphicsCommandList* operator ->() { return m_CommandList.Get(); }
-
-			inline DX12CommandAllocator* GetActiveCommandAllocator() const { return m_ActiveCommandAllocator; }
-
-			void Reset(uint32_t frameIndex, ID3D12PipelineState* pipelineState);
-
-			inline void Release() {
-				for (auto& cmdAlloc : m_CommandAllocators)
-				{
-					cmdAlloc.Release();
-				}
-				m_CommandList.Reset();
-			}
-
-
-		private:
-
-
-		private:
-
-			COMPTR<ID3D12GraphicsCommandList> m_CommandList;
-			std::vector<DX12CommandAllocator> m_CommandAllocators;
-
-			DX12CommandAllocator* m_ActiveCommandAllocator = nullptr;
-
-			/// 
-			/// Friend Classes
-			/// 
-			friend class DX12GraphicDevice;
-		};*/
 
 	}
 }

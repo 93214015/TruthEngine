@@ -55,9 +55,9 @@ namespace TruthEngine::API::DirectX12
 
 	TE_RESULT DX12GraphicDevice::InitCommandQueues()
 	{
-		auto result = m_CommandQueueCopy.Init(D3D12_COMMAND_LIST_TYPE_COPY, *this);
+		auto result = m_CommandQueueCopy.Init(this);
 		TE_ASSERT_CORE(TE_SUCCEEDED(result), "API::DirectX12  PrimaryCopyCommandQueue Creation was failed!");
-		result = m_CommandQueueDirect.Init(D3D12_COMMAND_LIST_TYPE_DIRECT, *this);
+		result = m_CommandQueueDirect.Init(this);
 		TE_ASSERT_CORE(TE_SUCCEEDED(result), "API::DirectX12  PrimaryDirectCommandQueue Creation was failed!");
 
 

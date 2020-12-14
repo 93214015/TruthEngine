@@ -16,16 +16,16 @@ namespace TruthEngine
 		
 		struct ShaderSignatureSR
 		{
-			uint32_t BaseRegisterSlot;
-			uint32_t RegisterSpace;
-			uint32_t InputNum;
+			uint32_t BaseRegisterSlot = 0;
+			uint32_t RegisterSpace = 0;
+			uint32_t InputNum = 0;
 		};
 
 		struct ShaderSignatureCB
 		{
-			uint32_t BaseRegisterSlot;
-			uint32_t RegisterSpace;
-			uint32_t InputNum;
+			uint32_t BaseRegisterSlot = 0;
+			uint32_t RegisterSpace = 0;
+			uint32_t InputNum = 0;
 		};
 
 		class Shader
@@ -59,6 +59,11 @@ namespace TruthEngine
 				return m_InputElements;
 			}
 
+			inline void AddInputElement(ShaderInputElement& inputElement)
+			{
+				m_InputElements.push_back(inputElement);
+			}
+
 			inline uint32_t GetRenderTargetNum() const noexcept
 			{
 				return m_RenderTargetNum;
@@ -73,6 +78,7 @@ namespace TruthEngine
 			{
 				return m_SignatureCB;
 			}
+
 			
 			
 		protected:
@@ -96,7 +102,7 @@ namespace TruthEngine
 			};
 
 			uint32_t m_ID = 0;
-			uint32_t m_RenderTargetNum = 0;
+			uint32_t m_RenderTargetNum = 1;
 
 			std::vector<ShaderInputElement> m_InputElements;
 

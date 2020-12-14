@@ -65,7 +65,7 @@ namespace TruthEngine::API::DirectX12 {
 			desc1.Stereo = FALSE;
 			desc1.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 
-			auto r = TE_INSTANCE_IDXGI.GetDXGIFactory()->CreateSwapChainForHwnd(TE_INSTANCE_API_DX12_COMMANDQUEUEDIRECT.m_CommandQueue.Get(), outputHWND, &desc1, NULL, NULL, &swapChain1);
+			auto r = TE_INSTANCE_IDXGI.GetDXGIFactory()->CreateSwapChainForHwnd(TE_INSTANCE_API_DX12_COMMANDQUEUEDIRECT->m_CommandQueue.Get(), outputHWND, &desc1, NULL, NULL, &swapChain1);
 
 			TE_ASSERT_CORE(r, "API::DirectX12  Creation of 'SwapChain' factory is failed!");
 

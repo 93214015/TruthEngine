@@ -157,7 +157,7 @@
     <ProjectReference Include="..\TruthEngine.Core\TruthEngine.Core.vcxproj">
       <Project>{E98D72D9-D586-912B-FEB8-76B0EA107137}</Project>
     </ProjectReference>
-    <ProjectReference Include="\imgui\ImGui.vcxproj">
+    <ProjectReference Include="..\Dependencies\imgui\ImGui.vcxproj">
       <Project>{C0FF640D-2C14-8DBE-F595-301E616989EF}</Project>
     </ProjectReference>
   </ItemGroup>

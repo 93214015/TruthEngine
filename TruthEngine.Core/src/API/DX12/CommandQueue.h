@@ -12,15 +12,31 @@ namespace TruthEngine::API::DirectX12 {
 		friend class DX12SwapChain;
 	public:
 		CommandQueue();
-		TE_RESULT Init(D3D12_COMMAND_LIST_TYPE type, DX12GraphicDevice& gDevice);
-		TE_RESULT ExecuteCommandList(DX12CommandList& cmdList) const;
-		ID3D12CommandQueue* operator->() { return m_CommandQueue.Get(); }
+		TE_RESULT Init(D3D12_COMMAND_LIST_TYPE type, DX12GraphicDevice* gDevice);
+		virtual TE_RESULT ExecuteCommandList(DX12CommandList* cmdList) = 0;
+		ID3D12CommandQueue* GetNativeObject() { return m_CommandQueue.Get(); }
 		
-	private:
+	protected:
 
-	private:
+	protected:
 		COMPTR<ID3D12CommandQueue> m_CommandQueue;
 		
+	};
+
+	class CommandQueue_Direct : public CommandQueue
+	{
+	public:
+		TE_RESULT Init(DX12GraphicDevice* gDevice);
+
+		TE_RESULT ExecuteCommandList(DX12CommandList* cmdList) override;
+	};
+
+	class CommandQueue_Copy : public CommandQueue
+	{
+	public:
+		TE_RESULT Init(DX12GraphicDevice* gDevice);
+
+		TE_RESULT ExecuteCommandList(DX12CommandList* cmdList) override;
 	};
 
 }

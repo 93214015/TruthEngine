@@ -11,6 +11,8 @@ namespace TruthEngine
 
 namespace TruthEngine::Core
 {
+
+
 	class Buffer : public GraphicResource
 	{
 	public:
@@ -29,15 +31,23 @@ namespace TruthEngine::Core
 			return m_SizeInByte;
 		}
 
+		inline void SetSizeInByte(uint64_t size) noexcept
+		{
+			m_SizeInByte = size;
+		}
+
 	protected:
 		uint64_t m_SizeInByte = 0;
 
 
 	};
 
+
+
 	class BufferUpload : public Buffer
 	{
 	public:
+
 		BufferUpload(const char* name
 			, size_t sizeInByte
 			, TE_RESOURCE_USAGE usage)
@@ -52,14 +62,21 @@ namespace TruthEngine::Core
 		BufferUpload(BufferUpload&&) noexcept = default;
 		BufferUpload& operator=(BufferUpload&&) noexcept = default;
 
+		inline void SetData(void* data) noexcept
+		{
+			m_DataSource = data;
+		}
 
 	protected:
 		uint8_t* m_MappedData = nullptr;
+		void* m_DataSource;
 
 		//friend classes
 		friend class BufferManager;
 		friend class API::DirectX12 ::DX12BufferManager;
 	};
+
+
 
 	class BufferUploadIntermediate : public BufferUpload
 	{
@@ -76,14 +93,12 @@ namespace TruthEngine::Core
 		BufferUploadIntermediate(BufferUploadIntermediate&&) noexcept = default;
 		BufferUploadIntermediate& operator=(BufferUploadIntermediate&&) noexcept = default;
 
-		inline void SetData(void* data) noexcept
-		{
-			m_Data = data;
-		}
-
+	
 	protected:
-		void* m_Data;
+
 	};
+
+
 
 	class BufferDefault : public Buffer 
 	{
