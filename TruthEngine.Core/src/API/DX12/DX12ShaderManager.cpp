@@ -12,8 +12,20 @@ namespace TruthEngine
 
 	namespace API
 	{
-		namespace DirectX12 
+		namespace DirectX12
 		{
+
+			struct DX12ShaderManager::pImpl
+			{
+				std::vector<COMPTR<IDxcBlob>> m_ShaderBlobs;
+			};
+
+
+			DX12ShaderManager::DX12ShaderManager() : m_pImpl(std::make_shared<pImpl>())
+			{
+
+			}
+
 
 			TE_RESULT DX12ShaderManager::AddShader(Core::Shader** outShader, std::string_view name, std::string_view filePath, std::string_view vsEntry, std::string_view psEntry, std::string_view csEntry /*= ""*/, std::string_view dsEntry /*= ""*/, std::string_view hsEntry /*= ""*/, std::string_view gsEntry /*= ""*/)
 			{
@@ -26,36 +38,37 @@ namespace TruthEngine
 				}
 
 				auto shader = std::make_shared<Core::Shader>(name, filePath);
+				shader->m_ID = m_ShaderID++;
+
 				m_ShadersNameMap[name] = shader;
 				*outShader = shader.get();
 
 
 				if (csEntry != "")
 				{
-					shader->m_CS = CompileShader(name, filePath, csEntry, "cs");
+					shader->m_CS = CompileShader(name, shader->m_ID, filePath, csEntry, "cs");
 				}
 				if (vsEntry != "")
 				{
-					shader->m_VS = CompileShader(name, filePath, vsEntry, "vs");
+					shader->m_VS = CompileShader(name, shader->m_ID, filePath, vsEntry, "vs");
 				}
 				if (psEntry != "")
 				{
-					shader->m_PS = CompileShader(name, filePath, psEntry, "ps");
+					shader->m_PS = CompileShader(name, shader->m_ID, filePath, psEntry, "ps");
 				}
 				if (gsEntry != "")
 				{
-					shader->m_GS = CompileShader(name, filePath, gsEntry, "gs");
+					shader->m_GS = CompileShader(name, shader->m_ID, filePath, gsEntry, "gs");
 				}
 				if (dsEntry != "")
 				{
-					shader->m_DS = CompileShader(name, filePath, dsEntry, "ds");
+					shader->m_DS = CompileShader(name, shader->m_ID, filePath, dsEntry, "ds");
 				}
 				if (hsEntry != "")
 				{
-					shader->m_HS = CompileShader(name, filePath, hsEntry, "hs");
+					shader->m_HS = CompileShader(name, shader->m_ID, filePath, hsEntry, "hs");
 				}
 
-				shader->m_ID = m_ShaderID++;
 
 
 				return AddRootSignature(shader.get());
@@ -77,35 +90,36 @@ namespace TruthEngine
 				std::string name = "shader" + std::to_string(m_ShadersStateMap.size());
 
 				auto shader = std::make_shared<Core::Shader>(name, filePath);
+				shader->m_ID = m_ShaderID++;
+
 				m_ShadersStateMap[states] = shader;
 				*outShader = shader.get();
 
 				if (csEntry != "")
 				{
-					shader->m_CS = CompileShader(name, filePath, csEntry, "cs");
+					shader->m_CS = CompileShader(name, shader->m_ID, filePath, csEntry, "cs");
 				}
 				if (vsEntry != "")
 				{
-					shader->m_VS = CompileShader(name, filePath, vsEntry, "vs");
+					shader->m_VS = CompileShader(name, shader->m_ID, filePath, vsEntry, "vs");
 				}
 				if (psEntry != "")
 				{
-					shader->m_PS = CompileShader(name, filePath, psEntry, "ps");
+					shader->m_PS = CompileShader(name, shader->m_ID, filePath, psEntry, "ps");
 				}
 				if (gsEntry != "")
 				{
-					shader->m_GS = CompileShader(name, filePath, gsEntry, "gs");
+					shader->m_GS = CompileShader(name, shader->m_ID, filePath, gsEntry, "gs");
 				}
 				if (dsEntry != "")
 				{
-					shader->m_DS = CompileShader(name, filePath, dsEntry, "ds");
+					shader->m_DS = CompileShader(name, shader->m_ID, filePath, dsEntry, "ds");
 				}
 				if (hsEntry != "")
 				{
-					shader->m_HS = CompileShader(name, filePath, hsEntry, "hs");
+					shader->m_HS = CompileShader(name, shader->m_ID, filePath, hsEntry, "hs");
 				}
 
-				shader->m_ID = m_ShaderID++;
 
 				return AddRootSignature(shader.get());
 
@@ -129,7 +143,7 @@ namespace TruthEngine
 			// 				return Core::Shader::ShaderCode(codeBlob->GetBufferSize(), codeBlob->GetBufferPointer());
 			// 			}
 
-			Core::Shader::ShaderCode DX12ShaderManager::CompileShader(std::string_view shaderName, std::string_view filePath, std::string_view entry, std::string_view shaderStage)
+			Core::Shader::ShaderCode DX12ShaderManager::CompileShader(std::string_view shaderName, uint32_t shaderID, std::string_view filePath, std::string_view entry, std::string_view shaderStage)
 			{
 
 				// 
@@ -210,7 +224,7 @@ namespace TruthEngine
 				// Save shader binary.
 				//
 				COMPTR<IDxcBlobUtf16> pShaderName;
-				COMPTR<IDxcBlob> shaderBin;
+				COMPTR<IDxcBlob>& shaderBin = m_pImpl->m_ShaderBlobs.emplace_back();
 				result->GetOutput(DXC_OUT_OBJECT, IID_PPV_ARGS(&shaderBin), &pShaderName);
 				/*if (pShader != nullptr)
 				{
@@ -282,8 +296,8 @@ namespace TruthEngine
 				COMPTR<ID3DBlob> errorBlob;
 				COMPTR<ID3DBlob> signatureBlob;
 
-				
-				D3D12_DESCRIPTOR_RANGE rangeCBV[1];
+
+				std::vector<D3D12_DESCRIPTOR_RANGE> rangeCBV;
 
 				/*range[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
 				range[0].RegisterSpace = shader->m_SignatureSR.RegisterSpace;
@@ -291,25 +305,42 @@ namespace TruthEngine
 				range[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 				range[0].NumDescriptors = shader->m_SignatureSR.InputNum;*/
 
-				rangeCBV[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
-				rangeCBV[0].RegisterSpace = shader->m_SignatureCB.RegisterSpace;
-				rangeCBV[0].BaseShaderRegister = shader->m_SignatureCB.BaseRegisterSlot;
-				rangeCBV[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-				rangeCBV[0].NumDescriptors = shader->m_SignatureCB.InputNum;
+				if (shader->m_SignatureCB.InputNum > 0)
+				{
+					auto& range = rangeCBV.emplace_back();
+					range.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
+					range.RegisterSpace = shader->m_SignatureCB.RegisterSpace;
+					range.BaseShaderRegister = shader->m_SignatureCB.BaseRegisterSlot;
+					range.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+					range.NumDescriptors = shader->m_SignatureCB.InputNum;
+				}
 
-				
 
-				D3D12_DESCRIPTOR_RANGE rangeSRV[1];
-				rangeSRV[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
-				rangeSRV[0].RegisterSpace = shader->m_SignatureSR.RegisterSpace;
-				rangeSRV[0].BaseShaderRegister = shader->m_SignatureSR.BaseRegisterSlot;
-				rangeSRV[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-				rangeSRV[0].NumDescriptors = shader->m_SignatureSR.InputNum;
+				std::vector<D3D12_DESCRIPTOR_RANGE> rangeSRV;
 
-				CD3DX12_ROOT_PARAMETER params[2];
-				params[0].InitAsDescriptorTable(_countof(rangeSRV), rangeSRV, D3D12_SHADER_VISIBILITY_ALL);
-				params[1].InitAsDescriptorTable(_countof(rangeCBV), rangeCBV, D3D12_SHADER_VISIBILITY_ALL);
-				auto signatureDesc = CD3DX12_ROOT_SIGNATURE_DESC(_countof(params), params, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT
+				if (shader->m_SignatureSR.InputNum > 0)
+				{
+					auto& range = rangeSRV.emplace_back();
+					range.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+					range.RegisterSpace = shader->m_SignatureSR.RegisterSpace;
+					range.BaseShaderRegister = shader->m_SignatureSR.BaseRegisterSlot;
+					range.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+					range.NumDescriptors = shader->m_SignatureSR.InputNum;
+				}
+
+				std::vector<CD3DX12_ROOT_PARAMETER> params;
+
+				if (!rangeSRV.empty())
+				{
+					params.emplace_back().InitAsDescriptorTable(static_cast<UINT>(rangeSRV.size()), rangeSRV.data(), D3D12_SHADER_VISIBILITY_ALL);
+				}
+
+				if (!rangeCBV.empty())
+				{
+					params.emplace_back().InitAsDescriptorTable(static_cast<UINT>(rangeCBV.size()), rangeCBV.data(), D3D12_SHADER_VISIBILITY_ALL);
+				}
+
+				auto signatureDesc = CD3DX12_ROOT_SIGNATURE_DESC(params.size(), params.data(), 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT
 					| D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS
 					| D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS
 					| D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS
@@ -330,7 +361,6 @@ namespace TruthEngine
 				return TE_SUCCESSFUL;
 			}
 
-			TruthEngine::API::DirectX12::DX12ShaderManager DX12ShaderManager::s_Instance;
 
 		}
 	}

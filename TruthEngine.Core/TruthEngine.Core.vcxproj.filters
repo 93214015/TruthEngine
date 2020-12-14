@@ -249,6 +249,7 @@
     <ClInclude Include="src\Core\Renderer\RendererLayer.h">
       <Filter>Core\Renderer</Filter>
     </ClInclude>
+    <ClInclude Include="src\Core\Renderer\Viewport.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\API\DX12\CommandQueue.cpp">
@@ -427,5 +428,6 @@
     <ClCompile Include="src\Core\Renderer\RendererLayer.cpp">
       <Filter>Core\Renderer</Filter>
     </ClCompile>
+    <ClCompile Include="src\Core\Renderer\Viewport.cpp" />
   </ItemGroup>
 </Project>

@@ -16,6 +16,8 @@ namespace TruthEngine
 		class ConstantBufferUploadBase;
 		class ShaderManager;
 		class Mesh;
+		class Viewport;
+		class ViewRect;
 
 		class RendererCommand
 		{
@@ -24,6 +26,22 @@ namespace TruthEngine
 			RendererCommand();
 
 			void Init(uint32_t ParallelCommandsNum = 1, std::shared_ptr<BufferManager> bufferManager = nullptr, std::shared_ptr<ShaderManager> shaderManager = nullptr);
+
+
+			TE_RESULT CreateResource(TextureRenderTarget* tRT);
+			TE_RESULT CreateResource(TextureDepthStencil* tDS);
+			TE_RESULT CreateResource(BufferUpload* cb);
+
+			RenderTargetView CreateRenderTargetView(TextureRenderTarget* RT);
+			RenderTargetView CreateRenderTargetView(SwapChain* swapChain);
+			DepthStencilView CreateDepthStencilView(TextureDepthStencil* DS);
+			ShaderResourceView CreateShaderResourceView(Texture* textures[], uint32_t textureNum);
+			ShaderResourceView CreateShaderResourceView(Texture* texture);
+			ConstantBufferView CreateConstantBufferView(Buffer* CB);
+
+			TE_RESULT CreateVertexBuffer(VertexBufferBase* vb);
+			TE_RESULT CreateIndexBuffer(IndexBuffer* ib);
+
 
 			void SetPipeline(Pipeline* pipeline, uint32_t cmdListIndex = 0);
 			void SetRenderTarget(const RenderTargetView RTV, uint32_t cmdListIndex = 0);
@@ -34,11 +52,11 @@ namespace TruthEngine
 
 			void UpdateConstantBuffer(ConstantBufferUploadBase* cb, uint32_t cmdListIndex = 0);
 
-//			void ChangeResourceState(GraphicResource* resource, TE_RESOURCE_STATES newState, uint32_t cmdListIndex = 0);
-
 			void SetVertexBuffer(VertexBufferBase* vertexBuffer, uint32_t cmdListIndex = 0);
 			void SetIndexBuffer(IndexBuffer* indexBuffer, uint32_t cmdListIndex = 0);
 			
+			void SetViewPort(Viewport* viewport, ViewRect* rect, uint32_t cmdListIndex = 0);
+
 			void Begin(uint32_t cmdListIndex = 0);
 			void Begin(Pipeline* pipeline, uint32_t cmdListIndex = 0);
 			void End(uint32_t cmdListIndex = 0);
@@ -52,7 +70,7 @@ namespace TruthEngine
 			void ClearRenderTarget(const SwapChain* swapChain, const RenderTargetView RTV, uint32_t cmdListIndex = 0);
 			void ClearDepthStencil(const DepthStencilView DSV, uint32_t cmdListIndex = 0);
 
-
+			bool IsRunning(uint32_t cmdListIndex = 0);
 		private:
 
 

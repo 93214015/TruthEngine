@@ -41,7 +41,7 @@ namespace TruthEngine::Core
 
 	protected:
 		std::string m_Name;
-		uint32_t m_ResourceIndex = 0, m_ViewIndex = 0;
+		uint32_t m_ResourceIndex = -1, m_ViewIndex = -1;
 		TE_RESOURCE_USAGE m_Usage = TE_RESOURCE_USAGE_UNKNOWN;
 		TE_RESOURCE_TYPE m_Type = TE_RESOURCE_TYPE::UNKNOWN;
 		TE_RESOURCE_STATES m_State = TE_RESOURCE_STATES::COMMON;

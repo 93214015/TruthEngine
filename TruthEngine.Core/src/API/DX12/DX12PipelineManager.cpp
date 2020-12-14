@@ -63,7 +63,25 @@ namespace TruthEngine::API::DirectX12
 
 	D3D12_PRIMITIVE_TOPOLOGY_TYPE DX12_GET_PRIMITIVE_TOPOLOGY_TYPE(RendererStateSet states)
 	{
-		return static_cast<D3D12_PRIMITIVE_TOPOLOGY_TYPE>(GET_RENDERER_STATE(states, TE_RENDERER_STATE_PRIMITIVE_TOPOLOGY));
+		auto topology = static_cast<D3D_PRIMITIVE_TOPOLOGY>(GET_RENDERER_STATE(states, TE_RENDERER_STATE_PRIMITIVE_TOPOLOGY));
+		switch (topology)
+		{
+		case D3D_PRIMITIVE_TOPOLOGY_LINELIST:
+		case D3D_PRIMITIVE_TOPOLOGY_LINELIST_ADJ:
+		case D3D_PRIMITIVE_TOPOLOGY_LINESTRIP:
+			return D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE;
+		case D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST:
+		case D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST_ADJ:
+		case D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP:
+		case D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP_ADJ:
+			return D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+		case D3D_PRIMITIVE_TOPOLOGY_POINTLIST:
+			return D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT;
+		case D3D_PRIMITIVE_TOPOLOGY_UNDEFINED:
+			return D3D12_PRIMITIVE_TOPOLOGY_TYPE_UNDEFINED;
+		default:
+			return D3D12_PRIMITIVE_TOPOLOGY_TYPE_UNDEFINED;
+		}
 	}
 
 	inline DXGI_FORMAT DX12_GET_FORMAT(const TE_RESOURCE_FORMAT format)
@@ -112,19 +130,26 @@ namespace TruthEngine::API::DirectX12
 	}
 
 
-	D3D12_GRAPHICS_PIPELINE_STATE_DESC DX12PiplineManager::GetGraphicPipelineDesc(const Core::Pipeline* pipeline)
+
+	COMPTR<ID3D12PipelineState> DX12PiplineManager::GetPipeline(Core::Pipeline* pipeline)
 	{
+		COMPTR<ID3D12PipelineState> PSO;
+
+		//
+		////CreatePipline Desc
+		//
+
+		D3D12_GRAPHICS_PIPELINE_STATE_DESC desc = { 0 };
 
 		const auto shader = pipeline->GetShader();
 		const auto states = pipeline->GetStates();
 
-		D3D12_GRAPHICS_PIPELINE_STATE_DESC desc = { 0 };
 
 		desc.VS = CD3DX12_SHADER_BYTECODE(shader->GetVS().BufferPointer, shader->GetVS().BufferSize);
-		desc.PS = CD3DX12_SHADER_BYTECODE(shader->GetVS().BufferPointer, shader->GetVS().BufferSize);
-		desc.HS = CD3DX12_SHADER_BYTECODE(shader->GetVS().BufferPointer, shader->GetVS().BufferSize);
-		desc.DS = CD3DX12_SHADER_BYTECODE(shader->GetVS().BufferPointer, shader->GetVS().BufferSize);
-		desc.GS = CD3DX12_SHADER_BYTECODE(shader->GetVS().BufferPointer, shader->GetVS().BufferSize);
+		desc.PS = CD3DX12_SHADER_BYTECODE(shader->GetPS().BufferPointer, shader->GetPS().BufferSize);
+		desc.HS = CD3DX12_SHADER_BYTECODE(shader->GetHS().BufferPointer, shader->GetHS().BufferSize);
+		desc.DS = CD3DX12_SHADER_BYTECODE(shader->GetDS().BufferPointer, shader->GetDS().BufferSize);
+		desc.GS = CD3DX12_SHADER_BYTECODE(shader->GetGS().BufferPointer, shader->GetGS().BufferSize);
 
 		//Blend Desc
 		desc.BlendState = CD3DX12_BLEND_DESC();
@@ -174,21 +199,10 @@ namespace TruthEngine::API::DirectX12
 		desc.SampleDesc.Count = 1;
 		desc.SampleDesc.Quality = 0;
 
-		desc.pRootSignature = TE_INSTANCE_API_DX12_SHADERMANAGER.GetRootSignature(shader);
+		desc.pRootSignature = static_cast<DX12ShaderManager*>(TE_INSTANCE_SHADERMANAGER.get())->GetRootSignature(shader);
 
 		desc.NodeMask = 0;
 		desc.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
-
-		return desc;
-	}
-
-
-	COMPTR<ID3D12PipelineState> DX12PiplineManager::GetPipeline(Core::Pipeline* pipeline)
-	{
-		COMPTR<ID3D12PipelineState> PSO;
-
-
-		auto desc = GetGraphicPipelineDesc(pipeline);
 
 
 		auto hr = m_PiplineLibrary->LoadGraphicsPipeline(to_wstring(pipeline->m_Name).c_str(), &desc, IID_PPV_ARGS(PSO.GetAddressOf()));
@@ -219,6 +233,9 @@ namespace TruthEngine::API::DirectX12
 		return SUCCEEDED(hr) ? TE_SUCCESSFUL : TE_FAIL;
 	}
 
-	TruthEngine::API::DirectX12::DX12PiplineManager DX12PiplineManager::s_DX12PipelineManager;
+	DX12PiplineManager::DX12PiplineManager()
+	{
+		TE_INSTANCE_API_DX12_GRAPHICDEVICE->CreatePipelineLibrary(nullptr, 0, IID_PPV_ARGS(m_PiplineLibrary.ReleaseAndGetAddressOf()));
+	}
 
 }

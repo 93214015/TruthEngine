@@ -4,6 +4,7 @@ namespace TruthEngine::API::DirectX12 {
 
 	class DX12CommandList;
 	class DX12GraphicDevice;
+	class CommandQueue;
 
 	class DX12CommandAllocator {
 	public:
@@ -14,10 +15,13 @@ namespace TruthEngine::API::DirectX12 {
 //		inline ID3D12CommandAllocator* operator->() { return m_CommandAllocator.Get(); }
 
 		inline void Release() { m_CommandAllocator.Reset(); }
+
+		bool IsRunning();
 	private:
 		COMPTR<ID3D12CommandAllocator> m_CommandAllocator;
 		uint64_t m_FenceValue = 0;
 
+		CommandQueue* m_RunningCommandQueue;
 
 		//
 		//Friend Classes

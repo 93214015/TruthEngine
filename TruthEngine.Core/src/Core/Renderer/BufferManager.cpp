@@ -12,7 +12,7 @@ namespace TruthEngine::Core {
 		switch (Settings::RendererAPI)
 		{
 		case TE_RENDERER_API::DirectX12 :
-			return std::make_shared<API::DirectX12 ::DX12BufferManager>();
+			return API::DirectX12::DX12BufferManager::GetInstance();
 			break;
 		default:
 			return nullptr;

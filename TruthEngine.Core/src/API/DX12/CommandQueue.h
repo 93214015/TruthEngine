@@ -13,7 +13,7 @@ namespace TruthEngine::API::DirectX12 {
 	public:
 		CommandQueue();
 		TE_RESULT Init(D3D12_COMMAND_LIST_TYPE type, DX12GraphicDevice& gDevice);
-		TE_RESULT ExecuteCommandList(DX12CommandList& cmdList) const;
+		TE_RESULT ExecuteCommandList(DX12CommandList* cmdList);
 		ID3D12CommandQueue* operator->() { return m_CommandQueue.Get(); }
 		
 	private:

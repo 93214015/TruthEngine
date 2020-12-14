@@ -75,16 +75,16 @@ namespace TruthEngine::Core
 
 		virtual void Init(uint32_t resourceNum, uint32_t shaderResourceViewNum, uint32_t renderTargetViewNum, uint32_t depthBufferViewNum) = 0;
 
-		//virtual TE_RESULT CreateResource(GraphicResource* graphicResource, void* clearValue) = 0;
 		virtual TE_RESULT CreateResource(TextureRenderTarget* tRT) = 0;
 		virtual TE_RESULT CreateResource(TextureDepthStencil* tDS) = 0;
-		virtual TE_RESULT CreateResource(BufferUpload* cb) = 0;
+		virtual TE_RESULT CreateResource(BufferUpload* buffer) = 0;
 
 		virtual RenderTargetView CreateRenderTargetView(TextureRenderTarget* RT) = 0;
 		virtual RenderTargetView CreateRenderTargetView(SwapChain* swapChain) = 0;
 		virtual DepthStencilView CreateDepthStencilView(TextureDepthStencil* DS) = 0;
-		virtual ShaderResourceView CreateShaderResourceView(GraphicResource* graphicResources[], uint32_t resourceNum) = 0;
-		virtual ConstantBufferView CreateConstantBufferView(Buffer* CB[], uint32_t resourceNum) = 0;
+		virtual ShaderResourceView CreateShaderResourceView(Texture* textures[], uint32_t textureNum) = 0;
+		virtual ShaderResourceView CreateShaderResourceView(Texture* texture) = 0;
+		virtual ConstantBufferView CreateConstantBufferView(Buffer* CB) = 0;
 
 		virtual TE_RESULT CreateVertexBuffer(VertexBufferBase* vb) = 0;
 		virtual TE_RESULT CreateIndexBuffer(IndexBuffer* ib) = 0;
@@ -98,6 +98,8 @@ namespace TruthEngine::Core
 	protected:
 		virtual TE_RESULT CreateResource(VertexBufferStreamBase* vb) = 0;
 		virtual TE_RESULT CreateResource(IndexBuffer* ib) = 0;
+
+		virtual TE_RESULT ReleaseResource(GraphicResource* resource) = 0;
 
 	protected:
 		uint32_t m_LastVertexBufferID;
