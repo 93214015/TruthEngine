@@ -38,6 +38,7 @@ namespace TruthEngine::Core
 		inline TE_RESOURCE_STATES GetState() const noexcept { return m_State; }
 		inline void SetState(TE_RESOURCE_STATES state) noexcept { m_State = state; }
 
+		uint64_t GetRequiredSize() const;
 
 	protected:
 		std::string m_Name;

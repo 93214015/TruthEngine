@@ -89,6 +89,8 @@ namespace TruthEngine::Core
 		virtual TE_RESULT CreateVertexBuffer(VertexBufferBase* vb) = 0;
 		virtual TE_RESULT CreateIndexBuffer(IndexBuffer* ib) = 0;
 
+		virtual uint64_t GetRequiredSize(const GraphicResource* graphicResource) const = 0;
+
 		//virtual TE_RESULT CreateConstantBuffer(ConstantBufferBase* cb) = 0;
 
 		/*virtual void BindRenderTarget(CommandList* cmdList) = 0;

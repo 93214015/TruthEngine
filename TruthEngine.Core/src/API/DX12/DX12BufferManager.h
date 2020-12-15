@@ -52,6 +52,7 @@ namespace TruthEngine::API::DirectX12 {
 
 		Core::ConstantBufferView CreateConstantBufferView(Core::Buffer* CB) override;
 
+		uint64_t GetRequiredSize(const Core::GraphicResource* graphicResource) const override;
 
 		size_t GetAllocatedSizeOnGPU(Core::GraphicResource* graphicResource);
 

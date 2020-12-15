@@ -366,6 +366,23 @@ namespace TruthEngine::API::DirectX12
 
 	}
 
+	uint64_t DX12BufferManager::GetRequiredSize(const Core::GraphicResource* graphicResource) const
+	{
+		auto resource = m_Resources[graphicResource->m_ResourceIndex].Get();
+
+		ID3D12Device* device;
+		resource->GetDevice(IID_PPV_ARGS(&device));
+
+		auto desc = resource->GetDesc();
+
+		uint64_t requiredSize;
+		device->GetCopyableFootprints(&desc, 0, 1, 0, nullptr, nullptr, nullptr, &requiredSize);
+
+		device->Release();
+
+		return requiredSize;
+	}
+
 	TE_RESULT DX12BufferManager::CreateVertexBuffer(Core::VertexBufferBase* vb)
 	{
 		uint32_t vertexStreamsNum = vb->GetVertexStreamNum();
