@@ -23,55 +23,46 @@ namespace TruthEngine::API::DirectX12
 
 		auto gDevice = static_cast<DX12GraphicDevice*>(graphicDevice);
 
-		auto result = m_CommandAllocator_Direct.Init(static_cast<D3D12_COMMAND_LIST_TYPE>(type), *gDevice);
-		result = m_CommandAllocator_Copy.Init(D3D12_COMMAND_LIST_TYPE_COPY, *gDevice);
+		auto result = m_CommandAllocator.Init(static_cast<D3D12_COMMAND_LIST_TYPE>(type), *gDevice);
 
 		TE_ASSERT_CORE(TE_SUCCEEDED(result), "DX12CommandAllocator initialization failed!");
 
-		result = gDevice->CreateCommandList(m_D3D12CommandList_Direct, static_cast<D3D12_COMMAND_LIST_TYPE>(type));
-		result = gDevice->CreateCommandList(m_D3D12CommandList_Copy, D3D12_COMMAND_LIST_TYPE_COPY);
+		result = gDevice->CreateCommandList(m_D3D12CommandList, static_cast<D3D12_COMMAND_LIST_TYPE>(type));
 
 		TE_ASSERT_CORE(TE_SUCCEEDED(result), "DX12CommandList initialization failed!");
 
 		m_QueueClearRT.reserve(8);
 		m_QueueClearDS.reserve(1);
 
-		m_eventCopy = CreateEvent(NULL, false, true, NULL);
-	}
-
-	void DX12CommandList::Init(Core::GraphicDevice* graphicDevice, TE_RENDERER_COMMANDLIST_TYPE type, Core::BufferManager* bufferManager, Core::ShaderManager* shaderManager)
-	{
-
-
 	}
 
 	void DX12CommandList::Reset()
 	{
 		_ResetContainers();
-		
 
-		m_CommandAllocator_Direct.Reset();
-		m_D3D12CommandList_Direct->Reset(m_CommandAllocator_Direct.GetNativeObject(), nullptr);
+
+		m_CommandAllocator.Reset();
+		m_D3D12CommandList->Reset(m_CommandAllocator.GetNativeObject(), nullptr);
 
 		_SetDescriptorHeapSRV();
-		
+
 	}
 
 	void DX12CommandList::Reset(Core::Pipeline* pipeline)
 	{
 		_ResetContainers();
 
-		m_CommandAllocator_Direct.Reset();
-		m_D3D12CommandList_Direct->Reset(m_CommandAllocator_Direct.GetNativeObject(), TE_INSTANCE_API_DX12_PIPELINEMANAGER->GetPipeline(pipeline).Get());
+		m_CommandAllocator.Reset();
+		m_D3D12CommandList->Reset(m_CommandAllocator.GetNativeObject(), TE_INSTANCE_API_DX12_PIPELINEMANAGER->GetPipeline(pipeline).Get());
 
 		_SetDescriptorHeapSRV();
 	}
 
 	void DX12CommandList::SetPipeline(Core::Pipeline* pipeline)
 	{
-		m_D3D12CommandList_Direct->SetGraphicsRootSignature(m_ShaderManager->GetRootSignature(pipeline->GetShader()));
-		m_D3D12CommandList_Direct->SetPipelineState(TE_INSTANCE_API_DX12_PIPELINEMANAGER->GetPipeline(pipeline).Get());
-		m_D3D12CommandList_Direct->IASetPrimitiveTopology(static_cast<D3D_PRIMITIVE_TOPOLOGY>(pipeline->GetState_PrimitiveTopology()));
+		m_D3D12CommandList->SetGraphicsRootSignature(m_ShaderManager->GetRootSignature(pipeline->GetShader()));
+		m_D3D12CommandList->SetPipelineState(TE_INSTANCE_API_DX12_PIPELINEMANAGER->GetPipeline(pipeline).Get());
+		m_D3D12CommandList->IASetPrimitiveTopology(static_cast<D3D_PRIMITIVE_TOPOLOGY>(pipeline->GetState_PrimitiveTopology()));
 
 	}
 
@@ -81,7 +72,7 @@ namespace TruthEngine::API::DirectX12
 
 		if (sc->GetBackBufferState() != D3D12_RESOURCE_STATE_RENDER_TARGET)
 		{
-			_ChangeResourceState(sc->GetBackBufferResource()
+			_QueueBarrier(sc->GetBackBufferResource()
 				, D3D12_RESOURCE_STATE_PRESENT
 				, D3D12_RESOURCE_STATE_RENDER_TARGET);
 
@@ -96,7 +87,7 @@ namespace TruthEngine::API::DirectX12
 
 	void DX12CommandList::SetRenderTarget(const Core::RenderTargetView RTV)
 	{
-		ChangeResourceState(RTV.Resource, TE_RESOURCE_STATES::RENDER_TARGET);
+		_ChangeResourceState(RTV.Resource, TE_RESOURCE_STATES::RENDER_TARGET);
 
 		m_RTVHandles[m_RTVHandleNum] = m_BufferManager->m_DescHeapRTV.GetCPUHandle(RTV.ViewIndex);
 
@@ -105,7 +96,7 @@ namespace TruthEngine::API::DirectX12
 
 	void DX12CommandList::SetDepthStencil(const Core::DepthStencilView DSV)
 	{
-		ChangeResourceState(DSV.Resource, TE_RESOURCE_STATES::DEPTH_WRITE);
+		_ChangeResourceState(DSV.Resource, TE_RESOURCE_STATES::DEPTH_WRITE);
 
 		m_DSVHandle = m_BufferManager->m_DescHeapDSV.GetCPUHandle(DSV.ViewIndex);
 
@@ -128,12 +119,12 @@ namespace TruthEngine::API::DirectX12
 		return;
 	}
 
-	void DX12CommandList::ChangeResourceState(Core::GraphicResource* resource, TE_RESOURCE_STATES newState)
+	void DX12CommandList::_ChangeResourceState(Core::GraphicResource* resource, TE_RESOURCE_STATES newState)
 	{
 		if (resource->GetState() == newState)
 			return;
 
-		_ChangeResourceState(m_BufferManager->m_Resources[resource->GetResourceIndex()].Get(), DX12_GET_STATE(resource->GetState()), DX12_GET_STATE(newState));
+		_QueueBarrier(m_BufferManager->m_Resources[resource->GetResourceIndex()].Get(), DX12_GET_STATE(resource->GetState()), DX12_GET_STATE(newState));
 
 		resource->SetState(newState);
 	}
@@ -143,7 +134,13 @@ namespace TruthEngine::API::DirectX12
 		const auto vbID = vertexBuffer->GetID();
 		if (vbID != m_AssignedVertexBufferID)
 		{
-			m_D3D12CommandList_Direct->IASetVertexBuffers(0, vertexBuffer->GetVertexStreamNum(), &m_BufferManager->m_VertexBufferViews[vertexBuffer->GetViewIndex()]);
+			auto vbss = vertexBuffer->GetVertexBufferStreams();
+			for (auto vbs : vbss)
+			{
+				_ChangeResourceState(vbs, TE_RESOURCE_STATES::VERTEX_AND_CONSTANT_BUFFER);
+			}
+
+			m_D3D12CommandList->IASetVertexBuffers(0, vertexBuffer->GetVertexStreamNum(), &m_BufferManager->m_VertexBufferViews[vertexBuffer->GetViewIndex()]);
 			m_AssignedVertexBufferID = vbID;
 		}
 
@@ -154,7 +151,9 @@ namespace TruthEngine::API::DirectX12
 		const auto ibID = indexBuffer->GetID();
 		if (m_AssignedIndexBufferID != ibID)
 		{
-			m_D3D12CommandList_Direct->IASetIndexBuffer(&m_BufferManager->m_IndexBufferViews[indexBuffer->GetViewIndex()]);
+			_ChangeResourceState(indexBuffer, TE_RESOURCE_STATES::INDEX_BUFFER);
+
+			m_D3D12CommandList->IASetIndexBuffer(&m_BufferManager->m_IndexBufferViews[indexBuffer->GetViewIndex()]);
 			m_AssignedIndexBufferID = ibID;
 		}
 	}
@@ -162,19 +161,19 @@ namespace TruthEngine::API::DirectX12
 	void DX12CommandList::DrawIndexed(uint32_t indexNum, uint32_t indexOffset, uint32_t vertexOffset)
 	{
 		Commit();
-		m_D3D12CommandList_Direct->DrawIndexedInstanced(indexNum, 1, indexOffset, vertexOffset, 0);
+		m_D3D12CommandList->DrawIndexedInstanced(indexNum, 1, indexOffset, vertexOffset, 0);
 	}
 
 	void DX12CommandList::Draw(uint32_t vertexNum, uint32_t vertexOffset)
 	{
 		Commit();
-		m_D3D12CommandList_Direct->DrawInstanced(vertexNum, 1, vertexOffset, 0);
+		m_D3D12CommandList->DrawInstanced(vertexNum, 1, vertexOffset, 0);
 	}
 
 	void DX12CommandList::Release()
 	{
-		m_D3D12CommandList_Direct->Release();
-		m_CommandAllocator_Direct.GetNativeObject()->Release();
+		m_D3D12CommandList->Release();
+		m_CommandAllocator.GetNativeObject()->Release();
 
 		m_SRVHandles_CB.clear();
 		m_SRVHandles_Texture.clear();
@@ -202,6 +201,8 @@ namespace TruthEngine::API::DirectX12
 	void DX12CommandList::Submit()
 	{
 		TE_INSTANCE_API_DX12_COMMANDQUEUEDIRECT->ExecuteCommandList(this);
+
+
 	}
 
 
@@ -212,29 +213,29 @@ namespace TruthEngine::API::DirectX12
 
 		if (m_ResourceBarriers.size() > 0)
 		{
-			m_D3D12CommandList_Direct->ResourceBarrier(m_ResourceBarriers.size(), m_ResourceBarriers.data());
+			m_D3D12CommandList->ResourceBarrier(m_ResourceBarriers.size(), m_ResourceBarriers.data());
 			m_ResourceBarriers.clear();
 		}
 
+		_UploadDefaultBuffers();
+
 		if (m_RTVHandleNum > 0)
 		{
-			m_D3D12CommandList_Direct->OMSetRenderTargets(1, m_RTVHandles, false, m_DSVHandleNum > 0 ? &m_DSVHandle : NULL);
+			m_D3D12CommandList->OMSetRenderTargets(1, m_RTVHandles, false, m_DSVHandleNum > 0 ? &m_DSVHandle : NULL);
 			m_RTVHandleNum = 0;
 		}
 
 
-
-
 		for (auto& c : m_QueueClearRT)
 		{
-			m_D3D12CommandList_Direct->ClearRenderTargetView(c.RTV, &c.ClearValue.x, 1, &m_BufferManager->m_Rect_FullScreen);
+			m_D3D12CommandList->ClearRenderTargetView(c.RTV, &c.ClearValue.x, 1, &m_BufferManager->m_Rect_FullScreen);
 		}
 		m_QueueClearRT.clear();
 
 
 		for (auto& c : m_QueueClearDS)
 		{
-			m_D3D12CommandList_Direct->ClearDepthStencilView(c.DSV, D3D12_CLEAR_FLAG_DEPTH, c.ClearValue.depthValue, c.ClearValue.stencilValue, 1, &m_BufferManager->m_Rect_FullScreen);
+			m_D3D12CommandList->ClearDepthStencilView(c.DSV, D3D12_CLEAR_FLAG_DEPTH, c.ClearValue.depthValue, c.ClearValue.stencilValue, 1, &m_BufferManager->m_Rect_FullScreen);
 		}
 		m_QueueClearDS.clear();
 
@@ -283,7 +284,7 @@ namespace TruthEngine::API::DirectX12
 		if (currentState != D3D12_RESOURCE_STATE_PRESENT)
 		{
 			auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(sc.GetBackBufferResource(), currentState, D3D12_RESOURCE_STATE_PRESENT);
-			m_D3D12CommandList_Direct->ResourceBarrier(1, &barrier);
+			m_D3D12CommandList->ResourceBarrier(1, &barrier);
 			sc.SetBackBufferState(D3D12_RESOURCE_STATE_PRESENT);
 
 			Submit();
@@ -293,13 +294,13 @@ namespace TruthEngine::API::DirectX12
 
 	void DX12CommandList::SetViewport(Core::Viewport* viewport, Core::ViewRect* rect)
 	{
-		m_D3D12CommandList_Direct->RSSetViewports(1, reinterpret_cast<D3D12_VIEWPORT*>(viewport));
-		m_D3D12CommandList_Direct->RSSetScissorRects(1, reinterpret_cast<D3D12_RECT*>(rect));
+		m_D3D12CommandList->RSSetViewports(1, reinterpret_cast<D3D12_VIEWPORT*>(viewport));
+		m_D3D12CommandList->RSSetScissorRects(1, reinterpret_cast<D3D12_RECT*>(rect));
 	}
 
 	bool DX12CommandList::IsRunning()
 	{
-		return m_CommandAllocator_Direct.IsRunning();
+		return m_CommandAllocator.IsRunning();
 	}
 
 	void DX12CommandList::_ResetContainers()
@@ -322,55 +323,101 @@ namespace TruthEngine::API::DirectX12
 	void DX12CommandList::_SetDescriptorHeapSRV()
 	{
 		auto descHeapSRV = m_BufferManager->m_DescHeapSRV.GetDescriptorHeap();
-		m_D3D12CommandList_Direct->SetDescriptorHeaps(1, &descHeapSRV);
+		m_D3D12CommandList->SetDescriptorHeaps(1, &descHeapSRV);
 	}
 
-	void DX12CommandList::UploadData(Core::Buffer* buffer, void* data, size_t sizeInByte)
+	void DX12CommandList::UploadData(Core::Buffer* buffer, const void* data, size_t sizeInByte)
 	{
+		_ChangeResourceState(buffer, TE_RESOURCE_STATES::COPY_DEST);
 
+		m_QueueCopyDefaultResource.emplace_back(m_BufferManager->m_Resources[buffer->GetResourceIndex()].Get(), data, sizeInByte);
+
+		m_CopyQueueRequiredSize += sizeInByte;
 	}
 
-	void DX12CommandList::_SubmitCopyCommands()
-	{
 
+
+	void DX12CommandList::_UploadDefaultBuffers()
+	{
 		if (m_QueueCopyDefaultResource.size() == 0)
 		{
 			return;
 		}
 
-
-		m_CommandAllocator_Copy.Reset();
-		m_D3D12CommandList_Copy->Reset(m_CommandAllocator_Copy.GetNativeObject(), nullptr);
-
 		auto desc = CD3DX12_RESOURCE_DESC::Buffer(m_CopyQueueRequiredSize);
-		
+
 		auto device = TE_INSTANCE_API_DX12_GRAPHICDEVICE.GetDevice();
 
-		ID3D12Resource* intermediateResource;
 
-		device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), D3D12_HEAP_FLAG_ALLOW_ONLY_BUFFERS, &desc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&intermediateResource));
+
+		device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), D3D12_HEAP_FLAG_NONE, &desc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&m_IntermediateResource));
 
 		uint64_t offset = 0;
 		for (auto& c : m_QueueCopyDefaultResource)
 		{
 			D3D12_SUBRESOURCE_DATA data;
 			data.pData = c.Data;
-			data.RowPitch = static_cast<LONG_PTR>(c.size);
+			data.RowPitch = static_cast<LONG_PTR>(c.Size);
 			data.SlicePitch = 0;
 
-			UpdateSubresources<1>(m_D3D12CommandList_Copy.Get(), c.resource, intermediateResource, offset, 0, 1, &data);
+			UpdateSubresources<1>(m_D3D12CommandList.Get(), c.D3D12Resource, m_IntermediateResource.Get(), offset, 0, 1, &data);
 
-			offset += c.size;
+			offset += c.Size;
 		}
 
-		auto queue = TE_INSTANCE_API_DX12_COMMANDQUEUECOPY;
-		queue->ExecuteCommandList(this);
+		m_QueueCopyDefaultResource.clear();
+		m_CopyQueueRequiredSize = 0;
 
-		concurrency::task t = concurrency::create_task([intermediateResource, this]() 
-			{ 
-				WaitForSingleObject(m_eventCopy, INFINITE);
-				intermediateResource->Release();
-			});
 	}
+
+
+	// 	void DX12CommandList::_SubmitCopyCommands()
+// 	{
+// 
+// 		if (m_QueueCopyDefaultResource.size() == 0)
+// 		{
+// 			return;
+// 		}
+// 
+// 
+// 		for (auto& barrier : m_ResourceBarriers_Copy)
+// 		{
+// 			m_D3D12CommandList_Copy->ResourceBarrier(m_ResourceBarriers_Copy.size(), m_ResourceBarriers_Copy.data());
+// 			m_ResourceBarriers_Copy.clear();
+// 		}
+// 
+// 		m_CommandAllocator_Copy.Reset();
+// 		m_D3D12CommandList_Copy->Reset(m_CommandAllocator_Copy.GetNativeObject(), nullptr);
+// 
+// 		auto desc = CD3DX12_RESOURCE_DESC::Buffer(m_CopyQueueRequiredSize);
+// 
+// 		auto device = TE_INSTANCE_API_DX12_GRAPHICDEVICE.GetDevice();
+// 
+// 		ID3D12Resource* intermediateResource;
+// 
+// 		device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), D3D12_HEAP_FLAG_ALLOW_ONLY_BUFFERS, &desc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&intermediateResource));
+// 
+// 		uint64_t offset = 0;
+// 		for (auto& c : m_QueueCopyDefaultResource)
+// 		{
+// 			D3D12_SUBRESOURCE_DATA data;
+// 			data.pData = c.Data;
+// 			data.RowPitch = static_cast<LONG_PTR>(c.Size);
+// 			data.SlicePitch = 0;
+// 
+// 			UpdateSubresources<1>(m_D3D12CommandList_Copy.Get(), c.D3D12Resource, intermediateResource, offset, 0, 1, &data);
+// 
+// 			offset += c.Size;
+// 		}
+// 
+// 		auto queue = TE_INSTANCE_API_DX12_COMMANDQUEUECOPY;
+// 		queue->ExecuteCommandList(this);
+// 
+// 		concurrency::task t = concurrency::create_task([intermediateResource, this]()
+// 			{
+// 				WaitForSingleObject(m_eventCopy, INFINITE);
+// 				intermediateResource->Release();
+// 			});
+// 	}
 
 }

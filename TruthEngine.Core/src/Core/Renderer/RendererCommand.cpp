@@ -64,9 +64,28 @@ namespace TruthEngine::Core
 		m_CommandLists[cmdListIndex]->SetConstantBuffer(CBV, registerIndex);
 	}
 
-	void RendererCommand::UpdateConstantBuffer(ConstantBufferUploadBase* cb, uint32_t cmdListIndex /*= 0*/)
+	void RendererCommand::UploadData(ConstantBufferUploadBase* cb, uint32_t cmdListIndex)
 	{
+	}
 
+	void RendererCommand::UploadData(Buffer* buffer, void* data, size_t sizeInByte, uint32_t cmdListIndex /*= 0*/)
+	{
+		m_CommandLists[cmdListIndex]->UploadData(buffer, data, sizeInByte);
+	}
+
+	void RendererCommand::UploadData(VertexBufferBase* vertexBuffer, uint32_t cmdListIndex)
+	{
+		auto cmdList = m_CommandLists[cmdListIndex];
+
+		for (auto vbs : vertexBuffer->GetVertexBufferStreams())
+		{
+			cmdList->UploadData(vbs, vbs->GetDataPtr(), vbs->GetBufferSize());
+		}
+	}
+
+	void RendererCommand::UploadData(IndexBuffer* indexBuffer, uint32_t cmdListIndex)
+	{
+		m_CommandLists[cmdListIndex]->UploadData(indexBuffer, indexBuffer->GetDataPtr(), indexBuffer->GetBufferSize());
 	}
 
 	void RendererCommand::SetVertexBuffer(VertexBufferBase* vertexBuffer, uint32_t cmdListIndex /*= 0*/)

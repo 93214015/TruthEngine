@@ -59,7 +59,7 @@ namespace TruthEngine
 				return m_InputElements;
 			}
 
-			inline void AddInputElement(ShaderInputElement& inputElement)
+			inline void AddInputElement(const ShaderInputElement& inputElement)
 			{
 				m_InputElements.push_back(inputElement);
 			}

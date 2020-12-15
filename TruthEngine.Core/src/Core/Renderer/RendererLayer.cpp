@@ -23,11 +23,19 @@ namespace TruthEngine::Core
 		m_BufferManager = TE_INSTANCE_BUFFERMANAGER;
 
 		m_BufferManager->Init(20, 10, 10, 10);
-		TE_INSTANCE_MODELMANAGER->Init(m_BufferManager.get());
 
-		m_ModelManagers = TE_INSTANCE_MODELMANAGER;
 
 		m_ImGuiLayer->OnAttach();
+
+
+		m_RendererCommand.Init();
+
+		m_RendererCommand.Begin();
+
+		m_ModelManagers = TE_INSTANCE_MODELMANAGER;
+		m_ModelManagers->Init(m_BufferManager.get(), &m_RendererCommand);
+
+		m_RendererCommand.End();
 
 	    m_Renderer3D->Init(m_BufferManager.get(), m_ModelManagers->GetMaterials());
 
@@ -35,8 +43,6 @@ namespace TruthEngine::Core
 		{
 			m_Model3DQueue.emplace_back(&model);
 		}
-
-		m_RendererCommand.Init();
 
 		m_RTVBackBuffer = m_BufferManager->CreateRenderTargetView(TE_INSTANCE_SWAPCHAIN);
 

@@ -18,8 +18,8 @@ namespace TruthEngine::API::DirectX12 {
 		ID3D12CommandList* l[1] = { c };
 		m_CommandQueue->ExecuteCommandLists(1, l);
 
-		cmdList->m_CommandAllocator_Direct.m_FenceValue = TE_INSTANCE_API_DX12_GRAPHICDEVICE.GetFence().SetFence(m_CommandQueue.Get());
-		cmdList->m_CommandAllocator_Direct.m_RunningCommandQueue = this;
+		cmdList->m_CommandAllocator.m_FenceValue = TE_INSTANCE_API_DX12_GRAPHICDEVICE.GetFence().SetFence(m_CommandQueue.Get());
+		cmdList->m_CommandAllocator.m_RunningCommandQueue = this;
 
 		return TE_SUCCESSFUL;
 
@@ -37,14 +37,14 @@ namespace TruthEngine::API::DirectX12 {
 
 	TE_RESULT CommandQueue_Direct::ExecuteCommandList(DX12CommandList* cmdList)
 	{
-		auto c = cmdList->m_D3D12CommandList_Direct.Get();
+		auto c = cmdList->m_D3D12CommandList.Get();
 		c->Close();
 
 		ID3D12CommandList* l[1] = { c };
 		m_CommandQueue->ExecuteCommandLists(1, l);
 
-		cmdList->m_CommandAllocator_Direct.m_FenceValue = TE_INSTANCE_API_DX12_GRAPHICDEVICE.GetFence().SetFence(m_CommandQueue.Get());
-		cmdList->m_CommandAllocator_Direct.m_RunningCommandQueue = this;
+		cmdList->m_CommandAllocator.m_FenceValue = TE_INSTANCE_API_DX12_GRAPHICDEVICE.GetFence().SetFence(m_CommandQueue.Get());
+		cmdList->m_CommandAllocator.m_RunningCommandQueue = this;
 
 		return TE_SUCCESSFUL;
 	}
@@ -56,14 +56,14 @@ namespace TruthEngine::API::DirectX12 {
 
 	TE_RESULT CommandQueue_Copy::ExecuteCommandList(DX12CommandList* cmdList)
 	{
-		auto c = cmdList->m_D3D12CommandList_Copy.Get();
+		/*auto c = cmdList->m_D3D12CommandList_Copy.Get();
 		c->Close();
 
 		ID3D12CommandList* l[1] = { c };
 		m_CommandQueue->ExecuteCommandLists(1, l);
 
 		cmdList->m_CommandAllocator_Copy.m_FenceValue = TE_INSTANCE_API_DX12_GRAPHICDEVICE.GetFence().SetFence(m_CommandQueue.Get());
-		cmdList->m_CommandAllocator_Copy.m_RunningCommandQueue = this;
+		cmdList->m_CommandAllocator_Copy.m_RunningCommandQueue = this;*/
 
 		return TE_SUCCESSFUL;
 	}

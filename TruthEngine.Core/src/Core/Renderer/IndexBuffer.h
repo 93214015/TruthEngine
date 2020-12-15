@@ -41,6 +41,11 @@ namespace TruthEngine
 				return m_ID;
 			}
 
+			inline const void* GetDataPtr() const noexcept
+			{
+				return m_Indecies.data();
+			}
+
 		protected:
 			uint32_t m_ID;
 			std::vector<uint32_t> m_Indecies;

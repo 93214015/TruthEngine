@@ -27,20 +27,17 @@ namespace TruthEngine
 			DX12CommandList(Core::GraphicDevice* graphicDevice, TE_RENDERER_COMMANDLIST_TYPE type, Core::BufferManager* bufferManager, Core::ShaderManager* shaderManager);
 
 
-			void Init(Core::GraphicDevice* graphicDevice, TE_RENDERER_COMMANDLIST_TYPE type, Core::BufferManager* bufferManager, Core::ShaderManager* shaderManager);
-
-
 			void Release() override;
 
 
 			inline ID3D12GraphicsCommandList* GetNativeObject() const
 			{
-				return m_D3D12CommandList_Direct.Get();
+				return m_D3D12CommandList.Get();
 			}
 
 			inline DX12CommandAllocator* GetCommandAllocator()
 			{
-				return &m_CommandAllocator_Direct;
+				return &m_CommandAllocator;
 			}
 
 
@@ -70,10 +67,7 @@ namespace TruthEngine
 			void UpdateConstantBuffer(Core::ConstantBufferUploadBase* cb) override;
 
 
-			void ChangeResourceState(Core::GraphicResource* resource, TE_RESOURCE_STATES newState) override;
-
-
-			void UploadData(Core::Buffer* buffer, void* data, size_t sizeInByte) override;
+			void UploadData(Core::Buffer* buffer, const void* data, size_t sizeInByte) override;
 
 
 			void SetVertexBuffer(Core::VertexBufferBase* vertexBuffer) override;
@@ -102,7 +96,8 @@ namespace TruthEngine
 
 		protected:
 
-			inline void _ChangeResourceState(ID3D12Resource* resource, D3D12_RESOURCE_STATES before, D3D12_RESOURCE_STATES after)
+			void _ChangeResourceState(Core::GraphicResource* resource, TE_RESOURCE_STATES newState);
+			inline void _QueueBarrier(ID3D12Resource* resource, D3D12_RESOURCE_STATES before, D3D12_RESOURCE_STATES after)
 			{
 				m_ResourceBarriers.emplace_back(
 					CD3DX12_RESOURCE_BARRIER::Transition(
@@ -113,10 +108,12 @@ namespace TruthEngine
 				);
 			}
 
+			void _UploadDefaultBuffers();
+
 			void _ResetContainers();
+
 			void _SetDescriptorHeapSRV();
 
-			void _SubmitCopyCommands();
 
 		protected:
 
@@ -140,28 +137,27 @@ namespace TruthEngine
 			};
 
 			struct CopyPending_DefaultResource {
-				uint32_t resourceIndex;
-				uint8_t* Data;
-				size_t size;
+
+				CopyPending_DefaultResource(ID3D12Resource* resource, const void* data, size_t size)
+					: D3D12Resource(resource), Data(data), Size(size)
+				{}
+
+				ID3D12Resource* D3D12Resource;
+				const void* Data;
+				size_t Size;
 			};
-			//
-			/*D3D12CommandList*/
-			//
-			COMPTR<ID3D12GraphicsCommandList> m_D3D12CommandList_Direct;
-			COMPTR<ID3D12GraphicsCommandList> m_D3D12CommandList_Copy;
-			//
-			/*D3D12CommandAllocators*/
-			//
-			DX12CommandAllocator m_CommandAllocator_Direct;
-			DX12CommandAllocator m_CommandAllocator_Copy;
-			//
-			/*Managers*/
-			//
+			
+			
+			COMPTR<ID3D12GraphicsCommandList> m_D3D12CommandList;
+			
+			
+			DX12CommandAllocator m_CommandAllocator;
+			
+			
 			DX12BufferManager* m_BufferManager;
 			DX12ShaderManager* m_ShaderManager;
-			//
-			/*Temp Command Queues*/
-			//
+			
+			
 			std::vector<D3D12_RESOURCE_BARRIER> m_ResourceBarriers;
 			std::map<uint32_t, D3D12_GPU_DESCRIPTOR_HANDLE> m_SRVHandles_CB;
 			std::map<uint32_t, D3D12_GPU_DESCRIPTOR_HANDLE> m_SRVHandles_Texture;
@@ -175,9 +171,7 @@ namespace TruthEngine
 			uint32_t m_DSVHandleNum = 0;
 			size_t m_CopyQueueRequiredSize = 0;
 
-
-			HANDLE m_eventCopy;
-
+			COMPTR<ID3D12Resource> m_IntermediateResource;
 
 
 			//

@@ -2,6 +2,7 @@
 #include "ModelManager.h"
 
 #include "Core/Renderer/BufferManager.h"
+#include "Core/Renderer/RendererCommand.h"
 
 namespace TruthEngine::Core
 {
@@ -13,7 +14,7 @@ namespace TruthEngine::Core
 
 	}
 
-	void ModelManager::Init(BufferManager* bufferManager)
+	void ModelManager::Init(BufferManager* bufferManager, RendererCommand* rendererCommand)
 	{
 		m_BufferManager = bufferManager;
 		m_MaterialManager.Init(m_BufferManager);
@@ -57,6 +58,9 @@ namespace TruthEngine::Core
 
 		m_BufferManager->CreateVertexBuffer(&m_VertexBuffer_PosNormTex);
 		m_BufferManager->CreateIndexBuffer(&m_IndexBuffer);
+
+		rendererCommand->UploadData(&m_VertexBuffer_PosNormTex);
+		rendererCommand->UploadData(&m_IndexBuffer);
 
 	}
 

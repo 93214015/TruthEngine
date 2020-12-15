@@ -40,9 +40,7 @@ namespace TruthEngine::Core
 
 		virtual void UpdateConstantBuffer(ConstantBufferUploadBase* cb) = 0;
 
-		virtual void UploadData(Buffer* buffer, void* data, size_t sizeInByte) = 0;
-
-		virtual void ChangeResourceState(GraphicResource* resource, TE_RESOURCE_STATES newState) = 0;
+		virtual void UploadData(Buffer* buffer, const void* data, size_t sizeInByte) = 0;
 
 		virtual void SetVertexBuffer(VertexBufferBase* vertexBuffer) = 0;
 		virtual void SetIndexBuffer(IndexBuffer* indexBuffer) = 0;

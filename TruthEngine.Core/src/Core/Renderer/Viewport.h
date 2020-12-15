@@ -3,6 +3,7 @@
 namespace TruthEngine
 {
 	namespace Core {
+
 		struct Viewport {
 			float TopLeftX;
 			float TopLeftY;
@@ -19,5 +20,6 @@ namespace TruthEngine
 			long    right;
 			long    bottom;
 		};
+
 	}
 }

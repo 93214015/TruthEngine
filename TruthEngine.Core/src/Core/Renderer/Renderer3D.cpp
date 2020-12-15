@@ -77,7 +77,7 @@ namespace TruthEngine::Core
 
 			inputElement.AlignedByteOffset = 12;
 			inputElement.Format = TE_RESOURCE_FORMAT::R32G32_FLOAT;
-			inputElement.InputSlot = 0;
+			inputElement.InputSlot = 1;
 			inputElement.InputSlotClass = TE_RENDERER_SHADER_INPUT_CLASSIFICATION::PER_VERTEX;
 			inputElement.InstanceDataStepRate = 0;
 			inputElement.SemanticIndex = 0;

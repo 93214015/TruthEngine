@@ -14,6 +14,7 @@ namespace TruthEngine
 	{
 
 		class BufferManager;
+		class RendererCommand;
 
 		class ModelManager
 		{
@@ -25,7 +26,7 @@ namespace TruthEngine
 				return s_ModelManager;
 			}
 
-			void Init(BufferManager* bufferManager);
+			void Init(BufferManager* bufferManager, RendererCommand* rendererCommand);
 
 			inline const std::vector<Model3D>& GetModel3D() const noexcept
 			{

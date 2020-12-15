@@ -16,9 +16,10 @@ namespace TruthEngine::Core
 
 		virtual void ReserveSpace(const size_t size) noexcept = 0;
 
-		virtual size_t GetVertexBufferSize() const noexcept = 0;
+		virtual size_t GetBufferSize() const noexcept = 0;
 		virtual size_t GetVertexNum() const noexcept = 0;
 		virtual size_t GetVertexSize() const noexcept = 0;
+		virtual const void* GetDataPtr() const noexcept = 0;
 
 	};
 
@@ -31,17 +32,17 @@ namespace TruthEngine::Core
 			m_Vertecies.reserve(size);
 		}
 		
-		inline size_t GetVertexBufferSize() const noexcept override
+		inline size_t GetBufferSize() const noexcept override
 		{
 			return m_Vertecies.size() * sizeof(T);
 		}
 
-		inline size_t GetVertexNum() const noexcept
+		inline size_t GetVertexNum() const noexcept override
 		{
 			return m_Vertecies.size();
 		}
 
-		inline size_t GetVertexSize() const noexcept
+		inline size_t GetVertexSize() const noexcept override
 		{
 			return sizeof(T);
 		}
@@ -59,6 +60,11 @@ namespace TruthEngine::Core
 		inline const std::vector<T>& GetData() const noexcept
 		{
 			return m_Vertecies;
+		}
+
+		inline const void* GetDataPtr() const noexcept override
+		{
+			return static_cast<const void*>(m_Vertecies.data());
 		}
 
 	protected:

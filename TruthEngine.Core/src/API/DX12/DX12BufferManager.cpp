@@ -205,7 +205,7 @@ namespace TruthEngine::API::DirectX12
 	{
 		ReleaseResource(vb);
 
-		const auto desc = GetBufferDesc(vb->GetVertexBufferSize(), vb->m_Usage);
+		const auto desc = GetBufferDesc(vb->GetBufferSize(), vb->m_Usage);
 
 		vb->m_ResourceIndex = static_cast<uint32_t>(m_Resources.size());
 
@@ -385,7 +385,7 @@ namespace TruthEngine::API::DirectX12
 			auto r = m_Resources[vs->m_ResourceIndex];
 			auto& view = m_VertexBufferViews.emplace_back();
 			view.BufferLocation = r->GetGPUVirtualAddress();
-			view.SizeInBytes = static_cast<UINT>(vs->GetVertexBufferSize());
+			view.SizeInBytes = static_cast<UINT>(vs->GetBufferSize());
 			view.StrideInBytes = static_cast<UINT>(vs->GetVertexSize());
 		}
 

@@ -50,7 +50,10 @@ namespace TruthEngine
 			void SetShaderResource(const ShaderResourceView SRV, uint32_t registerIndex, uint32_t cmdListIndex = 0);
 			void SetConstantBuffer(const ConstantBufferView CBV, uint32_t registerIndex, uint32_t cmdListIndex = 0);
 
-			void UpdateConstantBuffer(ConstantBufferUploadBase* cb, uint32_t cmdListIndex = 0);
+			void UploadData(ConstantBufferUploadBase* cb, uint32_t cmdListIndex = 0);
+			void UploadData(Buffer* buffer, void* Data, size_t sizeInByte, uint32_t cmdListIndex = 0);
+			void UploadData(VertexBufferBase* vertexBuffer, uint32_t cmdListIndex = 0);
+			void UploadData(IndexBuffer* indexBuffer, uint32_t cmdListIndex = 0);
 
 			void SetVertexBuffer(VertexBufferBase* vertexBuffer, uint32_t cmdListIndex = 0);
 			void SetIndexBuffer(IndexBuffer* indexBuffer, uint32_t cmdListIndex = 0);

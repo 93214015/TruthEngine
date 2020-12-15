@@ -18,7 +18,7 @@ namespace TruthEngine::Core
 	{
 	public:
 		virtual uint32_t GetVertexStreamNum() const = 0;
-		virtual VertexBufferStreamBase** GetVertexBufferStreams() = 0;
+		virtual std::vector<VertexBufferStreamBase*> GetVertexBufferStreams() = 0;
 
 		inline uint32_t GetViewIndex()const noexcept { return m_ViewIndex; }
 
@@ -85,9 +85,9 @@ namespace TruthEngine::Core
 			return m_VertexStreamNum;
 		}
 
-		inline VertexBufferStreamBase** GetVertexBufferStreams() override
+		inline std::vector<VertexBufferStreamBase*> GetVertexBufferStreams() override
 		{
-			VertexBufferStreamBase** vs = new VertexBufferStreamBase*[sizeof...(Ts)];
+			std::vector<VertexBufferStreamBase*> vs(sizeof...(Ts));
 			uint32_t i = 0;
 			((vs[i++] = &std::get<VertexBufferStream<Ts>>(m_VertexStreams)), ...);
 			return vs;
