@@ -113,6 +113,7 @@ namespace TruthEngine::Core
 		m_RendererCommand.SetViewPort(&m_Viewport, &m_ViewREct);
 		m_RendererCommand.SetRenderTarget(TE_INSTANCE_SWAPCHAIN, m_RenderTartgetView);
 		m_RendererCommand.SetDepthStencil(m_DepthStencilView);
+		m_RendererCommand.ClearDepthStencil(m_DepthStencilView);
 
 		for (auto m : models)
 		{

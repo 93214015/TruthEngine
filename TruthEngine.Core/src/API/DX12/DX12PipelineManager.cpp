@@ -152,7 +152,9 @@ namespace TruthEngine::API::DirectX12
 		desc.GS = CD3DX12_SHADER_BYTECODE(shader->GetGS().BufferPointer, shader->GetGS().BufferSize);
 
 		//Blend Desc
-		desc.BlendState = CD3DX12_BLEND_DESC();
+		desc.BlendState = CD3DX12_BLEND_DESC(CD3DX12_DEFAULT());
+
+		desc.SampleMask = UINT_MAX;
 
 		//Rasterized Desc
 		desc.RasterizerState.CullMode = DX12_GET_CULL_MODE(states);
@@ -168,9 +170,10 @@ namespace TruthEngine::API::DirectX12
 		desc.RasterizerState.ConservativeRaster = D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF;
 
 		//Blend Desc
-		desc.DepthStencilState.DepthEnable = DX12_GET_ENABLED_DEPTH(states);
+		auto depthEnabled = DX12_GET_ENABLED_DEPTH(states);
+		desc.DepthStencilState.DepthEnable = depthEnabled;
 		desc.DepthStencilState.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
-		desc.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_LESS;
+		desc.DepthStencilState.DepthFunc = depthEnabled ? D3D12_COMPARISON_FUNC_LESS : D3D12_COMPARISON_FUNC_ALWAYS;
 		desc.DepthStencilState.StencilEnable = false;
 		desc.DepthStencilState.StencilReadMask = D3D12_DEFAULT_STENCIL_READ_MASK;
 		desc.DepthStencilState.StencilWriteMask = D3D12_DEFAULT_STENCIL_WRITE_MASK;

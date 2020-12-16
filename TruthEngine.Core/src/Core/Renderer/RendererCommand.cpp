@@ -123,7 +123,7 @@ namespace TruthEngine::Core
 
 	void RendererCommand::ClearDepthStencil(const DepthStencilView DSV, uint32_t cmdListIndex /*= 0*/)
 	{
-		m_CommandLists[cmdListIndex]->SetDepthStencil(DSV);
+		m_CommandLists[cmdListIndex]->ClearDepthStencil(DSV);
 	}
 
 	void RendererCommand::EndAndPresent(uint32_t cmdListIndex /*= 0*/)

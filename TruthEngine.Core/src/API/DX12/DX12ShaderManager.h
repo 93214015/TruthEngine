@@ -21,7 +21,7 @@ namespace TruthEngine
 			}
 
 		protected:
-			/*Core::Shader::ShaderCode CompileShader(std::string_view filePath, std::string_view entry, std::string_view shaderStage);*/
+			Core::Shader::ShaderCode CompileShader_OLD(std::string_view shaderName, uint32_t shaderID, std::string_view filePath, std::string_view entry, std::string_view shaderStage);
 			Core::Shader::ShaderCode CompileShader(std::string_view shaderName, uint32_t shaderID, std::string_view filePath, std::string_view entry, std::string_view shaderStage);
 
 			TE_RESULT AddRootSignature(Core::Shader* shader);

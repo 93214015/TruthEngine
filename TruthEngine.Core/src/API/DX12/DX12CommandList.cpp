@@ -331,8 +331,8 @@ namespace TruthEngine::API::DirectX12
 		_ChangeResourceState(buffer, TE_RESOURCE_STATES::COPY_DEST);
 
 		m_QueueCopyDefaultResource.emplace_back(m_BufferManager->m_Resources[buffer->GetResourceIndex()].Get(), data, sizeInByte);
-
-		m_CopyQueueRequiredSize += sizeInByte;
+		
+		m_CopyQueueRequiredSize += buffer->GetRequiredSize();
 	}
 
 
@@ -360,7 +360,11 @@ namespace TruthEngine::API::DirectX12
 			data.RowPitch = static_cast<LONG_PTR>(c.Size);
 			data.SlicePitch = 0;
 
-			UpdateSubresources<1>(m_D3D12CommandList.Get(), c.D3D12Resource, m_IntermediateResource.Get(), offset, 0, 1, &data);
+			auto uplaodedSize = UpdateSubresources<1>(m_D3D12CommandList.Get(), c.D3D12Resource, m_IntermediateResource.Get(), offset, 0, 1, &data);
+			if (uplaodedSize == 0)
+			{
+				TE_LOG_CORE_WARN("UploadToDefault Buffer was not completed");
+			}
 
 			offset += c.Size;
 		}

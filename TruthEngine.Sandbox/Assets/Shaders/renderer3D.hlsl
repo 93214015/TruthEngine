@@ -6,12 +6,12 @@ struct vertexInput
     float2 texCoord :TEXCOORD;
 };
 
-float4 vs(vertexInput vin) : SV_Position
+float4 vs(vertexInput vin) : SV_POSITION
 {	
     return float4(vin.position, 1.0f);
 }
 
 float4 ps( float4 pos : SV_POSITION ) : SV_Target
 {
-    return pos;
+    return float4(0.5, 0.8, 0.6, 1.0f);
 }

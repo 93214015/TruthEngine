@@ -22,7 +22,7 @@ namespace TruthEngine::Core
 		auto& mesh = m_Meshes.emplace_back();
 		mesh.m_IndexBuffer = &m_IndexBuffer;
 		mesh.m_VertexBuffer = &m_VertexBuffer_PosNormTex;
-		mesh.m_IndexNum = 3;
+		mesh.m_IndexNum = 6;
 		mesh.m_IndexOffset = 0;
 		mesh.m_Material = m_MaterialManager.GetMaterial(0u);
 		mesh.m_VertexOffset = 0;
@@ -38,15 +38,41 @@ namespace TruthEngine::Core
 
 		using float3 = DirectX::XMFLOAT3;
 
-		pos.Position = float3{ -0.5f, -0.5f, 0.0f };
+		/*pos.Position = float3{ -0.5f, -0.5f, 0.5f };
 
 		m_VertexBuffer_PosNormTex.AddVertex(pos, normTex);
 
-		pos.Position = float3{ 0.0f, 0.5f, 0.0f };
+		pos.Position = float3{ 0.0f, 0.5f, 0.5f };
 
 		m_VertexBuffer_PosNormTex.AddVertex(pos, normTex);
 
-		pos.Position = float3{ 0.5f, -0.5, 0.0f };
+		pos.Position = float3{ 0.5f, -0.5, 0.5f };
+
+		m_VertexBuffer_PosNormTex.AddVertex(pos, normTex);*/
+
+		pos.Position = float3{ -0.5f, -0.5f, 0.5f };
+
+		m_VertexBuffer_PosNormTex.AddVertex(pos, normTex);
+
+		pos.Position = float3{ -0.5f, 0.5f, 0.5f };
+
+		m_VertexBuffer_PosNormTex.AddVertex(pos, normTex);
+
+		pos.Position = float3{ 0.5f, 0.5f, 0.5f };
+
+		m_VertexBuffer_PosNormTex.AddVertex(pos, normTex);
+
+		
+		
+		pos.Position = float3{ -0.5f, -0.5f, 0.5f };
+
+		m_VertexBuffer_PosNormTex.AddVertex(pos, normTex);
+
+		pos.Position = float3{ 0.5f, 0.5f, 0.5f };
+
+		m_VertexBuffer_PosNormTex.AddVertex(pos, normTex);
+
+		pos.Position = float3{ 0.5f, -0.5f, 0.5f };
 
 		m_VertexBuffer_PosNormTex.AddVertex(pos, normTex);
 
@@ -54,6 +80,10 @@ namespace TruthEngine::Core
 		m_IndexBuffer.AddIndex(0);
 		m_IndexBuffer.AddIndex(1);
 		m_IndexBuffer.AddIndex(2);
+		m_IndexBuffer.AddIndex(3);
+		m_IndexBuffer.AddIndex(4);
+		m_IndexBuffer.AddIndex(5);
+
 
 
 		m_BufferManager->CreateVertexBuffer(&m_VertexBuffer_PosNormTex);

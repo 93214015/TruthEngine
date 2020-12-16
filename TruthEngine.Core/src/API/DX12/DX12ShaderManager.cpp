@@ -97,27 +97,27 @@ namespace TruthEngine
 
 				if (csEntry != "")
 				{
-					shader->m_CS = CompileShader(name, shader->m_ID, filePath, csEntry, "cs");
+					shader->m_CS = CompileShader_OLD(name, shader->m_ID, filePath, csEntry, "cs");
 				}
 				if (vsEntry != "")
 				{
-					shader->m_VS = CompileShader(name, shader->m_ID, filePath, vsEntry, "vs");
+					shader->m_VS = CompileShader_OLD(name, shader->m_ID, filePath, vsEntry, "vs");
 				}
 				if (psEntry != "")
 				{
-					shader->m_PS = CompileShader(name, shader->m_ID, filePath, psEntry, "ps");
+					shader->m_PS = CompileShader_OLD(name, shader->m_ID, filePath, psEntry, "ps");
 				}
 				if (gsEntry != "")
 				{
-					shader->m_GS = CompileShader(name, shader->m_ID, filePath, gsEntry, "gs");
+					shader->m_GS = CompileShader_OLD(name, shader->m_ID, filePath, gsEntry, "gs");
 				}
 				if (dsEntry != "")
 				{
-					shader->m_DS = CompileShader(name, shader->m_ID, filePath, dsEntry, "ds");
+					shader->m_DS = CompileShader_OLD(name, shader->m_ID, filePath, dsEntry, "ds");
 				}
 				if (hsEntry != "")
 				{
-					shader->m_HS = CompileShader(name, shader->m_ID, filePath, hsEntry, "hs");
+					shader->m_HS = CompileShader_OLD(name, shader->m_ID, filePath, hsEntry, "hs");
 				}
 
 
@@ -125,23 +125,23 @@ namespace TruthEngine
 
 			}
 
-			// 			TruthEngine::Core::Shader::ShaderCode DX12ShaderManager::CompileShader(std::string_view filePath, std::string_view entry, std::string_view shaderStage)
-			// 			{
-			// 				std::string target = shaderStage.data() + compileTargetVersion;
-			// 
-			// 				ID3DBlob* codeBlob;
-			// 				COMPTR<ID3DBlob> errorBlob;
-			// 
-			// 				auto hr = D3DCompileFromFile(to_wstring(filePath).c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, entry.data(), target.c_str(), 0, 0, &codeBlob, errorBlob.GetAddressOf());
-			// 				if (FAILED(hr))
-			// 				{
-			// 					TE_LOG_CORE_ERROR("The Shader Compilation was failed;\n file: {0}\n error: {1}", filePath.data(), static_cast<const char*>(errorBlob->GetBufferPointer()));
-			// 					exit(-1);
-			// 				}
-			// 
-			// 
-			// 				return Core::Shader::ShaderCode(codeBlob->GetBufferSize(), codeBlob->GetBufferPointer());
-			// 			}
+			TruthEngine::Core::Shader::ShaderCode DX12ShaderManager::CompileShader_OLD(std::string_view shaderName, uint32_t shaderID, std::string_view filePath, std::string_view entry, std::string_view shaderStage)
+			{
+				std::string target = shaderStage.data() + std::string("_5_1");
+			
+				ID3DBlob* codeBlob;
+				COMPTR<ID3DBlob> errorBlob;
+			
+				auto hr = D3DCompileFromFile(to_wstring(filePath).c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, entry.data(), target.c_str(), D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION, 0, &codeBlob, errorBlob.GetAddressOf());
+				if (FAILED(hr))
+				{
+					TE_LOG_CORE_ERROR("The Shader Compilation was failed;\n file: {0}\n error: {1}", filePath.data(), static_cast<const char*>(errorBlob->GetBufferPointer()));
+					exit(-1);
+				}
+			
+			
+				return Core::Shader::ShaderCode(codeBlob->GetBufferSize(), codeBlob->GetBufferPointer());
+			}
 
 			Core::Shader::ShaderCode DX12ShaderManager::CompileShader(std::string_view shaderName, uint32_t shaderID, std::string_view filePath, std::string_view entry, std::string_view shaderStage)
 			{
