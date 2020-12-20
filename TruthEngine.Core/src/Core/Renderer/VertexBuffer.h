@@ -6,7 +6,7 @@ namespace TruthEngine {
 	{
 		namespace DirectX12 
 		{
-			class DX12BufferManager;
+			class DirectX12BufferManager;
 		}
 	}
 }
@@ -35,7 +35,7 @@ namespace TruthEngine::Core
 
 		//friend classes
 		friend class BufferManager;
-		friend class API::DirectX12 ::DX12BufferManager;
+		friend class API::DirectX12 ::DirectX12BufferManager;
 	};
 
 
@@ -118,7 +118,7 @@ namespace TruthEngine::Core
 		// friend Classes
 		//
 		friend class BufferManager;
-		friend class API::DirectX12 ::DX12BufferManager;
+		friend class API::DirectX12 ::DirectX12BufferManager;
 
 	};
 

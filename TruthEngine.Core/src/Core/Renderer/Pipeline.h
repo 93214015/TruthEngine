@@ -5,7 +5,7 @@ namespace TruthEngine
 {
 	namespace API::DirectX12 
 	{
-		class DX12PiplineManager;
+		class DirectX12PiplineManager;
 	}
 
 	namespace Core
@@ -207,7 +207,7 @@ namespace TruthEngine
 			TE_RESOURCE_FORMAT m_DSVFormat = TE_RESOURCE_FORMAT::D32_FLOAT;
 
 			friend class PiplineManager;
-			friend class API::DirectX12 ::DX12PiplineManager;
+			friend class API::DirectX12 ::DirectX12PiplineManager;
 
 		};
 

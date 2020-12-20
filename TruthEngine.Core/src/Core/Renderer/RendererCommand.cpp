@@ -13,14 +13,14 @@
 
 #include "Core/Entity/Model/Mesh.h"
 
-#include "API/DX12/DX12CommandList.h"
+#include "API/DX12/DirectX12CommandList.h"
 
 namespace TruthEngine::Core
 {
 
 	RendererCommand::RendererCommand() = default;
 
-	void RendererCommand::Init(uint32_t ParallelCommandsNum, std::shared_ptr<BufferManager> bufferManager, std::shared_ptr<ShaderManager> shaderManager)
+	void RendererCommand::Init(TE_IDX_RENDERPASS renderPassIDX, TE_IDX_SHADERCLASS shaderClassIDX, uint32_t ParallelCommandsNum, std::shared_ptr<BufferManager> bufferManager, std::shared_ptr<ShaderManager> shaderManager)
 	{
 		m_BufferManager = bufferManager ? bufferManager : TE_INSTANCE_BUFFERMANAGER;
 		m_ShaderManager = shaderManager ? shaderManager : TE_INSTANCE_SHADERMANAGER;
@@ -29,7 +29,7 @@ namespace TruthEngine::Core
 
 		for (uint32_t i = 0; i < ParallelCommandsNum; ++i)
 		{
-			m_CommandLists.push_back(CommandList::Factory(&TE_INSTANCE_GRAPHICDEVICE, TE_RENDERER_COMMANDLIST_TYPE::DIRECT, m_BufferManager, shaderManager));
+			m_CommandLists.push_back(CommandList::Factory(&TE_INSTANCE_GRAPHICDEVICE, TE_RENDERER_COMMANDLIST_TYPE::DIRECT, m_BufferManager, shaderManager, renderPassIDX, shaderClassIDX));
 		}
 
 	}
@@ -192,9 +192,9 @@ namespace TruthEngine::Core
 		return TE_INSTANCE_BUFFERMANAGER->CreateShaderResourceView(texture);
 	}
 
-	TruthEngine::Core::ConstantBufferView RendererCommand::CreateConstantBufferView(Buffer* CB)
+	TruthEngine::Core::ConstantBufferView RendererCommand::CreateConstantBufferView(TE_IDX_CONSTANTBUFFER idx)
 	{
-		return TE_INSTANCE_BUFFERMANAGER->CreateConstantBufferView(CB);
+		return TE_INSTANCE_BUFFERMANAGER->CreateConstantBufferView(idx);
 	}
 
 	TE_RESULT RendererCommand::CreateVertexBuffer(VertexBufferBase* vb)

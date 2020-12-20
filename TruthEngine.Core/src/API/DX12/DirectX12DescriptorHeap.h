@@ -3,7 +3,7 @@
 namespace TruthEngine::API::DirectX12
 {
 
-	class DX12GraphicDevice;
+	class DirectX12GraphicDevice;
 
 #define DESCRIPTORHEAP_GETHANDLES	inline CD3DX12_CPU_DESCRIPTOR_HANDLE GetCPUHandle(uint32_t index) const override { return CD3DX12_CPU_DESCRIPTOR_HANDLE(m_DescriptorHeap->GetCPUDescriptorHandleForHeapStart(), index, m_DescriptorSize); };\
 									inline CD3DX12_CPU_DESCRIPTOR_HANDLE GetCPUHandleLast() const override { return CD3DX12_CPU_DESCRIPTOR_HANDLE(m_DescriptorHeap->GetCPUDescriptorHandleForHeapStart(), m_CurrentIndex, m_DescriptorSize); }\
@@ -11,15 +11,15 @@ namespace TruthEngine::API::DirectX12
 									inline CD3DX12_GPU_DESCRIPTOR_HANDLE GetGPUHandleLast() const override { return CD3DX12_GPU_DESCRIPTOR_HANDLE(m_DescriptorHeap->GetGPUDescriptorHandleForHeapStart(), m_CurrentIndex, m_DescriptorSize); }
 
 
-	class DescriptorHeap
+	class DirectX12DescriptorHeap
 	{
-		friend class DX12GraphicDevice;
+		friend class DirectX12GraphicDevice;
 
 	public:
-		DescriptorHeap() = default;
-		virtual ~DescriptorHeap() = default;
+		DirectX12DescriptorHeap() = default;
+		virtual ~DirectX12DescriptorHeap() = default;
 
-		virtual TE_RESULT Init(DX12GraphicDevice& gDeviceDX12, uint32_t descriptorNum, D3D12_DESCRIPTOR_HEAP_FLAGS flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE, uint32_t nodeMask = 0) = 0;
+		virtual TE_RESULT Init(DirectX12GraphicDevice& gDeviceDX12, uint32_t descriptorNum, D3D12_DESCRIPTOR_HEAP_FLAGS flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE, uint32_t nodeMask = 0) = 0;
 
 		inline uint32_t GetCurrentIndex()const noexcept { return m_CurrentIndex; }
 
@@ -36,18 +36,18 @@ namespace TruthEngine::API::DirectX12
 		virtual void ReplaceDescriptor(ID3D12Resource* resource, uint32_t index) = 0;
 
 	protected:
-		DX12GraphicDevice* m_Device;
+		DirectX12GraphicDevice* m_Device;
 		Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_DescriptorHeap;
 		uint32_t m_CurrentIndex = 0;
 	};
 
 
-	class DescriptorHeapRTV : public DescriptorHeap {
-		friend class DX12GraphicDevice;
+	class DescriptorHeapRTV : public DirectX12DescriptorHeap {
+		friend class DirectX12GraphicDevice;
 	public:
 		virtual ~DescriptorHeapRTV() = default;
 
-		virtual TE_RESULT Init(DX12GraphicDevice& device, uint32_t descriptorNum, D3D12_DESCRIPTOR_HEAP_FLAGS flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE, uint32_t nodeMask = 0) override;
+		virtual TE_RESULT Init(DirectX12GraphicDevice& device, uint32_t descriptorNum, D3D12_DESCRIPTOR_HEAP_FLAGS flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE, uint32_t nodeMask = 0) override;
 		virtual uint32_t AddDescriptor(ID3D12Resource* resource) override;
 		virtual void ReplaceDescriptor(ID3D12Resource* resource, uint32_t index) override;
 
@@ -60,12 +60,12 @@ namespace TruthEngine::API::DirectX12
 	};
 
 
-	class DescriptorHeapSRV : public DescriptorHeap {
-		friend class DX12GraphicDevice;
+	class DescriptorHeapSRV : public DirectX12DescriptorHeap {
+		friend class DirectX12GraphicDevice;
 	public:
 		virtual ~DescriptorHeapSRV() = default;
 
-		virtual TE_RESULT Init(DX12GraphicDevice& device, uint32_t descriptorNum, D3D12_DESCRIPTOR_HEAP_FLAGS flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE, uint32_t nodeMask = 0) override;
+		virtual TE_RESULT Init(DirectX12GraphicDevice& device, uint32_t descriptorNum, D3D12_DESCRIPTOR_HEAP_FLAGS flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE, uint32_t nodeMask = 0) override;
 		virtual uint32_t AddDescriptorSRV(ID3D12Resource* resource, const D3D12_SHADER_RESOURCE_VIEW_DESC* srvDesc);
 		virtual void ReplaceDescriptorSRV(ID3D12Resource* resource, const D3D12_SHADER_RESOURCE_VIEW_DESC* srvDesc, uint32_t index);
 		virtual uint32_t AddDescriptorCBV(const D3D12_CONSTANT_BUFFER_VIEW_DESC* cbvDesc);
@@ -88,12 +88,12 @@ namespace TruthEngine::API::DirectX12
 	};
 
 
-	class DescriptorHeapDSV : public DescriptorHeap {
-		friend class DX12GraphicDevice;
+	class DescriptorHeapDSV : public DirectX12DescriptorHeap {
+		friend class DirectX12GraphicDevice;
 	public:
 		virtual ~DescriptorHeapDSV() = default;
 
-		virtual TE_RESULT Init(DX12GraphicDevice& device, uint32_t descriptorNum, D3D12_DESCRIPTOR_HEAP_FLAGS flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE, uint32_t nodeMask = 0) override;
+		virtual TE_RESULT Init(DirectX12GraphicDevice& device, uint32_t descriptorNum, D3D12_DESCRIPTOR_HEAP_FLAGS flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE, uint32_t nodeMask = 0) override;
 		virtual uint32_t AddDescriptor(ID3D12Resource* resource, const D3D12_DEPTH_STENCIL_VIEW_DESC* dsvDesc);
 		virtual void ReplaceDescriptor(ID3D12Resource* resource, const D3D12_DEPTH_STENCIL_VIEW_DESC* dsvDesc, uint32_t index);
 
@@ -112,12 +112,12 @@ namespace TruthEngine::API::DirectX12
 	};
 
 
-	class DescriptorHeapSampler : public DescriptorHeap {
-		friend class DX12GraphicDevice;
+	class DescriptorHeapSampler : public DirectX12DescriptorHeap {
+		friend class DirectX12GraphicDevice;
 	public:
 		virtual ~DescriptorHeapSampler() = default;
 
-		virtual TE_RESULT Init(DX12GraphicDevice& device, uint32_t descriptorNum, D3D12_DESCRIPTOR_HEAP_FLAGS flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE, uint32_t nodeMask = 0) override;
+		virtual TE_RESULT Init(DirectX12GraphicDevice& device, uint32_t descriptorNum, D3D12_DESCRIPTOR_HEAP_FLAGS flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE, uint32_t nodeMask = 0) override;
 		virtual uint32_t AddDescriptor(const D3D12_SAMPLER_DESC* samplerDesc);
 		virtual void ReplaceDescriptor(const D3D12_SAMPLER_DESC* samplerDesc, uint32_t index);
 

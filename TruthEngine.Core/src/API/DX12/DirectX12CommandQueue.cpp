@@ -1,15 +1,15 @@
 #include "pch.h"
-#include "CommandQueue.h"
-#include "DX12CommandList.h"
-#include "DX12GraphicDevice.h"
+#include "DirectX12CommandQueue.h"
+#include "DirectX12CommandList.h"
+#include "DirectX12GraphicDevice.h"
 
 namespace TruthEngine::API::DirectX12 {
 
 
 
-	CommandQueue::CommandQueue() = default;
+	DirectX12CommandQueue::DirectX12CommandQueue() = default;
 
-	TE_RESULT CommandQueue::ExecuteCommandList(DX12CommandList* cmdList)
+	TE_RESULT DirectX12CommandQueue::ExecuteCommandList(DirectX12CommandList* cmdList)
 	{
 
 		auto c = cmdList->GetNativeObject();
@@ -25,17 +25,17 @@ namespace TruthEngine::API::DirectX12 {
 
 	}
 
-	TE_RESULT CommandQueue::Init(D3D12_COMMAND_LIST_TYPE type, DX12GraphicDevice* gDevice)
+	TE_RESULT DirectX12CommandQueue::Init(D3D12_COMMAND_LIST_TYPE type, DirectX12GraphicDevice* gDevice)
 	{
 		return gDevice->CreateCommandQueue(m_CommandQueue, type);
 	}
 
-	TE_RESULT CommandQueue_Direct::Init(DX12GraphicDevice* gDevice)
+	TE_RESULT DirectX12CommandQueue_Direct::Init(DirectX12GraphicDevice* gDevice)
 	{
-		return CommandQueue::Init(D3D12_COMMAND_LIST_TYPE_DIRECT, gDevice);
+		return DirectX12CommandQueue::Init(D3D12_COMMAND_LIST_TYPE_DIRECT, gDevice);
 	}
 
-	TE_RESULT CommandQueue_Direct::ExecuteCommandList(DX12CommandList* cmdList)
+	TE_RESULT DirectX12CommandQueue_Direct::ExecuteCommandList(DirectX12CommandList* cmdList)
 	{
 		auto c = cmdList->m_D3D12CommandList.Get();
 		c->Close();
@@ -49,12 +49,12 @@ namespace TruthEngine::API::DirectX12 {
 		return TE_SUCCESSFUL;
 	}
 
-	TE_RESULT CommandQueue_Copy::Init(DX12GraphicDevice* gDevice)
+	TE_RESULT DirectX12CommandQueue_Copy::Init(DirectX12GraphicDevice* gDevice)
 	{
-		return CommandQueue::Init(D3D12_COMMAND_LIST_TYPE_COPY, gDevice);
+		return DirectX12CommandQueue::Init(D3D12_COMMAND_LIST_TYPE_COPY, gDevice);
 	}
 
-	TE_RESULT CommandQueue_Copy::ExecuteCommandList(DX12CommandList* cmdList)
+	TE_RESULT DirectX12CommandQueue_Copy::ExecuteCommandList(DirectX12CommandList* cmdList)
 	{
 		/*auto c = cmdList->m_D3D12CommandList_Copy.Get();
 		c->Close();

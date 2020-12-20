@@ -1,6 +1,6 @@
 #include "pch.h"
-#include "DescriptorHeap.h"
-#include "DX12GraphicDevice.h"
+#include "DirectX12DescriptorHeap.h"
+#include "DirectX12GraphicDevice.h"
 
 namespace TruthEngine::API::DirectX12
 {
@@ -11,7 +11,7 @@ namespace TruthEngine::API::DirectX12
 	uint32_t DescriptorHeapSampler::m_DescriptorSize = 0;
 
 
-	TE_RESULT DescriptorHeapRTV::Init(DX12GraphicDevice& device, uint32_t descriptorNum, D3D12_DESCRIPTOR_HEAP_FLAGS flags /*= D3D12_DESCRIPTOR_HEAP_FLAG_NONE*/, uint32_t nodeMask /*= 0*/)
+	TE_RESULT DescriptorHeapRTV::Init(DirectX12GraphicDevice& device, uint32_t descriptorNum, D3D12_DESCRIPTOR_HEAP_FLAGS flags /*= D3D12_DESCRIPTOR_HEAP_FLAG_NONE*/, uint32_t nodeMask /*= 0*/)
 	{
 		m_Device = &device;
 
@@ -39,7 +39,7 @@ namespace TruthEngine::API::DirectX12
 		m_Device->GetDevice()->CreateRenderTargetView(resource, nullptr, GetCPUHandle(index));
 	}
 
-	TE_RESULT DescriptorHeapSRV::Init(DX12GraphicDevice& device, uint32_t descriptorNum, D3D12_DESCRIPTOR_HEAP_FLAGS flags /*= D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE*/, uint32_t nodeMask /*= 0*/)
+	TE_RESULT DescriptorHeapSRV::Init(DirectX12GraphicDevice& device, uint32_t descriptorNum, D3D12_DESCRIPTOR_HEAP_FLAGS flags /*= D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE*/, uint32_t nodeMask /*= 0*/)
 	{
 		m_Device = &device;
 
@@ -93,7 +93,7 @@ namespace TruthEngine::API::DirectX12
 		m_Device->GetDevice()->CreateUnorderedAccessView(resource, counterResource, uavDesc, GetCPUHandle(index));
 	}
 
-	TE_RESULT DescriptorHeapDSV::Init(DX12GraphicDevice& device, uint32_t descriptorNum, D3D12_DESCRIPTOR_HEAP_FLAGS flags /*= D3D12_DESCRIPTOR_HEAP_FLAG_NONE*/, uint32_t nodeMask /*= 0*/)
+	TE_RESULT DescriptorHeapDSV::Init(DirectX12GraphicDevice& device, uint32_t descriptorNum, D3D12_DESCRIPTOR_HEAP_FLAGS flags /*= D3D12_DESCRIPTOR_HEAP_FLAG_NONE*/, uint32_t nodeMask /*= 0*/)
 	{
 		m_Device = &device;
 
@@ -121,7 +121,7 @@ namespace TruthEngine::API::DirectX12
 		m_Device->GetDevice()->CreateDepthStencilView(resource, dsvDesc, GetCPUHandle(index));
 	}
 
-	TE_RESULT DescriptorHeapSampler::Init(DX12GraphicDevice& device, uint32_t descriptorNum, D3D12_DESCRIPTOR_HEAP_FLAGS flags /*= D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE*/, uint32_t nodeMask /*= 0*/)
+	TE_RESULT DescriptorHeapSampler::Init(DirectX12GraphicDevice& device, uint32_t descriptorNum, D3D12_DESCRIPTOR_HEAP_FLAGS flags /*= D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE*/, uint32_t nodeMask /*= 0*/)
 	{
 		m_Device = &device;
 

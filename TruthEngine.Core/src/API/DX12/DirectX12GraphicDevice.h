@@ -1,12 +1,12 @@
 #pragma once
-#include "CommandQueue.h"
-#include "Fence.h"
+#include "DirectX12CommandQueue.h"
+#include "DirectX12Fence.h"
 #include "Core/Renderer/GraphicDevice.h"
 
 
-#define TE_INSTANCE_API_DX12_GRAPHICDEVICE			TruthEngine::API::DirectX12::DX12GraphicDevice::GetPrimaryDeviceDX12()
-#define TE_INSTANCE_API_DX12_COMMANDQUEUEDIRECT		TruthEngine::API::DirectX12::DX12GraphicDevice::GetPrimaryDeviceDX12().GetCommandQueuDirect()
-#define TE_INSTANCE_API_DX12_COMMANDQUEUECOPY		TruthEngine::API::DirectX12::DX12GraphicDevice::GetPrimaryDeviceDX12().GetCommandQueuCopy()
+#define TE_INSTANCE_API_DX12_GRAPHICDEVICE			TruthEngine::API::DirectX12::DirectX12GraphicDevice::GetPrimaryDeviceDX12()
+#define TE_INSTANCE_API_DX12_COMMANDQUEUEDIRECT		TruthEngine::API::DirectX12::DirectX12GraphicDevice::GetPrimaryDeviceDX12().GetCommandQueuDirect()
+#define TE_INSTANCE_API_DX12_COMMANDQUEUECOPY		TruthEngine::API::DirectX12::DirectX12GraphicDevice::GetPrimaryDeviceDX12().GetCommandQueuCopy()
 
 namespace TruthEngine::Core {
 
@@ -17,7 +17,7 @@ namespace TruthEngine::Core {
 namespace TruthEngine::API::DirectX12 {
 
 
-	class DX12GraphicDevice : public TruthEngine::Core::GraphicDevice {
+	class DirectX12GraphicDevice : public TruthEngine::Core::GraphicDevice {
 		
 	public:
 		TE_RESULT Init(UINT adapterIndex) override;
@@ -27,11 +27,11 @@ namespace TruthEngine::API::DirectX12 {
 		inline ID3D12Device8* operator->() { return m_Device.Get(); }
 		
 
-		inline CommandQueue_Direct* GetCommandQueuDirect() { return &m_CommandQueueDirect; }
-		inline CommandQueue_Copy* GetCommandQueuCopy() { return &m_CommandQueueCopy; }
-		inline Fence& GetFence() { return m_Fence; }
+		inline DirectX12CommandQueue_Direct* GetCommandQueuDirect() { return &m_CommandQueueDirect; }
+		inline DirectX12CommandQueue_Copy* GetCommandQueuCopy() { return &m_CommandQueueCopy; }
+		inline DirectX12Fence& GetFence() { return m_Fence; }
 
-		static inline DX12GraphicDevice& GetPrimaryDeviceDX12() { return s_PrimaryDevice; }
+		static inline DirectX12GraphicDevice& GetPrimaryDeviceDX12() { return s_PrimaryDevice; }
 
 	private:
 		TE_RESULT CreateDevice(UINT adapterIndex);
@@ -52,17 +52,17 @@ namespace TruthEngine::API::DirectX12 {
 
 		Microsoft::WRL::ComPtr<ID3D12Device8> m_Device;
 
-		CommandQueue_Direct m_CommandQueueDirect;
-		CommandQueue_Copy m_CommandQueueCopy;
+		DirectX12CommandQueue_Direct m_CommandQueueDirect;
+		DirectX12CommandQueue_Copy m_CommandQueueCopy;
 
-		Fence m_Fence;
+		DirectX12Fence m_Fence;
 
-		static DX12GraphicDevice s_PrimaryDevice;
+		static DirectX12GraphicDevice s_PrimaryDevice;
 
 		/// Friend Classes
-		friend class CommandQueue;
-		friend class DX12CommandList;
-		friend class DX12CommandAllocator;
+		friend class DirectX12CommandQueue;
+		friend class DirectX12CommandList;
+		friend class DirectX12CommandAllocator;
 
 	};
 

@@ -1,9 +1,9 @@
 #pragma once
 
 #include "Core/ImGui/ImGuiLayer.h"
-#include "API/DX12/DescriptorHeap.h"
-#include "API/DX12/Fence.h"
-#include "API/DX12/DX12CommandList.h"
+#include "API/DX12/DirectX12DescriptorHeap.h"
+#include "API/DX12/DirectX12Fence.h"
+#include "API/DX12/DirectX12CommandList.h"
 
 
 #ifdef TE_API_DX12
@@ -11,12 +11,12 @@
 
 namespace TruthEngine::API::DirectX12
 {
-	class DX12ImGuiLayer : public TruthEngine::Core::ImGuiLayer
+	class DirectX12ImGuiLayer : public TruthEngine::Core::ImGuiLayer
 	{
 
 	public:
 
-		DX12ImGuiLayer() = default;
+		DirectX12ImGuiLayer() = default;
 
 		void OnAttach() override;
 
@@ -29,7 +29,7 @@ namespace TruthEngine::API::DirectX12
 	private:
 		DescriptorHeapSRV m_DescHeapSRV;
 		DescriptorHeapRTV m_DescHeapRTV;
-		std::shared_ptr<DX12CommandList> m_CommandList;
+		std::shared_ptr<DirectX12CommandList> m_CommandList;
 
 	};
 }

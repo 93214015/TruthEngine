@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "DX12SwapChain.h"
+#include "DirectX12SwapChain.h"
 
 #include "Core/Application.h"
 
@@ -12,7 +12,7 @@ using namespace Microsoft::WRL;
 
 TruthEngine::Core::SwapChain* TruthEngine::Core::SwapChain::GetInstance()
 {
-	return &TruthEngine::API::DirectX12::DX12SwapChain::GetInstance();
+	return &TruthEngine::API::DirectX12::DirectX12SwapChain::GetInstance();
 }
 
 #endif
@@ -20,9 +20,9 @@ TruthEngine::Core::SwapChain* TruthEngine::Core::SwapChain::GetInstance()
 namespace TruthEngine::API::DirectX12 {
 
 
-	DX12SwapChain::DX12SwapChain() = default;
+	DirectX12SwapChain::DirectX12SwapChain() = default;
 
-	TE_RESULT DX12SwapChain::Init(UINT clientWidth, UINT clientHeight, HWND outputHWND, UINT backBufferNum)
+	TE_RESULT DirectX12SwapChain::Init(UINT clientWidth, UINT clientHeight, HWND outputHWND, UINT backBufferNum)
 	{
 
 		m_BackBufferNum = backBufferNum;
@@ -35,17 +35,17 @@ namespace TruthEngine::API::DirectX12 {
 
 	}
 
-	uint32_t DX12SwapChain::InitRTVs(DescriptorHeapRTV* descHeap)
+	uint32_t DirectX12SwapChain::InitRTVs(DescriptorHeapRTV* descHeap)
 	{
 		return CreateSwapChainRTVs(descHeap);
 	}
 
-	void DX12SwapChain::Present()
+	void DirectX12SwapChain::Present()
 	{
 		m_SwapChain->Present(1, 0);
 	}
 
-	void DX12SwapChain::CreateSwapChain(HWND outputHWND)
+	void DirectX12SwapChain::CreateSwapChain(HWND outputHWND)
 	{
 		{
 
@@ -84,7 +84,7 @@ namespace TruthEngine::API::DirectX12 {
 		}
 	}
 
-	uint32_t DX12SwapChain::CreateSwapChainRTVs(DescriptorHeapRTV* descHeap)
+	uint32_t DirectX12SwapChain::CreateSwapChainRTVs(DescriptorHeapRTV* descHeap)
 	{
 		auto index = descHeap->GetCurrentIndex();
 
@@ -98,7 +98,7 @@ namespace TruthEngine::API::DirectX12 {
 		return index;
 	}
 
-	void DX12SwapChain::CheckDeviceFeatures()
+	void DirectX12SwapChain::CheckDeviceFeatures()
 	{
 		m_MSAAQualityLevels.Format = m_BackbufferFormat;
 		m_MSAAQualityLevels.Flags = D3D12_MULTISAMPLE_QUALITY_LEVELS_FLAG_NONE;
@@ -116,7 +116,7 @@ namespace TruthEngine::API::DirectX12 {
 		}
 	}
 
-	TE_RESULT DX12SwapChain::Resize(UINT width, UINT height, UINT backBufferNum)
+	TE_RESULT DirectX12SwapChain::Resize(UINT width, UINT height, UINT backBufferNum)
 	{
 		m_BackBufferNum = backBufferNum;
 
@@ -138,6 +138,6 @@ namespace TruthEngine::API::DirectX12 {
 			return TE_FAIL;
 	}
 
-	TruthEngine::API::DirectX12::DX12SwapChain DX12SwapChain::s_SwapChain;
+	TruthEngine::API::DirectX12::DirectX12SwapChain DirectX12SwapChain::s_SwapChain;
 
 }

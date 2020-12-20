@@ -25,6 +25,7 @@ namespace TruthEngine::Core
 	{
 
 	public:
+		CommandList(TE_IDX_RENDERPASS renderPassIDX, TE_IDX_SHADERCLASS shaderClassIDX);
 		virtual ~CommandList() = default;
 
 		virtual void Reset() = 0;
@@ -63,15 +64,17 @@ namespace TruthEngine::Core
 
 		virtual bool IsRunning() = 0;
 
-		static std::shared_ptr<CommandList> Factory(GraphicDevice* graphicDevice, TE_RENDERER_COMMANDLIST_TYPE type, std::shared_ptr<BufferManager> bufferManager, std::shared_ptr<ShaderManager> shaderManager);
+		static std::shared_ptr<CommandList> Factory(GraphicDevice* graphicDevice, TE_RENDERER_COMMANDLIST_TYPE type, std::shared_ptr<BufferManager> bufferManager, std::shared_ptr<ShaderManager> shaderManager, TE_IDX_RENDERPASS renderPassIDX, TE_IDX_SHADERCLASS shaderClassIDX);
 
 	protected:
 		CommandList() = default;
 
-
 	protected:
 		uint32_t m_AssignedVertexBufferID = -1;
 		uint32_t m_AssignedIndexBufferID = -1;
+
+		TE_IDX_SHADERCLASS m_ShaderClassIDX = TE_IDX_SHADERCLASS::NONE;
+		TE_IDX_RENDERPASS m_RenderPassIDX = TE_IDX_RENDERPASS::NONE;
 
 	};
 

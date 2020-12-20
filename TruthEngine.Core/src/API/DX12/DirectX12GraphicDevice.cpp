@@ -1,16 +1,16 @@
 #include "pch.h"
-#include "DX12GraphicDevice.h"
+#include "DirectX12GraphicDevice.h"
 
 #include "API/IDXGI.h"
-#include "API/DX12/DescriptorHeap.h"
-#include "API/DX12/DX12SwapChain.h"
+#include "API/DX12/DirectX12DescriptorHeap.h"
+#include "API/DX12/DirectX12SwapChain.h"
 
 #include "Core/Application.h"
 
 namespace TruthEngine::API::DirectX12
 {
 
-	TE_RESULT DX12GraphicDevice::Init(UINT adapterIndex)
+	TE_RESULT DirectX12GraphicDevice::Init(UINT adapterIndex)
 	{
 		TE_INSTANCE_IDXGI.Init();
 
@@ -26,7 +26,7 @@ namespace TruthEngine::API::DirectX12
 		return TE_SUCCESSFUL;
 	}
 
-	TE_RESULT DX12GraphicDevice::CreateDevice(UINT adapterIndex)
+	TE_RESULT DirectX12GraphicDevice::CreateDevice(UINT adapterIndex)
 	{
 
 #if defined(TE_DEBUG)
@@ -45,7 +45,7 @@ namespace TruthEngine::API::DirectX12
 		return TE_SUCCESSFUL;
 	}
 
-	void DX12GraphicDevice::InitDescriptorSize() const
+	void DirectX12GraphicDevice::InitDescriptorSize() const
 	{
 		DescriptorHeapRTV::m_DescriptorSize = GetDescriptorSizeRTV();
 		DescriptorHeapSRV::m_DescriptorSize = GetDescriptorSizeSRV();
@@ -53,7 +53,7 @@ namespace TruthEngine::API::DirectX12
 		DescriptorHeapSampler::m_DescriptorSize = GetDescriptorSizeSampler();
 	}
 
-	TE_RESULT DX12GraphicDevice::InitCommandQueues()
+	TE_RESULT DirectX12GraphicDevice::InitCommandQueues()
 	{
 		auto result = m_CommandQueueCopy.Init(this);
 		TE_ASSERT_CORE(TE_SUCCEEDED(result), "API::DirectX12  PrimaryCopyCommandQueue Creation was failed!");
@@ -64,7 +64,7 @@ namespace TruthEngine::API::DirectX12
 		return TE_SUCCESSFUL;
 	}
 
-	TE_RESULT DX12GraphicDevice::CreateCommandQueue(COMPTR<ID3D12CommandQueue>& cmdQueue, D3D12_COMMAND_LIST_TYPE type) const
+	TE_RESULT DirectX12GraphicDevice::CreateCommandQueue(COMPTR<ID3D12CommandQueue>& cmdQueue, D3D12_COMMAND_LIST_TYPE type) const
 	{
 		D3D12_COMMAND_QUEUE_DESC desc;
 		desc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
@@ -80,7 +80,7 @@ namespace TruthEngine::API::DirectX12
 		}
 	}
 
-	TE_RESULT DX12GraphicDevice::CreateCommandList(COMPTR<ID3D12GraphicsCommandList>& cmdList, D3D12_COMMAND_LIST_TYPE type) const
+	TE_RESULT DirectX12GraphicDevice::CreateCommandList(COMPTR<ID3D12GraphicsCommandList>& cmdList, D3D12_COMMAND_LIST_TYPE type) const
 	{
 		D3D12_COMMAND_QUEUE_DESC desc;
 		desc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
@@ -98,7 +98,7 @@ namespace TruthEngine::API::DirectX12
 		}
 	}
 
-	TE_RESULT DX12GraphicDevice::CreateCommandAllocator(COMPTR<ID3D12CommandAllocator>& cmdAlloc, D3D12_COMMAND_LIST_TYPE type) const
+	TE_RESULT DirectX12GraphicDevice::CreateCommandAllocator(COMPTR<ID3D12CommandAllocator>& cmdAlloc, D3D12_COMMAND_LIST_TYPE type) const
 	{
 		if (m_Device->CreateCommandAllocator(type, IID_PPV_ARGS(cmdAlloc.ReleaseAndGetAddressOf())) == S_OK)
 			return TE_SUCCESSFUL;
@@ -109,7 +109,7 @@ namespace TruthEngine::API::DirectX12
 		}
 	}
 
-	TruthEngine::API::DirectX12::DX12GraphicDevice DX12GraphicDevice::s_PrimaryDevice;
+	TruthEngine::API::DirectX12::DirectX12GraphicDevice DirectX12GraphicDevice::s_PrimaryDevice;
 
 }
 
@@ -117,9 +117,9 @@ namespace TruthEngine::API::DirectX12
 
 TE_RESULT TruthEngine::Core::CreateGDevice(uint32_t adapterIndex)
 {
-	return TruthEngine::API::DirectX12::DX12GraphicDevice::GetPrimaryDeviceDX12().Init(adapterIndex);
+	return TruthEngine::API::DirectX12::DirectX12GraphicDevice::GetPrimaryDeviceDX12().Init(adapterIndex);
 }
 
-TruthEngine::Core::GraphicDevice* TruthEngine::Core::GraphicDevice::s_GDevice = &TruthEngine::API::DirectX12::DX12GraphicDevice::GetPrimaryDeviceDX12();
+TruthEngine::Core::GraphicDevice* TruthEngine::Core::GraphicDevice::s_GDevice = &TruthEngine::API::DirectX12::DirectX12GraphicDevice::GetPrimaryDeviceDX12();
 
 #endif

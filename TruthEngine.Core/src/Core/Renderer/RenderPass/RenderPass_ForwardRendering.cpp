@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "Renderer3D.h"
+#include "RenderPass_ForwardRendering.h"
 
 #include "Core/Entity/Model/Model3D.h"
 #include "Core/Entity/Model/Mesh.h"
@@ -13,31 +13,32 @@
 namespace TruthEngine::Core
 {
 
-	Renderer3D::Renderer3D() 
-		: m_TextureDepthStencil(
-		"renderer3DDepth"
-		, TE_INSTANCE_APPLICATION->GetClientWidth()
-		, TE_INSTANCE_APPLICATION->GetClientHeight()
-		, TE_RESOURCE_FORMAT::R32_TYPELESS
-		, TextureDepthStencil::ClearValue{ 1.0f, 0 }
-		, false)
-		, m_Viewport{0.0f, 0.0f, static_cast<float>(TE_INSTANCE_APPLICATION->GetClientWidth()), static_cast<float>(TE_INSTANCE_APPLICATION->GetClientHeight()), 0.0f, 1.0f}
-		, m_ViewREct{static_cast<long>(0.0), static_cast<long>(0.0), static_cast<long>(TE_INSTANCE_APPLICATION->GetClientWidth()), static_cast<long>(TE_INSTANCE_APPLICATION->GetClientHeight()) }
+	RenderPass_ForwardRendering::RenderPass_ForwardRendering()
+		: RenderPass(TE_IDX_RENDERPASS::FORWARDRENDERING)
+		, m_TextureDepthStencil(
+			"renderer3DDepth"
+			, TE_INSTANCE_APPLICATION->GetClientWidth()
+			, TE_INSTANCE_APPLICATION->GetClientHeight()
+			, TE_RESOURCE_FORMAT::R32_TYPELESS
+			, TextureDepthStencil::ClearValue{ 1.0f, 0 }
+			, false)
+		, m_Viewport{ 0.0f, 0.0f, static_cast<float>(TE_INSTANCE_APPLICATION->GetClientWidth()), static_cast<float>(TE_INSTANCE_APPLICATION->GetClientHeight()), 0.0f, 1.0f }
+		, m_ViewREct{ static_cast<long>(0.0), static_cast<long>(0.0), static_cast<long>(TE_INSTANCE_APPLICATION->GetClientWidth()), static_cast<long>(TE_INSTANCE_APPLICATION->GetClientHeight()) }
 	{};
 
-	Renderer3D::~Renderer3D() = default;
+	RenderPass_ForwardRendering::~RenderPass_ForwardRendering() = default;
 
-	Renderer3D::Renderer3D(const Renderer3D& renderer3D) = default;
+	RenderPass_ForwardRendering::RenderPass_ForwardRendering(const RenderPass_ForwardRendering& renderer3D) = default;
 
-	Renderer3D& Renderer3D::operator=(const Renderer3D& renderer3D) = default;
+	RenderPass_ForwardRendering& RenderPass_ForwardRendering::operator=(const RenderPass_ForwardRendering& renderer3D) = default;
 
 
-	void Renderer3D::Init(BufferManager* bufferMgr, const std::vector<Material>& materials)
+	void RenderPass_ForwardRendering::Init(BufferManager* bufferMgr, const std::vector<Material>& materials)
 	{
 
 		m_BufferMgr = bufferMgr;
 
-//		m_ShaderMgr = ShaderManager::Factory();
+		//		m_ShaderMgr = ShaderManager::Factory();
 		m_ShaderMgr = TE_INSTANCE_SHADERMANAGER;
 
 		m_RendererCommand.CreateResource(&m_TextureDepthStencil);
@@ -46,7 +47,7 @@ namespace TruthEngine::Core
 
 		m_DepthStencilView = m_RendererCommand.CreateDepthStencilView(&m_TextureDepthStencil);
 
-		m_RendererCommand.Init(1, TE_INSTANCE_BUFFERMANAGER, m_ShaderMgr);
+		m_RendererCommand.Init(TE_IDX_RENDERPASS::FORWARDRENDERING, TE_IDX_SHADERCLASS::FORWARDRENDERING, 1, TE_INSTANCE_BUFFERMANAGER, m_ShaderMgr);
 
 		for (const auto& mat : materials)
 		{
@@ -54,7 +55,7 @@ namespace TruthEngine::Core
 
 			Shader* shader = nullptr;
 
-			m_ShaderMgr->AddShader(&shader, mat.GetRendererStates(), "Assets/Shaders/renderer3D.hlsl", "vs", "ps");
+			m_ShaderMgr->AddShader(&shader, TE_IDX_SHADERCLASS::FORWARDRENDERING, mat.GetRendererStates(), "Assets/Shaders/renderer3D.hlsl", "vs", "ps");
 
 			ShaderInputElement inputElement;
 			inputElement.AlignedByteOffset = 0;
@@ -95,25 +96,26 @@ namespace TruthEngine::Core
 	}
 
 
-	void Renderer3D::BeginScene()
+	void RenderPass_ForwardRendering::BeginScene()
 	{
 		m_RendererCommand.Begin();
 
-	}
-
-
-	void Renderer3D::EndScene()
-	{
-	}
-
-
-	void Renderer3D::Render(std::vector<const Model3D*> models)
-	{
 
 		m_RendererCommand.SetViewPort(&m_Viewport, &m_ViewREct);
 		m_RendererCommand.SetRenderTarget(TE_INSTANCE_SWAPCHAIN, m_RenderTartgetView);
 		m_RendererCommand.SetDepthStencil(m_DepthStencilView);
 		m_RendererCommand.ClearDepthStencil(m_DepthStencilView);
+	}
+
+
+	void RenderPass_ForwardRendering::EndScene()
+	{
+	}
+
+
+	void RenderPass_ForwardRendering::Render(std::vector<const Model3D*> models)
+	{
+
 
 		for (auto m : models)
 		{

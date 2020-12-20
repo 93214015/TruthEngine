@@ -1,4 +1,10 @@
 
+cbuffer per_frame : register(b0)
+{
+    matrix viewProj : packoffset(c0);
+    float4 color : packoffset(c4.x);
+}
+
 struct vertexInput
 {
     float3 position : POSITION;
@@ -13,5 +19,5 @@ float4 vs(vertexInput vin) : SV_POSITION
 
 float4 ps( float4 pos : SV_POSITION ) : SV_Target
 {
-    return float4(0.5, 0.8, 0.6, 1.0f);
+    return color;
 }

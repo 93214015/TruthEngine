@@ -1,23 +1,6 @@
 #pragma once
 
 
-enum TE_IDX
-{
-	TE_IDX_TEXTURE_SHADOWMAP,
-	TE_IDX_TEXTURE_BACKBUFFER,
-	TE_IDX_TEXTURE_GBUFFER_COLOR,
-	TE_IDX_TEXTURE_GBUFFER_NORMAL,
-	TE_IDX_TEXTURE_GBUFFER_SPECULAR,
-	TE_IDX_TEXTURE_DEPTHMAP_RENDER3D
-};
-
-#define TE_IDN_TEXTURE_SHADOWMAP "IDN_SHADOWMAP"
-#define TE_IDN_TEXTURE_BACKBUFFER "IDN_BACKBUFFER"
-#define TE_IDN_TEXTURE_GBUFFER_COLOR "IDN_GBUFFER_COLOR"
-#define TE_IDN_TEXTURE_GBUFFER_NORMAL "IDN_GBUFFER_NORMAL"
-#define TE_IDN_TEXTURE_GBUFFER_SPECULAR "IDN_GBUFFER_SPECULAR"
-#define TE_IDN_TEXTURE_DEPTHMAP_RENDER3D "IDN_DEPTHMAP_RENDER3D"
-
 namespace TruthEngine::Core
 {
 
@@ -33,6 +16,9 @@ namespace TruthEngine::Core
 	class BufferUpload;
 	class IndexBuffer;
 	class SwapChain;
+
+	template<class T>
+	class ConstantBufferUpload;
 
 	struct RenderTargetView
 	{
@@ -79,23 +65,39 @@ namespace TruthEngine::Core
 		virtual TE_RESULT CreateResource(TextureDepthStencil* tDS) = 0;
 		virtual TE_RESULT CreateResource(BufferUpload* buffer) = 0;
 
+		template<class T>
+		ConstantBufferUpload<T>* CreateConstantBufferUpload(TE_IDX_CONSTANTBUFFER cbIDX)
+		{
+			auto cbItr = m_Map_ConstantBufferUpload.find(cbIDX);
+			if (cbItr != m_Map_ConstantBufferUpload.end())
+			{
+				return static_cast<ConstantBufferUpload<T>*>(cbItr->second.get());
+			}
+
+			auto cb = std::make_shared<ConstantBufferUpload<T>>("");
+
+			m_Map_ConstantBufferUpload[cbIDX] = cb;
+
+			CreateResource(cb.get());
+
+			return cb.get();
+		}
+
+		virtual ConstantBufferUploadBase* GetConstantBufferUpload(TE_IDX_CONSTANTBUFFER cbIDX) = 0;
+
 		virtual RenderTargetView CreateRenderTargetView(TextureRenderTarget* RT) = 0;
 		virtual RenderTargetView CreateRenderTargetView(SwapChain* swapChain) = 0;
 		virtual DepthStencilView CreateDepthStencilView(TextureDepthStencil* DS) = 0;
 		virtual ShaderResourceView CreateShaderResourceView(Texture* textures[], uint32_t textureNum) = 0;
 		virtual ShaderResourceView CreateShaderResourceView(Texture* texture) = 0;
-		virtual ConstantBufferView CreateConstantBufferView(Buffer* CB) = 0;
+		//virtual ConstantBufferView CreateConstantBufferView(Buffer* CB) = 0;
+		virtual ConstantBufferView CreateConstantBufferView(const TE_IDX_CONSTANTBUFFER constantBufferIDX) = 0;
 
 		virtual TE_RESULT CreateVertexBuffer(VertexBufferBase* vb) = 0;
 		virtual TE_RESULT CreateIndexBuffer(IndexBuffer* ib) = 0;
 
 		virtual uint64_t GetRequiredSize(const GraphicResource* graphicResource) const = 0;
 
-		//virtual TE_RESULT CreateConstantBuffer(ConstantBufferBase* cb) = 0;
-
-		/*virtual void BindRenderTarget(CommandList* cmdList) = 0;
-		virtual void BindDepthStencil(CommandList* cmdList) = 0;
-		virtual void BindShaderResource(CommandList* cmdList) = 0;*/
 
 	protected:
 		virtual TE_RESULT CreateResource(VertexBufferStreamBase* vb) = 0;
@@ -106,6 +108,8 @@ namespace TruthEngine::Core
 	protected:
 		uint32_t m_LastVertexBufferID;
 		uint32_t m_LastIndexBufferID;
+
+		std::unordered_map<TE_IDX_CONSTANTBUFFER, std::shared_ptr<ConstantBufferUploadBase>> m_Map_ConstantBufferUpload;
 
 		static std::shared_ptr<BufferManager> Factory();
 	};
