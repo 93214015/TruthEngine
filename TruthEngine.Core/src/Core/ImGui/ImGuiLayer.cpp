@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "ImGuiLayer.h"
 
-#include "API/DX12/DX12ImGuiLayer.h"
+#include "API/DX12/DirectX12ImGuiLayer.h"
 
 namespace TruthEngine::Core
 {
@@ -13,7 +13,7 @@ namespace TruthEngine::Core
 		switch (Settings::RendererAPI)
 		{
 		case TE_RENDERER_API::DirectX12:
-			return std::make_shared<API::DirectX12::DX12ImGuiLayer>();
+			return std::make_shared<API::DirectX12::DirectX12ImGuiLayer>();
 		default:
 			return nullptr;
 		}

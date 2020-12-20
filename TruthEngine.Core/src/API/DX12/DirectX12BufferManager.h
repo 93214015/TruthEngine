@@ -1,7 +1,7 @@
 #pragma once
 #include "Core/Renderer/BufferManager.h"
 
-#include "DescriptorHeap.h"
+#include "DirectX12DescriptorHeap.h"
 
 
 //namespace TruthEngine::Core
@@ -17,14 +17,14 @@
 namespace TruthEngine::API::DirectX12 {
 	
 
-	class DX12BufferManager : public Core::BufferManager
+	class DirectX12BufferManager : public Core::BufferManager
 	{
 
 	public:
 
-		static std::shared_ptr<DX12BufferManager> GetInstance()
+		static std::shared_ptr<DirectX12BufferManager> GetInstance()
 		{
-			static std::shared_ptr<DX12BufferManager> s_Instance = std::make_shared<DX12BufferManager>();
+			static std::shared_ptr<DirectX12BufferManager> s_Instance = std::make_shared<DirectX12BufferManager>();
 			return s_Instance;
 		}
 
@@ -34,6 +34,8 @@ namespace TruthEngine::API::DirectX12 {
 		TE_RESULT CreateResource(Core::TextureRenderTarget* tRT) override;
 		TE_RESULT CreateResource(Core::TextureDepthStencil* tDS) override;
 		TE_RESULT CreateResource(Core::BufferUpload* buffer) override;
+
+		Core::ConstantBufferUploadBase* GetConstantBufferUpload(TE_IDX_CONSTANTBUFFER cbIDX) override;
 
 		TE_RESULT CreateVertexBuffer(Core::VertexBufferBase* vb) override;
 		TE_RESULT CreateIndexBuffer(Core::IndexBuffer* ib) override;
@@ -50,11 +52,10 @@ namespace TruthEngine::API::DirectX12 {
 		Core::ShaderResourceView CreateShaderResourceView(Core::Texture* texture) override;
 
 
-		Core::ConstantBufferView CreateConstantBufferView(Core::Buffer* CB) override;
+		Core::ConstantBufferView CreateConstantBufferView(const TE_IDX_CONSTANTBUFFER constantBufferIDX) override;
 
 		uint64_t GetRequiredSize(const Core::GraphicResource* graphicResource) const override;
 
-		size_t GetAllocatedSizeOnGPU(Core::GraphicResource* graphicResource);
 
 	private:
 		TE_RESULT CreateResource(Core::VertexBufferStreamBase* vb) override;
@@ -77,8 +78,11 @@ namespace TruthEngine::API::DirectX12 {
 		std::vector<D3D12_INDEX_BUFFER_VIEW> m_IndexBufferViews;
 
 
-
-		friend class DX12CommandList;
+		//
+		// Friend Classes
+		//
+		friend class DirectX12CommandList;
+		friend class DirectX12Manager;
 	};
 
 }

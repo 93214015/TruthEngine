@@ -1,5 +1,7 @@
 #pragma once
 
+#include "ConstantBufferStructs.h"
+
 #include "Buffer.h"
 
 namespace TruthEngine
@@ -8,7 +10,7 @@ namespace TruthEngine
 	{
 		namespace DirectX12 
 		{
-			class DX12BufferManager;
+			class DirectX12BufferManager;
 		}
 	}
 }
@@ -33,7 +35,7 @@ namespace TruthEngine::Core
 
 		virtual void UploadData() const = 0;
 
-		virtual void* GetDataPointer() const noexcept = 0;
+		virtual const void* GetDataPointer() const noexcept = 0;
 
 	protected:
 	};
@@ -49,23 +51,24 @@ namespace TruthEngine::Core
 		
 		virtual ~ConstantBufferUpload() = default;
 
-		T& GetData() noexcept
+		T* GetData() noexcept
 		{
-			return m_DataStructure;
+			return reinterpret_cast<T*>(m_MappedData);
 		}
 
 		inline void UploadData() const override
 		{
-			memcpy(m_MappedData, &m_DataStructure, sizeof(T));
+			//memcpy(m_MappedData, &m_DataStructure, sizeof(T));
 		}
 
-		inline void* GetDataPointer() const noexcept override
+		inline const void* GetDataPointer() const noexcept override
 		{
-			return &m_DataStructure;
+			return static_cast<void*>(m_MappedData);
 		}
 
 	private:
-		T m_DataStructure;
+		uint32_t m_ID;
+		//T m_DataStructure;
 
 
 
@@ -73,7 +76,9 @@ namespace TruthEngine::Core
 		//friend classes
 		//
 		friend class BufferManager;
-		friend class TruthEngine::API::DirectX12::DX12BufferManager;
+		friend class TruthEngine::API::DirectX12::DirectX12BufferManager;
 	};
+
+	
 
 }

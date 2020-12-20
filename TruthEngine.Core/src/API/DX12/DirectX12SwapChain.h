@@ -1,18 +1,18 @@
 #pragma once
-#include "API/DX12/DX12GraphicDevice.h"
-#include "API/DX12/DX12CommandList.h"
-#include "API/DX12/DescriptorHeap.h"
+#include "API/DX12/DirectX12GraphicDevice.h"
+#include "API/DX12/DirectX12CommandList.h"
+#include "API/DX12/DirectX12DescriptorHeap.h"
 #include "Core/Renderer/SwapChain.h"
 
 
 
 namespace TruthEngine::API::DirectX12 {
 
-	class DX12SwapChain : public TruthEngine::Core::SwapChain
+	class DirectX12SwapChain : public TruthEngine::Core::SwapChain
 	{
 
 	public:
-		static inline DX12SwapChain& GetInstance() { return s_SwapChain; }
+		static inline DirectX12SwapChain& GetInstance() { return s_SwapChain; }
 
 		TE_RESULT Init(UINT clientWidth, UINT clientHeight, HWND outputHWND, UINT backBufferNum = 2);
 
@@ -36,7 +36,7 @@ namespace TruthEngine::API::DirectX12 {
 
 
 	protected:
-		DX12SwapChain();
+		DirectX12SwapChain();
 
 		void CreateSwapChain(HWND outputHWND);
 
@@ -58,10 +58,10 @@ namespace TruthEngine::API::DirectX12 {
 
 		std::vector<D3D12_RESOURCE_STATES> m_CurrentBackBufferResourceState;
 
-		static DX12SwapChain s_SwapChain;
+		static DirectX12SwapChain s_SwapChain;
 
 	};
 
 }
 
-#define TE_INSTANCE_API_DX12_SWAPCHAIN TruthEngine::API::DirectX12::DX12SwapChain::GetInstance()
+#define TE_INSTANCE_API_DX12_SWAPCHAIN TruthEngine::API::DirectX12::DirectX12SwapChain::GetInstance()

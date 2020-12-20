@@ -1,13 +1,13 @@
 #include "pch.h"
-#include "DX12ImGuiLayer.h"
+#include "DirectX12ImGuiLayer.h"
 
 #include "Core/Application.h"
 
 #include "Platform/Windows/WindowsWindow.h"
 
 #include "API/IDXGI.h"
-#include "API/DX12/DX12GraphicDevice.h"
-#include "API/DX12/DX12SwapChain.h"
+#include "API/DX12/DirectX12GraphicDevice.h"
+#include "API/DX12/DirectX12SwapChain.h"
 
 
 
@@ -22,11 +22,11 @@ namespace TruthEngine::API::DirectX12 {
 
 
 
-	void DX12ImGuiLayer::OnAttach()
+	void DirectX12ImGuiLayer::OnAttach()
 	{
 		TE_TIMER_SCOPE_FUNC;
 
-		m_CommandList = std::make_shared<DX12CommandList>(&TE_INSTANCE_API_DX12_GRAPHICDEVICE, TE_RENDERER_COMMANDLIST_TYPE::DIRECT, nullptr, nullptr);
+		m_CommandList = std::make_shared<DirectX12CommandList>(&TE_INSTANCE_API_DX12_GRAPHICDEVICE, TE_RENDERER_COMMANDLIST_TYPE::DIRECT, nullptr, nullptr, TE_IDX_RENDERPASS::NONE, TE_IDX_SHADERCLASS::NONE);
 
 		m_DescHeapSRV.Init(TE_INSTANCE_API_DX12_GRAPHICDEVICE, TE_INSTANCE_APPLICATION->GetFramesInFlightNum());
 		m_DescHeapRTV.Init(TE_INSTANCE_API_DX12_GRAPHICDEVICE, TE_INSTANCE_APPLICATION->GetFramesInFlightNum());
@@ -63,7 +63,7 @@ namespace TruthEngine::API::DirectX12 {
 
 	}
 
-	void DX12ImGuiLayer::OnDetach()
+	void DirectX12ImGuiLayer::OnDetach()
 	{
 		TE_TIMER_SCOPE_FUNC;
 
@@ -76,9 +76,10 @@ namespace TruthEngine::API::DirectX12 {
 		m_CommandList->Release();
 	}
 
-	void DX12ImGuiLayer::Begin()
+	void DirectX12ImGuiLayer::Begin()
 	{
 		TE_TIMER_SCOPE_FUNC;
+
 
 		// Our state
 		bool show_demo_window = true;
@@ -129,7 +130,7 @@ namespace TruthEngine::API::DirectX12 {
 		}
 	}
 
-	void DX12ImGuiLayer::End()
+	void DirectX12ImGuiLayer::End()
 	{
 		TE_TIMER_SCOPE_FUNC;
 

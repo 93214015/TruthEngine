@@ -1,31 +1,33 @@
 #pragma once
 
-#include "RendererCommand.h"
-#include "TextureRenderTarget.h"
-#include "TextureDepthStencil.h"
-#include "BufferManager.h"
-#include "ShaderManager.h"
-#include "Viewport.h"
+#include "Core/Renderer/RenderPass.h"
+#include "Core/Renderer/RendererCommand.h"
+#include "Core/Renderer/TextureRenderTarget.h"
+#include "Core/Renderer/TextureDepthStencil.h"
+#include "Core/Renderer/BufferManager.h"
+#include "Core/Renderer/ShaderManager.h"
+#include "Core/Renderer/Viewport.h"
 
 namespace TruthEngine
 {
 	namespace Core
 	{
-
 		class Model3D;
 		class ICamera;
 		class Material;
 
-		class Renderer3D
+
+
+		class RenderPass_ForwardRendering : public RenderPass
 		{
 
 		public:
 
-			Renderer3D();
-			~Renderer3D();
+			RenderPass_ForwardRendering();
+			~RenderPass_ForwardRendering();
 
-			Renderer3D(const Renderer3D& renderer3D);
-			Renderer3D& operator=(const Renderer3D& renderer3D);
+			RenderPass_ForwardRendering(const RenderPass_ForwardRendering& renderer3D);
+			RenderPass_ForwardRendering& operator=(const RenderPass_ForwardRendering& renderer3D);
 
 
 			void Init(BufferManager* bufferMgr, const std::vector<Material>& materials);

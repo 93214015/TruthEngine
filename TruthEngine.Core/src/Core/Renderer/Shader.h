@@ -5,38 +5,24 @@ namespace TruthEngine
 {
 	namespace API
 	{
-		namespace DirectX12 
+		namespace DirectX12
 		{
-			class DX12ShaderManager;
+			class DirectX12ShaderManager;
 		}
 	}
 
 	namespace Core
 	{
-		
-		struct ShaderSignatureSR
-		{
-			uint32_t BaseRegisterSlot = 0;
-			uint32_t RegisterSpace = 0;
-			uint32_t InputNum = 0;
-		};
-
-		struct ShaderSignatureCB
-		{
-			uint32_t BaseRegisterSlot = 0;
-			uint32_t RegisterSpace = 0;
-			uint32_t InputNum = 0;
-		};
 
 		class Shader
 		{
 		public:
-			Shader(std::string_view name, std::string_view filePath);
+			Shader(TE_IDX_SHADERCLASS shaderClassIDX, std::string_view name, std::string_view filePath);
 			virtual ~Shader() = default;
-			
+
 			Shader(Shader&& shader) noexcept = default;
 			Shader& operator=(Shader&& shader) = default;
-			
+
 			struct ShaderCode
 			{
 				ShaderCode() = default;
@@ -69,39 +55,17 @@ namespace TruthEngine
 				return m_RenderTargetNum;
 			}
 
-			inline ShaderSignatureSR GetShaderSignatureSR()
+
+			inline TE_IDX_SHADERCLASS GetShaderClassIDX()const noexcept
 			{
-				return m_SignatureSR;
+				return m_ShaderClassIDX;
 			}
 
-			inline ShaderSignatureCB GetShaderSignatureCB()
-			{
-				return m_SignatureCB;
-			}
 
-			
-			
 		protected:
 
-			class ShaderConstantBufferSlot
-			{
-				std::string m_Name;
-				uint8_t m_Register;
-			};
-
-			class ShaderTextureSlot
-			{
-				std::string m_Name;
-				uint8_t m_Register;
-			};
-
-			class ShaderSamplerSlot
-			{
-				std::string m_Name;
-				uint8_t m_Register;
-			};
-
 			uint32_t m_ID = 0;
+			TE_IDX_SHADERCLASS m_ShaderClassIDX = TE_IDX_SHADERCLASS::NONE;
 			uint32_t m_RenderTargetNum = 1;
 
 			std::vector<ShaderInputElement> m_InputElements;
@@ -116,16 +80,10 @@ namespace TruthEngine
 			ShaderCode m_PS;
 			ShaderCode m_CS;
 
-			std::vector<ShaderConstantBufferSlot> m_ConstantBufferSlots;
-			std::vector<ShaderTextureSlot> m_TextureSlots;
-			std::vector<ShaderSamplerSlot> m_SamplerSlots;
-
-			ShaderSignatureSR m_SignatureSR;
-			ShaderSignatureCB m_SignatureCB;
 
 			friend class ShaderManager;
-			friend class API::DirectX12 ::DX12ShaderManager;
-			
+			friend class API::DirectX12::DirectX12ShaderManager;
+
 		};
 
 	}

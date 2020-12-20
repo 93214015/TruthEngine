@@ -6,7 +6,7 @@ namespace TruthEngine
 
 	namespace API::DirectX12
 	{
-		class DX12CommandList;
+		class DirectX12CommandList;
 	}
 
 	namespace Core
@@ -25,7 +25,7 @@ namespace TruthEngine
 		public:
 			RendererCommand();
 
-			void Init(uint32_t ParallelCommandsNum = 1, std::shared_ptr<BufferManager> bufferManager = nullptr, std::shared_ptr<ShaderManager> shaderManager = nullptr);
+			void Init(TE_IDX_RENDERPASS renderPassIDX, TE_IDX_SHADERCLASS shaderClassIDX, uint32_t ParallelCommandsNum = 1, std::shared_ptr<BufferManager> bufferManager = nullptr, std::shared_ptr<ShaderManager> shaderManager = nullptr);
 
 
 			TE_RESULT CreateResource(TextureRenderTarget* tRT);
@@ -37,7 +37,7 @@ namespace TruthEngine
 			DepthStencilView CreateDepthStencilView(TextureDepthStencil* DS);
 			ShaderResourceView CreateShaderResourceView(Texture* textures[], uint32_t textureNum);
 			ShaderResourceView CreateShaderResourceView(Texture* texture);
-			ConstantBufferView CreateConstantBufferView(Buffer* CB);
+			ConstantBufferView CreateConstantBufferView(TE_IDX_CONSTANTBUFFER idx);
 
 			TE_RESULT CreateVertexBuffer(VertexBufferBase* vb);
 			TE_RESULT CreateIndexBuffer(IndexBuffer* ib);

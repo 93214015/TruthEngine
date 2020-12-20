@@ -1,6 +1,6 @@
 #pragma once
 
-#define TE_INSTANCE_API_DX12_PIPELINEMANAGER DX12PiplineManager::Get()
+#define TE_INSTANCE_API_DX12_PIPELINEMANAGER DirectX12PiplineManager::GetInstance()
 
 namespace TruthEngine
 {
@@ -15,15 +15,15 @@ namespace TruthEngine
 	namespace API::DirectX12 
 	{
 
-		class DX12PiplineManager
+		class DirectX12PiplineManager
 		{
 		public:
-			DX12PiplineManager();
+			DirectX12PiplineManager();
 
 
-			inline static std::shared_ptr<DX12PiplineManager> Get()
+			inline static std::shared_ptr<DirectX12PiplineManager> GetInstance()
 			{
-				static std::shared_ptr<DX12PiplineManager> s_DX12PipelineManager = std::make_shared<DX12PiplineManager>();
+				static std::shared_ptr<DirectX12PiplineManager> s_DX12PipelineManager = std::make_shared<DirectX12PiplineManager>();
 				return s_DX12PipelineManager;
 			}
 

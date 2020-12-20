@@ -1,28 +1,28 @@
 #include "pch.h"
-#include "Fence.h"
-#include "DX12GraphicDevice.h"
+#include "DirectX12Fence.h"
+#include "DirectX12GraphicDevice.h"
 
 namespace TruthEngine::API::DirectX12 {
 
 
 
-	Fence::Fence()
+	DirectX12Fence::DirectX12Fence()
 	{
 	}
 
-	void Fence::Initialize(const DX12GraphicDevice& device, D3D12_FENCE_FLAGS flags /*= D3D12_FENCE_FLAG_NONE*/)
+	void DirectX12Fence::Initialize(const DirectX12GraphicDevice& device, D3D12_FENCE_FLAGS flags /*= D3D12_FENCE_FLAG_NONE*/)
 	{
 		device.GetDevice()->CreateFence(0, flags, IID_PPV_ARGS(m_Fence.ReleaseAndGetAddressOf()));
 	}
 
-	uint64_t Fence::SetFence(ID3D12CommandQueue* cmdQueue)
+	uint64_t DirectX12Fence::SetFence(ID3D12CommandQueue* cmdQueue)
 	{
 		cmdQueue->Signal(m_Fence.Get(), m_Value);
 		return m_Value++;
 	}
 
 
-	HANDLE Fence::SetFenceAndEvent(ID3D12CommandQueue* cmdQueue, LPCWSTR eventName)
+	HANDLE DirectX12Fence::SetFenceAndEvent(ID3D12CommandQueue* cmdQueue, LPCWSTR eventName)
 	{
 		cmdQueue->Signal(m_Fence.Get(), m_Value);
 		auto value = m_Value;
@@ -40,7 +40,7 @@ namespace TruthEngine::API::DirectX12 {
 	}
 
 
-	HANDLE Fence::SetEvent(uint64_t value, LPCWSTR eventName)
+	HANDLE DirectX12Fence::SetEvent(uint64_t value, LPCWSTR eventName)
 	{
 		if (m_Fence->GetCompletedValue() < value)
 		{
@@ -53,7 +53,7 @@ namespace TruthEngine::API::DirectX12 {
 		}
 	}
 
-	int Fence::SetEvent(uint64_t value, HANDLE eventHandle)
+	int DirectX12Fence::SetEvent(uint64_t value, HANDLE eventHandle)
 	{
 		if (m_Fence->GetCompletedValue() < value)
 		{
@@ -65,7 +65,7 @@ namespace TruthEngine::API::DirectX12 {
 		}
 	}
 
-	bool Fence::Completed(uint64_t value)
+	bool DirectX12Fence::Completed(uint64_t value)
 	{
 		if (m_Fence->GetCompletedValue() < value)
 		{

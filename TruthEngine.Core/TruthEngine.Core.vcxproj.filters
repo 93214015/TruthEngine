@@ -31,6 +31,9 @@
     <Filter Include="Core\Renderer">
       <UniqueIdentifier>{948B5FDE-004C-DB14-C986-2492350620F1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Core\Renderer\RenderPass">
+      <UniqueIdentifier>{3AAFC37B-26D4-12FC-4F1F-F88B3BA3111A}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Platform">
       <UniqueIdentifier>{2AC788B4-1694-E3BF-3FAD-D1672BD9184E}</UniqueIdentifier>
     </Filter>
@@ -39,37 +42,40 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\API\DX12\CommandQueue.h">
+    <ClInclude Include="src\API\DX12\DirectX12BufferManager.h">
       <Filter>API\DX12</Filter>
     </ClInclude>
-    <ClInclude Include="src\API\DX12\DX12BufferManager.h">
+    <ClInclude Include="src\API\DX12\DirectX12CommandAllocator.h">
       <Filter>API\DX12</Filter>
     </ClInclude>
-    <ClInclude Include="src\API\DX12\DX12CommandAllocator.h">
+    <ClInclude Include="src\API\DX12\DirectX12CommandList.h">
       <Filter>API\DX12</Filter>
     </ClInclude>
-    <ClInclude Include="src\API\DX12\DX12CommandList.h">
+    <ClInclude Include="src\API\DX12\DirectX12CommandQueue.h">
       <Filter>API\DX12</Filter>
     </ClInclude>
-    <ClInclude Include="src\API\DX12\DX12GraphicDevice.h">
+    <ClInclude Include="src\API\DX12\DirectX12DescriptorHeap.h">
       <Filter>API\DX12</Filter>
     </ClInclude>
-    <ClInclude Include="src\API\DX12\DX12ImGuiLayer.h">
+    <ClInclude Include="src\API\DX12\DirectX12Fence.h">
       <Filter>API\DX12</Filter>
     </ClInclude>
-    <ClInclude Include="src\API\DX12\DX12PipelineManager.h">
+    <ClInclude Include="src\API\DX12\DirectX12GraphicDevice.h">
       <Filter>API\DX12</Filter>
     </ClInclude>
-    <ClInclude Include="src\API\DX12\DX12ShaderManager.h">
+    <ClInclude Include="src\API\DX12\DirectX12ImGuiLayer.h">
       <Filter>API\DX12</Filter>
     </ClInclude>
-    <ClInclude Include="src\API\DX12\DX12SwapChain.h">
+    <ClInclude Include="src\API\DX12\DirectX12Manager.h">
       <Filter>API\DX12</Filter>
     </ClInclude>
-    <ClInclude Include="src\API\DX12\DescriptorHeap.h">
+    <ClInclude Include="src\API\DX12\DirectX12PipelineManager.h">
       <Filter>API\DX12</Filter>
     </ClInclude>
-    <ClInclude Include="src\API\DX12\Fence.h">
+    <ClInclude Include="src\API\DX12\DirectX12ShaderManager.h">
+      <Filter>API\DX12</Filter>
+    </ClInclude>
+    <ClInclude Include="src\API\DX12\DirectX12SwapChain.h">
       <Filter>API\DX12</Filter>
     </ClInclude>
     <ClInclude Include="src\API\IDXGI.h">
@@ -156,6 +162,9 @@
     <ClInclude Include="src\Core\Renderer\ConstantBuffer.h">
       <Filter>Core\Renderer</Filter>
     </ClInclude>
+    <ClInclude Include="src\Core\Renderer\ConstantBufferStructs.h">
+      <Filter>Core\Renderer</Filter>
+    </ClInclude>
     <ClInclude Include="src\Core\Renderer\GraphicDevice.h">
       <Filter>Core\Renderer</Filter>
     </ClInclude>
@@ -180,10 +189,16 @@
     <ClInclude Include="src\Core\Renderer\PipelineState.h">
       <Filter>Core\Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="src\Core\Renderer\Renderer3D.h">
+    <ClInclude Include="src\Core\Renderer\RenderPass.h">
       <Filter>Core\Renderer</Filter>
     </ClInclude>
+    <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_ForwardRendering.h">
+      <Filter>Core\Renderer\RenderPass</Filter>
+    </ClInclude>
     <ClInclude Include="src\Core\Renderer\RendererCommand.h">
+      <Filter>Core\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Renderer\RendererIDX.h">
       <Filter>Core\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="src\Core\Renderer\RendererLayer.h">
@@ -254,37 +269,40 @@
     <ClInclude Include="src\pch.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\API\DX12\CommandQueue.cpp">
+    <ClCompile Include="src\API\DX12\DirectX12BufferManager.cpp">
       <Filter>API\DX12</Filter>
     </ClCompile>
-    <ClCompile Include="src\API\DX12\DX12BufferManager.cpp">
+    <ClCompile Include="src\API\DX12\DirectX12CommandAllocator.cpp">
       <Filter>API\DX12</Filter>
     </ClCompile>
-    <ClCompile Include="src\API\DX12\DX12CommandAllocator.cpp">
+    <ClCompile Include="src\API\DX12\DirectX12CommandList.cpp">
       <Filter>API\DX12</Filter>
     </ClCompile>
-    <ClCompile Include="src\API\DX12\DX12CommandList.cpp">
+    <ClCompile Include="src\API\DX12\DirectX12CommandQueue.cpp">
       <Filter>API\DX12</Filter>
     </ClCompile>
-    <ClCompile Include="src\API\DX12\DX12GraphicDevice.cpp">
+    <ClCompile Include="src\API\DX12\DirectX12DescriptorHeap.cpp">
       <Filter>API\DX12</Filter>
     </ClCompile>
-    <ClCompile Include="src\API\DX12\DX12ImGuiLayer.cpp">
+    <ClCompile Include="src\API\DX12\DirectX12Fence.cpp">
       <Filter>API\DX12</Filter>
     </ClCompile>
-    <ClCompile Include="src\API\DX12\DX12PipelineManager.cpp">
+    <ClCompile Include="src\API\DX12\DirectX12GraphicDevice.cpp">
       <Filter>API\DX12</Filter>
     </ClCompile>
-    <ClCompile Include="src\API\DX12\DX12ShaderManager.cpp">
+    <ClCompile Include="src\API\DX12\DirectX12ImGuiLayer.cpp">
       <Filter>API\DX12</Filter>
     </ClCompile>
-    <ClCompile Include="src\API\DX12\DX12SwapChain.cpp">
+    <ClCompile Include="src\API\DX12\DirectX12Manager.cpp">
       <Filter>API\DX12</Filter>
     </ClCompile>
-    <ClCompile Include="src\API\DX12\DescriptorHeap.cpp">
+    <ClCompile Include="src\API\DX12\DirectX12PipelineManager.cpp">
       <Filter>API\DX12</Filter>
     </ClCompile>
-    <ClCompile Include="src\API\DX12\Fence.cpp">
+    <ClCompile Include="src\API\DX12\DirectX12ShaderManager.cpp">
+      <Filter>API\DX12</Filter>
+    </ClCompile>
+    <ClCompile Include="src\API\DX12\DirectX12SwapChain.cpp">
       <Filter>API\DX12</Filter>
     </ClCompile>
     <ClCompile Include="src\API\IDXGI.cpp">
@@ -371,8 +389,11 @@
     <ClCompile Include="src\Core\Renderer\Pipeline.cpp">
       <Filter>Core\Renderer</Filter>
     </ClCompile>
-    <ClCompile Include="src\Core\Renderer\Renderer3D.cpp">
+    <ClCompile Include="src\Core\Renderer\RenderPass.cpp">
       <Filter>Core\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_ForwardRendering.cpp">
+      <Filter>Core\Renderer\RenderPass</Filter>
     </ClCompile>
     <ClCompile Include="src\Core\Renderer\RendererCommand.cpp">
       <Filter>Core\Renderer</Filter>

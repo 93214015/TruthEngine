@@ -2,7 +2,7 @@
 
 #include "Core/Renderer/CommandList.h"
 
-#include "DX12CommandAllocator.h"
+#include "DirectX12CommandAllocator.h"
 
 
 namespace TruthEngine
@@ -15,16 +15,16 @@ namespace TruthEngine
 	namespace API::DirectX12 
 	{
 
-		class DX12BufferManager;
-		class DX12ShaderManager;
-		class DX12PiplineManager;
+		class DirectX12BufferManager;
+		class DirectX12ShaderManager;
+		class DirectX12PiplineManager;
 
 
-		class DX12CommandList : public Core::CommandList
+		class DirectX12CommandList : public Core::CommandList
 		{
 
 		public:
-			DX12CommandList(Core::GraphicDevice* graphicDevice, TE_RENDERER_COMMANDLIST_TYPE type, Core::BufferManager* bufferManager, Core::ShaderManager* shaderManager);
+			DirectX12CommandList(Core::GraphicDevice* graphicDevice, TE_RENDERER_COMMANDLIST_TYPE type, Core::BufferManager* bufferManager, Core::ShaderManager* shaderManager, TE_IDX_RENDERPASS renderPassIDX, TE_IDX_SHADERCLASS shaderClassIDX);
 
 
 			void Release() override;
@@ -35,7 +35,8 @@ namespace TruthEngine
 				return m_D3D12CommandList.Get();
 			}
 
-			inline DX12CommandAllocator* GetCommandAllocator()
+
+			inline DirectX12CommandAllocator* GetCommandAllocator()
 			{
 				return &m_CommandAllocator;
 			}
@@ -81,22 +82,35 @@ namespace TruthEngine
 
 			void Draw(uint32_t vertexNum, uint32_t vertexOffset) override;
 
+
 			void ClearRenderTarget(const Core::RenderTargetView RTV);
 			void ClearRenderTarget(const Core::SwapChain* swapChain, const Core::RenderTargetView RTV);
 			void ClearDepthStencil(const Core::DepthStencilView DSV);
 
+
 			void SetViewport(Core::Viewport* viewport, Core::ViewRect* rect);
 
+
 			void Submit() override;
+
+
 			void Commit() override;
 
+
 			void Present() override;
+
 
 			bool IsRunning() override;
 
 		protected:
 
+
+			void _BindResource();
+
+
 			void _ChangeResourceState(Core::GraphicResource* resource, TE_RESOURCE_STATES newState);
+
+
 			inline void _QueueBarrier(ID3D12Resource* resource, D3D12_RESOURCE_STATES before, D3D12_RESOURCE_STATES after)
 			{
 				m_ResourceBarriers.emplace_back(
@@ -108,15 +122,19 @@ namespace TruthEngine
 				);
 			}
 
+
 			void _UploadDefaultBuffers();
 
+
 			void _ResetContainers();
+
 
 			void _SetDescriptorHeapSRV();
 
 
 		protected:
 
+			
 			struct ClearingRenderTarget
 			{
 				ClearingRenderTarget(D3D12_CPU_DESCRIPTOR_HANDLE rtv, Core::TextureRenderTarget::ClearValue clearValue) : RTV(rtv), ClearValue(clearValue)
@@ -125,6 +143,7 @@ namespace TruthEngine
 				D3D12_CPU_DESCRIPTOR_HANDLE RTV;
 				Core::TextureRenderTarget::ClearValue ClearValue;
 			};
+
 
 			struct ClearingDepthStencil
 			{
@@ -136,6 +155,7 @@ namespace TruthEngine
 				Core::TextureDepthStencil::ClearValue ClearValue;
 			};
 
+
 			struct CopyPending_DefaultResource {
 
 				CopyPending_DefaultResource(ID3D12Resource* resource, const void* data, size_t size)
@@ -146,29 +166,36 @@ namespace TruthEngine
 				const void* Data;
 				size_t Size;
 			};
-			
-			
+
+
 			COMPTR<ID3D12GraphicsCommandList> m_D3D12CommandList;
 			
+			DirectX12CommandAllocator m_CommandAllocator;
 			
-			DX12CommandAllocator m_CommandAllocator;
-			
-			
-			DX12BufferManager* m_BufferManager;
-			DX12ShaderManager* m_ShaderManager;
-			
+			DirectX12BufferManager* m_BufferManager;
+
+			DirectX12ShaderManager* m_ShaderManager;
 			
 			std::vector<D3D12_RESOURCE_BARRIER> m_ResourceBarriers;
+
 			std::map<uint32_t, D3D12_GPU_DESCRIPTOR_HANDLE> m_SRVHandles_CB;
+
 			std::map<uint32_t, D3D12_GPU_DESCRIPTOR_HANDLE> m_SRVHandles_Texture;
+
 			std::vector<ClearingRenderTarget> m_QueueClearRT;
+
 			std::vector<ClearingDepthStencil> m_QueueClearDS;
+
 			std::vector<CopyPending_DefaultResource> m_QueueCopyDefaultResource;
 
 			D3D12_CPU_DESCRIPTOR_HANDLE m_DSVHandle;
+
 			D3D12_CPU_DESCRIPTOR_HANDLE m_RTVHandles[8] = { D3D12_CPU_DESCRIPTOR_HANDLE(), D3D12_CPU_DESCRIPTOR_HANDLE() , D3D12_CPU_DESCRIPTOR_HANDLE() , D3D12_CPU_DESCRIPTOR_HANDLE(), D3D12_CPU_DESCRIPTOR_HANDLE(), D3D12_CPU_DESCRIPTOR_HANDLE(), D3D12_CPU_DESCRIPTOR_HANDLE() , D3D12_CPU_DESCRIPTOR_HANDLE() };
+
 			uint32_t m_RTVHandleNum = 0;
+
 			uint32_t m_DSVHandleNum = 0;
+
 			size_t m_CopyQueueRequiredSize = 0;
 
 			COMPTR<ID3D12Resource> m_IntermediateResource;
@@ -177,11 +204,12 @@ namespace TruthEngine
 			//
 			// friend class
 			//
-			friend class CommandQueue;
-			friend class CommandQueue_Direct;
-			friend class CommandQueue_Copy;
+			friend class DirectX12CommandQueue;
+			friend class DirectX12CommandQueue_Direct;
+			friend class DirectX12CommandQueue_Copy;
 
 		};
+
 
 	}
 }

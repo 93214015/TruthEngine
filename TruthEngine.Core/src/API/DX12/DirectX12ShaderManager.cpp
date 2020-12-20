@@ -1,6 +1,6 @@
 #include "pch.h"
-#include "DX12ShaderManager.h"
-#include "DX12GraphicDevice.h"
+#include "DirectX12ShaderManager.h"
+#include "DirectX12GraphicDevice.h"
 
 
 
@@ -15,19 +15,18 @@ namespace TruthEngine
 		namespace DirectX12
 		{
 
-			struct DX12ShaderManager::pImpl
+			struct DirectX12ShaderManager::pImpl
 			{
 				std::vector<COMPTR<IDxcBlob>> m_ShaderBlobs;
 			};
 
 
-			DX12ShaderManager::DX12ShaderManager() : m_pImpl(std::make_shared<pImpl>())
+			DirectX12ShaderManager::DirectX12ShaderManager() : m_pImpl(std::make_shared<pImpl>())
 			{
-
 			}
 
 
-			TE_RESULT DX12ShaderManager::AddShader(Core::Shader** outShader, std::string_view name, std::string_view filePath, std::string_view vsEntry, std::string_view psEntry, std::string_view csEntry /*= ""*/, std::string_view dsEntry /*= ""*/, std::string_view hsEntry /*= ""*/, std::string_view gsEntry /*= ""*/)
+			TE_RESULT DirectX12ShaderManager::AddShader(Core::Shader** outShader, TE_IDX_SHADERCLASS shaderClassID, std::string_view name, std::string_view filePath, std::string_view vsEntry, std::string_view psEntry, std::string_view csEntry /*= ""*/, std::string_view dsEntry /*= ""*/, std::string_view hsEntry /*= ""*/, std::string_view gsEntry /*= ""*/)
 			{
 				auto item = m_ShadersNameMap.find(name);
 
@@ -37,7 +36,7 @@ namespace TruthEngine
 					return TE_RESULT_RENDERER_SHADER_HAS_EXIST;
 				}
 
-				auto shader = std::make_shared<Core::Shader>(name, filePath);
+				auto shader = std::make_shared<Core::Shader>(shaderClassID, name, filePath);
 				shader->m_ID = m_ShaderID++;
 
 				m_ShadersNameMap[name] = shader;
@@ -70,12 +69,11 @@ namespace TruthEngine
 				}
 
 
-
 				return AddRootSignature(shader.get());
 
 			}
 
-			TE_RESULT DX12ShaderManager::AddShader(Core::Shader** outShader, RendererStateSet states, std::string_view filePath, std::string_view vsEntry, std::string_view psEntry, std::string_view csEntry, std::string_view dsEntry, std::string_view hsEntry, std::string_view gsEntry)
+			TE_RESULT DirectX12ShaderManager::AddShader(Core::Shader** outShader, TE_IDX_SHADERCLASS shaderClassID, RendererStateSet states, std::string_view filePath, std::string_view vsEntry, std::string_view psEntry, std::string_view csEntry, std::string_view dsEntry, std::string_view hsEntry, std::string_view gsEntry)
 			{
 				states &= m_StateMask;
 
@@ -89,7 +87,7 @@ namespace TruthEngine
 
 				std::string name = "shader" + std::to_string(m_ShadersStateMap.size());
 
-				auto shader = std::make_shared<Core::Shader>(name, filePath);
+				auto shader = std::make_shared<Core::Shader>(shaderClassID, name, filePath);
 				shader->m_ID = m_ShaderID++;
 
 				m_ShadersStateMap[states] = shader;
@@ -125,25 +123,25 @@ namespace TruthEngine
 
 			}
 
-			TruthEngine::Core::Shader::ShaderCode DX12ShaderManager::CompileShader_OLD(std::string_view shaderName, uint32_t shaderID, std::string_view filePath, std::string_view entry, std::string_view shaderStage)
+			TruthEngine::Core::Shader::ShaderCode DirectX12ShaderManager::CompileShader_OLD(std::string_view shaderName, uint32_t shaderID, std::string_view filePath, std::string_view entry, std::string_view shaderStage)
 			{
 				std::string target = shaderStage.data() + std::string("_5_1");
-			
+
 				ID3DBlob* codeBlob;
 				COMPTR<ID3DBlob> errorBlob;
-			
+
 				auto hr = D3DCompileFromFile(to_wstring(filePath).c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, entry.data(), target.c_str(), D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION, 0, &codeBlob, errorBlob.GetAddressOf());
 				if (FAILED(hr))
 				{
 					TE_LOG_CORE_ERROR("The Shader Compilation was failed;\n file: {0}\n error: {1}", filePath.data(), static_cast<const char*>(errorBlob->GetBufferPointer()));
 					exit(-1);
 				}
-			
-			
+
+
 				return Core::Shader::ShaderCode(codeBlob->GetBufferSize(), codeBlob->GetBufferPointer());
 			}
 
-			Core::Shader::ShaderCode DX12ShaderManager::CompileShader(std::string_view shaderName, uint32_t shaderID, std::string_view filePath, std::string_view entry, std::string_view shaderStage)
+			Core::Shader::ShaderCode DirectX12ShaderManager::CompileShader(std::string_view shaderName, uint32_t shaderID, std::string_view filePath, std::string_view entry, std::string_view shaderStage)
 			{
 
 				// 
@@ -187,7 +185,7 @@ namespace TruthEngine
 				//
 				COMPTR<IDxcBlobEncoding> pSource;
 				auto hr = utils->LoadFile(filePathW.c_str(), nullptr, &pSource);
-				DxcBuffer source;
+				DxcBuffer source{};
 				source.Ptr = pSource->GetBufferPointer();
 				source.Size = pSource->GetBufferSize();
 				source.Encoding = DXC_CP_ACP;
@@ -291,13 +289,33 @@ namespace TruthEngine
 
 			}
 
-			TE_RESULT DX12ShaderManager::AddRootSignature(Core::Shader* shader)
+			TE_RESULT DirectX12ShaderManager::AddRootSignature(Core::Shader* shader)
+			{
+				auto rootSignaturItr = m_RootSignatures.find(shader->m_ShaderClassIDX);
+
+				if (rootSignaturItr != m_RootSignatures.end())
+				{
+					return TE_SUCCESSFUL;
+				}
+
+				switch (shader->m_ShaderClassIDX)
+				{
+				case TE_IDX_SHADERCLASS::NONE:
+					return TE_FAIL;
+				case TE_IDX_SHADERCLASS::FORWARDRENDERING:
+					AddRootSignature_ForwardRendering();
+					return TE_SUCCESSFUL;
+				default:
+					return TE_FAIL;
+				}
+			}
+
+			void DirectX12ShaderManager::AddRootSignature_ForwardRendering()
 			{
 				COMPTR<ID3DBlob> errorBlob;
 				COMPTR<ID3DBlob> signatureBlob;
 
-
-				std::vector<D3D12_DESCRIPTOR_RANGE> rangeCBV;
+				D3D12_DESCRIPTOR_RANGE rangeCBV[1];
 
 				/*range[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
 				range[0].RegisterSpace = shader->m_SignatureSR.RegisterSpace;
@@ -305,60 +323,43 @@ namespace TruthEngine
 				range[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 				range[0].NumDescriptors = shader->m_SignatureSR.InputNum;*/
 
-				if (shader->m_SignatureCB.InputNum > 0)
-				{
-					auto& range = rangeCBV.emplace_back();
-					range.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
-					range.RegisterSpace = shader->m_SignatureCB.RegisterSpace;
-					range.BaseShaderRegister = shader->m_SignatureCB.BaseRegisterSlot;
-					range.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-					range.NumDescriptors = shader->m_SignatureCB.InputNum;
-				}
+				rangeCBV[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
+				rangeCBV[0].RegisterSpace = 0;
+				rangeCBV[0].BaseShaderRegister = 0;
+				rangeCBV[0].OffsetInDescriptorsFromTableStart = 0 /*D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND*/;
+				rangeCBV[0].NumDescriptors = 1;
 
 
-				std::vector<D3D12_DESCRIPTOR_RANGE> rangeSRV;
+				D3D12_DESCRIPTOR_RANGE rangeSRV[1];
 
-				if (shader->m_SignatureSR.InputNum > 0)
-				{
-					auto& range = rangeSRV.emplace_back();
-					range.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
-					range.RegisterSpace = shader->m_SignatureSR.RegisterSpace;
-					range.BaseShaderRegister = shader->m_SignatureSR.BaseRegisterSlot;
-					range.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-					range.NumDescriptors = shader->m_SignatureSR.InputNum;
-				}
+				rangeSRV[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+				rangeSRV[0].RegisterSpace = 0;
+				rangeSRV[0].BaseShaderRegister = 0;
+				rangeSRV[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+				rangeSRV[0].NumDescriptors = 1;
 
-				std::vector<CD3DX12_ROOT_PARAMETER> params;
+				CD3DX12_ROOT_PARAMETER params[1];
 
-				if (!rangeSRV.empty())
-				{
-					params.emplace_back().InitAsDescriptorTable(static_cast<UINT>(rangeSRV.size()), rangeSRV.data(), D3D12_SHADER_VISIBILITY_ALL);
-				}
+				/*params.emplace_back().InitAsDescriptorTable(static_cast<UINT>(rangeSRV.size()), rangeSRV.data(), D3D12_SHADER_VISIBILITY_ALL);*/
+				params[0].InitAsDescriptorTable(_countof(rangeCBV), rangeCBV, D3D12_SHADER_VISIBILITY_ALL);
 
-				if (!rangeCBV.empty())
-				{
-					params.emplace_back().InitAsDescriptorTable(static_cast<UINT>(rangeCBV.size()), rangeCBV.data(), D3D12_SHADER_VISIBILITY_ALL);
-				}
-
-				auto signatureDesc = CD3DX12_ROOT_SIGNATURE_DESC(params.size(), params.data(), 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT
+				auto signatureDesc = CD3DX12_ROOT_SIGNATURE_DESC(_countof(params), params, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT
 					| D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS
 					| D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS
 					| D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS
 					| D3D12_ROOT_SIGNATURE_FLAG_DENY_MESH_SHADER_ROOT_ACCESS);
 
-				if (FAILED(D3D12SerializeRootSignature(&signatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, signatureBlob.ReleaseAndGetAddressOf(), errorBlob.ReleaseAndGetAddressOf())))
+				if (FAILED(D3D12SerializeRootSignature(&signatureDesc, D3D_ROOT_SIGNATURE_VERSION_1_0, signatureBlob.ReleaseAndGetAddressOf(), errorBlob.ReleaseAndGetAddressOf())))
 				{
-					OutputDebugString(L"the serialization of signature is failed!");
+					OutputDebugString(L"TE_DX12: the serialization of rooy signature of Renderer3D is failed!");
 					exit(1);
 				}
 
-				if (FAILED(TE_INSTANCE_API_DX12_GRAPHICDEVICE->CreateRootSignature(0, signatureBlob->GetBufferPointer(), signatureBlob->GetBufferSize(), IID_PPV_ARGS(m_RootSignatures[shader->m_ID].GetAddressOf()))))
+				if (FAILED(TE_INSTANCE_API_DX12_GRAPHICDEVICE->CreateRootSignature(0, signatureBlob->GetBufferPointer(), signatureBlob->GetBufferSize(), IID_PPV_ARGS(m_RootSignatures[TE_IDX_SHADERCLASS::FORWARDRENDERING].GetAddressOf()))))
 				{
-					OutputDebugString(L"the Creation of signature is failed!");
+					OutputDebugString(L"the Creation of root signature of Renderer3D is failed!");
 					exit(1);
 				}
-
-				return TE_SUCCESSFUL;
 			}
 
 

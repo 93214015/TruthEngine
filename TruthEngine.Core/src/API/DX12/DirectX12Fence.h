@@ -2,13 +2,13 @@
 
 namespace TruthEngine::API::DirectX12 {
 
-	class DX12GraphicDevice;
+	class DirectX12GraphicDevice;
 
-	class Fence {
+	class DirectX12Fence {
 
 	public:
-		Fence();
-		void Initialize(const DX12GraphicDevice& device, D3D12_FENCE_FLAGS flags = D3D12_FENCE_FLAG_NONE);
+		DirectX12Fence();
+		void Initialize(const DirectX12GraphicDevice& device, D3D12_FENCE_FLAGS flags = D3D12_FENCE_FLAG_NONE);
 
 		uint64_t SetFence(ID3D12CommandQueue* cmdQueue);
 		HANDLE SetFenceAndEvent(ID3D12CommandQueue* cmdQueue, LPCWSTR eventName);

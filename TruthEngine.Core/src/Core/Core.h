@@ -27,6 +27,7 @@
 
 #define BIT(x) (1 << x)
 
+using IDX = uint32_t;
 
 enum TE_RESULT : int {
 	TE_FAIL = -1,
@@ -40,6 +41,7 @@ enum TE_RESULT : int {
 
 #include "Core/Renderer/GraphicResouceConstants.h"
 #include "Core/Renderer/PipelineState.h"
+#include "Core/Renderer/RendererIDX.h"
 #include "Core/TypeConversions.h"
 #include "Core/Settings.h"
 #include "Core/StaticInstances.h"

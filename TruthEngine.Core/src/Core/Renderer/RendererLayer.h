@@ -1,16 +1,19 @@
 #pragma once
 #include "Core/Layer.h"
 
-#include "Renderer3D.h"
 #include "BufferManager.h"
 #include "RendererCommand.h"
 
+#include "RenderPass/RenderPass_ForwardRendering.h"
 
 
 namespace TruthEngine::Core
 {
 	class ModelManager;
 	class ImGuiLayer;
+
+	template<class T> class ConstantBufferUpload;
+	class ConstantBuffer_Data_Per_Frame;
 
 	class RendererLayer : public Layer
 	{
@@ -46,7 +49,7 @@ namespace TruthEngine::Core
 
 		std::shared_ptr<ImGuiLayer> m_ImGuiLayer;
 
-		std::shared_ptr<Renderer3D> m_Renderer3D;
+		std::shared_ptr<RenderPass_ForwardRendering> m_Renderer3D;
 
 		std::shared_ptr<ModelManager> m_ModelManagers;
 
@@ -55,6 +58,8 @@ namespace TruthEngine::Core
 		std::vector<const Model3D*> m_Model3DQueue;
 
 		RenderTargetView m_RTVBackBuffer;
+
+		ConstantBufferUpload<ConstantBuffer_Data_Per_Frame>* m_CB_PerFrame;
 
 		bool m_EnabledImGuiLayer = true;
 

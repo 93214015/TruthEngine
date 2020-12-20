@@ -5,7 +5,7 @@ namespace TruthEngine
 {
 	namespace API::DirectX12 
 	{
-		class DX12BufferManager;
+		class DirectX12BufferManager;
 	}
 
 	namespace Core
@@ -46,14 +46,20 @@ namespace TruthEngine
 				return m_Indecies.data();
 			}
 
+			inline uint32_t GetViewIndex() const noexcept
+			{
+				return m_ViewIndex;
+			}
+
 		protected:
 			uint32_t m_ID;
+			uint32_t m_ViewIndex;
 			std::vector<uint32_t> m_Indecies;
 
 
 			//friend classes
 			friend class BufferManager;
-			friend class API::DirectX12 ::DX12BufferManager;
+			friend class API::DirectX12 ::DirectX12BufferManager;
 		};
 	}
 }

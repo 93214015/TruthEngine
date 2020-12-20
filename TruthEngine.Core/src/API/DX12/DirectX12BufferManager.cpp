@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "DX12BufferManager.h"
+#include "DirectX12BufferManager.h"
 
 #include "Core/Renderer/TextureRenderTarget.h"
 #include "Core/Renderer/TextureDepthStencil.h"
@@ -9,8 +9,8 @@
 #include "Core/Renderer/IndexBuffer.h"
 #include "Core/Renderer/Buffer.h"
 
-#include "DX12GraphicDevice.h"
-#include "DX12SwapChain.h"
+#include "DirectX12GraphicDevice.h"
+#include "DirectX12SwapChain.h"
 
 namespace TruthEngine::API::DirectX12
 {
@@ -124,9 +124,7 @@ namespace TruthEngine::API::DirectX12
 
 
 
-
-
-	TE_RESULT DX12BufferManager::CreateResource(Core::TextureRenderTarget* tRT)
+	TE_RESULT DirectX12BufferManager::CreateResource(Core::TextureRenderTarget* tRT)
 	{
 		ReleaseResource(tRT);
 
@@ -151,7 +149,7 @@ namespace TruthEngine::API::DirectX12
 		return SUCCEEDED(hr) ? TE_SUCCESSFUL : TE_RESULT::TE_FAIL;
 	}
 
-	TE_RESULT DX12BufferManager::CreateResource(Core::TextureDepthStencil* tDS)
+	TE_RESULT DirectX12BufferManager::CreateResource(Core::TextureDepthStencil* tDS)
 	{
 		ReleaseResource(tDS);
 
@@ -175,7 +173,7 @@ namespace TruthEngine::API::DirectX12
 		return SUCCEEDED(hr) ? TE_SUCCESSFUL : TE_RESULT::TE_FAIL;
 	}
 
-	TE_RESULT DX12BufferManager::CreateResource(Core::BufferUpload* buffer)
+	TE_RESULT DirectX12BufferManager::CreateResource(Core::BufferUpload* buffer)
 	{
 		ReleaseResource(buffer);
 
@@ -201,7 +199,7 @@ namespace TruthEngine::API::DirectX12
 
 	}
 
-	TE_RESULT DX12BufferManager::CreateResource(Core::VertexBufferStreamBase* vb)
+	TE_RESULT DirectX12BufferManager::CreateResource(Core::VertexBufferStreamBase* vb)
 	{
 		ReleaseResource(vb);
 
@@ -234,7 +232,7 @@ namespace TruthEngine::API::DirectX12
 		return SUCCEEDED(hr) ? TE_SUCCESSFUL : TE_RESULT::TE_FAIL;
 	}
 
-	TE_RESULT DX12BufferManager::CreateResource(Core::IndexBuffer* ib)
+	TE_RESULT DirectX12BufferManager::CreateResource(Core::IndexBuffer* ib)
 	{
 		ReleaseResource(ib);
 
@@ -254,40 +252,40 @@ namespace TruthEngine::API::DirectX12
 		return SUCCEEDED(hr) ? TE_SUCCESSFUL : TE_RESULT::TE_FAIL;
 	}
 
-	Core::RenderTargetView DX12BufferManager::CreateRenderTargetView(Core::TextureRenderTarget* RT)
+	Core::RenderTargetView DirectX12BufferManager::CreateRenderTargetView(Core::TextureRenderTarget* RT)
 	{
 		const auto rtv = Core::RenderTargetView{ m_DescHeapRTV.GetCurrentIndex(), RT->m_ResourceIndex, RT };
 
-		RT->m_ViewIndex = m_DescHeapRTV.AddDescriptor(m_Resources[RT->m_ResourceIndex].Get());
+		m_DescHeapRTV.AddDescriptor(m_Resources[RT->m_ResourceIndex].Get());
 
 		return rtv;
 	}
 
-	Core::RenderTargetView DX12BufferManager::CreateRenderTargetView(Core::SwapChain* swapChain)
+	Core::RenderTargetView DirectX12BufferManager::CreateRenderTargetView(Core::SwapChain* swapChain)
 	{
-		auto sc = static_cast<DX12SwapChain*>(swapChain);
+		auto sc = static_cast<DirectX12SwapChain*>(swapChain);
 
 		return Core::RenderTargetView{ sc->InitRTVs(&m_DescHeapRTV), 0, nullptr };
 	}
 
-	Core::DepthStencilView DX12BufferManager::CreateDepthStencilView(Core::TextureDepthStencil* DS)
+	Core::DepthStencilView DirectX12BufferManager::CreateDepthStencilView(Core::TextureDepthStencil* DS)
 	{
 
 		const auto dsv = Core::DepthStencilView{ m_DescHeapDSV.GetCurrentIndex(), DS->m_ResourceIndex, DS };
 
-		D3D12_DEPTH_STENCIL_VIEW_DESC desc;
+		D3D12_DEPTH_STENCIL_VIEW_DESC desc{};
 		desc.Format = GetDSVFormat(DS->m_Format);
 		desc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
 		desc.Flags = D3D12_DSV_FLAG_NONE;
 		desc.Texture2D.MipSlice = 0;
 
-		DS->m_ViewIndex = m_DescHeapDSV.AddDescriptor(m_Resources[DS->m_ResourceIndex].Get(), &desc);
+		m_DescHeapDSV.AddDescriptor(m_Resources[DS->m_ResourceIndex].Get(), &desc);
 
 		return dsv;
 
 	}
 
-	Core::ShaderResourceView DX12BufferManager::CreateShaderResourceView(Core::Texture* textures[], uint32_t textureNum)
+	Core::ShaderResourceView DirectX12BufferManager::CreateShaderResourceView(Core::Texture* textures[], uint32_t textureNum)
 	{
 
 		const auto srv = Core::ShaderResourceView{ m_DescHeapSRV.GetCurrentIndex() };
@@ -324,7 +322,7 @@ namespace TruthEngine::API::DirectX12
 
 	}
 
-	TruthEngine::Core::ShaderResourceView DX12BufferManager::CreateShaderResourceView(Core::Texture* texture)
+	TruthEngine::Core::ShaderResourceView DirectX12BufferManager::CreateShaderResourceView(Core::Texture* texture)
 	{
 		const auto srv = Core::ShaderResourceView{ m_DescHeapSRV.GetCurrentIndex(), texture->m_ResourceIndex, texture };
 
@@ -353,20 +351,20 @@ namespace TruthEngine::API::DirectX12
 		return srv;
 	}
 
-	Core::ConstantBufferView DX12BufferManager::CreateConstantBufferView(Core::Buffer* CB)
+	Core::ConstantBufferView DirectX12BufferManager::CreateConstantBufferView(const TE_IDX_CONSTANTBUFFER constantBufferIDX)
 	{
+		auto cb = m_Map_ConstantBufferUpload[constantBufferIDX].get();
 
-		const auto cbv = Core::ConstantBufferView{ m_DescHeapSRV.GetCurrentIndex(), CB->m_ResourceIndex, CB };
+		const auto cbv = Core::ConstantBufferView{ m_DescHeapSRV.GetCurrentIndex(), cb->m_ResourceIndex, cb };
 
-		D3D12_CONSTANT_BUFFER_VIEW_DESC desc{ m_Resources[CB->m_ResourceIndex]->GetGPUVirtualAddress(), static_cast<uint32_t>(CB->GetSizeInByte()) };
+		D3D12_CONSTANT_BUFFER_VIEW_DESC desc{ m_Resources[cb->m_ResourceIndex]->GetGPUVirtualAddress(), static_cast<uint32_t>(cb->GetRequiredSize()) };
 
-		CB->m_ViewIndex = m_DescHeapSRV.AddDescriptorCBV(&desc);
+		m_DescHeapSRV.AddDescriptorCBV(&desc);
 
 		return cbv;
-
 	}
 
-	uint64_t DX12BufferManager::GetRequiredSize(const Core::GraphicResource* graphicResource) const
+	uint64_t DirectX12BufferManager::GetRequiredSize(const Core::GraphicResource* graphicResource) const
 	{
 		auto resource = m_Resources[graphicResource->m_ResourceIndex].Get();
 
@@ -383,7 +381,7 @@ namespace TruthEngine::API::DirectX12
 		return requiredSize;
 	}
 
-	TE_RESULT DX12BufferManager::CreateVertexBuffer(Core::VertexBufferBase* vb)
+	TE_RESULT DirectX12BufferManager::CreateVertexBuffer(Core::VertexBufferBase* vb)
 	{
 		uint32_t vertexStreamsNum = vb->GetVertexStreamNum();
 		auto vertexStreams = vb->GetVertexBufferStreams();
@@ -410,7 +408,7 @@ namespace TruthEngine::API::DirectX12
 		return TE_SUCCESSFUL;
 	}
 
-	TE_RESULT DX12BufferManager::CreateIndexBuffer(Core::IndexBuffer* ib)
+	TE_RESULT DirectX12BufferManager::CreateIndexBuffer(Core::IndexBuffer* ib)
 	{
 		CreateResource(ib);
 
@@ -426,7 +424,7 @@ namespace TruthEngine::API::DirectX12
 		return TE_SUCCESSFUL;
 	}
 
-	void DX12BufferManager::Init(uint32_t resourceNum, uint32_t shaderResourceViewNum, uint32_t renderTargetViewNum, uint32_t depthBufferViewNum)
+	void DirectX12BufferManager::Init(uint32_t resourceNum, uint32_t shaderResourceViewNum, uint32_t renderTargetViewNum, uint32_t depthBufferViewNum)
 	{
 		m_DescHeapSRV.Init(TE_INSTANCE_API_DX12_GRAPHICDEVICE, shaderResourceViewNum);
 		m_DescHeapRTV.Init(TE_INSTANCE_API_DX12_GRAPHICDEVICE, renderTargetViewNum);
@@ -440,7 +438,7 @@ namespace TruthEngine::API::DirectX12
 		m_Rect_FullScreen.bottom = TE_INSTANCE_APPLICATION->GetClientHeight();
 	}
 
-	TE_RESULT DX12BufferManager::ReleaseResource(Core::GraphicResource* resource)
+	TE_RESULT DirectX12BufferManager::ReleaseResource(Core::GraphicResource* resource)
 	{
 		auto resourceIndex = resource->m_ResourceIndex;
 
@@ -453,19 +451,15 @@ namespace TruthEngine::API::DirectX12
 		resource->m_ResourceIndex = -1;
 	}
 
-	size_t DX12BufferManager::GetAllocatedSizeOnGPU(Core::GraphicResource* graphicResource)
+	TruthEngine::Core::ConstantBufferUploadBase* DirectX12BufferManager::GetConstantBufferUpload(TE_IDX_CONSTANTBUFFER cbIDX)
 	{
-		uint64_t size;
+		auto cbItr = m_Map_ConstantBufferUpload.find(cbIDX);
+		if (cbItr != m_Map_ConstantBufferUpload.end())
+		{
+			return cbItr->second.get();
+		}
 
-		auto resource = m_Resources[graphicResource->m_ResourceIndex].Get();
-		ID3D12Device* device;
-		resource->GetDevice(IID_PPV_ARGS(&device));
-
-		auto desc = resource->GetDesc();
-
-		device->GetCopyableFootprints(&desc, 0, 1, 0, nullptr, nullptr, nullptr, &size);
-
-		return size;
+		return nullptr;
 	}
 
 }

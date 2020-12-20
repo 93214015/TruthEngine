@@ -1,11 +1,11 @@
 #include "pch.h"
-#include "DX12PipelineManager.h"
+#include "DirectX12PipelineManager.h"
 
 #include "Core/Renderer/Pipeline.h"
 #include "Core/Renderer/Shader.h"
 
-#include "API/DX12/DX12GraphicDevice.h"
-#include "API/DX12/DX12ShaderManager.h"
+#include "API/DX12/DirectX12GraphicDevice.h"
+#include "API/DX12/DirectX12ShaderManager.h"
 
 namespace TruthEngine::API::DirectX12
 {
@@ -131,7 +131,7 @@ namespace TruthEngine::API::DirectX12
 
 
 
-	COMPTR<ID3D12PipelineState> DX12PiplineManager::GetPipeline(Core::Pipeline* pipeline)
+	COMPTR<ID3D12PipelineState> DirectX12PiplineManager::GetPipeline(Core::Pipeline* pipeline)
 	{
 		COMPTR<ID3D12PipelineState> PSO;
 
@@ -202,7 +202,7 @@ namespace TruthEngine::API::DirectX12
 		desc.SampleDesc.Count = 1;
 		desc.SampleDesc.Quality = 0;
 
-		desc.pRootSignature = static_cast<DX12ShaderManager*>(TE_INSTANCE_SHADERMANAGER.get())->GetRootSignature(shader);
+		desc.pRootSignature = static_cast<DirectX12ShaderManager*>(TE_INSTANCE_SHADERMANAGER.get())->GetRootSignature(shader->GetShaderClassIDX());
 
 		desc.NodeMask = 0;
 		desc.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
@@ -221,7 +221,7 @@ namespace TruthEngine::API::DirectX12
 	}
 
 	
-	TE_RESULT DX12PiplineManager::AddPipeline(Core::Pipeline* pipeline, COMPTR<ID3D12PipelineState>& PSO, D3D12_GRAPHICS_PIPELINE_STATE_DESC& desc)
+	TE_RESULT DirectX12PiplineManager::AddPipeline(Core::Pipeline* pipeline, COMPTR<ID3D12PipelineState>& PSO, D3D12_GRAPHICS_PIPELINE_STATE_DESC& desc)
 	{
 		auto hr = TE_INSTANCE_API_DX12_GRAPHICDEVICE->CreateGraphicsPipelineState(&desc, IID_PPV_ARGS(PSO.GetAddressOf()));
 		if (FAILED(hr))
@@ -236,7 +236,7 @@ namespace TruthEngine::API::DirectX12
 		return SUCCEEDED(hr) ? TE_SUCCESSFUL : TE_FAIL;
 	}
 
-	DX12PiplineManager::DX12PiplineManager()
+	DirectX12PiplineManager::DirectX12PiplineManager()
 	{
 		TE_INSTANCE_API_DX12_GRAPHICDEVICE->CreatePipelineLibrary(nullptr, 0, IID_PPV_ARGS(m_PiplineLibrary.ReleaseAndGetAddressOf()));
 	}
