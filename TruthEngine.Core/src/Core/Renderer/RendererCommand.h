@@ -78,7 +78,8 @@ namespace TruthEngine
 			void ClearRenderTarget(const SwapChain* swapChain, const RenderTargetView RTV, uint32_t cmdListIndex = 0);
 			void ClearDepthStencil(const DepthStencilView DSV, uint32_t cmdListIndex = 0);
 
-			void Resize(TextureRenderTarget* texture, uint32_t width, uint32_t height);
+			void Resize(TextureRenderTarget* texture, uint32_t width, uint32_t height, RenderTargetView* RTV, ShaderResourceView* SRV);
+			void Resize(TextureDepthStencil* texture, uint32_t width, uint32_t height, DepthStencilView* DSV, ShaderResourceView* SRV);
 
 			bool IsRunning(uint32_t cmdListIndex = 0);
 		private:

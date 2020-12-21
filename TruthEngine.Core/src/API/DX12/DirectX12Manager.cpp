@@ -28,13 +28,15 @@ namespace TruthEngine::API::DirectX12
 
 		auto& resourceTables = m_Map_RenderPassResourceTable[renderPassIDX];
 
+
 		for (uint32_t i = 0; i < bindedResource->ConstantBuffers.size(); ++i)
 		{
 			auto& v = bindedResource->ConstantBuffers[i];
 			if (v.size() > 0)
 			{
 				Core::ConstantBufferView cbv{};
-				bufferManager->CreateConstantBufferView(v[0], &cbv);
+				auto cb = bufferManager->GetConstantBufferUpload(v[0]);
+				bufferManager->CreateConstantBufferView(cb, &cbv);
 				auto gpuHandle = bufferManager->m_DescHeapSRV.GetGPUHandle(cbv.ViewIndex);
 
 				resourceTables.emplace_back(i, gpuHandle);
@@ -42,7 +44,8 @@ namespace TruthEngine::API::DirectX12
 				for (uint32_t j = 1; j < v.size(); ++j)
 				{
 					Core::ConstantBufferView dummycbv{};
-					bufferManager->CreateConstantBufferView(v[j], &dummycbv);
+					cb = bufferManager->GetConstantBufferUpload(v[j]);
+					bufferManager->CreateConstantBufferView(cb, &dummycbv);
 				}
 			}
 		}

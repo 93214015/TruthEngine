@@ -47,42 +47,42 @@ namespace TruthEngine::Core {
 	}
 
 
-	void BufferManager::CreateRenderTargetView(TE_IDX_RENDERTARGET idx, RenderTargetView* rtv)
-	{
-		auto rt = m_Map_RenderTargets.find(idx);
+	//void BufferManager::CreateRenderTargetView(TE_IDX_RENDERTARGET idx, RenderTargetView* rtv)
+	//{
+	//	auto rt = m_Map_RenderTargets.find(idx);
 
-		if (rt == m_Map_RenderTargets.end())
-		{
-			throw std::exception("CreateRenderTargetView: the renderTarget resource was not found!");
-		}
+	//	if (rt == m_Map_RenderTargets.end())
+	//	{
+	//		throw std::exception("CreateRenderTargetView: the renderTarget resource was not found!");
+	//	}
 
-		return CreateRenderTargetView(rt->second.get(), rtv);
-	}
+	//	return CreateRenderTargetView(rt->second.get(), rtv);
+	//}
 
 
-	void BufferManager::CreateDepthStencilView(TE_IDX_DEPTHSTENCIL idx, DepthStencilView* dsv)
-	{
-		auto ds = m_Map_DepthStencils.find(idx);
+	//void BufferManager::CreateDepthStencilView(TE_IDX_DEPTHSTENCIL idx, DepthStencilView* dsv)
+	//{
+	//	auto ds = m_Map_DepthStencils.find(idx);
 
-		if (ds == m_Map_DepthStencils.end())
-		{
-			throw std::exception("CreateDepthStencilView: the depthStencil resource was not found!");
-		}
+	//	if (ds == m_Map_DepthStencils.end())
+	//	{
+	//		throw std::exception("CreateDepthStencilView: the depthStencil resource was not found!");
+	//	}
 
-		return CreateDepthStencilView(ds->second.get(), dsv);
-	}
+	//	return CreateDepthStencilView(ds->second.get(), dsv);
+	//}
 
-	void BufferManager::CreateConstantBufferView(TE_IDX_CONSTANTBUFFER constantBufferIDX, ConstantBufferView* CBV)
-	{
-		auto cb = m_Map_ConstantBufferUpload.find(constantBufferIDX);
+	//void BufferManager::CreateConstantBufferView(TE_IDX_CONSTANTBUFFER constantBufferIDX, ConstantBufferView* CBV)
+	//{
+	//	auto cb = m_Map_ConstantBufferUpload.find(constantBufferIDX);
 
-		if (cb == m_Map_ConstantBufferUpload.end())
-		{
-			throw std::exception("CreateConstantBufferView: the ConstantBuffer resource was not found!");
-		}
+	//	if (cb == m_Map_ConstantBufferUpload.end())
+	//	{
+	//		throw std::exception("CreateConstantBufferView: the ConstantBuffer resource was not found!");
+	//	}
 
-		CreateConstantBufferView(cb->second.get(), CBV);
-	}
+	//	CreateConstantBufferView(cb->second.get(), CBV);
+	//}
 
 	TruthEngine::Core::TextureRenderTarget* BufferManager::GetRenderTarget(TE_IDX_RENDERTARGET idx)
 	{

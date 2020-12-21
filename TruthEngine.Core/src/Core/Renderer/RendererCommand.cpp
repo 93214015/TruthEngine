@@ -126,11 +126,37 @@ namespace TruthEngine::Core
 		m_CommandLists[cmdListIndex]->ClearDepthStencil(DSV);
 	}
 
-	void RendererCommand::Resize(TextureRenderTarget* texture, uint32_t width, uint32_t height)
+	void RendererCommand::Resize(TextureRenderTarget* texture, uint32_t width, uint32_t height, RenderTargetView* RTV, ShaderResourceView* SRV)
 	{
 		texture->Resize(width, height);
 		m_BufferManager->CreateResource(texture);
+
+		if (RTV != nullptr)
+		{
+			m_BufferManager->CreateRenderTargetView(texture, RTV);
+		}
+		if (SRV != nullptr)
+		{
+			m_BufferManager->CreateShaderResourceView(texture, SRV);
+		}
+
 	}
+
+	void RendererCommand::Resize(TextureDepthStencil* texture, uint32_t width, uint32_t height, DepthStencilView* DSV, ShaderResourceView* SRV)
+	{
+		texture->Resize(width, height);
+		m_BufferManager->CreateResource(texture);
+
+		if (DSV != nullptr)
+		{
+			m_BufferManager->CreateDepthStencilView(texture, DSV);
+		}
+		if (SRV != nullptr)
+		{
+			m_BufferManager->CreateShaderResourceView(texture, SRV);
+		}
+	}
+
 
 	void RendererCommand::EndAndPresent(uint32_t cmdListIndex /*= 0*/)
 	{
@@ -183,7 +209,8 @@ namespace TruthEngine::Core
 
 	void RendererCommand::CreateDepthStencilView(TE_IDX_DEPTHSTENCIL idx, DepthStencilView* DSV)
 	{
-		return TE_INSTANCE_BUFFERMANAGER->CreateDepthStencilView(idx, DSV);
+		auto ds = TE_INSTANCE_BUFFERMANAGER->GetDepthStencil(idx);
+		return TE_INSTANCE_BUFFERMANAGER->CreateDepthStencilView(ds, DSV);
 	}
 
 	void RendererCommand::CreateRenderTargetView(TextureRenderTarget* RT, RenderTargetView* RTV)
@@ -198,7 +225,8 @@ namespace TruthEngine::Core
 
 	void RendererCommand::CreateRenderTargetView(TE_IDX_RENDERTARGET idx, RenderTargetView* RTV)
 	{
-		return TE_INSTANCE_BUFFERMANAGER->CreateRenderTargetView(idx, RTV);
+		auto rt = TE_INSTANCE_BUFFERMANAGER->GetRenderTarget(idx);
+		return TE_INSTANCE_BUFFERMANAGER->CreateRenderTargetView(rt, RTV);
 	}
 
 	void RendererCommand::CreateShaderResourceView(Texture* textures[], uint32_t textureNum, ShaderResourceView* SRV)
@@ -213,7 +241,8 @@ namespace TruthEngine::Core
 
 	void RendererCommand::CreateConstantBufferView(TE_IDX_CONSTANTBUFFER idx, ConstantBufferView* CBV)
 	{
-		return TE_INSTANCE_BUFFERMANAGER->CreateConstantBufferView(idx, CBV);
+		auto cb = TE_INSTANCE_BUFFERMANAGER->GetConstantBufferUpload(idx);
+		return TE_INSTANCE_BUFFERMANAGER->CreateConstantBufferView(cb, CBV);
 	}
 
 	TE_RESULT RendererCommand::CreateVertexBuffer(VertexBufferBase* vb)

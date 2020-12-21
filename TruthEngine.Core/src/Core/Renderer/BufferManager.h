@@ -93,11 +93,11 @@ namespace TruthEngine::Core
 
 		TextureDepthStencil* GetDepthStencil(TE_IDX_DEPTHSTENCIL idx);
 
-		void CreateRenderTargetView(TE_IDX_RENDERTARGET idx, RenderTargetView* rtv);
+		/*void CreateRenderTargetView(TE_IDX_RENDERTARGET idx, RenderTargetView* rtv);
 
 		void CreateDepthStencilView(TE_IDX_DEPTHSTENCIL idx, DepthStencilView* dsv);
 
-		void CreateConstantBufferView(TE_IDX_CONSTANTBUFFER constantBufferIDX, ConstantBufferView* CBV);
+		void CreateConstantBufferView(TE_IDX_CONSTANTBUFFER constantBufferIDX, ConstantBufferView* CBV);*/
 
 		virtual ConstantBufferUploadBase* GetConstantBufferUpload(TE_IDX_CONSTANTBUFFER cbIDX) = 0;
 
