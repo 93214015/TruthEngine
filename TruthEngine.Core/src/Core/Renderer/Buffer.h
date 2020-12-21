@@ -16,11 +16,11 @@ namespace TruthEngine::Core
 	class Buffer : public GraphicResource
 	{
 	public:
-		Buffer(const char* name
-			, size_t sizeInByte
+		Buffer(
+			size_t sizeInByte
 			, TE_RESOURCE_USAGE usage
 			, TE_RESOURCE_STATES initState)
-			: GraphicResource(name, usage, TE_RESOURCE_TYPE::BUFFER, initState)
+			: GraphicResource(usage, TE_RESOURCE_TYPE::BUFFER, initState)
 			, m_SizeInByte(static_cast<uint64_t>(sizeInByte))
 		{}
 		virtual ~Buffer() = default;
@@ -48,10 +48,10 @@ namespace TruthEngine::Core
 	{
 	public:
 
-		BufferUpload(const char* name
-			, size_t sizeInByte
+		BufferUpload(
+			size_t sizeInByte
 			, TE_RESOURCE_USAGE usage)
-			: Buffer(name, sizeInByte, usage, TE_RESOURCE_STATES::GENERIC_READ0)
+			: Buffer(sizeInByte, usage, TE_RESOURCE_STATES::GENERIC_READ0)
 		{}
 
 		virtual ~BufferUpload() = default;
@@ -81,8 +81,8 @@ namespace TruthEngine::Core
 	class BufferUploadIntermediate : public BufferUpload
 	{
 	public:
-		BufferUploadIntermediate(const char* name, size_t sizeInByte)
-			: BufferUpload(name, sizeInByte, TE_RESOURCE_USAGE_INTERMEDIATEUPLOADBBUFFER)
+		BufferUploadIntermediate(size_t sizeInByte)
+			: BufferUpload(sizeInByte, TE_RESOURCE_USAGE_INTERMEDIATEUPLOADBBUFFER)
 		{}
 
 		virtual ~BufferUploadIntermediate() = default;

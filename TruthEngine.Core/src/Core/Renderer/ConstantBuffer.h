@@ -21,8 +21,8 @@ namespace TruthEngine::Core
 	class ConstantBufferUploadBase : public BufferUpload
 	{
 	public:
-		ConstantBufferUploadBase(const char* name, size_t sizeInByte)
-			: BufferUpload(name, sizeInByte, TE_RESOURCE_USAGE_CONSTANTBUFFER)
+		ConstantBufferUploadBase(size_t sizeInByte)
+			: BufferUpload(sizeInByte, TE_RESOURCE_USAGE_CONSTANTBUFFER)
 		{};
 
 		virtual ~ConstantBufferUploadBase() = default;
@@ -45,8 +45,8 @@ namespace TruthEngine::Core
 	{
 	public:
 
-		ConstantBufferUpload(const char* name) 
-			: ConstantBufferUploadBase(name, sizeof(T))
+		ConstantBufferUpload() 
+			: ConstantBufferUploadBase(sizeof(T))
 		{};
 		
 		virtual ~ConstantBufferUpload() = default;

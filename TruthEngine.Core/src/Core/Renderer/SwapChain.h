@@ -17,12 +17,12 @@ namespace TruthEngine::Core {
 	public:
 		virtual void Present() = 0;
 
-		inline const TextureRenderTarget::ClearValue GetClearValues() const noexcept
+		inline const ClearValue_RenderTarget GetClearValues() const noexcept
 		{
 			return m_ClearValues;
 		}
 
-		inline void SetClearValues(const TextureRenderTarget::ClearValue clearValues) noexcept
+		inline void SetClearValues(const ClearValue_RenderTarget clearValues) noexcept
 		{
 			m_ClearValues = clearValues;
 		}
@@ -39,7 +39,7 @@ namespace TruthEngine::Core {
 
 	protected:
 
-		TextureRenderTarget::ClearValue m_ClearValues = { 1.0f, 1.0f, 1.0f, 1.0f};
+		ClearValue_RenderTarget m_ClearValues = { 1.0f, 1.0f, 1.0f, 1.0f};
 
 		UINT m_BackBufferNum = 2;
 

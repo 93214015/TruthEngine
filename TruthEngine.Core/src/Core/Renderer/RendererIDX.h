@@ -19,6 +19,16 @@ enum class TE_IDX_TEXTURE : IDX
 	DEPTHMAP_RENDER3D
 };
 
+enum class TE_IDX_RENDERTARGET : IDX
+{
+	SCENEBUFFER
+};
+
+enum class TE_IDX_DEPTHSTENCIL : IDX
+{
+	SCENEBUFFER
+};
+
 enum class TE_IDX_SHADERCLASS : IDX
 {
 	NONE,

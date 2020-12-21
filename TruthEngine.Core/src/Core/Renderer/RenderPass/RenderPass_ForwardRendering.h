@@ -45,7 +45,7 @@ namespace TruthEngine
 		private:
 
 			RendererCommand m_RendererCommand;
-			TextureDepthStencil m_TextureDepthStencil;
+			TextureDepthStencil* m_TextureDepthStencil;
 
 			RenderTargetView m_RenderTartgetView;
 			DepthStencilView m_DepthStencilView;

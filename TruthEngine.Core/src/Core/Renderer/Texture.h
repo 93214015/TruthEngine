@@ -11,8 +11,7 @@ namespace TruthEngine
 		{
 		public:
 
-			Texture(const char* name
-				, uint32_t width
+			Texture(uint32_t width
 				, uint32_t height
 				, TE_RESOURCE_FORMAT format
 				, TE_RESOURCE_USAGE usage

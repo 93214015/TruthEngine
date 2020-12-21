@@ -15,13 +15,7 @@ namespace TruthEngine::Core
 
 	RenderPass_ForwardRendering::RenderPass_ForwardRendering()
 		: RenderPass(TE_IDX_RENDERPASS::FORWARDRENDERING)
-		, m_TextureDepthStencil(
-			"renderer3DDepth"
-			, TE_INSTANCE_APPLICATION->GetClientWidth()
-			, TE_INSTANCE_APPLICATION->GetClientHeight()
-			, TE_RESOURCE_FORMAT::R32_TYPELESS
-			, TextureDepthStencil::ClearValue{ 1.0f, 0 }
-			, false)
+		, m_TextureDepthStencil(nullptr)
 		, m_Viewport{ 0.0f, 0.0f, static_cast<float>(TE_INSTANCE_APPLICATION->GetClientWidth()), static_cast<float>(TE_INSTANCE_APPLICATION->GetClientHeight()), 0.0f, 1.0f }
 		, m_ViewREct{ static_cast<long>(0.0), static_cast<long>(0.0), static_cast<long>(TE_INSTANCE_APPLICATION->GetClientWidth()), static_cast<long>(TE_INSTANCE_APPLICATION->GetClientHeight()) }
 	{};
@@ -38,14 +32,13 @@ namespace TruthEngine::Core
 
 		m_BufferMgr = bufferMgr;
 
-		//		m_ShaderMgr = ShaderManager::Factory();
 		m_ShaderMgr = TE_INSTANCE_SHADERMANAGER;
 
-		m_RendererCommand.CreateResource(&m_TextureDepthStencil);
+		m_TextureDepthStencil = m_RendererCommand.CreateDepthStencil(TE_IDX_DEPTHSTENCIL::SCENEBUFFER, TE_INSTANCE_APPLICATION->GetClientWidth(), TE_INSTANCE_APPLICATION->GetClientHeight(), TE_RESOURCE_FORMAT::R32_TYPELESS, ClearValue_DepthStencil{ 1.0f, 0 }, false);
 
 		m_RenderTartgetView = m_RendererCommand.CreateRenderTargetView(TE_INSTANCE_SWAPCHAIN);
 
-		m_DepthStencilView = m_RendererCommand.CreateDepthStencilView(&m_TextureDepthStencil);
+		m_DepthStencilView = m_RendererCommand.CreateDepthStencilView(m_TextureDepthStencil);
 
 		m_RendererCommand.Init(TE_IDX_RENDERPASS::FORWARDRENDERING, TE_IDX_SHADERCLASS::FORWARDRENDERING, 1, TE_INSTANCE_BUFFERMANAGER, m_ShaderMgr);
 

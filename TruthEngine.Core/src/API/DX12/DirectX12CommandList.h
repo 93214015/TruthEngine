@@ -137,22 +137,22 @@ namespace TruthEngine
 			
 			struct ClearingRenderTarget
 			{
-				ClearingRenderTarget(D3D12_CPU_DESCRIPTOR_HANDLE rtv, Core::TextureRenderTarget::ClearValue clearValue) : RTV(rtv), ClearValue(clearValue)
+				ClearingRenderTarget(D3D12_CPU_DESCRIPTOR_HANDLE rtv, Core::ClearValue_RenderTarget clearValue) : RTV(rtv), ClearValue(clearValue)
 				{}
 
 				D3D12_CPU_DESCRIPTOR_HANDLE RTV;
-				Core::TextureRenderTarget::ClearValue ClearValue;
+				Core::ClearValue_RenderTarget ClearValue;
 			};
 
 
 			struct ClearingDepthStencil
 			{
-				ClearingDepthStencil(D3D12_CPU_DESCRIPTOR_HANDLE dsv, Core::TextureDepthStencil::ClearValue clearValue)
+				ClearingDepthStencil(D3D12_CPU_DESCRIPTOR_HANDLE dsv, Core::ClearValue_DepthStencil clearValue)
 					: DSV(dsv), ClearValue(clearValue)
 				{}
 
 				D3D12_CPU_DESCRIPTOR_HANDLE DSV;
-				Core::TextureDepthStencil::ClearValue ClearValue;
+				Core::ClearValue_DepthStencil ClearValue;
 			};
 
 

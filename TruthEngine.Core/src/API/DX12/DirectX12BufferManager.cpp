@@ -134,8 +134,6 @@ namespace TruthEngine::API::DirectX12
 
 		auto& resource = m_Resources.emplace_back();
 
-		m_ResouceNameMap[tRT->m_Name.c_str()] = resource.Get();
-
 		D3D12_CLEAR_VALUE v{ GetFormat(tRT->m_Format), { tRT->m_ClearValue.x, tRT->m_ClearValue.y, tRT->m_ClearValue.z, tRT->m_ClearValue.w } };
 
 		auto hr = TE_INSTANCE_API_DX12_GRAPHICDEVICE->CreateCommittedResource2(
@@ -159,7 +157,6 @@ namespace TruthEngine::API::DirectX12
 
 		auto& resource = m_Resources.emplace_back();
 
-		m_ResouceNameMap[tDS->m_Name.c_str()] = resource.Get();
 
 		D3D12_CLEAR_VALUE v{ GetDSVFormat(tDS->m_Format), { tDS->m_ClearValue.depthValue, tDS->m_ClearValue.stencilValue } };
 
@@ -182,8 +179,6 @@ namespace TruthEngine::API::DirectX12
 		buffer->m_ResourceIndex = static_cast<uint32_t>(m_Resources.size());
 
 		auto& resource = m_Resources.emplace_back();
-
-		m_ResouceNameMap[buffer->m_Name.c_str()] = resource.Get();
 
 		auto hr = TE_INSTANCE_API_DX12_GRAPHICDEVICE->CreateCommittedResource2(
 			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD)
@@ -251,6 +246,7 @@ namespace TruthEngine::API::DirectX12
 
 		return SUCCEEDED(hr) ? TE_SUCCESSFUL : TE_RESULT::TE_FAIL;
 	}
+
 
 	Core::RenderTargetView DirectX12BufferManager::CreateRenderTargetView(Core::TextureRenderTarget* RT)
 	{

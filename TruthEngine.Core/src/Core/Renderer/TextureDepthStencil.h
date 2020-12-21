@@ -15,34 +15,35 @@ namespace TruthEngine
 namespace TruthEngine::Core
 {
 
+	struct ClearValue_DepthStencil
+	{
+		float depthValue;
+		uint8_t stencilValue;
+	};
+
 	class TextureDepthStencil : public Texture
 	{
 
 
 	public:
-		struct ClearValue
-		{
-			float depthValue;
-			uint8_t stencilValue;
-		};
+		
 
 		TextureDepthStencil(
-			const char* name
-			, uint32_t width
+			uint32_t width
 			, uint32_t height
 			, TE_RESOURCE_FORMAT format
-			, const ClearValue clearValue
+			, const ClearValue_DepthStencil clearValue
 			, bool useAsShaderResource
 		);
 
 		virtual ~TextureDepthStencil() = default;
 
-		inline const ClearValue GetClearValues() const noexcept
+		inline const ClearValue_DepthStencil GetClearValues() const noexcept
 		{
 			return m_ClearValue;
 		}
 
-		inline void SetClearValues(ClearValue clearValues) noexcept
+		inline void SetClearValues(ClearValue_DepthStencil clearValues) noexcept
 		{
 			m_ClearValue = clearValues;
 		}
@@ -51,7 +52,7 @@ namespace TruthEngine::Core
 
 
 	private:
-		ClearValue m_ClearValue;
+		ClearValue_DepthStencil m_ClearValue;
 
 		//
 		//friend classes

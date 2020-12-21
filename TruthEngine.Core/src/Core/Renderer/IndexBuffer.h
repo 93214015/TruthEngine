@@ -13,7 +13,7 @@ namespace TruthEngine
 		class IndexBuffer : public Buffer
 		{
 		public:
-			IndexBuffer() : Buffer("", 0, TE_RESOURCE_USAGE_INDEXBUFFER, TE_RESOURCE_STATES::COPY_DEST)
+			IndexBuffer() : Buffer(0, TE_RESOURCE_USAGE_INDEXBUFFER, TE_RESOURCE_STATES::COPY_DEST)
 			{}
 
 			inline size_t GetBufferSize() const noexcept

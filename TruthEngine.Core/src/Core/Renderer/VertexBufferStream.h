@@ -16,7 +16,7 @@ namespace TruthEngine
 		class VertexBufferStreamBase : public Buffer
 		{
 		public:
-			VertexBufferStreamBase() : Buffer("", 0, TE_RESOURCE_USAGE_VERTEXBUFFER, TE_RESOURCE_STATES::COPY_DEST)
+			VertexBufferStreamBase() : Buffer(0, TE_RESOURCE_USAGE_VERTEXBUFFER, TE_RESOURCE_STATES::COPY_DEST)
 			{};
 			virtual ~VertexBufferStreamBase() = default;
 

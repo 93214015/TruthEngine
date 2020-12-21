@@ -152,15 +152,18 @@ namespace TruthEngine::Core
 		m_CommandLists[cmdListIndex]->SetViewport(viewport, rect);
 	}
 
-	TE_RESULT RendererCommand::CreateResource(TextureRenderTarget* tRT)
+
+	TruthEngine::Core::TextureRenderTarget* RendererCommand::CreateRenderTarget(TE_IDX_RENDERTARGET idx, uint32_t width, uint32_t height, TE_RESOURCE_FORMAT format, const ClearValue_RenderTarget& clearValue, bool useAsShaderResource)
 	{
-		return TE_INSTANCE_BUFFERMANAGER->CreateResource(tRT);
+		return TE_INSTANCE_BUFFERMANAGER->CreateRenderTarget(idx, width, height, format, clearValue, useAsShaderResource);
 	}
 
-	TE_RESULT RendererCommand::CreateResource(TextureDepthStencil* tDS)
+
+	TruthEngine::Core::TextureDepthStencil* RendererCommand::CreateDepthStencil(TE_IDX_DEPTHSTENCIL idx, uint32_t width, uint32_t height, TE_RESOURCE_FORMAT format, const ClearValue_DepthStencil& clearValue, bool useAsShaderResource)
 	{
-		return TE_INSTANCE_BUFFERMANAGER->CreateResource(tDS);
+		return TE_INSTANCE_BUFFERMANAGER->CreateDepthStencil(idx, width, height, format, clearValue, useAsShaderResource);
 	}
+
 
 	TE_RESULT RendererCommand::CreateResource(BufferUpload* cb)
 	{
