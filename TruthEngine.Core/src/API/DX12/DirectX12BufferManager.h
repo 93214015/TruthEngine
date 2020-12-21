@@ -35,32 +35,33 @@ namespace TruthEngine::API::DirectX12 {
 
 		Core::ConstantBufferUploadBase* GetConstantBufferUpload(TE_IDX_CONSTANTBUFFER cbIDX) override;
 
-
 		TE_RESULT CreateVertexBuffer(Core::VertexBufferBase* vb) override;
+
 		TE_RESULT CreateIndexBuffer(Core::IndexBuffer* ib) override;
 
-
 		Core::RenderTargetView CreateRenderTargetView(Core::TextureRenderTarget* RT) override;
-		Core::RenderTargetView CreateRenderTargetView(Core::SwapChain* swapChain) override;
 
+		Core::RenderTargetView CreateRenderTargetView(Core::SwapChain* swapChain) override;
 
 		Core::DepthStencilView CreateDepthStencilView(Core::TextureDepthStencil* DS) override;
 
-
 		Core::ShaderResourceView CreateShaderResourceView(Core::Texture* textures[], uint32_t textureNum) override;
-		Core::ShaderResourceView CreateShaderResourceView(Core::Texture* texture) override;
 
+		Core::ShaderResourceView CreateShaderResourceView(Core::Texture* texture) override;
 
 		Core::ConstantBufferView CreateConstantBufferView(const TE_IDX_CONSTANTBUFFER constantBufferIDX) override;
 
-
 		uint64_t GetRequiredSize(const Core::GraphicResource* graphicResource) const override;
 
+		ID3D12Resource* GetResource(Core::GraphicResource* graphicResource);
 
 	private:
 		TE_RESULT CreateResource(Core::TextureRenderTarget* tRT) override;
+
 		TE_RESULT CreateResource(Core::TextureDepthStencil* tDS) override;
+
 		TE_RESULT CreateResource(Core::VertexBufferStreamBase* vb) override;
+
 		TE_RESULT CreateResource(Core::IndexBuffer* ib) override;
 
 		TE_RESULT ReleaseResource(Core::GraphicResource* resource) override;
@@ -69,15 +70,16 @@ namespace TruthEngine::API::DirectX12 {
 
 		std::vector<COMPTR<ID3D12Resource>> m_Resources;
 
-//		std::unordered_map<const char*, ID3D12Resource*> m_ResouceNameMap;
-
 		DescriptorHeapSRV m_DescHeapSRV;
+
 		DescriptorHeapRTV m_DescHeapRTV;
+
 		DescriptorHeapDSV m_DescHeapDSV;
 
 		D3D12_RECT m_Rect_FullScreen;
 
 		std::vector<D3D12_VERTEX_BUFFER_VIEW> m_VertexBufferViews;
+
 		std::vector<D3D12_INDEX_BUFFER_VIEW> m_IndexBufferViews;
 
 

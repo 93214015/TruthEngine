@@ -72,5 +72,28 @@ namespace TruthEngine::Core {
 		return CreateDepthStencilView(ds->second.get());
 	}
 
+	TruthEngine::Core::TextureRenderTarget* BufferManager::GetRenderTarget(TE_IDX_RENDERTARGET idx)
+	{
+		auto rt = m_Map_RenderTargets.find(idx);
+
+		if (rt == m_Map_RenderTargets.end())
+		{
+			return nullptr;
+		}
+
+		return rt->second.get();
+	}
+
+	TruthEngine::Core::TextureDepthStencil* BufferManager::GetDepthStencil(TE_IDX_DEPTHSTENCIL idx)
+	{
+		auto ds = m_Map_DepthStencils.find(idx);
+
+		if (ds == m_Map_DepthStencils.end())
+		{
+			return nullptr;
+		}
+
+		return ds->second.get();
+	}
 
 }

@@ -32,9 +32,14 @@ namespace TruthEngine
 			TextureDepthStencil* CreateDepthStencil(TE_IDX_DEPTHSTENCIL idx, uint32_t width, uint32_t height, TE_RESOURCE_FORMAT format, const ClearValue_DepthStencil& clearValue, bool useAsShaderResource);
 			TE_RESULT CreateResource(BufferUpload* cb);
 
+			RenderTargetView CreateRenderTargetView(TE_IDX_RENDERTARGET idx);
 			RenderTargetView CreateRenderTargetView(TextureRenderTarget* RT);
 			RenderTargetView CreateRenderTargetView(SwapChain* swapChain);
+
+			DepthStencilView CreateDepthStencilView(TE_IDX_DEPTHSTENCIL idx);
 			DepthStencilView CreateDepthStencilView(TextureDepthStencil* DS);
+
+
 			ShaderResourceView CreateShaderResourceView(Texture* textures[], uint32_t textureNum);
 			ShaderResourceView CreateShaderResourceView(Texture* texture);
 			ConstantBufferView CreateConstantBufferView(TE_IDX_CONSTANTBUFFER idx);

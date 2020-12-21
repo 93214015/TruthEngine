@@ -28,7 +28,6 @@ namespace TruthEngine::Core
 		m_BufferManager->Init(20, 10, 10, 10);
 
 
-		m_ImGuiLayer->OnAttach();
 
 
 		m_RendererCommand.Init(TE_IDX_RENDERPASS::NONE, TE_IDX_SHADERCLASS::NONE);
@@ -40,6 +39,8 @@ namespace TruthEngine::Core
 
 		m_RendererCommand.End();
 
+		m_RendererCommand.CreateRenderTarget(TE_IDX_RENDERTARGET::SCENEBUFFER, TE_INSTANCE_APPLICATION->GetClientWidth(), TE_INSTANCE_APPLICATION->GetClientHeight(), TE_RESOURCE_FORMAT::R8G8B8A8_UNORM, ClearValue_RenderTarget{ 1.0f, 1.0f, 1.0f, 1.0f }, true);
+
 	    m_Renderer3D->Init(m_BufferManager.get(), m_ModelManagers->GetMaterials());
 
 		for (auto& model : m_ModelManagers->GetModel3D())
@@ -47,11 +48,15 @@ namespace TruthEngine::Core
 			m_Model3DQueue.emplace_back(&model);
 		}
 
+
 		m_RTVBackBuffer = m_BufferManager->CreateRenderTargetView(TE_INSTANCE_SWAPCHAIN);
 
 		m_CB_PerFrame = m_BufferManager->CreateConstantBufferUpload<ConstantBuffer_Data_Per_Frame>(TE_IDX_CONSTANTBUFFER::PER_FRAME);
 
 		m_CB_PerFrame->GetData()->m_Color = DirectX::XMFLOAT4{ 0.2f, 0.7f, 0.4f, 1.0f };
+
+
+		m_ImGuiLayer->OnAttach();
 	}
 
 	void RendererLayer::OnDetach()

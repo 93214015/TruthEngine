@@ -175,6 +175,11 @@ namespace TruthEngine::Core
 		return TE_INSTANCE_BUFFERMANAGER->CreateDepthStencilView(DS);
 	}
 
+	TruthEngine::Core::DepthStencilView RendererCommand::CreateDepthStencilView(TE_IDX_DEPTHSTENCIL idx)
+	{
+		return TE_INSTANCE_BUFFERMANAGER->CreateDepthStencilView(idx);
+	}
+
 	TruthEngine::Core::RenderTargetView RendererCommand::CreateRenderTargetView(TextureRenderTarget* RT)
 	{
 		return TE_INSTANCE_BUFFERMANAGER->CreateRenderTargetView(RT);
@@ -183,6 +188,11 @@ namespace TruthEngine::Core
 	TruthEngine::Core::RenderTargetView RendererCommand::CreateRenderTargetView(SwapChain* swapChain)
 	{
 		return TE_INSTANCE_BUFFERMANAGER->CreateRenderTargetView(swapChain);
+	}
+
+	TruthEngine::Core::RenderTargetView RendererCommand::CreateRenderTargetView(TE_IDX_RENDERTARGET idx)
+	{
+		return TE_INSTANCE_BUFFERMANAGER->CreateRenderTargetView(idx);
 	}
 
 	TruthEngine::Core::ShaderResourceView RendererCommand::CreateShaderResourceView(Texture* textures[], uint32_t textureNum)

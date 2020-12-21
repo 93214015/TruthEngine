@@ -89,6 +89,10 @@ namespace TruthEngine::Core
 
 		TextureDepthStencil* CreateDepthStencil(TE_IDX_DEPTHSTENCIL idx, uint32_t width, uint32_t height, TE_RESOURCE_FORMAT format, const ClearValue_DepthStencil& clearValue, bool useAsShaderResource);
 
+		TextureRenderTarget* GetRenderTarget(TE_IDX_RENDERTARGET idx);
+
+		TextureDepthStencil* GetDepthStencil(TE_IDX_DEPTHSTENCIL idx);
+
 		virtual ConstantBufferUploadBase* GetConstantBufferUpload(TE_IDX_CONSTANTBUFFER cbIDX) = 0;
 
 

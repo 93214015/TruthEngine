@@ -31,6 +31,9 @@ namespace TruthEngine::API::DirectX12
 		DescriptorHeapRTV m_DescHeapRTV;
 		std::shared_ptr<DirectX12CommandList> m_CommandList;
 
+		uint32_t m_SRVIndexScreenBuffer;
+		ID3D12Resource* m_D3D12Resource_ScreenBuffer;
+
 	};
 }
 

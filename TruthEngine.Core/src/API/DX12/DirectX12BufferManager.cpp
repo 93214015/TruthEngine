@@ -458,4 +458,9 @@ namespace TruthEngine::API::DirectX12
 		return nullptr;
 	}
 
+	ID3D12Resource* DirectX12BufferManager::GetResource(Core::GraphicResource* graphicResource)
+	{
+		return m_Resources[graphicResource->m_ResourceIndex].Get();
+	}
+
 }

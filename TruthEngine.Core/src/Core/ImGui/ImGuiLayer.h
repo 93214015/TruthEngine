@@ -6,6 +6,8 @@
 namespace TruthEngine::Core
 {
 
+	class TextureRenderTarget;
+
 	class ImGuiLayer: public Layer
 	{
 
@@ -28,6 +30,7 @@ namespace TruthEngine::Core
 		virtual void End() = 0;
 
 	protected:
+		TextureRenderTarget* m_RenderTargetScreenBuffer;
 
 
 	};

@@ -29,18 +29,17 @@ namespace TruthEngine::Core
 
 	void RenderPass_ForwardRendering::Init(BufferManager* bufferMgr, const std::vector<Material>& materials)
 	{
-
 		m_BufferMgr = bufferMgr;
 
 		m_ShaderMgr = TE_INSTANCE_SHADERMANAGER;
 
+		m_RendererCommand.Init(TE_IDX_RENDERPASS::FORWARDRENDERING, TE_IDX_SHADERCLASS::FORWARDRENDERING, 1, TE_INSTANCE_BUFFERMANAGER, m_ShaderMgr);
+
 		m_TextureDepthStencil = m_RendererCommand.CreateDepthStencil(TE_IDX_DEPTHSTENCIL::SCENEBUFFER, TE_INSTANCE_APPLICATION->GetClientWidth(), TE_INSTANCE_APPLICATION->GetClientHeight(), TE_RESOURCE_FORMAT::R32_TYPELESS, ClearValue_DepthStencil{ 1.0f, 0 }, false);
 
-		m_RenderTartgetView = m_RendererCommand.CreateRenderTargetView(TE_INSTANCE_SWAPCHAIN);
+		//m_RenderTartgetView = m_RendererCommand.CreateRenderTargetView(TE_INSTANCE_SWAPCHAIN);
 
 		m_DepthStencilView = m_RendererCommand.CreateDepthStencilView(m_TextureDepthStencil);
-
-		m_RendererCommand.Init(TE_IDX_RENDERPASS::FORWARDRENDERING, TE_IDX_SHADERCLASS::FORWARDRENDERING, 1, TE_INSTANCE_BUFFERMANAGER, m_ShaderMgr);
 
 		for (const auto& mat : materials)
 		{
@@ -86,6 +85,7 @@ namespace TruthEngine::Core
 			m_MaterialPipelines[mat.GetID()] = pipeline;
 		}
 
+		m_RenderTartgetView = m_RendererCommand.CreateRenderTargetView(TE_IDX_RENDERTARGET::SCENEBUFFER);
 	}
 
 
@@ -93,10 +93,11 @@ namespace TruthEngine::Core
 	{
 		m_RendererCommand.Begin();
 
-
 		m_RendererCommand.SetViewPort(&m_Viewport, &m_ViewREct);
-		m_RendererCommand.SetRenderTarget(TE_INSTANCE_SWAPCHAIN, m_RenderTartgetView);
+		//m_RendererCommand.SetRenderTarget(TE_INSTANCE_SWAPCHAIN, m_RenderTartgetView);
+		m_RendererCommand.SetRenderTarget(m_RenderTartgetView);
 		m_RendererCommand.SetDepthStencil(m_DepthStencilView);
+		m_RendererCommand.ClearRenderTarget(m_RenderTartgetView);
 		m_RendererCommand.ClearDepthStencil(m_DepthStencilView);
 	}
 

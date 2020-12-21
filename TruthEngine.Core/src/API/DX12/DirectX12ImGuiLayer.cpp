@@ -8,6 +8,7 @@
 #include "API/IDXGI.h"
 #include "API/DX12/DirectX12GraphicDevice.h"
 #include "API/DX12/DirectX12SwapChain.h"
+#include "API/DX12/DirectX12BufferManager.h"
 
 
 
@@ -50,6 +51,14 @@ namespace TruthEngine::API::DirectX12 {
 			style.Colors[ImGuiCol_WindowBg].w = 1.0f;
 		}
 
+		auto dx12bufferManager = static_cast<DirectX12BufferManager*>(TE_INSTANCE_BUFFERMANAGER.get());
+
+		m_RenderTargetScreenBuffer = dx12bufferManager->GetRenderTarget(TE_IDX_RENDERTARGET::SCENEBUFFER);
+
+		m_D3D12Resource_ScreenBuffer = dx12bufferManager->GetResource(m_RenderTargetScreenBuffer);
+
+		m_SRVIndexScreenBuffer = m_DescHeapSRV.AddDescriptorSRV(m_D3D12Resource_ScreenBuffer, nullptr);
+
 		HWND hwnd = static_cast<HWND>(TE_INSTANCE_APPLICATION->GetWindow()->GetNativeWindowHandle());
 		ImGui_ImplWin32_Init(hwnd);
 		ImGui_ImplDX12_Init(TE_INSTANCE_API_DX12_GRAPHICDEVICE.GetDevice()
@@ -59,7 +68,6 @@ namespace TruthEngine::API::DirectX12 {
 			, m_DescHeapSRV.GetCPUHandleLast()
 			, m_DescHeapSRV.GetGPUHandleLast());
 
-		
 
 	}
 
@@ -128,6 +136,10 @@ namespace TruthEngine::API::DirectX12 {
 				show_another_window = false;
 			ImGui::End();
 		}
+
+		ImGui::Begin("RenderScreenBuffer");
+		ImGui::Image((ImTextureID)m_DescHeapSRV.GetGPUHandle(m_SRVIndexScreenBuffer).ptr, ImVec2{ 128.0f, 128.0f });
+		ImGui::End();
 	}
 
 	void DirectX12ImGuiLayer::End()
@@ -142,12 +154,27 @@ namespace TruthEngine::API::DirectX12 {
 
 		auto& sc = TE_INSTANCE_API_DX12_SWAPCHAIN;
 
-		ID3D12DescriptorHeap* descheaps[] = { m_DescHeapSRV.GetDescriptorHeap() };
+		CD3DX12_RESOURCE_BARRIER barriers[2];
+		uint32_t barrierNum = 0;
+
 		if (sc.GetBackBufferState() != D3D12_RESOURCE_STATE_RENDER_TARGET)
 		{
-			auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(sc.GetBackBufferResource(), sc.GetBackBufferState(), D3D12_RESOURCE_STATE_RENDER_TARGET);
-			dx12CmdList->ResourceBarrier(1, &barrier);
+			barriers[barrierNum] = CD3DX12_RESOURCE_BARRIER::Transition(sc.GetBackBufferResource(), sc.GetBackBufferState(), D3D12_RESOURCE_STATE_RENDER_TARGET);
+			sc.SetBackBufferState(D3D12_RESOURCE_STATE_RENDER_TARGET);
+			barrierNum++;
 		}
+		if (m_RenderTargetScreenBuffer->GetState() != TE_RESOURCE_STATES::PIXEL_SHADER_RESOURCE)
+		{
+			barriers[barrierNum] = CD3DX12_RESOURCE_BARRIER::Transition(m_D3D12Resource_ScreenBuffer, static_cast<D3D12_RESOURCE_STATES>(m_RenderTargetScreenBuffer->GetState()), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+			m_RenderTargetScreenBuffer->SetState(TE_RESOURCE_STATES::PIXEL_SHADER_RESOURCE);
+			barrierNum++;
+		}
+		if (barrierNum > 0)
+		{
+			dx12CmdList->ResourceBarrier(barrierNum, barriers);
+		}
+
+		ID3D12DescriptorHeap* descheaps[] = { m_DescHeapSRV.GetDescriptorHeap() };
 		dx12CmdList->SetDescriptorHeaps(1, descheaps);
 		dx12CmdList->OMSetRenderTargets(1, &m_DescHeapRTV.GetCPUHandle(currentFrameIndex), FALSE, NULL);
 		ImGui::Render();
