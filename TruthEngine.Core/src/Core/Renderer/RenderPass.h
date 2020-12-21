@@ -10,6 +10,8 @@ namespace TruthEngine
 		{
 		public:
 			RenderPass(TE_IDX_RENDERPASS idx);
+
+			virtual void OnResize(uint32_t width, uint32_t height) = 0;
 		protected:
 
 		protected:

@@ -4,8 +4,10 @@
 #include "SwapChain.h"
 #include "ConstantBuffer.h"
 
+
 #include "Core/ImGui/ImGuiLayer.h"
 #include "Core/Entity/Model/ModelManager.h"
+#include "Core/Event/EventApplication.h"
 
 
 
@@ -27,9 +29,6 @@ namespace TruthEngine::Core
 
 		m_BufferManager->Init(20, 10, 10, 10);
 
-
-
-
 		m_RendererCommand.Init(TE_IDX_RENDERPASS::NONE, TE_IDX_SHADERCLASS::NONE);
 
 		m_RendererCommand.Begin();
@@ -48,15 +47,16 @@ namespace TruthEngine::Core
 			m_Model3DQueue.emplace_back(&model);
 		}
 
-
-		m_RTVBackBuffer = m_BufferManager->CreateRenderTargetView(TE_INSTANCE_SWAPCHAIN);
+		m_BufferManager->CreateRenderTargetView(TE_INSTANCE_SWAPCHAIN, &m_RTVBackBuffer);
 
 		m_CB_PerFrame = m_BufferManager->CreateConstantBufferUpload<ConstantBuffer_Data_Per_Frame>(TE_IDX_CONSTANTBUFFER::PER_FRAME);
 
 		m_CB_PerFrame->GetData()->m_Color = DirectX::XMFLOAT4{ 0.2f, 0.7f, 0.4f, 1.0f };
 
-
 		m_ImGuiLayer->OnAttach();
+
+		auto listener = [this](Event& event) {  OnResize(static_cast<EventWindowResize&>(event)); };
+		TE_INSTANCE_APPLICATION->RegisterEventListener(EventType::WindowResize,  listener);
 	}
 
 	void RendererLayer::OnDetach()
@@ -109,6 +109,15 @@ namespace TruthEngine::Core
 	{
 		m_RendererCommand.Begin();
 		m_RendererCommand.EndAndPresent();
+	}
+
+	void RendererLayer::OnResize(const EventWindowResize& event)
+	{
+		m_Renderer3D->OnResize(event.GetWidth(), event.GetHeight());
+	}
+
+	void RendererLayer::InitGPUResource()
+	{
 	}
 
 }

@@ -26,6 +26,11 @@ namespace TruthEngine::Core {
 
 		inline const char* GetTitle() const noexcept { return m_Title.c_str(); }
 
+		inline void RegisterEventListener(EventType eventType, const EventListener& listener)
+		{
+			m_EventDispatcher.RegisterListener(eventType, listener);
+		}
+
 		Window* GetWindow() { return m_Window.get(); }
 
 		virtual void Run();
@@ -34,6 +39,7 @@ namespace TruthEngine::Core {
 		virtual void OnProcess() = 0;
 		virtual void OnDestroy() = 0;
 		virtual void OnEvent(Event& e);
+
 
 		static inline Application* GetApplication() { return s_Instance; }
 
@@ -50,7 +56,6 @@ namespace TruthEngine::Core {
 
 
 		TimerEngine m_Timer;
-
 
 
 		uint32_t m_ClientWidth = 0;

@@ -18,6 +18,10 @@ namespace TruthEngine
 				, TE_RESOURCE_TYPE type
 				, TE_RESOURCE_STATES initState);
 
+			inline void Resize(uint32_t width, uint32_t height) noexcept
+			{
+				m_Width = width; m_Height = height;
+			}
 
 		protected:
 

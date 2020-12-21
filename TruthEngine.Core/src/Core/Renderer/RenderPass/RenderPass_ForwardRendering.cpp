@@ -39,7 +39,7 @@ namespace TruthEngine::Core
 
 		//m_RenderTartgetView = m_RendererCommand.CreateRenderTargetView(TE_INSTANCE_SWAPCHAIN);
 
-		m_DepthStencilView = m_RendererCommand.CreateDepthStencilView(m_TextureDepthStencil);
+		m_RendererCommand.CreateDepthStencilView(m_TextureDepthStencil, &m_DepthStencilView);
 
 		for (const auto& mat : materials)
 		{
@@ -85,7 +85,7 @@ namespace TruthEngine::Core
 			m_MaterialPipelines[mat.GetID()] = pipeline;
 		}
 
-		m_RenderTartgetView = m_RendererCommand.CreateRenderTargetView(TE_IDX_RENDERTARGET::SCENEBUFFER);
+		m_RendererCommand.CreateRenderTargetView(TE_IDX_RENDERTARGET::SCENEBUFFER, &m_RenderTartgetView);
 	}
 
 
@@ -127,5 +127,12 @@ namespace TruthEngine::Core
 
 
 	}
+
+
+	void RenderPass_ForwardRendering::OnResize(uint32_t width, uint32_t height)
+	{
+
+	}
+
 
 }

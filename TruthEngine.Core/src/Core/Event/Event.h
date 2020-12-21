@@ -21,6 +21,9 @@ namespace TruthEngine::Core {
 		EventCategoryMouseButton =		BIT(4)
 	};
 
+
+
+
 #define EVENT_CLASS_TYPE(type) static EventType GetStaticEventType(){ return EventType::##type; }\
 							   virtual EventType GetEventType() const override {return GetStaticEventType();}\
 							   virtual const char* GetName() const override { return #type; }
@@ -52,11 +55,12 @@ namespace TruthEngine::Core {
 	}
 
 
+	using EventListener = std::function<void(Event&)>;
+
 
 	class EventDispatcher
 	{
 	public:
-		using EventListener = std::function<void(Event&)>;
 
 		void RegisterListener(const EventType eventType, const EventListener& eventFunc);
 		void OnEvent(Event& event);

@@ -25,30 +25,30 @@ namespace TruthEngine::Core
 
 	struct RenderTargetView
 	{
-		uint32_t ViewIndex;
-		uint32_t ResourceIndex;
-		TextureRenderTarget* Resource;
+		uint32_t ViewIndex = -1;
+		uint32_t ResourceIndex = -1;
+		TextureRenderTarget* Resource = nullptr;
 	};
 
 	struct ShaderResourceView
 	{
-		uint32_t ViewIndex;
-		uint32_t ResourceIndex;
-		Texture* Resource;
+		uint32_t ViewIndex = -1;
+		uint32_t ResourceIndex = -1;
+		Texture* Resource = nullptr;
 	};
 
 	struct DepthStencilView
 	{
-		uint32_t ViewIndex;
-		uint32_t ResourceIndex;
-		TextureDepthStencil* Resource;
+		uint32_t ViewIndex = -1;
+		uint32_t ResourceIndex = -1;
+		TextureDepthStencil* Resource = nullptr;
 	};
 
 	struct ConstantBufferView
 	{
-		uint32_t ViewIndex;
-		uint32_t ResourceIndex;
-		Buffer* Resource;
+		uint32_t ViewIndex = -1;
+		uint32_t ResourceIndex = -1;
+		Buffer* Resource = nullptr;
 	};
 
 	class BufferManager
@@ -93,28 +93,28 @@ namespace TruthEngine::Core
 
 		TextureDepthStencil* GetDepthStencil(TE_IDX_DEPTHSTENCIL idx);
 
+		void CreateRenderTargetView(TE_IDX_RENDERTARGET idx, RenderTargetView* rtv);
+
+		void CreateDepthStencilView(TE_IDX_DEPTHSTENCIL idx, DepthStencilView* dsv);
+
+		void CreateConstantBufferView(TE_IDX_CONSTANTBUFFER constantBufferIDX, ConstantBufferView* CBV);
+
 		virtual ConstantBufferUploadBase* GetConstantBufferUpload(TE_IDX_CONSTANTBUFFER cbIDX) = 0;
 
+		virtual void CreateRenderTargetView(TextureRenderTarget* RT, RenderTargetView* rtv) = 0;
 
+		virtual void CreateRenderTargetView(SwapChain* swapChain, RenderTargetView* rtv) = 0;
 
-		RenderTargetView CreateRenderTargetView(TE_IDX_RENDERTARGET idx);
+		virtual void CreateDepthStencilView(TextureDepthStencil* DS, DepthStencilView* dsv) = 0;
 
-		DepthStencilView CreateDepthStencilView(TE_IDX_DEPTHSTENCIL idx);
+		virtual void CreateShaderResourceView(Texture* textures[], uint32_t textureNum, ShaderResourceView* srv) = 0;
 
+		virtual void CreateShaderResourceView(Texture* texture, ShaderResourceView* srv) = 0;
 
-		virtual RenderTargetView CreateRenderTargetView(TextureRenderTarget* RT) = 0;
-
-		virtual RenderTargetView CreateRenderTargetView(SwapChain* swapChain) = 0;
-
-		virtual DepthStencilView CreateDepthStencilView(TextureDepthStencil* DS) = 0;
-
-		virtual ShaderResourceView CreateShaderResourceView(Texture* textures[], uint32_t textureNum) = 0;
-
-		virtual ShaderResourceView CreateShaderResourceView(Texture* texture) = 0;
-
-		virtual ConstantBufferView CreateConstantBufferView(const TE_IDX_CONSTANTBUFFER constantBufferIDX) = 0;
+		virtual void CreateConstantBufferView(ConstantBufferUploadBase* constantBuffer, ConstantBufferView* cbv) = 0;
 
 		virtual TE_RESULT CreateVertexBuffer(VertexBufferBase* vb) = 0;
+
 		virtual TE_RESULT CreateIndexBuffer(IndexBuffer* ib) = 0;
 
 		virtual uint64_t GetRequiredSize(const GraphicResource* graphicResource) const = 0;
@@ -137,6 +137,9 @@ namespace TruthEngine::Core
 		std::unordered_map<TE_IDX_DEPTHSTENCIL, std::shared_ptr<TextureDepthStencil>> m_Map_DepthStencils;
 
 		static std::shared_ptr<BufferManager> Factory();
+
+		//friend class
+		friend class RendererCommand;
 	};
 
 }

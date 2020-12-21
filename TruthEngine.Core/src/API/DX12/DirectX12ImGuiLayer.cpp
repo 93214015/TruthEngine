@@ -32,7 +32,8 @@ namespace TruthEngine::API::DirectX12 {
 		m_DescHeapSRV.Init(TE_INSTANCE_API_DX12_GRAPHICDEVICE, TE_INSTANCE_APPLICATION->GetFramesInFlightNum());
 		m_DescHeapRTV.Init(TE_INSTANCE_API_DX12_GRAPHICDEVICE, TE_INSTANCE_APPLICATION->GetFramesInFlightNum());
 
-		TE_INSTANCE_API_DX12_SWAPCHAIN.InitRTVs(&m_DescHeapRTV);
+		Core::RenderTargetView rtv;
+		TE_INSTANCE_API_DX12_SWAPCHAIN.InitRTVs(&m_DescHeapRTV, &rtv);
 
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
@@ -91,7 +92,6 @@ namespace TruthEngine::API::DirectX12 {
 
 		// Our state
 		bool show_demo_window = true;
-		bool show_another_window = false;
 		ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
 
@@ -99,6 +99,9 @@ namespace TruthEngine::API::DirectX12 {
 		ImGui_ImplDX12_NewFrame();
 		ImGui_ImplWin32_NewFrame();
 		ImGui::NewFrame();
+
+		//Set DockPanel
+		ImGui::DockSpaceOverViewport(ImGui::GetMainViewport());
 
 		// 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
 		if (show_demo_window)
@@ -113,7 +116,6 @@ namespace TruthEngine::API::DirectX12 {
 
 			ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
 			ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
-			ImGui::Checkbox("Another Window", &show_another_window);
 
 			ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
 			ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
@@ -124,16 +126,6 @@ namespace TruthEngine::API::DirectX12 {
 			ImGui::Text("counter = %d", counter);
 
 			ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-			ImGui::End();
-		}
-
-		// 3. Show another simple window.
-		if (show_another_window)
-		{
-			ImGui::Begin("Another Window", &show_another_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
-			ImGui::Text("Hello from another window!");
-			if (ImGui::Button("Close Me"))
-				show_another_window = false;
 			ImGui::End();
 		}
 
@@ -179,9 +171,6 @@ namespace TruthEngine::API::DirectX12 {
 		dx12CmdList->OMSetRenderTargets(1, &m_DescHeapRTV.GetCPUHandle(currentFrameIndex), FALSE, NULL);
 		ImGui::Render();
 		ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), dx12CmdList);
-
-		/*barrier = CD3DX12_RESOURCE_BARRIER::Transition(sc.GetBackBufferResource(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
-		dx12CmdList->ResourceBarrier(1, &barrier);*/
 
 
 		TE_INSTANCE_API_DX12_COMMANDQUEUEDIRECT->ExecuteCommandList(m_CommandList.get());

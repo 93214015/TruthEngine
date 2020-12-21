@@ -11,6 +11,7 @@ namespace TruthEngine::Core
 {
 	class ModelManager;
 	class ImGuiLayer;
+	class EventWindowResize;
 
 	template<class T> class ConstantBufferUpload;
 	class ConstantBuffer_Data_Per_Frame;
@@ -42,7 +43,9 @@ namespace TruthEngine::Core
 
 
 	private:
+		void OnResize(const EventWindowResize& event);
 
+		void InitGPUResource();
 
 	private:
 		RendererCommand m_RendererCommand;

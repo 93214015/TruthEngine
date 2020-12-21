@@ -8,6 +8,7 @@
 
 namespace TruthEngine::API::DirectX12 {
 
+
 	class DirectX12SwapChain : public TruthEngine::Core::SwapChain
 	{
 
@@ -18,7 +19,7 @@ namespace TruthEngine::API::DirectX12 {
 
 		TE_RESULT Resize(UINT width, UINT height, UINT backBufferNum);
 
-		uint32_t InitRTVs(DescriptorHeapRTV* descHeap);
+		void InitRTVs(DescriptorHeapRTV* descHeap, Core::RenderTargetView* RTV);
 
 // 		inline void ChangeResourceState(D3D12_RESOURCE_BARRIER& barrier, D3D12_RESOURCE_STATES stateAfter) 
 // 		{
@@ -40,7 +41,7 @@ namespace TruthEngine::API::DirectX12 {
 
 		void CreateSwapChain(HWND outputHWND);
 
-		uint32_t CreateSwapChainRTVs(DescriptorHeapRTV* descHeap);
+		void CreateSwapChainRTVs(DescriptorHeapRTV* descHeap, Core::RenderTargetView* RTV);
 
 		void CheckDeviceFeatures();
 

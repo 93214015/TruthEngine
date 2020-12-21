@@ -33,14 +33,16 @@ namespace TruthEngine::API::DirectX12
 			auto& v = bindedResource->ConstantBuffers[i];
 			if (v.size() > 0)
 			{
-				auto cbv = bufferManager->CreateConstantBufferView(v[0]);
+				Core::ConstantBufferView cbv{};
+				bufferManager->CreateConstantBufferView(v[0], &cbv);
 				auto gpuHandle = bufferManager->m_DescHeapSRV.GetGPUHandle(cbv.ViewIndex);
 
 				resourceTables.emplace_back(i, gpuHandle);
 
 				for (uint32_t j = 1; j < v.size(); ++j)
 				{
-					bufferManager->CreateConstantBufferView(v[j]);
+					Core::ConstantBufferView dummycbv{};
+					bufferManager->CreateConstantBufferView(v[j], &dummycbv);
 				}
 			}
 		}

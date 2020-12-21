@@ -32,17 +32,17 @@ namespace TruthEngine
 			TextureDepthStencil* CreateDepthStencil(TE_IDX_DEPTHSTENCIL idx, uint32_t width, uint32_t height, TE_RESOURCE_FORMAT format, const ClearValue_DepthStencil& clearValue, bool useAsShaderResource);
 			TE_RESULT CreateResource(BufferUpload* cb);
 
-			RenderTargetView CreateRenderTargetView(TE_IDX_RENDERTARGET idx);
-			RenderTargetView CreateRenderTargetView(TextureRenderTarget* RT);
-			RenderTargetView CreateRenderTargetView(SwapChain* swapChain);
+			void CreateRenderTargetView(TE_IDX_RENDERTARGET idx, RenderTargetView* RTV);
+			void CreateRenderTargetView(TextureRenderTarget* RT, RenderTargetView* RTV);
+			void CreateRenderTargetView(SwapChain* swapChain, RenderTargetView* RTV);
 
-			DepthStencilView CreateDepthStencilView(TE_IDX_DEPTHSTENCIL idx);
-			DepthStencilView CreateDepthStencilView(TextureDepthStencil* DS);
+			void CreateDepthStencilView(TE_IDX_DEPTHSTENCIL idx, DepthStencilView* DSV);
+			void CreateDepthStencilView(TextureDepthStencil* DS, DepthStencilView* DSV);
 
 
-			ShaderResourceView CreateShaderResourceView(Texture* textures[], uint32_t textureNum);
-			ShaderResourceView CreateShaderResourceView(Texture* texture);
-			ConstantBufferView CreateConstantBufferView(TE_IDX_CONSTANTBUFFER idx);
+			void CreateShaderResourceView(Texture* textures[], uint32_t textureNum, ShaderResourceView* SRV);
+			void CreateShaderResourceView(Texture* texture, ShaderResourceView* SRV);
+			void CreateConstantBufferView(TE_IDX_CONSTANTBUFFER idx, ConstantBufferView* CBV);
 
 			TE_RESULT CreateVertexBuffer(VertexBufferBase* vb);
 			TE_RESULT CreateIndexBuffer(IndexBuffer* ib);
@@ -77,6 +77,8 @@ namespace TruthEngine
 			void ClearRenderTarget(const RenderTargetView RTV, uint32_t cmdListIndex = 0);
 			void ClearRenderTarget(const SwapChain* swapChain, const RenderTargetView RTV, uint32_t cmdListIndex = 0);
 			void ClearDepthStencil(const DepthStencilView DSV, uint32_t cmdListIndex = 0);
+
+			void Resize(TextureRenderTarget* texture, uint32_t width, uint32_t height);
 
 			bool IsRunning(uint32_t cmdListIndex = 0);
 		private:

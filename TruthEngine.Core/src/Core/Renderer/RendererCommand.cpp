@@ -126,6 +126,12 @@ namespace TruthEngine::Core
 		m_CommandLists[cmdListIndex]->ClearDepthStencil(DSV);
 	}
 
+	void RendererCommand::Resize(TextureRenderTarget* texture, uint32_t width, uint32_t height)
+	{
+		texture->Resize(width, height);
+		m_BufferManager->CreateResource(texture);
+	}
+
 	void RendererCommand::EndAndPresent(uint32_t cmdListIndex /*= 0*/)
 	{
 		m_CommandLists[cmdListIndex]->Present();
@@ -170,44 +176,44 @@ namespace TruthEngine::Core
 		return TE_INSTANCE_BUFFERMANAGER->CreateResource(cb);
 	}
 
-	TruthEngine::Core::DepthStencilView RendererCommand::CreateDepthStencilView(TextureDepthStencil* DS)
+	void RendererCommand::CreateDepthStencilView(TextureDepthStencil* DS, DepthStencilView* DSV)
 	{
-		return TE_INSTANCE_BUFFERMANAGER->CreateDepthStencilView(DS);
+		return TE_INSTANCE_BUFFERMANAGER->CreateDepthStencilView(DS, DSV);
 	}
 
-	TruthEngine::Core::DepthStencilView RendererCommand::CreateDepthStencilView(TE_IDX_DEPTHSTENCIL idx)
+	void RendererCommand::CreateDepthStencilView(TE_IDX_DEPTHSTENCIL idx, DepthStencilView* DSV)
 	{
-		return TE_INSTANCE_BUFFERMANAGER->CreateDepthStencilView(idx);
+		return TE_INSTANCE_BUFFERMANAGER->CreateDepthStencilView(idx, DSV);
 	}
 
-	TruthEngine::Core::RenderTargetView RendererCommand::CreateRenderTargetView(TextureRenderTarget* RT)
+	void RendererCommand::CreateRenderTargetView(TextureRenderTarget* RT, RenderTargetView* RTV)
 	{
-		return TE_INSTANCE_BUFFERMANAGER->CreateRenderTargetView(RT);
+		return TE_INSTANCE_BUFFERMANAGER->CreateRenderTargetView(RT, RTV);
 	}
 
-	TruthEngine::Core::RenderTargetView RendererCommand::CreateRenderTargetView(SwapChain* swapChain)
+	void RendererCommand::CreateRenderTargetView(SwapChain* swapChain, RenderTargetView* RTV)
 	{
-		return TE_INSTANCE_BUFFERMANAGER->CreateRenderTargetView(swapChain);
+		return TE_INSTANCE_BUFFERMANAGER->CreateRenderTargetView(swapChain, RTV);
 	}
 
-	TruthEngine::Core::RenderTargetView RendererCommand::CreateRenderTargetView(TE_IDX_RENDERTARGET idx)
+	void RendererCommand::CreateRenderTargetView(TE_IDX_RENDERTARGET idx, RenderTargetView* RTV)
 	{
-		return TE_INSTANCE_BUFFERMANAGER->CreateRenderTargetView(idx);
+		return TE_INSTANCE_BUFFERMANAGER->CreateRenderTargetView(idx, RTV);
 	}
 
-	TruthEngine::Core::ShaderResourceView RendererCommand::CreateShaderResourceView(Texture* textures[], uint32_t textureNum)
+	void RendererCommand::CreateShaderResourceView(Texture* textures[], uint32_t textureNum, ShaderResourceView* SRV)
 	{
-		return TE_INSTANCE_BUFFERMANAGER->CreateShaderResourceView(textures, textureNum);
+		return TE_INSTANCE_BUFFERMANAGER->CreateShaderResourceView(textures, textureNum, SRV);
 	}
 
-	TruthEngine::Core::ShaderResourceView RendererCommand::CreateShaderResourceView(Texture* texture)
+	void RendererCommand::CreateShaderResourceView(Texture* texture, ShaderResourceView* SRV)
 	{
-		return TE_INSTANCE_BUFFERMANAGER->CreateShaderResourceView(texture);
+		return TE_INSTANCE_BUFFERMANAGER->CreateShaderResourceView(texture, SRV);
 	}
 
-	TruthEngine::Core::ConstantBufferView RendererCommand::CreateConstantBufferView(TE_IDX_CONSTANTBUFFER idx)
+	void RendererCommand::CreateConstantBufferView(TE_IDX_CONSTANTBUFFER idx, ConstantBufferView* CBV)
 	{
-		return TE_INSTANCE_BUFFERMANAGER->CreateConstantBufferView(idx);
+		return TE_INSTANCE_BUFFERMANAGER->CreateConstantBufferView(idx, CBV);
 	}
 
 	TE_RESULT RendererCommand::CreateVertexBuffer(VertexBufferBase* vb)

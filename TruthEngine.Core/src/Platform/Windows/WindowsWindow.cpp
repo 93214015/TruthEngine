@@ -35,6 +35,10 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPara
 	case WM_ACTIVATEAPP:
 		return 0;
 
+	case WM_SIZE:
+		windowData->CallBack(TruthEngine::Core::EventWindowResize{ LOWORD(lParam), HIWORD(lParam) });
+		return 0;
+
 	case WM_INPUT:
 	case WM_MOUSEMOVE:
 	case WM_LBUTTONDOWN:

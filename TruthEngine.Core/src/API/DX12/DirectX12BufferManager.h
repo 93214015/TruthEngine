@@ -39,17 +39,17 @@ namespace TruthEngine::API::DirectX12 {
 
 		TE_RESULT CreateIndexBuffer(Core::IndexBuffer* ib) override;
 
-		Core::RenderTargetView CreateRenderTargetView(Core::TextureRenderTarget* RT) override;
+		void CreateRenderTargetView(Core::TextureRenderTarget* RT, Core::RenderTargetView* RTV) override;
 
-		Core::RenderTargetView CreateRenderTargetView(Core::SwapChain* swapChain) override;
+		void CreateRenderTargetView(Core::SwapChain* swapChain, Core::RenderTargetView* RTV) override;
 
-		Core::DepthStencilView CreateDepthStencilView(Core::TextureDepthStencil* DS) override;
+		void CreateDepthStencilView(Core::TextureDepthStencil* DS, Core::DepthStencilView* DSV) override;
 
-		Core::ShaderResourceView CreateShaderResourceView(Core::Texture* textures[], uint32_t textureNum) override;
+		void CreateShaderResourceView(Core::Texture* textures[], uint32_t textureNum, Core::ShaderResourceView* SRV) override;
 
-		Core::ShaderResourceView CreateShaderResourceView(Core::Texture* texture) override;
+		void CreateShaderResourceView(Core::Texture* texture, Core::ShaderResourceView* SRV) override;
 
-		Core::ConstantBufferView CreateConstantBufferView(const TE_IDX_CONSTANTBUFFER constantBufferIDX) override;
+		void CreateConstantBufferView(Core::ConstantBufferUploadBase* constantBuffer, Core::ConstantBufferView* CBV) override;
 
 		uint64_t GetRequiredSize(const Core::GraphicResource* graphicResource) const override;
 

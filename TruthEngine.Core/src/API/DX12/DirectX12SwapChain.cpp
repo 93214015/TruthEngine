@@ -35,9 +35,9 @@ namespace TruthEngine::API::DirectX12 {
 
 	}
 
-	uint32_t DirectX12SwapChain::InitRTVs(DescriptorHeapRTV* descHeap)
+	void DirectX12SwapChain::InitRTVs(DescriptorHeapRTV* descHeap, Core::RenderTargetView* RTV)
 	{
-		return CreateSwapChainRTVs(descHeap);
+		CreateSwapChainRTVs(descHeap, RTV);
 	}
 
 	void DirectX12SwapChain::Present()
@@ -84,18 +84,30 @@ namespace TruthEngine::API::DirectX12 {
 		}
 	}
 
-	uint32_t DirectX12SwapChain::CreateSwapChainRTVs(DescriptorHeapRTV* descHeap)
+	void DirectX12SwapChain::CreateSwapChainRTVs(DescriptorHeapRTV* descHeap, Core::RenderTargetView* RTV)
 	{
-		auto index = descHeap->GetCurrentIndex();
 
-		for (UINT i = 0; i < m_BackBufferNum; i++)
+		if (RTV->ViewIndex == -1)
 		{
-			ComPtr<ID3D12Resource> buffer;
-			m_SwapChain->GetBuffer(i, IID_PPV_ARGS(buffer.ReleaseAndGetAddressOf()));
-			descHeap->AddDescriptor(buffer.Get());
-		}
+			RTV->ViewIndex = descHeap->GetCurrentIndex();
 
-		return index;
+			for (UINT i = 0; i < m_BackBufferNum; i++)
+			{
+				ComPtr<ID3D12Resource> buffer;
+				m_SwapChain->GetBuffer(i, IID_PPV_ARGS(buffer.ReleaseAndGetAddressOf()));
+				descHeap->AddDescriptor(buffer.Get());
+			}
+
+		}
+		else
+		{
+			for (UINT i = 0; i < m_BackBufferNum; i++)
+			{
+				ComPtr<ID3D12Resource> buffer;
+				m_SwapChain->GetBuffer(i, IID_PPV_ARGS(buffer.ReleaseAndGetAddressOf()));
+				descHeap->ReplaceDescriptor(buffer.Get(), (RTV->ViewIndex + i) );
+			}
+		}
 	}
 
 	void DirectX12SwapChain::CheckDeviceFeatures()
