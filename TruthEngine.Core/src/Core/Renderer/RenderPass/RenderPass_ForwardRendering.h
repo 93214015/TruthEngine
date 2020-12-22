@@ -29,8 +29,8 @@ namespace TruthEngine
 			RenderPass_ForwardRendering(const RenderPass_ForwardRendering& renderer3D);
 			RenderPass_ForwardRendering& operator=(const RenderPass_ForwardRendering& renderer3D);
 
-
-			void Init(BufferManager* bufferMgr, const std::vector<Material>& materials);
+			void OnAttach() override;
+			void OnDetach() override;
 
 			void BeginScene();
 			void EndScene();

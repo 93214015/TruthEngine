@@ -1,6 +1,8 @@
 #include "pch.h"
 #include "RendererCommand.h"
 
+#include "Core/Application.h"
+
 #include "GraphicDevice.h"
 #include "BufferManager.h"
 #include "ShaderManager.h"
@@ -10,6 +12,7 @@
 #include "ConstantBuffer.h"
 #include "CommandList.h"
 #include "Viewport.h"
+#include "SwapChain.h"
 
 #include "Core/Entity/Model/Mesh.h"
 
@@ -32,6 +35,16 @@ namespace TruthEngine::Core
 			m_CommandLists.push_back(CommandList::Factory(&TE_INSTANCE_GRAPHICDEVICE, TE_RENDERER_COMMANDLIST_TYPE::DIRECT, m_BufferManager, shaderManager, renderPassIDX, shaderClassIDX));
 		}
 
+	}
+
+	void RendererCommand::Release()
+	{
+		for (auto cm : m_CommandLists)
+		{
+			cm->Release();
+		}
+
+		m_CommandLists.clear();
 	}
 
 	void RendererCommand::SetPipeline(Pipeline* pipeline, uint32_t cmdListIndex /*= 0*/)
@@ -142,6 +155,12 @@ namespace TruthEngine::Core
 
 	}
 
+	void RendererCommand::Resize(TE_IDX_RENDERTARGET idx, uint32_t width, uint32_t height, RenderTargetView* RTV, ShaderResourceView* SRV)
+	{
+		auto rt = m_BufferManager->GetRenderTarget(idx);
+		Resize(rt, width, height, RTV, SRV);
+	}
+
 	void RendererCommand::Resize(TextureDepthStencil* texture, uint32_t width, uint32_t height, DepthStencilView* DSV, ShaderResourceView* SRV)
 	{
 		texture->Resize(width, height);
@@ -154,6 +173,26 @@ namespace TruthEngine::Core
 		if (SRV != nullptr)
 		{
 			m_BufferManager->CreateShaderResourceView(texture, SRV);
+		}
+	}
+
+	void RendererCommand::Resize(TE_IDX_DEPTHSTENCIL idx, uint32_t width, uint32_t height, DepthStencilView* DSV, ShaderResourceView* SRV)
+	{
+		auto ds = m_BufferManager->GetDepthStencil(idx);
+		Resize(ds, width, height, DSV, SRV);
+	}
+
+	void RendererCommand::Resize(SwapChain* swapChain, uint32_t width, uint32_t height, RenderTargetView* RTV, ShaderResourceView* SRV)
+	{
+		swapChain->Resize(width, height, TE_INSTANCE_APPLICATION->GetFramesInFlightNum());
+
+		if (RTV != nullptr)
+		{
+			m_BufferManager->CreateRenderTargetView(swapChain, RTV);
+		}
+		if (SRV != nullptr)
+		{
+			//m_BufferManager->CreateShaderResourceView()
 		}
 	}
 
@@ -200,6 +239,25 @@ namespace TruthEngine::Core
 	TE_RESULT RendererCommand::CreateResource(BufferUpload* cb)
 	{
 		return TE_INSTANCE_BUFFERMANAGER->CreateResource(cb);
+	}
+
+	void RendererCommand::ReleaseResource(GraphicResource* graphicResource)
+	{
+		m_BufferManager->ReleaseResource(graphicResource);
+	}
+
+	void RendererCommand::ReleaseResource(TE_IDX_RENDERTARGET idx)
+	{
+		auto rt = m_BufferManager->GetRenderTarget(idx);
+
+		m_BufferManager->ReleaseResource(rt);
+	}
+
+	void RendererCommand::ReleaseResource(TE_IDX_DEPTHSTENCIL idx)
+	{
+		auto ds = m_BufferManager->GetDepthStencil(idx);
+
+		m_BufferManager->ReleaseResource(ds);
 	}
 
 	void RendererCommand::CreateDepthStencilView(TextureDepthStencil* DS, DepthStencilView* DSV)

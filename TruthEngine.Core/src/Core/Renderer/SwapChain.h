@@ -17,6 +17,12 @@ namespace TruthEngine::Core {
 	public:
 		virtual void Present() = 0;
 
+		virtual TE_RESULT Init(UINT clientWidth, UINT clientHeight, Window* outputWindow, UINT backBufferNum = 2) = 0;
+
+		virtual void Release() = 0;
+
+		virtual TE_RESULT Resize(UINT width, UINT height, UINT backBufferNum) = 0;
+
 		inline const ClearValue_RenderTarget GetClearValues() const noexcept
 		{
 			return m_ClearValues;

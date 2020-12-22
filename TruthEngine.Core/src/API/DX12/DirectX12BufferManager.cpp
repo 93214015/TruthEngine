@@ -474,19 +474,16 @@ namespace TruthEngine::API::DirectX12
 		m_Rect_FullScreen.bottom = TE_INSTANCE_APPLICATION->GetClientHeight();
 	}
 
-	TE_RESULT DirectX12BufferManager::ReleaseResource(Core::GraphicResource* resource)
+	void DirectX12BufferManager::ReleaseResource(Core::GraphicResource* resource)
 	{
 		auto resourceIndex = resource->m_ResourceIndex;
 
 		if (resourceIndex == -1)
 		{
-			return TE_SUCCESSFUL;
+			return;
 		}
 
 		m_Resources[resourceIndex]->Release();
-		resource->m_ResourceIndex = -1;
-
-		return TE_SUCCESSFUL;
 	}
 
 	TruthEngine::Core::ConstantBufferUploadBase* DirectX12BufferManager::GetConstantBufferUpload(TE_IDX_CONSTANTBUFFER cbIDX)

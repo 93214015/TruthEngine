@@ -55,6 +55,8 @@ namespace TruthEngine::API::DirectX12 {
 
 		ID3D12Resource* GetResource(Core::GraphicResource* graphicResource);
 
+		void ReleaseResource(Core::GraphicResource* resource) override;
+
 	private:
 		TE_RESULT CreateResource(Core::TextureRenderTarget* tRT) override;
 
@@ -64,7 +66,6 @@ namespace TruthEngine::API::DirectX12 {
 
 		TE_RESULT CreateResource(Core::IndexBuffer* ib) override;
 
-		TE_RESULT ReleaseResource(Core::GraphicResource* resource) override;
 
 	private:
 

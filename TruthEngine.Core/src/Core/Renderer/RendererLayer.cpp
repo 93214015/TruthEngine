@@ -29,6 +29,9 @@ namespace TruthEngine::Core
 
 		m_BufferManager->Init(20, 10, 10, 10);
 
+		// init singleton object of dx12 swap chain
+		TE_INSTANCE_SWAPCHAIN->Init(TE_INSTANCE_APPLICATION->GetClientWidth(), TE_INSTANCE_APPLICATION->GetClientHeight(), TE_INSTANCE_APPLICATION->GetWindow(), TE_INSTANCE_APPLICATION->GetFramesInFlightNum());
+
 		m_RendererCommand.Init(TE_IDX_RENDERPASS::NONE, TE_IDX_SHADERCLASS::NONE);
 
 		m_RendererCommand.Begin();
@@ -62,6 +65,7 @@ namespace TruthEngine::Core
 	void RendererLayer::OnDetach()
 	{
 		m_ImGuiLayer->OnDetach();
+		TE_INSTANCE_SWAPCHAIN->Release();
 	}
 
 	void RendererLayer::OnUpdate(double deltaFrameTime)
@@ -113,6 +117,13 @@ namespace TruthEngine::Core
 
 	void RendererLayer::OnResize(const EventWindowResize& event)
 	{
+		auto width = event.GetWidth();
+		auto height = event.GetHeight();
+
+		m_RendererCommand.Resize(TE_INSTANCE_SWAPCHAIN, width, height, &m_RTVBackBuffer, nullptr);
+
+		m_RendererCommand.Resize(TE_IDX_RENDERTARGET::SCENEBUFFER, width, height, &m_RTVBackBuffer, nullptr);
+
 		m_Renderer3D->OnResize(event.GetWidth(), event.GetHeight());
 	}
 

@@ -197,6 +197,7 @@
     <ClInclude Include="src\Core\Renderer\Pipeline.h" />
     <ClInclude Include="src\Core\Renderer\PipelineState.h" />
     <ClInclude Include="src\Core\Renderer\RenderPass.h" />
+    <ClInclude Include="src\Core\Renderer\RenderPassStack.h" />
     <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_ForwardRendering.h" />
     <ClInclude Include="src\Core\Renderer\RendererCommand.h" />
     <ClInclude Include="src\Core\Renderer\RendererIDX.h" />
@@ -267,6 +268,7 @@
     <ClCompile Include="src\Core\Renderer\MaterialManager.cpp" />
     <ClCompile Include="src\Core\Renderer\Pipeline.cpp" />
     <ClCompile Include="src\Core\Renderer\RenderPass.cpp" />
+    <ClCompile Include="src\Core\Renderer\RenderPassStack.cpp" />
     <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_ForwardRendering.cpp" />
     <ClCompile Include="src\Core\Renderer\RendererCommand.cpp" />
     <ClCompile Include="src\Core\Renderer\RendererLayer.cpp" />

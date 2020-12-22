@@ -22,17 +22,23 @@ namespace TruthEngine::API::DirectX12 {
 
 	DirectX12SwapChain::DirectX12SwapChain() = default;
 
-	TE_RESULT DirectX12SwapChain::Init(UINT clientWidth, UINT clientHeight, HWND outputHWND, UINT backBufferNum)
+	TE_RESULT DirectX12SwapChain::Init(UINT clientWidth, UINT clientHeight, Core::Window* outputHWND, UINT backBufferNum)
 	{
 
 		m_BackBufferNum = backBufferNum;
 
-		CreateSwapChain(outputHWND);
+		CreateSwapChain(static_cast<HWND>(outputHWND->GetNativeWindowHandle()));
 
 		m_CurrentBackBufferResourceState.resize(backBufferNum, D3D12_RESOURCE_STATE_PRESENT);
 
 		return TE_SUCCESSFUL;
 
+	}
+
+	void DirectX12SwapChain::Release()
+	{
+		m_BackBuffers.clear();
+		m_SwapChain->Release();
 	}
 
 	void DirectX12SwapChain::InitRTVs(DescriptorHeapRTV* descHeap, Core::RenderTargetView* RTV)
@@ -65,7 +71,7 @@ namespace TruthEngine::API::DirectX12 {
 			desc1.Stereo = FALSE;
 			desc1.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 
-			auto r = TE_INSTANCE_IDXGI.GetDXGIFactory()->CreateSwapChainForHwnd(TE_INSTANCE_API_DX12_COMMANDQUEUEDIRECT->m_CommandQueue.Get(), outputHWND, &desc1, NULL, NULL, &swapChain1);
+			auto r = TE_INSTANCE_IDXGI.GetDXGIFactory()->CreateSwapChainForHwnd(TE_INSTANCE_API_DX12_COMMANDQUEUEDIRECT->m_CommandQueue.Get(), outputHWND, &desc1, NULL, NULL, swapChain1.GetAddressOf());
 
 			TE_ASSERT_CORE(r, "API::DirectX12  Creation of 'SwapChain' factory is failed!");
 

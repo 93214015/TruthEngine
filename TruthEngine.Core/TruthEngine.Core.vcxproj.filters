@@ -267,6 +267,7 @@
     <ClInclude Include="src\TruthEngine.h" />
     <ClInclude Include="src\lib.h" />
     <ClInclude Include="src\pch.h" />
+    <ClInclude Include="src\Core\Renderer\RenderPassStack.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\API\DX12\DirectX12BufferManager.cpp">
@@ -456,5 +457,6 @@
       <Filter>Platform\Windows</Filter>
     </ClCompile>
     <ClCompile Include="src\pch.cpp" />
+    <ClCompile Include="src\Core\Renderer\RenderPassStack.cpp" />
   </ItemGroup>
 </Project>

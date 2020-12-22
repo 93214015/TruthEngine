@@ -93,12 +93,6 @@ namespace TruthEngine::Core
 
 		TextureDepthStencil* GetDepthStencil(TE_IDX_DEPTHSTENCIL idx);
 
-		/*void CreateRenderTargetView(TE_IDX_RENDERTARGET idx, RenderTargetView* rtv);
-
-		void CreateDepthStencilView(TE_IDX_DEPTHSTENCIL idx, DepthStencilView* dsv);
-
-		void CreateConstantBufferView(TE_IDX_CONSTANTBUFFER constantBufferIDX, ConstantBufferView* CBV);*/
-
 		virtual ConstantBufferUploadBase* GetConstantBufferUpload(TE_IDX_CONSTANTBUFFER cbIDX) = 0;
 
 		virtual void CreateRenderTargetView(TextureRenderTarget* RT, RenderTargetView* rtv) = 0;
@@ -119,14 +113,14 @@ namespace TruthEngine::Core
 
 		virtual uint64_t GetRequiredSize(const GraphicResource* graphicResource) const = 0;
 
+		virtual void ReleaseResource(GraphicResource* graphicResource) = 0;
+
 
 	protected:
 		virtual TE_RESULT CreateResource(TextureRenderTarget* tRT) = 0;
 		virtual TE_RESULT CreateResource(TextureDepthStencil* tDS) = 0;
 		virtual TE_RESULT CreateResource(VertexBufferStreamBase* vb) = 0;
 		virtual TE_RESULT CreateResource(IndexBuffer* ib) = 0;
-
-		virtual TE_RESULT ReleaseResource(GraphicResource* resource) = 0;
 
 	protected:
 		uint32_t m_LastVertexBufferID;

@@ -15,17 +15,13 @@ namespace TruthEngine::API::DirectX12 {
 	public:
 		static inline DirectX12SwapChain& GetInstance() { return s_SwapChain; }
 
-		TE_RESULT Init(UINT clientWidth, UINT clientHeight, HWND outputHWND, UINT backBufferNum = 2);
+		TE_RESULT Init(UINT clientWidth, UINT clientHeight, Core::Window* outputWindow, UINT backBufferNum = 2) override;
 
-		TE_RESULT Resize(UINT width, UINT height, UINT backBufferNum);
+		void Release() override;
+
+		TE_RESULT Resize(UINT width, UINT height, UINT backBufferNum) override;
 
 		void InitRTVs(DescriptorHeapRTV* descHeap, Core::RenderTargetView* RTV);
-
-// 		inline void ChangeResourceState(D3D12_RESOURCE_BARRIER& barrier, D3D12_RESOURCE_STATES stateAfter) 
-// 		{
-// 			barrier = CD3DX12_RESOURCE_BARRIER::Transition(GetBackBufferResource(), GetBackBufferState(), stateAfter);
-// 		}
-
 
 		inline ID3D12Resource* GetBackBufferResource() const { return m_BackBuffers[GetCurrentFrameIndex()].Get(); };
 

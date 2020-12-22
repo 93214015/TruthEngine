@@ -3,6 +3,7 @@
 
 #include "Core/Entity/Model/Model3D.h"
 #include "Core/Entity/Model/Mesh.h"
+#include "Core/Entity/Model/ModelManager.h"
 #include "Core/Renderer/Material.h"
 #include "Core/Renderer/Pipeline.h"
 
@@ -27,9 +28,9 @@ namespace TruthEngine::Core
 	RenderPass_ForwardRendering& RenderPass_ForwardRendering::operator=(const RenderPass_ForwardRendering& renderer3D) = default;
 
 
-	void RenderPass_ForwardRendering::Init(BufferManager* bufferMgr, const std::vector<Material>& materials)
+	void RenderPass_ForwardRendering::OnAttach()
 	{
-		m_BufferMgr = bufferMgr;
+		m_BufferMgr = TE_INSTANCE_BUFFERMANAGER.get();
 
 		m_ShaderMgr = TE_INSTANCE_SHADERMANAGER;
 
@@ -37,11 +38,9 @@ namespace TruthEngine::Core
 
 		m_TextureDepthStencil = m_RendererCommand.CreateDepthStencil(TE_IDX_DEPTHSTENCIL::SCENEBUFFER, TE_INSTANCE_APPLICATION->GetClientWidth(), TE_INSTANCE_APPLICATION->GetClientHeight(), TE_RESOURCE_FORMAT::R32_TYPELESS, ClearValue_DepthStencil{ 1.0f, 0 }, false);
 
-		//m_RenderTartgetView = m_RendererCommand.CreateRenderTargetView(TE_INSTANCE_SWAPCHAIN);
-
 		m_RendererCommand.CreateDepthStencilView(m_TextureDepthStencil, &m_DepthStencilView);
 
-		for (const auto& mat : materials)
+		for (const auto& mat : TE_INSTANCE_MODELMANAGER->GetMaterials())
 		{
 			std::string shaderName = std::string("renderer3D_material") + std::to_string(mat.GetID());
 
@@ -88,6 +87,13 @@ namespace TruthEngine::Core
 		m_RendererCommand.CreateRenderTargetView(TE_IDX_RENDERTARGET::SCENEBUFFER, &m_RenderTartgetView);
 	}
 
+	void RenderPass_ForwardRendering::OnDetach()
+	{
+		m_RendererCommand.Release();
+		m_RendererCommand.ReleaseResource(m_TextureDepthStencil);
+		m_MaterialPipelines.clear();
+	}
+
 
 	void RenderPass_ForwardRendering::BeginScene()
 	{
@@ -110,7 +116,6 @@ namespace TruthEngine::Core
 	void RenderPass_ForwardRendering::Render(std::vector<const Model3D*> models)
 	{
 
-
 		for (auto m : models)
 		{
 			for (auto mesh : m->GetMeshes())
@@ -125,13 +130,18 @@ namespace TruthEngine::Core
 
 		m_RendererCommand.End();
 
-
 	}
 
 
 	void RenderPass_ForwardRendering::OnResize(uint32_t width, uint32_t height)
 	{
+		m_RendererCommand.Resize(m_TextureDepthStencil, width, height, &m_DepthStencilView, nullptr);
 
+		m_RendererCommand.CreateRenderTargetView(TE_IDX_RENDERTARGET::SCENEBUFFER, &m_RenderTartgetView);
+
+		m_Viewport.Resize(width, height);
+
+		m_ViewREct = ViewRect{ 0, 0, width, height };
 	}
 
 
