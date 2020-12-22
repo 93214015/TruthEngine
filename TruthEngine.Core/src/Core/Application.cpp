@@ -3,6 +3,8 @@
 #include "Core/Renderer/GraphicDevice.h"
 #include "Core/Entity/Model/ModelManager.h"
 
+#include "Core/Event/EventApplication.h"
+
 namespace TruthEngine::Core {
 
 	Application::Application(const char* title, uint32_t clientWidth, uint32_t clientHeight) : m_Title(title), m_ClientWidth(clientWidth), m_ClientHeight(clientHeight)
@@ -22,6 +24,16 @@ namespace TruthEngine::Core {
 
 	Application::~Application() = default;
 
+
+	void Application::ResizeSceneViewport(uint32_t width, uint32_t height) noexcept
+	{
+		m_SceneViewportWidth = width;
+		m_SceneViewportHeight = height;
+
+		EventSceneViewportResize event{width, height};
+
+		OnEvent(event);
+	}
 
 	void Application::Run()
 	{

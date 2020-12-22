@@ -58,8 +58,11 @@ namespace TruthEngine::Core
 
 		m_RenderPassStack.PushRenderPass(m_RenderPass_ForwardRendering.get());
 
-		auto listener = [this](Event& event) {  OnResize(static_cast<EventWindowResize&>(event)); };
-		TE_INSTANCE_APPLICATION->RegisterEventListener(EventType::WindowResize, listener);
+		auto listener_windowResize = [this](Event& event) {  OnWindowResize(static_cast<EventWindowResize&>(event)); };
+		TE_INSTANCE_APPLICATION->RegisterEventListener(EventType::WindowResize, listener_windowResize);
+
+		auto listener_sceneViewportResize = [this](Event& event) {  OnSceneViewportResize(static_cast<EventSceneViewportResize&>(event)); };
+		TE_INSTANCE_APPLICATION->RegisterEventListener(EventType::SceneViewportResize, listener_sceneViewportResize);
 	}
 
 	void RendererLayer::OnDetach()
@@ -120,20 +123,24 @@ namespace TruthEngine::Core
 		m_RendererCommand.EndAndPresent();
 	}
 
-	void RendererLayer::OnResize(const EventWindowResize& event)
+	void RendererLayer::OnWindowResize(const EventWindowResize& event)
 	{
 		auto width = event.GetWidth();
 		auto height = event.GetHeight();
 
 		m_RendererCommand.Resize(TE_INSTANCE_SWAPCHAIN, width, height, &m_RTVBackBuffer, nullptr);
 
-		m_RendererCommand.Resize(TE_IDX_RENDERTARGET::SCENEBUFFER, width, height, &m_RTVBackBuffer, nullptr);
-
-		m_RenderPass_ForwardRendering->OnResize(event.GetWidth(), event.GetHeight());
 	}
 
-	void RendererLayer::InitGPUResource()
+	void RendererLayer::OnSceneViewportResize(const EventSceneViewportResize& event)
 	{
+		auto width = event.GetWidth();
+		auto height = event.GetHeight();
+
+		m_RendererCommand.Resize(TE_IDX_RENDERTARGET::SCENEBUFFER, width, height, &m_RTVBackBuffer, nullptr);
+
+		m_RenderPass_ForwardRendering->OnSceneViewportResize(event.GetWidth(), event.GetHeight());
+
 	}
 
 }

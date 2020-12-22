@@ -137,7 +137,7 @@ namespace TruthEngine::Core
 	}
 
 
-	void RenderPass_ForwardRendering::OnResize(uint32_t width, uint32_t height)
+	void RenderPass_ForwardRendering::OnSceneViewportResize(uint32_t width, uint32_t height)
 	{
 		m_RendererCommand.Resize(m_TextureDepthStencil, width, height, &m_DepthStencilView, nullptr);
 

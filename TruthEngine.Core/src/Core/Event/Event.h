@@ -5,7 +5,7 @@ namespace TruthEngine::Core {
 
 	enum class EventType : uint8_t {
 		None = 0,
-		WindowClose, WindowResize, WindowFocus, WindowLostFocus, WindowMoved,
+		WindowClose, WindowResize, WindowFocus, WindowLostFocus, WindowMoved, SceneViewportResize,
 		AppTick, AppUpdate, AppProcess,
 		KeyPressed, KeyReleased, KeyTyped,
 		MouseButtonPressed, MouseButtonReleased, MouseMoved, MouseScrolled,

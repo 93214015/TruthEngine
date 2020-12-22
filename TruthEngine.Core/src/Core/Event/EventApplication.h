@@ -25,6 +25,26 @@ namespace TruthEngine::Core {
 		uint32_t m_Width, m_Height;
 	};
 
+	class EventSceneViewportResize : public Event
+	{
+	public:
+		EventSceneViewportResize(const uint32_t width, const uint32_t height)
+			: m_Width(width), m_Height(height)
+		{}
+
+		uint32_t GetWidth() const noexcept { return m_Width; }
+		uint32_t GetHeight() const noexcept { return m_Height; }
+
+
+		EVENT_CLASS_TYPE(SceneViewportResize)
+		EVENT_CLASS_CATEGORY(EventCategoryApplication)
+
+	protected:
+		uint32_t m_Width;
+		uint32_t m_Height;
+
+	};
+
 
 	class EventWindowClose : public Event {
 	public:

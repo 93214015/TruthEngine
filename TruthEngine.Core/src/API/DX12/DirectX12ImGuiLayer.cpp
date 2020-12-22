@@ -103,6 +103,7 @@ namespace TruthEngine::API::DirectX12 {
 		//Set DockPanel
 		ImGui::DockSpaceOverViewport(ImGui::GetMainViewport());
 
+
 		// 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
 		if (show_demo_window)
 			ImGui::ShowDemoWindow(&show_demo_window);
@@ -129,8 +130,16 @@ namespace TruthEngine::API::DirectX12 {
 			ImGui::End();
 		}
 
-		ImGui::Begin("RenderScreenBuffer");
-		ImGui::Image((ImTextureID)m_DescHeapSRV.GetGPUHandle(m_SRVIndexScreenBuffer).ptr, ImVec2{ 128.0f, 128.0f });
+		ImGui::Begin("SceneViewport");
+		auto viewportSize = ImGui::GetContentRegionAvail();
+		if (viewportSize.x != TE_INSTANCE_APPLICATION->GetSceneViewportWidth() || viewportSize.y != TE_INSTANCE_APPLICATION->GetSceneViewportHeight())
+		{
+			if (viewportSize.x > 0 && viewportSize.y > 0)
+			{
+				TE_INSTANCE_APPLICATION->ResizeSceneViewport(static_cast<uint32_t>(viewportSize.x), static_cast<uint32_t>(viewportSize.y));
+			}
+		}
+		ImGui::Image((ImTextureID)m_DescHeapSRV.GetGPUHandle(m_SRVIndexScreenBuffer).ptr, viewportSize);
 		ImGui::End();
 	}
 

@@ -20,6 +20,11 @@ namespace TruthEngine::Core {
 
 		inline uint32_t GetClientHeight() const noexcept { return m_ClientHeight; }
 
+		inline uint32_t GetSceneViewportWidth() const noexcept { return m_SceneViewportWidth; }
+
+		inline uint32_t GetSceneViewportHeight() const noexcept { return m_SceneViewportHeight; }
+
+
 		inline uint32_t GetFramesInFlightNum() const noexcept { return m_FramesInFlightNum; }
 
 		inline uint32_t GetCurrentFrameIndex() const noexcept { return m_CurrentFrameIndex; }
@@ -30,6 +35,8 @@ namespace TruthEngine::Core {
 		{
 			m_EventDispatcher.RegisterListener(eventType, listener);
 		}
+
+		void ResizeSceneViewport(uint32_t width, uint32_t height) noexcept;
 
 		Window* GetWindow() { return m_Window.get(); }
 
@@ -60,6 +67,8 @@ namespace TruthEngine::Core {
 
 		uint32_t m_ClientWidth = 0;
 		uint32_t m_ClientHeight = 0;
+		uint32_t m_SceneViewportWidth = 0;
+		uint32_t m_SceneViewportHeight = 0;
 		uint32_t m_FramesInFlightNum = 2;
 		uint32_t m_CurrentFrameIndex = 0;
 

@@ -14,7 +14,7 @@ namespace TruthEngine
 			virtual void OnDetach() = 0;
 			virtual void OnImGuiRender() = 0;
 
-			virtual void OnResize(uint32_t width, uint32_t height) = 0;
+			virtual void OnSceneViewportResize(uint32_t width, uint32_t height) = 0;
 		protected:
 
 		protected:

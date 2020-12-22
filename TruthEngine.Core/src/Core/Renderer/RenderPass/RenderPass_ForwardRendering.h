@@ -39,7 +39,7 @@ namespace TruthEngine
 
 			void Render(std::vector<const Model3D*> model);
 
-			void OnResize(uint32_t width, uint32_t height) override;
+			void OnSceneViewportResize(uint32_t width, uint32_t height) override;
 		private:
 
 
