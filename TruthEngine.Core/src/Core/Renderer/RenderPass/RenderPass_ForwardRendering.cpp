@@ -141,7 +141,7 @@ namespace TruthEngine::Core
 
 		m_Viewport.Resize(width, height);
 
-		m_ViewREct = ViewRect{ 0, 0, width, height };
+		m_ViewREct = ViewRect{ 0, 0, static_cast<long>(width), static_cast<long>(height)};
 	}
 
 

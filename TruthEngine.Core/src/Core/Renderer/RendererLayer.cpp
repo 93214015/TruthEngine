@@ -43,7 +43,7 @@ namespace TruthEngine::Core
 
 		m_RendererCommand.CreateRenderTarget(TE_IDX_RENDERTARGET::SCENEBUFFER, TE_INSTANCE_APPLICATION->GetClientWidth(), TE_INSTANCE_APPLICATION->GetClientHeight(), TE_RESOURCE_FORMAT::R8G8B8A8_UNORM, ClearValue_RenderTarget{ 1.0f, 1.0f, 1.0f, 1.0f }, true);
 
-	    m_Renderer3D->Init(m_BufferManager.get(), m_ModelManagers->GetMaterials());
+	    //m_Renderer3D->Init(m_BufferManager.get(), m_ModelManagers->GetMaterials());
 
 		for (auto& model : m_ModelManagers->GetModel3D())
 		{
