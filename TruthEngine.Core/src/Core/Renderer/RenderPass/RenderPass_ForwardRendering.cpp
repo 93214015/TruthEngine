@@ -94,6 +94,10 @@ namespace TruthEngine::Core
 		m_MaterialPipelines.clear();
 	}
 
+	void RenderPass_ForwardRendering::OnImGuiRender()
+	{
+	}
+
 
 	void RenderPass_ForwardRendering::BeginScene()
 	{

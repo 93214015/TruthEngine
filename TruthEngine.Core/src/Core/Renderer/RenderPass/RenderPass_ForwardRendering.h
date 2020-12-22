@@ -32,6 +32,8 @@ namespace TruthEngine
 			void OnAttach() override;
 			void OnDetach() override;
 
+			void OnImGuiRender() override;
+
 			void BeginScene();
 			void EndScene();
 

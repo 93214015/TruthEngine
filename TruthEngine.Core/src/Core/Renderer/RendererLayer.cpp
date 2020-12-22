@@ -14,7 +14,7 @@
 namespace TruthEngine::Core
 {
 
-	RendererLayer::RendererLayer() : m_ImGuiLayer(ImGuiLayer::Factory()), m_Renderer3D(std::make_shared<RenderPass_ForwardRendering>())
+	RendererLayer::RendererLayer() : m_ImGuiLayer(ImGuiLayer::Factory()), m_RenderPass_ForwardRendering(std::make_shared<RenderPass_ForwardRendering>())
 	{
 	}
 	RendererLayer::~RendererLayer() = default;
@@ -43,8 +43,6 @@ namespace TruthEngine::Core
 
 		m_RendererCommand.CreateRenderTarget(TE_IDX_RENDERTARGET::SCENEBUFFER, TE_INSTANCE_APPLICATION->GetClientWidth(), TE_INSTANCE_APPLICATION->GetClientHeight(), TE_RESOURCE_FORMAT::R8G8B8A8_UNORM, ClearValue_RenderTarget{ 1.0f, 1.0f, 1.0f, 1.0f }, true);
 
-	    //m_Renderer3D->Init(m_BufferManager.get(), m_ModelManagers->GetMaterials());
-
 		for (auto& model : m_ModelManagers->GetModel3D())
 		{
 			m_Model3DQueue.emplace_back(&model);
@@ -58,12 +56,16 @@ namespace TruthEngine::Core
 
 		m_ImGuiLayer->OnAttach();
 
+		m_RenderPassStack.PushRenderPass(m_RenderPass_ForwardRendering.get());
+
 		auto listener = [this](Event& event) {  OnResize(static_cast<EventWindowResize&>(event)); };
-		TE_INSTANCE_APPLICATION->RegisterEventListener(EventType::WindowResize,  listener);
+		TE_INSTANCE_APPLICATION->RegisterEventListener(EventType::WindowResize, listener);
 	}
 
 	void RendererLayer::OnDetach()
 	{
+		m_RenderPassStack.PopAll();
+
 		m_ImGuiLayer->OnDetach();
 		TE_INSTANCE_SWAPCHAIN->Release();
 	}
@@ -77,9 +79,12 @@ namespace TruthEngine::Core
 		color.w = std::fmod(color.w + 0.01f, 1.0f);
 		m_CB_PerFrame->GetData()->m_Color = color;
 
-		m_Renderer3D->BeginScene();
-		m_Renderer3D->EndScene();
-		m_Renderer3D->Render(m_Model3DQueue);
+		for (auto renderPass : m_RenderPassStack)
+		{
+			m_RenderPass_ForwardRendering->BeginScene();
+			m_RenderPass_ForwardRendering->EndScene();
+			m_RenderPass_ForwardRendering->Render(m_Model3DQueue);
+		}
 	}
 
 
@@ -124,7 +129,7 @@ namespace TruthEngine::Core
 
 		m_RendererCommand.Resize(TE_IDX_RENDERTARGET::SCENEBUFFER, width, height, &m_RTVBackBuffer, nullptr);
 
-		m_Renderer3D->OnResize(event.GetWidth(), event.GetHeight());
+		m_RenderPass_ForwardRendering->OnResize(event.GetWidth(), event.GetHeight());
 	}
 
 	void RendererLayer::InitGPUResource()

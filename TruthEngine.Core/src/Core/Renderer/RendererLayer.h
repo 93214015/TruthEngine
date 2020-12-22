@@ -3,6 +3,7 @@
 
 #include "BufferManager.h"
 #include "RendererCommand.h"
+#include "RenderPassStack.h"
 
 #include "RenderPass/RenderPass_ForwardRendering.h"
 
@@ -50,9 +51,11 @@ namespace TruthEngine::Core
 	private:
 		RendererCommand m_RendererCommand;
 
+		RenderPassStack m_RenderPassStack;
+
 		std::shared_ptr<ImGuiLayer> m_ImGuiLayer;
 
-		std::shared_ptr<RenderPass_ForwardRendering> m_Renderer3D;
+		std::shared_ptr<RenderPass_ForwardRendering> m_RenderPass_ForwardRendering;
 
 		std::shared_ptr<ModelManager> m_ModelManagers;
 
