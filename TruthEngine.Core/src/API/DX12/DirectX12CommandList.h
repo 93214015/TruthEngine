@@ -102,8 +102,10 @@ namespace TruthEngine
 
 			bool IsRunning() override;
 
-		protected:
 
+			void WaitToFinish() override;
+
+		protected:
 
 			void _BindResource();
 
@@ -130,6 +132,7 @@ namespace TruthEngine
 
 
 			void _SetDescriptorHeapSRV();
+
 
 
 		protected:

@@ -90,13 +90,14 @@ namespace TruthEngine
 			void Resize(SwapChain* swapChain, uint32_t width, uint32_t height, RenderTargetView* RTV, ShaderResourceView* SRV);
 
 			bool IsRunning(uint32_t cmdListIndex = 0);
-		private:
-
-
 
 		private:
+			void WaitToFinish();
+
+		private:
+			uint32_t m_LastCommadListIndex = 0;
+
 			std::vector<std::shared_ptr<CommandList>> m_CommandLists;
-
 
 			std::shared_ptr<BufferManager> m_BufferManager;
 			std::shared_ptr<ShaderManager> m_ShaderManager;

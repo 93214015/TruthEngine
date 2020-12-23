@@ -218,8 +218,6 @@ namespace TruthEngine::API::DirectX12
 	void DirectX12CommandList::Submit()
 	{
 		TE_INSTANCE_API_DX12_COMMANDQUEUEDIRECT->ExecuteCommandList(this);
-
-
 	}
 
 
@@ -318,6 +316,11 @@ namespace TruthEngine::API::DirectX12
 	bool DirectX12CommandList::IsRunning()
 	{
 		return m_CommandAllocator.IsRunning();
+	}
+
+	void DirectX12CommandList::WaitToFinish()
+	{
+		m_CommandAllocator.WaitToFinish();
 	}
 
 	void DirectX12CommandList::_ResetContainers()

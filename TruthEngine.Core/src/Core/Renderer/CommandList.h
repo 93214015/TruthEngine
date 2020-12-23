@@ -64,6 +64,8 @@ namespace TruthEngine::Core
 
 		virtual bool IsRunning() = 0;
 
+		virtual void WaitToFinish() = 0;
+
 		static std::shared_ptr<CommandList> Factory(GraphicDevice* graphicDevice, TE_RENDERER_COMMANDLIST_TYPE type, std::shared_ptr<BufferManager> bufferManager, std::shared_ptr<ShaderManager> shaderManager, TE_IDX_RENDERPASS renderPassIDX, TE_IDX_SHADERCLASS shaderClassIDX);
 
 	protected:

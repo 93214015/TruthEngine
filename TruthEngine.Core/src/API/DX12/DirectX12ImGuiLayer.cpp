@@ -134,7 +134,7 @@ namespace TruthEngine::API::DirectX12 {
 		auto viewportSize = ImGui::GetContentRegionAvail();
 		if (viewportSize.x != TE_INSTANCE_APPLICATION->GetSceneViewportWidth() || viewportSize.y != TE_INSTANCE_APPLICATION->GetSceneViewportHeight())
 		{
-			if (viewportSize.x > 0 && viewportSize.y > 0)
+			if (viewportSize.x > 1 && viewportSize.y > 1)
 			{
 				TE_INSTANCE_APPLICATION->ResizeSceneViewport(static_cast<uint32_t>(viewportSize.x), static_cast<uint32_t>(viewportSize.y));
 			}

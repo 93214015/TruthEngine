@@ -130,6 +130,8 @@ namespace TruthEngine::API::DirectX12
 
 		COMPTR<ID3D12Resource>* resource;
 
+//		COMPTR<ID3D12Resource>& resource = tRT->m_ResourceIndex == -1 ? m_Resources.emplace_back() : m_Resources[tRT->m_ResourceIndex];
+
 		if (tRT->m_ResourceIndex == -1)
 		{
 			tRT->m_ResourceIndex = static_cast<uint32_t>(m_Resources.size());

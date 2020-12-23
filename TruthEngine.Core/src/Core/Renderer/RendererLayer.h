@@ -64,7 +64,7 @@ namespace TruthEngine::Core
 
 		std::vector<const Model3D*> m_Model3DQueue;
 
-		RenderTargetView m_RTVBackBuffer;
+		RenderTargetView m_RTVBackBuffer, m_RTVSceneBuffer;
 
 		ConstantBufferUpload<ConstantBuffer_Data_Per_Frame>* m_CB_PerFrame;
 

@@ -17,11 +17,15 @@ namespace TruthEngine::API::DirectX12 {
 		inline void Release() { m_CommandAllocator.Reset(); }
 
 		bool IsRunning();
+
+		void WaitToFinish();
 	private:
 		COMPTR<ID3D12CommandAllocator> m_CommandAllocator;
 		uint64_t m_FenceValue = 0;
 
 		DirectX12CommandQueue* m_RunningCommandQueue;
+
+		HANDLE event;
 
 		//
 		//Friend Classes

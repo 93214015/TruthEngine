@@ -141,6 +141,8 @@ namespace TruthEngine::Core
 
 	void RendererCommand::Resize(TextureRenderTarget* texture, uint32_t width, uint32_t height, RenderTargetView* RTV, ShaderResourceView* SRV)
 	{
+		WaitToFinish();
+
 		texture->Resize(width, height);
 		m_BufferManager->CreateResource(texture);
 
@@ -152,7 +154,6 @@ namespace TruthEngine::Core
 		{
 			m_BufferManager->CreateShaderResourceView(texture, SRV);
 		}
-
 	}
 
 	void RendererCommand::Resize(TE_IDX_RENDERTARGET idx, uint32_t width, uint32_t height, RenderTargetView* RTV, ShaderResourceView* SRV)
@@ -163,6 +164,8 @@ namespace TruthEngine::Core
 
 	void RendererCommand::Resize(TextureDepthStencil* texture, uint32_t width, uint32_t height, DepthStencilView* DSV, ShaderResourceView* SRV)
 	{
+		WaitToFinish();
+
 		texture->Resize(width, height);
 		m_BufferManager->CreateResource(texture);
 
@@ -184,6 +187,8 @@ namespace TruthEngine::Core
 
 	void RendererCommand::Resize(SwapChain* swapChain, uint32_t width, uint32_t height, RenderTargetView* RTV, ShaderResourceView* SRV)
 	{
+		WaitToFinish();
+
 		swapChain->Resize(width, height, TE_INSTANCE_APPLICATION->GetFramesInFlightNum());
 
 		if (RTV != nullptr)
@@ -199,11 +204,15 @@ namespace TruthEngine::Core
 
 	void RendererCommand::EndAndPresent(uint32_t cmdListIndex /*= 0*/)
 	{
+		m_LastCommadListIndex = cmdListIndex;
+
 		m_CommandLists[cmdListIndex]->Present();
 	}
 
 	void RendererCommand::End(uint32_t cmdListIndex /*= 0*/)
 	{
+		m_LastCommadListIndex = cmdListIndex;
+
 		m_CommandLists[cmdListIndex]->Commit();
 		m_CommandLists[cmdListIndex]->Submit();
 	}
@@ -243,11 +252,15 @@ namespace TruthEngine::Core
 
 	void RendererCommand::ReleaseResource(GraphicResource* graphicResource)
 	{
+		WaitToFinish();
+
 		m_BufferManager->ReleaseResource(graphicResource);
 	}
 
 	void RendererCommand::ReleaseResource(TE_IDX_RENDERTARGET idx)
 	{
+		WaitToFinish();
+
 		auto rt = m_BufferManager->GetRenderTarget(idx);
 
 		m_BufferManager->ReleaseResource(rt);
@@ -255,6 +268,8 @@ namespace TruthEngine::Core
 
 	void RendererCommand::ReleaseResource(TE_IDX_DEPTHSTENCIL idx)
 	{
+		WaitToFinish();
+		
 		auto ds = m_BufferManager->GetDepthStencil(idx);
 
 		m_BufferManager->ReleaseResource(ds);
@@ -316,6 +331,13 @@ namespace TruthEngine::Core
 	bool RendererCommand::IsRunning(uint32_t cmdListIndex)
 	{
 		return m_CommandLists[cmdListIndex]->IsRunning();
+	}
+
+	void RendererCommand::WaitToFinish()
+	{
+		//m_CommandLists[m_LastCommadListIndex]->WaitToFinish();
+		while(m_CommandLists[m_LastCommadListIndex]->IsRunning())
+		{ }
 	}
 
 }
