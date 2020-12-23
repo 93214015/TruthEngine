@@ -335,9 +335,7 @@ namespace TruthEngine::Core
 
 	void RendererCommand::WaitToFinish()
 	{
-		//m_CommandLists[m_LastCommadListIndex]->WaitToFinish();
-		while(m_CommandLists[m_LastCommadListIndex]->IsRunning())
-		{ }
+		TE_INSTANCE_GRAPHICDEVICE.WaitForGPU();
 	}
 
 }

@@ -20,7 +20,17 @@ namespace TruthEngine::API::DirectX12
 
 		m_Fence.Initialize(*this);
 
+		m_EventGPUWorkFinished_DirectQueue = CreateEvent(NULL, false, true, L"");
+		m_EventGPUWorkFinished_CopyQueue = CreateEvent(NULL, false, true, L"");
+
 		return TE_SUCCESSFUL;
+	}
+
+	void DirectX12GraphicDevice::WaitForGPU()
+	{
+		m_Fence.SetFenceAndEvent(m_CommandQueueDirect.GetNativeObject(), m_EventGPUWorkFinished_DirectQueue);
+
+		WaitForSingleObject(m_EventGPUWorkFinished_DirectQueue, INFINITE);
 	}
 
 	TE_RESULT DirectX12GraphicDevice::CreateDevice(UINT adapterIndex)

@@ -14,10 +14,8 @@ namespace TruthEngine::API::DirectX12 {
 
 			HANDLE e = CreateEventA(nullptr, false, false, NULL);
 
-			if (fence.SetEvent(m_FenceValue, e) == 1)
-			{
-				WaitForSingleObject(e, INFINITE);
-			}
+			fence.SetEvent(m_FenceValue, e);
+			WaitForSingleObject(e, INFINITE);
 		}
 
 		return static_cast<TE_RESULT>(m_CommandAllocator->Reset());
@@ -39,10 +37,9 @@ namespace TruthEngine::API::DirectX12 {
 
 	void DirectX12CommandAllocator::WaitToFinish()
 	{
-		if (TE_INSTANCE_API_DX12_GRAPHICDEVICE.GetFence().SetEvent(m_FenceValue, event))
-		{
-			WaitForSingleObject(event, INFINITE);
-		}
+		auto dx12Fence = TE_INSTANCE_API_DX12_GRAPHICDEVICE.GetFence();
+		dx12Fence.SetEvent(m_FenceValue, event);
+		WaitForSingleObject(event, INFINITE);
 	}
 
 	DirectX12CommandAllocator::DirectX12CommandAllocator() = default;

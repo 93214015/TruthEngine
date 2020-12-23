@@ -26,6 +26,7 @@ namespace TruthEngine::API::DirectX12 {
 
 		inline ID3D12Device8* operator->() { return m_Device.Get(); }
 		
+		void WaitForGPU() override;
 
 		inline DirectX12CommandQueue_Direct* GetCommandQueuDirect() { return &m_CommandQueueDirect; }
 		inline DirectX12CommandQueue_Copy* GetCommandQueuCopy() { return &m_CommandQueueCopy; }
@@ -56,6 +57,9 @@ namespace TruthEngine::API::DirectX12 {
 		DirectX12CommandQueue_Copy m_CommandQueueCopy;
 
 		DirectX12Fence m_Fence;
+
+		HANDLE m_EventGPUWorkFinished_DirectQueue;
+		HANDLE m_EventGPUWorkFinished_CopyQueue;
 
 		static DirectX12GraphicDevice s_PrimaryDevice;
 
