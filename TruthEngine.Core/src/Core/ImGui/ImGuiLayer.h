@@ -29,6 +29,8 @@ namespace TruthEngine::Core
 		virtual void Begin() = 0;
 		virtual void End() = 0;
 
+		virtual void OnSceneViewportResize() = 0;
+
 	protected:
 		TextureRenderTarget* m_RenderTargetScreenBuffer;
 

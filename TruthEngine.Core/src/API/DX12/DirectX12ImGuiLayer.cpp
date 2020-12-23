@@ -137,6 +137,7 @@ namespace TruthEngine::API::DirectX12 {
 			if (viewportSize.x > 1 && viewportSize.y > 1)
 			{
 				TE_INSTANCE_APPLICATION->ResizeSceneViewport(static_cast<uint32_t>(viewportSize.x), static_cast<uint32_t>(viewportSize.y));
+				OnSceneViewportResize();
 			}
 		}
 		ImGui::Image((ImTextureID)m_DescHeapSRV.GetGPUHandle(m_SRVIndexScreenBuffer).ptr, viewportSize);
@@ -190,6 +191,21 @@ namespace TruthEngine::API::DirectX12 {
 		{
 			ImGui::UpdatePlatformWindows();
 			ImGui::RenderPlatformWindowsDefault(NULL, dx12CmdList);
+		}
+	}
+
+	void DirectX12ImGuiLayer::OnSceneViewportResize()
+	{
+		auto dx12bufferManager = static_cast<DirectX12BufferManager*>(TE_INSTANCE_BUFFERMANAGER.get());
+		m_D3D12Resource_ScreenBuffer = dx12bufferManager->GetResource(m_RenderTargetScreenBuffer);
+
+		if (m_SRVIndexScreenBuffer == -1)
+		{
+			m_SRVIndexScreenBuffer = m_DescHeapSRV.AddDescriptorSRV(m_D3D12Resource_ScreenBuffer, nullptr);
+		}
+		else
+		{
+			m_DescHeapSRV.ReplaceDescriptorSRV(m_D3D12Resource_ScreenBuffer, nullptr, m_SRVIndexScreenBuffer);
 		}
 	}
 

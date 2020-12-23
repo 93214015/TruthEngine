@@ -128,19 +128,19 @@ namespace TruthEngine::API::DirectX12
 	{
 		const auto desc = GetTextureDesc(tRT->m_Width, tRT->m_Height, tRT->m_Usage, tRT->m_Format);
 
-		COMPTR<ID3D12Resource>* resource;
-
 //		COMPTR<ID3D12Resource>& resource = tRT->m_ResourceIndex == -1 ? m_Resources.emplace_back() : m_Resources[tRT->m_ResourceIndex];
+
+		COMPTR<ID3D12Resource>* resource;
 
 		if (tRT->m_ResourceIndex == -1)
 		{
 			tRT->m_ResourceIndex = static_cast<uint32_t>(m_Resources.size());
 
-			resource = &m_Resources.emplace_back();
+			resource = std::addressof(m_Resources.emplace_back());
 		}
 		else
 		{
-			resource = &m_Resources[tRT->m_ResourceIndex];
+			resource = std::addressof(m_Resources[tRT->m_ResourceIndex]);
 		}
 
 		D3D12_CLEAR_VALUE v{ GetFormat(tRT->m_Format), { tRT->m_ClearValue.x, tRT->m_ClearValue.y, tRT->m_ClearValue.z, tRT->m_ClearValue.w } };
@@ -151,7 +151,6 @@ namespace TruthEngine::API::DirectX12
 			, &desc, DX12_GET_STATE(tRT->m_State)
 			, &v
 			, nullptr, IID_PPV_ARGS(resource->ReleaseAndGetAddressOf()));
-
 
 		return SUCCEEDED(hr) ? TE_SUCCESSFUL : TE_RESULT::TE_FAIL;
 	}
