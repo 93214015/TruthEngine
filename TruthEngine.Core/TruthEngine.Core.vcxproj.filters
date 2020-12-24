@@ -268,6 +268,8 @@
     <ClInclude Include="src\lib.h" />
     <ClInclude Include="src\pch.h" />
     <ClInclude Include="src\Core\Renderer\RenderPassStack.h" />
+    <ClInclude Include="src\Core\Helper\MathHelper.h" />
+    <ClInclude Include="src\Core\Entity\Camera\CameraManager.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\API\DX12\DirectX12BufferManager.cpp">
@@ -458,5 +460,6 @@
     </ClCompile>
     <ClCompile Include="src\pch.cpp" />
     <ClCompile Include="src\Core\Renderer\RenderPassStack.cpp" />
+    <ClCompile Include="src\Core\Entity\Camera\CameraManager.cpp" />
   </ItemGroup>
 </Project>

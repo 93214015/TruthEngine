@@ -8,6 +8,7 @@ namespace TruthEngine::Core {
 
 
 	public:
+		using ICamera::ICamera;
 
 		// Set frustum
 		void SetLens(float fovY, float aspect, float zn, float zf);

@@ -162,6 +162,7 @@
     <ClInclude Include="src\API\IDXGI.h" />
     <ClInclude Include="src\Core\Application.h" />
     <ClInclude Include="src\Core\Core.h" />
+    <ClInclude Include="src\Core\Entity\Camera\CameraManager.h" />
     <ClInclude Include="src\Core\Entity\Camera\CameraOrthographic.h" />
     <ClInclude Include="src\Core\Entity\Camera\CameraPerspective.h" />
     <ClInclude Include="src\Core\Entity\Camera\ICamera.h" />
@@ -175,6 +176,7 @@
     <ClInclude Include="src\Core\Event\EventApplication.h" />
     <ClInclude Include="src\Core\Event\EventKey.h" />
     <ClInclude Include="src\Core\Event\EventMouse.h" />
+    <ClInclude Include="src\Core\Helper\MathHelper.h" />
     <ClInclude Include="src\Core\ImGui\ImGuiLayer.h" />
     <ClInclude Include="src\Core\Input\InputManager.h" />
     <ClInclude Include="src\Core\Input\KeyCodes.h" />
@@ -241,6 +243,7 @@
     <ClCompile Include="src\API\DX12\DirectX12SwapChain.cpp" />
     <ClCompile Include="src\API\IDXGI.cpp" />
     <ClCompile Include="src\Core\Application.cpp" />
+    <ClCompile Include="src\Core\Entity\Camera\CameraManager.cpp" />
     <ClCompile Include="src\Core\Entity\Camera\CameraOrthographic.cpp" />
     <ClCompile Include="src\Core\Entity\Camera\CameraPerspective.cpp" />
     <ClCompile Include="src\Core\Entity\Camera\ICamera.cpp" />

@@ -10,6 +10,8 @@
 #include "Core/Event/EventApplication.h"
 
 
+#include "Core/Entity/Camera/CameraManager.h"
+#include "Core/Entity/Camera/CameraPerspective.h"
 
 namespace TruthEngine::Core
 {
@@ -76,12 +78,18 @@ namespace TruthEngine::Core
 
 	void RendererLayer::OnUpdate(double deltaFrameTime)
 	{
-		auto color = m_CB_PerFrame->GetData()->m_Color;
+		auto data_perFrame = m_CB_PerFrame->GetData();
+
+		auto& color = data_perFrame->m_Color;
 		color.x = std::fmod(color.x + 0.01f, 1.0f);
 		color.y = std::fmod(color.y + 0.01f, 1.0f);
 		color.z = std::fmod(color.z + 0.01f, 1.0f);
 		color.w = std::fmod(color.w + 0.01f, 1.0f);
-		m_CB_PerFrame->GetData()->m_Color = color;
+
+		auto mainCamera = CameraManager::GetInstance()->GetCamera("mainCamera");
+
+		data_perFrame->m_VP = mainCamera->GetViewProj();
+
 
 		m_RenderPass_ForwardRendering->BeginScene();
 		m_RenderPass_ForwardRendering->EndScene();

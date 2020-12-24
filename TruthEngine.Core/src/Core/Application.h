@@ -7,6 +7,8 @@
 #include "Core/Renderer/RendererLayer.h"
 #include "Core/TimerEngine.h"
 
+#include "Core/Entity/Camera/CameraPerspective.h"
+
 namespace TruthEngine::Core {
 
 	class Application {
@@ -24,7 +26,6 @@ namespace TruthEngine::Core {
 
 		inline uint32_t GetSceneViewportHeight() const noexcept { return m_SceneViewportHeight; }
 
-
 		inline uint32_t GetFramesInFlightNum() const noexcept { return m_FramesInFlightNum; }
 
 		inline uint32_t GetCurrentFrameIndex() const noexcept { return m_CurrentFrameIndex; }
@@ -36,6 +37,8 @@ namespace TruthEngine::Core {
 			m_EventDispatcher.RegisterListener(eventType, listener);
 		}
 
+		inline double FrameTime() const noexcept { return m_Timer.DeltaTime(); }
+
 		void ResizeSceneViewport(uint32_t width, uint32_t height) noexcept;
 
 		Window* GetWindow() { return m_Window.get(); }
@@ -46,7 +49,6 @@ namespace TruthEngine::Core {
 		virtual void OnProcess() = 0;
 		virtual void OnDestroy() = 0;
 		virtual void OnEvent(Event& e);
-
 
 		static inline Application* GetApplication() { return s_Instance; }
 

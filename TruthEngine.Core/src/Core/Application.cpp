@@ -5,6 +5,11 @@
 
 #include "Core/Event/EventApplication.h"
 
+#include "Core/Entity/Camera/CameraPerspective.h"
+#include "Core/Entity/Camera/CameraManager.h"
+
+#include "Core/Input/InputManager.h"
+
 namespace TruthEngine::Core {
 
 	Application::Application(const char* title, uint32_t clientWidth, uint32_t clientHeight) : m_Title(title), m_ClientWidth(clientWidth), m_ClientHeight(clientHeight)
@@ -19,7 +24,16 @@ namespace TruthEngine::Core {
 
 		m_RendererLayer.reset(new RendererLayer());
 
+		auto mainCamera = std::make_shared<CameraPerspective>("mainCamera");
+		mainCamera->SetPosition(0.0f, 0.0f, -10.0f); //3Cylinder_Big
+		mainCamera->LookAt(mainCamera->GetPosition(), DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f), DirectX::XMFLOAT3(0.0, 1.0, 0.0));
+		mainCamera->SetLens(DirectX::XM_PIDIV4, static_cast<float>(m_ClientWidth) / m_ClientHeight, 1000.0f, 10.0f);
+		CameraManager::GetInstance()->AddCamera(mainCamera);
 
+		InputManager::RegisterKey('A');
+		InputManager::RegisterKey('W');
+		InputManager::RegisterKey('S');
+		InputManager::RegisterKey('D');
 	}
 
 	Application::~Application() = default;
@@ -57,6 +71,8 @@ namespace TruthEngine::Core {
 		{
 
 			m_Timer.Tick();
+
+			InputManager::ProcessInput();
 
 			m_RendererLayer->BeginRendering();
 

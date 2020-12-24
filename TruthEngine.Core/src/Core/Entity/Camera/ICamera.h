@@ -2,31 +2,31 @@
 
 namespace TruthEngine::Core {
 
+	class EventMouseMoved;
+	class EventKeyPressed;
+
 	class ICamera
 	{
 
 	public:
-		ICamera();
+		ICamera(std::string_view name);
+
+		void Active();
+		void Deactive();
 
 		// Get/Set world camera position.
 		DirectX::XMFLOAT3 GetPosition()const;
-		DirectX::XMVECTOR GetPositionXM()const;
 		void SetPosition(float x, float y, float z);
 		void SetPosition(const DirectX::XMFLOAT3& v);
 
 		// Get camera basis vectors.
 		DirectX::XMFLOAT3 GetRight()const;
-		DirectX::XMVECTOR GetRightXM()const;
 		DirectX::XMFLOAT3 GetUp()const;
-		DirectX::XMVECTOR GetUpXM()const;
 		DirectX::XMFLOAT3 GetLook()const;
-		DirectX::XMVECTOR GetLookXM()const;
 
 		// Get frustum properties.
 		float GetNearZ()const;
 		float GetFarZ()const;
-
-
 
 
 		// Define camera space via LookAt parameters.
@@ -35,22 +35,16 @@ namespace TruthEngine::Core {
 
 		// Get View/Proj matrices.
 		DirectX::XMFLOAT4X4 GetView()const;
-		DirectX::XMMATRIX GetViewXM()const;
 
 		DirectX::XMFLOAT4X4 GetViewInv()const;
-		DirectX::XMMATRIX GetViewInvXM()const;
 
 		DirectX::XMFLOAT4X4 GetProj()const;
-		DirectX::XMMATRIX GetProjXM()const;
 
 		DirectX::XMFLOAT4X4 GetProjInv()const;
-		DirectX::XMMATRIX GetProjInvXM()const;
 
 		DirectX::XMFLOAT4X4 GetViewProj()const;
-		DirectX::XMMATRIX GetViewProjXM()const;
 
 		DirectX::XMFLOAT4X4 GetViewProjInv()const;
-		DirectX::XMMATRIX GetViewProjInvXM()const;
 
 		DirectX::XMFLOAT4 GetPerspectiveValues()const;
 
@@ -75,11 +69,13 @@ namespace TruthEngine::Core {
 		//check state of bounding box state relative to Camera Frustum
 		DirectX::ContainmentType BoundingBoxContainment(const DirectX::BoundingBox& _boundingBox) const;
 
-		//Split view frustum to several frustum
-		std::vector<std::vector<DirectX::XMFLOAT4>> SplitFrustum()const;
-
+	protected:
+		void OnMouseMove(EventMouseMoved& event);
+		void OnKeyPressed(EventKeyPressed& event);
 
 	protected:
+		std::string m_Name;
+
 
 		// Camera coordinate system with coordinates relative to world space.
 		DirectX::XMFLOAT3 m_Position;
@@ -101,7 +97,14 @@ namespace TruthEngine::Core {
 		//Bounding Frustum
 		DirectX::BoundingFrustum m_BoundingFrustum;
 
+		bool m_Active;
 
+
+
+		//
+		// Friend Classes
+		//
+		friend class CameraManager;
 	};
 
 }
