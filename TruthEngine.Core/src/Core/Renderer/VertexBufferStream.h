@@ -21,6 +21,7 @@ namespace TruthEngine
 			virtual ~VertexBufferStreamBase() = default;
 
 			virtual void ReserveSpace(const size_t size) noexcept = 0;
+			virtual void AddSpace(const size_t size) noexcept = 0;
 
 			virtual size_t GetBufferSize() const noexcept = 0;
 			virtual size_t GetVertexNum() const noexcept = 0;
@@ -50,6 +51,12 @@ namespace TruthEngine
 			inline void ReserveSpace(const size_t size) noexcept override
 			{
 				m_Vertecies.reserve(size);
+			}
+
+			inline void AddSpace(const size_t size) noexcept override
+			{
+				auto currentSpace = m_Vertecies.size();
+				m_Vertecies.reserve(currentSpace + size);
 			}
 
 			inline size_t GetBufferSize() const noexcept override

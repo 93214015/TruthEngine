@@ -22,6 +22,9 @@
     <Filter Include="Core\Event">
       <UniqueIdentifier>{FF1F37CD-EBD7-781A-54DF-517640B6130B}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Core\Helper">
+      <UniqueIdentifier>{DDD6EA79-498C-636F-D280-5D463E355A73}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Core\ImGui">
       <UniqueIdentifier>{D8137ACD-C4CB-BB1A-2DD3-947619AA560B}</UniqueIdentifier>
     </Filter>
@@ -87,6 +90,9 @@
     <ClInclude Include="src\Core\Core.h">
       <Filter>Core</Filter>
     </ClInclude>
+    <ClInclude Include="src\Core\Entity\Camera\CameraManager.h">
+      <Filter>Core\Entity\Camera</Filter>
+    </ClInclude>
     <ClInclude Include="src\Core\Entity\Camera\CameraOrthographic.h">
       <Filter>Core\Entity\Camera</Filter>
     </ClInclude>
@@ -95,6 +101,9 @@
     </ClInclude>
     <ClInclude Include="src\Core\Entity\Camera\ICamera.h">
       <Filter>Core\Entity\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Entity\Model\AssimpLib.h">
+      <Filter>Core\Entity\Model</Filter>
     </ClInclude>
     <ClInclude Include="src\Core\Entity\Model\Mesh.h">
       <Filter>Core\Entity\Model</Filter>
@@ -125,6 +134,9 @@
     </ClInclude>
     <ClInclude Include="src\Core\Event\EventMouse.h">
       <Filter>Core\Event</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Helper\MathHelper.h">
+      <Filter>Core\Helper</Filter>
     </ClInclude>
     <ClInclude Include="src\Core\ImGui\ImGuiLayer.h">
       <Filter>Core\ImGui</Filter>
@@ -194,6 +206,9 @@
     </ClInclude>
     <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_ForwardRendering.h">
       <Filter>Core\Renderer\RenderPass</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Renderer\RenderPassStack.h">
+      <Filter>Core\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="src\Core\Renderer\RendererCommand.h">
       <Filter>Core\Renderer</Filter>
@@ -267,9 +282,6 @@
     <ClInclude Include="src\TruthEngine.h" />
     <ClInclude Include="src\lib.h" />
     <ClInclude Include="src\pch.h" />
-    <ClInclude Include="src\Core\Renderer\RenderPassStack.h" />
-    <ClInclude Include="src\Core\Helper\MathHelper.h" />
-    <ClInclude Include="src\Core\Entity\Camera\CameraManager.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\API\DX12\DirectX12BufferManager.cpp">
@@ -314,6 +326,9 @@
     <ClCompile Include="src\Core\Application.cpp">
       <Filter>Core</Filter>
     </ClCompile>
+    <ClCompile Include="src\Core\Entity\Camera\CameraManager.cpp">
+      <Filter>Core\Entity\Camera</Filter>
+    </ClCompile>
     <ClCompile Include="src\Core\Entity\Camera\CameraOrthographic.cpp">
       <Filter>Core\Entity\Camera</Filter>
     </ClCompile>
@@ -322,6 +337,9 @@
     </ClCompile>
     <ClCompile Include="src\Core\Entity\Camera\ICamera.cpp">
       <Filter>Core\Entity\Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Entity\Model\AssimpLib.cpp">
+      <Filter>Core\Entity\Model</Filter>
     </ClCompile>
     <ClCompile Include="src\Core\Entity\Model\Mesh.cpp">
       <Filter>Core\Entity\Model</Filter>
@@ -398,6 +416,9 @@
     <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_ForwardRendering.cpp">
       <Filter>Core\Renderer\RenderPass</Filter>
     </ClCompile>
+    <ClCompile Include="src\Core\Renderer\RenderPassStack.cpp">
+      <Filter>Core\Renderer</Filter>
+    </ClCompile>
     <ClCompile Include="src\Core\Renderer\RendererCommand.cpp">
       <Filter>Core\Renderer</Filter>
     </ClCompile>
@@ -459,7 +480,5 @@
       <Filter>Platform\Windows</Filter>
     </ClCompile>
     <ClCompile Include="src\pch.cpp" />
-    <ClCompile Include="src\Core\Renderer\RenderPassStack.cpp" />
-    <ClCompile Include="src\Core\Entity\Camera\CameraManager.cpp" />
   </ItemGroup>
 </Project>

@@ -1,6 +1,8 @@
 #include "pch.h"
 #include "ModelManager.h"
 
+#include "AssimpLib.h"
+
 #include "Core/Renderer/BufferManager.h"
 #include "Core/Renderer/RendererCommand.h"
 
@@ -11,7 +13,7 @@ namespace TruthEngine::Core
 
 	void ModelManager::ImportModel(const char* filePath)
 	{
-
+		AssimpLib::GetInstance()->ImportModel(filePath);
 	}
 
 	void ModelManager::Init(BufferManager* bufferManager, RendererCommand* rendererCommand)
@@ -19,17 +21,17 @@ namespace TruthEngine::Core
 		m_BufferManager = bufferManager;
 		m_MaterialManager.Init(m_BufferManager);
 
-		auto& mesh = m_Meshes.emplace_back();
-		mesh.m_IndexBuffer = &m_IndexBuffer;
-		mesh.m_VertexBuffer = &m_VertexBuffer_PosNormTex;
-		mesh.m_IndexNum = 6;
-		mesh.m_IndexOffset = 0;
-		mesh.m_Material = m_MaterialManager.GetMaterial(0u);
-		mesh.m_VertexOffset = 0;
+		auto& mesh = m_Meshes.emplace_back(std::make_shared<Mesh>());
+		mesh->m_IndexBuffer = &m_IndexBuffer;
+		mesh->m_VertexBuffer = &m_VertexBuffer_PosNormTex;
+		mesh->m_IndexNum = 6;
+		mesh->m_IndexOffset = 0;
+		mesh->m_Material = m_MaterialManager.GetMaterial(0u);
+		mesh->m_VertexOffset = 0;
 
 
-		auto& model = m_Models3D.emplace_back();
-		model.m_Meshes.emplace_back(&mesh);
+		auto& model = m_Models3D.emplace_back(std::make_shared<Model3D>());
+		model->m_Meshes.emplace_back(&mesh);
 
 
 

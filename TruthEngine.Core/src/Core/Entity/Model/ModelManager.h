@@ -28,7 +28,7 @@ namespace TruthEngine
 
 			void Init(BufferManager* bufferManager, RendererCommand* rendererCommand);
 
-			inline const std::vector<Model3D>& GetModel3D() const noexcept
+			inline const std::vector<std::shared_ptr<Model3D>>& GetModel3D() const noexcept
 			{
 				return m_Models3D;
 			}
@@ -41,11 +41,11 @@ namespace TruthEngine
 			void ImportModel(const char* filePath);
 
 		protected:
-
+			ModelManager() = default;
 
 		protected:
-			std::vector<Model3D> m_Models3D;
-			std::vector<Mesh> m_Meshes;
+			std::vector<std::shared_ptr<Model3D>> m_Models3D;
+			std::vector<std::shared_ptr<Mesh>> m_Meshes;
 
 			VertexBuffer<VertexData::Pos, VertexData::NormTex> m_VertexBuffer_PosNormTex;
 			IndexBuffer m_IndexBuffer;
@@ -53,6 +53,12 @@ namespace TruthEngine
 			MaterialManager m_MaterialManager;
 
 			BufferManager* m_BufferManager;
+
+
+			//
+			// Friend Classes
+			//
+			friend class AssimpLib;
 
 		};
 	}

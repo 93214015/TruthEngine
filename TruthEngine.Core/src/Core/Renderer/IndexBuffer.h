@@ -51,6 +51,17 @@ namespace TruthEngine
 				return m_ViewIndex;
 			}
 
+			inline void ReserveSpace(uint32_t size) noexcept
+			{
+				m_Indecies.reserve(size);
+			}
+
+			inline void AddSpace(uint32_t size) noexcept
+			{
+				auto currentSpace = m_Indecies.size();
+				m_Indecies.reserve(currentSpace + size);
+			}
+
 		protected:
 			uint32_t m_ID;
 			uint32_t m_ViewIndex;

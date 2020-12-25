@@ -91,7 +91,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalLibraryDirectories>..\Dependencies\DirectXShaderCompiler\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\Dependencies\DirectXShaderCompiler\lib\x64;..\Dependencies\assimp\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -117,7 +117,7 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <Lib>
-      <AdditionalLibraryDirectories>..\Dependencies\DirectXShaderCompiler\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\Dependencies\DirectXShaderCompiler\lib\x64;..\Dependencies\assimp\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Dist|x64'">
@@ -143,7 +143,7 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <Lib>
-      <AdditionalLibraryDirectories>..\Dependencies\DirectXShaderCompiler\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\Dependencies\DirectXShaderCompiler\lib\x64;..\Dependencies\assimp\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -166,6 +166,7 @@
     <ClInclude Include="src\Core\Entity\Camera\CameraOrthographic.h" />
     <ClInclude Include="src\Core\Entity\Camera\CameraPerspective.h" />
     <ClInclude Include="src\Core\Entity\Camera\ICamera.h" />
+    <ClInclude Include="src\Core\Entity\Model\AssimpLib.h" />
     <ClInclude Include="src\Core\Entity\Model\Mesh.h" />
     <ClInclude Include="src\Core\Entity\Model\Model.h" />
     <ClInclude Include="src\Core\Entity\Model\Model2D.h" />
@@ -199,8 +200,8 @@
     <ClInclude Include="src\Core\Renderer\Pipeline.h" />
     <ClInclude Include="src\Core\Renderer\PipelineState.h" />
     <ClInclude Include="src\Core\Renderer\RenderPass.h" />
-    <ClInclude Include="src\Core\Renderer\RenderPassStack.h" />
     <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_ForwardRendering.h" />
+    <ClInclude Include="src\Core\Renderer\RenderPassStack.h" />
     <ClInclude Include="src\Core\Renderer\RendererCommand.h" />
     <ClInclude Include="src\Core\Renderer\RendererIDX.h" />
     <ClInclude Include="src\Core\Renderer\RendererLayer.h" />
@@ -247,6 +248,7 @@
     <ClCompile Include="src\Core\Entity\Camera\CameraOrthographic.cpp" />
     <ClCompile Include="src\Core\Entity\Camera\CameraPerspective.cpp" />
     <ClCompile Include="src\Core\Entity\Camera\ICamera.cpp" />
+    <ClCompile Include="src\Core\Entity\Model\AssimpLib.cpp" />
     <ClCompile Include="src\Core\Entity\Model\Mesh.cpp" />
     <ClCompile Include="src\Core\Entity\Model\Model.cpp" />
     <ClCompile Include="src\Core\Entity\Model\Model2D.cpp" />
@@ -271,8 +273,8 @@
     <ClCompile Include="src\Core\Renderer\MaterialManager.cpp" />
     <ClCompile Include="src\Core\Renderer\Pipeline.cpp" />
     <ClCompile Include="src\Core\Renderer\RenderPass.cpp" />
-    <ClCompile Include="src\Core\Renderer\RenderPassStack.cpp" />
     <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_ForwardRendering.cpp" />
+    <ClCompile Include="src\Core\Renderer\RenderPassStack.cpp" />
     <ClCompile Include="src\Core\Renderer\RendererCommand.cpp" />
     <ClCompile Include="src\Core\Renderer\RendererLayer.cpp" />
     <ClCompile Include="src\Core\Renderer\Shader.cpp" />
