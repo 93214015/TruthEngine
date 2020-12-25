@@ -24,8 +24,8 @@ namespace TruthEngine
 		protected:
 			void ProcessTextures(const aiScene* scene);
 			void ProcessMaterials(const aiScene* scene);
-			void ProcessNodes(const aiScene* scene);
-			void ProcessMeshes(const aiMesh* mesh, const aiScene* scene);
+			void ProcessNodes(const aiNode* node, const aiScene* scene);
+			void ProcessMeshes(const aiScene* scene);
 
 			void AddSpace(const aiScene* scene);
 

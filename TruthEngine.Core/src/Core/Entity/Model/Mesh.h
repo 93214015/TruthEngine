@@ -13,6 +13,8 @@ namespace TruthEngine
 		class Mesh 
 		{
 		public:
+			Mesh();
+			Mesh(uint32_t IndexNum, size_t IndexOffset, size_t VertexOffset);
 
 			VertexBuffer<VertexData::Pos, VertexData::NormTex>* GetVertexBuffer() const noexcept
 			{

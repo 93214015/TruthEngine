@@ -1,6 +1,9 @@
 #pragma once
 
 
+using float3 = DirectX::XMFLOAT3;
+using float4 = DirectX::XMFLOAT4;
+
 namespace TruthEngine
 {
 	inline DirectX::XMMATRIX ToXM(const DirectX::XMFLOAT4X4& source)

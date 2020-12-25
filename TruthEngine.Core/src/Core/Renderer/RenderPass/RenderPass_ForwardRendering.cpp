@@ -40,13 +40,13 @@ namespace TruthEngine::Core
 
 		m_RendererCommand.CreateDepthStencilView(m_TextureDepthStencil, &m_DepthStencilView);
 
-		for (const auto& mat : TE_INSTANCE_MODELMANAGER->GetMaterials())
+		for (const auto* mat : TE_INSTANCE_MODELMANAGER->GetMaterials())
 		{
-			std::string shaderName = std::string("renderer3D_material") + std::to_string(mat.GetID());
+			std::string shaderName = std::string("renderer3D_material") + std::to_string(mat->GetID());
 
 			Shader* shader = nullptr;
 
-			m_ShaderMgr->AddShader(&shader, TE_IDX_SHADERCLASS::FORWARDRENDERING, mat.GetRendererStates(), "Assets/Shaders/renderer3D.hlsl", "vs", "ps");
+			m_ShaderMgr->AddShader(&shader, TE_IDX_SHADERCLASS::FORWARDRENDERING, mat->GetRendererStates(), "Assets/Shaders/renderer3D.hlsl", "vs", "ps");
 
 			ShaderInputElement inputElement;
 			inputElement.AlignedByteOffset = 0;
@@ -79,9 +79,9 @@ namespace TruthEngine::Core
 
 			auto pipeline = std::make_shared<Pipeline>();
 			pipeline->SetShader(shader);
-			pipeline->SetRendererStates(mat.GetRendererStates());
+			pipeline->SetRendererStates(mat->GetRendererStates());
 
-			m_MaterialPipelines[mat.GetID()] = pipeline;
+			m_MaterialPipelines[mat->GetID()] = pipeline;
 		}
 
 		m_RendererCommand.CreateRenderTargetView(TE_IDX_RENDERTARGET::SCENEBUFFER, &m_RenderTartgetView);

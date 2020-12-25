@@ -19,6 +19,7 @@ namespace TruthEngine
 		class ModelManager
 		{
 		public:
+			ModelManager() = default;
 
 			static std::shared_ptr<ModelManager> GetInstance()
 			{
@@ -33,15 +34,34 @@ namespace TruthEngine
 				return m_Models3D;
 			}
 
-			inline const std::vector<Material>& GetMaterials()
+			inline const std::vector<Material*>& GetMaterials()
 			{
 				return m_MaterialManager.m_Materials;
 			}
 
+			inline void AddSpace(size_t Model3DNum, size_t MeshNum)
+			{
+				auto currentSpace = m_Models3D.size();
+				m_Models3D.reserve(currentSpace + Model3DNum);
+
+				currentSpace = m_Meshes.size();
+				m_Meshes.reserve(currentSpace + MeshNum);
+			}
+
+			inline void GetOffsets(size_t& outVertexOffset, size_t& outIndexOffset)
+			{
+				outVertexOffset = m_VertexBuffer_PosNormTex.GetVertexOffset();
+				outIndexOffset = m_IndexBuffer.GetIndexOffset();
+			}
+
+			Model3D* AddModel3D();
+
+			void AddMesh(std::shared_ptr<Mesh> mesh);
+			Mesh* AddMesh(uint32_t IndexNum, size_t IndexOffset, size_t VertexOffset);
+
 			void ImportModel(const char* filePath);
 
 		protected:
-			ModelManager() = default;
 
 		protected:
 			std::vector<std::shared_ptr<Model3D>> m_Models3D;

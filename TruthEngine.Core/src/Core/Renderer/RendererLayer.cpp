@@ -49,7 +49,7 @@ namespace TruthEngine::Core
 
 		for (auto& model : m_ModelManagers->GetModel3D())
 		{
-			m_Model3DQueue.emplace_back(&model);
+			m_Model3DQueue.emplace_back(model.get());
 		}
 
 

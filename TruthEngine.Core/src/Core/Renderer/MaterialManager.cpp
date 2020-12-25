@@ -8,8 +8,11 @@ namespace TruthEngine::Core
 	{
 		m_BufferManager = bufferManager;
 
-		auto& mat = m_Materials.emplace_back();
-		mat.m_ID = 0;
+		auto material = std::make_shared<Material>();
+		material->m_ID = 0;
+
+		m_Map_Materials[0] = material;
+		m_Materials.push_back(material.get());
 
 	}
 

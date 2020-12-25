@@ -28,7 +28,8 @@ namespace TruthEngine::Core
 
 		ProcessTextures(scene);
 		ProcessMaterials(scene);
-		ProcessNodes(scene);
+		ProcessMeshes(scene);
+		ProcessNodes(scene->mRootNode, scene);
 
 		return TE_SUCCESSFUL;
 	}
@@ -46,18 +47,65 @@ namespace TruthEngine::Core
 	}
 
 
-	void AssimpLib::ProcessNodes(const aiScene* scene)
+	void AssimpLib::ProcessNodes(const aiNode* node, const aiScene* scene)
 	{
-		for (uint32_t i = 0; i < scene->mNumMeshes; ++i)
+		ModelManager* modelManager = ModelManager::GetInstance().get();
+		auto nodeMeshNum = node->mNumMeshes;
+		if (nodeMeshNum > 0)
 		{
-			ProcessMeshes(scene->mMeshes[i], scene);
+			Model3D model;
+			model.AddSpace(nodeMeshNum);
+			for (uint32_t i = 0; i < nodeMeshNum; ++i)
+			{
+				model.AddMesh(modelManager->m_Meshes[node->mMeshes[i]].get());
+			}
+		}
+
+		for (uint32_t childIndex = 0; childIndex < node->mNumChildren; ++childIndex)
+		{
+			ProcessNodes(node->mChildren[childIndex], scene);
 		}
 	}
 
 
-	void AssimpLib::ProcessMeshes(const aiMesh* mesh, const aiScene* scene)
+	void AssimpLib::ProcessMeshes(const aiScene* scene)
 	{
+		auto modelManager = ModelManager::GetInstance();
 
+		size_t vertexOffset, indexOffset;
+		modelManager->GetOffsets(vertexOffset, indexOffset);
+
+		for (uint32_t j = 0; j < scene->mNumMeshes; ++j)
+		{
+			auto mesh = scene->mMeshes[j];
+
+			for (uint32_t i = 0; i < mesh->mNumVertices; ++i)
+			{
+				VertexData::Pos vPos;
+				VertexData::NormTex vNormTex;
+
+				auto vertex = mesh->mVertices[i];
+
+				vPos.Position = float3{ vertex.x, vertex.y, vertex.z };
+
+				modelManager->m_VertexBuffer_PosNormTex.AddVertex(vPos, vNormTex);
+			}
+
+			uint32_t indexNum;
+
+			for (uint32_t i = 0; i < mesh->mNumFaces; ++i)
+			{
+				aiFace& face = mesh->mFaces[i];
+				indexNum += face.mNumIndices;
+
+				for (uint32_t j = 0; j < face.mNumIndices; ++j)
+				{
+					modelManager->m_IndexBuffer.AddIndex(face.mIndices[j]);
+				}
+			}
+
+			modelManager->m_Meshes.emplace_back(std::make_shared<Mesh>(indexNum, indexOffset, vertexOffset));
+		}
 	}
 
 	void AssimpLib::AddSpace(const aiScene* scene)
@@ -66,14 +114,25 @@ namespace TruthEngine::Core
 		uint32_t vertexNum = 0;
 		uint32_t indexNum = 0;
 
-		for (uint32_t i = 0; i < scene->mNumMeshes; ++i)
+		auto modelManager = ModelManager::GetInstance();
+
+		auto meshNum = scene->mNumMeshes;
+
+		modelManager->AddSpace(1, meshNum);
+
+		for (uint32_t i = 0; i < meshNum; ++i)
 		{
 			const aiMesh* mesh = scene->mMeshes[i];
 			vertexNum += mesh->mNumVertices;
-			indexNum += mesh->mNumFaces * 3.0f;
+
+			for (uint32_t j = 0; j < mesh->mNumFaces; ++j)
+			{
+				aiFace& face = mesh->mFaces[j];
+				indexNum += face.mNumIndices;
+			}
+
 		}
 
-		auto modelManager = ModelManager::GetInstance();
 		modelManager->m_VertexBuffer_PosNormTex.AddSpace(vertexNum, 0);
 		modelManager->m_IndexBuffer.AddSpace(indexNum);
 

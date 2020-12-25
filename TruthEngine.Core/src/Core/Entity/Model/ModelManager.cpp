@@ -21,17 +21,17 @@ namespace TruthEngine::Core
 		m_BufferManager = bufferManager;
 		m_MaterialManager.Init(m_BufferManager);
 
-		auto& mesh = m_Meshes.emplace_back(std::make_shared<Mesh>());
-		mesh->m_IndexBuffer = &m_IndexBuffer;
-		mesh->m_VertexBuffer = &m_VertexBuffer_PosNormTex;
+		auto mesh = std::make_shared<Mesh>();
 		mesh->m_IndexNum = 6;
 		mesh->m_IndexOffset = 0;
 		mesh->m_Material = m_MaterialManager.GetMaterial(0u);
 		mesh->m_VertexOffset = 0;
 
+		AddMesh(mesh);
+
 
 		auto& model = m_Models3D.emplace_back(std::make_shared<Model3D>());
-		model->m_Meshes.emplace_back(&mesh);
+		model->m_Meshes.emplace_back(mesh.get());
 
 
 
@@ -94,6 +94,26 @@ namespace TruthEngine::Core
 		rendererCommand->UploadData(&m_VertexBuffer_PosNormTex);
 		rendererCommand->UploadData(&m_IndexBuffer);
 
+	}
+
+
+	void ModelManager::AddMesh(std::shared_ptr<Mesh> mesh)
+	{
+		mesh->m_IndexBuffer = &m_IndexBuffer;
+		mesh->m_VertexBuffer = &m_VertexBuffer_PosNormTex;
+
+		m_Meshes.push_back(mesh);
+	}
+
+	Mesh* ModelManager::AddMesh(uint32_t IndexNum, size_t IndexOffset, size_t VertexOffset)
+	{
+		return m_Meshes.emplace_back(std::make_shared<Mesh>(IndexNum, IndexOffset, VertexOffset)).get();
+	}
+
+
+	TruthEngine::Core::Model3D* ModelManager::AddModel3D()
+	{
+		return m_Models3D.emplace_back(std::make_shared<Model3D>()).get();
 	}
 
 

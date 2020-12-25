@@ -16,13 +16,14 @@ namespace TruthEngine
 
 			inline Material* GetMaterial(const uint32_t materialID)
 			{
-				return m_Materials[materialID].get();
+				return m_Map_Materials[materialID].get();
 			}
 
 		protected:
 
 		protected:
-			std::unordered_map<uint32_t, std::shared_ptr<Material>> m_Materials;
+			std::unordered_map<uint32_t, std::shared_ptr<Material>> m_Map_Materials;
+			std::vector<Material*> m_Materials;
 
 			BufferManager* m_BufferManager;
 
