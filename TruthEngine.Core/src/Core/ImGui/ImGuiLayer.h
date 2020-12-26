@@ -2,6 +2,8 @@
 #include "Core/Layer.h"
 //#include "API/DX12/DescriptorHeap.h"
 
+#include "imgui-fileBrowser/imfilebrowser.h"
+
 
 namespace TruthEngine::Core
 {
@@ -31,9 +33,12 @@ namespace TruthEngine::Core
 
 		virtual void OnSceneViewportResize() = 0;
 
+		void OpenFileDialog(const char* title, const std::vector<const char*>& FileExtensions);
+		bool CheckFileDialog();
+
 	protected:
 		TextureRenderTarget* m_RenderTargetScreenBuffer;
-
-
+		ImGui::FileBrowser m_FileBrowser;
+		std::string m_SelectedFile;
 	};
 }

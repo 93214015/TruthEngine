@@ -330,6 +330,7 @@ namespace TruthEngine
 				rangeCBV[0].NumDescriptors = 1;
 
 
+
 				D3D12_DESCRIPTOR_RANGE rangeSRV[1];
 
 				rangeSRV[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
@@ -338,10 +339,11 @@ namespace TruthEngine
 				rangeSRV[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 				rangeSRV[0].NumDescriptors = 1;
 
-				CD3DX12_ROOT_PARAMETER params[1];
+				CD3DX12_ROOT_PARAMETER params[2];
 
 				/*params.emplace_back().InitAsDescriptorTable(static_cast<UINT>(rangeSRV.size()), rangeSRV.data(), D3D12_SHADER_VISIBILITY_ALL);*/
 				params[0].InitAsDescriptorTable(_countof(rangeCBV), rangeCBV, D3D12_SHADER_VISIBILITY_ALL);
+				params[1].InitAsConstants(4, 1);
 
 				auto signatureDesc = CD3DX12_ROOT_SIGNATURE_DESC(_countof(params), params, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT
 					| D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS

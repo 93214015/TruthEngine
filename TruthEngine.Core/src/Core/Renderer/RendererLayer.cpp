@@ -36,22 +36,16 @@ namespace TruthEngine::Core
 
 		m_RendererCommand.Init(TE_IDX_RENDERPASS::NONE, TE_IDX_SHADERCLASS::NONE);
 
-		m_RendererCommand.Begin();
+		/*m_RendererCommand.Begin();*/
 
 		m_ModelManagers = TE_INSTANCE_MODELMANAGER;
-		m_ModelManagers->Init(m_BufferManager.get(), &m_RendererCommand);
+		m_ModelManagers->Init(m_BufferManager.get()/*, &m_RendererCommand*/);
 
-		m_RendererCommand.End();
+		/*m_RendererCommand.End();*/
 
 		m_RendererCommand.CreateRenderTarget(TE_IDX_RENDERTARGET::SCENEBUFFER, TE_INSTANCE_APPLICATION->GetClientWidth(), TE_INSTANCE_APPLICATION->GetClientHeight(), TE_RESOURCE_FORMAT::R8G8B8A8_UNORM, ClearValue_RenderTarget{ 1.0f, 1.0f, 1.0f, 1.0f }, true);
 
-		m_RendererCommand.CreateRenderTargetView(TE_INSTANCE_SWAPCHAIN, &m_RTVBackBuffer);
-
-		for (auto& model : m_ModelManagers->GetModel3D())
-		{
-			m_Model3DQueue.emplace_back(model.get());
-		}
-
+		m_RendererCommand.CreateRenderTargetView(TE_INSTANCE_SWAPCHAIN, &m_RTVBackBuffer);	
 
 		m_CB_PerFrame = m_BufferManager->CreateConstantBufferUpload<ConstantBuffer_Data_Per_Frame>(TE_IDX_CONSTANTBUFFER::PER_FRAME);
 
@@ -90,6 +84,11 @@ namespace TruthEngine::Core
 
 		data_perFrame->m_VP = mainCamera->GetViewProj();
 
+		m_Model3DQueue.clear();
+		for (auto& model : m_ModelManagers->GetModel3D())
+		{
+			m_Model3DQueue.emplace_back(model.get());
+		}
 
 		m_RenderPass_ForwardRendering->BeginScene();
 		m_RenderPass_ForwardRendering->EndScene();

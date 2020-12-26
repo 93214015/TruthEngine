@@ -5,6 +5,7 @@
 
 #include "Core/Renderer/BufferManager.h"
 #include "Core/Renderer/RendererCommand.h"
+#include "Core/Renderer/GraphicDevice.h"
 
 namespace TruthEngine::Core
 {
@@ -13,11 +14,33 @@ namespace TruthEngine::Core
 
 	void ModelManager::ImportModel(const char* filePath)
 	{
+		TE_INSTANCE_GRAPHICDEVICE->WaitForGPU();
+
 		AssimpLib::GetInstance()->ImportModel(filePath);
+
+		InitVertexAndIndexBuffer();
 	}
 
-	void ModelManager::Init(BufferManager* bufferManager, RendererCommand* rendererCommand)
+	void ModelManager::InitVertexAndIndexBuffer()
 	{
+
+		m_BufferManager->CreateVertexBuffer(&m_VertexBuffer_PosNormTex);
+		m_BufferManager->CreateIndexBuffer(&m_IndexBuffer);
+
+		m_RendererCommand->Begin();
+
+		m_RendererCommand->UploadData(&m_VertexBuffer_PosNormTex);
+		m_RendererCommand->UploadData(&m_IndexBuffer);
+
+		m_RendererCommand->End();
+	}
+
+	void ModelManager::Init(BufferManager* bufferManager/*, RendererCommand* rendererCommand*/)
+	{
+
+		m_RendererCommand = std::make_shared<RendererCommand>();
+		m_RendererCommand->Init(TE_IDX_RENDERPASS::NONE, TE_IDX_SHADERCLASS::NONE);
+
 		m_BufferManager = bufferManager;
 		m_MaterialManager.Init(m_BufferManager);
 
@@ -88,11 +111,7 @@ namespace TruthEngine::Core
 
 
 
-		m_BufferManager->CreateVertexBuffer(&m_VertexBuffer_PosNormTex);
-		m_BufferManager->CreateIndexBuffer(&m_IndexBuffer);
-
-		rendererCommand->UploadData(&m_VertexBuffer_PosNormTex);
-		rendererCommand->UploadData(&m_IndexBuffer);
+		InitVertexAndIndexBuffer();
 
 	}
 
@@ -105,9 +124,9 @@ namespace TruthEngine::Core
 		m_Meshes.push_back(mesh);
 	}
 
-	Mesh* ModelManager::AddMesh(uint32_t IndexNum, size_t IndexOffset, size_t VertexOffset)
+	Mesh* ModelManager::AddMesh(uint32_t IndexNum, size_t IndexOffset, size_t VertexOffset, Material* MaterialPtr)
 	{
-		return m_Meshes.emplace_back(std::make_shared<Mesh>(IndexNum, IndexOffset, VertexOffset)).get();
+		return m_Meshes.emplace_back(std::make_shared<Mesh>(IndexNum, IndexOffset, VertexOffset, MaterialPtr, &m_VertexBuffer_PosNormTex, &m_IndexBuffer)).get();
 	}
 
 

@@ -12,7 +12,7 @@ namespace TruthEngine::Core {
 	public:
 		virtual TE_RESULT Init(uint32_t adapterIndex) = 0;
 		virtual void WaitForGPU() = 0;
-		inline static GraphicDevice& GetPrimaryDevice() { return *s_GDevice; }
+		inline static GraphicDevice* GetPrimaryDevice() { return s_GDevice; }
 
 
 

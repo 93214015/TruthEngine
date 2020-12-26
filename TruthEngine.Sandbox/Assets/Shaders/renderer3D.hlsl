@@ -5,6 +5,11 @@ cbuffer per_frame : register(b0)
     float4 color : packoffset(c4.x);
 }
 
+cbuffer per_mesh : register(b1)
+{
+    float4 colorMesh;
+}
+
 struct vertexInput
 {
     float3 position : POSITION;
@@ -20,5 +25,5 @@ float4 vs(vertexInput vin) : SV_POSITION
 
 float4 ps( float4 pos : SV_POSITION ) : SV_Target
 {
-    return color;
+    return colorMesh;
 }

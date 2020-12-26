@@ -32,7 +32,7 @@ namespace TruthEngine::Core
 
 		for (uint32_t i = 0; i < ParallelCommandsNum; ++i)
 		{
-			m_CommandLists.push_back(CommandList::Factory(&TE_INSTANCE_GRAPHICDEVICE, TE_RENDERER_COMMANDLIST_TYPE::DIRECT, m_BufferManager, shaderManager, renderPassIDX, shaderClassIDX));
+			m_CommandLists.push_back(CommandList::Factory(TE_INSTANCE_GRAPHICDEVICE, TE_RENDERER_COMMANDLIST_TYPE::DIRECT, m_BufferManager, shaderManager, renderPassIDX, shaderClassIDX));
 		}
 
 	}
@@ -141,7 +141,7 @@ namespace TruthEngine::Core
 
 	void RendererCommand::Resize(TextureRenderTarget* texture, uint32_t width, uint32_t height, RenderTargetView* RTV, ShaderResourceView* SRV)
 	{
-		WaitToFinish();
+		WaitForGPU();
 
 		texture->Resize(width, height);
 		m_BufferManager->CreateResource(texture);
@@ -164,7 +164,7 @@ namespace TruthEngine::Core
 
 	void RendererCommand::Resize(TextureDepthStencil* texture, uint32_t width, uint32_t height, DepthStencilView* DSV, ShaderResourceView* SRV)
 	{
-		WaitToFinish();
+		WaitForGPU();
 
 		texture->Resize(width, height);
 		m_BufferManager->CreateResource(texture);
@@ -187,7 +187,7 @@ namespace TruthEngine::Core
 
 	void RendererCommand::Resize(SwapChain* swapChain, uint32_t width, uint32_t height, RenderTargetView* RTV, ShaderResourceView* SRV)
 	{
-		WaitToFinish();
+		WaitForGPU();
 
 		swapChain->Resize(width, height, TE_INSTANCE_APPLICATION->GetFramesInFlightNum());
 
@@ -252,14 +252,14 @@ namespace TruthEngine::Core
 
 	void RendererCommand::ReleaseResource(GraphicResource* graphicResource)
 	{
-		WaitToFinish();
+		WaitForGPU();
 
 		m_BufferManager->ReleaseResource(graphicResource);
 	}
 
 	void RendererCommand::ReleaseResource(TE_IDX_RENDERTARGET idx)
 	{
-		WaitToFinish();
+		WaitForGPU();
 
 		auto rt = m_BufferManager->GetRenderTarget(idx);
 
@@ -268,7 +268,7 @@ namespace TruthEngine::Core
 
 	void RendererCommand::ReleaseResource(TE_IDX_DEPTHSTENCIL idx)
 	{
-		WaitToFinish();
+		WaitForGPU();
 		
 		auto ds = m_BufferManager->GetDepthStencil(idx);
 
@@ -333,9 +333,9 @@ namespace TruthEngine::Core
 		return m_CommandLists[cmdListIndex]->IsRunning();
 	}
 
-	void RendererCommand::WaitToFinish()
+	void RendererCommand::WaitForGPU()
 	{
-		TE_INSTANCE_GRAPHICDEVICE.WaitForGPU();
+		TE_INSTANCE_GRAPHICDEVICE->WaitForGPU();
 	}
 
 }

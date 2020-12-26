@@ -53,11 +53,11 @@ namespace TruthEngine::Core
 		auto nodeMeshNum = node->mNumMeshes;
 		if (nodeMeshNum > 0)
 		{
-			Model3D model;
-			model.AddSpace(nodeMeshNum);
+			auto model3D = modelManager->AddModel3D();
+			model3D->AddSpace(nodeMeshNum);
 			for (uint32_t i = 0; i < nodeMeshNum; ++i)
 			{
-				model.AddMesh(modelManager->m_Meshes[node->mMeshes[i]].get());
+				model3D->AddMesh(modelManager->m_Meshes[node->mMeshes[i]].get());
 			}
 		}
 
@@ -91,7 +91,7 @@ namespace TruthEngine::Core
 				modelManager->m_VertexBuffer_PosNormTex.AddVertex(vPos, vNormTex);
 			}
 
-			uint32_t indexNum;
+			uint32_t indexNum = 0;
 
 			for (uint32_t i = 0; i < mesh->mNumFaces; ++i)
 			{
@@ -104,7 +104,7 @@ namespace TruthEngine::Core
 				}
 			}
 
-			modelManager->m_Meshes.emplace_back(std::make_shared<Mesh>(indexNum, indexOffset, vertexOffset));
+			modelManager->AddMesh(indexNum, indexOffset, vertexOffset, modelManager->m_MaterialManager.GetMaterial(0u));
 		}
 	}
 

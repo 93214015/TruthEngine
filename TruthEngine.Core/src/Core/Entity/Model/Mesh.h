@@ -14,7 +14,7 @@ namespace TruthEngine
 		{
 		public:
 			Mesh();
-			Mesh(uint32_t IndexNum, size_t IndexOffset, size_t VertexOffset);
+			Mesh(uint32_t IndexNum, size_t IndexOffset, size_t VertexOffset, Material* MaterialPtr, VertexBuffer<VertexData::Pos, VertexData::NormTex>* VertexBufferPtr, IndexBuffer* IndexBufferPtr);
 
 			VertexBuffer<VertexData::Pos, VertexData::NormTex>* GetVertexBuffer() const noexcept
 			{

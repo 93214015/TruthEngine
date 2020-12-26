@@ -3,12 +3,15 @@
 
 #include "Core/Application.h"
 
+#include "Core/Entity/Model/ModelManager.h"
+
 #include "Platform/Windows/WindowsWindow.h"
 
 #include "API/IDXGI.h"
 #include "API/DX12/DirectX12GraphicDevice.h"
 #include "API/DX12/DirectX12SwapChain.h"
 #include "API/DX12/DirectX12BufferManager.h"
+
 
 
 
@@ -74,7 +77,7 @@ namespace TruthEngine::API::DirectX12 {
 
 	void DirectX12ImGuiLayer::OnDetach()
 	{
-		TE_TIMER_SCOPE_FUNC;
+		//TE_TIMER_SCOPE_FUNC;
 
 		ImGui_ImplDX12_Shutdown();
 		ImGui_ImplWin32_Shutdown();
@@ -87,7 +90,7 @@ namespace TruthEngine::API::DirectX12 {
 
 	void DirectX12ImGuiLayer::Begin()
 	{
-		TE_TIMER_SCOPE_FUNC;
+		//TE_TIMER_SCOPE_FUNC;
 
 
 		// Our state
@@ -130,11 +133,25 @@ namespace TruthEngine::API::DirectX12 {
 			ImGui::End();
 		}
 
+		ImGui::Begin("OpenFile");
+		if (ImGui::Button("Open File Dialog"))
+		{
+			const std::vector<const char*> fileExtensions = { ".fbx", ".obj" };
+			OpenFileDialog("Open Model", fileExtensions);
+		}
+		m_FileBrowser.Display();
+		ImGui::End();
+		if (CheckFileDialog())
+		{
+			m_CommandList->WaitToFinish();
+			Core::ModelManager::GetInstance()->ImportModel(m_SelectedFile.c_str());
+		}
+
 		ImGui::Begin("SceneViewport");
 		auto viewportSize = ImGui::GetContentRegionAvail();
 		if (viewportSize.x != TE_INSTANCE_APPLICATION->GetSceneViewportWidth() || viewportSize.y != TE_INSTANCE_APPLICATION->GetSceneViewportHeight())
 		{
-			if (viewportSize.x > 1 && viewportSize.y > 1)
+ 			if (viewportSize.x > 1 && viewportSize.y > 1)
 			{
 				TE_INSTANCE_APPLICATION->ResizeSceneViewport(static_cast<uint32_t>(viewportSize.x), static_cast<uint32_t>(viewportSize.y));
 				OnSceneViewportResize();
@@ -146,7 +163,7 @@ namespace TruthEngine::API::DirectX12 {
 
 	void DirectX12ImGuiLayer::End()
 	{
-		TE_TIMER_SCOPE_FUNC;
+		//TE_TIMER_SCOPE_FUNC;
 
 		const uint32_t currentFrameIndex = TE_INSTANCE_APPLICATION->GetCurrentFrameIndex();
 
@@ -208,6 +225,7 @@ namespace TruthEngine::API::DirectX12 {
 			m_DescHeapSRV.ReplaceDescriptorSRV(m_D3D12Resource_ScreenBuffer, nullptr, m_SRVIndexScreenBuffer);
 		}
 	}
+
 
 }
 

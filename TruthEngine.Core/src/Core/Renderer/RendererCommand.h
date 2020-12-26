@@ -92,7 +92,7 @@ namespace TruthEngine
 			bool IsRunning(uint32_t cmdListIndex = 0);
 
 		private:
-			void WaitToFinish();
+			void WaitForGPU();
 
 		private:
 			uint32_t m_LastCommadListIndex = 0;

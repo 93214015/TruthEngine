@@ -30,7 +30,11 @@ project "TruthEngine.Sandbox"
 		IncludeDir["imgui"]
 	}
 
-	libdirs { "%{wks.location}/Dependencies/DirectXShaderCompiler/lib/x64" }
+	libdirs 
+	{ 
+	"%{wks.location}/Dependencies/DirectXShaderCompiler/lib/x64",
+	"%{wks.location}/Dependencies/assimp/lib" 
+	}
 
 	links{
 		"TruthEngine.Core",

@@ -3,6 +3,8 @@
 
 #include "API/DX12/DirectX12ImGuiLayer.h"
 
+
+
 namespace TruthEngine::Core
 {
 
@@ -17,6 +19,26 @@ namespace TruthEngine::Core
 		default:
 			return nullptr;
 		}
+	}
+
+	void ImGuiLayer::OpenFileDialog(const char* title, const std::vector<const char*>& FileExtensions)
+	{
+		
+		m_FileBrowser.SetTitle(title);
+		m_FileBrowser.SetTypeFilters(FileExtensions);
+
+		m_FileBrowser.Open();		
+	}
+
+	bool ImGuiLayer::CheckFileDialog()
+	{
+		if (m_FileBrowser.HasSelected())
+		{
+			m_SelectedFile = m_FileBrowser.GetSelected().string();
+			m_FileBrowser.ClearSelected();
+			return true;
+		}
+		return false;
 	}
 
 }

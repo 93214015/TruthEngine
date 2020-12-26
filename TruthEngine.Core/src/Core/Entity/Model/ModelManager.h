@@ -27,7 +27,7 @@ namespace TruthEngine
 				return s_ModelManager;
 			}
 
-			void Init(BufferManager* bufferManager, RendererCommand* rendererCommand);
+			void Init(BufferManager* bufferManager/*, RendererCommand* rendererCommand*/);
 
 			inline const std::vector<std::shared_ptr<Model3D>>& GetModel3D() const noexcept
 			{
@@ -57,11 +57,12 @@ namespace TruthEngine
 			Model3D* AddModel3D();
 
 			void AddMesh(std::shared_ptr<Mesh> mesh);
-			Mesh* AddMesh(uint32_t IndexNum, size_t IndexOffset, size_t VertexOffset);
+			Mesh* AddMesh(uint32_t IndexNum, size_t IndexOffset, size_t VertexOffset, Material* MaterialPtr);
 
 			void ImportModel(const char* filePath);
 
 		protected:
+			void InitVertexAndIndexBuffer();
 
 		protected:
 			std::vector<std::shared_ptr<Model3D>> m_Models3D;
@@ -74,6 +75,7 @@ namespace TruthEngine
 
 			BufferManager* m_BufferManager;
 
+			std::shared_ptr<RendererCommand> m_RendererCommand;
 
 			//
 			// Friend Classes
