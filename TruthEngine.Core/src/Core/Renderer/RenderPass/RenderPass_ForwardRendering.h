@@ -66,7 +66,7 @@ namespace TruthEngine
 				float4 color;
 			};
 
-			ConstantBufferDirect<CB_DATA_PER_MESH> m_ConstantBufferDirect_PerMesh;
+			ConstantBufferDirect<CB_DATA_PER_MESH>* m_ConstantBufferDirect_PerMesh;
 
 		};
 	}

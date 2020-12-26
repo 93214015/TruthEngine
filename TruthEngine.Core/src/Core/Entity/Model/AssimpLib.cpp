@@ -24,12 +24,14 @@ namespace TruthEngine::Core
 		if (scene == nullptr)
 			return TE_FAIL;
 
+		auto meshOffset = ModelManager::GetInstance().get()->m_Meshes.size();
+
 		AddSpace(scene);
 
 		ProcessTextures(scene);
 		ProcessMaterials(scene);
 		ProcessMeshes(scene);
-		ProcessNodes(scene->mRootNode, scene);
+		ProcessNodes(scene->mRootNode, scene, meshOffset);
 
 		return TE_SUCCESSFUL;
 	}
@@ -47,7 +49,7 @@ namespace TruthEngine::Core
 	}
 
 
-	void AssimpLib::ProcessNodes(const aiNode* node, const aiScene* scene)
+	void AssimpLib::ProcessNodes(const aiNode* node, const aiScene* scene, const size_t meshOffset)
 	{
 		ModelManager* modelManager = ModelManager::GetInstance().get();
 		auto nodeMeshNum = node->mNumMeshes;
@@ -57,13 +59,13 @@ namespace TruthEngine::Core
 			model3D->AddSpace(nodeMeshNum);
 			for (uint32_t i = 0; i < nodeMeshNum; ++i)
 			{
-				model3D->AddMesh(modelManager->m_Meshes[node->mMeshes[i]].get());
+				model3D->AddMesh(modelManager->m_Meshes[node->mMeshes[i] + meshOffset].get());
 			}
 		}
 
 		for (uint32_t childIndex = 0; childIndex < node->mNumChildren; ++childIndex)
 		{
-			ProcessNodes(node->mChildren[childIndex], scene);
+			ProcessNodes(node->mChildren[childIndex], scene, meshOffset);
 		}
 	}
 

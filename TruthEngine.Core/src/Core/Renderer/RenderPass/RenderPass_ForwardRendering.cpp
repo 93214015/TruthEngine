@@ -19,7 +19,7 @@ namespace TruthEngine::Core
 		, m_TextureDepthStencil(nullptr)
 		, m_Viewport{ 0.0f, 0.0f, static_cast<float>(TE_INSTANCE_APPLICATION->GetClientWidth()), static_cast<float>(TE_INSTANCE_APPLICATION->GetClientHeight()), 0.0f, 1.0f }
 		, m_ViewREct{ static_cast<long>(0.0), static_cast<long>(0.0), static_cast<long>(TE_INSTANCE_APPLICATION->GetClientWidth()), static_cast<long>(TE_INSTANCE_APPLICATION->GetClientHeight()) }
-		, m_ConstantBufferDirect_PerMesh{TE_IDX_CONSTANTBUFFER::DIRECT_PER_MESH}
+		, m_ConstantBufferDirect_PerMesh(nullptr)
 	{};
 
 	RenderPass_ForwardRendering::~RenderPass_ForwardRendering() = default;
@@ -86,6 +86,7 @@ namespace TruthEngine::Core
 		}
 
 		m_RendererCommand.CreateRenderTargetView(TE_IDX_RENDERTARGET::SCENEBUFFER, &m_RenderTartgetView);
+		m_ConstantBufferDirect_PerMesh = m_RendererCommand.CreateConstantBufferDirect<CB_DATA_PER_MESH>(TE_IDX_CONSTANTBUFFER::DIRECT_PER_MESH);
 	}
 
 	void RenderPass_ForwardRendering::OnDetach()
@@ -121,13 +122,21 @@ namespace TruthEngine::Core
 	void RenderPass_ForwardRendering::Render(std::vector<const Model3D*> models)
 	{
 
+		auto data = m_ConstantBufferDirect_PerMesh->GetData();
+
+		data->color = float4{ 0.29f, 0.3f, 0.85f, 1.0f };
+		float4 meshColor = { 0.2f, 0.1f, -0.2f, 0.0f };
+
 		for (auto m : models)
 		{
 			for (auto mesh : m->GetMeshes())
 			{
 				UINT32 s = 10;
 				auto s2 = s << 1;
-
+				data->color.x += meshColor.x;
+				data->color.y += meshColor.y;
+				data->color.z += meshColor.z;
+				m_RendererCommand.UploadData(m_ConstantBufferDirect_PerMesh);
 				m_RendererCommand.SetPipeline(m_MaterialPipelines[mesh->GetMaterial()->GetID()].get());
 				m_RendererCommand.DrawIndexed(mesh);
 			}
@@ -146,7 +155,7 @@ namespace TruthEngine::Core
 
 		m_Viewport.Resize(width, height);
 
-		m_ViewREct = ViewRect{ 0, 0, static_cast<long>(width), static_cast<long>(height)};
+		m_ViewREct = ViewRect{ 0, 0, static_cast<long>(width), static_cast<long>(height) };
 	}
 
 

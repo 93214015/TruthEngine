@@ -86,7 +86,17 @@ namespace TruthEngine::Core
 		template<class T>
 		ConstantBufferDirect<T>* CreateConstantBufferDirect(TE_IDX_CONSTANTBUFFER cbIDX)
 		{
-			return ConstantBufferDirect<T>(cbIDX);
+			auto itr = m_Map_ConstantBufferDirect.find(cbIDX);
+			if(itr != m_Map_ConstantBufferDirect.end())
+			{
+				return static_cast<ConstantBufferDirect<T>*>(itr->second.get());
+			}
+
+			auto cb = std::make_shared<ConstantBufferDirect<T>>(cbIDX);
+
+			m_Map_ConstantBufferDirect[cbIDX] = cb;
+
+			return cb.get();
 		}
 
 		TextureRenderTarget* CreateRenderTarget(TE_IDX_RENDERTARGET idx, uint32_t width, uint32_t height, TE_RESOURCE_FORMAT format, const ClearValue_RenderTarget& clearValue, bool useAsShaderResource);
@@ -133,6 +143,7 @@ namespace TruthEngine::Core
 		uint32_t m_LastIndexBufferID;
 
 		std::unordered_map<TE_IDX_CONSTANTBUFFER, std::shared_ptr<ConstantBufferUploadBase>> m_Map_ConstantBufferUpload;
+		std::unordered_map<TE_IDX_CONSTANTBUFFER, std::shared_ptr<ConstantBufferDirectBase>> m_Map_ConstantBufferDirect;
 		std::unordered_map<TE_IDX_RENDERTARGET, std::shared_ptr<TextureRenderTarget>> m_Map_RenderTargets;
 		std::unordered_map<TE_IDX_DEPTHSTENCIL, std::shared_ptr<TextureDepthStencil>> m_Map_DepthStencils;
 

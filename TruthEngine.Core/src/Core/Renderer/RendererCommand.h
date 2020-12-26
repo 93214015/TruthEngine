@@ -37,9 +37,9 @@ namespace TruthEngine
 				return m_BufferManager->CreateConstantBufferUpload<T>(idx);
 			}
 
-			template<class T> ConstantBufferDirect<T> CreateConstantBufferDirect(TE_IDX_CONSTANTBUFFER idx)
+			template<class T> ConstantBufferDirect<T>* CreateConstantBufferDirect(TE_IDX_CONSTANTBUFFER idx)
 			{
-				return m_BufferManager->CreateConstantBufferDirect(idx);
+				return m_BufferManager->CreateConstantBufferDirect<T>(idx);
 			}
 
 			TE_RESULT CreateResource(BufferUpload* cb);
