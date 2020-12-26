@@ -81,6 +81,11 @@ namespace TruthEngine::Core
 	{
 	}
 
+	void RendererCommand::UploadData(ConstantBufferDirectBase* cb, uint32_t cmdListIndex)
+	{
+		m_CommandLists[cmdListIndex]->UploadData(cb);
+	}
+
 	void RendererCommand::UploadData(Buffer* buffer, void* data, size_t sizeInByte, uint32_t cmdListIndex /*= 0*/)
 	{
 		m_CommandLists[cmdListIndex]->UploadData(buffer, data, sizeInByte);

@@ -47,7 +47,7 @@ namespace TruthEngine::Core
 
 		m_RendererCommand.CreateRenderTargetView(TE_INSTANCE_SWAPCHAIN, &m_RTVBackBuffer);	
 
-		m_CB_PerFrame = m_BufferManager->CreateConstantBufferUpload<ConstantBuffer_Data_Per_Frame>(TE_IDX_CONSTANTBUFFER::PER_FRAME);
+		m_CB_PerFrame = m_RendererCommand.CreateConstantBufferUpload<ConstantBuffer_Data_Per_Frame>(TE_IDX_CONSTANTBUFFER::PER_FRAME);
 
 		m_CB_PerFrame->GetData()->m_Color = DirectX::XMFLOAT4{ 0.2f, 0.7f, 0.4f, 1.0f };
 

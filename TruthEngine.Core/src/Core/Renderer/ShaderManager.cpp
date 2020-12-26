@@ -35,7 +35,7 @@ namespace TruthEngine
 			{
 			case TE_IDX_SHADERCLASS::FORWARDRENDERING:
 				m_Map_BindedResources[shaderClassIDX] = BindedResource{
-					{{ TE_IDX_CONSTANTBUFFER::PER_FRAME }},
+					{{ TE_IDX_CONSTANTBUFFER::PER_FRAME } , { TE_IDX_CONSTANTBUFFER::DIRECT_PER_MESH }},
 					{{}}
 				};
 				return &m_Map_BindedResources[shaderClassIDX];

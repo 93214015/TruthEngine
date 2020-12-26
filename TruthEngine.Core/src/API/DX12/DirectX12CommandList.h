@@ -18,6 +18,7 @@ namespace TruthEngine
 		class DirectX12BufferManager;
 		class DirectX12ShaderManager;
 		class DirectX12PiplineManager;
+		class DirectX12RootParameter;
 
 
 		class DirectX12CommandList : public Core::CommandList
@@ -69,6 +70,9 @@ namespace TruthEngine
 
 
 			void UploadData(Core::Buffer* buffer, const void* data, size_t sizeInByte) override;
+
+
+			void UploadData(Core::ConstantBufferDirectBase* cb) override;
 
 
 			void SetVertexBuffer(Core::VertexBufferBase* vertexBuffer) override;
@@ -203,6 +207,7 @@ namespace TruthEngine
 
 			COMPTR<ID3D12Resource> m_IntermediateResource;
 
+			DirectX12RootParameter* m_RootParameters;
 
 			//
 			// friend class

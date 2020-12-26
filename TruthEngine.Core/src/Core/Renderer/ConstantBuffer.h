@@ -79,6 +79,59 @@ namespace TruthEngine::Core
 		friend class TruthEngine::API::DirectX12::DirectX12BufferManager;
 	};
 
-	
+	class ConstantBufferDirectBase
+	{
+	public:
+		ConstantBufferDirectBase(TE_IDX_CONSTANTBUFFER idx);
+		virtual ~ConstantBufferDirectBase();
+
+
+		inline TE_IDX_CONSTANTBUFFER GetIDX() const noexcept
+		{
+			return m_IDX;
+		}
+
+		virtual uint32_t Get32BitNum() const noexcept = 0;
+		virtual const void* GetDataPtr() const noexcept = 0;
+	protected:
+		
+
+	protected:
+		TE_IDX_CONSTANTBUFFER m_IDX;
+
+	};
+
+	template<class T>
+	class ConstantBufferDirect : ConstantBufferDirectBase
+	{
+	public:
+		using ConstantBufferDirectBase::ConstantBufferDirectBase;
+
+		inline T* GetData()
+		{
+			return &m_DataStructure;
+		}
+
+		const void* GetDataPtr() const noexcept override
+		{
+			return static_cast<const void*>(&m_DataStructure);
+		}
+
+		constexpr uint32_t Num32bit() const noexcept
+		{
+			return static_cast<uint32_t>(sizeof(T) / 4);
+		}
+
+		uint32_t Get32BitNum() const noexcept override
+		{
+			return this->Num32bit();
+		}
+
+	protected:
+
+
+	protected:
+		T m_DataStructure;
+	};
 
 }

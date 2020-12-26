@@ -51,6 +51,8 @@ namespace TruthEngine::API::DirectX12 {
 
 		void CreateConstantBufferView(Core::ConstantBufferUploadBase* constantBuffer, Core::ConstantBufferView* CBV) override;
 
+		void CreateConstantBufferView(Core::ConstantBufferDirectBase* constantBuffer, Core::ConstantBufferView* CBV, TE_IDX_SHADERCLASS shaderClassIDX) override;
+
 		uint64_t GetRequiredSize(const Core::GraphicResource* graphicResource) const override;
 
 		ID3D12Resource* GetResource(Core::GraphicResource* graphicResource);

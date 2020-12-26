@@ -31,6 +31,17 @@ namespace TruthEngine
 
 			TextureRenderTarget* CreateRenderTarget(TE_IDX_RENDERTARGET idx, uint32_t width, uint32_t height, TE_RESOURCE_FORMAT format, const ClearValue_RenderTarget& clearValue, bool useAsShaderResource);
 			TextureDepthStencil* CreateDepthStencil(TE_IDX_DEPTHSTENCIL idx, uint32_t width, uint32_t height, TE_RESOURCE_FORMAT format, const ClearValue_DepthStencil& clearValue, bool useAsShaderResource);
+
+			template<class T> ConstantBufferUpload<T>* CreateConstantBufferUpload(TE_IDX_CONSTANTBUFFER idx)
+			{
+				return m_BufferManager->CreateConstantBufferUpload<T>(idx);
+			}
+
+			template<class T> ConstantBufferDirect<T> CreateConstantBufferDirect(TE_IDX_CONSTANTBUFFER idx)
+			{
+				return m_BufferManager->CreateConstantBufferDirect(idx);
+			}
+
 			TE_RESULT CreateResource(BufferUpload* cb);
 
 			void ReleaseResource(GraphicResource* graphicResource);
@@ -43,7 +54,6 @@ namespace TruthEngine
 
 			void CreateDepthStencilView(TE_IDX_DEPTHSTENCIL idx, DepthStencilView* DSV);
 			void CreateDepthStencilView(TextureDepthStencil* DS, DepthStencilView* DSV);
-
 
 			void CreateShaderResourceView(Texture* textures[], uint32_t textureNum, ShaderResourceView* SRV);
 			void CreateShaderResourceView(Texture* texture, ShaderResourceView* SRV);
@@ -61,6 +71,7 @@ namespace TruthEngine
 			void SetConstantBuffer(const ConstantBufferView CBV, uint32_t registerIndex, uint32_t cmdListIndex = 0);
 
 			void UploadData(ConstantBufferUploadBase* cb, uint32_t cmdListIndex = 0);
+			void UploadData(ConstantBufferDirectBase* cb, uint32_t cmdListIndex = 0);
 			void UploadData(Buffer* buffer, void* Data, size_t sizeInByte, uint32_t cmdListIndex = 0);
 			void UploadData(VertexBufferBase* vertexBuffer, uint32_t cmdListIndex = 0);
 			void UploadData(IndexBuffer* indexBuffer, uint32_t cmdListIndex = 0);

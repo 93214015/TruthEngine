@@ -19,6 +19,7 @@ namespace TruthEngine::Core
 		, m_TextureDepthStencil(nullptr)
 		, m_Viewport{ 0.0f, 0.0f, static_cast<float>(TE_INSTANCE_APPLICATION->GetClientWidth()), static_cast<float>(TE_INSTANCE_APPLICATION->GetClientHeight()), 0.0f, 1.0f }
 		, m_ViewREct{ static_cast<long>(0.0), static_cast<long>(0.0), static_cast<long>(TE_INSTANCE_APPLICATION->GetClientWidth()), static_cast<long>(TE_INSTANCE_APPLICATION->GetClientHeight()) }
+		, m_ConstantBufferDirect_PerMesh{TE_IDX_CONSTANTBUFFER::DIRECT_PER_MESH}
 	{};
 
 	RenderPass_ForwardRendering::~RenderPass_ForwardRendering() = default;

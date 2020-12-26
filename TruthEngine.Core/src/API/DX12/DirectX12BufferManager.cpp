@@ -9,8 +9,10 @@
 #include "Core/Renderer/IndexBuffer.h"
 #include "Core/Renderer/Buffer.h"
 
+
 #include "DirectX12GraphicDevice.h"
 #include "DirectX12SwapChain.h"
+#include "DirectX12Manager.h"
 
 namespace TruthEngine::API::DirectX12
 {
@@ -400,6 +402,11 @@ namespace TruthEngine::API::DirectX12
 
 	}
 
+	void DirectX12BufferManager::CreateConstantBufferView(Core::ConstantBufferDirectBase* constantBuffer, Core::ConstantBufferView* CBV, TE_IDX_SHADERCLASS shaderClassIDX)
+	{
+		auto dx12Manager = DirectX12Manager::GetInstance();
+		CBV->ViewIndex = dx12Manager->GetRootParameterIndex(constantBuffer->GetIDX(), shaderClassIDX);
+	}
 
 	uint64_t DirectX12BufferManager::GetRequiredSize(const Core::GraphicResource* graphicResource) const
 	{

@@ -53,6 +53,8 @@ namespace TruthEngine::API::DirectX12
 
 		m_QueueClearRT.reserve(8);
 		m_QueueClearDS.reserve(1);
+
+		m_RootParameters = DirectX12Manager::GetInstance()->GetRootParameter(renderPassIDX, shaderClassIDX);
 	}
 
 	void DirectX12CommandList::Reset()
@@ -142,11 +144,9 @@ namespace TruthEngine::API::DirectX12
 	{
 		if (m_RenderPassIDX != TE_IDX_RENDERPASS::NONE)
 		{
-			auto& rootParameters = DirectX12Manager::GetInstance()->GetRootParamters(m_RenderPassIDX, m_ShaderClassIDX);
-
-			for (auto& b : rootParameters)
+			for (auto& t : m_RootParameters->RootTables)
 			{
-				std::visit(RootParameterVisitor{ m_D3D12CommandList.Get() }, b.parameter);
+				m_D3D12CommandList->SetGraphicsRootDescriptorTable(t.RootIndex, t.TableHandle);
 			}
 		}
 	}
@@ -375,6 +375,11 @@ namespace TruthEngine::API::DirectX12
 		m_QueueCopyDefaultResource.emplace_back(m_BufferManager->m_Resources[buffer->GetResourceIndex()].Get(), data, sizeInByte);
 
 		m_CopyQueueRequiredSize += buffer->GetRequiredSize();
+	}
+
+	void DirectX12CommandList::UploadData(Core::ConstantBufferDirectBase* cb)
+	{
+		m_D3D12CommandList->SetGraphicsRoot32BitConstants(m_RootParameters->DirectConstants[cb->GetIDX()], cb->Get32BitNum(), cb->GetDataPtr(), 0);
 	}
 
 	void DirectX12CommandList::_UploadDefaultBuffers()

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "ConstantBuffer.h"
 
 namespace TruthEngine::Core
 {
@@ -11,7 +12,6 @@ namespace TruthEngine::Core
 	class TextureDepthStencil;
 	class VertexBufferBase;
 	class VertexBufferStreamBase;
-	class ConstantBufferUploadBase;
 	class Buffer;
 	class BufferUpload;
 	class IndexBuffer;
@@ -20,8 +20,6 @@ namespace TruthEngine::Core
 	struct ClearValue_RenderTarget;
 	struct ClearValue_DepthStencil;
 
-	template<class T>
-	class ConstantBufferUpload;
 
 	struct RenderTargetView
 	{
@@ -84,6 +82,12 @@ namespace TruthEngine::Core
 
 			return cb.get();
 		}
+				
+		template<class T>
+		ConstantBufferDirect<T>* CreateConstantBufferDirect(TE_IDX_CONSTANTBUFFER cbIDX)
+		{
+			return ConstantBufferDirect<T>(cbIDX);
+		}
 
 		TextureRenderTarget* CreateRenderTarget(TE_IDX_RENDERTARGET idx, uint32_t width, uint32_t height, TE_RESOURCE_FORMAT format, const ClearValue_RenderTarget& clearValue, bool useAsShaderResource);
 
@@ -106,6 +110,8 @@ namespace TruthEngine::Core
 		virtual void CreateShaderResourceView(Texture* texture, ShaderResourceView* srv) = 0;
 
 		virtual void CreateConstantBufferView(ConstantBufferUploadBase* constantBuffer, ConstantBufferView* cbv) = 0;
+
+		virtual void CreateConstantBufferView(ConstantBufferDirectBase* constantBuffer, ConstantBufferView* CBV, TE_IDX_SHADERCLASS shaderClassIDX) = 0;
 
 		virtual TE_RESULT CreateVertexBuffer(VertexBufferBase* vb) = 0;
 
