@@ -107,8 +107,8 @@ namespace TruthEngine
 
 		protected:
 
-			void _BindResource();
 
+			void _BindResource();
 
 			void _ChangeResourceState(Core::GraphicResource* resource, TE_RESOURCE_STATES newState);
 

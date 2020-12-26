@@ -6,7 +6,7 @@
 
 namespace TruthEngine::API::DirectX12
 {
-	std::vector<DirectX12ResourceTable>& DirectX12Manager::GetResourceTable(TE_IDX_RENDERPASS renderPassIDX, TE_IDX_SHADERCLASS shaderClassIDX)
+	std::vector<DirectX12RootParameter>& DirectX12Manager::GetRootParamters(TE_IDX_RENDERPASS renderPassIDX, TE_IDX_SHADERCLASS shaderClassIDX)
 	{
 		auto itr = m_Map_RenderPassResourceTable.find(renderPassIDX);
 		if (itr != m_Map_RenderPassResourceTable.end())
@@ -19,7 +19,7 @@ namespace TruthEngine::API::DirectX12
 		}
 	}
 
-	std::vector<DirectX12ResourceTable>& DirectX12Manager::CreateResourceTable(TE_IDX_RENDERPASS renderPassIDX, TE_IDX_SHADERCLASS shaderClassIDX)
+	std::vector<DirectX12RootTable>& DirectX12Manager::CreateResourceTable(TE_IDX_RENDERPASS renderPassIDX, TE_IDX_SHADERCLASS shaderClassIDX)
 	{
 		auto shaderManager = DirectX12ShaderManager::GetInstance().get();
 		auto bufferManager = DirectX12BufferManager::GetInstance().get();

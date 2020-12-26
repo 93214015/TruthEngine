@@ -20,6 +20,21 @@
 namespace TruthEngine::API::DirectX12
 {
 
+	struct RootParameterVisitor
+	{
+		ID3D12GraphicsCommandList* m_D3D12CommandList;
+
+		void operator()(const DirectX12RootTable& rootTable)
+		{
+			m_D3D12CommandList->SetGraphicsRootDescriptorTable(rootTable.RootIndex, rootTable.TableHandle);
+		}
+		void operator()(const DirectX12RootConstant& rootConstant)
+		{
+			
+		}
+	};
+
+
 	DirectX12CommandList::DirectX12CommandList(Core::GraphicDevice* graphicDevice, TE_RENDERER_COMMANDLIST_TYPE type, Core::BufferManager* bufferManager, Core::ShaderManager* shaderManager, TE_IDX_RENDERPASS renderPassIDX, TE_IDX_SHADERCLASS shaderClassIDX)
 		: CommandList(renderPassIDX, shaderClassIDX)
 		, m_ShaderManager(static_cast<DirectX12ShaderManager*>(shaderManager)), m_BufferManager(static_cast<DirectX12BufferManager*>(bufferManager))
@@ -127,11 +142,11 @@ namespace TruthEngine::API::DirectX12
 	{
 		if (m_RenderPassIDX != TE_IDX_RENDERPASS::NONE)
 		{
-			auto& resourceTables = DirectX12Manager::GetInstance()->GetResourceTable(m_RenderPassIDX, m_ShaderClassIDX);
+			auto& rootParameters = DirectX12Manager::GetInstance()->GetRootParamters(m_RenderPassIDX, m_ShaderClassIDX);
 
-			for (auto& b : resourceTables)
+			for (auto& b : rootParameters)
 			{
-				m_D3D12CommandList->SetGraphicsRootDescriptorTable(b.TableIndex, b.TableHandle);
+				std::visit(RootParameterVisitor{ m_D3D12CommandList.Get() }, b.parameter);
 			}
 		}
 	}

@@ -6,22 +6,33 @@ namespace TruthEngine
 	namespace API::DirectX12
 	{
 
-		struct DirectX12ResourceTable
+		
+		struct DirectX12RootConstant
 		{
-			DirectX12ResourceTable() = default;
-			DirectX12ResourceTable(uint32_t tableIndex, const D3D12_GPU_DESCRIPTOR_HANDLE tableHandle)
-				: TableIndex(tableIndex), TableHandle(tableHandle)
+			uint32_t RootIndex;
+			uint32_t Num32BitConstants;
+		};
+
+		struct DirectX12RootTable
+		{
+			DirectX12RootTable() = default;
+			DirectX12RootTable(uint32_t tableIndex, const D3D12_GPU_DESCRIPTOR_HANDLE tableHandle)
+				: RootIndex(tableIndex), TableHandle(tableHandle)
 			{}
 
-			uint32_t TableIndex;
+			uint32_t RootIndex;
 			D3D12_GPU_DESCRIPTOR_HANDLE TableHandle;
 		};
 
+		struct DirectX12RootParameter
+		{
+			std::variant<DirectX12RootTable, DirectX12RootConstant> parameter;
+		};
 
 		class DirectX12Manager 
 		{
 		public:
-			std::vector<DirectX12ResourceTable>& GetResourceTable(TE_IDX_RENDERPASS renderPassIDX, TE_IDX_SHADERCLASS shaderClassIDX);
+			std::vector<DirectX12RootParameter>& GetRootParamters(TE_IDX_RENDERPASS renderPassIDX, TE_IDX_SHADERCLASS shaderClassIDX);
 
 			static std::shared_ptr<DirectX12Manager> GetInstance()
 			{
@@ -29,10 +40,10 @@ namespace TruthEngine
 				return s_Instance;
 			}
 		private:
-			std::vector<DirectX12ResourceTable>& CreateResourceTable(TE_IDX_RENDERPASS renderPassIDX, TE_IDX_SHADERCLASS shaderClassIDX);
+			std::vector<DirectX12RootTable>& CreateResourceTable(TE_IDX_RENDERPASS renderPassIDX, TE_IDX_SHADERCLASS shaderClassIDX);
 
 		private:
-			std::unordered_map<TE_IDX_RENDERPASS, std::vector<DirectX12ResourceTable>> m_Map_RenderPassResourceTable;
+			std::unordered_map<TE_IDX_RENDERPASS, std::vector<DirectX12RootTable>> m_Map_RenderPassResourceTable;
 
 		};
 	}
