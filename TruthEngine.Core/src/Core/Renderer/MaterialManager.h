@@ -19,6 +19,21 @@ namespace TruthEngine
 				return m_Map_Materials[materialID].get();
 			}
 
+			Material* AddMaterial(
+				 RendererStateSet states
+				, uint8_t shaderProperties
+				, float4 colorDiffuse
+				, float4 colorAmbient
+				, float4 colorSpecular
+				, MaterialTexture* diffuseMap
+				, MaterialTexture* normalMap
+				, MaterialTexture* displacementMap
+				, int32_t extraDepthBias
+				, float extraSlopeScaledDepthBias
+				, float extraDepthBiasClamp);
+
+			void AddSampleMaterial();
+
 		protected:
 
 		protected:

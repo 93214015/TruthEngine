@@ -21,28 +21,9 @@ namespace TruthEngine::Core
 		InitVertexAndIndexBuffer();
 	}
 
-	void ModelManager::InitVertexAndIndexBuffer()
+	void ModelManager::AddSampleModel()
 	{
-
-		m_BufferManager->CreateVertexBuffer(&m_VertexBuffer_PosNormTex);
-		m_BufferManager->CreateIndexBuffer(&m_IndexBuffer);
-
-		m_RendererCommand->Begin();
-
-		m_RendererCommand->UploadData(&m_VertexBuffer_PosNormTex);
-		m_RendererCommand->UploadData(&m_IndexBuffer);
-
-		m_RendererCommand->End();
-	}
-
-	void ModelManager::Init(BufferManager* bufferManager/*, RendererCommand* rendererCommand*/)
-	{
-
-		m_RendererCommand = std::make_shared<RendererCommand>();
-		m_RendererCommand->Init(TE_IDX_RENDERPASS::NONE, TE_IDX_SHADERCLASS::NONE);
-
-		m_BufferManager = bufferManager;
-		m_MaterialManager.Init(m_BufferManager);
+		m_MaterialManager.AddSampleMaterial();
 
 		auto mesh = std::make_shared<Mesh>();
 		mesh->m_IndexNum = 6;
@@ -57,21 +38,8 @@ namespace TruthEngine::Core
 		model->m_Meshes.emplace_back(mesh.get());
 
 
-
 		VertexData::Pos pos;
 		VertexData::NormTex normTex;
-
-		/*pos.Position = float3{ -0.5f, -0.5f, 0.5f };
-
-		m_VertexBuffer_PosNormTex.AddVertex(pos, normTex);
-
-		pos.Position = float3{ 0.0f, 0.5f, 0.5f };
-
-		m_VertexBuffer_PosNormTex.AddVertex(pos, normTex);
-
-		pos.Position = float3{ 0.5f, -0.5, 0.5f };
-
-		m_VertexBuffer_PosNormTex.AddVertex(pos, normTex);*/
 
 		pos.Position = float3{ -0.5f, -0.5f, 0.5f };
 
@@ -85,8 +53,7 @@ namespace TruthEngine::Core
 
 		m_VertexBuffer_PosNormTex.AddVertex(pos, normTex);
 
-		
-		
+
 		pos.Position = float3{ -0.5f, -0.5f, 0.5f };
 
 		m_VertexBuffer_PosNormTex.AddVertex(pos, normTex);
@@ -107,10 +74,30 @@ namespace TruthEngine::Core
 		m_IndexBuffer.AddIndex(4);
 		m_IndexBuffer.AddIndex(5);
 
-
-
 		InitVertexAndIndexBuffer();
+	}
 
+	void ModelManager::InitVertexAndIndexBuffer()
+	{
+
+		m_BufferManager->CreateVertexBuffer(&m_VertexBuffer_PosNormTex);
+		m_BufferManager->CreateIndexBuffer(&m_IndexBuffer);
+
+		m_RendererCommand->Begin();
+
+		m_RendererCommand->UploadData(&m_VertexBuffer_PosNormTex);
+		m_RendererCommand->UploadData(&m_IndexBuffer);
+
+		m_RendererCommand->End();
+	}
+
+	void ModelManager::Init(BufferManager* bufferManager/*, RendererCommand* rendererCommand*/)
+	{
+		m_RendererCommand = std::make_shared<RendererCommand>();
+		m_RendererCommand->Init(TE_IDX_RENDERPASS::NONE, TE_IDX_SHADERCLASS::NONE);
+
+		m_BufferManager = bufferManager;
+		m_MaterialManager.Init(m_BufferManager);
 	}
 
 

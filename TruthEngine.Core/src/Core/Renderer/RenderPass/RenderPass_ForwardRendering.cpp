@@ -10,6 +10,8 @@
 #include "Core/Application.h"
 #include "Core/Renderer/SwapChain.h"
 
+#include "Core/Event/EventEntity.h"
+
 
 namespace TruthEngine::Core
 {
@@ -43,50 +45,14 @@ namespace TruthEngine::Core
 
 		for (const auto* mat : TE_INSTANCE_MODELMANAGER->GetMaterials())
 		{
-			std::string shaderName = std::string("renderer3D_material") + std::to_string(mat->GetID());
-
-			Shader* shader = nullptr;
-
-			m_ShaderMgr->AddShader(&shader, TE_IDX_SHADERCLASS::FORWARDRENDERING, mat->GetRendererStates(), "Assets/Shaders/renderer3D.hlsl", "vs", "ps");
-
-			ShaderInputElement inputElement;
-			inputElement.AlignedByteOffset = 0;
-			inputElement.Format = TE_RESOURCE_FORMAT::R32G32B32_FLOAT;
-			inputElement.InputSlot = 0;
-			inputElement.InputSlotClass = TE_RENDERER_SHADER_INPUT_CLASSIFICATION::PER_VERTEX;
-			inputElement.InstanceDataStepRate = 0;
-			inputElement.SemanticIndex = 0;
-			inputElement.SemanticName = "POSITION";
-			shader->AddInputElement(inputElement);
-
-			inputElement.AlignedByteOffset = 0;
-			inputElement.Format = TE_RESOURCE_FORMAT::R32G32B32_FLOAT;
-			inputElement.InputSlot = 1;
-			inputElement.InputSlotClass = TE_RENDERER_SHADER_INPUT_CLASSIFICATION::PER_VERTEX;
-			inputElement.InstanceDataStepRate = 0;
-			inputElement.SemanticIndex = 0;
-			inputElement.SemanticName = "NORMAL";
-			shader->AddInputElement(inputElement);
-
-			inputElement.AlignedByteOffset = 12;
-			inputElement.Format = TE_RESOURCE_FORMAT::R32G32_FLOAT;
-			inputElement.InputSlot = 1;
-			inputElement.InputSlotClass = TE_RENDERER_SHADER_INPUT_CLASSIFICATION::PER_VERTEX;
-			inputElement.InstanceDataStepRate = 0;
-			inputElement.SemanticIndex = 0;
-			inputElement.SemanticName = "TEXCOORD";
-			shader->AddInputElement(inputElement);
-
-
-			auto pipeline = std::make_shared<Pipeline>();
-			pipeline->SetShader(shader);
-			pipeline->SetRendererStates(mat->GetRendererStates());
-
-			m_MaterialPipelines[mat->GetID()] = pipeline;
+			PreparePiplineMaterial(mat);
 		}
 
 		m_RendererCommand.CreateRenderTargetView(TE_IDX_RENDERTARGET::SCENEBUFFER, &m_RenderTartgetView);
 		m_ConstantBufferDirect_PerMesh = m_RendererCommand.CreateConstantBufferDirect<CB_DATA_PER_MESH>(TE_IDX_CONSTANTBUFFER::DIRECT_PER_MESH);
+
+
+		RegisterOnEvents();
 	}
 
 	void RenderPass_ForwardRendering::OnDetach()
@@ -158,7 +124,7 @@ namespace TruthEngine::Core
 		m_ViewREct = ViewRect{ 0, 0, static_cast<long>(width), static_cast<long>(height) };
 	}
 
-	void RenderPass_ForwardRendering::PreparePiplineMaterial(Material* material)
+	void RenderPass_ForwardRendering::PreparePiplineMaterial(const Material* material)
 	{
 		std::string shaderName = std::string("renderer3D_material") + std::to_string(material->GetID());
 
@@ -197,15 +163,22 @@ namespace TruthEngine::Core
 			shader->AddInputElement(inputElement);
 		}
 
-		auto pipeline = std::make_shared<Pipeline>();
-		pipeline->SetShader(shader);
-		pipeline->SetRendererStates(material->GetRendererStates());
+		auto pipeline = std::make_shared<Pipeline>(material->GetRendererStates(), shader);
 
 		m_MaterialPipelines[material->GetID()] = pipeline;
 	}
 
+	void RenderPass_ForwardRendering::RegisterOnEvents()
+	{
+		auto lambda_OnAddMaterial = [this](Event& event) {
+			this->OnAddMaterial(static_cast<EventEntityAddMaterial&>(event));
+		};
+		TE_INSTANCE_APPLICATION->RegisterEventListener(EventType::EntityAddMaterial, lambda_OnAddMaterial);
+	}
+
 	void RenderPass_ForwardRendering::OnAddMaterial(EventEntityAddMaterial& event)
 	{
+		PreparePiplineMaterial(event.GetMaterial());
 	}
 
 

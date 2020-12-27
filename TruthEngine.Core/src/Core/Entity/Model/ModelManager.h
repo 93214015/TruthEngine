@@ -61,6 +61,7 @@ namespace TruthEngine
 
 			void ImportModel(const char* filePath);
 
+			void AddSampleModel();
 		protected:
 			void InitVertexAndIndexBuffer();
 

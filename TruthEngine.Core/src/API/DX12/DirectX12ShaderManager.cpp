@@ -77,20 +77,24 @@ namespace TruthEngine
 			{
 				states &= m_StateMask;
 
-				auto item = m_ShadersStateMap.find(states);
+				auto classID = static_cast<uint32_t>(shaderClassID);
 
-				if (item != m_ShadersStateMap.end())
+				auto& map = m_ShadersStateMap[classID];
+
+				auto item = map.find(states);
+
+				if (item != map.end())
 				{
 					*outShader = item->second.get();
 					return TE_RESULT_RENDERER_SHADER_HAS_EXIST;
 				}
 
-				std::string name = "shader" + std::to_string(m_ShadersStateMap.size());
+				std::string name = "shader" + std::to_string(map.size());
 
 				auto shader = std::make_shared<Core::Shader>(shaderClassID, name, filePath);
 				shader->m_ID = m_ShaderID++;
 
-				m_ShadersStateMap[states] = shader;
+				map[states] = shader;
 				*outShader = shader.get();
 
 				if (csEntry != "")
@@ -343,7 +347,7 @@ namespace TruthEngine
 
 				/*params.emplace_back().InitAsDescriptorTable(static_cast<UINT>(rangeSRV.size()), rangeSRV.data(), D3D12_SHADER_VISIBILITY_ALL);*/
 				params[0].InitAsDescriptorTable(_countof(rangeCBV), rangeCBV, D3D12_SHADER_VISIBILITY_ALL);
-				params[1].InitAsConstants(4, 1);
+				params[1].InitAsConstants(4, 2);
 
 				auto signatureDesc = CD3DX12_ROOT_SIGNATURE_DESC(_countof(params), params, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT
 					| D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS
@@ -353,7 +357,8 @@ namespace TruthEngine
 
 				if (FAILED(D3D12SerializeRootSignature(&signatureDesc, D3D_ROOT_SIGNATURE_VERSION_1_0, signatureBlob.ReleaseAndGetAddressOf(), errorBlob.ReleaseAndGetAddressOf())))
 				{
-					OutputDebugString(L"TE_DX12: the serialization of rooy signature of Renderer3D is failed!");
+					OutputDebugString(L"TE_DX12: the serialization of root signature of Renderer3D is failed!");
+					OutputDebugStringA(static_cast<const char*>(errorBlob->GetBufferPointer()));
 					exit(1);
 				}
 

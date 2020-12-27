@@ -18,6 +18,25 @@ namespace TruthEngine
 
 			return CreateBindedResource(shaderClassIDX);
 		}
+
+		Shader* ShaderManager::GetShader(TE_IDX_SHADERCLASS shaderClassID, RendererStateSet states)
+		{
+			{
+				states &= m_StateMask;
+
+				auto& map = m_ShadersStateMap[static_cast<uint32_t>(shaderClassID)];
+
+				auto itr = map.find(states);
+
+				if (itr != m_ShadersStateMap->end())
+				{
+					return itr->second.get();
+				}
+
+				return nullptr;
+			}
+		}
+
 		std::shared_ptr<TruthEngine::Core::ShaderManager> ShaderManager::Factory()
 		{
 				switch (Settings::RendererAPI)

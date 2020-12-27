@@ -40,11 +40,13 @@ namespace TruthEngine
 			void Render(std::vector<const Model3D*> model);
 
 			void OnSceneViewportResize(uint32_t width, uint32_t height) override;
+
 		private:
-			void PreparePiplineMaterial(Material* material);
+			void PreparePiplineMaterial(const Material* material);
+
+			void RegisterOnEvents();
 
 			void OnAddMaterial(EventEntityAddMaterial& event);
-
 
 		private:
 

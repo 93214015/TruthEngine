@@ -73,6 +73,7 @@ namespace TruthEngine::Core {
 
 		//must put ModelManager initiation after RendererLayer attachment so that the bufferManager has been initiated 
 		TE_INSTANCE_MODELMANAGER->Init(TE_INSTANCE_BUFFERMANAGER.get());
+		TE_INSTANCE_MODELMANAGER->AddSampleModel();
 
 		while (m_Running)
 		{
