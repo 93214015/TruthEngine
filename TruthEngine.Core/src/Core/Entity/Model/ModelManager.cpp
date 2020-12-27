@@ -114,7 +114,6 @@ namespace TruthEngine::Core
 		return m_Meshes.emplace_back(std::make_shared<Mesh>(IndexNum, IndexOffset, VertexOffset, MaterialPtr, &m_VertexBuffer_PosNormTex, &m_IndexBuffer)).get();
 	}
 
-
 	TruthEngine::Core::Model3D* ModelManager::AddModel3D()
 	{
 		return m_Models3D.emplace_back(std::make_shared<Model3D>()).get();

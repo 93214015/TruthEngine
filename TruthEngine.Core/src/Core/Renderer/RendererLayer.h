@@ -68,6 +68,7 @@ namespace TruthEngine::Core
 
 		ConstantBufferUpload<ConstantBuffer_Data_Per_Frame>* m_CB_PerFrame;
 		ConstantBufferUpload<ConstantBuffer_Data_Per_DLight>* m_CB_PerDLight;
+		ConstantBufferUpload<ConstantBuffer_Data_Materials>* m_CB_Materials;
 
 		bool m_EnabledImGuiLayer = true;
 

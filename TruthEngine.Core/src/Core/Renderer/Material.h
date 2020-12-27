@@ -36,6 +36,21 @@ namespace TruthEngine
 				return m_ID;
 			}
 
+			inline float4 GetColorDiffuse() const noexcept
+			{
+				return m_ColorDiffuse;
+			}
+
+			inline float4 GetColorAmbient() const noexcept
+			{
+				return m_ColorAmbient;
+			}
+
+			inline float4 GetColorSpecular() const noexcept
+			{
+				return m_ColorSpecular;
+			}
+
 		private:
 
 

@@ -65,12 +65,13 @@ namespace TruthEngine
 
 			std::unordered_map<uint32_t, std::shared_ptr<Pipeline>> m_MaterialPipelines;
 
-			struct CB_DATA_PER_MESH
+			struct ConstantBuffer_Data_Per_Mesh
 			{
 				float4 color;
 			};
 
-			ConstantBufferDirect<CB_DATA_PER_MESH>* m_ConstantBufferDirect_PerMesh;
+			ConstantBufferDirect<ConstantBuffer_Data_Per_Mesh>* m_ConstantBufferDirect_PerMesh;
+			ConstantBufferUpload<ConstantBuffer_Data_Materials>* m_ConstantBufferUpload_Materials;
 
 		};
 	}

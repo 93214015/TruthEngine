@@ -49,7 +49,9 @@ namespace TruthEngine::Core
 		}
 
 		m_RendererCommand.CreateRenderTargetView(TE_IDX_RENDERTARGET::SCENEBUFFER, &m_RenderTartgetView);
-		m_ConstantBufferDirect_PerMesh = m_RendererCommand.CreateConstantBufferDirect<CB_DATA_PER_MESH>(TE_IDX_CONSTANTBUFFER::DIRECT_PER_MESH);
+		m_ConstantBufferDirect_PerMesh = m_RendererCommand.CreateConstantBufferDirect<ConstantBuffer_Data_Per_Mesh>(TE_IDX_CONSTANTBUFFER::DIRECT_PER_MESH);
+
+		m_ConstantBufferUpload_Materials = m_RendererCommand.CreateConstantBufferUpload<ConstantBuffer_Data_Materials>(TE_IDX_CONSTANTBUFFER::UNBOUNDED_MATERIALS);
 
 
 		RegisterOnEvents();
@@ -127,6 +129,9 @@ namespace TruthEngine::Core
 	void RenderPass_ForwardRendering::PreparePiplineMaterial(const Material* material)
 	{
 		std::string shaderName = std::string("renderer3D_material") + std::to_string(material->GetID());
+
+		auto& cb_material_data = m_ConstantBufferUpload_Materials->GetData()->Materials[material->GetID()];
+		cb_material_data = ConstantBuffer_Data_Materials::Material{material->GetColorDiffuse(), material->GetColorAmbient(), material->GetColorSpecular()};
 
 		Shader* shader = nullptr;
 

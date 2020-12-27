@@ -319,7 +319,7 @@ namespace TruthEngine
 				COMPTR<ID3DBlob> errorBlob;
 				COMPTR<ID3DBlob> signatureBlob;
 
-				D3D12_DESCRIPTOR_RANGE rangeCBV[1];
+				D3D12_DESCRIPTOR_RANGE rangeCBV[2];
 
 				/*range[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
 				range[0].RegisterSpace = shader->m_SignatureSR.RegisterSpace;
@@ -333,6 +333,11 @@ namespace TruthEngine
 				rangeCBV[0].OffsetInDescriptorsFromTableStart = 0 /*D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND*/;
 				rangeCBV[0].NumDescriptors = 2;
 
+				rangeCBV[1].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
+				rangeCBV[1].RegisterSpace = 0;
+				rangeCBV[1].BaseShaderRegister = 2;
+				rangeCBV[1].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+				rangeCBV[1].NumDescriptors = -1;
 
 				D3D12_DESCRIPTOR_RANGE rangeSRV[1];
 
