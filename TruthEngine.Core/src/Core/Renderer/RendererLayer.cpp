@@ -13,6 +13,9 @@
 #include "Core/Entity/Camera/CameraManager.h"
 #include "Core/Entity/Camera/CameraPerspective.h"
 
+#include "Core/Entity/Light/LightManager.h"
+#include "Core/Entity/Light/LightDirectional.h"
+
 namespace TruthEngine::Core
 {
 
@@ -36,20 +39,19 @@ namespace TruthEngine::Core
 
 		m_RendererCommand.Init(TE_IDX_RENDERPASS::NONE, TE_IDX_SHADERCLASS::NONE);
 
-		/*m_RendererCommand.Begin();*/
-
 		m_ModelManagers = TE_INSTANCE_MODELMANAGER;
-		m_ModelManagers->Init(m_BufferManager.get()/*, &m_RendererCommand*/);
-
-		/*m_RendererCommand.End();*/
 
 		m_RendererCommand.CreateRenderTarget(TE_IDX_RENDERTARGET::SCENEBUFFER, TE_INSTANCE_APPLICATION->GetClientWidth(), TE_INSTANCE_APPLICATION->GetClientHeight(), TE_RESOURCE_FORMAT::R8G8B8A8_UNORM, ClearValue_RenderTarget{ 1.0f, 1.0f, 1.0f, 1.0f }, true);
 
-		m_RendererCommand.CreateRenderTargetView(TE_INSTANCE_SWAPCHAIN, &m_RTVBackBuffer);	
+		m_RendererCommand.CreateRenderTargetView(TE_INSTANCE_SWAPCHAIN, &m_RTVBackBuffer);
 
 		m_CB_PerFrame = m_RendererCommand.CreateConstantBufferUpload<ConstantBuffer_Data_Per_Frame>(TE_IDX_CONSTANTBUFFER::PER_FRAME);
+		m_CB_PerDLight = m_RendererCommand.CreateConstantBufferUpload<ConstantBuffer_Data_Per_DLight>(TE_IDX_CONSTANTBUFFER::PER_DLIGHT);
 
 		m_CB_PerFrame->GetData()->m_Color = DirectX::XMFLOAT4{ 0.2f, 0.7f, 0.4f, 1.0f };
+
+		const auto& lightdata = LightManager::GetInstace()->GetDirectionalLight("dlight_0")->GetDirectionalLightData();
+		*(m_CB_PerDLight->GetData()) = static_cast<const ConstantBuffer_Data_Per_DLight&>(lightdata);
 
 		m_ImGuiLayer->OnAttach();
 
@@ -72,6 +74,7 @@ namespace TruthEngine::Core
 
 	void RendererLayer::OnUpdate(double deltaFrameTime)
 	{
+
 		auto data_perFrame = m_CB_PerFrame->GetData();
 
 		auto& color = data_perFrame->m_Color;

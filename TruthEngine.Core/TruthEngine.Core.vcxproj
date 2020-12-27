@@ -147,6 +147,7 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\Core\Entity\Light\ILight.h" />
     <ClInclude Include="src\API\DX12\DirectX12BufferManager.h" />
     <ClInclude Include="src\API\DX12\DirectX12CommandAllocator.h" />
     <ClInclude Include="src\API\DX12\DirectX12CommandList.h" />
@@ -166,6 +167,8 @@
     <ClInclude Include="src\Core\Entity\Camera\CameraOrthographic.h" />
     <ClInclude Include="src\Core\Entity\Camera\CameraPerspective.h" />
     <ClInclude Include="src\Core\Entity\Camera\ICamera.h" />
+    <ClInclude Include="src\Core\Entity\Light\LightDirectional.h" />
+    <ClInclude Include="src\Core\Entity\Light\LightManager.h" />
     <ClInclude Include="src\Core\Entity\Model\AssimpLib.h" />
     <ClInclude Include="src\Core\Entity\Model\Mesh.h" />
     <ClInclude Include="src\Core\Entity\Model\Model.h" />
@@ -175,6 +178,7 @@
     <ClInclude Include="src\Core\EntryPoint.h" />
     <ClInclude Include="src\Core\Event\Event.h" />
     <ClInclude Include="src\Core\Event\EventApplication.h" />
+    <ClInclude Include="src\Core\Event\EventEntity.h" />
     <ClInclude Include="src\Core\Event\EventKey.h" />
     <ClInclude Include="src\Core\Event\EventMouse.h" />
     <ClInclude Include="src\Core\Helper\MathHelper.h" />
@@ -230,6 +234,7 @@
     <ClInclude Include="src\pch.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Core\Entity\Light\ILight.cpp" />
     <ClCompile Include="src\API\DX12\DirectX12BufferManager.cpp" />
     <ClCompile Include="src\API\DX12\DirectX12CommandAllocator.cpp" />
     <ClCompile Include="src\API\DX12\DirectX12CommandList.cpp" />
@@ -248,6 +253,8 @@
     <ClCompile Include="src\Core\Entity\Camera\CameraOrthographic.cpp" />
     <ClCompile Include="src\Core\Entity\Camera\CameraPerspective.cpp" />
     <ClCompile Include="src\Core\Entity\Camera\ICamera.cpp" />
+    <ClCompile Include="src\Core\Entity\Light\LightDirectional.cpp" />
+    <ClCompile Include="src\Core\Entity\Light\LightManager.cpp" />
     <ClCompile Include="src\Core\Entity\Model\AssimpLib.cpp" />
     <ClCompile Include="src\Core\Entity\Model\Mesh.cpp" />
     <ClCompile Include="src\Core\Entity\Model\Model.cpp" />
@@ -256,6 +263,7 @@
     <ClCompile Include="src\Core\Entity\Model\ModelManager.cpp" />
     <ClCompile Include="src\Core\Event\Event.cpp" />
     <ClCompile Include="src\Core\Event\EventApplication.cpp" />
+    <ClCompile Include="src\Core\Event\EventEntity.cpp" />
     <ClCompile Include="src\Core\Event\EventKey.cpp" />
     <ClCompile Include="src\Core\Event\EventMouse.cpp" />
     <ClCompile Include="src\Core\ImGui\ImGuiLayer.cpp" />

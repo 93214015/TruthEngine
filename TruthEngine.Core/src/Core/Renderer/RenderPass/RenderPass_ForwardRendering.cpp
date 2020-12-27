@@ -158,5 +158,56 @@ namespace TruthEngine::Core
 		m_ViewREct = ViewRect{ 0, 0, static_cast<long>(width), static_cast<long>(height) };
 	}
 
+	void RenderPass_ForwardRendering::PreparePiplineMaterial(Material* material)
+	{
+		std::string shaderName = std::string("renderer3D_material") + std::to_string(material->GetID());
+
+		Shader* shader = nullptr;
+
+		auto result = m_ShaderMgr->AddShader(&shader, TE_IDX_SHADERCLASS::FORWARDRENDERING, material->GetRendererStates(), "Assets/Shaders/renderer3D.hlsl", "vs", "ps");
+
+		if (result != TE_RESULT_RENDERER_SHADER_HAS_EXIST)
+		{
+			ShaderInputElement inputElement;
+			inputElement.AlignedByteOffset = 0;
+			inputElement.Format = TE_RESOURCE_FORMAT::R32G32B32_FLOAT;
+			inputElement.InputSlot = 0;
+			inputElement.InputSlotClass = TE_RENDERER_SHADER_INPUT_CLASSIFICATION::PER_VERTEX;
+			inputElement.InstanceDataStepRate = 0;
+			inputElement.SemanticIndex = 0;
+			inputElement.SemanticName = "POSITION";
+			shader->AddInputElement(inputElement);
+
+			inputElement.AlignedByteOffset = 0;
+			inputElement.Format = TE_RESOURCE_FORMAT::R32G32B32_FLOAT;
+			inputElement.InputSlot = 1;
+			inputElement.InputSlotClass = TE_RENDERER_SHADER_INPUT_CLASSIFICATION::PER_VERTEX;
+			inputElement.InstanceDataStepRate = 0;
+			inputElement.SemanticIndex = 0;
+			inputElement.SemanticName = "NORMAL";
+			shader->AddInputElement(inputElement);
+
+			inputElement.AlignedByteOffset = 12;
+			inputElement.Format = TE_RESOURCE_FORMAT::R32G32_FLOAT;
+			inputElement.InputSlot = 1;
+			inputElement.InputSlotClass = TE_RENDERER_SHADER_INPUT_CLASSIFICATION::PER_VERTEX;
+			inputElement.InstanceDataStepRate = 0;
+			inputElement.SemanticIndex = 0;
+			inputElement.SemanticName = "TEXCOORD";
+			shader->AddInputElement(inputElement);
+		}
+
+		auto pipeline = std::make_shared<Pipeline>();
+		pipeline->SetShader(shader);
+		pipeline->SetRendererStates(material->GetRendererStates());
+
+		m_MaterialPipelines[material->GetID()] = pipeline;
+	}
+
+	void RenderPass_ForwardRendering::OnAddMaterial(EventEntityAddMaterial& event)
+	{
+	}
+
+
 
 }

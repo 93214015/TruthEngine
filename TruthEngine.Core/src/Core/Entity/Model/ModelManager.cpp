@@ -61,8 +61,6 @@ namespace TruthEngine::Core
 		VertexData::Pos pos;
 		VertexData::NormTex normTex;
 
-		using float3 = DirectX::XMFLOAT3;
-
 		/*pos.Position = float3{ -0.5f, -0.5f, 0.5f };
 
 		m_VertexBuffer_PosNormTex.AddVertex(pos, normTex);

@@ -2,6 +2,7 @@
 #include "Core/Application.h"
 #include "Core/Renderer/GraphicDevice.h"
 #include "Core/Entity/Model/ModelManager.h"
+#include "Core/Entity/Light/LightManager.h"
 
 #include "Core/Event/EventApplication.h"
 
@@ -63,9 +64,15 @@ namespace TruthEngine::Core {
 
 		m_EventDispatcher.RegisterListener(EventType::WindowClose, [this](const Event& e) { this->m_Running = false; });
 
+		auto lightManager = LightManager::GetInstace();
+		lightManager->AddLightDirectional("dlight_0", float4{ 0.7f, 0.7f, 0.7f, 0.7f }, float4{ 0.3f, 0.3f, 0.3f, 0.3f }, float4{ 0.0f, 0.0f, 0.0f, 0.0f }, float3{ 1.0f, -1.0f, 1.0f }, float3{ 0.0f, 20.0f, -20.0f }, 0.05f, false);
+
 		m_LayerStack.PushOverlay(m_RendererLayer.get());
 
 		m_Timer.Reset();
+
+		//must put ModelManager initiation after RendererLayer attachment so that the bufferManager has been initiated 
+		TE_INSTANCE_MODELMANAGER->Init(TE_INSTANCE_BUFFERMANAGER.get());
 
 		while (m_Running)
 		{

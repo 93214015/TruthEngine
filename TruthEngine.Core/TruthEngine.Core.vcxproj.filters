@@ -282,6 +282,10 @@
     <ClInclude Include="src\TruthEngine.h" />
     <ClInclude Include="src\lib.h" />
     <ClInclude Include="src\pch.h" />
+    <ClInclude Include="src\Core\Entity\Light\ILight.h" />
+    <ClInclude Include="src\Core\Entity\Light\LightDirectional.h" />
+    <ClInclude Include="src\Core\Entity\Light\LightManager.h" />
+    <ClInclude Include="src\Core\Event\EventEntity.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\API\DX12\DirectX12BufferManager.cpp">
@@ -480,5 +484,9 @@
       <Filter>Platform\Windows</Filter>
     </ClCompile>
     <ClCompile Include="src\pch.cpp" />
+    <ClCompile Include="src\Core\Entity\Light\ILight.cpp" />
+    <ClCompile Include="src\Core\Entity\Light\LightDirectional.cpp" />
+    <ClCompile Include="src\Core\Entity\Light\LightManager.cpp" />
+    <ClCompile Include="src\Core\Event\EventEntity.cpp" />
   </ItemGroup>
 </Project>

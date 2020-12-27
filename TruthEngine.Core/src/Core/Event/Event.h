@@ -9,6 +9,7 @@ namespace TruthEngine::Core {
 		AppTick, AppUpdate, AppProcess,
 		KeyPressed, KeyReleased, KeyTyped,
 		MouseButtonPressed, MouseButtonReleased, MouseMoved, MouseScrolled,
+		EntityAddMesh, EntityAddMaterial,
 		EventTypeNum
 	};
 
@@ -18,7 +19,8 @@ namespace TruthEngine::Core {
 		EventCategoryInput =			BIT(1),
 		EventCategoryKeyboard =			BIT(2),
 		EventCategoryMouse =			BIT(3),
-		EventCategoryMouseButton =		BIT(4)
+		EventCategoryMouseButton =		BIT(4),
+		EventCategoryEntity =			BIT(5),
 	};
 
 

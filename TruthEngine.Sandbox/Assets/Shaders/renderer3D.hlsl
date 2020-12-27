@@ -5,7 +5,38 @@ cbuffer per_frame : register(b0)
     float4 color : packoffset(c4.x);
 }
 
-cbuffer per_mesh : register(b1)
+
+
+cbuffer per_dlight : register(b1)
+{
+    float4x4 View;
+    float4x4 ViewProj;
+    float4x4 ShadowTransform;
+
+    float4 PerpectiveValues;
+
+    float4 Diffuse;
+    float4 Ambient;
+    float4 Specular;
+
+    float3 Direction;
+    float LightSize;
+
+    float3 Position;
+    float zNear;
+
+    float2 DirInEyeScreen_Horz;
+    float2 DirInEyeScreen_Vert;
+
+    float zFar;
+    bool CastShadow;
+    int IndexShadowMapSRV;
+    float pad;
+    
+    float4 pad2[12];
+}
+
+cbuffer per_mesh : register(b2)
 {
     float4 colorMesh;
 }

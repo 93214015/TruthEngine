@@ -327,7 +327,7 @@ namespace TruthEngine
 				rangeCBV[0].RegisterSpace = 0;
 				rangeCBV[0].BaseShaderRegister = 0;
 				rangeCBV[0].OffsetInDescriptorsFromTableStart = 0 /*D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND*/;
-				rangeCBV[0].NumDescriptors = 1;
+				rangeCBV[0].NumDescriptors = 2;
 
 
 

@@ -1,8 +1,10 @@
 #pragma once
 
-
+using float2 = DirectX::XMFLOAT2;
 using float3 = DirectX::XMFLOAT3;
 using float4 = DirectX::XMFLOAT4;
+using float4x4 = DirectX::XMFLOAT4X4;
+using float3x3 = DirectX::XMFLOAT3X3;
 
 namespace TruthEngine
 {
@@ -89,5 +91,15 @@ namespace TruthEngine
 		DirectX::XMStoreFloat4x4(&dest, matrix);
 
 		return dest;
+	}
+
+	inline float4 operator+(const float4& v1, const float4& v2)
+	{
+		return float4{ v1.x + v2.x, v1.y + v2.y, v1.z + v2.z, v1.w + v2.w };
+	}
+
+	inline float3 operator+(const float3& v1, const float3& v2)
+	{
+		return float3{ v1.x + v2.x, v1.y + v2.y, v1.z + v2.z };
 	}
 }

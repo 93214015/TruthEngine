@@ -67,6 +67,7 @@ namespace TruthEngine::Core
 		RenderTargetView m_RTVBackBuffer, m_RTVSceneBuffer;
 
 		ConstantBufferUpload<ConstantBuffer_Data_Per_Frame>* m_CB_PerFrame;
+		ConstantBufferUpload<ConstantBuffer_Data_Per_DLight>* m_CB_PerDLight;
 
 		bool m_EnabledImGuiLayer = true;
 

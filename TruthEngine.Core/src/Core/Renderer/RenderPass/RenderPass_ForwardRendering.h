@@ -15,7 +15,7 @@ namespace TruthEngine
 		class Model3D;
 		class ICamera;
 		class Material;
-
+		class EventEntityAddMaterial;
 
 
 		class RenderPass_ForwardRendering : public RenderPass
@@ -41,7 +41,9 @@ namespace TruthEngine
 
 			void OnSceneViewportResize(uint32_t width, uint32_t height) override;
 		private:
+			void PreparePiplineMaterial(Material* material);
 
+			void OnAddMaterial(EventEntityAddMaterial& event);
 
 
 		private:
