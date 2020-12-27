@@ -90,8 +90,15 @@ namespace TruthEngine::Core
 
 				vPos.Position = float3{ vertex.x, vertex.y, vertex.z };
 
+				if (mesh->HasNormals())
+				{
+					auto& normal = mesh->mNormals[i];
+					vNormTex.Normal = float3{ normal.x, normal.y, normal.z };
+				}
+
 				modelManager->m_VertexBuffer_PosNormTex.AddVertex(vPos, vNormTex);
 			}
+
 
 			uint32_t indexNum = 0;
 

@@ -28,7 +28,7 @@ namespace TruthEngine::Core {
 		auto mainCamera = std::make_shared<CameraPerspective>("mainCamera");
 		mainCamera->SetPosition(0.0f, 0.0f, -10.0f); //3Cylinder_Big
 		mainCamera->LookAt(mainCamera->GetPosition(), DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f), DirectX::XMFLOAT3(0.0, 1.0, 0.0));
-		mainCamera->SetLens(DirectX::XM_PIDIV4, static_cast<float>(m_ClientWidth) / m_ClientHeight, 1000.0f, 10.0f);
+		mainCamera->SetLens(DirectX::XM_PIDIV4, static_cast<float>(m_ClientWidth) / m_ClientHeight, 10.0f, 1000.0f);
 		CameraManager::GetInstance()->AddCamera(mainCamera);
 
 		InputManager::RegisterKey('A');

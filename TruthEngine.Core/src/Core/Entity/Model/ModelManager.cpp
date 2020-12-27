@@ -39,7 +39,7 @@ namespace TruthEngine::Core
 
 
 		VertexData::Pos pos;
-		VertexData::NormTex normTex;
+		VertexData::NormTex normTex{ float3{0.0f, 0.0f, -1.0f}, float2{0.0f, 0.0f} };
 
 		pos.Position = float3{ -0.5f, -0.5f, 0.5f };
 

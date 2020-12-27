@@ -334,7 +334,6 @@ namespace TruthEngine
 				rangeCBV[0].NumDescriptors = 2;
 
 
-
 				D3D12_DESCRIPTOR_RANGE rangeSRV[1];
 
 				rangeSRV[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
@@ -368,7 +367,6 @@ namespace TruthEngine
 					exit(1);
 				}
 			}
-
 
 		}
 	}
