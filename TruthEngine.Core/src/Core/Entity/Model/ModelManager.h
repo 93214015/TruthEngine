@@ -48,10 +48,13 @@ namespace TruthEngine
 				m_Meshes.reserve(currentSpace + MeshNum);
 			}
 
-			inline void GetOffsets(size_t& outVertexOffset, size_t& outIndexOffset)
+			inline void GetOffsets(size_t& outVertexOffset, size_t& outIndexOffset, size_t& outModelOffset, size_t& outMeshOffset, size_t& outMaterialOffset)
 			{
 				outVertexOffset = m_VertexBuffer_PosNormTex.GetVertexOffset();
 				outIndexOffset = m_IndexBuffer.GetIndexOffset();
+				outModelOffset = m_Models3D.size();
+				outMeshOffset = m_Meshes.size();
+				outMaterialOffset = m_MaterialManager.GetMatrialOffset();
 			}
 
 			Model3D* AddModel3D();

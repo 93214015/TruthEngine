@@ -67,6 +67,11 @@ namespace TruthEngine::Core
 			m_DataSource = data;
 		}
 
+		inline const void* GetDataPtr() const noexcept
+		{
+			return m_MappedData;
+		}
+
 	protected:
 		uint8_t* m_MappedData = nullptr;
 		void* m_DataSource;

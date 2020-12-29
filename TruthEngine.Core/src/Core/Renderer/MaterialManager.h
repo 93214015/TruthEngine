@@ -7,16 +7,23 @@ namespace TruthEngine
 	namespace Core
 	{
 		class BufferManager;
+		class RendererCommand;
 
 		class MaterialManager
 		{
 		public:
+			MaterialManager();
 
 			void Init(BufferManager* bufferManager);
 
 			inline Material* GetMaterial(const uint32_t materialID)
 			{
 				return m_Map_Materials[materialID].get();
+			}
+
+			inline size_t GetMatrialOffset() const noexcept
+			{
+				return m_Map_Materials.size();
 			}
 
 			Material* AddMaterial(
@@ -41,7 +48,6 @@ namespace TruthEngine
 			std::vector<Material*> m_Materials;
 
 			BufferManager* m_BufferManager;
-
 
 			//
 			//Friend Classes

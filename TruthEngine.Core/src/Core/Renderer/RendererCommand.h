@@ -36,9 +36,19 @@ namespace TruthEngine
 				return m_BufferManager->CreateConstantBufferUpload<T>(idx);
 			}
 
+			template<class T> ConstantBufferUploadArray<T>* CreateConstantBufferUploadArray(TE_IDX_CONSTANTBUFFER idx, uint32_t arraySize)
+			{
+				return m_BufferManager->CreateConstantBufferUploadArray<T>(idx, arraySize);
+			}
+
 			template<class T> ConstantBufferDirect<T>* CreateConstantBufferDirect(TE_IDX_CONSTANTBUFFER idx)
 			{
 				return m_BufferManager->CreateConstantBufferDirect<T>(idx);
+			}
+
+			template<class T> ConstantBufferUpload<T>* GetConstantBufferUpload(TE_IDX_CONSTANTBUFFER idx)
+			{
+				return static_cast<ConstantBufferUpload<T>*>(m_BufferManager->GetConstantBufferUpload(idx));
 			}
 
 			TE_RESULT CreateResource(BufferUpload* cb);

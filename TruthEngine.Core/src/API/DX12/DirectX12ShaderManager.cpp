@@ -319,7 +319,7 @@ namespace TruthEngine
 				COMPTR<ID3DBlob> errorBlob;
 				COMPTR<ID3DBlob> signatureBlob;
 
-				D3D12_DESCRIPTOR_RANGE rangeCBV[2];
+				D3D12_DESCRIPTOR_RANGE rangeCBV[1];
 
 				/*range[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
 				range[0].RegisterSpace = shader->m_SignatureSR.RegisterSpace;
@@ -331,13 +331,8 @@ namespace TruthEngine
 				rangeCBV[0].RegisterSpace = 0;
 				rangeCBV[0].BaseShaderRegister = 0;
 				rangeCBV[0].OffsetInDescriptorsFromTableStart = 0 /*D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND*/;
-				rangeCBV[0].NumDescriptors = 2;
+				rangeCBV[0].NumDescriptors = 3;
 
-				rangeCBV[1].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
-				rangeCBV[1].RegisterSpace = 0;
-				rangeCBV[1].BaseShaderRegister = 2;
-				rangeCBV[1].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-				rangeCBV[1].NumDescriptors = -1;
 
 				D3D12_DESCRIPTOR_RANGE rangeSRV[1];
 
@@ -351,7 +346,7 @@ namespace TruthEngine
 
 				/*params.emplace_back().InitAsDescriptorTable(static_cast<UINT>(rangeSRV.size()), rangeSRV.data(), D3D12_SHADER_VISIBILITY_ALL);*/
 				params[0].InitAsDescriptorTable(_countof(rangeCBV), rangeCBV, D3D12_SHADER_VISIBILITY_ALL);
-				params[1].InitAsConstants(4, 2);
+				params[1].InitAsConstants(4, 3);
 
 				auto signatureDesc = CD3DX12_ROOT_SIGNATURE_DESC(_countof(params), params, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT
 					| D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS

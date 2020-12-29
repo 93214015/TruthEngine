@@ -63,7 +63,6 @@ namespace TruthEngine::Core
 		virtual void Init(uint32_t resourceNum, uint32_t shaderResourceViewNum, uint32_t renderTargetViewNum, uint32_t depthBufferViewNum) = 0;
 
 
-		virtual TE_RESULT CreateResource(BufferUpload* buffer) = 0;
 
 		template<class T>
 		ConstantBufferUpload<T>* CreateConstantBufferUpload(TE_IDX_CONSTANTBUFFER cbIDX)
@@ -74,13 +73,30 @@ namespace TruthEngine::Core
 				return static_cast<ConstantBufferUpload<T>*>(cbItr->second.get());
 			}
 
-			auto cb = std::make_shared<ConstantBufferUpload<T>>();
+			auto cb = std::make_shared<ConstantBufferUpload<T>>(cbIDX);
 
 			m_Map_ConstantBufferUpload[cbIDX] = cb;
 
 			CreateResource(cb.get());
 
 			return cb.get();
+		}
+
+		template<class T>
+		ConstantBufferUploadArray<T>* CreateConstantBufferUploadArray(TE_IDX_CONSTANTBUFFER idx, uint32_t arraySize)
+		{
+			auto itr = m_Map_ConstantBufferUpload.find(idx);
+			if (itr != m_Map_ConstantBufferUpload.end())
+			{
+				return static_cast<ConstantBufferUploadArray<T>*>(itr->second.get());
+			}
+
+			auto cb = std::make_shared<ConstantBufferUploadArray<T>>(idx, arraySize);
+			m_Map_ConstantBufferUpload[idx] = cb;
+
+			CreateResource(cb.get());
+
+			return (cb.get());
 		}
 				
 		template<class T>
@@ -133,6 +149,7 @@ namespace TruthEngine::Core
 
 
 	protected:
+		virtual TE_RESULT CreateResource(BufferUpload* buffer) = 0;
 		virtual TE_RESULT CreateResource(TextureRenderTarget* tRT) = 0;
 		virtual TE_RESULT CreateResource(TextureDepthStencil* tDS) = 0;
 		virtual TE_RESULT CreateResource(VertexBufferStreamBase* vb) = 0;

@@ -6,6 +6,8 @@ namespace TruthEngine
 
 	namespace Core
 	{
+		class ModelManager;
+
 		class AssimpLib
 		{
 		public:
@@ -30,7 +32,8 @@ namespace TruthEngine
 			void AddSpace(const aiScene* scene);
 
 		protected:
-
+			size_t m_MeshOffset, m_ModelOffset, m_MaterialOffset, m_VertexOffset, m_IndexOffset;
+			ModelManager* m_ModelManager;
 
 		};
 	}

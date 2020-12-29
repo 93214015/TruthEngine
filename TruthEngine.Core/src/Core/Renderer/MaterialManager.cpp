@@ -1,11 +1,18 @@
 #include "pch.h"
 #include "MaterialManager.h"
 
+
 #include "Core/Application.h"
 #include "Core/Event/EventEntity.h"
 
+
 namespace TruthEngine::Core
 {
+
+
+	MaterialManager::MaterialManager()
+	{
+	}
 
 	void MaterialManager::Init(BufferManager* bufferManager)
 	{
@@ -41,7 +48,8 @@ namespace TruthEngine::Core
 
 	void MaterialManager::AddSampleMaterial()
 	{
-		AddMaterial(InitRenderStates(), 0, float4{}, float4{}, float4{}, nullptr, nullptr, nullptr, 0, 0.0f, 0.0f);
+		AddMaterial(InitRenderStates(), 0, float4{1.0f, 0.0f, 0.0f, 1.0f}, float4{ 0.7f, 0.8f, 0.2f, 1.0f }, float4{1.0f, .10f, 1.0f, 1.0f}, nullptr, nullptr, nullptr, 0, 0.0f, 0.0f);
 	}
+
 
 }

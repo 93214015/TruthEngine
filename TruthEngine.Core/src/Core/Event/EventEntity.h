@@ -41,6 +41,11 @@ namespace TruthEngine
 			{
 				return m_Material;
 			}
+
+			inline Material* GetMaterial() const noexcept
+			{
+				return m_Material;
+			}
 		protected:
 
 		protected:

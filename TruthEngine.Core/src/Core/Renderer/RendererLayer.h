@@ -14,6 +14,7 @@ namespace TruthEngine::Core
 	class ImGuiLayer;
 	class EventWindowResize;
 	class EventSceneViewportResize;
+	class EventEntityAddMaterial;
 
 	template<class T> class ConstantBufferUpload;
 	class ConstantBuffer_Data_Per_Frame;
@@ -45,8 +46,11 @@ namespace TruthEngine::Core
 
 
 	private:
+		void RegisterEvents();
+
 		void OnWindowResize(const EventWindowResize& event);
 		void OnSceneViewportResize(const EventSceneViewportResize& event);
+		void OnAddMaterial(const EventEntityAddMaterial& event);
 
 
 	private:

@@ -18,11 +18,32 @@ namespace TruthEngine
 namespace TruthEngine::Core
 {
 
-	class ConstantBufferUploadBase : public BufferUpload
+	class ConstantBuffer
 	{
 	public:
-		ConstantBufferUploadBase(size_t sizeInByte)
-			: BufferUpload(sizeInByte, TE_RESOURCE_USAGE_CONSTANTBUFFER)
+		ConstantBuffer(TE_IDX_CONSTANTBUFFER idx);
+
+
+
+		inline TE_IDX_CONSTANTBUFFER GetIDX() const noexcept
+		{
+			return m_IDX;
+		}
+
+	protected:
+
+	protected:
+		TE_IDX_CONSTANTBUFFER m_IDX;
+	};
+
+	
+	
+
+	class ConstantBufferUploadBase : public ConstantBuffer, public BufferUpload
+	{
+	public:
+		ConstantBufferUploadBase(TE_IDX_CONSTANTBUFFER idx, size_t sizeInByte)
+			: ConstantBuffer(idx) , BufferUpload(sizeInByte, TE_RESOURCE_USAGE_CONSTANTBUFFER)
 		{};
 
 		virtual ~ConstantBufferUploadBase() = default;
@@ -35,7 +56,6 @@ namespace TruthEngine::Core
 
 		virtual void UploadData() const = 0;
 
-		virtual const void* GetDataPointer() const noexcept = 0;
 
 	protected:
 	};
@@ -45,8 +65,8 @@ namespace TruthEngine::Core
 	{
 	public:
 
-		ConstantBufferUpload() 
-			: ConstantBufferUploadBase(sizeof(T))
+		ConstantBufferUpload(TE_IDX_CONSTANTBUFFER idx) 
+			: ConstantBufferUploadBase(idx, sizeof(T))
 		{};
 		
 		virtual ~ConstantBufferUpload() = default;
@@ -58,16 +78,10 @@ namespace TruthEngine::Core
 
 		inline void UploadData() const override
 		{
-			//memcpy(m_MappedData, &m_DataStructure, sizeof(T));
 		}
 
-		inline const void* GetDataPointer() const noexcept override
-		{
-			return static_cast<void*>(m_MappedData);
-		}
 
 	private:
-		uint32_t m_ID;
 		//T m_DataStructure;
 
 
@@ -79,17 +93,42 @@ namespace TruthEngine::Core
 		friend class TruthEngine::API::DirectX12::DirectX12BufferManager;
 	};
 
-	class ConstantBufferDirectBase
+	template<class T>
+	class ConstantBufferUploadArray : public ConstantBufferUploadBase
+	{
+	public:
+		ConstantBufferUploadArray(TE_IDX_CONSTANTBUFFER idx, uint32_t arrayNum)
+			: ConstantBufferUploadBase(idx, sizeof(T) * arrayNum)
+		{
+			m_DataArray.resize(ArrayNum);
+		}
+
+		virtual ~ConstantBufferUploadArray() = default;
+
+		T& operator[](uint32_t index)
+		{
+			return reinterpret_cast<T*>(m_MappedData)[index];
+		}
+
+		void UploadData()const
+		{}
+
+
+	protected:
+
+
+	protected:
+	};
+
+
+
+
+	class ConstantBufferDirectBase : public ConstantBuffer
 	{
 	public:
 		ConstantBufferDirectBase(TE_IDX_CONSTANTBUFFER idx);
 		virtual ~ConstantBufferDirectBase();
 
-
-		inline TE_IDX_CONSTANTBUFFER GetIDX() const noexcept
-		{
-			return m_IDX;
-		}
 
 		virtual uint32_t Get32BitNum() const noexcept = 0;
 		virtual const void* GetDataPtr() const noexcept = 0;
@@ -97,7 +136,6 @@ namespace TruthEngine::Core
 		
 
 	protected:
-		TE_IDX_CONSTANTBUFFER m_IDX;
 
 	};
 
@@ -133,5 +171,6 @@ namespace TruthEngine::Core
 	protected:
 		T m_DataStructure;
 	};
+
 
 }

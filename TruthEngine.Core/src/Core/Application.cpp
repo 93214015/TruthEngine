@@ -65,7 +65,7 @@ namespace TruthEngine::Core {
 		m_EventDispatcher.RegisterListener(EventType::WindowClose, [this](const Event& e) { this->m_Running = false; });
 
 		auto lightManager = LightManager::GetInstace();
-		lightManager->AddLightDirectional("dlight_0", float4{ 0.7f, 0.7f, 0.7f, 0.7f }, float4{ 0.3f, 0.3f, 0.3f, 0.3f }, float4{ 0.0f, 0.0f, 0.0f, 0.0f }, float3{ 1.0f, -1.0f, 1.0f }, float3{ 0.0f, 20.0f, -20.0f }, 0.05f, false);
+		lightManager->AddLightDirectional("dlight_0", float4{ 0.8f, 0.8f, 0.8f, 0.8f }, float4{ 0.3f, 0.3f, 0.3f, 0.3f }, float4{ 0.0f, 0.0f, 0.0f, 0.0f }, float3{ 1.0f, -1.0f, 1.0f }, float3{ 0.0f, 20.0f, -20.0f }, 0.05f, false);
 
 		m_LayerStack.PushOverlay(m_RendererLayer.get());
 

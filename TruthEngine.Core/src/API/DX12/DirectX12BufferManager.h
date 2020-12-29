@@ -30,9 +30,6 @@ namespace TruthEngine::API::DirectX12 {
 
 		void Init(uint32_t resourceNum, uint32_t shaderResourceViewNum, uint32_t renderTargetViewNum, uint32_t depthBufferViewNum) override;
 
-		//TE_RESULT CreateResource(Core::GraphicResource* graphicResource, void* clearValue) override;
-		TE_RESULT CreateResource(Core::BufferUpload* buffer) override;
-
 		Core::ConstantBufferUploadBase* GetConstantBufferUpload(TE_IDX_CONSTANTBUFFER cbIDX) override;
 
 		TE_RESULT CreateVertexBuffer(Core::VertexBufferBase* vb) override;
@@ -60,6 +57,8 @@ namespace TruthEngine::API::DirectX12 {
 		void ReleaseResource(Core::GraphicResource* resource) override;
 
 	private:
+		TE_RESULT CreateResource(Core::BufferUpload* buffer) override;
+
 		TE_RESULT CreateResource(Core::TextureRenderTarget* tRT) override;
 
 		TE_RESULT CreateResource(Core::TextureDepthStencil* tDS) override;
@@ -84,6 +83,8 @@ namespace TruthEngine::API::DirectX12 {
 		std::vector<D3D12_VERTEX_BUFFER_VIEW> m_VertexBufferViews;
 
 		std::vector<D3D12_INDEX_BUFFER_VIEW> m_IndexBufferViews;
+
+		std::unordered_map<TE_IDX_CONSTANTBUFFER, D3D12_GPU_DESCRIPTOR_HANDLE> m_UnboundedConstantBuffers;
 
 
 		//

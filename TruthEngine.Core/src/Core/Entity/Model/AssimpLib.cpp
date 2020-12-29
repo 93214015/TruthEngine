@@ -7,6 +7,7 @@ namespace TruthEngine::Core
 {
 	AssimpLib::AssimpLib()
 	{
+		m_ModelManager = ModelManager::GetInstance().get();
 	}
 
 	AssimpLib::~AssimpLib()
@@ -15,6 +16,8 @@ namespace TruthEngine::Core
 
 	TE_RESULT AssimpLib::ImportModel(const char* filePath)
 	{
+		m_ModelManager->GetOffsets(m_VertexOffset, m_IndexOffset, m_ModelOffset, m_MeshOffset, m_MaterialOffset);
+
 		Assimp::Importer importer;
 
 		importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_PRESERVE_PIVOTS, true);
@@ -45,21 +48,44 @@ namespace TruthEngine::Core
 
 	void AssimpLib::ProcessMaterials(const aiScene* scene)
 	{
+		if (!scene->HasMaterials())
+			return;
 
+		ModelManager* modelManager = ModelManager::GetInstance().get();
+
+		for (uint32_t i = 0; i < scene->mNumMaterials; ++i)
+		{
+			auto aiMaterial = scene->mMaterials[i];
+			aiColor3D aiColorDiffuse;
+			aiMaterial->Get(AI_MATKEY_COLOR_DIFFUSE, aiColorDiffuse);
+			aiColor3D aiColorAmbient;
+			aiMaterial->Get(AI_MATKEY_COLOR_AMBIENT, aiColorAmbient);
+			aiColor3D aiColorSpecular;
+			aiMaterial->Get(AI_MATKEY_COLOR_SPECULAR, aiColorSpecular);
+
+			modelManager->m_MaterialManager.AddMaterial(InitRenderStates()
+				, 0
+				, float4{ aiColorDiffuse.r, aiColorDiffuse.g, aiColorDiffuse.b, 1.0f }
+				, float4{ aiColorAmbient.r, aiColorAmbient.g, aiColorAmbient.b, 1.0f }
+				, float4{ aiColorSpecular.r, aiColorSpecular.g, aiColorSpecular.b, 1.0f }
+				, nullptr
+				, nullptr
+				, nullptr
+				, 0, 0.0f, 0.0f);
+		}
 	}
 
 
 	void AssimpLib::ProcessNodes(const aiNode* node, const aiScene* scene, const size_t meshOffset)
 	{
-		ModelManager* modelManager = ModelManager::GetInstance().get();
 		auto nodeMeshNum = node->mNumMeshes;
 		if (nodeMeshNum > 0)
 		{
-			auto model3D = modelManager->AddModel3D();
+			auto model3D = m_ModelManager->AddModel3D();
 			model3D->AddSpace(nodeMeshNum);
 			for (uint32_t i = 0; i < nodeMeshNum; ++i)
 			{
-				model3D->AddMesh(modelManager->m_Meshes[node->mMeshes[i] + meshOffset].get());
+				model3D->AddMesh(m_ModelManager->m_Meshes[node->mMeshes[i] + meshOffset].get());
 			}
 		}
 
@@ -72,10 +98,6 @@ namespace TruthEngine::Core
 
 	void AssimpLib::ProcessMeshes(const aiScene* scene)
 	{
-		auto modelManager = ModelManager::GetInstance();
-
-		size_t vertexOffset, indexOffset;
-		modelManager->GetOffsets(vertexOffset, indexOffset);
 
 		for (uint32_t j = 0; j < scene->mNumMeshes; ++j)
 		{
@@ -96,7 +118,7 @@ namespace TruthEngine::Core
 					vNormTex.Normal = float3{ normal.x, normal.y, normal.z };
 				}
 
-				modelManager->m_VertexBuffer_PosNormTex.AddVertex(vPos, vNormTex);
+				m_ModelManager->m_VertexBuffer_PosNormTex.AddVertex(vPos, vNormTex);
 			}
 
 
@@ -109,11 +131,11 @@ namespace TruthEngine::Core
 
 				for (uint32_t j = 0; j < face.mNumIndices; ++j)
 				{
-					modelManager->m_IndexBuffer.AddIndex(face.mIndices[j]);
+					m_ModelManager->m_IndexBuffer.AddIndex(face.mIndices[j]);
 				}
 			}
 
-			modelManager->AddMesh(indexNum, indexOffset, vertexOffset, modelManager->m_MaterialManager.GetMaterial(0u));
+			m_ModelManager->AddMesh(indexNum, m_IndexOffset, m_VertexOffset, m_ModelManager->m_MaterialManager.GetMaterial(mesh->mMaterialIndex + m_MaterialOffset));
 		}
 	}
 

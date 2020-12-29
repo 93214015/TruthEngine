@@ -40,12 +40,19 @@ cbuffer per_dlight : register(b1)
     float4 pad2[12];
 }
 
-ConstantBuffer<Material> Materials[] : register(b2);
+cbuffer materials : register(b2)
+{
+    Material MaterialArray[100];
+}
 
 cbuffer per_mesh : register(b3)
 {
-    float4 colorMesh;
+    uint materialIndex;
 }
+
+
+Texture2D<float4> MaterialTextures[100];
+
 
 struct vertexInput
 {
@@ -75,5 +82,7 @@ float4 ps(vertexOut pin) : SV_Target
     float dotResult = dot(lightVector, pin.normalW);
     float lightFactor = clamp(dotResult, 0.0f, 1.0f);
     
-    return lightFactor * (colorMesh * Diffuse);
+    float3 color = lightFactor * (MaterialArray[materialIndex].Diffuse * Diffuse).xyz;
+    return float4(color, 1.0f);
+
 }

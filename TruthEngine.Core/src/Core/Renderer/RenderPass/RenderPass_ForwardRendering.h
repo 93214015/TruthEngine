@@ -67,11 +67,10 @@ namespace TruthEngine
 
 			struct ConstantBuffer_Data_Per_Mesh
 			{
-				float4 color;
+				uint32_t materialIndex;
 			};
 
 			ConstantBufferDirect<ConstantBuffer_Data_Per_Mesh>* m_ConstantBufferDirect_PerMesh;
-			ConstantBufferUpload<ConstantBuffer_Data_Materials>* m_ConstantBufferUpload_Materials;
 
 		};
 	}
