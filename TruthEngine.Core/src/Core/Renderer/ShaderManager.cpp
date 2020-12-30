@@ -55,7 +55,7 @@ namespace TruthEngine
 			case TE_IDX_SHADERCLASS::FORWARDRENDERING:
 				m_Map_BindedResources[shaderClassIDX] = BindedResource{
 					{{ TE_IDX_CONSTANTBUFFER::PER_FRAME, TE_IDX_CONSTANTBUFFER::PER_DLIGHT, TE_IDX_CONSTANTBUFFER::MATERIALS } , { TE_IDX_CONSTANTBUFFER::DIRECT_PER_MESH }},
-					{{}}
+					{{ TE_IDX_TEXTURE::MATERIALTEXTURE_DIFFUSE }, {TE_IDX_TEXTURE::GBUFFER_NORMAL}}
 				};
 				return &m_Map_BindedResources[shaderClassIDX];
 			default:

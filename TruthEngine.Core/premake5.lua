@@ -26,7 +26,8 @@ project "TruthEngine.Core"
 		IncludeDir["spdlog"],
 		IncludeDir["Dependencies"],
 		IncludeDir["imgui"],
-		IncludeDir["d3dx12"]
+		IncludeDir["d3dx12"],
+		IncludeDir["OpenImageIO"]
 	}
 	
 	libdirs 

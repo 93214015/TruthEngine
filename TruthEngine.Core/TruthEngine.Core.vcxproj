@@ -77,7 +77,7 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>TE_API_DX12;TE_PLATFORM_WINDOWS;TE_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;..\Dependencies\spdlog\include;..\Dependencies;..\Dependencies\imgui;..\Dependencies\DirectXGraphicsSamples\Libraries\D3DX12;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;..\Dependencies\spdlog\include;..\Dependencies;..\Dependencies\imgui;..\Dependencies\DirectXGraphicsSamples\Libraries\D3DX12;..\Dependencies\OpenImageIO\src\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
       <MinimalRebuild>false</MinimalRebuild>
@@ -100,7 +100,7 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>TE_API_DX12;TE_PLATFORM_WINDOWS;TE_RELEASE;TE_NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;..\Dependencies\spdlog\include;..\Dependencies;..\Dependencies\imgui;..\Dependencies\DirectXGraphicsSamples\Libraries\D3DX12;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;..\Dependencies\spdlog\include;..\Dependencies;..\Dependencies\imgui;..\Dependencies\DirectXGraphicsSamples\Libraries\D3DX12;..\Dependencies\OpenImageIO\src\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -126,7 +126,7 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>TE_API_DX12;TE_PLATFORM_WINDOWS;TE_DIST;TE_NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;..\Dependencies\spdlog\include;..\Dependencies;..\Dependencies\imgui;..\Dependencies\DirectXGraphicsSamples\Libraries\D3DX12;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;..\Dependencies\spdlog\include;..\Dependencies;..\Dependencies\imgui;..\Dependencies\DirectXGraphicsSamples\Libraries\D3DX12;..\Dependencies\OpenImageIO\src\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -147,7 +147,6 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="src\Core\Entity\Light\ILight.h" />
     <ClInclude Include="src\API\DX12\DirectX12BufferManager.h" />
     <ClInclude Include="src\API\DX12\DirectX12CommandAllocator.h" />
     <ClInclude Include="src\API\DX12\DirectX12CommandList.h" />
@@ -167,6 +166,7 @@
     <ClInclude Include="src\Core\Entity\Camera\CameraOrthographic.h" />
     <ClInclude Include="src\Core\Entity\Camera\CameraPerspective.h" />
     <ClInclude Include="src\Core\Entity\Camera\ICamera.h" />
+    <ClInclude Include="src\Core\Entity\Light\ILight.h" />
     <ClInclude Include="src\Core\Entity\Light\LightDirectional.h" />
     <ClInclude Include="src\Core\Entity\Light\LightManager.h" />
     <ClInclude Include="src\Core\Entity\Model\AssimpLib.h" />
@@ -234,7 +234,6 @@
     <ClInclude Include="src\pch.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\Core\Entity\Light\ILight.cpp" />
     <ClCompile Include="src\API\DX12\DirectX12BufferManager.cpp" />
     <ClCompile Include="src\API\DX12\DirectX12CommandAllocator.cpp" />
     <ClCompile Include="src\API\DX12\DirectX12CommandList.cpp" />
@@ -253,6 +252,7 @@
     <ClCompile Include="src\Core\Entity\Camera\CameraOrthographic.cpp" />
     <ClCompile Include="src\Core\Entity\Camera\CameraPerspective.cpp" />
     <ClCompile Include="src\Core\Entity\Camera\ICamera.cpp" />
+    <ClCompile Include="src\Core\Entity\Light\ILight.cpp" />
     <ClCompile Include="src\Core\Entity\Light\LightDirectional.cpp" />
     <ClCompile Include="src\Core\Entity\Light\LightManager.cpp" />
     <ClCompile Include="src\Core\Entity\Model\AssimpLib.cpp" />

@@ -16,6 +16,9 @@
     <Filter Include="Core\Entity\Camera">
       <UniqueIdentifier>{F2BFEAD2-DEA3-AB28-4704-A67B330796AA}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Core\Entity\Light">
+      <UniqueIdentifier>{E1B77FD8-4DCE-7D6E-9645-0990029B4EF6}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Core\Entity\Model">
       <UniqueIdentifier>{7A0D95D8-E623-936E-2F9B-1E909BF063F6}</UniqueIdentifier>
     </Filter>
@@ -102,6 +105,15 @@
     <ClInclude Include="src\Core\Entity\Camera\ICamera.h">
       <Filter>Core\Entity\Camera</Filter>
     </ClInclude>
+    <ClInclude Include="src\Core\Entity\Light\ILight.h">
+      <Filter>Core\Entity\Light</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Entity\Light\LightDirectional.h">
+      <Filter>Core\Entity\Light</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Entity\Light\LightManager.h">
+      <Filter>Core\Entity\Light</Filter>
+    </ClInclude>
     <ClInclude Include="src\Core\Entity\Model\AssimpLib.h">
       <Filter>Core\Entity\Model</Filter>
     </ClInclude>
@@ -127,6 +139,9 @@
       <Filter>Core\Event</Filter>
     </ClInclude>
     <ClInclude Include="src\Core\Event\EventApplication.h">
+      <Filter>Core\Event</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Event\EventEntity.h">
       <Filter>Core\Event</Filter>
     </ClInclude>
     <ClInclude Include="src\Core\Event\EventKey.h">
@@ -282,10 +297,6 @@
     <ClInclude Include="src\TruthEngine.h" />
     <ClInclude Include="src\lib.h" />
     <ClInclude Include="src\pch.h" />
-    <ClInclude Include="src\Core\Entity\Light\ILight.h" />
-    <ClInclude Include="src\Core\Entity\Light\LightDirectional.h" />
-    <ClInclude Include="src\Core\Entity\Light\LightManager.h" />
-    <ClInclude Include="src\Core\Event\EventEntity.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\API\DX12\DirectX12BufferManager.cpp">
@@ -342,6 +353,15 @@
     <ClCompile Include="src\Core\Entity\Camera\ICamera.cpp">
       <Filter>Core\Entity\Camera</Filter>
     </ClCompile>
+    <ClCompile Include="src\Core\Entity\Light\ILight.cpp">
+      <Filter>Core\Entity\Light</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Entity\Light\LightDirectional.cpp">
+      <Filter>Core\Entity\Light</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Entity\Light\LightManager.cpp">
+      <Filter>Core\Entity\Light</Filter>
+    </ClCompile>
     <ClCompile Include="src\Core\Entity\Model\AssimpLib.cpp">
       <Filter>Core\Entity\Model</Filter>
     </ClCompile>
@@ -364,6 +384,9 @@
       <Filter>Core\Event</Filter>
     </ClCompile>
     <ClCompile Include="src\Core\Event\EventApplication.cpp">
+      <Filter>Core\Event</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Event\EventEntity.cpp">
       <Filter>Core\Event</Filter>
     </ClCompile>
     <ClCompile Include="src\Core\Event\EventKey.cpp">
@@ -484,9 +507,5 @@
       <Filter>Platform\Windows</Filter>
     </ClCompile>
     <ClCompile Include="src\pch.cpp" />
-    <ClCompile Include="src\Core\Entity\Light\ILight.cpp" />
-    <ClCompile Include="src\Core\Entity\Light\LightDirectional.cpp" />
-    <ClCompile Include="src\Core\Entity\Light\LightManager.cpp" />
-    <ClCompile Include="src\Core\Event\EventEntity.cpp" />
   </ItemGroup>
 </Project>

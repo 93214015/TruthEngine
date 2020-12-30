@@ -1,19 +1,16 @@
 [submodule "Dependencies/spdlog"]
 	path = Dependencies/spdlog
 	url = https://github.com/gabime/spdlog
+	ignore = dirty
 [submodule "Dependencies/DirectXMath"]
 	path = Dependencies/DirectXMath
 	url = https://github.com/microsoft/DirectXMath
+	ignore = dirty
 [submodule "Dependencies/imgui"]
 	path = Dependencies/imgui
 	url = https://github.com/ocornut/imgui
+	ignore = dirty
 [submodule "Dependencies/DirectXGraphicsSamples"]
 	path = Dependencies/DirectXGraphicsSamples
 	url = https://github.com/microsoft/DirectX-Graphics-Samples
-[submodule "Dependencies/OpenImageIO"]
-	path = Dependencies/OpenImageIO
-	url = https://github.com/OpenImageIO/oiio.git
-	branch = master
-[submodule "Dependencies/vcpkg"]
-	path = Dependencies/vcpkg
-	url = https://github.com/microsoft/vcpkg
+	ignore = dirty

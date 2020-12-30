@@ -3,6 +3,8 @@
 
 #include "Core/Entity/Model/ModelManager.h"
 
+#include "OpenImageIO/imageio.h"
+
 namespace TruthEngine::Core
 {
 	AssimpLib::AssimpLib()
@@ -42,7 +44,12 @@ namespace TruthEngine::Core
 
 	void AssimpLib::ProcessTextures(const aiScene* scene)
 	{
-
+		for (uint32_t i = 0; i < scene->mNumTextures; ++i)
+		{
+			aiTexture* aiTex = scene->mTextures[i];
+			auto s = aiTex->achFormatHint;
+			
+		}
 	}
 
 
