@@ -16,8 +16,9 @@ namespace TruthEngine
 		class ConstantBufferUploadBase;
 		class ShaderManager;
 		class Mesh;
-		class Viewport;
-		class ViewRect;
+
+		struct Viewport;
+		struct ViewRect;
 
 		class RendererCommand
 		{

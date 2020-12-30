@@ -17,7 +17,7 @@ namespace TruthEngine::Core
 	class EventEntityAddMaterial;
 
 	template<class T> class ConstantBufferUpload;
-	class ConstantBuffer_Data_Per_Frame;
+	struct ConstantBuffer_Data_Per_Frame;
 
 	class RendererLayer : public Layer
 	{

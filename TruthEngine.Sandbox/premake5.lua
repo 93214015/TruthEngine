@@ -58,6 +58,9 @@ project "TruthEngine.Sandbox"
 		}
 
 	filter "configurations:Debug"
+		libdirs{
+			"%{wks.location}/Dependencies/DirectXTK12/Lib/x64/Debug"
+	    }
 		defines{
 			"TE_DEBUG"
 		}
@@ -66,6 +69,9 @@ project "TruthEngine.Sandbox"
 
 
 	filter "configurations:Release"
+		libdirs{
+			"%{wks.location}/Dependencies/DirectXTK12/Lib/x64/Release"
+		}
 		defines{
 			"TE_RELEASE",
 			"TE_NDEBUG"

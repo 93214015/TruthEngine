@@ -8,6 +8,7 @@ namespace TruthEngine::Core
 	class CommandList;
 	class GraphicResource;
 	class Texture;
+	class TextureMaterial;
 	class TextureRenderTarget;
 	class TextureDepthStencil;
 	class VertexBufferBase;
@@ -16,6 +17,7 @@ namespace TruthEngine::Core
 	class BufferUpload;
 	class IndexBuffer;
 	class SwapChain;
+
 
 	struct ClearValue_RenderTarget;
 	struct ClearValue_DepthStencil;
@@ -61,7 +63,6 @@ namespace TruthEngine::Core
 		}
 
 		virtual void Init(uint32_t resourceNum, uint32_t shaderResourceViewNum, uint32_t renderTargetViewNum, uint32_t depthBufferViewNum) = 0;
-
 
 
 		template<class T>
@@ -123,6 +124,8 @@ namespace TruthEngine::Core
 
 		TextureDepthStencil* GetDepthStencil(TE_IDX_DEPTHSTENCIL idx);
 
+		virtual size_t CreateTextureMaterial(const char* name, uint8_t* data, uint32_t width, uint32_t height, size_t dataSize, TE_RESOURCE_FORMAT format) = 0;
+
 		virtual ConstantBufferUploadBase* GetConstantBufferUpload(TE_IDX_CONSTANTBUFFER cbIDX) = 0;
 
 		virtual void CreateRenderTargetView(TextureRenderTarget* RT, RenderTargetView* rtv) = 0;
@@ -154,6 +157,7 @@ namespace TruthEngine::Core
 		virtual TE_RESULT CreateResource(TextureDepthStencil* tDS) = 0;
 		virtual TE_RESULT CreateResource(VertexBufferStreamBase* vb) = 0;
 		virtual TE_RESULT CreateResource(IndexBuffer* ib) = 0;
+		virtual TE_RESULT CreateResource(TextureMaterial* texture) = 0;
 
 	protected:
 		uint32_t m_LastVertexBufferID;
@@ -168,6 +172,7 @@ namespace TruthEngine::Core
 
 		//friend class
 		friend class RendererCommand;
+		friend class TextureMaterialManager;
 	};
 
 }

@@ -1,8 +1,12 @@
 #include "pch.h"
 #include "DirectX12BufferManager.h"
 
+#include "DirectXTK12/Inc/ResourceUploadBatch.h"
+#include "DirectXTK12/Inc/WICTextureLoader.h"
+
 #include "Core/Renderer/TextureRenderTarget.h"
 #include "Core/Renderer/TextureDepthStencil.h"
+#include "Core/Renderer/TextureMaterial.h"
 #include "Core/Renderer/ConstantBuffer.h"
 #include "Core/Renderer/VertexBuffer.h"
 #include "Core/Renderer/VertexBufferStream.h"
@@ -130,7 +134,7 @@ namespace TruthEngine::API::DirectX12
 	{
 		const auto desc = GetTextureDesc(tRT->m_Width, tRT->m_Height, tRT->m_Usage, tRT->m_Format);
 
-//		COMPTR<ID3D12Resource>& resource = tRT->m_ResourceIndex == -1 ? m_Resources.emplace_back() : m_Resources[tRT->m_ResourceIndex];
+		//		COMPTR<ID3D12Resource>& resource = tRT->m_ResourceIndex == -1 ? m_Resources.emplace_back() : m_Resources[tRT->m_ResourceIndex];
 
 		COMPTR<ID3D12Resource>* resource;
 
@@ -278,6 +282,18 @@ namespace TruthEngine::API::DirectX12
 
 
 		return SUCCEEDED(hr) ? TE_SUCCESSFUL : TE_RESULT::TE_FAIL;
+	}
+
+	TE_RESULT DirectX12BufferManager::CreateResource(Core::TextureMaterial* texture)
+	{
+		auto d3d12device = static_cast<DirectX12GraphicDevice*>(TE_INSTANCE_GRAPHICDEVICE)->GetDevice();
+		DirectX::ResourceUploadBatch uploadBatch(d3d12device);
+
+		uploadBatch.Begin(D3D12_COMMAND_LIST_TYPE_COPY);
+		texture->m_ResourceIndex = static_cast<uint32_t>(m_Resources.size());
+		auto resource = std::addressof(m_Resources.emplace_back());
+		DirectX::CreateWICTextureFromMemoryEx(d3d12device, uploadBatch, texture->GetData(), texture->GetDataSize(), 0, D3D12_RESOURCE_FLAG_NONE, DirectX::WIC_LOADER_DEFAULT, resource->ReleaseAndGetAddressOf());
+		uploadBatch.End(TE_INSTANCE_API_DX12_COMMANDQUEUECOPY->GetNativeObject());
 	}
 
 

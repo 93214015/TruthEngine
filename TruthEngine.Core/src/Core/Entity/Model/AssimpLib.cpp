@@ -3,7 +3,7 @@
 
 #include "Core/Entity/Model/ModelManager.h"
 
-#include "OpenImageIO/imageio.h"
+#include "Core/Renderer/TextureMaterial.h"
 
 namespace TruthEngine::Core
 {
@@ -44,11 +44,24 @@ namespace TruthEngine::Core
 
 	void AssimpLib::ProcessTextures(const aiScene* scene)
 	{
+		auto texManager = TextureMaterialManager::GetInstance();
+
+		m_TextureMaterialOffset = texManager->GetOffset();
+
+		texManager->AddSpace(scene->mNumTextures);
+
 		for (uint32_t i = 0; i < scene->mNumTextures; ++i)
 		{
 			aiTexture* aiTex = scene->mTextures[i];
-			auto s = aiTex->achFormatHint;
 			
+			std::string_view name = aiTex->mFilename.C_Str();
+			auto index = name.find_last_of('/');
+			name = name.substr(index);
+			std::string fileName(name);
+
+			uint32_t dataSize = aiTex->mHeight == 0 ? aiTex->mWidth : aiTex->mWidth * aiTex->mHeight;
+
+			texManager->CreateTextureMaterial(fileName.c_str(), reinterpret_cast<uint8_t*>(aiTex->pcData), aiTex->mWidth, aiTex->mHeight, dataSize, TE_RESOURCE_FORMAT::UNKNOWN);
 		}
 	}
 

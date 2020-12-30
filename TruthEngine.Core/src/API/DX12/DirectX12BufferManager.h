@@ -67,6 +67,8 @@ namespace TruthEngine::API::DirectX12 {
 
 		TE_RESULT CreateResource(Core::IndexBuffer* ib) override;
 
+		TE_RESULT CreateResource(Core::TextureMaterial* texture) override;
+
 
 	private:
 

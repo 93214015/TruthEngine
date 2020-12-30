@@ -3,6 +3,7 @@
 
 #include "TextureRenderTarget.h"
 #include "TextureDepthStencil.h"
+#include "TextureMaterial.h"
 
 #include "API/DX12/DirectX12BufferManager.h"
 
@@ -44,6 +45,15 @@ namespace TruthEngine::Core {
 		CreateResource(ds.get());
 
 		return ds.get();
+	}
+
+	TextureMaterial* BufferManager::CreateTextureMaterial(std::string_view name, uint8_t* data, uint32_t width, uint32_t height, TE_RESOURCE_FORMAT format)
+	{
+		auto tex = std::make_shared<TextureMaterial>(data, width, height, format);
+
+		m_Map_TextureMaterials[name] = tex;
+
+		return tex.get();
 	}
 
 	TruthEngine::Core::TextureRenderTarget* BufferManager::GetRenderTarget(TE_IDX_RENDERTARGET idx)

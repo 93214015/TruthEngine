@@ -16,9 +16,10 @@ namespace TruthEngine::Core
 	class VertexBufferBase;
 	class IndexBuffer;
 	class ShaderManager;
-	class Viewport;
-	class ViewRect;
 	class BufferUplaod;
+
+	struct ViewRect;
+	struct Viewport;
 
 
 	class CommandList 
