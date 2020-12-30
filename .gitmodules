@@ -17,3 +17,4 @@
 [submodule "Dependencies/DirectXTK12"]
 	path = Dependencies/DirectXTK12
 	url = https://github.com/microsoft/DirectXTK12
+	ignore = dirty

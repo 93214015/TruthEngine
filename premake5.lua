@@ -24,7 +24,8 @@ IncludeDir["Dependencies"] 			= 	"%{wks.location}/Dependencies"
 IncludeDir["spdlog"] 				= 	"%{wks.location}/Dependencies/spdlog/include"
 IncludeDir["imgui"] 				= 	"%{wks.location}/Dependencies/imgui"
 IncludeDir["d3dx12"] 				= 	"%{wks.location}/Dependencies/DirectXGraphicsSamples/Libraries/D3DX12"
-IncludeDir["OpenImageIO"]          =   "%{wks.location}/Dependencies/OpenImageIO/src/include"
+IncludeDir["OpenImageIO"]           =   "%{wks.location}/Dependencies/OpenImageIO/src/include"
+
 
 filter ("configurations.Debug")
 		defines{

@@ -33,7 +33,7 @@ project "TruthEngine.Core"
 	libdirs 
 	{ 
 	"%{wks.location}/Dependencies/DirectXShaderCompiler/lib/x64",
-	"%{wks.location}/Dependencies/assimp/lib/"
+	"%{wks.location}/Dependencies/assimp/lib/",
 	}
 
 	links{
@@ -54,6 +54,9 @@ project "TruthEngine.Core"
 		}
 
 	filter "configurations:Debug"
+		libdirs{
+			"%{wks.location}/Dependencies/DirectXTK12/Lib/x64/Debug"
+	    }
 		defines{
 			"TE_DEBUG"
 		}
@@ -62,6 +65,9 @@ project "TruthEngine.Core"
 
 
 	filter "configurations:Release"
+		libdirs{
+			"%{wks.location}/Dependencies/DirectXTK12/Lib/x64/Release"
+		}
 		defines{
 			"TE_RELEASE",
 			"TE_NDEBUG"
@@ -70,6 +76,9 @@ project "TruthEngine.Core"
 		optimize "on"
 
 	filter "configurations:Dist"
+		libdirs{
+			"%{wks.location}/Dependencies/DirectXTK12/Lib/x64/Release"
+		}
 		defines{
 			"TE_DIST",
 			"TE_NDEBUG"
