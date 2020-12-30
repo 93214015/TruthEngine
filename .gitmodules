@@ -10,3 +10,7 @@
 [submodule "Dependencies/DirectXGraphicsSamples"]
 	path = Dependencies/DirectXGraphicsSamples
 	url = https://github.com/microsoft/DirectX-Graphics-Samples
+[submodule "Dependencies/OpenImageIO"]
+	path = Dependencies/OpenImageIO
+	url = https://github.com/OpenImageIO/oiio.git
+	branch = master
