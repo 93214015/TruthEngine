@@ -84,6 +84,9 @@
     <ClInclude Include="src\API\DX12\DirectX12SwapChain.h">
       <Filter>API\DX12</Filter>
     </ClInclude>
+    <ClInclude Include="src\API\DX12\DirectX12TextureMaterialManager.h">
+      <Filter>API\DX12</Filter>
+    </ClInclude>
     <ClInclude Include="src\API\IDXGI.h">
       <Filter>API</Filter>
     </ClInclude>
@@ -255,6 +258,9 @@
     <ClInclude Include="src\Core\Renderer\TextureMaterial.h">
       <Filter>Core\Renderer</Filter>
     </ClInclude>
+    <ClInclude Include="src\Core\Renderer\TextureMaterialManager.h">
+      <Filter>Core\Renderer</Filter>
+    </ClInclude>
     <ClInclude Include="src\Core\Renderer\TextureRenderTarget.h">
       <Filter>Core\Renderer</Filter>
     </ClInclude>
@@ -333,6 +339,9 @@
       <Filter>API\DX12</Filter>
     </ClCompile>
     <ClCompile Include="src\API\DX12\DirectX12SwapChain.cpp">
+      <Filter>API\DX12</Filter>
+    </ClCompile>
+    <ClCompile Include="src\API\DX12\DirectX12TextureMaterialManager.cpp">
       <Filter>API\DX12</Filter>
     </ClCompile>
     <ClCompile Include="src\API\IDXGI.cpp">
@@ -471,6 +480,9 @@
       <Filter>Core\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="src\Core\Renderer\TextureMaterial.cpp">
+      <Filter>Core\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Renderer\TextureMaterialManager.cpp">
       <Filter>Core\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="src\Core\Renderer\TextureRenderTarget.cpp">

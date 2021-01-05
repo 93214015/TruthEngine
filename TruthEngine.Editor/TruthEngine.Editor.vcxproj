@@ -16,10 +16,10 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{CF85B7B8-3BE7-94C6-C454-DB7830B5CB85}</ProjectGuid>
+    <ProjectGuid>{074F2C04-F332-ED59-5C93-E7AC4896D7DB}</ProjectGuid>
     <IgnoreWarnCompileDuplicatedFilename>true</IgnoreWarnCompileDuplicatedFilename>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>TruthEngine.Sandbox</RootNamespace>
+    <RootNamespace>TruthEngine.Editor</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
     <VcpkgTriplet>x64-windows-static</VcpkgTriplet>
     <VcpkgEnabled>true</VcpkgEnabled>
@@ -58,23 +58,23 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>..\bin\Debug-windows-x86_64\TruthEngine.Sandbox\</OutDir>
-    <IntDir>..\bin-int\Debug-windows-x86_64\TruthEngine.Sandbox\</IntDir>
-    <TargetName>TruthEngine.Sandbox</TargetName>
+    <OutDir>..\bin\Debug-windows-x86_64\TruthEngine.Editor\</OutDir>
+    <IntDir>..\bin-int\Debug-windows-x86_64\TruthEngine.Editor\</IntDir>
+    <TargetName>TruthEngine.Editor</TargetName>
     <TargetExt>.exe</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>..\bin\Release-windows-x86_64\TruthEngine.Sandbox\</OutDir>
-    <IntDir>..\bin-int\Release-windows-x86_64\TruthEngine.Sandbox\</IntDir>
-    <TargetName>TruthEngine.Sandbox</TargetName>
+    <OutDir>..\bin\Release-windows-x86_64\TruthEngine.Editor\</OutDir>
+    <IntDir>..\bin-int\Release-windows-x86_64\TruthEngine.Editor\</IntDir>
+    <TargetName>TruthEngine.Editor</TargetName>
     <TargetExt>.exe</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Dist|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>..\bin\Dist-windows-x86_64\TruthEngine.Sandbox\</OutDir>
-    <IntDir>..\bin-int\Dist-windows-x86_64\TruthEngine.Sandbox\</IntDir>
-    <TargetName>TruthEngine.Sandbox</TargetName>
+    <OutDir>..\bin\Dist-windows-x86_64\TruthEngine.Editor\</OutDir>
+    <IntDir>..\bin-int\Dist-windows-x86_64\TruthEngine.Editor\</IntDir>
+    <TargetName>TruthEngine.Editor</TargetName>
     <TargetExt>.exe</TargetExt>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -147,10 +147,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="src\SandboxApp.h" />
+    <ClInclude Include="src\Editor\EditorApp.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\SandboxApp.cpp" />
+    <ClCompile Include="src\Editor\EditorApp.cpp" />
     <ClCompile Include="src\pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>

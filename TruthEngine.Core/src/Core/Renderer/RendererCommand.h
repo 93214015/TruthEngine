@@ -29,8 +29,8 @@ namespace TruthEngine
 			void Init(TE_IDX_RENDERPASS renderPassIDX, TE_IDX_SHADERCLASS shaderClassIDX, uint32_t ParallelCommandsNum = 1, std::shared_ptr<BufferManager> bufferManager = nullptr, std::shared_ptr<ShaderManager> shaderManager = nullptr);
 			void Release();
 
-			TextureRenderTarget* CreateRenderTarget(TE_IDX_RENDERTARGET idx, uint32_t width, uint32_t height, TE_RESOURCE_FORMAT format, const ClearValue_RenderTarget& clearValue, bool useAsShaderResource);
-			TextureDepthStencil* CreateDepthStencil(TE_IDX_DEPTHSTENCIL idx, uint32_t width, uint32_t height, TE_RESOURCE_FORMAT format, const ClearValue_DepthStencil& clearValue, bool useAsShaderResource);
+			TextureRenderTarget* CreateRenderTarget(TE_IDX_TEXTURE idx, uint32_t width, uint32_t height, TE_RESOURCE_FORMAT format, const ClearValue_RenderTarget& clearValue, bool useAsShaderResource);
+			TextureDepthStencil* CreateDepthStencil(TE_IDX_TEXTURE idx, uint32_t width, uint32_t height, TE_RESOURCE_FORMAT format, const ClearValue_DepthStencil& clearValue, bool useAsShaderResource);
 
 			template<class T> ConstantBufferUpload<T>* CreateConstantBufferUpload(TE_IDX_CONSTANTBUFFER idx)
 			{
@@ -55,14 +55,13 @@ namespace TruthEngine
 			TE_RESULT CreateResource(BufferUpload* cb);
 
 			void ReleaseResource(GraphicResource* graphicResource);
-			void ReleaseResource(TE_IDX_RENDERTARGET idx);
-			void ReleaseResource(TE_IDX_DEPTHSTENCIL idx);
+			void ReleaseResource(TE_IDX_TEXTURE idx);
 
-			void CreateRenderTargetView(TE_IDX_RENDERTARGET idx, RenderTargetView* RTV);
+			void CreateRenderTargetView(TE_IDX_TEXTURE idx, RenderTargetView* RTV);
 			void CreateRenderTargetView(TextureRenderTarget* RT, RenderTargetView* RTV);
 			void CreateRenderTargetView(SwapChain* swapChain, RenderTargetView* RTV);
 
-			void CreateDepthStencilView(TE_IDX_DEPTHSTENCIL idx, DepthStencilView* DSV);
+			void CreateDepthStencilView(TE_IDX_TEXTURE idx, DepthStencilView* DSV);
 			void CreateDepthStencilView(TextureDepthStencil* DS, DepthStencilView* DSV);
 
 			void CreateShaderResourceView(Texture* textures[], uint32_t textureNum, ShaderResourceView* SRV);
@@ -104,11 +103,11 @@ namespace TruthEngine
 			void ClearRenderTarget(const SwapChain* swapChain, const RenderTargetView RTV, uint32_t cmdListIndex = 0);
 			void ClearDepthStencil(const DepthStencilView DSV, uint32_t cmdListIndex = 0);
 
-			void Resize(TextureRenderTarget* texture, uint32_t width, uint32_t height, RenderTargetView* RTV, ShaderResourceView* SRV);
-			void Resize(TE_IDX_RENDERTARGET idx, uint32_t width, uint32_t height, RenderTargetView* RTV, ShaderResourceView* SRV);
-			void Resize(TextureDepthStencil* texture, uint32_t width, uint32_t height, DepthStencilView* DSV, ShaderResourceView* SRV);
-			void Resize(TE_IDX_DEPTHSTENCIL idx, uint32_t width, uint32_t height, DepthStencilView* DSV, ShaderResourceView* SRV);
-			void Resize(SwapChain* swapChain, uint32_t width, uint32_t height, RenderTargetView* RTV, ShaderResourceView* SRV);
+			void ResizeRenderTarget(TextureRenderTarget* texture, uint32_t width, uint32_t height, RenderTargetView* RTV, ShaderResourceView* SRV);
+			void ResizeRenderTarget(TE_IDX_TEXTURE idx, uint32_t width, uint32_t height, RenderTargetView* RTV, ShaderResourceView* SRV);
+			void ResizeDepthStencil(TextureDepthStencil* texture, uint32_t width, uint32_t height, DepthStencilView* DSV, ShaderResourceView* SRV);
+			void ResizeDepthStencil(TE_IDX_TEXTURE idx, uint32_t width, uint32_t height, DepthStencilView* DSV, ShaderResourceView* SRV);
+			void ResizeSwapChain(SwapChain* swapChain, uint32_t width, uint32_t height, RenderTargetView* RTV, ShaderResourceView* SRV);
 
 			bool IsRunning(uint32_t cmdListIndex = 0);
 

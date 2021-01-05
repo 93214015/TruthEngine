@@ -17,11 +17,11 @@ namespace TruthEngine
 				, RendererStateSet states
 				, uint8_t shaderProperties
 				, float4 colorDiffuse
-				, float4 colorAmbient
-				, float4 colorSpecular
-				, MaterialTexture* diffuseMap
-				, MaterialTexture* normalMap
-				, MaterialTexture* displacementMap
+				, float3 fresnelR0
+				, float shininess
+				, uint32_t diffuseMapIndex
+				, uint32_t normalMapIndex
+				, uint32_t displacementMapIndex
 			, int32_t extraDepthBias
 			, float extraSlopeScaledDepthBias
 			, float extraDepthBiasClamp);
@@ -41,14 +41,29 @@ namespace TruthEngine
 				return m_ColorDiffuse;
 			}
 
-			inline float4 GetColorAmbient() const noexcept
+			inline float3 GetFresnelR0() const noexcept
 			{
-				return m_ColorAmbient;
+				return m_FresnelR0;
 			}
 
-			inline float4 GetColorSpecular() const noexcept
+			inline float GetShininess() const noexcept
 			{
-				return m_ColorSpecular;
+				return m_Shininess;
+			}
+
+			inline uint32_t GetMapIndexDiffuse()const noexcept
+			{
+				return m_MapIndexDiffuse;
+			}
+
+			inline uint32_t GetMapIndexNormal()const noexcept
+			{
+				return m_MapIndexNormal;
+			}
+
+			inline uint32_t GetMapIndexDisplacement()const noexcept
+			{
+				return m_MapIndexDisplacement;
 			}
 
 		private:
@@ -61,12 +76,16 @@ namespace TruthEngine
 			
 
 			float4 m_ColorDiffuse;
-			float4 m_ColorSpecular;
-			float4 m_ColorAmbient;
+			float3 m_FresnelR0;
+			float m_Shininess;
 
-			MaterialTexture* m_MapDiffuse = nullptr;
+			/*MaterialTexture* m_MapDiffuse = nullptr;
 			MaterialTexture* m_MapNormal = nullptr;
-			MaterialTexture* m_MapDisplacement = nullptr;
+			MaterialTexture* m_MapDisplacement = nullptr;*/
+
+			uint32_t m_MapIndexDiffuse = -1;
+			uint32_t m_MapIndexNormal = -1;
+			uint32_t m_MapIndexDisplacement = -1;
 
 			int32_t m_ExtraDepthBias = 0;
 			float m_ExtraSlopeScaledDepthBias = 0.0f;

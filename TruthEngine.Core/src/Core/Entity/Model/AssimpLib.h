@@ -32,6 +32,7 @@ namespace TruthEngine
 			void AddSpace(const aiScene* scene);
 
 		protected:
+			const char* m_ModelFilePath = nullptr;
 			size_t m_MeshOffset, m_ModelOffset, m_MaterialOffset, m_VertexOffset, m_IndexOffset, m_TextureMaterialOffset;
 			ModelManager* m_ModelManager;
 

@@ -294,6 +294,8 @@ namespace TruthEngine::API::DirectX12
 		auto resource = std::addressof(m_Resources.emplace_back());
 		DirectX::CreateWICTextureFromMemoryEx(d3d12device, uploadBatch, texture->GetData(), texture->GetDataSize(), 0, D3D12_RESOURCE_FLAG_NONE, DirectX::WIC_LOADER_DEFAULT, resource->ReleaseAndGetAddressOf());
 		uploadBatch.End(TE_INSTANCE_API_DX12_COMMANDQUEUECOPY->GetNativeObject());
+
+		return TE_SUCCESSFUL;
 	}
 
 
@@ -342,7 +344,6 @@ namespace TruthEngine::API::DirectX12
 
 	void DirectX12BufferManager::CreateShaderResourceView(Core::Texture* textures[], uint32_t textureNum, Core::ShaderResourceView* SRV)
 	{
-
 		throw;
 	}
 
@@ -416,12 +417,6 @@ namespace TruthEngine::API::DirectX12
 			m_DescHeapSRV.ReplaceDescriptorCBV(&desc, CBV->ViewIndex);
 		}
 
-	}
-
-	void DirectX12BufferManager::CreateConstantBufferView(Core::ConstantBufferDirectBase* constantBuffer, Core::ConstantBufferView* CBV, TE_IDX_SHADERCLASS shaderClassIDX)
-	{
-		auto dx12Manager = DirectX12Manager::GetInstance();
-		CBV->ViewIndex = dx12Manager->GetRootParameterIndex(constantBuffer->GetIDX(), shaderClassIDX);
 	}
 
 	uint64_t DirectX12BufferManager::GetRequiredSize(const Core::GraphicResource* graphicResource) const
@@ -498,6 +493,20 @@ namespace TruthEngine::API::DirectX12
 		m_Rect_FullScreen.bottom = TE_INSTANCE_APPLICATION->GetClientHeight();
 	}
 
+	void DirectX12BufferManager::Release()
+	{
+		m_Resources.clear();
+
+		m_DescHeapSRV.Release();
+		m_DescHeapDSV.Release();
+		m_DescHeapRTV.Release();
+
+		m_UnboundedConstantBuffers.clear();
+
+		m_IndexBufferViews.clear();
+		m_VertexBufferViews.clear();
+	}
+
 	void DirectX12BufferManager::ReleaseResource(Core::GraphicResource* resource)
 	{
 		auto resourceIndex = resource->m_ResourceIndex;
@@ -510,20 +519,40 @@ namespace TruthEngine::API::DirectX12
 		m_Resources[resourceIndex]->Release();
 	}
 
-	TruthEngine::Core::ConstantBufferUploadBase* DirectX12BufferManager::GetConstantBufferUpload(TE_IDX_CONSTANTBUFFER cbIDX)
-	{
-		auto cbItr = m_Map_ConstantBufferUpload.find(cbIDX);
-		if (cbItr != m_Map_ConstantBufferUpload.end())
-		{
-			return cbItr->second.get();
-		}
-
-		return nullptr;
-	}
 
 	ID3D12Resource* DirectX12BufferManager::GetResource(Core::GraphicResource* graphicResource)
 	{
 		return m_Resources[graphicResource->m_ResourceIndex].Get();
+	}
+
+	D3D12_GPU_DESCRIPTOR_HANDLE DirectX12BufferManager::AddDescriptorSRV(ID3D12Resource* resource, const D3D12_SHADER_RESOURCE_VIEW_DESC* desc)
+	{
+		auto index = m_DescHeapSRV.AddDescriptorSRV(resource, desc);
+		return m_DescHeapSRV.GetGPUHandle(index);
+	}
+
+	D3D12_GPU_DESCRIPTOR_HANDLE DirectX12BufferManager::AddDescriptorCBV(const D3D12_CONSTANT_BUFFER_VIEW_DESC* cbvDesc)
+	{
+		auto index = m_DescHeapSRV.AddDescriptorCBV(cbvDesc);
+		return m_DescHeapSRV.GetGPUHandle(index);
+	}
+
+	D3D12_GPU_DESCRIPTOR_HANDLE DirectX12BufferManager::AddDescriptorUAV(ID3D12Resource* resource, ID3D12Resource* counterResource, const D3D12_UNORDERED_ACCESS_VIEW_DESC* desc)
+	{
+		auto index = m_DescHeapSRV.AddDescriptorUAV(resource, counterResource, desc);
+		return m_DescHeapSRV.GetGPUHandle(index);
+	}
+
+	D3D12_CPU_DESCRIPTOR_HANDLE DirectX12BufferManager::AddDescriptorRTV(ID3D12Resource* resource)
+	{
+		auto index = m_DescHeapRTV.AddDescriptor(resource);
+		return m_DescHeapRTV.GetCPUHandle(index);
+	}
+
+	D3D12_CPU_DESCRIPTOR_HANDLE DirectX12BufferManager::AddDescriptorDSV(ID3D12Resource* resource, const D3D12_DEPTH_STENCIL_VIEW_DESC* desc)
+	{
+		auto index = m_DescHeapDSV.AddDescriptor(resource, desc);
+		return m_DescHeapDSV.GetCPUHandle(index);
 	}
 
 }

@@ -51,7 +51,7 @@ namespace TruthEngine::Core {
 	}
 
 
-	XMFLOAT3 ICamera::GetPosition()const
+	float3 ICamera::GetPosition()const
 	{
 		return m_Position;
 	}
@@ -59,32 +59,32 @@ namespace TruthEngine::Core {
 
 	void ICamera::SetPosition(float x, float y, float z)
 	{
-		m_Position = XMFLOAT3(x, y, z);
+		m_Position = float3(x, y, z);
 	}
 
 
-	void ICamera::SetPosition(const XMFLOAT3& v)
+	void ICamera::SetPosition(const float3& v)
 	{
 		m_Position = v;
 	}
 
 
 
-	XMFLOAT3 ICamera::GetRight()const
+	float3 ICamera::GetRight()const
 	{
 		return m_Right;
 	}
 
 
 
-	XMFLOAT3 ICamera::GetUp()const
+	float3 ICamera::GetUp()const
 	{
 		return m_Up;
 	}
 
 
 
-	XMFLOAT3 ICamera::GetLook()const
+	float3 ICamera::GetLook()const
 	{
 		return m_Look;
 	}
@@ -117,7 +117,7 @@ namespace TruthEngine::Core {
 	}
 
 
-	void ICamera::LookAt(const XMFLOAT3& pos, const XMFLOAT3& target, const XMFLOAT3& up)
+	void ICamera::LookAt(const float3& pos, const float3& target, const float3& up)
 	{
 		XMVECTOR P = ToXM(pos);
 		XMVECTOR T = ToXM(target);
@@ -128,60 +128,60 @@ namespace TruthEngine::Core {
 
 
 
-	XMFLOAT4X4 ICamera::GetView() const 
+	float4x4 ICamera::GetView() const 
 	{
 		return m_View;
 	}
 
 
-	XMFLOAT4X4 ICamera::GetViewInv() const 
+	float4x4 ICamera::GetViewInv() const 
 	{
 		auto XMView = ToXM(m_View);
 
 		const auto viewInv = XMMatrixInverse(nullptr, XMView);
-		XMFLOAT4X4 r;
+		float4x4 r;
 		XMStoreFloat4x4(&r, viewInv);
 		return r;
 	}
 
 
-	XMFLOAT4X4 ICamera::GetProj() const 
+	float4x4 ICamera::GetProj() const 
 	{
 		return m_Proj;
 	}
 
 
-	DirectX::XMFLOAT4X4 ICamera::GetProjInv() const
+	float4x4 ICamera::GetProjInv() const
 	{
 		return Inverse(m_Proj);
 	}
 
 
-	XMFLOAT4X4 ICamera::GetViewProj() const
+	float4x4 ICamera::GetViewProj() const
 	{
 		auto XMView = XMLoadFloat4x4(&m_View);
 		auto XMProj = XMLoadFloat4x4(&m_Proj);
 
-		XMFLOAT4X4 vp;
+		float4x4 vp;
 		XMStoreFloat4x4(&vp, XMMatrixMultiply(XMView, XMProj));
 		return vp;
 	}
 
 
-	DirectX::XMFLOAT4X4 ICamera::GetViewProjInv() const
+	float4x4 ICamera::GetViewProjInv() const
 	{
 		auto XMView = XMLoadFloat4x4(&m_View);
 		auto XMProj = XMLoadFloat4x4(&m_Proj);
 
-		XMFLOAT4X4 vpInv;
+		float4x4 vpInv;
 		XMStoreFloat4x4(&vpInv, XMMatrixInverse(nullptr, XMMatrixMultiply(XMView, XMProj)));
 		return vpInv;
 	}
 
 
-	XMFLOAT4 ICamera::GetPerspectiveValues()const 
+	float4 ICamera::GetPerspectiveValues()const 
 	{
-		return 	XMFLOAT4((1 / m_Proj._11), (1 / m_Proj._22), m_Proj._33, m_Proj._43);
+		return 	float4((1 / m_Proj._11), (1 / m_Proj._22), m_Proj._33, m_Proj._43);
 	}
 
 

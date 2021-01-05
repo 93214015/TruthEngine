@@ -30,11 +30,11 @@ namespace TruthEngine
 				 RendererStateSet states
 				, uint8_t shaderProperties
 				, float4 colorDiffuse
-				, float4 colorAmbient
-				, float4 colorSpecular
-				, MaterialTexture* diffuseMap
-				, MaterialTexture* normalMap
-				, MaterialTexture* displacementMap
+				, float3 fresnelR0
+				, float shininess
+				, uint32_t diffuseMapIndex
+				, uint32_t normalMapIndex
+				, uint32_t displacementMapIndex
 				, int32_t extraDepthBias
 				, float extraSlopeScaledDepthBias
 				, float extraDepthBiasClamp);

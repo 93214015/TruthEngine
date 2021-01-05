@@ -23,18 +23,18 @@ namespace TruthEngine::Core
 		 RendererStateSet states
 		, uint8_t shaderProperties
 		, float4 colorDiffuse
-		, float4 colorAmbient
-		, float4 colorSpecular
-		, MaterialTexture* diffuseMap
-		, MaterialTexture* normalMap
-		, MaterialTexture* displacementMap
+		, float3 fresnelR0
+		, float shininess
+		, uint32_t diffuseMapIndex
+		, uint32_t normalMapIndex
+		, uint32_t displacementMapIndex
 		, int32_t extraDepthBias
 		, float extraSlopeScaledDepthBias
 		, float extraDepthBiasClamp)
 	{
 		auto ID = static_cast<uint32_t>(m_Map_Materials.size());
 
-		auto material = std::make_shared<Material>(ID, states, shaderProperties, colorDiffuse, colorAmbient, colorSpecular, diffuseMap, normalMap, displacementMap, extraDepthBias, extraSlopeScaledDepthBias, extraDepthBiasClamp);
+		auto material = std::make_shared<Material>(ID, states, shaderProperties, colorDiffuse, fresnelR0, shininess, diffuseMapIndex, normalMapIndex, displacementMapIndex, extraDepthBias, extraSlopeScaledDepthBias, extraDepthBiasClamp);
 
 		m_Map_Materials[ID] = material;
 		m_Materials.push_back(material.get());
@@ -48,7 +48,7 @@ namespace TruthEngine::Core
 
 	void MaterialManager::AddSampleMaterial()
 	{
-		AddMaterial(InitRenderStates(), 0, float4{1.0f, 0.0f, 0.0f, 1.0f}, float4{ 0.7f, 0.8f, 0.2f, 1.0f }, float4{1.0f, .10f, 1.0f, 1.0f}, nullptr, nullptr, nullptr, 0, 0.0f, 0.0f);
+		AddMaterial(InitRenderStates(), 0, float4{1.0f, 0.0f, 0.0f, 1.0f}, float3{ 0.3f, 0.3f, 0.3f}, 0.7f, -1, -1, -1, 0, 0.0f, 0.0f);
 	}
 
 

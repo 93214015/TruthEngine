@@ -9,8 +9,33 @@ namespace TruthEngine
 
 		struct BindedResource
 		{
-			std::vector<std::vector<TE_IDX_CONSTANTBUFFER>> ConstantBuffers;
-			std::vector<std::vector<TE_IDX_TEXTURE>> Textures;
+			struct ShaderConstantBufferSlot
+			{
+				ShaderConstantBufferSlot(uint32_t registerSlot, uint32_t registerSpace, TE_IDX_CONSTANTBUFFER constantBufferIDX)
+					: Register(registerSlot), RegisterSpace(registerSpace), ConstantBufferIDX(constantBufferIDX)
+				{}
+
+				uint32_t Register;
+				uint32_t RegisterSpace;
+				TE_IDX_CONSTANTBUFFER ConstantBufferIDX;
+			};
+
+			struct ShaderTextureSlot
+			{
+				ShaderTextureSlot(uint32_t registerSlot, uint32_t registerSpace, TE_IDX_TEXTURE textureIDX)
+					: Register(registerSlot), RegisterSpace(registerSpace), TextureIDX(textureIDX)
+				{}
+
+				uint32_t Register;
+				uint32_t RegisterSpace;
+				TE_IDX_TEXTURE TextureIDX;
+			};
+
+			std::vector<std::vector<ShaderConstantBufferSlot>> ConstantBuffers;
+			std::vector<std::vector<ShaderTextureSlot>> Textures;
+
+			//std::vector<std::vector<TE_IDX_CONSTANTBUFFER>> ConstantBuffers;
+			//std::vector<std::vector<TE_IDX_TEXTURE>> Textures;
 		};
 
 		class ShaderManager
@@ -56,7 +81,6 @@ namespace TruthEngine
 			std::unordered_map<TE_IDX_SHADERCLASS, BindedResource> m_Map_BindedResources;
 		};
 	}
-
 }
 
 #define TE_INSTANCE_SHADERMANAGER TruthEngine::Core::ShaderManager::GetInstance()

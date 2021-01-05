@@ -33,9 +33,8 @@ extern TruthEngine::Core::Application* TruthEngine::Core::CreateApplication();
 		TE_LOG_APP_INFO("The App Started!");
 
 
-		TruthEngine::Core::Application* app = TruthEngine::Core::CreateApplication();
+		std::unique_ptr<TruthEngine::Core::Application> app(TruthEngine::Core::CreateApplication());
 		app->Run();
-		delete app;
 	}
 
 #endif

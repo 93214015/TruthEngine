@@ -24,13 +24,9 @@ namespace TruthEngine::API::DirectX12
 	{
 		ID3D12GraphicsCommandList* m_D3D12CommandList;
 
-		void operator()(const DirectX12RootTable& rootTable)
+		void operator()(const DirectX12RootArgumentTable& rootTable)
 		{
-			m_D3D12CommandList->SetGraphicsRootDescriptorTable(rootTable.RootIndex, rootTable.TableHandle);
-		}
-		void operator()(const DirectX12RootConstant& rootConstant)
-		{
-			
+			m_D3D12CommandList->SetGraphicsRootDescriptorTable(rootTable.ParameterIndex, rootTable.GPUDescriptorHandle);
 		}
 	};
 
@@ -54,7 +50,7 @@ namespace TruthEngine::API::DirectX12
 		m_QueueClearRT.reserve(8);
 		m_QueueClearDS.reserve(1);
 
-		m_RootParameters = DirectX12Manager::GetInstance()->GetRootParameter(renderPassIDX, shaderClassIDX);
+		m_RootArguments = DirectX12Manager::GetInstance()->GetRootArguments(shaderClassIDX);
 	}
 
 	void DirectX12CommandList::Reset()
@@ -81,7 +77,8 @@ namespace TruthEngine::API::DirectX12
 
 	void DirectX12CommandList::SetPipeline(Core::Pipeline* pipeline)
 	{
-		m_D3D12CommandList->SetGraphicsRootSignature(m_ShaderManager->GetRootSignature(pipeline->GetShader()->GetShaderClassIDX()));
+		auto shaderClassIDX = pipeline->GetShader()->GetShaderClassIDX();
+		m_D3D12CommandList->SetGraphicsRootSignature(DirectX12Manager::GetInstance()->GetD3D12RootSignature(shaderClassIDX));
 		m_D3D12CommandList->SetPipelineState(TE_INSTANCE_API_DX12_PIPELINEMANAGER->GetPipeline(pipeline).Get());
 		m_D3D12CommandList->IASetPrimitiveTopology(static_cast<D3D_PRIMITIVE_TOPOLOGY>(pipeline->GetState_PrimitiveTopology()));
 
@@ -144,9 +141,9 @@ namespace TruthEngine::API::DirectX12
 	{
 		if (m_RenderPassIDX != TE_IDX_RENDERPASS::NONE)
 		{
-			for (auto& t : m_RootParameters->RootTables)
+			for (auto& t : m_RootArguments->Tables)
 			{
-				m_D3D12CommandList->SetGraphicsRootDescriptorTable(t.RootIndex, t.TableHandle);
+				m_D3D12CommandList->SetGraphicsRootDescriptorTable(t.ParameterIndex, t.GPUDescriptorHandle);
 			}
 		}
 	}
@@ -359,7 +356,7 @@ namespace TruthEngine::API::DirectX12
 	{
 		if (m_ShaderClassIDX != TE_IDX_SHADERCLASS::NONE)
 		{
-			m_D3D12CommandList->SetGraphicsRootSignature(m_ShaderManager->GetRootSignature(m_ShaderClassIDX));
+			m_D3D12CommandList->SetGraphicsRootSignature(DirectX12Manager::GetInstance()->GetD3D12RootSignature(m_ShaderClassIDX));
 		}
 
 		auto descHeapSRV = m_BufferManager->m_DescHeapSRV.GetDescriptorHeap();
@@ -379,7 +376,8 @@ namespace TruthEngine::API::DirectX12
 
 	void DirectX12CommandList::UploadData(Core::ConstantBufferDirectBase* cb)
 	{
-		m_D3D12CommandList->SetGraphicsRoot32BitConstants(m_RootParameters->DirectConstants[cb->GetIDX()], cb->Get32BitNum(), cb->GetDataPtr(), 0);
+		auto& directConstant = m_RootArguments->DircectConstants.find(cb->GetIDX())->second;
+		m_D3D12CommandList->SetGraphicsRoot32BitConstants(directConstant.ParameterIndex, cb->Get32BitNum(), cb->GetDataPtr(), 0);
 	}
 
 	void DirectX12CommandList::_UploadDefaultBuffers()

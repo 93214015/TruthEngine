@@ -24,11 +24,11 @@ namespace TruthEngine::Core {
 	}
 
 
-	TruthEngine::Core::TextureRenderTarget* BufferManager::CreateRenderTarget(TE_IDX_RENDERTARGET idx, uint32_t width, uint32_t height, TE_RESOURCE_FORMAT format, const ClearValue_RenderTarget& clearValue, bool useAsShaderResource)
+	TruthEngine::Core::TextureRenderTarget* BufferManager::CreateRenderTarget(TE_IDX_TEXTURE idx, uint32_t width, uint32_t height, TE_RESOURCE_FORMAT format, const ClearValue_RenderTarget& clearValue, bool useAsShaderResource)
 	{
 		auto rt = std::make_shared<TextureRenderTarget>(width, height, format, clearValue, useAsShaderResource);
 
-		m_Map_RenderTargets[idx] = rt;
+		m_Map_Textures[idx] = rt;
 
 		CreateResource(rt.get());
 
@@ -36,48 +36,74 @@ namespace TruthEngine::Core {
 	}
 
 
-	TruthEngine::Core::TextureDepthStencil* BufferManager::CreateDepthStencil(TE_IDX_DEPTHSTENCIL idx, uint32_t width, uint32_t height, TE_RESOURCE_FORMAT format, const ClearValue_DepthStencil& clearValue, bool useAsShaderResource)
+	TruthEngine::Core::TextureDepthStencil* BufferManager::CreateDepthStencil(TE_IDX_TEXTURE idx, uint32_t width, uint32_t height, TE_RESOURCE_FORMAT format, const ClearValue_DepthStencil& clearValue, bool useAsShaderResource)
 	{
 		auto ds = std::make_shared<TextureDepthStencil>(width, height, format, clearValue, useAsShaderResource);
 
-		m_Map_DepthStencils[idx] = ds;
+		m_Map_Textures[idx] = ds;
 
 		CreateResource(ds.get());
 
 		return ds.get();
 	}
 
-	TextureMaterial* BufferManager::CreateTextureMaterial(std::string_view name, uint8_t* data, uint32_t width, uint32_t height, TE_RESOURCE_FORMAT format)
+
+	TruthEngine::Core::TextureRenderTarget* BufferManager::GetRenderTarget(TE_IDX_TEXTURE idx)
 	{
-		auto tex = std::make_shared<TextureMaterial>(data, width, height, format);
+		auto rt = m_Map_Textures.find(idx);
 
-		m_Map_TextureMaterials[name] = tex;
-
-		return tex.get();
-	}
-
-	TruthEngine::Core::TextureRenderTarget* BufferManager::GetRenderTarget(TE_IDX_RENDERTARGET idx)
-	{
-		auto rt = m_Map_RenderTargets.find(idx);
-
-		if (rt == m_Map_RenderTargets.end())
+		if (rt == m_Map_Textures.end())
 		{
 			return nullptr;
 		}
 
-		return rt->second.get();
+		return static_cast<TextureRenderTarget*>(rt->second.get());
 	}
 
-	TruthEngine::Core::TextureDepthStencil* BufferManager::GetDepthStencil(TE_IDX_DEPTHSTENCIL idx)
+	TruthEngine::Core::TextureDepthStencil* BufferManager::GetDepthStencil(TE_IDX_TEXTURE idx)
 	{
-		auto ds = m_Map_DepthStencils.find(idx);
+		auto ds = m_Map_Textures.find(idx);
 
-		if (ds == m_Map_DepthStencils.end())
+		if (ds == m_Map_Textures.end())
 		{
 			return nullptr;
 		}
 
-		return ds->second.get();
+		return static_cast<TextureDepthStencil*>(ds->second.get());
+	}
+
+	Texture* BufferManager::GetTexture(TE_IDX_TEXTURE idx)
+	{
+		auto itr = m_Map_Textures.find(idx);
+
+		if (itr == m_Map_Textures.end())
+		{
+			return nullptr;
+		}
+
+		return itr->second.get();
+	}
+
+	ConstantBufferUploadBase* BufferManager::GetConstantBufferUpload(TE_IDX_CONSTANTBUFFER cbIDX)
+	{
+		auto cbItr = m_Map_ConstantBufferUpload.find(cbIDX);
+		if (cbItr != m_Map_ConstantBufferUpload.end())
+		{
+			return cbItr->second.get();
+		}
+
+		return nullptr;
+	}
+
+	ConstantBufferDirectBase* BufferManager::GetConstantBufferDirect(TE_IDX_CONSTANTBUFFER cbIDX)
+	{
+		auto cbItr = m_Map_ConstantBufferDirect.find(cbIDX);
+		if (cbItr != m_Map_ConstantBufferDirect.end())
+		{
+			return cbItr->second.get();
+		}
+
+		return nullptr;
 	}
 
 }
