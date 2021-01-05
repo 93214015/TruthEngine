@@ -144,7 +144,7 @@ namespace TruthEngine::Core
 		m_CommandLists[cmdListIndex]->ClearDepthStencil(DSV);
 	}
 
-	void RendererCommand::Resize(TextureRenderTarget* texture, uint32_t width, uint32_t height, RenderTargetView* RTV, ShaderResourceView* SRV)
+	void RendererCommand::ResizeRenderTarget(TextureRenderTarget* texture, uint32_t width, uint32_t height, RenderTargetView* RTV, ShaderResourceView* SRV)
 	{
 		WaitForGPU();
 
@@ -161,13 +161,13 @@ namespace TruthEngine::Core
 		}
 	}
 
-	void RendererCommand::Resize(TE_IDX_RENDERTARGET idx, uint32_t width, uint32_t height, RenderTargetView* RTV, ShaderResourceView* SRV)
+	void RendererCommand::ResizeRenderTarget(TE_IDX_TEXTURE idx, uint32_t width, uint32_t height, RenderTargetView* RTV, ShaderResourceView* SRV)
 	{
 		auto rt = m_BufferManager->GetRenderTarget(idx);
-		Resize(rt, width, height, RTV, SRV);
+		ResizeRenderTarget(rt, width, height, RTV, SRV);
 	}
 
-	void RendererCommand::Resize(TextureDepthStencil* texture, uint32_t width, uint32_t height, DepthStencilView* DSV, ShaderResourceView* SRV)
+	void RendererCommand::ResizeDepthStencil(TextureDepthStencil* texture, uint32_t width, uint32_t height, DepthStencilView* DSV, ShaderResourceView* SRV)
 	{
 		WaitForGPU();
 
@@ -184,13 +184,13 @@ namespace TruthEngine::Core
 		}
 	}
 
-	void RendererCommand::Resize(TE_IDX_DEPTHSTENCIL idx, uint32_t width, uint32_t height, DepthStencilView* DSV, ShaderResourceView* SRV)
+	void RendererCommand::ResizeDepthStencil(TE_IDX_TEXTURE idx, uint32_t width, uint32_t height, DepthStencilView* DSV, ShaderResourceView* SRV)
 	{
 		auto ds = m_BufferManager->GetDepthStencil(idx);
-		Resize(ds, width, height, DSV, SRV);
+		ResizeDepthStencil(ds, width, height, DSV, SRV);
 	}
 
-	void RendererCommand::Resize(SwapChain* swapChain, uint32_t width, uint32_t height, RenderTargetView* RTV, ShaderResourceView* SRV)
+	void RendererCommand::ResizeSwapChain(SwapChain* swapChain, uint32_t width, uint32_t height, RenderTargetView* RTV, ShaderResourceView* SRV)
 	{
 		WaitForGPU();
 
@@ -238,13 +238,13 @@ namespace TruthEngine::Core
 	}
 
 
-	TruthEngine::Core::TextureRenderTarget* RendererCommand::CreateRenderTarget(TE_IDX_RENDERTARGET idx, uint32_t width, uint32_t height, TE_RESOURCE_FORMAT format, const ClearValue_RenderTarget& clearValue, bool useAsShaderResource)
+	TruthEngine::Core::TextureRenderTarget* RendererCommand::CreateRenderTarget(TE_IDX_TEXTURE idx, uint32_t width, uint32_t height, TE_RESOURCE_FORMAT format, const ClearValue_RenderTarget& clearValue, bool useAsShaderResource)
 	{
 		return TE_INSTANCE_BUFFERMANAGER->CreateRenderTarget(idx, width, height, format, clearValue, useAsShaderResource);
 	}
 
 
-	TruthEngine::Core::TextureDepthStencil* RendererCommand::CreateDepthStencil(TE_IDX_DEPTHSTENCIL idx, uint32_t width, uint32_t height, TE_RESOURCE_FORMAT format, const ClearValue_DepthStencil& clearValue, bool useAsShaderResource)
+	TruthEngine::Core::TextureDepthStencil* RendererCommand::CreateDepthStencil(TE_IDX_TEXTURE idx, uint32_t width, uint32_t height, TE_RESOURCE_FORMAT format, const ClearValue_DepthStencil& clearValue, bool useAsShaderResource)
 	{
 		return TE_INSTANCE_BUFFERMANAGER->CreateDepthStencil(idx, width, height, format, clearValue, useAsShaderResource);
 	}
@@ -262,30 +262,22 @@ namespace TruthEngine::Core
 		m_BufferManager->ReleaseResource(graphicResource);
 	}
 
-	void RendererCommand::ReleaseResource(TE_IDX_RENDERTARGET idx)
+	void RendererCommand::ReleaseResource(TE_IDX_TEXTURE idx)
 	{
 		WaitForGPU();
 
-		auto rt = m_BufferManager->GetRenderTarget(idx);
+		auto rt = m_BufferManager->GetTexture(idx);
 
 		m_BufferManager->ReleaseResource(rt);
 	}
 
-	void RendererCommand::ReleaseResource(TE_IDX_DEPTHSTENCIL idx)
-	{
-		WaitForGPU();
-		
-		auto ds = m_BufferManager->GetDepthStencil(idx);
-
-		m_BufferManager->ReleaseResource(ds);
-	}
 
 	void RendererCommand::CreateDepthStencilView(TextureDepthStencil* DS, DepthStencilView* DSV)
 	{
 		return TE_INSTANCE_BUFFERMANAGER->CreateDepthStencilView(DS, DSV);
 	}
 
-	void RendererCommand::CreateDepthStencilView(TE_IDX_DEPTHSTENCIL idx, DepthStencilView* DSV)
+	void RendererCommand::CreateDepthStencilView(TE_IDX_TEXTURE idx, DepthStencilView* DSV)
 	{
 		auto ds = TE_INSTANCE_BUFFERMANAGER->GetDepthStencil(idx);
 		return TE_INSTANCE_BUFFERMANAGER->CreateDepthStencilView(ds, DSV);
@@ -301,7 +293,7 @@ namespace TruthEngine::Core
 		return TE_INSTANCE_BUFFERMANAGER->CreateRenderTargetView(swapChain, RTV);
 	}
 
-	void RendererCommand::CreateRenderTargetView(TE_IDX_RENDERTARGET idx, RenderTargetView* RTV)
+	void RendererCommand::CreateRenderTargetView(TE_IDX_TEXTURE idx, RenderTargetView* RTV)
 	{
 		auto rt = TE_INSTANCE_BUFFERMANAGER->GetRenderTarget(idx);
 		return TE_INSTANCE_BUFFERMANAGER->CreateRenderTargetView(rt, RTV);

@@ -57,7 +57,7 @@ namespace TruthEngine::API::DirectX12 {
 
 		auto dx12bufferManager = static_cast<DirectX12BufferManager*>(TE_INSTANCE_BUFFERMANAGER.get());
 
-		m_RenderTargetScreenBuffer = dx12bufferManager->GetRenderTarget(TE_IDX_RENDERTARGET::SCENEBUFFER);
+		m_RenderTargetScreenBuffer = dx12bufferManager->GetRenderTarget(TE_IDX_TEXTURE::RT_SCENEBUFFER);
 
 		m_D3D12Resource_ScreenBuffer = dx12bufferManager->GetResource(m_RenderTargetScreenBuffer);
 

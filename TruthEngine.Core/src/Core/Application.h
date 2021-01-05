@@ -14,7 +14,7 @@ namespace TruthEngine::Core {
 	class Application {
 
 	public:
-		Application(const char* title, uint32_t clientWidth, uint32_t clientHeight);
+		Application(const char* title, uint32_t clientWidth, uint32_t clientHeight, uint8_t framesInFlightNum);
 		virtual ~Application();
 
 
@@ -71,8 +71,8 @@ namespace TruthEngine::Core {
 		uint32_t m_ClientHeight = 0;
 		uint32_t m_SceneViewportWidth = 0;
 		uint32_t m_SceneViewportHeight = 0;
-		uint32_t m_FramesInFlightNum = 2;
 		uint32_t m_CurrentFrameIndex = 0;
+		uint8_t m_FramesInFlightNum = 2;
 
 		std::string m_Title;
 
@@ -80,7 +80,7 @@ namespace TruthEngine::Core {
 
 	};
 
-	//to be defined in client
+	//to be defined in the client
 	Application* CreateApplication();
 
 }

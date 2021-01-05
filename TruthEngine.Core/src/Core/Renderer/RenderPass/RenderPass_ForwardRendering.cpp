@@ -39,17 +39,19 @@ namespace TruthEngine::Core
 
 		m_RendererCommand.Init(TE_IDX_RENDERPASS::FORWARDRENDERING, TE_IDX_SHADERCLASS::FORWARDRENDERING, 1, TE_INSTANCE_BUFFERMANAGER, m_ShaderMgr);
 
-		m_TextureDepthStencil = m_RendererCommand.CreateDepthStencil(TE_IDX_DEPTHSTENCIL::SCENEBUFFER, TE_INSTANCE_APPLICATION->GetClientWidth(), TE_INSTANCE_APPLICATION->GetClientHeight(), TE_RESOURCE_FORMAT::R32_TYPELESS, ClearValue_DepthStencil{ 1.0f, 0 }, false);
+		m_TextureDepthStencil = m_RendererCommand.CreateDepthStencil(TE_IDX_TEXTURE::DS_SCENEBUFFER, TE_INSTANCE_APPLICATION->GetClientWidth(), TE_INSTANCE_APPLICATION->GetClientHeight(), TE_RESOURCE_FORMAT::R32_TYPELESS, ClearValue_DepthStencil{ 1.0f, 0 }, false);
 
 		m_RendererCommand.CreateDepthStencilView(m_TextureDepthStencil, &m_DepthStencilView);
+
+		m_RendererCommand.CreateRenderTargetView(TE_IDX_TEXTURE::RT_SCENEBUFFER, &m_RenderTartgetView);
+		m_ConstantBufferDirect_PerMesh = m_RendererCommand.CreateConstantBufferDirect<ConstantBuffer_Data_Per_Mesh>(TE_IDX_CONSTANTBUFFER::DIRECT_PER_MESH);
+
 
 		for (const auto* mat : TE_INSTANCE_MODELMANAGER->GetMaterials())
 		{
 			PreparePiplineMaterial(mat);
 		}
 
-		m_RendererCommand.CreateRenderTargetView(TE_IDX_RENDERTARGET::SCENEBUFFER, &m_RenderTartgetView);
-		m_ConstantBufferDirect_PerMesh = m_RendererCommand.CreateConstantBufferDirect<ConstantBuffer_Data_Per_Mesh>(TE_IDX_CONSTANTBUFFER::DIRECT_PER_MESH);
 
 
 		RegisterOnEvents();
@@ -94,10 +96,7 @@ namespace TruthEngine::Core
 		for (auto m : models)
 		{
 			for (auto mesh : m->GetMeshes())
-			{
-				UINT32 s = 10;
-				auto s2 = s << 1;
-				
+			{				
 				data->materialIndex = mesh->GetMaterial()->GetID();
 
 				m_RendererCommand.UploadData(m_ConstantBufferDirect_PerMesh);
@@ -113,9 +112,9 @@ namespace TruthEngine::Core
 
 	void RenderPass_ForwardRendering::OnSceneViewportResize(uint32_t width, uint32_t height)
 	{
-		m_RendererCommand.Resize(m_TextureDepthStencil, width, height, &m_DepthStencilView, nullptr);
+		m_RendererCommand.ResizeDepthStencil(m_TextureDepthStencil, width, height, &m_DepthStencilView, nullptr);
 
-		m_RendererCommand.CreateRenderTargetView(TE_IDX_RENDERTARGET::SCENEBUFFER, &m_RenderTartgetView);
+		m_RendererCommand.CreateRenderTargetView(TE_IDX_TEXTURE::RT_SCENEBUFFER, &m_RenderTartgetView);
 
 		m_Viewport.Resize(width, height);
 
@@ -152,6 +151,15 @@ namespace TruthEngine::Core
 			shader->AddInputElement(inputElement);
 
 			inputElement.AlignedByteOffset = 12;
+			inputElement.Format = TE_RESOURCE_FORMAT::R32G32B32_FLOAT;
+			inputElement.InputSlot = 1;
+			inputElement.InputSlotClass = TE_RENDERER_SHADER_INPUT_CLASSIFICATION::PER_VERTEX;
+			inputElement.InstanceDataStepRate = 0;
+			inputElement.SemanticIndex = 0;
+			inputElement.SemanticName = "TANGENT";
+			shader->AddInputElement(inputElement);
+
+			inputElement.AlignedByteOffset = 24;
 			inputElement.Format = TE_RESOURCE_FORMAT::R32G32_FLOAT;
 			inputElement.InputSlot = 1;
 			inputElement.InputSlotClass = TE_RENDERER_SHADER_INPUT_CLASSIFICATION::PER_VERTEX;

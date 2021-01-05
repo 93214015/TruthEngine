@@ -1,79 +1,66 @@
 #pragma once
-#include "GraphicResource.h"
+#include "Texture.h"
 
-namespace TruthEngine::Core
+namespace TruthEngine
 {
-	
-	class TextureMaterial : GraphicResource
+	namespace API::DirectX12
 	{
-	public:
-		TextureMaterial();
-		TextureMaterial(const char* name, uint8_t* pdata, uint32_t width, uint32_t height, size_t dataSize , TE_RESOURCE_FORMAT format);
-		~TextureMaterial();
+		class DirectX12BufferManager;
+		class DirectX12TextureMaterialManager;
+	}
 
-		inline uint8_t* GetData() const noexcept
-		{
-			return m_Data;
-		}
-
-		inline uint32_t GetWidth()const noexcept
-		{
-			return m_Width;
-		}
-
-		inline uint32_t GetHeight()const noexcept
-		{
-			return m_Height;
-		}
-
-		inline TE_RESOURCE_FORMAT GetFormat()const noexcept
-		{
-			return m_Format;
-		}
-
-		inline size_t GetDataSize()const noexcept
-		{
-			return m_DataSize;
-		}
-
-	protected:
-
-	protected:
-		std::string m_Name = "";
-
-		uint32_t m_Width = 0;
-		uint32_t m_Height = 0;
-		TE_RESOURCE_FORMAT m_Format = TE_RESOURCE_FORMAT::UNKNOWN;
-		size_t m_DataSize = 0;
-
-		uint8_t* m_Data = nullptr;
-	};
-
-	class TextureMaterialManager
+	namespace Core
 	{
-	public:
-
-		inline void AddSpace(size_t size)
+		class TextureMaterial : Texture
 		{
-			m_Textures.reserve(m_Textures.size() + size);
-		}
-		inline size_t GetOffset() const noexcept
-		{
-			return m_Textures.size();
-		}
-		void CreateTextureMaterial(const char* name, uint8_t* data, uint32_t width, uint32_t height, uint32_t dataSize, TE_RESOURCE_FORMAT format);
+		public:
+			TextureMaterial(const char* name, const char* fileName, uint8_t* pdata, uint32_t width, uint32_t height, size_t dataSize, TE_RESOURCE_FORMAT format);
+			~TextureMaterial();
 
-		static TextureMaterialManager* GetInstance()
-		{
-			static TextureMaterialManager s_Instance;
-			return &s_Instance;
-		}
+			inline uint8_t* GetData() const noexcept
+			{
+				return m_Data;
+			}
 
-	protected:
+			inline uint32_t GetWidth()const noexcept
+			{
+				return m_Width;
+			}
 
-	protected:
-		std::vector<TextureMaterial> m_Textures;
-		std::unordered_map<const char*, TextureMaterial*> m_Map_Textures;
-	};
+			inline uint32_t GetHeight()const noexcept
+			{
+				return m_Height;
+			}
 
+			inline TE_RESOURCE_FORMAT GetFormat()const noexcept
+			{
+				return m_Format;
+			}
+
+			inline size_t GetDataSize()const noexcept
+			{
+				return m_DataSize;
+			}
+
+		protected:
+
+		protected:
+			std::string m_Name = "";
+			std::string m_FileName = "";
+
+			size_t m_DataSize = 0;
+
+			uint8_t* m_Data = nullptr;
+
+			uint32_t m_ViewIndex = 0;
+
+			//
+			// Friend Classes
+			//
+			friend class TextureMaterialManager;
+			friend class API::DirectX12::DirectX12BufferManager;
+			friend class API::DirectX12::DirectX12TextureMaterialManager;
+		};
+
+	}
 }

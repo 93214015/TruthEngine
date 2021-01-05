@@ -50,7 +50,7 @@ namespace TruthEngine
 
 			inline void GetOffsets(size_t& outVertexOffset, size_t& outIndexOffset, size_t& outModelOffset, size_t& outMeshOffset, size_t& outMaterialOffset)
 			{
-				outVertexOffset = m_VertexBuffer_PosNormTex.GetVertexOffset();
+				outVertexOffset = m_VertexBuffer_PosNormTanTex.GetVertexOffset();
 				outIndexOffset = m_IndexBuffer.GetIndexOffset();
 				outModelOffset = m_Models3D.size();
 				outMeshOffset = m_Meshes.size();
@@ -72,7 +72,7 @@ namespace TruthEngine
 			std::vector<std::shared_ptr<Model3D>> m_Models3D;
 			std::vector<std::shared_ptr<Mesh>> m_Meshes;
 
-			VertexBuffer<VertexData::Pos, VertexData::NormTex> m_VertexBuffer_PosNormTex;
+			VertexBuffer<VertexData::Pos, VertexData::NormTanTex> m_VertexBuffer_PosNormTanTex;
 			IndexBuffer m_IndexBuffer;
 
 			MaterialManager m_MaterialManager;

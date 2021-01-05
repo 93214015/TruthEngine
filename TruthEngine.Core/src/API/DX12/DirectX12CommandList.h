@@ -18,7 +18,7 @@ namespace TruthEngine
 		class DirectX12BufferManager;
 		class DirectX12ShaderManager;
 		class DirectX12PiplineManager;
-		class DirectX12RootParameter;
+		class DirectX12RootArguments;
 
 
 		class DirectX12CommandList : public Core::CommandList
@@ -207,7 +207,7 @@ namespace TruthEngine
 
 			COMPTR<ID3D12Resource> m_IntermediateResource;
 
-			DirectX12RootParameter* m_RootParameters;
+			const DirectX12RootArguments* m_RootArguments;
 
 			//
 			// friend class

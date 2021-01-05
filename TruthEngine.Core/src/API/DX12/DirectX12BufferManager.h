@@ -30,7 +30,7 @@ namespace TruthEngine::API::DirectX12 {
 
 		void Init(uint32_t resourceNum, uint32_t shaderResourceViewNum, uint32_t renderTargetViewNum, uint32_t depthBufferViewNum) override;
 
-		Core::ConstantBufferUploadBase* GetConstantBufferUpload(TE_IDX_CONSTANTBUFFER cbIDX) override;
+		void Release() override;
 
 		TE_RESULT CreateVertexBuffer(Core::VertexBufferBase* vb) override;
 
@@ -48,13 +48,17 @@ namespace TruthEngine::API::DirectX12 {
 
 		void CreateConstantBufferView(Core::ConstantBufferUploadBase* constantBuffer, Core::ConstantBufferView* CBV) override;
 
-		void CreateConstantBufferView(Core::ConstantBufferDirectBase* constantBuffer, Core::ConstantBufferView* CBV, TE_IDX_SHADERCLASS shaderClassIDX) override;
-
 		uint64_t GetRequiredSize(const Core::GraphicResource* graphicResource) const override;
+
+		void ReleaseResource(Core::GraphicResource* resource) override;
 
 		ID3D12Resource* GetResource(Core::GraphicResource* graphicResource);
 
-		void ReleaseResource(Core::GraphicResource* resource) override;
+		D3D12_GPU_DESCRIPTOR_HANDLE AddDescriptorSRV(ID3D12Resource* resource, const D3D12_SHADER_RESOURCE_VIEW_DESC* desc);
+		D3D12_GPU_DESCRIPTOR_HANDLE AddDescriptorCBV(const D3D12_CONSTANT_BUFFER_VIEW_DESC* cbvDesc);
+		D3D12_GPU_DESCRIPTOR_HANDLE AddDescriptorUAV(ID3D12Resource* resource, ID3D12Resource* counterResource, const D3D12_UNORDERED_ACCESS_VIEW_DESC* desc);
+		D3D12_CPU_DESCRIPTOR_HANDLE AddDescriptorRTV(ID3D12Resource* resource);
+		D3D12_CPU_DESCRIPTOR_HANDLE AddDescriptorDSV(ID3D12Resource* resource, const D3D12_DEPTH_STENCIL_VIEW_DESC* desc);
 
 	private:
 		TE_RESULT CreateResource(Core::BufferUpload* buffer) override;
@@ -71,6 +75,13 @@ namespace TruthEngine::API::DirectX12 {
 
 
 	private:
+
+		uint32_t m_OffsetSRVMaterialTexture_Diffuse = 50;
+		uint32_t m_OffsetSRVMaterialTexture_Normal = 400;
+		uint32_t m_OffsetSRVMaterialTexture_Displacement = 700;
+		uint32_t m_IndexSRVMaterialTexture_Diffuse = 0;
+		uint32_t m_IndexSRVMaterialTexture_Normal = 0;
+		uint32_t m_IndexSRVMaterialTexture_Displacement = 0;
 
 		std::vector<COMPTR<ID3D12Resource>> m_Resources;
 
@@ -94,6 +105,8 @@ namespace TruthEngine::API::DirectX12 {
 		//
 		friend class DirectX12CommandList;
 		friend class DirectX12Manager;
+		friend class DirectX12ShaderManager;
+		friend class DirectX12TextureMaterialManager;
 	};
 
 }

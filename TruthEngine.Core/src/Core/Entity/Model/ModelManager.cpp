@@ -39,32 +39,32 @@ namespace TruthEngine::Core
 
 
 		VertexData::Pos pos;
-		VertexData::NormTex normTex{ float3{0.0f, 0.0f, -1.0f}, float2{0.0f, 0.0f} };
+		VertexData::NormTanTex normTex{ float3{0.0f, 0.0f, -1.0f}, float3{0.0f, 0.0f, 0.0f}, float2{0.0f, 0.0f} };
 
 		pos.Position = float3{ -0.5f, -0.5f, 0.5f };
 
-		m_VertexBuffer_PosNormTex.AddVertex(pos, normTex);
+		m_VertexBuffer_PosNormTanTex.AddVertex(pos, normTex);
 
 		pos.Position = float3{ -0.5f, 0.5f, 0.5f };
 
-		m_VertexBuffer_PosNormTex.AddVertex(pos, normTex);
+		m_VertexBuffer_PosNormTanTex.AddVertex(pos, normTex);
 
 		pos.Position = float3{ 0.5f, 0.5f, 0.5f };
 
-		m_VertexBuffer_PosNormTex.AddVertex(pos, normTex);
+		m_VertexBuffer_PosNormTanTex.AddVertex(pos, normTex);
 
 
 		pos.Position = float3{ -0.5f, -0.5f, 0.5f };
 
-		m_VertexBuffer_PosNormTex.AddVertex(pos, normTex);
+		m_VertexBuffer_PosNormTanTex.AddVertex(pos, normTex);
 
 		pos.Position = float3{ 0.5f, 0.5f, 0.5f };
 
-		m_VertexBuffer_PosNormTex.AddVertex(pos, normTex);
+		m_VertexBuffer_PosNormTanTex.AddVertex(pos, normTex);
 
 		pos.Position = float3{ 0.5f, -0.5f, 0.5f };
 
-		m_VertexBuffer_PosNormTex.AddVertex(pos, normTex);
+		m_VertexBuffer_PosNormTanTex.AddVertex(pos, normTex);
 
 
 		m_IndexBuffer.AddIndex(0);
@@ -80,12 +80,12 @@ namespace TruthEngine::Core
 	void ModelManager::InitVertexAndIndexBuffer()
 	{
 
-		m_BufferManager->CreateVertexBuffer(&m_VertexBuffer_PosNormTex);
+		m_BufferManager->CreateVertexBuffer(&m_VertexBuffer_PosNormTanTex);
 		m_BufferManager->CreateIndexBuffer(&m_IndexBuffer);
 
 		m_RendererCommand->Begin();
 
-		m_RendererCommand->UploadData(&m_VertexBuffer_PosNormTex);
+		m_RendererCommand->UploadData(&m_VertexBuffer_PosNormTanTex);
 		m_RendererCommand->UploadData(&m_IndexBuffer);
 
 		m_RendererCommand->End();
@@ -104,14 +104,14 @@ namespace TruthEngine::Core
 	void ModelManager::AddMesh(std::shared_ptr<Mesh> mesh)
 	{
 		mesh->m_IndexBuffer = &m_IndexBuffer;
-		mesh->m_VertexBuffer = &m_VertexBuffer_PosNormTex;
+		mesh->m_VertexBuffer = &m_VertexBuffer_PosNormTanTex;
 
 		m_Meshes.push_back(mesh);
 	}
 
 	Mesh* ModelManager::AddMesh(uint32_t IndexNum, size_t IndexOffset, size_t VertexOffset, Material* MaterialPtr)
 	{
-		return m_Meshes.emplace_back(std::make_shared<Mesh>(IndexNum, IndexOffset, VertexOffset, MaterialPtr, &m_VertexBuffer_PosNormTex, &m_IndexBuffer)).get();
+		return m_Meshes.emplace_back(std::make_shared<Mesh>(IndexNum, IndexOffset, VertexOffset, MaterialPtr, &m_VertexBuffer_PosNormTanTex, &m_IndexBuffer)).get();
 	}
 
 	TruthEngine::Core::Model3D* ModelManager::AddModel3D()

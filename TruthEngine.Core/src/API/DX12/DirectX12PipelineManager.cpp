@@ -6,6 +6,7 @@
 
 #include "API/DX12/DirectX12GraphicDevice.h"
 #include "API/DX12/DirectX12ShaderManager.h"
+#include "API/DX12/DirectX12Manager.h"
 
 namespace TruthEngine::API::DirectX12
 {
@@ -202,7 +203,7 @@ namespace TruthEngine::API::DirectX12
 		desc.SampleDesc.Count = 1;
 		desc.SampleDesc.Quality = 0;
 
-		desc.pRootSignature = static_cast<DirectX12ShaderManager*>(TE_INSTANCE_SHADERMANAGER.get())->GetRootSignature(shader->GetShaderClassIDX());
+		desc.pRootSignature = DirectX12Manager::GetInstance()->GetD3D12RootSignature(shader->GetShaderClassIDX());
 
 		desc.NodeMask = 0;
 		desc.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;

@@ -33,7 +33,7 @@ namespace TruthEngine::Core
 	{
 		m_BufferManager = TE_INSTANCE_BUFFERMANAGER;
 
-		m_BufferManager->Init(20, 10, 10, 10);
+		m_BufferManager->Init(100, 1000, 10, 10);
 
 		// init singleton object of dx12 swap chain
 		TE_INSTANCE_SWAPCHAIN->Init(TE_INSTANCE_APPLICATION->GetClientWidth(), TE_INSTANCE_APPLICATION->GetClientHeight(), TE_INSTANCE_APPLICATION->GetWindow(), TE_INSTANCE_APPLICATION->GetFramesInFlightNum());
@@ -42,7 +42,7 @@ namespace TruthEngine::Core
 
 		m_ModelManagers = TE_INSTANCE_MODELMANAGER;
 
-		m_RendererCommand.CreateRenderTarget(TE_IDX_RENDERTARGET::SCENEBUFFER, TE_INSTANCE_APPLICATION->GetClientWidth(), TE_INSTANCE_APPLICATION->GetClientHeight(), TE_RESOURCE_FORMAT::R8G8B8A8_UNORM, ClearValue_RenderTarget{ 1.0f, 1.0f, 1.0f, 1.0f }, true);
+		m_RendererCommand.CreateRenderTarget(TE_IDX_TEXTURE::RT_SCENEBUFFER, TE_INSTANCE_APPLICATION->GetClientWidth(), TE_INSTANCE_APPLICATION->GetClientHeight(), TE_RESOURCE_FORMAT::R8G8B8A8_UNORM, ClearValue_RenderTarget{ 1.0f, 1.0f, 1.0f, 1.0f }, true);
 
 		m_RendererCommand.CreateRenderTargetView(TE_INSTANCE_SWAPCHAIN, &m_RTVBackBuffer);
 
@@ -50,8 +50,6 @@ namespace TruthEngine::Core
 		m_CB_PerDLight = m_RendererCommand.CreateConstantBufferUpload<ConstantBuffer_Data_Per_DLight>(TE_IDX_CONSTANTBUFFER::PER_DLIGHT);
 		m_CB_Materials = m_RendererCommand.CreateConstantBufferUpload<ConstantBuffer_Data_Materials>(TE_IDX_CONSTANTBUFFER::MATERIALS);
 		
-
-		m_CB_PerFrame->GetData()->m_Color = DirectX::XMFLOAT4{ 0.2f, 0.7f, 0.4f, 1.0f };
 
 		const auto& lightdata = LightManager::GetInstace()->GetDirectionalLight("dlight_0")->GetDirectionalLightData();
 		*(m_CB_PerDLight->GetData()) = static_cast<const ConstantBuffer_Data_Per_DLight&>(lightdata);
@@ -68,7 +66,10 @@ namespace TruthEngine::Core
 		m_RenderPassStack.PopAll();
 
 		m_ImGuiLayer->OnDetach();
+
 		TE_INSTANCE_SWAPCHAIN->Release();
+
+		m_BufferManager->Release();
 	}
 
 	void RendererLayer::OnUpdate(double deltaFrameTime)
@@ -76,15 +77,11 @@ namespace TruthEngine::Core
 
 		auto data_perFrame = m_CB_PerFrame->GetData();
 
-		auto& color = data_perFrame->m_Color;
-		color.x = std::fmod(color.x + 0.01f, 1.0f);
-		color.y = std::fmod(color.y + 0.01f, 1.0f);
-		color.z = std::fmod(color.z + 0.01f, 1.0f);
-		color.w = std::fmod(color.w + 0.01f, 1.0f);
 
 		auto mainCamera = CameraManager::GetInstance()->GetCamera("mainCamera");
 
-		data_perFrame->m_VP = mainCamera->GetViewProj();
+		data_perFrame->EyePos = mainCamera->GetPosition();;
+		data_perFrame->ViewProj = mainCamera->GetViewProj();
 
 		m_Model3DQueue.clear();
 		for (auto& model : m_ModelManagers->GetModel3D())
@@ -151,7 +148,7 @@ namespace TruthEngine::Core
 		auto width = event.GetWidth();
 		auto height = event.GetHeight();
 
-		m_RendererCommand.Resize(TE_INSTANCE_SWAPCHAIN, width, height, &m_RTVBackBuffer, nullptr);
+		m_RendererCommand.ResizeSwapChain(TE_INSTANCE_SWAPCHAIN, width, height, &m_RTVBackBuffer, nullptr);
 
 	}
 
@@ -160,7 +157,7 @@ namespace TruthEngine::Core
 		auto width = event.GetWidth();
 		auto height = event.GetHeight();
 
-		m_RendererCommand.Resize(TE_IDX_RENDERTARGET::SCENEBUFFER, width, height, nullptr, nullptr);
+		m_RendererCommand.ResizeRenderTarget(TE_IDX_TEXTURE::RT_SCENEBUFFER, width, height, nullptr, nullptr);
 
 		m_RenderPass_ForwardRendering->OnSceneViewportResize(width, height);
 
@@ -170,7 +167,7 @@ namespace TruthEngine::Core
 	{
 		auto material = event.GetMaterial();
 		auto& cbMaterialData = m_CB_Materials->GetData()->MaterialArray[material->GetID()];
-		cbMaterialData = ConstantBuffer_Data_Materials::Material(material->GetColorDiffuse(), material->GetColorAmbient(), material->GetColorSpecular());
+		cbMaterialData = ConstantBuffer_Data_Materials::Material(material->GetColorDiffuse(), material->GetFresnelR0(), material->GetShininess(), material->GetMapIndexDiffuse(), material->GetMapIndexNormal(), material->GetMapIndexDisplacement());
 
 	}
 
