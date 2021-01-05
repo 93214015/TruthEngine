@@ -16,11 +16,12 @@ namespace TruthEngine
 		class VertexBufferStreamBase : public Buffer
 		{
 		public:
-			VertexBufferStreamBase() : Buffer("", 0, TE_RESOURCE_USAGE_VERTEXBUFFER, TE_RESOURCE_STATES::COPY_DEST)
+			VertexBufferStreamBase() : Buffer(0, TE_RESOURCE_USAGE_VERTEXBUFFER, TE_RESOURCE_STATES::COPY_DEST)
 			{};
 			virtual ~VertexBufferStreamBase() = default;
 
 			virtual void ReserveSpace(const size_t size) noexcept = 0;
+			virtual void AddSpace(const size_t size) noexcept = 0;
 
 			virtual size_t GetBufferSize() const noexcept = 0;
 			virtual size_t GetVertexNum() const noexcept = 0;
@@ -50,6 +51,12 @@ namespace TruthEngine
 			inline void ReserveSpace(const size_t size) noexcept override
 			{
 				m_Vertecies.reserve(size);
+			}
+
+			inline void AddSpace(const size_t size) noexcept override
+			{
+				auto currentSpace = m_Vertecies.size();
+				m_Vertecies.reserve(currentSpace + size);
 			}
 
 			inline size_t GetBufferSize() const noexcept override

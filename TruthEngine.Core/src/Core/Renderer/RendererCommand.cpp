@@ -1,6 +1,8 @@
 #include "pch.h"
 #include "RendererCommand.h"
 
+#include "Core/Application.h"
+
 #include "GraphicDevice.h"
 #include "BufferManager.h"
 #include "ShaderManager.h"
@@ -10,6 +12,7 @@
 #include "ConstantBuffer.h"
 #include "CommandList.h"
 #include "Viewport.h"
+#include "SwapChain.h"
 
 #include "Core/Entity/Model/Mesh.h"
 
@@ -29,9 +32,19 @@ namespace TruthEngine::Core
 
 		for (uint32_t i = 0; i < ParallelCommandsNum; ++i)
 		{
-			m_CommandLists.push_back(CommandList::Factory(&TE_INSTANCE_GRAPHICDEVICE, TE_RENDERER_COMMANDLIST_TYPE::DIRECT, m_BufferManager, shaderManager, renderPassIDX, shaderClassIDX));
+			m_CommandLists.push_back(CommandList::Factory(TE_INSTANCE_GRAPHICDEVICE, TE_RENDERER_COMMANDLIST_TYPE::DIRECT, m_BufferManager, shaderManager, renderPassIDX, shaderClassIDX));
 		}
 
+	}
+
+	void RendererCommand::Release()
+	{
+		for (auto cm : m_CommandLists)
+		{
+			cm->Release();
+		}
+
+		m_CommandLists.clear();
 	}
 
 	void RendererCommand::SetPipeline(Pipeline* pipeline, uint32_t cmdListIndex /*= 0*/)
@@ -66,6 +79,11 @@ namespace TruthEngine::Core
 
 	void RendererCommand::UploadData(ConstantBufferUploadBase* cb, uint32_t cmdListIndex)
 	{
+	}
+
+	void RendererCommand::UploadData(ConstantBufferDirectBase* cb, uint32_t cmdListIndex)
+	{
+		m_CommandLists[cmdListIndex]->UploadData(cb);
 	}
 
 	void RendererCommand::UploadData(Buffer* buffer, void* data, size_t sizeInByte, uint32_t cmdListIndex /*= 0*/)
@@ -126,13 +144,80 @@ namespace TruthEngine::Core
 		m_CommandLists[cmdListIndex]->ClearDepthStencil(DSV);
 	}
 
+	void RendererCommand::ResizeRenderTarget(TextureRenderTarget* texture, uint32_t width, uint32_t height, RenderTargetView* RTV, ShaderResourceView* SRV)
+	{
+		WaitForGPU();
+
+		texture->Resize(width, height);
+		m_BufferManager->CreateResource(texture);
+
+		if (RTV != nullptr)
+		{
+			m_BufferManager->CreateRenderTargetView(texture, RTV);
+		}
+		if (SRV != nullptr)
+		{
+			m_BufferManager->CreateShaderResourceView(texture, SRV);
+		}
+	}
+
+	void RendererCommand::ResizeRenderTarget(TE_IDX_TEXTURE idx, uint32_t width, uint32_t height, RenderTargetView* RTV, ShaderResourceView* SRV)
+	{
+		auto rt = m_BufferManager->GetRenderTarget(idx);
+		ResizeRenderTarget(rt, width, height, RTV, SRV);
+	}
+
+	void RendererCommand::ResizeDepthStencil(TextureDepthStencil* texture, uint32_t width, uint32_t height, DepthStencilView* DSV, ShaderResourceView* SRV)
+	{
+		WaitForGPU();
+
+		texture->Resize(width, height);
+		m_BufferManager->CreateResource(texture);
+
+		if (DSV != nullptr)
+		{
+			m_BufferManager->CreateDepthStencilView(texture, DSV);
+		}
+		if (SRV != nullptr)
+		{
+			m_BufferManager->CreateShaderResourceView(texture, SRV);
+		}
+	}
+
+	void RendererCommand::ResizeDepthStencil(TE_IDX_TEXTURE idx, uint32_t width, uint32_t height, DepthStencilView* DSV, ShaderResourceView* SRV)
+	{
+		auto ds = m_BufferManager->GetDepthStencil(idx);
+		ResizeDepthStencil(ds, width, height, DSV, SRV);
+	}
+
+	void RendererCommand::ResizeSwapChain(SwapChain* swapChain, uint32_t width, uint32_t height, RenderTargetView* RTV, ShaderResourceView* SRV)
+	{
+		WaitForGPU();
+
+		swapChain->Resize(width, height, TE_INSTANCE_APPLICATION->GetFramesInFlightNum());
+
+		if (RTV != nullptr)
+		{
+			m_BufferManager->CreateRenderTargetView(swapChain, RTV);
+		}
+		if (SRV != nullptr)
+		{
+			//m_BufferManager->CreateShaderResourceView()
+		}
+	}
+
+
 	void RendererCommand::EndAndPresent(uint32_t cmdListIndex /*= 0*/)
 	{
+		m_LastCommadListIndex = cmdListIndex;
+
 		m_CommandLists[cmdListIndex]->Present();
 	}
 
 	void RendererCommand::End(uint32_t cmdListIndex /*= 0*/)
 	{
+		m_LastCommadListIndex = cmdListIndex;
+
 		m_CommandLists[cmdListIndex]->Commit();
 		m_CommandLists[cmdListIndex]->Submit();
 	}
@@ -152,49 +237,82 @@ namespace TruthEngine::Core
 		m_CommandLists[cmdListIndex]->SetViewport(viewport, rect);
 	}
 
-	TE_RESULT RendererCommand::CreateResource(TextureRenderTarget* tRT)
+
+	TruthEngine::Core::TextureRenderTarget* RendererCommand::CreateRenderTarget(TE_IDX_TEXTURE idx, uint32_t width, uint32_t height, TE_RESOURCE_FORMAT format, const ClearValue_RenderTarget& clearValue, bool useAsShaderResource)
 	{
-		return TE_INSTANCE_BUFFERMANAGER->CreateResource(tRT);
+		return TE_INSTANCE_BUFFERMANAGER->CreateRenderTarget(idx, width, height, format, clearValue, useAsShaderResource);
 	}
 
-	TE_RESULT RendererCommand::CreateResource(TextureDepthStencil* tDS)
+
+	TruthEngine::Core::TextureDepthStencil* RendererCommand::CreateDepthStencil(TE_IDX_TEXTURE idx, uint32_t width, uint32_t height, TE_RESOURCE_FORMAT format, const ClearValue_DepthStencil& clearValue, bool useAsShaderResource)
 	{
-		return TE_INSTANCE_BUFFERMANAGER->CreateResource(tDS);
+		return TE_INSTANCE_BUFFERMANAGER->CreateDepthStencil(idx, width, height, format, clearValue, useAsShaderResource);
 	}
+
 
 	TE_RESULT RendererCommand::CreateResource(BufferUpload* cb)
 	{
 		return TE_INSTANCE_BUFFERMANAGER->CreateResource(cb);
 	}
 
-	TruthEngine::Core::DepthStencilView RendererCommand::CreateDepthStencilView(TextureDepthStencil* DS)
+	void RendererCommand::ReleaseResource(GraphicResource* graphicResource)
 	{
-		return TE_INSTANCE_BUFFERMANAGER->CreateDepthStencilView(DS);
+		WaitForGPU();
+
+		m_BufferManager->ReleaseResource(graphicResource);
 	}
 
-	TruthEngine::Core::RenderTargetView RendererCommand::CreateRenderTargetView(TextureRenderTarget* RT)
+	void RendererCommand::ReleaseResource(TE_IDX_TEXTURE idx)
 	{
-		return TE_INSTANCE_BUFFERMANAGER->CreateRenderTargetView(RT);
+		WaitForGPU();
+
+		auto rt = m_BufferManager->GetTexture(idx);
+
+		m_BufferManager->ReleaseResource(rt);
 	}
 
-	TruthEngine::Core::RenderTargetView RendererCommand::CreateRenderTargetView(SwapChain* swapChain)
+
+	void RendererCommand::CreateDepthStencilView(TextureDepthStencil* DS, DepthStencilView* DSV)
 	{
-		return TE_INSTANCE_BUFFERMANAGER->CreateRenderTargetView(swapChain);
+		return TE_INSTANCE_BUFFERMANAGER->CreateDepthStencilView(DS, DSV);
 	}
 
-	TruthEngine::Core::ShaderResourceView RendererCommand::CreateShaderResourceView(Texture* textures[], uint32_t textureNum)
+	void RendererCommand::CreateDepthStencilView(TE_IDX_TEXTURE idx, DepthStencilView* DSV)
 	{
-		return TE_INSTANCE_BUFFERMANAGER->CreateShaderResourceView(textures, textureNum);
+		auto ds = TE_INSTANCE_BUFFERMANAGER->GetDepthStencil(idx);
+		return TE_INSTANCE_BUFFERMANAGER->CreateDepthStencilView(ds, DSV);
 	}
 
-	TruthEngine::Core::ShaderResourceView RendererCommand::CreateShaderResourceView(Texture* texture)
+	void RendererCommand::CreateRenderTargetView(TextureRenderTarget* RT, RenderTargetView* RTV)
 	{
-		return TE_INSTANCE_BUFFERMANAGER->CreateShaderResourceView(texture);
+		return TE_INSTANCE_BUFFERMANAGER->CreateRenderTargetView(RT, RTV);
 	}
 
-	TruthEngine::Core::ConstantBufferView RendererCommand::CreateConstantBufferView(TE_IDX_CONSTANTBUFFER idx)
+	void RendererCommand::CreateRenderTargetView(SwapChain* swapChain, RenderTargetView* RTV)
 	{
-		return TE_INSTANCE_BUFFERMANAGER->CreateConstantBufferView(idx);
+		return TE_INSTANCE_BUFFERMANAGER->CreateRenderTargetView(swapChain, RTV);
+	}
+
+	void RendererCommand::CreateRenderTargetView(TE_IDX_TEXTURE idx, RenderTargetView* RTV)
+	{
+		auto rt = TE_INSTANCE_BUFFERMANAGER->GetRenderTarget(idx);
+		return TE_INSTANCE_BUFFERMANAGER->CreateRenderTargetView(rt, RTV);
+	}
+
+	void RendererCommand::CreateShaderResourceView(Texture* textures[], uint32_t textureNum, ShaderResourceView* SRV)
+	{
+		return TE_INSTANCE_BUFFERMANAGER->CreateShaderResourceView(textures, textureNum, SRV);
+	}
+
+	void RendererCommand::CreateShaderResourceView(Texture* texture, ShaderResourceView* SRV)
+	{
+		return TE_INSTANCE_BUFFERMANAGER->CreateShaderResourceView(texture, SRV);
+	}
+
+	void RendererCommand::CreateConstantBufferView(TE_IDX_CONSTANTBUFFER idx, ConstantBufferView* CBV)
+	{
+		auto cb = TE_INSTANCE_BUFFERMANAGER->GetConstantBufferUpload(idx);
+		return TE_INSTANCE_BUFFERMANAGER->CreateConstantBufferView(cb, CBV);
 	}
 
 	TE_RESULT RendererCommand::CreateVertexBuffer(VertexBufferBase* vb)
@@ -210,6 +328,11 @@ namespace TruthEngine::Core
 	bool RendererCommand::IsRunning(uint32_t cmdListIndex)
 	{
 		return m_CommandLists[cmdListIndex]->IsRunning();
+	}
+
+	void RendererCommand::WaitForGPU()
+	{
+		TE_INSTANCE_GRAPHICDEVICE->WaitForGPU();
 	}
 
 }

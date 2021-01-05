@@ -7,12 +7,14 @@
 #include "Core/Renderer/RendererLayer.h"
 #include "Core/TimerEngine.h"
 
+#include "Core/Entity/Camera/CameraPerspective.h"
+
 namespace TruthEngine::Core {
 
 	class Application {
 
 	public:
-		Application(const char* title, uint32_t clientWidth, uint32_t clientHeight);
+		Application(const char* title, uint32_t clientWidth, uint32_t clientHeight, uint8_t framesInFlightNum);
 		virtual ~Application();
 
 
@@ -20,11 +22,24 @@ namespace TruthEngine::Core {
 
 		inline uint32_t GetClientHeight() const noexcept { return m_ClientHeight; }
 
+		inline uint32_t GetSceneViewportWidth() const noexcept { return m_SceneViewportWidth; }
+
+		inline uint32_t GetSceneViewportHeight() const noexcept { return m_SceneViewportHeight; }
+
 		inline uint32_t GetFramesInFlightNum() const noexcept { return m_FramesInFlightNum; }
 
 		inline uint32_t GetCurrentFrameIndex() const noexcept { return m_CurrentFrameIndex; }
 
 		inline const char* GetTitle() const noexcept { return m_Title.c_str(); }
+
+		inline void RegisterEventListener(EventType eventType, const EventListener& listener)
+		{
+			m_EventDispatcher.RegisterListener(eventType, listener);
+		}
+
+		inline double FrameTime() const noexcept { return m_Timer.DeltaTime(); }
+
+		void ResizeSceneViewport(uint32_t width, uint32_t height) noexcept;
 
 		Window* GetWindow() { return m_Window.get(); }
 
@@ -52,11 +67,12 @@ namespace TruthEngine::Core {
 		TimerEngine m_Timer;
 
 
-
 		uint32_t m_ClientWidth = 0;
 		uint32_t m_ClientHeight = 0;
-		uint32_t m_FramesInFlightNum = 2;
+		uint32_t m_SceneViewportWidth = 0;
+		uint32_t m_SceneViewportHeight = 0;
 		uint32_t m_CurrentFrameIndex = 0;
+		uint8_t m_FramesInFlightNum = 2;
 
 		std::string m_Title;
 
@@ -64,7 +80,7 @@ namespace TruthEngine::Core {
 
 	};
 
-	//to be defined in client
+	//to be defined in the client
 	Application* CreateApplication();
 
 }

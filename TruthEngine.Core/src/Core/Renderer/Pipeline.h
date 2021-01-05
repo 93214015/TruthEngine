@@ -17,7 +17,7 @@ namespace TruthEngine
 		class Pipeline
 		{
 		public:
-			Pipeline() = default;
+			Pipeline(RendererStateSet states, Shader* shader);
 
 			virtual ~Pipeline() = default;
 

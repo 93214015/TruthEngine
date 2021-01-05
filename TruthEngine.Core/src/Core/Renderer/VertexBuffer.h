@@ -57,7 +57,14 @@ namespace TruthEngine::Core
 		{
 			m_Indecies.reserve(indexNum);
 
-			std::apply([vertexNum](auto&&... vertexStream) {((vertexStream.ReserveSpace(vertexNum)), ...); }, m_VertexStreams)
+			std::apply([vertexNum](auto&&... vertexStream) {((vertexStream.ReserveSpace(vertexNum)), ...); }, m_VertexStreams);
+		}
+
+		void AddSpace(uint32_t vertexNum, uint32_t indexNum)
+		{
+			m_Indecies.reserve(m_Indecies.size() + indexNum);
+
+			std::apply([vertexNum](auto&&... vertexStream) {((vertexStream.AddSpace(vertexNum)), ...); }, m_VertexStreams);
 		}
 
 		inline void AddIndex(const uint32_t index) noexcept

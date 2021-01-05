@@ -22,12 +22,12 @@ namespace TruthEngine::API::DirectX12 {
 
 	DirectX12SwapChain::DirectX12SwapChain() = default;
 
-	TE_RESULT DirectX12SwapChain::Init(UINT clientWidth, UINT clientHeight, HWND outputHWND, UINT backBufferNum)
+	TE_RESULT DirectX12SwapChain::Init(UINT clientWidth, UINT clientHeight, Core::Window* outputHWND, UINT backBufferNum)
 	{
 
 		m_BackBufferNum = backBufferNum;
 
-		CreateSwapChain(outputHWND);
+		CreateSwapChain(static_cast<HWND>(outputHWND->GetNativeWindowHandle()));
 
 		m_CurrentBackBufferResourceState.resize(backBufferNum, D3D12_RESOURCE_STATE_PRESENT);
 
@@ -35,9 +35,15 @@ namespace TruthEngine::API::DirectX12 {
 
 	}
 
-	uint32_t DirectX12SwapChain::InitRTVs(DescriptorHeapRTV* descHeap)
+	void DirectX12SwapChain::Release()
 	{
-		return CreateSwapChainRTVs(descHeap);
+		m_BackBuffers.clear();
+		m_SwapChain->Release();
+	}
+
+	void DirectX12SwapChain::InitRTVs(DescriptorHeapRTV* descHeap, Core::RenderTargetView* RTV)
+	{
+		CreateSwapChainRTVs(descHeap, RTV);
 	}
 
 	void DirectX12SwapChain::Present()
@@ -65,7 +71,7 @@ namespace TruthEngine::API::DirectX12 {
 			desc1.Stereo = FALSE;
 			desc1.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 
-			auto r = TE_INSTANCE_IDXGI.GetDXGIFactory()->CreateSwapChainForHwnd(TE_INSTANCE_API_DX12_COMMANDQUEUEDIRECT->m_CommandQueue.Get(), outputHWND, &desc1, NULL, NULL, &swapChain1);
+			auto r = TE_INSTANCE_IDXGI.GetDXGIFactory()->CreateSwapChainForHwnd(TE_INSTANCE_API_DX12_COMMANDQUEUEDIRECT->m_CommandQueue.Get(), outputHWND, &desc1, NULL, NULL, swapChain1.GetAddressOf());
 
 			TE_ASSERT_CORE(r, "API::DirectX12  Creation of 'SwapChain' factory is failed!");
 
@@ -84,18 +90,30 @@ namespace TruthEngine::API::DirectX12 {
 		}
 	}
 
-	uint32_t DirectX12SwapChain::CreateSwapChainRTVs(DescriptorHeapRTV* descHeap)
+	void DirectX12SwapChain::CreateSwapChainRTVs(DescriptorHeapRTV* descHeap, Core::RenderTargetView* RTV)
 	{
-		auto index = descHeap->GetCurrentIndex();
 
-		for (UINT i = 0; i < m_BackBufferNum; i++)
+		if (RTV->ViewIndex == -1)
 		{
-			ComPtr<ID3D12Resource> buffer;
-			m_SwapChain->GetBuffer(i, IID_PPV_ARGS(buffer.ReleaseAndGetAddressOf()));
-			descHeap->AddDescriptor(buffer.Get());
-		}
+			RTV->ViewIndex = descHeap->GetCurrentIndex();
 
-		return index;
+			for (UINT i = 0; i < m_BackBufferNum; i++)
+			{
+				ComPtr<ID3D12Resource> buffer;
+				m_SwapChain->GetBuffer(i, IID_PPV_ARGS(buffer.ReleaseAndGetAddressOf()));
+				descHeap->AddDescriptor(buffer.Get());
+			}
+
+		}
+		else
+		{
+			for (UINT i = 0; i < m_BackBufferNum; i++)
+			{
+				ComPtr<ID3D12Resource> buffer;
+				m_SwapChain->GetBuffer(i, IID_PPV_ARGS(buffer.ReleaseAndGetAddressOf()));
+				descHeap->ReplaceDescriptor(buffer.Get(), (RTV->ViewIndex + i) );
+			}
+		}
 	}
 
 	void DirectX12SwapChain::CheckDeviceFeatures()

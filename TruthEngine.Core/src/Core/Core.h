@@ -45,3 +45,4 @@ enum TE_RESULT : int {
 #include "Core/TypeConversions.h"
 #include "Core/Settings.h"
 #include "Core/StaticInstances.h"
+#include "Core/Helper/MathHelper.h"

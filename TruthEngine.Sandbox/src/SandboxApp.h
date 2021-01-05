@@ -8,7 +8,8 @@ namespace TruthEngine::Sandbox {
 	class SandboxApp : public TruthEngine::Core::Application {
 
 	public:
-		SandboxApp(uint16_t clientWidth, uint16_t clientHeight);
+		SandboxApp(uint16_t clientWidth, uint16_t clientHeight, uint8_t frameInFlightNum);
+
 
 		void OnInit() override;
 

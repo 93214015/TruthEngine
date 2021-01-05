@@ -1,7 +1,8 @@
 #include "pch.h"
 #include "DirectX12ShaderManager.h"
 #include "DirectX12GraphicDevice.h"
-
+#include "DirectX12BufferManager.h"
+#include "DirectX12Manager.h"
 
 
 #include "DirectXShaderCompiler/inc/dxcapi.h"
@@ -69,7 +70,7 @@ namespace TruthEngine
 				}
 
 
-				return AddRootSignature(shader.get());
+				return DirectX12Manager::GetInstance()->AddRootSignature(shader.get());
 
 			}
 
@@ -77,20 +78,24 @@ namespace TruthEngine
 			{
 				states &= m_StateMask;
 
-				auto item = m_ShadersStateMap.find(states);
+				auto classID = static_cast<uint32_t>(shaderClassID);
 
-				if (item != m_ShadersStateMap.end())
+				auto& map = m_ShadersStateMap[classID];
+
+				auto item = map.find(states);
+
+				if (item != map.end())
 				{
 					*outShader = item->second.get();
 					return TE_RESULT_RENDERER_SHADER_HAS_EXIST;
 				}
 
-				std::string name = "shader" + std::to_string(m_ShadersStateMap.size());
+				std::string name = "shader" + std::to_string(map.size());
 
 				auto shader = std::make_shared<Core::Shader>(shaderClassID, name, filePath);
 				shader->m_ID = m_ShaderID++;
 
-				m_ShadersStateMap[states] = shader;
+				map[states] = shader;
 				*outShader = shader.get();
 
 				if (csEntry != "")
@@ -119,7 +124,7 @@ namespace TruthEngine
 				}
 
 
-				return AddRootSignature(shader.get());
+				return DirectX12Manager::GetInstance()->AddRootSignature(shader.get());
 
 			}
 
@@ -289,78 +294,6 @@ namespace TruthEngine
 
 			}
 
-			TE_RESULT DirectX12ShaderManager::AddRootSignature(Core::Shader* shader)
-			{
-				auto rootSignaturItr = m_RootSignatures.find(shader->m_ShaderClassIDX);
-
-				if (rootSignaturItr != m_RootSignatures.end())
-				{
-					return TE_SUCCESSFUL;
-				}
-
-				switch (shader->m_ShaderClassIDX)
-				{
-				case TE_IDX_SHADERCLASS::NONE:
-					return TE_FAIL;
-				case TE_IDX_SHADERCLASS::FORWARDRENDERING:
-					AddRootSignature_ForwardRendering();
-					return TE_SUCCESSFUL;
-				default:
-					return TE_FAIL;
-				}
-			}
-
-			void DirectX12ShaderManager::AddRootSignature_ForwardRendering()
-			{
-				COMPTR<ID3DBlob> errorBlob;
-				COMPTR<ID3DBlob> signatureBlob;
-
-				D3D12_DESCRIPTOR_RANGE rangeCBV[1];
-
-				/*range[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
-				range[0].RegisterSpace = shader->m_SignatureSR.RegisterSpace;
-				range[0].BaseShaderRegister = shader->m_SignatureSR.BaseRegisterSlot;
-				range[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-				range[0].NumDescriptors = shader->m_SignatureSR.InputNum;*/
-
-				rangeCBV[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
-				rangeCBV[0].RegisterSpace = 0;
-				rangeCBV[0].BaseShaderRegister = 0;
-				rangeCBV[0].OffsetInDescriptorsFromTableStart = 0 /*D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND*/;
-				rangeCBV[0].NumDescriptors = 1;
-
-
-				D3D12_DESCRIPTOR_RANGE rangeSRV[1];
-
-				rangeSRV[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
-				rangeSRV[0].RegisterSpace = 0;
-				rangeSRV[0].BaseShaderRegister = 0;
-				rangeSRV[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-				rangeSRV[0].NumDescriptors = 1;
-
-				CD3DX12_ROOT_PARAMETER params[1];
-
-				/*params.emplace_back().InitAsDescriptorTable(static_cast<UINT>(rangeSRV.size()), rangeSRV.data(), D3D12_SHADER_VISIBILITY_ALL);*/
-				params[0].InitAsDescriptorTable(_countof(rangeCBV), rangeCBV, D3D12_SHADER_VISIBILITY_ALL);
-
-				auto signatureDesc = CD3DX12_ROOT_SIGNATURE_DESC(_countof(params), params, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT
-					| D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS
-					| D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS
-					| D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS
-					| D3D12_ROOT_SIGNATURE_FLAG_DENY_MESH_SHADER_ROOT_ACCESS);
-
-				if (FAILED(D3D12SerializeRootSignature(&signatureDesc, D3D_ROOT_SIGNATURE_VERSION_1_0, signatureBlob.ReleaseAndGetAddressOf(), errorBlob.ReleaseAndGetAddressOf())))
-				{
-					OutputDebugString(L"TE_DX12: the serialization of rooy signature of Renderer3D is failed!");
-					exit(1);
-				}
-
-				if (FAILED(TE_INSTANCE_API_DX12_GRAPHICDEVICE->CreateRootSignature(0, signatureBlob->GetBufferPointer(), signatureBlob->GetBufferSize(), IID_PPV_ARGS(m_RootSignatures[TE_IDX_SHADERCLASS::FORWARDRENDERING].GetAddressOf()))))
-				{
-					OutputDebugString(L"the Creation of root signature of Renderer3D is failed!");
-					exit(1);
-				}
-			}
 
 
 		}

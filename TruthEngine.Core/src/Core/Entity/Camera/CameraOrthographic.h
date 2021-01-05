@@ -6,6 +6,7 @@ namespace TruthEngine::Core {
 	class CameraOrthographic : public ICamera {
 
 	public:
+		using ICamera::ICamera;
 
 		// Set frustum
 		void SetLens(float frustumWidth, float frustumheight, float zn, float zf);

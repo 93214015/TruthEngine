@@ -5,10 +5,11 @@ namespace TruthEngine::Core {
 
 	enum class EventType : uint8_t {
 		None = 0,
-		WindowClose, WindowResize, WindowFocus, WindowLostFocus, WindowMoved,
+		WindowClose, WindowResize, WindowFocus, WindowLostFocus, WindowMoved, SceneViewportResize,
 		AppTick, AppUpdate, AppProcess,
 		KeyPressed, KeyReleased, KeyTyped,
 		MouseButtonPressed, MouseButtonReleased, MouseMoved, MouseScrolled,
+		EntityAddMesh, EntityAddMaterial,
 		EventTypeNum
 	};
 
@@ -18,8 +19,12 @@ namespace TruthEngine::Core {
 		EventCategoryInput =			BIT(1),
 		EventCategoryKeyboard =			BIT(2),
 		EventCategoryMouse =			BIT(3),
-		EventCategoryMouseButton =		BIT(4)
+		EventCategoryMouseButton =		BIT(4),
+		EventCategoryEntity =			BIT(5),
 	};
+
+
+
 
 #define EVENT_CLASS_TYPE(type) static EventType GetStaticEventType(){ return EventType::##type; }\
 							   virtual EventType GetEventType() const override {return GetStaticEventType();}\
@@ -52,11 +57,12 @@ namespace TruthEngine::Core {
 	}
 
 
+	using EventListener = std::function<void(Event&)>;
+
 
 	class EventDispatcher
 	{
 	public:
-		using EventListener = std::function<void(Event&)>;
 
 		void RegisterListener(const EventType eventType, const EventListener& eventFunc);
 		void OnEvent(Event& event);

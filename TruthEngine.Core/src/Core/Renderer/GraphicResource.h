@@ -23,8 +23,8 @@ namespace TruthEngine::Core
 
 	public:
 
-		GraphicResource(const char* name
-			, TE_RESOURCE_USAGE usage
+		GraphicResource(
+			TE_RESOURCE_USAGE usage
 			, TE_RESOURCE_TYPE type
 			, TE_RESOURCE_STATES initState
 		);
@@ -41,7 +41,6 @@ namespace TruthEngine::Core
 		uint64_t GetRequiredSize() const;
 
 	protected:
-		std::string m_Name;
 		uint32_t m_ResourceIndex = -1; /* , m_ViewIndex = -1;*/
 		TE_RESOURCE_USAGE m_Usage = TE_RESOURCE_USAGE_UNKNOWN;
 		TE_RESOURCE_TYPE m_Type = TE_RESOURCE_TYPE::UNKNOWN;

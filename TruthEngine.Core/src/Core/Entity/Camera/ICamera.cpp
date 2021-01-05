@@ -1,30 +1,57 @@
 #include "pch.h"
 #include "ICamera.h"
 
+#include "Core/Event/Event.h"
+#include "Core/Event/EventKey.h"
+#include "Core/Event/EventMouse.h"
+
+#include "Core/Application.h"
+#include "Core/Input/InputManager.h"
+
 using namespace DirectX;
 
 
 namespace TruthEngine::Core {
 
 
-	ICamera::ICamera()
-		: m_Position(0.0f, 0.0f, 0.0f),
+	ICamera::ICamera(std::string_view name)
+		: m_Name(name),
+		m_Position(0.0f, 0.0f, 0.0f),
 		m_Right(1.0f, 0.0f, 0.0f),
 		m_Up(0.0f, 1.0f, 0.0f),
 		m_Look(0.0f, 0.0f, 1.0f),
-		m_Speed(350.0)
+		m_Speed(1.0),
+		m_Active(false)
 	{
-		
+		auto lambda_onMouseMove = [this](Event& event)
+		{
+			OnMouseMove(static_cast<EventMouseMoved&>(event));
+		};
+
+		TE_INSTANCE_APPLICATION->RegisterEventListener(EventType::MouseMoved, lambda_onMouseMove);
+
+
+
+		auto lambda_onKeyPressed = [this](Event& event)
+		{
+			OnKeyPressed(static_cast<EventKeyPressed&>(event));
+		};
+
+		TE_INSTANCE_APPLICATION->RegisterEventListener(EventType::KeyPressed, lambda_onKeyPressed);
+	}
+
+	void ICamera::Active()
+	{
+		m_Active = true;
+	}
+
+	void ICamera::Deactive()
+	{
+		m_Active = false;
 	}
 
 
-	XMVECTOR ICamera::GetPositionXM()const
-	{
-		return XMLoadFloat3(&m_Position);
-	}
-
-
-	XMFLOAT3 ICamera::GetPosition()const
+	float3 ICamera::GetPosition()const
 	{
 		return m_Position;
 	}
@@ -32,47 +59,32 @@ namespace TruthEngine::Core {
 
 	void ICamera::SetPosition(float x, float y, float z)
 	{
-		m_Position = XMFLOAT3(x, y, z);
+		m_Position = float3(x, y, z);
 	}
 
 
-	void ICamera::SetPosition(const XMFLOAT3& v)
+	void ICamera::SetPosition(const float3& v)
 	{
 		m_Position = v;
 	}
 
 
-	XMVECTOR ICamera::GetRightXM()const
-	{
-		return XMLoadFloat3(&m_Right);
-	}
 
-
-	XMFLOAT3 ICamera::GetRight()const
+	float3 ICamera::GetRight()const
 	{
 		return m_Right;
 	}
 
 
-	XMVECTOR ICamera::GetUpXM()const
-	{
-		return XMLoadFloat3(&m_Up);
-	}
 
-
-	XMFLOAT3 ICamera::GetUp()const
+	float3 ICamera::GetUp()const
 	{
 		return m_Up;
 	}
 
 
-	XMVECTOR ICamera::GetLookXM()const
-	{
-		return XMLoadFloat3(&m_Look);
-	}
 
-
-	XMFLOAT3 ICamera::GetLook()const
+	float3 ICamera::GetLook()const
 	{
 		return m_Look;
 	}
@@ -105,101 +117,71 @@ namespace TruthEngine::Core {
 	}
 
 
-	void ICamera::LookAt(const XMFLOAT3& pos, const XMFLOAT3& target, const XMFLOAT3& up)
+	void ICamera::LookAt(const float3& pos, const float3& target, const float3& up)
 	{
-		XMVECTOR P = XMLoadFloat3(&pos);
-		XMVECTOR T = XMLoadFloat3(&target);
-		XMVECTOR U = XMLoadFloat3(&up);
+		XMVECTOR P = ToXM(pos);
+		XMVECTOR T = ToXM(target);
+		XMVECTOR U = ToXM(up);
 
 		LookAt(P, T, U);
 	}
 
 
-	XMMATRIX ICamera::GetViewXM()const
-	{
-		return XMLoadFloat4x4(&m_View);
-	}
 
-
-	XMMATRIX ICamera::GetViewInvXM()const
-	{
-		return XMMatrixInverse(nullptr, GetViewXM());
-	}
-
-
-	XMMATRIX ICamera::GetViewProjInvXM() const
-	{
-		return XMMatrixInverse(nullptr, XMMatrixMultiply(GetViewXM(), GetProjXM()));
-	}
-
-
-	XMMATRIX ICamera::GetProjXM()const
-	{
-		return XMLoadFloat4x4(&m_Proj);
-	}
-
-
-	XMMATRIX ICamera::GetProjInvXM() const
-	{
-		return XMMatrixInverse(nullptr, GetProjXM());
-	}
-
-
-	XMMATRIX ICamera::GetViewProjXM()const
-	{
-		return XMMatrixMultiply(GetViewXM(), GetProjXM());
-	}
-
-
-	XMFLOAT4X4 ICamera::GetView() const 
+	float4x4 ICamera::GetView() const 
 	{
 		return m_View;
 	}
 
 
-	XMFLOAT4X4 ICamera::GetViewInv() const 
+	float4x4 ICamera::GetViewInv() const 
 	{
-		const auto viewInv = XMMatrixInverse(nullptr, GetViewXM());
-		XMFLOAT4X4 r;
+		auto XMView = ToXM(m_View);
+
+		const auto viewInv = XMMatrixInverse(nullptr, XMView);
+		float4x4 r;
 		XMStoreFloat4x4(&r, viewInv);
 		return r;
 	}
 
 
-	XMFLOAT4X4 ICamera::GetProj() const 
+	float4x4 ICamera::GetProj() const 
 	{
 		return m_Proj;
 	}
 
 
-	DirectX::XMFLOAT4X4 ICamera::GetProjInv() const
+	float4x4 ICamera::GetProjInv() const
 	{
-		const auto viewInv = XMMatrixInverse(nullptr, GetProjXM());
-		XMFLOAT4X4 r;
-		XMStoreFloat4x4(&r, viewInv);
-		return r;
+		return Inverse(m_Proj);
 	}
 
 
-	XMFLOAT4X4 ICamera::GetViewProj() const
+	float4x4 ICamera::GetViewProj() const
 	{
-		XMFLOAT4X4 vp;
-		XMStoreFloat4x4(&vp, XMMatrixMultiply(GetViewXM(), GetProjXM()));
+		auto XMView = XMLoadFloat4x4(&m_View);
+		auto XMProj = XMLoadFloat4x4(&m_Proj);
+
+		float4x4 vp;
+		XMStoreFloat4x4(&vp, XMMatrixMultiply(XMView, XMProj));
 		return vp;
 	}
 
 
-	DirectX::XMFLOAT4X4 ICamera::GetViewProjInv() const
+	float4x4 ICamera::GetViewProjInv() const
 	{
-		XMFLOAT4X4 vpInv;
-		XMStoreFloat4x4(&vpInv, XMMatrixInverse(nullptr, XMMatrixMultiply(GetViewXM(), GetProjXM())));
+		auto XMView = XMLoadFloat4x4(&m_View);
+		auto XMProj = XMLoadFloat4x4(&m_Proj);
+
+		float4x4 vpInv;
+		XMStoreFloat4x4(&vpInv, XMMatrixInverse(nullptr, XMMatrixMultiply(XMView, XMProj)));
 		return vpInv;
 	}
 
 
-	XMFLOAT4 ICamera::GetPerspectiveValues()const 
+	float4 ICamera::GetPerspectiveValues()const 
 	{
-		return 	XMFLOAT4((1 / m_Proj._11), (1 / m_Proj._22), m_Proj._33, m_Proj._43);
+		return 	float4((1 / m_Proj._11), (1 / m_Proj._22), m_Proj._33, m_Proj._43);
 	}
 
 
@@ -211,6 +193,8 @@ namespace TruthEngine::Core {
 		XMVECTOR r = XMLoadFloat3(&m_Right);
 		XMVECTOR p = XMLoadFloat3(&m_Position);
 		XMStoreFloat3(&m_Position, XMVectorMultiplyAdd(s, r, p));
+
+		UpdateViewMatrix();
 	}
 
 
@@ -222,6 +206,8 @@ namespace TruthEngine::Core {
 		XMVECTOR l = XMLoadFloat3(&m_Look);
 		XMVECTOR p = XMLoadFloat3(&m_Position);
 		XMStoreFloat3(&m_Position, XMVectorMultiplyAdd(s, l, p));
+
+		UpdateViewMatrix();
 	}
 
 
@@ -233,6 +219,8 @@ namespace TruthEngine::Core {
 
 		XMStoreFloat3(&m_Up, XMVector3TransformNormal(XMLoadFloat3(&m_Up), R));
 		XMStoreFloat3(&m_Look, XMVector3TransformNormal(XMLoadFloat3(&m_Look), R));
+
+		UpdateViewMatrix();
 	}
 
 
@@ -245,6 +233,8 @@ namespace TruthEngine::Core {
 		XMStoreFloat3(&m_Right, XMVector3TransformNormal(XMLoadFloat3(&m_Right), R));
 		XMStoreFloat3(&m_Up, XMVector3TransformNormal(XMLoadFloat3(&m_Up), R));
 		XMStoreFloat3(&m_Look, XMVector3TransformNormal(XMLoadFloat3(&m_Look), R));
+
+		UpdateViewMatrix();
 	}
 
 
@@ -257,7 +247,7 @@ namespace TruthEngine::Core {
 
 		RotateY(angle);
 
-		//mUpdated = true;
+		UpdateViewMatrix();
 	}
 
 
@@ -310,8 +300,11 @@ namespace TruthEngine::Core {
 
 	void ICamera::CreateBoundingFrustum()
 	{
-		BoundingFrustum::CreateFromMatrix(m_BoundingFrustum, GetProjXM());
-		const auto InvView = XMMatrixInverse(nullptr, GetViewXM());
+		auto XMView = XMLoadFloat4x4(&m_View);
+		auto XMProj = XMLoadFloat4x4(&m_Proj);
+
+		BoundingFrustum::CreateFromMatrix(m_BoundingFrustum, XMProj);
+		const auto InvView = XMMatrixInverse(nullptr, XMView);
 		m_BoundingFrustum.Transform(m_BoundingFrustum, InvView);
 	}
 
@@ -327,61 +320,49 @@ namespace TruthEngine::Core {
 		return m_BoundingFrustum.Contains(_boundingBox);
 	}
 
-
-	std::vector<std::vector<XMFLOAT4>> ICamera::SplitFrustum() const
+	void ICamera::OnMouseMove(EventMouseMoved& event)
 	{
-		const std::vector<float> viewDistance{ m_NearZ, m_NearZ + 50, m_NearZ + 150, m_NearZ + 500, m_FarZ };
-
-		std::vector<XMFLOAT4> projSplitPlanes(4, XMFLOAT4(0.0, 0.0, 0.0, 1.0f));
-		std::vector<std::vector<XMFLOAT4>> worldSplitPlanes(viewDistance.size(), std::vector<XMFLOAT4>(4, XMFLOAT4(0.0, 0.0, 0.0, 1.0f)));
-
-		projSplitPlanes[0].x = -1.0f;
-		projSplitPlanes[0].y = 1.0f;
-
-		projSplitPlanes[1].x = 1;
-		projSplitPlanes[1].y = 1;
-
-		projSplitPlanes[2].x = 1;
-		projSplitPlanes[2].y = -1;
-
-		projSplitPlanes[3].x = -1;
-		projSplitPlanes[3].y = -1;
-
-		int i = 0;
-
-		for (const auto d : viewDistance)
+		if (m_Active)
 		{
-			worldSplitPlanes[i].resize(4, XMFLOAT4(0.0, 0.0, 0.0, 1.0f));
-
-
-			const auto p = XMFLOAT4(0, 0, viewDistance[i], 1);
-			const auto v = XMVector4Transform(XMLoadFloat4(&p), GetProjXM());
-			XMFLOAT4 v1;
-			XMStoreFloat4(&v1, v);
-			v1.z /= v1.w;
-
-
-
-			for (int j = 0; j < 4; ++j)
+			if (InputManager::IsMouseRightDown())
 			{
+				float dx_angle = XMConvertToRadians(0.25f * static_cast<float>(InputManager::GetDX()));
+				float dy_angle = XMConvertToRadians(0.25f * static_cast<float>(InputManager::GetDY()));
 
-				projSplitPlanes[j].z = v1.z;
+				Pitch(dy_angle / 10);
+				RotateY(dx_angle / 10);
 
-				//projSplitPlanes[j].z *= viewDistance[i];
-
-
-				XMVECTOR worldpoint = XMLoadFloat4(&projSplitPlanes[j]);
-				worldpoint = XMVector4Transform(XMLoadFloat4(&projSplitPlanes[j]), GetViewProjInvXM());
-				worldpoint = XMVectorScale(worldpoint, 1 / XMVectorGetW(worldpoint));
-
-				XMStoreFloat4(&worldSplitPlanes[i][j], worldpoint);
-
+				UpdateViewMatrix();
 			}
-
-			i++;
 		}
+	}
 
-		return worldSplitPlanes;
+	void ICamera::OnKeyPressed(EventKeyPressed& event)
+	{
+		if (m_Active)
+		{
+			float dt = TE_INSTANCE_APPLICATION->FrameTime();
+			switch (event.GetKeyCode())
+			{
+			case 'W':
+				Walk(dt);
+				return;
+			case 'S':
+				Walk(-dt);
+				return;
+			case 'A':
+				Strafe(-dt);
+				break;
+			case'D':
+				Strafe(dt);
+				break;
+			case 'Q':
+				RotateCamera(dt);
+				break;
+			default:
+				break;
+			}
+		}
 	}
 
 }

@@ -7,6 +7,11 @@ namespace TruthEngine::Core {
 	class InputManager {
 
 	public:
+		static void ProcessInput();
+
+		static void RegisterKey(const KeyCode key);
+		static void UnRegisterKey(const KeyCode key);
+
 		static void OnKeyPressed(const KeyCode key);
 		static void OnKeyReleased(const KeyCode key);
 
@@ -34,6 +39,8 @@ namespace TruthEngine::Core {
 		InputManager() = default;
 
 	private:
+
+		static std::list<KeyCode> m_RegisteredKeys;
 
 		static int m_MouseX, m_MouseY, m_MouseLastX, m_MouseLastY;
 

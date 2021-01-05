@@ -1,16 +1,55 @@
 #include "pch.h"
 #include "MaterialManager.h"
 
+
+#include "Core/Application.h"
+#include "Core/Event/EventEntity.h"
+
+
 namespace TruthEngine::Core
 {
+
+
+	MaterialManager::MaterialManager()
+	{
+	}
 
 	void MaterialManager::Init(BufferManager* bufferManager)
 	{
 		m_BufferManager = bufferManager;
-
-		auto& mat = m_Materials.emplace_back();
-		mat.m_ID = 0;
-
 	}
+
+	Material* MaterialManager::AddMaterial(
+		 RendererStateSet states
+		, uint8_t shaderProperties
+		, float4 colorDiffuse
+		, float3 fresnelR0
+		, float shininess
+		, uint32_t diffuseMapIndex
+		, uint32_t normalMapIndex
+		, uint32_t displacementMapIndex
+		, int32_t extraDepthBias
+		, float extraSlopeScaledDepthBias
+		, float extraDepthBiasClamp)
+	{
+		auto ID = static_cast<uint32_t>(m_Map_Materials.size());
+
+		auto material = std::make_shared<Material>(ID, states, shaderProperties, colorDiffuse, fresnelR0, shininess, diffuseMapIndex, normalMapIndex, displacementMapIndex, extraDepthBias, extraSlopeScaledDepthBias, extraDepthBiasClamp);
+
+		m_Map_Materials[ID] = material;
+		m_Materials.push_back(material.get());
+
+		EventEntityAddMaterial event(material.get());
+
+		TE_INSTANCE_APPLICATION->OnEvent(event);		
+
+		return material.get();
+	}
+
+	void MaterialManager::AddSampleMaterial()
+	{
+		AddMaterial(InitRenderStates(), 0, float4{1.0f, 0.0f, 0.0f, 1.0f}, float3{ 0.3f, 0.3f, 0.3f}, 0.7f, -1, -1, -1, 0, 0.0f, 0.0f);
+	}
+
 
 }

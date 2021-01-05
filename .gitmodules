@@ -1,12 +1,20 @@
 [submodule "Dependencies/spdlog"]
 	path = Dependencies/spdlog
 	url = https://github.com/gabime/spdlog
+	ignore = all
 [submodule "Dependencies/DirectXMath"]
 	path = Dependencies/DirectXMath
 	url = https://github.com/microsoft/DirectXMath
+	ignore = all
 [submodule "Dependencies/imgui"]
 	path = Dependencies/imgui
 	url = https://github.com/ocornut/imgui
+	ignore = all
 [submodule "Dependencies/DirectXGraphicsSamples"]
 	path = Dependencies/DirectXGraphicsSamples
 	url = https://github.com/microsoft/DirectX-Graphics-Samples
+	ignore = all
+[submodule "Dependencies/DirectXTK12"]
+	path = Dependencies/DirectXTK12
+	url = https://github.com/microsoft/DirectXTK12
+	ignore = all

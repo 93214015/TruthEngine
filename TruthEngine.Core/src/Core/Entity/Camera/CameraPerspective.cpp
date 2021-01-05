@@ -23,10 +23,7 @@ namespace TruthEngine::Core {
 		XMMATRIX P = XMMatrixPerspectiveFovLH(m_FovY, m_Aspect, m_NearZ, m_FarZ);
 		XMStoreFloat4x4(&m_Proj, P);
 
-
 	}
-
-
 
 
 	float CameraPerspective::GetAspect()const

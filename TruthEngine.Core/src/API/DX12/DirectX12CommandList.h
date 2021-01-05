@@ -18,6 +18,7 @@ namespace TruthEngine
 		class DirectX12BufferManager;
 		class DirectX12ShaderManager;
 		class DirectX12PiplineManager;
+		class DirectX12RootArguments;
 
 
 		class DirectX12CommandList : public Core::CommandList
@@ -71,6 +72,9 @@ namespace TruthEngine
 			void UploadData(Core::Buffer* buffer, const void* data, size_t sizeInByte) override;
 
 
+			void UploadData(Core::ConstantBufferDirectBase* cb) override;
+
+
 			void SetVertexBuffer(Core::VertexBufferBase* vertexBuffer) override;
 
 
@@ -102,11 +106,13 @@ namespace TruthEngine
 
 			bool IsRunning() override;
 
+
+			void WaitToFinish() override;
+
 		protected:
 
 
 			void _BindResource();
-
 
 			void _ChangeResourceState(Core::GraphicResource* resource, TE_RESOURCE_STATES newState);
 
@@ -132,27 +138,28 @@ namespace TruthEngine
 			void _SetDescriptorHeapSRV();
 
 
+
 		protected:
 
 			
 			struct ClearingRenderTarget
 			{
-				ClearingRenderTarget(D3D12_CPU_DESCRIPTOR_HANDLE rtv, Core::TextureRenderTarget::ClearValue clearValue) : RTV(rtv), ClearValue(clearValue)
+				ClearingRenderTarget(D3D12_CPU_DESCRIPTOR_HANDLE rtv, Core::ClearValue_RenderTarget clearValue) : RTV(rtv), ClearValue(clearValue)
 				{}
 
 				D3D12_CPU_DESCRIPTOR_HANDLE RTV;
-				Core::TextureRenderTarget::ClearValue ClearValue;
+				Core::ClearValue_RenderTarget ClearValue;
 			};
 
 
 			struct ClearingDepthStencil
 			{
-				ClearingDepthStencil(D3D12_CPU_DESCRIPTOR_HANDLE dsv, Core::TextureDepthStencil::ClearValue clearValue)
+				ClearingDepthStencil(D3D12_CPU_DESCRIPTOR_HANDLE dsv, Core::ClearValue_DepthStencil clearValue)
 					: DSV(dsv), ClearValue(clearValue)
 				{}
 
 				D3D12_CPU_DESCRIPTOR_HANDLE DSV;
-				Core::TextureDepthStencil::ClearValue ClearValue;
+				Core::ClearValue_DepthStencil ClearValue;
 			};
 
 
@@ -200,6 +207,7 @@ namespace TruthEngine
 
 			COMPTR<ID3D12Resource> m_IntermediateResource;
 
+			const DirectX12RootArguments* m_RootArguments;
 
 			//
 			// friend class

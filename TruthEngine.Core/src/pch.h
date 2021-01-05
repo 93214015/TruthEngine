@@ -15,9 +15,9 @@
 #include <array> //std::array
 #include <chrono>
 #include <future> //std::async & std::future
-#include <unordered_map>
-#include <map>	
-
+#include <unordered_map> //std::unordered_Map
+#include <map>	   //std::map
+#include <variant> //std::varinat
 
 #include "DirectXMath/Inc/DirectXMath.h"
 #include "DirectXMath/Inc/DirectXColors.h"
@@ -31,6 +31,16 @@
 #include "imgui/imgui.h"
 #include "imgui/backends/imgui_impl_win32.h"
 #include "imgui/backends/imgui_impl_dx12.h"
+
+
+
+//////////////////////////////////////////////////////////////////////////
+///Assimp Library Header Files
+//////////////////////////////////////////////////////////////////////////
+#include "assimp/Importer.hpp"
+#include "assimp/scene.h"
+#include "assimp/postprocess.h"
+#include "assimp/config.h"
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -55,6 +65,7 @@
 #define WIN32_LEAN_AND_MEAN             // Exclude rarely-used stuff from Windows headers
 // Windows Header Files
 #include <windows.h>
+#include <windowsx.h>
 #include <wrl/client.h>
 #include <ppl.h>
 

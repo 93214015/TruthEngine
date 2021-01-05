@@ -9,7 +9,7 @@ namespace TruthEngine::API::DirectX12 {
 
 	DirectX12CommandQueue::DirectX12CommandQueue() = default;
 
-	TE_RESULT DirectX12CommandQueue::ExecuteCommandList(DirectX12CommandList* cmdList)
+	/*TE_RESULT DirectX12CommandQueue::ExecuteCommandList(DirectX12CommandList* cmdList)
 	{
 
 		auto c = cmdList->GetNativeObject();
@@ -23,7 +23,7 @@ namespace TruthEngine::API::DirectX12 {
 
 		return TE_SUCCESSFUL;
 
-	}
+	}*/
 
 	TE_RESULT DirectX12CommandQueue::Init(D3D12_COMMAND_LIST_TYPE type, DirectX12GraphicDevice* gDevice)
 	{

@@ -39,6 +39,13 @@ namespace TruthEngine::API::DirectX12 {
 
 	}
 
+	void DirectX12Fence::SetFenceAndEvent(ID3D12CommandQueue* cmdQueue, HANDLE eventHandle)
+	{
+		cmdQueue->Signal(m_Fence.Get(), m_Value);
+		m_Fence->SetEventOnCompletion(m_Value, eventHandle);
+		m_Value++;
+	}
+
 
 	HANDLE DirectX12Fence::SetEvent(uint64_t value, LPCWSTR eventName)
 	{
@@ -53,16 +60,9 @@ namespace TruthEngine::API::DirectX12 {
 		}
 	}
 
-	int DirectX12Fence::SetEvent(uint64_t value, HANDLE eventHandle)
+	void DirectX12Fence::SetEvent(uint64_t value, HANDLE eventHandle)
 	{
-		if (m_Fence->GetCompletedValue() < value)
-		{
-			m_Fence->SetEventOnCompletion(value, eventHandle);
-			return 1;
-		}
-		else {
-			return 0;
-		}
+		m_Fence->SetEventOnCompletion(value, eventHandle);
 	}
 
 	bool DirectX12Fence::Completed(uint64_t value)

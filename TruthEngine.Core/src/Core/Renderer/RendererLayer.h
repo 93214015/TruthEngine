@@ -3,6 +3,7 @@
 
 #include "BufferManager.h"
 #include "RendererCommand.h"
+#include "RenderPassStack.h"
 
 #include "RenderPass/RenderPass_ForwardRendering.h"
 
@@ -11,9 +12,12 @@ namespace TruthEngine::Core
 {
 	class ModelManager;
 	class ImGuiLayer;
+	class EventWindowResize;
+	class EventSceneViewportResize;
+	class EventEntityAddMaterial;
 
 	template<class T> class ConstantBufferUpload;
-	class ConstantBuffer_Data_Per_Frame;
+	struct ConstantBuffer_Data_Per_Frame;
 
 	class RendererLayer : public Layer
 	{
@@ -42,14 +46,21 @@ namespace TruthEngine::Core
 
 
 	private:
+		void RegisterEvents();
+
+		void OnWindowResize(const EventWindowResize& event);
+		void OnSceneViewportResize(const EventSceneViewportResize& event);
+		void OnAddMaterial(const EventEntityAddMaterial& event);
 
 
 	private:
 		RendererCommand m_RendererCommand;
 
+		RenderPassStack m_RenderPassStack;
+
 		std::shared_ptr<ImGuiLayer> m_ImGuiLayer;
 
-		std::shared_ptr<RenderPass_ForwardRendering> m_Renderer3D;
+		std::shared_ptr<RenderPass_ForwardRendering> m_RenderPass_ForwardRendering;
 
 		std::shared_ptr<ModelManager> m_ModelManagers;
 
@@ -57,9 +68,11 @@ namespace TruthEngine::Core
 
 		std::vector<const Model3D*> m_Model3DQueue;
 
-		RenderTargetView m_RTVBackBuffer;
+		RenderTargetView m_RTVBackBuffer, m_RTVSceneBuffer;
 
 		ConstantBufferUpload<ConstantBuffer_Data_Per_Frame>* m_CB_PerFrame;
+		ConstantBufferUpload<ConstantBuffer_Data_Per_DLight>* m_CB_PerDLight;
+		ConstantBufferUpload<ConstantBuffer_Data_Materials>* m_CB_Materials;
 
 		bool m_EnabledImGuiLayer = true;
 

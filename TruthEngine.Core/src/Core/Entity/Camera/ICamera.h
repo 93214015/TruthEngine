@@ -2,57 +2,56 @@
 
 namespace TruthEngine::Core {
 
+	class EventMouseMoved;
+	class EventKeyPressed;
+
 	class ICamera
 	{
 
 	public:
-		ICamera();
+		ICamera(std::string_view name);
+
+		void Active();
+		void Deactive();
 
 		// Get/Set world camera position.
-		DirectX::XMFLOAT3 GetPosition()const;
-		DirectX::XMVECTOR GetPositionXM()const;
+		float3 GetPosition()const;
 		void SetPosition(float x, float y, float z);
-		void SetPosition(const DirectX::XMFLOAT3& v);
+		void SetPosition(const float3& v);
 
 		// Get camera basis vectors.
-		DirectX::XMFLOAT3 GetRight()const;
-		DirectX::XMVECTOR GetRightXM()const;
-		DirectX::XMFLOAT3 GetUp()const;
-		DirectX::XMVECTOR GetUpXM()const;
-		DirectX::XMFLOAT3 GetLook()const;
-		DirectX::XMVECTOR GetLookXM()const;
+		float3 GetRight()const;
+		float3 GetUp()const;
+		float3 GetLook()const;
 
 		// Get frustum properties.
 		float GetNearZ()const;
 		float GetFarZ()const;
 
-
+		inline void SetSpeed(const float speed)noexcept
+		{
+			m_Speed = speed;
+		}
 
 
 		// Define camera space via LookAt parameters.
 		void XM_CALLCONV LookAt(DirectX::FXMVECTOR pos, DirectX::FXMVECTOR target, DirectX::FXMVECTOR worldUp);
-		void LookAt(const DirectX::XMFLOAT3& pos, const DirectX::XMFLOAT3& target, const DirectX::XMFLOAT3& up);
+		void LookAt(const float3& pos, const float3& target, const float3& up);
 
 		// Get View/Proj matrices.
-		DirectX::XMFLOAT4X4 GetView()const;
-		DirectX::XMMATRIX GetViewXM()const;
+		float4x4 GetView()const;
 
-		DirectX::XMFLOAT4X4 GetViewInv()const;
-		DirectX::XMMATRIX GetViewInvXM()const;
+		float4x4 GetViewInv()const;
 
-		DirectX::XMFLOAT4X4 GetProj()const;
-		DirectX::XMMATRIX GetProjXM()const;
+		float4x4 GetProj()const;
 
-		DirectX::XMFLOAT4X4 GetProjInv()const;
-		DirectX::XMMATRIX GetProjInvXM()const;
+		float4x4 GetProjInv()const;
 
-		DirectX::XMFLOAT4X4 GetViewProj()const;
-		DirectX::XMMATRIX GetViewProjXM()const;
+		float4x4 GetViewProj()const;
 
-		DirectX::XMFLOAT4X4 GetViewProjInv()const;
-		DirectX::XMMATRIX GetViewProjInvXM()const;
+		float4x4 GetViewProjInv()const;
 
-		DirectX::XMFLOAT4 GetPerspectiveValues()const;
+		float4 GetPerspectiveValues()const;
 
 		// Strafe/Walk the camera a distance d.
 		void Strafe(float d);
@@ -75,17 +74,19 @@ namespace TruthEngine::Core {
 		//check state of bounding box state relative to Camera Frustum
 		DirectX::ContainmentType BoundingBoxContainment(const DirectX::BoundingBox& _boundingBox) const;
 
-		//Split view frustum to several frustum
-		std::vector<std::vector<DirectX::XMFLOAT4>> SplitFrustum()const;
-
+	protected:
+		void OnMouseMove(EventMouseMoved& event);
+		void OnKeyPressed(EventKeyPressed& event);
 
 	protected:
+		std::string m_Name;
+
 
 		// Camera coordinate system with coordinates relative to world space.
-		DirectX::XMFLOAT3 m_Position;
-		DirectX::XMFLOAT3 m_Right;
-		DirectX::XMFLOAT3 m_Up;
-		DirectX::XMFLOAT3 m_Look;
+		float3 m_Position;
+		float3 m_Right;
+		float3 m_Up;
+		float3 m_Look;
 
 		// Cache frustum properties.
 		float m_NearZ;
@@ -95,13 +96,20 @@ namespace TruthEngine::Core {
 		float m_Speed;
 
 		// Cache View/Proj matrices.
-		DirectX::XMFLOAT4X4 m_View;
-		DirectX::XMFLOAT4X4 m_Proj;
+		float4x4 m_View;
+		float4x4 m_Proj;
 
 		//Bounding Frustum
 		DirectX::BoundingFrustum m_BoundingFrustum;
 
+		bool m_Active;
 
+
+
+		//
+		// Friend Classes
+		//
+		friend class CameraManager;
 	};
 
 }

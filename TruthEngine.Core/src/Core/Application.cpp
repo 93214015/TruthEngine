@@ -2,10 +2,18 @@
 #include "Core/Application.h"
 #include "Core/Renderer/GraphicDevice.h"
 #include "Core/Entity/Model/ModelManager.h"
+#include "Core/Entity/Light/LightManager.h"
+
+#include "Core/Event/EventApplication.h"
+
+#include "Core/Entity/Camera/CameraPerspective.h"
+#include "Core/Entity/Camera/CameraManager.h"
+
+#include "Core/Input/InputManager.h"
 
 namespace TruthEngine::Core {
 
-	Application::Application(const char* title, uint32_t clientWidth, uint32_t clientHeight) : m_Title(title), m_ClientWidth(clientWidth), m_ClientHeight(clientHeight)
+	Application::Application(const char* title, uint32_t clientWidth, uint32_t clientHeight, uint8_t framesInFlightNum) : m_Title(title), m_ClientWidth(clientWidth), m_ClientHeight(clientHeight), m_FramesInFlightNum(framesInFlightNum)
 	{
 
 		TE_ASSERT_CORE(!s_Instance, "Aplication already exists!");
@@ -15,13 +23,22 @@ namespace TruthEngine::Core {
 
 		m_Window->SetEventCallBack(std::bind(&EventDispatcher::OnEvent, &m_EventDispatcher, std::placeholders::_1));
 
-		m_RendererLayer.reset(new RendererLayer());
-
-
+		m_RendererLayer = std::make_shared<RendererLayer>();
+		
 	}
 
 	Application::~Application() = default;
 
+
+	void Application::ResizeSceneViewport(uint32_t width, uint32_t height) noexcept
+	{
+		m_SceneViewportWidth = width;
+		m_SceneViewportHeight = height;
+
+		EventSceneViewportResize event{width, height};
+
+		OnEvent(event);
+	}
 
 	void Application::Run()
 	{
@@ -37,32 +54,15 @@ namespace TruthEngine::Core {
 
 		m_EventDispatcher.RegisterListener(EventType::WindowClose, [this](const Event& e) { this->m_Running = false; });
 
-		m_LayerStack.PushOverlay(m_RendererLayer.get());
-
 		m_Timer.Reset();
+
+		OnInit();
 
 		while (m_Running)
 		{
-
 			m_Timer.Tick();
 
-			m_RendererLayer->BeginRendering();
-
-			for (auto layer : m_LayerStack)
-			{
-				layer->OnUpdate(m_Timer.DeltaTime());
-			}
-
-			if (m_RendererLayer->BeginImGuiLayer())
-			{
-				for (auto layer : m_LayerStack)
-				{
-					layer->OnImGuiRender();
-				}
-			m_RendererLayer->EndImGuiLayer();
-			}
-
-			m_RendererLayer->EndRendering();
+			OnUpdate();
 
 			m_Window->OnUpdate();
 

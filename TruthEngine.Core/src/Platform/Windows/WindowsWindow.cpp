@@ -5,6 +5,8 @@
 #include "WindowsWindow.h"
 #include "Core/Event/EventApplication.h"
 
+#include "Core/Input/InputManager.h"
+
 #include "Core/Renderer/SwapChain.h"
 
 //forward declaration of ImGui function for processing window events.
@@ -35,8 +37,15 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPara
 	case WM_ACTIVATEAPP:
 		return 0;
 
-	case WM_INPUT:
+	case WM_SIZE:
+		windowData->CallBack(TruthEngine::Core::EventWindowResize{ LOWORD(lParam), HIWORD(lParam) });
+		return 0;
+
+
 	case WM_MOUSEMOVE:
+		TruthEngine::Core::InputManager::OnMouseMove(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+
+	case WM_INPUT:
 	case WM_LBUTTONDOWN:
 	case WM_LBUTTONUP:
 	case WM_RBUTTONDOWN:

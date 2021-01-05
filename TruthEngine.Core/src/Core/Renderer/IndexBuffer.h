@@ -13,7 +13,7 @@ namespace TruthEngine
 		class IndexBuffer : public Buffer
 		{
 		public:
-			IndexBuffer() : Buffer("", 0, TE_RESOURCE_USAGE_INDEXBUFFER, TE_RESOURCE_STATES::COPY_DEST)
+			IndexBuffer() : Buffer(0, TE_RESOURCE_USAGE_INDEXBUFFER, TE_RESOURCE_STATES::COPY_DEST)
 			{}
 
 			inline size_t GetBufferSize() const noexcept
@@ -49,6 +49,17 @@ namespace TruthEngine
 			inline uint32_t GetViewIndex() const noexcept
 			{
 				return m_ViewIndex;
+			}
+
+			inline void ReserveSpace(uint32_t size) noexcept
+			{
+				m_Indecies.reserve(size);
+			}
+
+			inline void AddSpace(uint32_t size) noexcept
+			{
+				auto currentSpace = m_Indecies.size();
+				m_Indecies.reserve(currentSpace + size);
 			}
 
 		protected:

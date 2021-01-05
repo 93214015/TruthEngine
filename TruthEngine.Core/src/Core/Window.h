@@ -2,7 +2,7 @@
 #include "Event/Event.h"
 
 namespace TruthEngine::Core {
-	
+
 	class Window {
 
 	public:
@@ -28,10 +28,13 @@ namespace TruthEngine::Core {
 
 		virtual void* GetNativeWindowHandle() = 0;
 
-        virtual void SetEventCallBack(const EventCallBack& fn) { m_Data.CallBack = fn; };
+		virtual void SetEventCallBack(const EventCallBack& fn) { m_Data.CallBack = fn; };
 
 		uint16_t GetWidth() { return m_Data.Width; }
 		uint16_t GetHeight() { return m_Data.Height; }
+
+	protected:
+
 
 	protected:
 

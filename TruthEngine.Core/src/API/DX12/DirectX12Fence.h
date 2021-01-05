@@ -12,8 +12,9 @@ namespace TruthEngine::API::DirectX12 {
 
 		uint64_t SetFence(ID3D12CommandQueue* cmdQueue);
 		HANDLE SetFenceAndEvent(ID3D12CommandQueue* cmdQueue, LPCWSTR eventName);
+		void SetFenceAndEvent(ID3D12CommandQueue* cmdQueue, HANDLE eventHandle);
 		HANDLE SetEvent(uint64_t value, LPCWSTR eventName);
-		int SetEvent(uint64_t value, HANDLE eventHandle);
+		void SetEvent(uint64_t value, HANDLE eventHandle);
 		bool Completed(uint64_t value);
 	protected:
 

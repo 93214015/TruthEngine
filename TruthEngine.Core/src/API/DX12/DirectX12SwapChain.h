@@ -8,23 +8,20 @@
 
 namespace TruthEngine::API::DirectX12 {
 
+
 	class DirectX12SwapChain : public TruthEngine::Core::SwapChain
 	{
 
 	public:
 		static inline DirectX12SwapChain& GetInstance() { return s_SwapChain; }
 
-		TE_RESULT Init(UINT clientWidth, UINT clientHeight, HWND outputHWND, UINT backBufferNum = 2);
+		TE_RESULT Init(UINT clientWidth, UINT clientHeight, Core::Window* outputWindow, UINT backBufferNum = 2) override;
 
-		TE_RESULT Resize(UINT width, UINT height, UINT backBufferNum);
+		void Release() override;
 
-		uint32_t InitRTVs(DescriptorHeapRTV* descHeap);
+		TE_RESULT Resize(UINT width, UINT height, UINT backBufferNum) override;
 
-// 		inline void ChangeResourceState(D3D12_RESOURCE_BARRIER& barrier, D3D12_RESOURCE_STATES stateAfter) 
-// 		{
-// 			barrier = CD3DX12_RESOURCE_BARRIER::Transition(GetBackBufferResource(), GetBackBufferState(), stateAfter);
-// 		}
-
+		void InitRTVs(DescriptorHeapRTV* descHeap, Core::RenderTargetView* RTV);
 
 		inline ID3D12Resource* GetBackBufferResource() const { return m_BackBuffers[GetCurrentFrameIndex()].Get(); };
 
@@ -40,7 +37,7 @@ namespace TruthEngine::API::DirectX12 {
 
 		void CreateSwapChain(HWND outputHWND);
 
-		uint32_t CreateSwapChainRTVs(DescriptorHeapRTV* descHeap);
+		void CreateSwapChainRTVs(DescriptorHeapRTV* descHeap, Core::RenderTargetView* RTV);
 
 		void CheckDeviceFeatures();
 

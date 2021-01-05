@@ -20,10 +20,17 @@ namespace TruthEngine::API::DirectX12
 
 		m_Fence.Initialize(*this);
 
-		// init singleton object of dx12 swap chain
-		TE_INSTANCE_API_DX12_SWAPCHAIN.Init(TE_INSTANCE_APPLICATION->GetClientWidth(), TE_INSTANCE_APPLICATION->GetClientHeight(), static_cast<HWND>(TE_INSTANCE_APPLICATION->GetWindow()->GetNativeWindowHandle()), TE_INSTANCE_APPLICATION->GetFramesInFlightNum());
+		m_EventGPUWorkFinished_DirectQueue = CreateEvent(NULL, false, true, L"");
+		m_EventGPUWorkFinished_CopyQueue = CreateEvent(NULL, false, true, L"");
 
 		return TE_SUCCESSFUL;
+	}
+
+	void DirectX12GraphicDevice::WaitForGPU()
+	{
+		m_Fence.SetFenceAndEvent(m_CommandQueueDirect.GetNativeObject(), m_EventGPUWorkFinished_DirectQueue);
+
+		WaitForSingleObject(m_EventGPUWorkFinished_DirectQueue, INFINITE);
 	}
 
 	TE_RESULT DirectX12GraphicDevice::CreateDevice(UINT adapterIndex)

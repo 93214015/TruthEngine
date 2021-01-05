@@ -16,9 +16,10 @@ namespace TruthEngine::Core
 	class VertexBufferBase;
 	class IndexBuffer;
 	class ShaderManager;
-	class Viewport;
-	class ViewRect;
 	class BufferUplaod;
+
+	struct ViewRect;
+	struct Viewport;
 
 
 	class CommandList 
@@ -42,6 +43,7 @@ namespace TruthEngine::Core
 		virtual void UpdateConstantBuffer(ConstantBufferUploadBase* cb) = 0;
 
 		virtual void UploadData(Buffer* buffer, const void* data, size_t sizeInByte) = 0;
+		virtual void UploadData(ConstantBufferDirectBase* cb) = 0;
 
 		virtual void SetVertexBuffer(VertexBufferBase* vertexBuffer) = 0;
 		virtual void SetIndexBuffer(IndexBuffer* indexBuffer) = 0;
@@ -63,6 +65,8 @@ namespace TruthEngine::Core
 		virtual void Present() = 0;
 
 		virtual bool IsRunning() = 0;
+
+		virtual void WaitToFinish() = 0;
 
 		static std::shared_ptr<CommandList> Factory(GraphicDevice* graphicDevice, TE_RENDERER_COMMANDLIST_TYPE type, std::shared_ptr<BufferManager> bufferManager, std::shared_ptr<ShaderManager> shaderManager, TE_IDX_RENDERPASS renderPassIDX, TE_IDX_SHADERCLASS shaderClassIDX);
 

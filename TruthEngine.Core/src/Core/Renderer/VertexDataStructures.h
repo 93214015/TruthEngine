@@ -20,10 +20,11 @@ namespace TruthEngine::Core
 			DirectX::XMFLOAT2 TexCoord;
 		};
 
-		struct NormTex 
+		struct NormTanTex 
 		{
-			DirectX::XMFLOAT3 Normal;
-			DirectX::XMFLOAT2 TexCoord;
+			float3 Normal;
+			float3 Tanget;
+			float2 TexCoord;
 		};
 
 		struct PosNormTex 

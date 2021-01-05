@@ -3,11 +3,15 @@
 
 #include "Core/Application.h"
 
+#include "Core/Entity/Model/ModelManager.h"
+
 #include "Platform/Windows/WindowsWindow.h"
 
 #include "API/IDXGI.h"
 #include "API/DX12/DirectX12GraphicDevice.h"
 #include "API/DX12/DirectX12SwapChain.h"
+#include "API/DX12/DirectX12BufferManager.h"
+
 
 
 
@@ -31,7 +35,8 @@ namespace TruthEngine::API::DirectX12 {
 		m_DescHeapSRV.Init(TE_INSTANCE_API_DX12_GRAPHICDEVICE, TE_INSTANCE_APPLICATION->GetFramesInFlightNum());
 		m_DescHeapRTV.Init(TE_INSTANCE_API_DX12_GRAPHICDEVICE, TE_INSTANCE_APPLICATION->GetFramesInFlightNum());
 
-		TE_INSTANCE_API_DX12_SWAPCHAIN.InitRTVs(&m_DescHeapRTV);
+		Core::RenderTargetView rtv;
+		TE_INSTANCE_API_DX12_SWAPCHAIN.InitRTVs(&m_DescHeapRTV, &rtv);
 
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
@@ -50,6 +55,14 @@ namespace TruthEngine::API::DirectX12 {
 			style.Colors[ImGuiCol_WindowBg].w = 1.0f;
 		}
 
+		auto dx12bufferManager = static_cast<DirectX12BufferManager*>(TE_INSTANCE_BUFFERMANAGER.get());
+
+		m_RenderTargetScreenBuffer = dx12bufferManager->GetRenderTarget(TE_IDX_TEXTURE::RT_SCENEBUFFER);
+
+		m_D3D12Resource_ScreenBuffer = dx12bufferManager->GetResource(m_RenderTargetScreenBuffer);
+
+		m_SRVIndexScreenBuffer = m_DescHeapSRV.AddDescriptorSRV(m_D3D12Resource_ScreenBuffer, nullptr);
+
 		HWND hwnd = static_cast<HWND>(TE_INSTANCE_APPLICATION->GetWindow()->GetNativeWindowHandle());
 		ImGui_ImplWin32_Init(hwnd);
 		ImGui_ImplDX12_Init(TE_INSTANCE_API_DX12_GRAPHICDEVICE.GetDevice()
@@ -59,13 +72,12 @@ namespace TruthEngine::API::DirectX12 {
 			, m_DescHeapSRV.GetCPUHandleLast()
 			, m_DescHeapSRV.GetGPUHandleLast());
 
-		
 
 	}
 
 	void DirectX12ImGuiLayer::OnDetach()
 	{
-		TE_TIMER_SCOPE_FUNC;
+		//TE_TIMER_SCOPE_FUNC;
 
 		ImGui_ImplDX12_Shutdown();
 		ImGui_ImplWin32_Shutdown();
@@ -78,12 +90,11 @@ namespace TruthEngine::API::DirectX12 {
 
 	void DirectX12ImGuiLayer::Begin()
 	{
-		TE_TIMER_SCOPE_FUNC;
+		//TE_TIMER_SCOPE_FUNC;
 
 
 		// Our state
 		bool show_demo_window = true;
-		bool show_another_window = false;
 		ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
 
@@ -91,6 +102,10 @@ namespace TruthEngine::API::DirectX12 {
 		ImGui_ImplDX12_NewFrame();
 		ImGui_ImplWin32_NewFrame();
 		ImGui::NewFrame();
+
+		//Set DockPanel
+		ImGui::DockSpaceOverViewport(ImGui::GetMainViewport());
+
 
 		// 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
 		if (show_demo_window)
@@ -105,7 +120,6 @@ namespace TruthEngine::API::DirectX12 {
 
 			ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
 			ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
-			ImGui::Checkbox("Another Window", &show_another_window);
 
 			ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
 			ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
@@ -119,20 +133,37 @@ namespace TruthEngine::API::DirectX12 {
 			ImGui::End();
 		}
 
-		// 3. Show another simple window.
-		if (show_another_window)
+		ImGui::Begin("OpenFile");
+		if (ImGui::Button("Open File Dialog"))
 		{
-			ImGui::Begin("Another Window", &show_another_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
-			ImGui::Text("Hello from another window!");
-			if (ImGui::Button("Close Me"))
-				show_another_window = false;
-			ImGui::End();
+			const std::vector<const char*> fileExtensions = { ".fbx", ".obj" };
+			OpenFileDialog("Open Model", fileExtensions);
 		}
+		m_FileBrowser.Display();
+		ImGui::End();
+		if (CheckFileDialog())
+		{
+			m_CommandList->WaitToFinish();
+			Core::ModelManager::GetInstance()->ImportModel(m_SelectedFile.c_str());
+		}
+
+		ImGui::Begin("SceneViewport");
+		auto viewportSize = ImGui::GetContentRegionAvail();
+		if (viewportSize.x != TE_INSTANCE_APPLICATION->GetSceneViewportWidth() || viewportSize.y != TE_INSTANCE_APPLICATION->GetSceneViewportHeight())
+		{
+ 			if (viewportSize.x > 1 && viewportSize.y > 1)
+			{
+				TE_INSTANCE_APPLICATION->ResizeSceneViewport(static_cast<uint32_t>(viewportSize.x), static_cast<uint32_t>(viewportSize.y));
+				OnSceneViewportResize();
+			}
+		}
+		ImGui::Image((ImTextureID)m_DescHeapSRV.GetGPUHandle(m_SRVIndexScreenBuffer).ptr, viewportSize);
+		ImGui::End();
 	}
 
 	void DirectX12ImGuiLayer::End()
 	{
-		TE_TIMER_SCOPE_FUNC;
+		//TE_TIMER_SCOPE_FUNC;
 
 		const uint32_t currentFrameIndex = TE_INSTANCE_APPLICATION->GetCurrentFrameIndex();
 
@@ -142,19 +173,31 @@ namespace TruthEngine::API::DirectX12 {
 
 		auto& sc = TE_INSTANCE_API_DX12_SWAPCHAIN;
 
-		ID3D12DescriptorHeap* descheaps[] = { m_DescHeapSRV.GetDescriptorHeap() };
+		CD3DX12_RESOURCE_BARRIER barriers[2];
+		uint32_t barrierNum = 0;
+
 		if (sc.GetBackBufferState() != D3D12_RESOURCE_STATE_RENDER_TARGET)
 		{
-			auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(sc.GetBackBufferResource(), sc.GetBackBufferState(), D3D12_RESOURCE_STATE_RENDER_TARGET);
-			dx12CmdList->ResourceBarrier(1, &barrier);
+			barriers[barrierNum] = CD3DX12_RESOURCE_BARRIER::Transition(sc.GetBackBufferResource(), sc.GetBackBufferState(), D3D12_RESOURCE_STATE_RENDER_TARGET);
+			sc.SetBackBufferState(D3D12_RESOURCE_STATE_RENDER_TARGET);
+			barrierNum++;
 		}
+		if (m_RenderTargetScreenBuffer->GetState() != TE_RESOURCE_STATES::PIXEL_SHADER_RESOURCE)
+		{
+			barriers[barrierNum] = CD3DX12_RESOURCE_BARRIER::Transition(m_D3D12Resource_ScreenBuffer, static_cast<D3D12_RESOURCE_STATES>(m_RenderTargetScreenBuffer->GetState()), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+			m_RenderTargetScreenBuffer->SetState(TE_RESOURCE_STATES::PIXEL_SHADER_RESOURCE);
+			barrierNum++;
+		}
+		if (barrierNum > 0)
+		{
+			dx12CmdList->ResourceBarrier(barrierNum, barriers);
+		}
+
+		ID3D12DescriptorHeap* descheaps[] = { m_DescHeapSRV.GetDescriptorHeap() };
 		dx12CmdList->SetDescriptorHeaps(1, descheaps);
 		dx12CmdList->OMSetRenderTargets(1, &m_DescHeapRTV.GetCPUHandle(currentFrameIndex), FALSE, NULL);
 		ImGui::Render();
 		ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), dx12CmdList);
-
-		/*barrier = CD3DX12_RESOURCE_BARRIER::Transition(sc.GetBackBufferResource(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
-		dx12CmdList->ResourceBarrier(1, &barrier);*/
 
 
 		TE_INSTANCE_API_DX12_COMMANDQUEUEDIRECT->ExecuteCommandList(m_CommandList.get());
@@ -167,6 +210,22 @@ namespace TruthEngine::API::DirectX12 {
 			ImGui::RenderPlatformWindowsDefault(NULL, dx12CmdList);
 		}
 	}
+
+	void DirectX12ImGuiLayer::OnSceneViewportResize()
+	{
+		auto dx12bufferManager = static_cast<DirectX12BufferManager*>(TE_INSTANCE_BUFFERMANAGER.get());
+		m_D3D12Resource_ScreenBuffer = dx12bufferManager->GetResource(m_RenderTargetScreenBuffer);
+
+		if (m_SRVIndexScreenBuffer == -1)
+		{
+			m_SRVIndexScreenBuffer = m_DescHeapSRV.AddDescriptorSRV(m_D3D12Resource_ScreenBuffer, nullptr);
+		}
+		else
+		{
+			m_DescHeapSRV.ReplaceDescriptorSRV(m_D3D12Resource_ScreenBuffer, nullptr, m_SRVIndexScreenBuffer);
+		}
+	}
+
 
 }
 
