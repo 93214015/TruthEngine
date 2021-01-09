@@ -207,7 +207,7 @@ namespace TruthEngine
 
 			COMPTR<ID3D12Resource> m_IntermediateResource;
 
-			const DirectX12RootArguments* m_RootArguments;
+			const DirectX12RootArguments* m_RootArguments = nullptr;
 
 			//
 			// friend class

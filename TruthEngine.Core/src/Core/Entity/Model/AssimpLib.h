@@ -7,6 +7,7 @@ namespace TruthEngine
 	namespace Core
 	{
 		class ModelManager;
+		class Scene;
 
 		class AssimpLib
 		{
@@ -14,8 +15,7 @@ namespace TruthEngine
 			AssimpLib();
 			~AssimpLib();
 
-			TE_RESULT ImportModel(const char* filePath);
-
+			TE_RESULT ImportModel(Scene* scene, const char* filePath);
 
 			static AssimpLib* GetInstance()
 			{
@@ -25,15 +25,15 @@ namespace TruthEngine
 
 		protected:
 			void ProcessTextures(const aiScene* scene);
-			void ProcessMaterials(const aiScene* scene);
-			void ProcessNodes(const aiNode* node, const aiScene* scene, const size_t meshOffset);
-			void ProcessMeshes(const aiScene* scene);
+			void ProcessMaterials(Scene* scene, const aiScene* aiscene);
+			void ProcessNodes(const aiNode* node, const aiScene* aiscene, const size_t meshOffset);
+			void ProcessMeshes(Scene* scene, const aiScene* aiscene);
 
 			void AddSpace(const aiScene* scene);
 
 		protected:
 			const char* m_ModelFilePath = nullptr;
-			size_t m_MeshOffset, m_ModelOffset, m_MaterialOffset, m_VertexOffset, m_IndexOffset, m_TextureMaterialOffset;
+			size_t m_MeshOffset, m_ModelOffset, m_MaterialOffset, m_BaseVertexOffset, m_BaseIndexOffset, m_TextureMaterialOffset;
 			ModelManager* m_ModelManager;
 
 		};

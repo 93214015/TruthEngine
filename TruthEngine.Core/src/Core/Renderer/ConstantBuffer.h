@@ -24,7 +24,6 @@ namespace TruthEngine::Core
 		ConstantBuffer(TE_IDX_CONSTANTBUFFER idx);
 
 
-
 		inline TE_IDX_CONSTANTBUFFER GetIDX() const noexcept
 		{
 			return m_IDX;
@@ -35,7 +34,6 @@ namespace TruthEngine::Core
 	protected:
 		TE_IDX_CONSTANTBUFFER m_IDX;
 	};
-
 	
 	
 
@@ -119,8 +117,6 @@ namespace TruthEngine::Core
 
 	protected:
 	};
-
-
 
 
 	class ConstantBufferDirectBase : public ConstantBuffer

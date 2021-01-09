@@ -8,6 +8,7 @@
 #include "Core/TimerEngine.h"
 
 #include "Core/Entity/Camera/CameraPerspective.h"
+#include "Core/Entity/Scene.h"
 
 namespace TruthEngine::Core {
 
@@ -31,6 +32,11 @@ namespace TruthEngine::Core {
 		inline uint32_t GetCurrentFrameIndex() const noexcept { return m_CurrentFrameIndex; }
 
 		inline const char* GetTitle() const noexcept { return m_Title.c_str(); }
+
+		inline Scene* GetActiveScene()
+		{
+			return &m_ActiveScene;
+		}
 
 		inline void RegisterEventListener(EventType eventType, const EventListener& listener)
 		{
@@ -63,9 +69,9 @@ namespace TruthEngine::Core {
 
 		std::shared_ptr<RendererLayer> m_RendererLayer;
 
-
 		TimerEngine m_Timer;
 
+		Scene m_ActiveScene;
 
 		uint32_t m_ClientWidth = 0;
 		uint32_t m_ClientHeight = 0;

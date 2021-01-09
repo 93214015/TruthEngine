@@ -9,11 +9,6 @@ namespace TruthEngine
 	{
 
 
-
-		
-
-
-
 		class DirectX12ShaderManager : public Core::ShaderManager
 		{
 		public:
@@ -32,8 +27,6 @@ namespace TruthEngine
 			uint32_t m_ShaderID = 0;
 
 			std::wstring compileTargetVersion = L"_6_0";
-
-
 
 			struct pImpl;
 

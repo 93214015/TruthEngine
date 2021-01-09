@@ -189,7 +189,7 @@ namespace TruthEngine::API::DirectX12
 
 		//Input Layout
 		std::vector<D3D12_INPUT_ELEMENT_DESC> inputElements;
-		DX12_GET_INPUT_ELEMENTS(shader->GetInputElements(), inputElements);
+		DX12_GET_INPUT_ELEMENTS(*shader->GetInputElements(), inputElements);
 		desc.InputLayout.NumElements = static_cast<UINT>(inputElements.size());
 		desc.InputLayout.pInputElementDescs = inputElements.data();
 

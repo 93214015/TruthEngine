@@ -14,7 +14,7 @@ namespace TruthEngine
 		{
 		public:
 			Mesh();
-			Mesh(uint32_t IndexNum, size_t IndexOffset, size_t VertexOffset, Material* MaterialPtr, VertexBuffer<VertexData::Pos, VertexData::NormTanTex>* VertexBufferPtr, IndexBuffer* IndexBufferPtr);
+			Mesh(uint32_t IndexNum, size_t IndexOffset, size_t VertexOffset, VertexBuffer<VertexData::Pos, VertexData::NormTanTex>* VertexBufferPtr, IndexBuffer* IndexBufferPtr);
 
 			VertexBuffer<VertexData::Pos, VertexData::NormTanTex>* GetVertexBuffer() const noexcept
 			{
@@ -24,11 +24,6 @@ namespace TruthEngine
 			inline IndexBuffer* GetIndexBuffer() const noexcept
 			{
 				return m_IndexBuffer;
-			}
-
-			inline Material* GetMaterial() const noexcept
-			{
-				return m_Material;
 			}
 
 			inline uint32_t GetVertexOffset() const noexcept
@@ -50,7 +45,6 @@ namespace TruthEngine
 
 
 		protected:
-			Material* m_Material = nullptr;
 			VertexBuffer<VertexData::Pos, VertexData::NormTanTex>* m_VertexBuffer = nullptr;
 			IndexBuffer* m_IndexBuffer = nullptr;
 

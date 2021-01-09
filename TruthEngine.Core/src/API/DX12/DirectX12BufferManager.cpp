@@ -194,6 +194,9 @@ namespace TruthEngine::API::DirectX12
 		const auto desc = GetBufferDesc(buffer->m_SizeInByte, buffer->m_Usage);
 
 		COMPTR<ID3D12Resource>* resource;
+
+		HRESULT hr;
+
 		if (buffer->m_ResourceIndex == -1)
 		{
 			buffer->m_ResourceIndex = static_cast<uint32_t>(m_Resources.size());
@@ -205,7 +208,8 @@ namespace TruthEngine::API::DirectX12
 			resource = &m_Resources[buffer->m_ResourceIndex];
 		}
 
-		auto hr = TE_INSTANCE_API_DX12_GRAPHICDEVICE->CreateCommittedResource2(
+
+		hr = TE_INSTANCE_API_DX12_GRAPHICDEVICE->CreateCommittedResource2(
 			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD)
 			, D3D12_HEAP_FLAG_NONE
 			, &desc, DX12_GET_STATE(buffer->m_State), nullptr
@@ -214,6 +218,8 @@ namespace TruthEngine::API::DirectX12
 		CD3DX12_RANGE range(0, 0);
 
 		(*resource)->Map(0, &range, reinterpret_cast<void**>(&buffer->m_MappedData));
+		resource++;
+
 
 		return SUCCEEDED(hr) ? TE_SUCCESSFUL : TE_RESULT::TE_FAIL;
 

@@ -50,7 +50,7 @@ namespace TruthEngine::API::DirectX12
 		m_QueueClearRT.reserve(8);
 		m_QueueClearDS.reserve(1);
 
-		m_RootArguments = DirectX12Manager::GetInstance()->GetRootArguments(shaderClassIDX);
+		
 	}
 
 	void DirectX12CommandList::Reset()
@@ -141,6 +141,11 @@ namespace TruthEngine::API::DirectX12
 	{
 		if (m_RenderPassIDX != TE_IDX_RENDERPASS::NONE)
 		{
+			if (m_RootArguments == nullptr)
+			{
+				m_RootArguments = DirectX12Manager::GetInstance()->GetRootArguments(m_ShaderClassIDX);
+			}
+
 			for (auto& t : m_RootArguments->Tables)
 			{
 				m_D3D12CommandList->SetGraphicsRootDescriptorTable(t.ParameterIndex, t.GPUDescriptorHandle);

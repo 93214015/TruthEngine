@@ -44,6 +44,7 @@ namespace TruthEngine
 				*outShader = shader.get();
 
 
+
 				if (csEntry != "")
 				{
 					shader->m_CS = CompileShader(name, shader->m_ID, filePath, csEntry, "cs");
@@ -70,7 +71,7 @@ namespace TruthEngine
 				}
 
 
-				return DirectX12Manager::GetInstance()->AddRootSignature(shader.get());
+				return DirectX12Manager::GetInstance()->AddRootSignature(shader->GetShaderClassIDX());
 
 			}
 
@@ -90,41 +91,44 @@ namespace TruthEngine
 					return TE_RESULT_RENDERER_SHADER_HAS_EXIST;
 				}
 
+				GetShaderDefines(states);
+
 				std::string name = "shader" + std::to_string(map.size());
 
 				auto shader = std::make_shared<Core::Shader>(shaderClassID, name, filePath);
 				shader->m_ID = m_ShaderID++;
+				shader->m_InputElements = GetInputElements(shaderClassID);
 
 				map[states] = shader;
 				*outShader = shader.get();
 
 				if (csEntry != "")
 				{
-					shader->m_CS = CompileShader_OLD(name, shader->m_ID, filePath, csEntry, "cs");
+					shader->m_CS = CompileShader(name, shader->m_ID, filePath, csEntry, "cs");
 				}
 				if (vsEntry != "")
 				{
-					shader->m_VS = CompileShader_OLD(name, shader->m_ID, filePath, vsEntry, "vs");
+					shader->m_VS = CompileShader(name, shader->m_ID, filePath, vsEntry, "vs");
 				}
 				if (psEntry != "")
 				{
-					shader->m_PS = CompileShader_OLD(name, shader->m_ID, filePath, psEntry, "ps");
+					shader->m_PS = CompileShader(name, shader->m_ID, filePath, psEntry, "ps");
 				}
 				if (gsEntry != "")
 				{
-					shader->m_GS = CompileShader_OLD(name, shader->m_ID, filePath, gsEntry, "gs");
+					shader->m_GS = CompileShader(name, shader->m_ID, filePath, gsEntry, "gs");
 				}
 				if (dsEntry != "")
 				{
-					shader->m_DS = CompileShader_OLD(name, shader->m_ID, filePath, dsEntry, "ds");
+					shader->m_DS = CompileShader(name, shader->m_ID, filePath, dsEntry, "ds");
 				}
 				if (hsEntry != "")
 				{
-					shader->m_HS = CompileShader_OLD(name, shader->m_ID, filePath, hsEntry, "hs");
+					shader->m_HS = CompileShader(name, shader->m_ID, filePath, hsEntry, "hs");
 				}
 
 
-				return DirectX12Manager::GetInstance()->AddRootSignature(shader.get());
+				return DirectX12Manager::GetInstance()->AddRootSignature(shader->GetShaderClassIDX());
 
 			}
 
@@ -174,7 +178,22 @@ namespace TruthEngine
 				auto binaryOutput = (name + L".bin");
 				auto debugOutput = (name + L".pdb");
 
-				LPCWSTR args[] =
+				std::vector<LPCWSTR> vargs{ 
+					name.c_str(),
+					L"-E", entryL.c_str(),
+					L"-T", target.c_str(),
+					L"-Zi",
+					L"-Fo",binaryOutput.c_str(),
+					L"-Fd", debugOutput.c_str(),
+					L"-Qstrip_reflect" };
+
+				for (auto& d : m_Defines)
+				{
+					vargs.emplace_back(L"-D");
+					vargs.emplace_back(d.c_str());
+				}
+
+				/*LPCWSTR args[] =
 				{
 					name.c_str(),
 					L"-E", entryL.c_str(),
@@ -183,7 +202,7 @@ namespace TruthEngine
 					L"-Fo",binaryOutput.c_str(),
 					L"-Fd", debugOutput.c_str(),
 					L"-Qstrip_reflect"
-				};
+				};*/
 
 				//
 				// Open source file.  
@@ -200,7 +219,7 @@ namespace TruthEngine
 				// Compile it with specified arguments.
 				//
 				COMPTR<IDxcResult> result;
-				compiler->Compile(&source, args, _countof(args), includeHandler.Get(), IID_PPV_ARGS(&result));
+				compiler->Compile(&source, vargs.data(), vargs.size(), includeHandler.Get(), IID_PPV_ARGS(&result));
 
 				//
 				// Print errors if present.

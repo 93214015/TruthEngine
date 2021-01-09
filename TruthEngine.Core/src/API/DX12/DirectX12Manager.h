@@ -128,16 +128,44 @@ namespace TruthEngine
 		class DirectX12Manager
 		{
 		public:
-			TE_RESULT AddRootSignature(Core::Shader* shader);
+			TE_RESULT AddRootSignature(TE_IDX_SHADERCLASS shaderClassIDX /*Core::Shader* shader*/);
 
 			inline ID3D12RootSignature* GetD3D12RootSignature(TE_IDX_SHADERCLASS shaderClassIDX)
 			{
-				return m_ID3D12RootSignatures[shaderClassIDX].Get();
+				auto itr = m_ID3D12RootSignatures.find(shaderClassIDX);
+				if (itr != m_ID3D12RootSignatures.end())
+				{
+					return itr->second.Get();
+				}
+				else
+				{
+					AddRootSignature(shaderClassIDX);
+					itr = m_ID3D12RootSignatures.find(shaderClassIDX);
+					if (itr == m_ID3D12RootSignatures.end())
+					{
+						throw;
+					}
+					return itr->second.Get();
+				}
 			}
 
 			inline const DirectX12RootArguments* GetRootArguments(TE_IDX_SHADERCLASS shaderClassIDX)
 			{
-				return &m_DirectX12RootArguments[shaderClassIDX];
+				auto itr = m_DirectX12RootArguments.find(shaderClassIDX);
+				if (itr != m_DirectX12RootArguments.end())
+				{
+					return &itr->second;
+				}
+				else
+				{
+					AddRootSignature(shaderClassIDX);
+					itr = m_DirectX12RootArguments.find(shaderClassIDX);
+					if (itr == m_DirectX12RootArguments.end())
+					{
+						throw;
+					}
+					return &itr->second;
+				}
 			}
 
 			static std::shared_ptr<DirectX12Manager> GetInstance()

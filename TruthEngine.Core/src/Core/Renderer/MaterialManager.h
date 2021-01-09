@@ -28,7 +28,6 @@ namespace TruthEngine
 
 			Material* AddMaterial(
 				 RendererStateSet states
-				, uint8_t shaderProperties
 				, float4 colorDiffuse
 				, float3 fresnelR0
 				, float shininess

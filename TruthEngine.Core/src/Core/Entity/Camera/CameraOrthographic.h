@@ -1,6 +1,7 @@
 #pragma once
 #include "ICamera.h"
 
+/*
 namespace TruthEngine::Core {
 
 	class CameraOrthographic : public ICamera {
@@ -21,4 +22,4 @@ namespace TruthEngine::Core {
 
 	};
 
-}
+}*/

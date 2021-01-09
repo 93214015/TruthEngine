@@ -144,7 +144,7 @@ namespace TruthEngine::API::DirectX12 {
 		if (CheckFileDialog())
 		{
 			m_CommandList->WaitToFinish();
-			Core::ModelManager::GetInstance()->ImportModel(m_SelectedFile.c_str());
+			Core::ModelManager::GetInstance()->ImportModel(Core::Application::GetApplication()->GetActiveScene(), m_SelectedFile.c_str());
 		}
 
 		ImGui::Begin("SceneViewport");
