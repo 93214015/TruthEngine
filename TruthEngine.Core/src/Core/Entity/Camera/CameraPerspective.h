@@ -1,5 +1,6 @@
 #pragma once
 #include "ICamera.h"
+/*
 
 namespace TruthEngine::Core {
 
@@ -36,4 +37,4 @@ namespace TruthEngine::Core {
 
 	};
 
-}
+}*/

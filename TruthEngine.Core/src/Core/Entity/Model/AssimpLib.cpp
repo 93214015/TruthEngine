@@ -5,6 +5,9 @@
 
 #include "Core/Renderer/TextureMaterial.h"
 #include "Core/Renderer/TextureMaterialManager.h"
+#include "Core/Entity/Scene.h"
+#include "Core/Entity/Entity.h"
+#include "Core/Entity/Components.h"
 
 
 namespace TruthEngine::Core
@@ -18,30 +21,30 @@ namespace TruthEngine::Core
 	{
 	}
 
-	TE_RESULT AssimpLib::ImportModel(const char* filePath)
+	TE_RESULT AssimpLib::ImportModel(Scene* scene, const char* filePath)
 	{
 		m_ModelFilePath = filePath;
 
-		m_ModelManager->GetOffsets(m_VertexOffset, m_IndexOffset, m_ModelOffset, m_MeshOffset, m_MaterialOffset);
+		m_ModelManager->GetOffsets(m_BaseVertexOffset, m_BaseIndexOffset, m_ModelOffset, m_MeshOffset, m_MaterialOffset);
 		m_TextureMaterialOffset = TextureMaterialManager::GetInstance()->GetOffset();
 
 		Assimp::Importer importer;
 
 		importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_PRESERVE_PIVOTS, true);
 
-		auto scene = importer.ReadFile(filePath, aiProcessPreset_TargetRealtime_MaxQuality | aiProcess_ConvertToLeftHanded);
+		auto aiscene = importer.ReadFile(filePath, aiProcessPreset_TargetRealtime_MaxQuality | aiProcess_ConvertToLeftHanded);
 
-		if (scene == nullptr)
+		if (aiscene == nullptr)
 			return TE_FAIL;
 
 		auto meshOffset = ModelManager::GetInstance().get()->m_Meshes.size();
 
-		AddSpace(scene);
+		AddSpace(aiscene);
 
-		ProcessTextures(scene);
-		ProcessMaterials(scene);
-		ProcessMeshes(scene);
-		ProcessNodes(scene->mRootNode, scene, meshOffset);
+		ProcessTextures(aiscene);
+		ProcessMaterials(scene, aiscene);
+		ProcessMeshes(scene, aiscene);
+		ProcessNodes(aiscene->mRootNode, aiscene, meshOffset);
 
 		return TE_SUCCESSFUL;
 	}
@@ -69,16 +72,19 @@ namespace TruthEngine::Core
 	}
 
 
-	void AssimpLib::ProcessMaterials(const aiScene* scene)
+	void AssimpLib::ProcessMaterials(Scene* scene, const aiScene* aiscene)
 	{
-		if (!scene->HasMaterials())
+		if (!aiscene->HasMaterials())
 			return;
 
 		ModelManager* modelManager = ModelManager::GetInstance().get();
 
-		for (uint32_t i = 0; i < scene->mNumMaterials; ++i)
+
+		for (uint32_t i = 0; i < aiscene->mNumMaterials; ++i)
 		{
-			auto aiMaterial = scene->mMaterials[i];
+			auto states = InitRenderStates();
+
+			auto aiMaterial = aiscene->mMaterials[i];
 			aiColor3D aiColorDiffuse;
 			aiMaterial->Get(AI_MATKEY_COLOR_DIFFUSE, aiColorDiffuse);
 			aiColor3D aiColorAmbient;
@@ -98,6 +104,10 @@ namespace TruthEngine::Core
 				const auto diffuseTextureCount = aiMaterial->GetTextureCount(aiTextureType_DIFFUSE);
 				uint32_t diffuseMapTexIndex = -1;
 
+				if (diffuseTextureCount > 0)
+				{
+					SET_RENDERER_STATE(states, TE_RENDERER_STATE_ENABLED_MAP_DIFFUSE, TE_RENDERER_STATE_ENABLED_MAP_DIFFUSE_TRUE);
+				}
 
 				for (UINT j = 0; j < diffuseTextureCount; ++j)
 				{
@@ -125,6 +135,11 @@ namespace TruthEngine::Core
 				const auto normalTextureCount = aiMaterial->GetTextureCount(aiTextureType_NORMALS);
 				uint32_t normalMapTexIndex = -1;
 
+				if (normalTextureCount > 0)
+				{
+					SET_RENDERER_STATE(states, TE_RENDERER_STATE_ENABLED_MAP_NORMAL, TE_RENDERER_STATE_ENABLED_MAP_NORMAL_TRUE);
+				}
+
 				for (UINT j = 0; j < normalTextureCount; ++j)
 				{
 					if (aiMaterial->GetTexture(aiTextureType_NORMALS, j, &ais) == AI_SUCCESS)
@@ -150,6 +165,11 @@ namespace TruthEngine::Core
 				const auto heightTextureCount = aiMaterial->GetTextureCount(aiTextureType_HEIGHT);
 				uint32_t heightMapTexIndex = -1;
 
+				if (heightTextureCount > 0)
+				{
+					SET_RENDERER_STATE(states, TE_RENDERER_STATE_ENABLED_MAP_NORMAL, TE_RENDERER_STATE_ENABLED_MAP_NORMAL_TRUE);
+				}
+
 				for (UINT j = 0; j < heightTextureCount; ++j)
 				{
 					if (aiMaterial->GetTexture(aiTextureType_HEIGHT, j, &ais) == AI_SUCCESS)
@@ -170,8 +190,8 @@ namespace TruthEngine::Core
 				}
 			}
 
-			modelManager->m_MaterialManager.AddMaterial(InitRenderStates()
-				, 0
+			modelManager->m_MaterialManager.AddMaterial(
+				states
 				, float4{ aiColorDiffuse.r, aiColorDiffuse.g, aiColorDiffuse.b, 1.0f }
 				, float3{ aiColorSpecular.r, aiColorSpecular.g, aiColorSpecular.b }
 				, aiShininess
@@ -192,7 +212,7 @@ namespace TruthEngine::Core
 			model3D->AddSpace(nodeMeshNum);
 			for (uint32_t i = 0; i < nodeMeshNum; ++i)
 			{
-				model3D->AddMesh(m_ModelManager->m_Meshes[node->mMeshes[i] + meshOffset].get());
+				model3D->AddMesh(&m_ModelManager->m_Meshes[node->mMeshes[i] + meshOffset]);
 			}
 		}
 
@@ -203,37 +223,41 @@ namespace TruthEngine::Core
 	}
 
 
-	void AssimpLib::ProcessMeshes(const aiScene* scene)
+	void AssimpLib::ProcessMeshes(Scene* scene, const aiScene* aiscene)
 	{
 
-		for (uint32_t j = 0; j < scene->mNumMeshes; ++j)
+		for (uint32_t j = 0; j < aiscene->mNumMeshes; ++j)
 		{
-			auto mesh = scene->mMeshes[j];
 
-			for (uint32_t i = 0; i < mesh->mNumVertices; ++i)
+			auto indexOffset = m_ModelManager->GetIndexOffset();
+			auto vertexOffset = m_ModelManager->GetVertexOffset();
+
+			auto aimesh = aiscene->mMeshes[j];
+
+			for (uint32_t i = 0; i < aimesh->mNumVertices; ++i)
 			{
 				VertexData::Pos vPos;
 				VertexData::NormTanTex vNormTanTex;
 
-				auto vertex = mesh->mVertices[i];
+				auto vertex = aimesh->mVertices[i];
 
 				vPos.Position = float3{ vertex.x, vertex.y, vertex.z };
 
-				if (mesh->HasNormals())
+				if (aimesh->HasNormals())
 				{
-					auto& normal = mesh->mNormals[i];
+					auto& normal = aimesh->mNormals[i];
 					vNormTanTex.Normal = float3{ normal.x, normal.y, normal.z };
 				}
 
-				if (mesh->HasTextureCoords(0))
+				if (aimesh->HasTextureCoords(0))
 				{
-					auto& uv = mesh->mTextureCoords[0][i];
+					auto& uv = aimesh->mTextureCoords[0][i];
 					vNormTanTex.TexCoord = float2{ uv.x, uv.y };
 				}
 
-				if (mesh->HasTangentsAndBitangents())
+				if (aimesh->HasTangentsAndBitangents())
 				{
-					auto& tangent = mesh->mTangents[i];
+					auto& tangent = aimesh->mTangents[i];
 					vNormTanTex.Tanget = float3{ tangent.x, tangent.y, tangent.z };
 				}
 
@@ -243,9 +267,9 @@ namespace TruthEngine::Core
 
 			uint32_t indexNum = 0;
 
-			for (uint32_t i = 0; i < mesh->mNumFaces; ++i)
+			for (uint32_t i = 0; i < aimesh->mNumFaces; ++i)
 			{
-				aiFace& face = mesh->mFaces[i];
+				aiFace& face = aimesh->mFaces[i];
 				indexNum += face.mNumIndices;
 
 				for (uint32_t j = 0; j < face.mNumIndices; ++j)
@@ -254,7 +278,13 @@ namespace TruthEngine::Core
 				}
 			}
 
-			m_ModelManager->AddMesh(indexNum, m_IndexOffset, m_VertexOffset, m_ModelManager->m_MaterialManager.GetMaterial(mesh->mMaterialIndex + m_MaterialOffset));
+			auto mesh = m_ModelManager->AddMesh(indexNum, indexOffset, vertexOffset);
+
+			auto material = m_ModelManager->m_MaterialManager.GetMaterial(aimesh->mMaterialIndex + m_MaterialOffset);
+
+			auto entity = scene->AddEntity();
+			entity.AddComponent<MeshComponent>(mesh);
+			entity.AddComponent<MaterialComponent>(material);
 		}
 	}
 

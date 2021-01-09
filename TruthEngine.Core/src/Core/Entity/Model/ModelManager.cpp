@@ -11,12 +11,21 @@ namespace TruthEngine::Core
 {
 
 
+	ModelManager::ModelManager()
+	{
+		m_Meshes.reserve(10000);
+		m_Models3D.reserve(1000);
+	}
 
-	void ModelManager::ImportModel(const char* filePath)
+	ModelManager::~ModelManager()
+	{
+	}
+
+	void ModelManager::ImportModel(Scene* scene, const char* filePath)
 	{
 		TE_INSTANCE_GRAPHICDEVICE->WaitForGPU();
 
-		AssimpLib::GetInstance()->ImportModel(filePath);
+		AssimpLib::GetInstance()->ImportModel(scene, filePath);
 
 		InitVertexAndIndexBuffer();
 	}
@@ -25,17 +34,16 @@ namespace TruthEngine::Core
 	{
 		m_MaterialManager.AddSampleMaterial();
 
-		auto mesh = std::make_shared<Mesh>();
-		mesh->m_IndexNum = 6;
-		mesh->m_IndexOffset = 0;
-		mesh->m_Material = m_MaterialManager.GetMaterial(0u);
-		mesh->m_VertexOffset = 0;
 
-		AddMesh(mesh);
+		auto& mesh = m_Meshes.emplace_back();
+		mesh.m_IndexNum = 6;
+		mesh.m_IndexOffset = 0;
+		//mesh.m_Material = m_MaterialManager.GetMaterial(0u);
+		mesh.m_VertexOffset = 0;
 
 
-		auto& model = m_Models3D.emplace_back(std::make_shared<Model3D>());
-		model->m_Meshes.emplace_back(mesh.get());
+		auto& model = m_Models3D.emplace_back();
+		model.m_Meshes.emplace_back(&mesh);
 
 
 		VertexData::Pos pos;
@@ -91,6 +99,7 @@ namespace TruthEngine::Core
 		m_RendererCommand->End();
 	}
 
+
 	void ModelManager::Init(BufferManager* bufferManager/*, RendererCommand* rendererCommand*/)
 	{
 		m_RendererCommand = std::make_shared<RendererCommand>();
@@ -101,22 +110,23 @@ namespace TruthEngine::Core
 	}
 
 
-	void ModelManager::AddMesh(std::shared_ptr<Mesh> mesh)
+	/*void ModelManager::AddMesh(std::shared_ptr<Mesh> mesh)
 	{
 		mesh->m_IndexBuffer = &m_IndexBuffer;
 		mesh->m_VertexBuffer = &m_VertexBuffer_PosNormTanTex;
 
 		m_Meshes.push_back(mesh);
-	}
+	}*/
 
-	Mesh* ModelManager::AddMesh(uint32_t IndexNum, size_t IndexOffset, size_t VertexOffset, Material* MaterialPtr)
+	Mesh* ModelManager::AddMesh(uint32_t IndexNum, size_t IndexOffset, size_t VertexOffset)
 	{
-		return m_Meshes.emplace_back(std::make_shared<Mesh>(IndexNum, IndexOffset, VertexOffset, MaterialPtr, &m_VertexBuffer_PosNormTanTex, &m_IndexBuffer)).get();
+		auto& mesh = m_Meshes.emplace_back(IndexNum, IndexOffset, VertexOffset, &m_VertexBuffer_PosNormTanTex, &m_IndexBuffer);
+		return &mesh;
 	}
 
 	TruthEngine::Core::Model3D* ModelManager::AddModel3D()
 	{
-		return m_Models3D.emplace_back(std::make_shared<Model3D>()).get();
+		return &m_Models3D.emplace_back();
 	}
 
 

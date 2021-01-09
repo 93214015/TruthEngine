@@ -1,5 +1,6 @@
 #pragma once
 
+/*
 namespace TruthEngine::Core {
 
 	class EventMouseMoved;
@@ -112,4 +113,4 @@ namespace TruthEngine::Core {
 		friend class CameraManager;
 	};
 
-}
+}*/

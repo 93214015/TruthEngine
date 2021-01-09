@@ -78,20 +78,20 @@ namespace TruthEngine::Core
 		auto data_perFrame = m_CB_PerFrame->GetData();
 
 
-		auto mainCamera = CameraManager::GetInstance()->GetCamera("mainCamera");
+		static auto mainCamera = CameraManager::GetInstance()->GetCamera("mainCamera");
 
-		data_perFrame->EyePos = mainCamera->GetPosition();;
+		data_perFrame->EyePos = mainCamera->GetPosition();
 		data_perFrame->ViewProj = mainCamera->GetViewProj();
 
-		m_Model3DQueue.clear();
+		/*m_Model3DQueue.clear();
 		for (auto& model : m_ModelManagers->GetModel3D())
 		{
 			m_Model3DQueue.emplace_back(model.get());
-		}
+		}*/
 
 		m_RenderPass_ForwardRendering->BeginScene();
 		m_RenderPass_ForwardRendering->EndScene();
-		m_RenderPass_ForwardRendering->Render(m_Model3DQueue);
+		m_RenderPass_ForwardRendering->Render();
 
 		for (auto renderPass : m_RenderPassStack)
 		{

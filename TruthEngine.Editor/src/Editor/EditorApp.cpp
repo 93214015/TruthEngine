@@ -29,12 +29,24 @@ namespace TruthEngine::Editor
 		Core::InputManager::RegisterKey('D');
 
 
-		auto mainCamera = std::make_shared<Core::CameraPerspective>("mainCamera");
+		/*auto mainCamera = std::make_shared<Core::CameraPerspective>("mainCamera");
 		mainCamera->SetPosition(0.0f, 0.0f, -10.0f); //3Cylinder_Big
 		mainCamera->LookAt(mainCamera->GetPosition(), float3(0.0f, 0.0f, 0.0f), float3(0.0, 1.0, 0.0));
 		mainCamera->SetLens(DirectX::XM_PIDIV4, static_cast<float>(m_ClientWidth) / m_ClientHeight, 10.0f, 1000.0f);
 		mainCamera->SetSpeed(0.1f);
-		Core::CameraManager::GetInstance()->AddCamera(mainCamera);
+		Core::CameraManager::GetInstance()->AddCamera(mainCamera);*/
+
+		auto mainCamera = Core::CameraManager::GetInstance()->CreatePerspectiveFOV("mainCamera"
+			, float3{ 0.0f, 0.0f, -50.0f }
+			, float3{ 0.0f, 0.0f, 0.0f }
+			, float3{ 0.0f, 1.0f, 0.0f }
+			, DirectX::XM_PIDIV4
+			, static_cast<float>(m_ClientWidth) / m_ClientHeight
+			, 10.0f
+			, 1000.0f
+		);
+
+		Core::CameraManager::GetInstance()->GetCameraController()->AttachCamera(mainCamera);
 
 		auto lightManager = Core::LightManager::GetInstace();
 		lightManager->AddLightDirectional("dlight_0", float4{ 0.8f, 0.8f, 0.8f, 0.8f }, float4{ 0.3f, 0.3f, 0.3f, 0.3f }, float4{ 0.0f, 0.0f, 0.0f, 0.0f }, float3{ 1.0f, -1.0f, 1.0f }, float3{ 0.0f, 20.0f, -20.0f }, 0.05f, false);
@@ -44,7 +56,7 @@ namespace TruthEngine::Editor
 		//must put ModelManager initiation after RendererLayer attachment so that the bufferManager has been initiated 
 		auto modelManager = Core::ModelManager::GetInstance().get();
 		modelManager->Init(TE_INSTANCE_BUFFERMANAGER.get());
-		modelManager->AddSampleModel();
+		//modelManager->AddSampleModel();
 	}
 
 

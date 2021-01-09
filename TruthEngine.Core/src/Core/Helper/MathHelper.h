@@ -8,6 +8,12 @@ using float3x3 = DirectX::XMFLOAT3X3;
 
 namespace TruthEngine
 {
+	constexpr float4x4 IdentityMatrix = float4x4(
+		1.0f, 0.0f, 0.0f, 0.0f,
+		0.0f, 1.0f, 0.0f, 0.0f,
+		0.0f, 0.0f, 1.0f, 0.0f,
+		0.0f, 0.0f, 0.0f, 1.0f);
+
 	inline DirectX::XMMATRIX ToXM(const DirectX::XMFLOAT4X4& source)
 	{
 		return DirectX::XMLoadFloat4x4(&source);
@@ -102,4 +108,17 @@ namespace TruthEngine
 	{
 		return float3{ v1.x + v2.x, v1.y + v2.y, v1.z + v2.z };
 	}
+
+	inline float4x4 operator*(const float4x4& m1, const float4x4& m2)
+	{
+		const auto xm1 = DirectX::XMLoadFloat4x4(&m1);
+		const auto xm2 = DirectX::XMLoadFloat4x4(&m2);
+
+		auto xm3 = xm1 * xm2;
+
+		float4x4 r;
+		DirectX::XMStoreFloat4x4(&r, xm3);
+		return r;
+	}
+
 }

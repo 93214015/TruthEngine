@@ -29,7 +29,6 @@ namespace TruthEngine::Core {
 
 	Application::~Application() = default;
 
-
 	void Application::ResizeSceneViewport(uint32_t width, uint32_t height) noexcept
 	{
 		m_SceneViewportWidth = width;

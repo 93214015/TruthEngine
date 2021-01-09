@@ -4,6 +4,8 @@
 #include "Core/Entity/Model/Model3D.h"
 #include "Core/Entity/Model/Mesh.h"
 #include "Core/Entity/Model/ModelManager.h"
+#include "Core/Entity/Components.h"
+
 #include "Core/Renderer/Material.h"
 #include "Core/Renderer/Pipeline.h"
 
@@ -53,7 +55,6 @@ namespace TruthEngine::Core
 		}
 
 
-
 		RegisterOnEvents();
 	}
 
@@ -87,13 +88,32 @@ namespace TruthEngine::Core
 	}
 
 
-	void RenderPass_ForwardRendering::Render(std::vector<const Model3D*> models)
+	void RenderPass_ForwardRendering::Render()
 	{
 
 		auto data = m_ConstantBufferDirect_PerMesh->GetData();
 
-		
-		for (auto m : models)
+		auto scene = Application::GetApplication()->GetActiveScene();
+
+		auto activeScene = Application::GetApplication()->GetActiveScene();
+
+		auto& reg = activeScene->GetEntityRegistery();
+		//auto& entityGroup = activeScene->GroupEntities<MeshComponent, MaterialComponent>();
+		auto& entityGroup = reg.group<MeshComponent, MaterialComponent>(); 
+
+		for (auto ent : entityGroup)
+		{
+			auto mesh = activeScene->GetComponent<MeshComponent>(ent).GetMesh();
+			auto material = activeScene->GetComponent<MaterialComponent>(ent).GetMaterial();
+
+			data->materialIndex = material->GetID();
+
+			m_RendererCommand.UploadData(m_ConstantBufferDirect_PerMesh);
+			m_RendererCommand.SetPipeline(m_MaterialPipelines[material->GetID()].get());
+			m_RendererCommand.DrawIndexed(mesh);
+		}
+
+		/*for (auto m : models)
 		{
 			for (auto mesh : m->GetMeshes())
 			{				
@@ -103,7 +123,7 @@ namespace TruthEngine::Core
 				m_RendererCommand.SetPipeline(m_MaterialPipelines[mesh->GetMaterial()->GetID()].get());
 				m_RendererCommand.DrawIndexed(mesh);
 			}
-		}
+		}*/
 
 		m_RendererCommand.End();
 
@@ -129,7 +149,7 @@ namespace TruthEngine::Core
 
 		auto result = m_ShaderMgr->AddShader(&shader, TE_IDX_SHADERCLASS::FORWARDRENDERING, material->GetRendererStates(), "Assets/Shaders/renderer3D.hlsl", "vs", "ps");
 
-		if (result != TE_RESULT_RENDERER_SHADER_HAS_EXIST)
+		/*if (result != TE_RESULT_RENDERER_SHADER_HAS_EXIST)
 		{
 			ShaderInputElement inputElement;
 			inputElement.AlignedByteOffset = 0;
@@ -167,7 +187,7 @@ namespace TruthEngine::Core
 			inputElement.SemanticIndex = 0;
 			inputElement.SemanticName = "TEXCOORD";
 			shader->AddInputElement(inputElement);
-		}
+		}*/
 
 		auto pipeline = std::make_shared<Pipeline>(material->GetRendererStates(), shader);
 

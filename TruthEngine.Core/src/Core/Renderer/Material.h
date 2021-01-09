@@ -15,7 +15,6 @@ namespace TruthEngine
 			Material(
 				uint32_t ID
 				, RendererStateSet states
-				, uint8_t shaderProperties
 				, float4 colorDiffuse
 				, float3 fresnelR0
 				, float shininess
@@ -72,16 +71,10 @@ namespace TruthEngine
 		private:
 			uint32_t m_ID;
 			RendererStateSet m_RendererStates = InitRenderStates();
-			uint8_t m_ShaderProperties;
-			
 
 			float4 m_ColorDiffuse;
 			float3 m_FresnelR0;
 			float m_Shininess;
-
-			/*MaterialTexture* m_MapDiffuse = nullptr;
-			MaterialTexture* m_MapNormal = nullptr;
-			MaterialTexture* m_MapDisplacement = nullptr;*/
 
 			uint32_t m_MapIndexDiffuse = -1;
 			uint32_t m_MapIndexNormal = -1;

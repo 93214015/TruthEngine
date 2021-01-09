@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "CameraPerspective.h"
 
+/*
 using namespace DirectX;
 
 namespace TruthEngine::Core {
@@ -68,4 +69,4 @@ namespace TruthEngine::Core {
 		return m_FarWindowHeight;
 	}
 
-}
+}*/

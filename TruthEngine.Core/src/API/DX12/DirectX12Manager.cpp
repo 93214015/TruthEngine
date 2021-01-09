@@ -14,10 +14,9 @@ namespace TruthEngine::API::DirectX12
 
 
 
-	TE_RESULT DirectX12Manager::AddRootSignature(Core::Shader* shader)
+	TE_RESULT DirectX12Manager::AddRootSignature(TE_IDX_SHADERCLASS shaderClassIDX)
 	{
-		auto shaderClassIDX = shader->GetShaderClassIDX();
-		auto rootSignaturItr = m_ID3D12RootSignatures.find(shader->GetShaderClassIDX());
+		auto rootSignaturItr = m_ID3D12RootSignatures.find(shaderClassIDX);
 
 		if (rootSignaturItr != m_ID3D12RootSignatures.end())
 		{

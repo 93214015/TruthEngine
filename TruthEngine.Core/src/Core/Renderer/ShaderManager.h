@@ -64,9 +64,15 @@ namespace TruthEngine
 
 			static std::shared_ptr<ShaderManager> Factory();
 
+			std::vector<ShaderInputElement>* GetInputElements(TE_IDX_SHADERCLASS shaderClassIDX);
+
 		protected:
 
 			BindedResource* CreateBindedResource(const TE_IDX_SHADERCLASS shaderClassIDX);
+
+			std::vector<ShaderInputElement>* CreateInputElements(TE_IDX_SHADERCLASS shaderClassIDX);
+
+			void GetShaderDefines(const RendererStateSet states);
 
 		protected:
 			
@@ -79,6 +85,10 @@ namespace TruthEngine
 
 
 			std::unordered_map<TE_IDX_SHADERCLASS, BindedResource> m_Map_BindedResources;
+
+			std::unordered_map<TE_IDX_SHADERCLASS, std::vector<ShaderInputElement>> m_Map_ShaderInputElements;
+
+			std::vector<std::wstring> m_Defines{};
 		};
 	}
 }

@@ -303,6 +303,15 @@
     <ClInclude Include="src\TruthEngine.h" />
     <ClInclude Include="src\lib.h" />
     <ClInclude Include="src\pch.h" />
+    <ClInclude Include="src\Core\Entity\Scene.h" />
+    <ClInclude Include="src\Core\Entity\Entity.h" />
+    <ClInclude Include="src\Core\Entity\Components.h" />
+    <ClInclude Include="src\Core\Entity\Components\MeshComponent.h" />
+    <ClInclude Include="src\Core\Entity\Components\MaterialComponent.h" />
+    <ClInclude Include="src\Core\Entity\Components\TransformComponent.h" />
+    <ClInclude Include="src\Core\Entity\Components\TagComponent.h" />
+    <ClInclude Include="src\Core\Entity\Camera\Camera.h" />
+    <ClInclude Include="src\Core\Entity\Camera\CameraController.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\API\DX12\DirectX12BufferManager.cpp">
@@ -522,5 +531,14 @@
       <Filter>Platform\Windows</Filter>
     </ClCompile>
     <ClCompile Include="src\pch.cpp" />
+    <ClCompile Include="src\Core\Entity\Scene.cpp" />
+    <ClCompile Include="src\Core\Entity\Entity.cpp" />
+    <ClCompile Include="src\Core\Entity\Components\MeshComponent.cpp" />
+    <ClCompile Include="src\Core\Entity\Components\MaterialComponent.cpp" />
+    <ClCompile Include="src\Core\Entity\Components\TransformComponent.cpp" />
+    <ClCompile Include="src\Core\Entity\Components\TagComponent.cpp" />
+    <ClCompile Include="src\Core\Entity\Camera\Camera.cpp" />
+    <ClCompile Include="src\Core\Entity\Camera\CameraController.cpp" />
+    <ClCompile Include="src\Core\Renderer\PipelineState.cpp" />
   </ItemGroup>
 </Project>

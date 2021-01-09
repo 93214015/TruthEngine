@@ -40,15 +40,11 @@ namespace TruthEngine
 			inline ShaderCode GetPS() const noexcept { return m_PS; };
 			inline ShaderCode GetCS() const noexcept { return m_CS; };
 
-			inline const std::vector<ShaderInputElement>& GetInputElements() const noexcept
+			inline const std::vector<ShaderInputElement>* GetInputElements() const noexcept
 			{
 				return m_InputElements;
 			}
 
-			inline void AddInputElement(const ShaderInputElement& inputElement)
-			{
-				m_InputElements.push_back(inputElement);
-			}
 
 			inline uint32_t GetRenderTargetNum() const noexcept
 			{
@@ -68,7 +64,7 @@ namespace TruthEngine
 			TE_IDX_SHADERCLASS m_ShaderClassIDX = TE_IDX_SHADERCLASS::NONE;
 			uint32_t m_RenderTargetNum = 1;
 
-			std::vector<ShaderInputElement> m_InputElements;
+			std::vector<ShaderInputElement>* m_InputElements;
 
 			std::string m_Name = "";
 			std::string m_FilePath = "";

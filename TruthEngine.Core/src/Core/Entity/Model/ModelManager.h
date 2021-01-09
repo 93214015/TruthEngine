@@ -15,11 +15,13 @@ namespace TruthEngine
 
 		class BufferManager;
 		class RendererCommand;
+		class Scene;
 
 		class ModelManager
 		{
 		public:
-			ModelManager() = default;
+			ModelManager();
+			~ModelManager();
 
 			static std::shared_ptr<ModelManager> GetInstance()
 			{
@@ -29,7 +31,7 @@ namespace TruthEngine
 
 			void Init(BufferManager* bufferManager/*, RendererCommand* rendererCommand*/);
 
-			inline const std::vector<std::shared_ptr<Model3D>>& GetModel3D() const noexcept
+			inline const std::vector<Model3D>& GetModel3D() const noexcept
 			{
 				return m_Models3D;
 			}
@@ -41,11 +43,17 @@ namespace TruthEngine
 
 			inline void AddSpace(size_t Model3DNum, size_t MeshNum)
 			{
-				auto currentSpace = m_Models3D.size();
-				m_Models3D.reserve(currentSpace + Model3DNum);
+				if (auto freeSpace = m_Models3D.capacity() - m_Models3D.size(); freeSpace < Model3DNum)
+				{
+					auto currentSpace = m_Models3D.size();
+					m_Models3D.reserve(currentSpace + Model3DNum);
+				}
 
-				currentSpace = m_Meshes.size();
-				m_Meshes.reserve(currentSpace + MeshNum);
+				if (auto freeSpace = m_Meshes.capacity() - m_Meshes.size(); freeSpace < MeshNum)
+				{
+					auto currentSpace = m_Meshes.size();
+					m_Meshes.reserve(currentSpace + MeshNum);
+				}
 			}
 
 			inline void GetOffsets(size_t& outVertexOffset, size_t& outIndexOffset, size_t& outModelOffset, size_t& outMeshOffset, size_t& outMaterialOffset)
@@ -57,20 +65,45 @@ namespace TruthEngine
 				outMaterialOffset = m_MaterialManager.GetMatrialOffset();
 			}
 
+			inline size_t GetVertexOffset()const noexcept
+			{
+				return m_VertexBuffer_PosNormTanTex.GetVertexOffset();
+			}
+
+			inline size_t GetIndexOffset()const noexcept
+			{
+				return m_IndexBuffer.GetIndexOffset();
+			}
+
+			inline size_t GetModelOffset()const noexcept
+			{
+				return m_Models3D.size();
+			}
+
+			inline size_t GetMeshOffset()const noexcept
+			{
+				return m_Meshes.size();
+			}
+
+			inline size_t GetMaterialOffset()const noexcept
+			{
+				return m_MaterialManager.GetMatrialOffset();
+			}
+
 			Model3D* AddModel3D();
 
-			void AddMesh(std::shared_ptr<Mesh> mesh);
-			Mesh* AddMesh(uint32_t IndexNum, size_t IndexOffset, size_t VertexOffset, Material* MaterialPtr);
+			//void AddMesh(std::shared_ptr<Mesh> mesh);
+			Mesh* AddMesh(uint32_t IndexNum, size_t IndexOffset, size_t VertexOffset);
 
-			void ImportModel(const char* filePath);
+			void ImportModel(Scene* scene, const char* filePath);
 
 			void AddSampleModel();
 		protected:
 			void InitVertexAndIndexBuffer();
 
 		protected:
-			std::vector<std::shared_ptr<Model3D>> m_Models3D;
-			std::vector<std::shared_ptr<Mesh>> m_Meshes;
+			std::vector<Model3D> m_Models3D;
+			std::vector<Mesh> m_Meshes;
 
 			VertexBuffer<VertexData::Pos, VertexData::NormTanTex> m_VertexBuffer_PosNormTanTex;
 			IndexBuffer m_IndexBuffer;

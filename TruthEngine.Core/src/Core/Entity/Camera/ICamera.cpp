@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "ICamera.h"
 
+/*
 #include "Core/Event/Event.h"
 #include "Core/Event/EventKey.h"
 #include "Core/Event/EventMouse.h"
@@ -365,4 +366,4 @@ namespace TruthEngine::Core {
 		}
 	}
 
-}
+}*/
