@@ -166,13 +166,13 @@
     <ClInclude Include="src\API\IDXGI.h" />
     <ClInclude Include="src\Core\Application.h" />
     <ClInclude Include="src\Core\Core.h" />
+    <ClInclude Include="src\Core\Entity\Camera\Camera.h" />
     <ClInclude Include="src\Core\Entity\Camera\CameraController.h" />
     <ClInclude Include="src\Core\Entity\Camera\CameraManager.h" />
     <ClInclude Include="src\Core\Entity\Camera\CameraOrthographic.h" />
     <ClInclude Include="src\Core\Entity\Camera\CameraPerspective.h" />
     <ClInclude Include="src\Core\Entity\Camera\ICamera.h" />
     <ClInclude Include="src\Core\Entity\Components.h" />
-    <ClInclude Include="src\Core\Entity\Camera\Camera.h" />
     <ClInclude Include="src\Core\Entity\Components\MaterialComponent.h" />
     <ClInclude Include="src\Core\Entity\Components\MeshComponent.h" />
     <ClInclude Include="src\Core\Entity\Components\TagComponent.h" />

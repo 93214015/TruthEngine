@@ -34,10 +34,10 @@ namespace TruthEngine
 
 			void OnImGuiRender() override;
 
-			void BeginScene();
-			void EndScene();
+			void BeginScene() override;
+			void EndScene() override;
 
-			void Render();
+			void Render() override;
 
 			void OnSceneViewportResize(uint32_t width, uint32_t height) override;
 
@@ -67,10 +67,13 @@ namespace TruthEngine
 
 			struct ConstantBuffer_Data_Per_Mesh
 			{
+				float4x4 WorldMatrix;
 				uint32_t materialIndex;
 			};
 
 			ConstantBufferDirect<ConstantBuffer_Data_Per_Mesh>* m_ConstantBufferDirect_PerMesh;
+
+			float4 m_Translate = float4{0.0f, 0.0f, 0.0f, 0.0f};
 
 		};
 	}

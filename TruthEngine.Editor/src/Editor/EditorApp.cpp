@@ -73,6 +73,7 @@ namespace TruthEngine::Editor
 
 		if (m_RendererLayer->BeginImGuiLayer())
 		{
+			OnImGuiRender();
 			for (auto layer : m_LayerStack)
 			{
 				layer->OnImGuiRender();
@@ -91,6 +92,13 @@ namespace TruthEngine::Editor
 
 	void ApplicationEditor::OnDestroy()
 	{
+	}
+
+	void ApplicationEditor::OnImGuiRender()
+	{
+		ImGui::Begin("Settings");
+
+		ImGui::End();
 	}
 
 

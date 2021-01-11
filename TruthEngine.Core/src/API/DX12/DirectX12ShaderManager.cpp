@@ -27,7 +27,7 @@ namespace TruthEngine
 			}
 
 
-			TE_RESULT DirectX12ShaderManager::AddShader(Core::Shader** outShader, TE_IDX_SHADERCLASS shaderClassID, std::string_view name, std::string_view filePath, std::string_view vsEntry, std::string_view psEntry, std::string_view csEntry /*= ""*/, std::string_view dsEntry /*= ""*/, std::string_view hsEntry /*= ""*/, std::string_view gsEntry /*= ""*/)
+			TE_RESULT DirectX12ShaderManager::AddShader(Core::Shader** outShader, TE_IDX_SHADERCLASS shaderClassID, TE_IDX_MESH_TYPE meshType, std::string_view name, std::string_view filePath, std::string_view vsEntry, std::string_view psEntry, std::string_view csEntry /*= ""*/, std::string_view dsEntry /*= ""*/, std::string_view hsEntry /*= ""*/, std::string_view gsEntry /*= ""*/)
 			{
 				auto item = m_ShadersNameMap.find(name);
 
@@ -37,12 +37,11 @@ namespace TruthEngine
 					return TE_RESULT_RENDERER_SHADER_HAS_EXIST;
 				}
 
-				auto shader = std::make_shared<Core::Shader>(shaderClassID, name, filePath);
+				auto shader = std::make_shared<Core::Shader>(name, shaderClassID, meshType, GetShaderSignature(shaderClassID), filePath);
 				shader->m_ID = m_ShaderID++;
 
 				m_ShadersNameMap[name] = shader;
 				*outShader = shader.get();
-
 
 
 				if (csEntry != "")
@@ -70,12 +69,11 @@ namespace TruthEngine
 					shader->m_HS = CompileShader(name, shader->m_ID, filePath, hsEntry, "hs");
 				}
 
-
 				return DirectX12Manager::GetInstance()->AddRootSignature(shader->GetShaderClassIDX());
 
 			}
 
-			TE_RESULT DirectX12ShaderManager::AddShader(Core::Shader** outShader, TE_IDX_SHADERCLASS shaderClassID, RendererStateSet states, std::string_view filePath, std::string_view vsEntry, std::string_view psEntry, std::string_view csEntry, std::string_view dsEntry, std::string_view hsEntry, std::string_view gsEntry)
+			TE_RESULT DirectX12ShaderManager::AddShader(Core::Shader** outShader, TE_IDX_SHADERCLASS shaderClassID, TE_IDX_MESH_TYPE meshType, RendererStateSet states, std::string_view filePath, std::string_view vsEntry, std::string_view psEntry, std::string_view csEntry, std::string_view dsEntry, std::string_view hsEntry, std::string_view gsEntry)
 			{
 				states &= m_StateMask;
 
@@ -91,13 +89,12 @@ namespace TruthEngine
 					return TE_RESULT_RENDERER_SHADER_HAS_EXIST;
 				}
 
-				GetShaderDefines(states);
+				_GetShaderDefines(states);
 
 				std::string name = "shader" + std::to_string(map.size());
 
-				auto shader = std::make_shared<Core::Shader>(shaderClassID, name, filePath);
+				auto shader = std::make_shared<Core::Shader>(name, shaderClassID, meshType, GetShaderSignature(shaderClassID), filePath);
 				shader->m_ID = m_ShaderID++;
-				shader->m_InputElements = GetInputElements(shaderClassID);
 
 				map[states] = shader;
 				*outShader = shader.get();

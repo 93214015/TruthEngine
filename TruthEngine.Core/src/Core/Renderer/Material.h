@@ -21,9 +21,10 @@ namespace TruthEngine
 				, uint32_t diffuseMapIndex
 				, uint32_t normalMapIndex
 				, uint32_t displacementMapIndex
-			, int32_t extraDepthBias
-			, float extraSlopeScaledDepthBias
-			, float extraDepthBiasClamp);
+				, int32_t extraDepthBias
+				, float extraSlopeScaledDepthBias
+				, float extraDepthBiasClamp
+				, TE_IDX_MESH_TYPE meshType);
 
 			inline RendererStateSet GetRendererStates() const noexcept
 			{
@@ -65,12 +66,19 @@ namespace TruthEngine
 				return m_MapIndexDisplacement;
 			}
 
+			inline TE_IDX_MESH_TYPE GetMeshType() const noexcept
+			{
+				return m_MeshType;
+			}
+
 		private:
 
 
 		private:
 			uint32_t m_ID;
 			RendererStateSet m_RendererStates = InitRenderStates();
+
+			TE_IDX_MESH_TYPE m_MeshType;
 
 			float4 m_ColorDiffuse;
 			float3 m_FresnelR0;

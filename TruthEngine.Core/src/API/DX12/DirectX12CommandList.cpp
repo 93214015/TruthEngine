@@ -16,6 +16,7 @@
 #include "Core/Renderer/IndexBuffer.h"
 #include "Core/Renderer/Pipeline.h"
 #include "Core/Renderer/Viewport.h"
+#include "Core/Renderer/Shader.h"
 
 namespace TruthEngine::API::DirectX12
 {
@@ -77,11 +78,10 @@ namespace TruthEngine::API::DirectX12
 
 	void DirectX12CommandList::SetPipeline(Core::Pipeline* pipeline)
 	{
-		auto shaderClassIDX = pipeline->GetShader()->GetShaderClassIDX();
-		m_D3D12CommandList->SetGraphicsRootSignature(DirectX12Manager::GetInstance()->GetD3D12RootSignature(shaderClassIDX));
+		m_D3D12CommandList->SetGraphicsRootSignature(DirectX12Manager::GetInstance()->GetD3D12RootSignature(m_ShaderClassIDX));
 		m_D3D12CommandList->SetPipelineState(TE_INSTANCE_API_DX12_PIPELINEMANAGER->GetPipeline(pipeline).Get());
 		m_D3D12CommandList->IASetPrimitiveTopology(static_cast<D3D_PRIMITIVE_TOPOLOGY>(pipeline->GetState_PrimitiveTopology()));
-
+		
 	}
 
 	void DirectX12CommandList::SetRenderTarget(Core::SwapChain* swapChain, const Core::RenderTargetView RTV)
@@ -138,7 +138,19 @@ namespace TruthEngine::API::DirectX12
 	}
 
 	void DirectX12CommandList::_BindResource()
-	{
+	{	
+
+		for (auto& t0 : m_ShaderSignature->Textures)
+		{
+			for (auto& t : t0)
+			{
+				if (auto gresource = m_BufferManager->GetTexture(t.TextureIDX); gresource != nullptr)
+				{
+					_ChangeResourceState(gresource, TE_RESOURCE_STATES::PIXEL_SHADER_RESOURCE);
+				}
+			}
+		}
+
 		if (m_RenderPassIDX != TE_IDX_RENDERPASS::NONE)
 		{
 			if (m_RootArguments == nullptr)
@@ -367,7 +379,10 @@ namespace TruthEngine::API::DirectX12
 		auto descHeapSRV = m_BufferManager->m_DescHeapSRV.GetDescriptorHeap();
 		m_D3D12CommandList->SetDescriptorHeaps(1, &descHeapSRV);
 
-		_BindResource();
+		if (m_ShaderClassIDX != TE_IDX_SHADERCLASS::NONE)
+		{
+			_BindResource();
+		}
 	}
 
 	void DirectX12CommandList::UploadData(Core::Buffer* buffer, const void* data, size_t sizeInByte)

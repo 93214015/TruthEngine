@@ -27,7 +27,7 @@ namespace TruthEngine
 			}
 
 			Material* AddMaterial(
-				 RendererStateSet states
+				RendererStateSet states
 				, float4 colorDiffuse
 				, float3 fresnelR0
 				, float shininess
@@ -36,7 +36,8 @@ namespace TruthEngine
 				, uint32_t displacementMapIndex
 				, int32_t extraDepthBias
 				, float extraSlopeScaledDepthBias
-				, float extraDepthBiasClamp);
+				, float extraDepthBiasClamp
+				, TE_IDX_MESH_TYPE meshType);
 
 			void AddSampleMaterial();
 

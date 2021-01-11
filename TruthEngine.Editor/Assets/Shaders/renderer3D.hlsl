@@ -100,6 +100,8 @@ cbuffer materials : register(b2)
 
 cbuffer per_mesh : register(b3)
 {
+    row_major matrix gWorld;
+    
     uint materialIndex;
 }
 
@@ -137,8 +139,9 @@ struct vertexOut
 vertexOut vs(vertexInput vin)
 {
     vertexOut vout;
-    vout.pos = mul(float4(vin.position, 1.0f), viewProj);
-    vout.posW = vin.position;
+    float4 posW = mul(float4(vin.position, 1.0f), gWorld);
+    vout.pos = mul(posW, viewProj);
+    vout.posW = posW.xyz;
     vout.normalW = vin.normal;
     vout.tangentW = vin.tangent;
     vout.texCoord = vin.texCoord;
@@ -150,20 +153,6 @@ float4 ps(vertexOut pin) : SV_Target
 {
 
     float3 normal = normalize(pin.normalW);
-
-    //[branch]
-    //if (MaterialArray[materialIndex].MapIndexNormal != -1)
-    //{
-    //    float3 tangent = normalize(pin.tangentW);
-    //    float3 bitangent = cross(normal, tangent);
-    //    float3x3 TBN = float3x3(tangent, bitangent, normal);
-    
-    //    normal = MaterialTextures_Normal[MaterialArray[materialIndex].MapIndexNormal].Sample(sampler_point, pin.texCoord).xyz;
-    //    normal = (normal * 2.0f) - 1.0f;
-    //    normal = normalize(normal);
-        
-    //    normal = mul(normal, TBN);
-    //}
     
     #ifdef ENABLE_MAP_NORMAL
         float3 tangent = normalize(pin.tangentW);
@@ -178,12 +167,6 @@ float4 ps(vertexOut pin) : SV_Target
     #endif
     
     float3 illumination_albedo = MaterialArray[materialIndex].Diffuse.xyz;
-    
-    //[branch]
-    //if (MaterialArray[materialIndex].MapIndexDiffuse != -1)
-    //{
-    //    illumination_albedo = MaterialTextures_Diffuse[MaterialArray[materialIndex].MapIndexDiffuse].Sample(sampler_point, pin.texCoord).xyz;
-    //}
     
     #ifdef ENABLE_MAP_DIFFUSE
         illumination_albedo = MaterialTextures_Diffuse[MaterialArray[materialIndex].MapIndexDiffuse].Sample(sampler_point, pin.texCoord).xyz;

@@ -67,6 +67,11 @@ namespace TruthEngine::Core
 
 	void RenderPass_ForwardRendering::OnImGuiRender()
 	{
+		ImGui::Begin("RenderPass: Forward Rendering");
+
+		ImGui::DragFloat3("WorldMatrix", &m_Translate.x, 1.0f, -100.0f, 100.0f, nullptr, 1.0f);
+
+		ImGui::End();
 	}
 
 
@@ -105,8 +110,11 @@ namespace TruthEngine::Core
 		{
 			auto mesh = activeScene->GetComponent<MeshComponent>(ent).GetMesh();
 			auto material = activeScene->GetComponent<MaterialComponent>(ent).GetMaterial();
+			//auto& worldMatrix = activeScene->GetComponent<TransformComponent>(ent).GetTransform();
 
 			data->materialIndex = material->GetID();
+			auto m = DirectX::XMMatrixTranslation(m_Translate.x, m_Translate.y, m_Translate.z);
+			XMStoreFloat4x4(&data->WorldMatrix, m);
 
 			m_RendererCommand.UploadData(m_ConstantBufferDirect_PerMesh);
 			m_RendererCommand.SetPipeline(m_MaterialPipelines[material->GetID()].get());
@@ -147,47 +155,7 @@ namespace TruthEngine::Core
 
 		Shader* shader = nullptr;
 
-		auto result = m_ShaderMgr->AddShader(&shader, TE_IDX_SHADERCLASS::FORWARDRENDERING, material->GetRendererStates(), "Assets/Shaders/renderer3D.hlsl", "vs", "ps");
-
-		/*if (result != TE_RESULT_RENDERER_SHADER_HAS_EXIST)
-		{
-			ShaderInputElement inputElement;
-			inputElement.AlignedByteOffset = 0;
-			inputElement.Format = TE_RESOURCE_FORMAT::R32G32B32_FLOAT;
-			inputElement.InputSlot = 0;
-			inputElement.InputSlotClass = TE_RENDERER_SHADER_INPUT_CLASSIFICATION::PER_VERTEX;
-			inputElement.InstanceDataStepRate = 0;
-			inputElement.SemanticIndex = 0;
-			inputElement.SemanticName = "POSITION";
-			shader->AddInputElement(inputElement);
-
-			inputElement.AlignedByteOffset = 0;
-			inputElement.Format = TE_RESOURCE_FORMAT::R32G32B32_FLOAT;
-			inputElement.InputSlot = 1;
-			inputElement.InputSlotClass = TE_RENDERER_SHADER_INPUT_CLASSIFICATION::PER_VERTEX;
-			inputElement.InstanceDataStepRate = 0;
-			inputElement.SemanticIndex = 0;
-			inputElement.SemanticName = "NORMAL";
-			shader->AddInputElement(inputElement);
-
-			inputElement.AlignedByteOffset = 12;
-			inputElement.Format = TE_RESOURCE_FORMAT::R32G32B32_FLOAT;
-			inputElement.InputSlot = 1;
-			inputElement.InputSlotClass = TE_RENDERER_SHADER_INPUT_CLASSIFICATION::PER_VERTEX;
-			inputElement.InstanceDataStepRate = 0;
-			inputElement.SemanticIndex = 0;
-			inputElement.SemanticName = "TANGENT";
-			shader->AddInputElement(inputElement);
-
-			inputElement.AlignedByteOffset = 24;
-			inputElement.Format = TE_RESOURCE_FORMAT::R32G32_FLOAT;
-			inputElement.InputSlot = 1;
-			inputElement.InputSlotClass = TE_RENDERER_SHADER_INPUT_CLASSIFICATION::PER_VERTEX;
-			inputElement.InstanceDataStepRate = 0;
-			inputElement.SemanticIndex = 0;
-			inputElement.SemanticName = "TEXCOORD";
-			shader->AddInputElement(inputElement);
-		}*/
+		auto result = m_ShaderMgr->AddShader(&shader, TE_IDX_SHADERCLASS::FORWARDRENDERING, material->GetMeshType(), material->GetRendererStates(), "Assets/Shaders/renderer3D.hlsl", "vs", "ps");
 
 		auto pipeline = std::make_shared<Pipeline>(material->GetRendererStates(), shader);
 

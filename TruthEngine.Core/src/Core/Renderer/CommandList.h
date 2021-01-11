@@ -17,6 +17,7 @@ namespace TruthEngine::Core
 	class IndexBuffer;
 	class ShaderManager;
 	class BufferUplaod;
+	class ShaderSignature;
 
 	struct ViewRect;
 	struct Viewport;
@@ -76,6 +77,8 @@ namespace TruthEngine::Core
 	protected:
 		uint32_t m_AssignedVertexBufferID = -1;
 		uint32_t m_AssignedIndexBufferID = -1;
+
+		ShaderSignature* m_ShaderSignature;
 
 		TE_IDX_SHADERCLASS m_ShaderClassIDX = TE_IDX_SHADERCLASS::NONE;
 		TE_IDX_RENDERPASS m_RenderPassIDX = TE_IDX_RENDERPASS::NONE;
