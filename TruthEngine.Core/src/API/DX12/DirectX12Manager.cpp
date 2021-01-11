@@ -26,18 +26,18 @@ namespace TruthEngine::API::DirectX12
 		auto bufferManager = DirectX12BufferManager::GetInstance().get();
 		auto& descHeapSRV = bufferManager->m_DescHeapSRV;
 
-		auto bindedResource = DirectX12ShaderManager::GetInstance()->GetBindedResource(shaderClassIDX);
+		auto shaderSignature = DirectX12ShaderManager::GetInstance()->GetShaderSignature(shaderClassIDX);
 
 		uint32_t paramNum = 0;
 
-		for (auto& v : bindedResource->ConstantBuffers)
+		for (auto& v : shaderSignature->ConstantBuffers)
 		{
 			if (v.size() > 0)
 			{
 				paramNum++;
 			}
 		}
-		for (auto& v : bindedResource->Textures)
+		for (auto& v : shaderSignature->Textures)
 		{
 			if (v.size() > 0)
 			{
@@ -52,9 +52,9 @@ namespace TruthEngine::API::DirectX12
 
 		paramNum = 0;
 
-		for (uint32_t i = 0; i < bindedResource->ConstantBuffers.size(); ++i)
+		for (uint32_t i = 0; i < shaderSignature->ConstantBuffers.size(); ++i)
 		{
-			auto& v = bindedResource->ConstantBuffers[i];
+			auto& v = shaderSignature->ConstantBuffers[i];
 			if (v.size() > 0)
 			{
 				auto idx = v[0].ConstantBufferIDX;
@@ -96,9 +96,9 @@ namespace TruthEngine::API::DirectX12
 			}
 		}
 
-		for (uint32_t i = 0; i < bindedResource->Textures.size(); ++i)
+		for (uint32_t i = 0; i < shaderSignature->Textures.size(); ++i)
 		{
-			auto& v = bindedResource->Textures[i];
+			auto& v = shaderSignature->Textures[i];
 			if (v.size() > 0)
 			{
 				if (v[0].TextureIDX == TE_IDX_TEXTURE::MATERIALTEXTURE_DIFFUSE)

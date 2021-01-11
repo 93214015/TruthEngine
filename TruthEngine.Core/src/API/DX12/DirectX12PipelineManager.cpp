@@ -217,7 +217,6 @@ namespace TruthEngine::API::DirectX12
 			AddPipeline(pipeline, PSO, desc);
 		}
 
-
 		return PSO;
 	}
 

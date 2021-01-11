@@ -16,6 +16,9 @@
     <Filter Include="Core\Entity\Camera">
       <UniqueIdentifier>{F2BFEAD2-DEA3-AB28-4704-A67B330796AA}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Core\Entity\Components">
+      <UniqueIdentifier>{8F3D0171-7B37-2AC3-64A4-C0D3503D902F}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Core\Entity\Light">
       <UniqueIdentifier>{E1B77FD8-4DCE-7D6E-9645-0990029B4EF6}</UniqueIdentifier>
     </Filter>
@@ -96,6 +99,12 @@
     <ClInclude Include="src\Core\Core.h">
       <Filter>Core</Filter>
     </ClInclude>
+    <ClInclude Include="src\Core\Entity\Camera\Camera.h">
+      <Filter>Core\Entity\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Entity\Camera\CameraController.h">
+      <Filter>Core\Entity\Camera</Filter>
+    </ClInclude>
     <ClInclude Include="src\Core\Entity\Camera\CameraManager.h">
       <Filter>Core\Entity\Camera</Filter>
     </ClInclude>
@@ -107,6 +116,24 @@
     </ClInclude>
     <ClInclude Include="src\Core\Entity\Camera\ICamera.h">
       <Filter>Core\Entity\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Entity\Components.h">
+      <Filter>Core\Entity</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Entity\Components\MaterialComponent.h">
+      <Filter>Core\Entity\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Entity\Components\MeshComponent.h">
+      <Filter>Core\Entity\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Entity\Components\TagComponent.h">
+      <Filter>Core\Entity\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Entity\Components\TransformComponent.h">
+      <Filter>Core\Entity\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Entity\Entity.h">
+      <Filter>Core\Entity</Filter>
     </ClInclude>
     <ClInclude Include="src\Core\Entity\Light\ILight.h">
       <Filter>Core\Entity\Light</Filter>
@@ -134,6 +161,9 @@
     </ClInclude>
     <ClInclude Include="src\Core\Entity\Model\ModelManager.h">
       <Filter>Core\Entity\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Entity\Scene.h">
+      <Filter>Core\Entity</Filter>
     </ClInclude>
     <ClInclude Include="src\Core\EntryPoint.h">
       <Filter>Core</Filter>
@@ -303,15 +333,6 @@
     <ClInclude Include="src\TruthEngine.h" />
     <ClInclude Include="src\lib.h" />
     <ClInclude Include="src\pch.h" />
-    <ClInclude Include="src\Core\Entity\Scene.h" />
-    <ClInclude Include="src\Core\Entity\Entity.h" />
-    <ClInclude Include="src\Core\Entity\Components.h" />
-    <ClInclude Include="src\Core\Entity\Components\MeshComponent.h" />
-    <ClInclude Include="src\Core\Entity\Components\MaterialComponent.h" />
-    <ClInclude Include="src\Core\Entity\Components\TransformComponent.h" />
-    <ClInclude Include="src\Core\Entity\Components\TagComponent.h" />
-    <ClInclude Include="src\Core\Entity\Camera\Camera.h" />
-    <ClInclude Include="src\Core\Entity\Camera\CameraController.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\API\DX12\DirectX12BufferManager.cpp">
@@ -359,6 +380,12 @@
     <ClCompile Include="src\Core\Application.cpp">
       <Filter>Core</Filter>
     </ClCompile>
+    <ClCompile Include="src\Core\Entity\Camera\Camera.cpp">
+      <Filter>Core\Entity\Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Entity\Camera\CameraController.cpp">
+      <Filter>Core\Entity\Camera</Filter>
+    </ClCompile>
     <ClCompile Include="src\Core\Entity\Camera\CameraManager.cpp">
       <Filter>Core\Entity\Camera</Filter>
     </ClCompile>
@@ -370,6 +397,21 @@
     </ClCompile>
     <ClCompile Include="src\Core\Entity\Camera\ICamera.cpp">
       <Filter>Core\Entity\Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Entity\Components\MaterialComponent.cpp">
+      <Filter>Core\Entity\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Entity\Components\MeshComponent.cpp">
+      <Filter>Core\Entity\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Entity\Components\TagComponent.cpp">
+      <Filter>Core\Entity\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Entity\Components\TransformComponent.cpp">
+      <Filter>Core\Entity\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Entity\Entity.cpp">
+      <Filter>Core\Entity</Filter>
     </ClCompile>
     <ClCompile Include="src\Core\Entity\Light\ILight.cpp">
       <Filter>Core\Entity\Light</Filter>
@@ -397,6 +439,9 @@
     </ClCompile>
     <ClCompile Include="src\Core\Entity\Model\ModelManager.cpp">
       <Filter>Core\Entity\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Entity\Scene.cpp">
+      <Filter>Core\Entity</Filter>
     </ClCompile>
     <ClCompile Include="src\Core\Event\Event.cpp">
       <Filter>Core\Event</Filter>
@@ -453,6 +498,9 @@
       <Filter>Core\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="src\Core\Renderer\Pipeline.cpp">
+      <Filter>Core\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Renderer\PipelineState.cpp">
       <Filter>Core\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="src\Core\Renderer\RenderPass.cpp">
@@ -531,14 +579,5 @@
       <Filter>Platform\Windows</Filter>
     </ClCompile>
     <ClCompile Include="src\pch.cpp" />
-    <ClCompile Include="src\Core\Entity\Scene.cpp" />
-    <ClCompile Include="src\Core\Entity\Entity.cpp" />
-    <ClCompile Include="src\Core\Entity\Components\MeshComponent.cpp" />
-    <ClCompile Include="src\Core\Entity\Components\MaterialComponent.cpp" />
-    <ClCompile Include="src\Core\Entity\Components\TransformComponent.cpp" />
-    <ClCompile Include="src\Core\Entity\Components\TagComponent.cpp" />
-    <ClCompile Include="src\Core\Entity\Camera\Camera.cpp" />
-    <ClCompile Include="src\Core\Entity\Camera\CameraController.cpp" />
-    <ClCompile Include="src\Core\Renderer\PipelineState.cpp" />
   </ItemGroup>
 </Project>

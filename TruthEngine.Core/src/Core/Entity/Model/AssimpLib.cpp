@@ -79,7 +79,6 @@ namespace TruthEngine::Core
 
 		ModelManager* modelManager = ModelManager::GetInstance().get();
 
-
 		for (uint32_t i = 0; i < aiscene->mNumMaterials; ++i)
 		{
 			auto states = InitRenderStates();
@@ -198,7 +197,7 @@ namespace TruthEngine::Core
 				, diffuseMapViewIndex
 				, normalMapViewIndex
 				, -1
-				, 0, 0.0f, 0.0f);
+				, 0, 0.0f, 0.0f, TE_IDX_MESH_TYPE::MESH_NTT);
 		}
 	}
 

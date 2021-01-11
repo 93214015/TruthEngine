@@ -89,12 +89,15 @@ namespace TruthEngine::Core
 			m_Model3DQueue.emplace_back(model.get());
 		}*/
 
-		m_RenderPass_ForwardRendering->BeginScene();
+		/*m_RenderPass_ForwardRendering->BeginScene();
 		m_RenderPass_ForwardRendering->EndScene();
-		m_RenderPass_ForwardRendering->Render();
+		m_RenderPass_ForwardRendering->Render();*/
 
 		for (auto renderPass : m_RenderPassStack)
 		{
+			renderPass->BeginScene();
+			renderPass->EndScene();
+			renderPass->Render();
 		}
 	}
 
@@ -129,6 +132,14 @@ namespace TruthEngine::Core
 	{
 		m_RendererCommand.Begin();
 		m_RendererCommand.EndAndPresent();
+	}
+
+	void RendererLayer::OnImGuiRender()
+	{
+		for (auto renderPass : m_RenderPassStack)
+		{
+			renderPass->OnImGuiRender();
+		}
 	}
 
 	void RendererLayer::RegisterEvents()

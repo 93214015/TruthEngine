@@ -8,16 +8,21 @@ namespace TruthEngine
 
 	namespace Core
 	{
-		BindedResource* ShaderManager::GetBindedResource(const TE_IDX_SHADERCLASS shaderClassIDX)
+
+		ShaderSignature* ShaderManager::GetShaderSignature(const TE_IDX_SHADERCLASS shaderClassIDX)
 		{
-			auto& itr = m_Map_BindedResources.find(shaderClassIDX);
-			if (itr != m_Map_BindedResources.end())
+			if (shaderClassIDX == TE_IDX_SHADERCLASS::NONE)
+				return nullptr;
+
+			auto& itr = m_Map_ShaderSignatures.find(shaderClassIDX);
+			if (itr != m_Map_ShaderSignatures.end())
 			{
 				return &itr->second;
 			}
 
-			return CreateBindedResource(shaderClassIDX);
+			return _CreateShaderSignature(shaderClassIDX);
 		}
+
 
 		Shader* ShaderManager::GetShader(TE_IDX_SHADERCLASS shaderClassID, RendererStateSet states)
 		{
@@ -37,6 +42,7 @@ namespace TruthEngine
 			}
 		}
 
+
 		std::shared_ptr<TruthEngine::Core::ShaderManager> ShaderManager::Factory()
 		{
 			switch (Settings::RendererAPI)
@@ -49,47 +55,31 @@ namespace TruthEngine
 		}
 
 
-
-
-		BindedResource* ShaderManager::CreateBindedResource(const TE_IDX_SHADERCLASS shaderClassIDX)
+		ShaderSignature* ShaderManager::_CreateShaderSignature(const TE_IDX_SHADERCLASS shaderClassIDX)
 		{
+			ShaderSignature* sg;
+
 			switch (shaderClassIDX)
 			{
 			case TE_IDX_SHADERCLASS::FORWARDRENDERING:
-				/*m_Map_BindedResources[shaderClassIDX] = BindedResource{
-					{{ TE_IDX_CONSTANTBUFFER::PER_FRAME, TE_IDX_CONSTANTBUFFER::PER_DLIGHT, TE_IDX_CONSTANTBUFFER::MATERIALS } , { TE_IDX_CONSTANTBUFFER::DIRECT_PER_MESH }},
-					{{ TE_IDX_TEXTURE::MATERIALTEXTURE_DIFFUSE }, {TE_IDX_TEXTURE::GBUFFER_NORMAL}}
-				};*/
-				m_Map_BindedResources[shaderClassIDX] = BindedResource{
-					{{ {0, 0, TE_IDX_CONSTANTBUFFER::PER_FRAME}, {1, 0, TE_IDX_CONSTANTBUFFER::PER_DLIGHT}, {2, 0, TE_IDX_CONSTANTBUFFER::MATERIALS} } , { {3, 0, TE_IDX_CONSTANTBUFFER::DIRECT_PER_MESH} } },
-					{{ {0, 0, TE_IDX_TEXTURE::MATERIALTEXTURE_DIFFUSE} }, {{ 0, 1, TE_IDX_TEXTURE::MATERIALTEXTURE_NORMAL }}}
-				};
-				return &m_Map_BindedResources[shaderClassIDX];
+			{
+				sg = &m_Map_ShaderSignatures[shaderClassIDX];
+				sg->ConstantBuffers = _CreateConstantBufferSlots(shaderClassIDX);
+				sg->Textures = _CreateTextureSlots(shaderClassIDX);
+				_CreateInputElements(sg->InputElements, shaderClassIDX);
+			}
 			default:
 				break;
 			}
 
-		}
-
-
-		std::vector<TruthEngine::Core::ShaderInputElement>* ShaderManager::GetInputElements(TE_IDX_SHADERCLASS shaderClassIDX)
-		{
-			auto& itr = m_Map_ShaderInputElements.find(shaderClassIDX);
-
-			if (itr != m_Map_ShaderInputElements.end())
-			{
-				return &itr->second;
-			}
-			else
-			{
-				return CreateInputElements(shaderClassIDX);
-			}
+			return sg;
 
 		}
 
-		std::vector<TruthEngine::Core::ShaderInputElement>* ShaderManager::CreateInputElements(TE_IDX_SHADERCLASS shaderClassIDX)
+
+		void ShaderManager::_CreateInputElements(std::vector<ShaderInputElement> shaderInputs[(uint32_t)TE_IDX_MESH_TYPE::TOTALNUM], TE_IDX_SHADERCLASS shaderClassIDX)
 		{
-			auto& v = m_Map_ShaderInputElements[shaderClassIDX];
+
 			ShaderInputElement inputElement;
 
 			switch (shaderClassIDX)
@@ -97,51 +87,74 @@ namespace TruthEngine
 			case TE_IDX_SHADERCLASS::NONE:
 				break;
 			case TE_IDX_SHADERCLASS::FORWARDRENDERING:
-				inputElement.AlignedByteOffset = 0;
-				inputElement.Format = TE_RESOURCE_FORMAT::R32G32B32_FLOAT;
-				inputElement.InputSlot = 0;
-				inputElement.InputSlotClass = TE_RENDERER_SHADER_INPUT_CLASSIFICATION::PER_VERTEX;
-				inputElement.InstanceDataStepRate = 0;
-				inputElement.SemanticIndex = 0;
-				inputElement.SemanticName = "POSITION";
-				v.emplace_back(inputElement);
-
-				inputElement.AlignedByteOffset = 0;
-				inputElement.Format = TE_RESOURCE_FORMAT::R32G32B32_FLOAT;
-				inputElement.InputSlot = 1;
-				inputElement.InputSlotClass = TE_RENDERER_SHADER_INPUT_CLASSIFICATION::PER_VERTEX;
-				inputElement.InstanceDataStepRate = 0;
-				inputElement.SemanticIndex = 0;
-				inputElement.SemanticName = "NORMAL";
-				v.emplace_back(inputElement);
-
-				inputElement.AlignedByteOffset = 12;
-				inputElement.Format = TE_RESOURCE_FORMAT::R32G32B32_FLOAT;
-				inputElement.InputSlot = 1;
-				inputElement.InputSlotClass = TE_RENDERER_SHADER_INPUT_CLASSIFICATION::PER_VERTEX;
-				inputElement.InstanceDataStepRate = 0;
-				inputElement.SemanticIndex = 0;
-				inputElement.SemanticName = "TANGENT";
-				v.emplace_back(inputElement);
-
-				inputElement.AlignedByteOffset = 24;
-				inputElement.Format = TE_RESOURCE_FORMAT::R32G32_FLOAT;
-				inputElement.InputSlot = 1;
-				inputElement.InputSlotClass = TE_RENDERER_SHADER_INPUT_CLASSIFICATION::PER_VERTEX;
-				inputElement.InstanceDataStepRate = 0;
-				inputElement.SemanticIndex = 0;
-				inputElement.SemanticName = "TEXCOORD";
-				v.emplace_back(inputElement);
+			{
+				auto& ie = shaderInputs[(uint32_t)TE_IDX_MESH_TYPE::MESH_NTT];
+				ie.emplace_back("POSITION", 0, TE_RESOURCE_FORMAT::R32G32B32_FLOAT, 0, 0, TE_RENDERER_SHADER_INPUT_CLASSIFICATION::PER_VERTEX, 0);
+				ie.emplace_back("NORMAL", 0, TE_RESOURCE_FORMAT::R32G32B32_FLOAT, 1, 0, TE_RENDERER_SHADER_INPUT_CLASSIFICATION::PER_VERTEX, 0);
+				ie.emplace_back("TANGENT", 0, TE_RESOURCE_FORMAT::R32G32B32_FLOAT, 1, 12, TE_RENDERER_SHADER_INPUT_CLASSIFICATION::PER_VERTEX, 0);
+				ie.emplace_back("TEXCOORD", 0, TE_RESOURCE_FORMAT::R32G32_FLOAT, 1, 24, TE_RENDERER_SHADER_INPUT_CLASSIFICATION::PER_VERTEX, 0);
 				break;
+			}
 			default:
 				throw;
 				break;
 			}
 
-			return &v;
 		}
 
-		void ShaderManager::GetShaderDefines(const RendererStateSet states)
+
+		std::vector<std::vector<ShaderSignature::ShaderConstantBufferSlot>> ShaderManager::_CreateConstantBufferSlots(TE_IDX_SHADERCLASS shaderClassIDX)
+		{
+			std::vector<std::vector<ShaderSignature::ShaderConstantBufferSlot>> v;
+
+			switch (shaderClassIDX)
+			{
+			case TE_IDX_SHADERCLASS::NONE:
+				break;
+			case TE_IDX_SHADERCLASS::FORWARDRENDERING:
+			{
+				v =
+				{
+					{ ShaderSignature::ShaderConstantBufferSlot{0, 0, TE_IDX_CONSTANTBUFFER::PER_FRAME}, ShaderSignature::ShaderConstantBufferSlot{1, 0, TE_IDX_CONSTANTBUFFER::PER_DLIGHT}, ShaderSignature::ShaderConstantBufferSlot{2, 0, TE_IDX_CONSTANTBUFFER::MATERIALS} },
+					{ ShaderSignature::ShaderConstantBufferSlot{3, 0, TE_IDX_CONSTANTBUFFER::DIRECT_PER_MESH} }
+				};
+				break;
+			}
+			default:
+				throw;
+				break;
+			}
+			return v;
+		}
+
+
+		std::vector<std::vector<ShaderSignature::ShaderTextureSlot>> ShaderManager::_CreateTextureSlots(TE_IDX_SHADERCLASS shaderClassIDX)
+		{
+			std::vector<std::vector<ShaderSignature::ShaderTextureSlot>> v;
+
+			switch (shaderClassIDX)
+			{
+			case TE_IDX_SHADERCLASS::NONE:
+				break;
+			case TE_IDX_SHADERCLASS::FORWARDRENDERING:
+			{
+				v =
+				{ 
+					{ ShaderSignature::ShaderTextureSlot{0, 0, TE_IDX_TEXTURE::MATERIALTEXTURE_DIFFUSE} },
+					{ ShaderSignature::ShaderTextureSlot{ 0, 1, TE_IDX_TEXTURE::MATERIALTEXTURE_NORMAL } }
+				};
+				break;
+			}
+			default:
+				throw;
+				break;
+			}
+
+			return v;
+		}
+
+
+		void ShaderManager::_GetShaderDefines(const RendererStateSet states)
 		{
 			m_Defines.clear();
 			if (GET_RENDERER_STATE(states, TE_RENDERER_STATE_ENABLED_MAP_DIFFUSE) == TE_RENDERER_STATE_ENABLED_MAP_DIFFUSE_TRUE)

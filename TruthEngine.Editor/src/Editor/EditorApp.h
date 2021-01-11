@@ -23,6 +23,9 @@ namespace TruthEngine
 			void OnDestroy() override;
 
 		private:
+
+			void OnImGuiRender();
+
 		};
 	}
 }

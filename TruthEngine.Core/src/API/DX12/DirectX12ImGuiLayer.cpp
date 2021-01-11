@@ -136,7 +136,7 @@ namespace TruthEngine::API::DirectX12 {
 		ImGui::Begin("OpenFile");
 		if (ImGui::Button("Open File Dialog"))
 		{
-			const std::vector<const char*> fileExtensions = { ".fbx", ".obj" };
+			const std::vector<const char*> fileExtensions = { ".obj", ".fbx" };
 			OpenFileDialog("Open Model", fileExtensions);
 		}
 		m_FileBrowser.Display();

@@ -3,6 +3,8 @@
 
 #include "API/DX12/DirectX12CommandList.h"
 
+#include "ShaderManager.h"
+
 namespace TruthEngine::Core {
 
 
@@ -19,7 +21,7 @@ namespace TruthEngine::Core {
 	}
 
 	CommandList::CommandList(TE_IDX_RENDERPASS renderPassIDX, TE_IDX_SHADERCLASS shaderClassIDX)
-		: m_ShaderClassIDX(shaderClassIDX), m_RenderPassIDX(renderPassIDX)
+		:  m_RenderPassIDX(renderPassIDX), m_ShaderClassIDX(shaderClassIDX), m_ShaderSignature(ShaderManager::GetInstance()->GetShaderSignature(shaderClassIDX))
 	{
 	}
 

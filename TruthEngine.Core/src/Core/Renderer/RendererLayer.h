@@ -44,6 +44,8 @@ namespace TruthEngine::Core
 		void BeginRendering();
 		void EndRendering();
 
+		void OnImGuiRender();
+
 
 	private:
 		void RegisterEvents();
