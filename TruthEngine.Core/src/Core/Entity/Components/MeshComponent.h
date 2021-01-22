@@ -3,6 +3,7 @@
 #include "Core/Renderer/VertexBuffer.h"
 #include "Core/Renderer/IndexBuffer.h"
 
+#include "Core/Entity/Entity.h"
 #include "Core/Entity/Model/Mesh.h"
 
 namespace TruthEngine
@@ -20,6 +21,7 @@ namespace TruthEngine
 			{
 				return m_Mesh;
 			}
+
 
 		private:
 

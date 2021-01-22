@@ -101,45 +101,16 @@ namespace TruthEngine::API::DirectX12
 			auto& v = shaderSignature->Textures[i];
 			if (v.size() > 0)
 			{
-				if (v[0].TextureIDX == TE_IDX_TEXTURE::MATERIALTEXTURE_DIFFUSE)
+
+				if (v[0].TextureIDX == TE_IDX_TEXTURE::MATERIALTEXTURES)
 				{
 					rootSig.Parameters[paramNum].Type = RootParameterType::Table;
 					rootSig.Parameters[paramNum].Table.Type = RootParameterDescriptorType::SRV;
-					rootSig.Parameters[paramNum].Table.NumDescriptor = 50;
+					rootSig.Parameters[paramNum].Table.NumDescriptor = 200;
 					rootSig.Parameters[paramNum].Table.Register = v[0].Register;
 					rootSig.Parameters[paramNum].Table.RegisterSpace = v[0].RegisterSpace;
 
-					auto gpuHandle = static_cast<DirectX12TextureMaterialManager*>(Core::TextureMaterialManager::GetInstance())->GetGPUHandle_Diffuse();
-
-					rootArg.Tables.emplace_back(paramNum, gpuHandle);
-
-					paramNum++;
-					continue;
-				}
-				else if (v[0].TextureIDX == TE_IDX_TEXTURE::MATERIALTEXTURE_NORMAL)
-				{
-					rootSig.Parameters[paramNum].Type = RootParameterType::Table;
-					rootSig.Parameters[paramNum].Table.Type = RootParameterDescriptorType::SRV;
-					rootSig.Parameters[paramNum].Table.NumDescriptor = 50;
-					rootSig.Parameters[paramNum].Table.Register = v[0].Register;
-					rootSig.Parameters[paramNum].Table.RegisterSpace = v[0].RegisterSpace;
-
-					auto gpuHandle = static_cast<DirectX12TextureMaterialManager*>(Core::TextureMaterialManager::GetInstance())->GetGPUHandle_Normal();
-
-					rootArg.Tables.emplace_back(paramNum, gpuHandle);
-
-					paramNum++;
-					continue;
-				}
-				else if (v[0].TextureIDX == TE_IDX_TEXTURE::MATERIALTEXTURE_DISPLACEMENT)
-				{
-					rootSig.Parameters[paramNum].Type = RootParameterType::Table;
-					rootSig.Parameters[paramNum].Table.Type = RootParameterDescriptorType::SRV;
-					rootSig.Parameters[paramNum].Table.NumDescriptor = 50;
-					rootSig.Parameters[paramNum].Table.Register = v[0].Register;
-					rootSig.Parameters[paramNum].Table.RegisterSpace = v[0].RegisterSpace;
-
-					auto gpuHandle = static_cast<DirectX12TextureMaterialManager*>(Core::TextureMaterialManager::GetInstance())->GetGPUHandle_Displacement();
+					auto gpuHandle = static_cast<DirectX12TextureMaterialManager*>(Core::TextureMaterialManager::GetInstance())->GetGPUHandle();
 
 					rootArg.Tables.emplace_back(paramNum, gpuHandle);
 
@@ -205,20 +176,41 @@ namespace TruthEngine::API::DirectX12
 		//
 		////Define Static Samplers
 		//
-		D3D12_STATIC_SAMPLER_DESC sampler_desc = {};
-		sampler_desc.AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-		sampler_desc.AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-		sampler_desc.AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-		sampler_desc.ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER;
-		sampler_desc.Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
-		sampler_desc.RegisterSpace = 0;
-		sampler_desc.ShaderRegister = 0;
-		sampler_desc.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+		D3D12_STATIC_SAMPLER_DESC sampler_desc[2];
+		sampler_desc[0].AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+		sampler_desc[0].AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+		sampler_desc[0].AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+		sampler_desc[0].ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER;
+		sampler_desc[0].Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
+		sampler_desc[0].RegisterSpace = 0;
+		sampler_desc[0].ShaderRegister = 0;
+		sampler_desc[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+		sampler_desc[0].MaxAnisotropy = 1;
+		sampler_desc[0].MinLOD = 0;
+		sampler_desc[0].MaxLOD = D3D12_FLOAT32_MAX;
+		sampler_desc[0].MipLODBias = 0;
+
+
+
+		sampler_desc[1].AddressU = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+		sampler_desc[1].AddressV = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+		sampler_desc[1].AddressW = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+		sampler_desc[1].BorderColor = D3D12_STATIC_BORDER_COLOR_OPAQUE_BLACK;
+		sampler_desc[1].ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER;
+		sampler_desc[1].Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
+		sampler_desc[1].RegisterSpace = 0;
+		sampler_desc[1].ShaderRegister = 1;
+		sampler_desc[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+		sampler_desc[1].MaxAnisotropy = 1;
+		sampler_desc[1].MinLOD = 0;
+		sampler_desc[1].MaxLOD = D3D12_FLOAT32_MAX;
+		sampler_desc[1].MipLODBias = 0;
+
 
 		COMPTR<ID3DBlob> errorBlob;
 		COMPTR<ID3DBlob> signatureBlob;
 
-		auto signatureDesc = CD3DX12_ROOT_SIGNATURE_DESC(params.size(), params.data(), 1, &sampler_desc, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT
+		auto signatureDesc = CD3DX12_ROOT_SIGNATURE_DESC(params.size(), params.data(), 2, sampler_desc, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT
 			| D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS
 			| D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS
 			| D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS
@@ -231,7 +223,7 @@ namespace TruthEngine::API::DirectX12
 			exit(1);
 		}
 
-		if (FAILED(TE_INSTANCE_API_DX12_GRAPHICDEVICE->CreateRootSignature(0, signatureBlob->GetBufferPointer(), signatureBlob->GetBufferSize(), IID_PPV_ARGS(m_ID3D12RootSignatures[TE_IDX_SHADERCLASS::FORWARDRENDERING].GetAddressOf()))))
+		if (FAILED(TE_INSTANCE_API_DX12_GRAPHICDEVICE->CreateRootSignature(0, signatureBlob->GetBufferPointer(), signatureBlob->GetBufferSize(), IID_PPV_ARGS(m_ID3D12RootSignatures[shaderClassIDX].GetAddressOf()))))
 		{
 			OutputDebugString(L"the Creation of root signature of Renderer3D is failed!");
 			exit(1);

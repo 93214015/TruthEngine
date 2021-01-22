@@ -26,7 +26,7 @@ namespace TruthEngine
 		public:
 			RendererCommand();
 
-			void Init(TE_IDX_RENDERPASS renderPassIDX, TE_IDX_SHADERCLASS shaderClassIDX, uint32_t ParallelCommandsNum = 1, std::shared_ptr<BufferManager> bufferManager = nullptr, std::shared_ptr<ShaderManager> shaderManager = nullptr);
+			void Init(TE_IDX_RENDERPASS renderPassIDX, TE_IDX_SHADERCLASS shaderClassIDX, uint32_t ParallelCommandsNum = 1, BufferManager* bufferManager = nullptr, ShaderManager* shaderManager = nullptr);
 			void Release();
 
 			TextureRenderTarget* CreateRenderTarget(TE_IDX_TEXTURE idx, uint32_t width, uint32_t height, TE_RESOURCE_FORMAT format, const ClearValue_RenderTarget& clearValue, bool useAsShaderResource);
@@ -119,8 +119,8 @@ namespace TruthEngine
 
 			std::vector<std::shared_ptr<CommandList>> m_CommandLists;
 
-			std::shared_ptr<BufferManager> m_BufferManager;
-			std::shared_ptr<ShaderManager> m_ShaderManager;
+			BufferManager* m_BufferManager;
+			ShaderManager* m_ShaderManager;
 
 		};
 	}

@@ -15,11 +15,13 @@ namespace TruthEngine::API::DirectX12 {
 	public:
 		static inline DirectX12SwapChain& GetInstance() { return s_SwapChain; }
 
-		TE_RESULT Init(UINT clientWidth, UINT clientHeight, Core::Window* outputWindow, UINT backBufferNum = 2) override;
+		TE_RESULT Init(uint32_t clientWidth, uint32_t clientHeight, Core::Window* outputWindow, uint32_t backBufferNum = 2) override;
 
 		void Release() override;
 
-		TE_RESULT Resize(UINT width, UINT height, UINT backBufferNum) override;
+		TE_RESULT Resize(uint32_t width, uint32_t height, uint32_t backBufferNum) override;
+
+		uint32_t GetCurrentFrameIndex() const override;
 
 		void InitRTVs(DescriptorHeapRTV* descHeap, Core::RenderTargetView* RTV);
 

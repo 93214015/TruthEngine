@@ -11,6 +11,13 @@ namespace TruthEngine::API::DirectX12
 	uint32_t DescriptorHeapSampler::m_DescriptorSize = 0;
 
 
+
+	DirectX12DescriptorHeap::DirectX12DescriptorHeap(uint32_t reserveDescriptors /*= 0*/)
+	{
+		m_CurrentIndex = reserveDescriptors;
+	}
+
+
 	TE_RESULT DescriptorHeapRTV::Init(DirectX12GraphicDevice& device, uint32_t descriptorNum, D3D12_DESCRIPTOR_HEAP_FLAGS flags /*= D3D12_DESCRIPTOR_HEAP_FLAG_NONE*/, uint32_t nodeMask /*= 0*/)
 	{
 		m_Device = &device;
@@ -148,5 +155,6 @@ namespace TruthEngine::API::DirectX12
 	{
 		m_Device->GetDevice()->CreateSampler(samplerDesc, GetCPUHandle(index));
 	}
+
 
 }

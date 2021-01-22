@@ -26,6 +26,9 @@ namespace TruthEngine
 				, float extraDepthBiasClamp
 				, TE_IDX_MESH_TYPE meshType);
 
+			//
+			//////Get Methods
+			//
 			inline RendererStateSet GetRendererStates() const noexcept
 			{
 				return m_RendererStates;
@@ -36,12 +39,12 @@ namespace TruthEngine
 				return m_ID;
 			}
 
-			inline float4 GetColorDiffuse() const noexcept
+			inline const float4& GetColorDiffuse() const noexcept
 			{
 				return m_ColorDiffuse;
 			}
 
-			inline float3 GetFresnelR0() const noexcept
+			inline const float3& GetFresnelR0() const noexcept
 			{
 				return m_FresnelR0;
 			}
@@ -70,6 +73,39 @@ namespace TruthEngine
 			{
 				return m_MeshType;
 			}
+
+
+			//
+			//////Set Methods
+			//
+			void InvokeEventChangeMaterial();
+
+
+			inline void SetColorDiffuse(const float4& color)
+			{
+				m_ColorDiffuse = color;
+				InvokeEventChangeMaterial();
+			}
+
+			inline void SetFresnelR0(const float3& r0)
+			{
+				m_FresnelR0 = r0;
+				InvokeEventChangeMaterial();
+			}
+
+			inline void SetShininess(const float shininess)
+			{
+				m_Shininess = shininess;
+				InvokeEventChangeMaterial();
+			}
+
+			void SetMapIndexDiffuse(uint32_t index);
+
+			void SetMapIndexNormal(uint32_t index);
+
+			void SetMapIndexDisplacement(uint32_t index);
+			
+
 
 		private:
 

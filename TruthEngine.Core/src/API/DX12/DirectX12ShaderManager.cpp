@@ -136,7 +136,18 @@ namespace TruthEngine
 				ID3DBlob* codeBlob;
 				COMPTR<ID3DBlob> errorBlob;
 
-				auto hr = D3DCompileFromFile(to_wstring(filePath).c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, entry.data(), target.c_str(), D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION, 0, &codeBlob, errorBlob.GetAddressOf());
+				std::vector <D3D_SHADER_MACRO> macros;
+
+				for (const auto& d : m_Defines)
+				{
+					std::string name = std::string(d.begin(), d.end());
+					D3D_SHADER_MACRO m{  name.c_str() , "" };
+					macros.emplace_back(m);
+				}
+
+				macros.emplace_back(D3D_SHADER_MACRO{ NULL, NULL });
+
+				auto hr = D3DCompileFromFile(to_wstring(filePath).c_str(), macros.data(), D3D_COMPILE_STANDARD_FILE_INCLUDE, entry.data(), target.c_str(), D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION, 0, &codeBlob, errorBlob.GetAddressOf());
 				if (FAILED(hr))
 				{
 					TE_LOG_CORE_ERROR("The Shader Compilation was failed;\n file: {0}\n error: {1}", filePath.data(), static_cast<const char*>(errorBlob->GetBufferPointer()));

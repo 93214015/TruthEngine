@@ -54,6 +54,12 @@ namespace TruthEngine::API {
 		}
 	}
 
-	TruthEngine::API::IDXGI IDXGI::s_IDXGI;
+	IDXGI::IDXGI()
+	{
+		CreateFactory();
+		EnumAdapters();
+
+		m_IsInit = true;
+	}
 
 }

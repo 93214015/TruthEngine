@@ -3,9 +3,12 @@
 
 #include "AssimpLib.h"
 
+#include "Core/Application.h"
 #include "Core/Renderer/BufferManager.h"
 #include "Core/Renderer/RendererCommand.h"
 #include "Core/Renderer/GraphicDevice.h"
+#include "Core/Helper/MeshGenerator.h"
+#include "Core/Entity/Components.h"
 
 namespace TruthEngine::Core
 {
@@ -14,7 +17,7 @@ namespace TruthEngine::Core
 	ModelManager::ModelManager()
 	{
 		m_Meshes.reserve(10000);
-		m_Models3D.reserve(1000);
+		//m_Models3D.reserve(1000);
 	}
 
 	ModelManager::~ModelManager()
@@ -23,7 +26,6 @@ namespace TruthEngine::Core
 
 	void ModelManager::ImportModel(Scene* scene, const char* filePath)
 	{
-		TE_INSTANCE_GRAPHICDEVICE->WaitForGPU();
 
 		AssimpLib::GetInstance()->ImportModel(scene, filePath);
 
@@ -42,8 +44,8 @@ namespace TruthEngine::Core
 		mesh.m_VertexOffset = 0;
 
 
-		auto& model = m_Models3D.emplace_back();
-		model.m_Meshes.emplace_back(&mesh);
+		//auto& model = m_Models3D.emplace_back();
+		//model.m_Meshes.emplace_back(&mesh);
 
 
 		VertexData::Pos pos;
@@ -88,6 +90,9 @@ namespace TruthEngine::Core
 	void ModelManager::InitVertexAndIndexBuffer()
 	{
 
+		TE_INSTANCE_GRAPHICDEVICE->WaitForGPU();
+
+
 		m_BufferManager->CreateVertexBuffer(&m_VertexBuffer_PosNormTanTex);
 		m_BufferManager->CreateIndexBuffer(&m_IndexBuffer);
 
@@ -118,16 +123,83 @@ namespace TruthEngine::Core
 		m_Meshes.push_back(mesh);
 	}*/
 
-	Mesh* ModelManager::AddMesh(uint32_t IndexNum, size_t IndexOffset, size_t VertexOffset)
+	Mesh* ModelManager::AddMesh(uint32_t IndexNum, size_t IndexOffset, size_t VertexOffset, size_t vertexNum)
 	{
-		auto& mesh = m_Meshes.emplace_back(IndexNum, IndexOffset, VertexOffset, &m_VertexBuffer_PosNormTanTex, &m_IndexBuffer);
+		BoundingBox bb;
+		CreateBoundingBoxFromPoints(bb, vertexNum, &m_VertexBuffer_PosNormTanTex.GetVertexData<VertexData::Pos>()[VertexOffset].Position, sizeof(VertexData::Pos));
+
+
+		auto& mesh = m_Meshes.emplace_back(IndexNum, IndexOffset, VertexOffset, vertexNum, bb, &m_VertexBuffer_PosNormTanTex, &m_IndexBuffer);
 		return &mesh;
 	}
 
-	TruthEngine::Core::Model3D* ModelManager::AddModel3D()
+	Entity ModelManager::GeneratePrimitiveMesh(TE_PRIMITIVE_TYPE type, float size, const float4x4& transform, Entity modelEntity)
+	{
+		Mesh* mesh = nullptr;
+		std::string _modelName, _meshName;
+
+		switch (type)
+		{
+		case TruthEngine::Core::TE_PRIMITIVE_TYPE::BOX:
+			mesh = MeshGenerator::GetInstance()->GenerateBox(size);
+			_modelName = "Model Box";
+			_meshName = "Box";
+			break;
+		case TruthEngine::Core::TE_PRIMITIVE_TYPE::ROUNDEDBOX:
+			mesh = MeshGenerator::GetInstance()->GenerateRoundedBoxMesh(size);
+			_modelName = "Model RoundedBox";
+			_meshName = "RoundedBox";
+			break;
+		case TruthEngine::Core::TE_PRIMITIVE_TYPE::SPHERE:
+			mesh = MeshGenerator::GetInstance()->GenerateSphere(size);
+			_modelName = "Model Sphere";
+			_meshName = "Sphere";
+			break;
+		case TruthEngine::Core::TE_PRIMITIVE_TYPE::CYLINDER:
+			mesh = MeshGenerator::GetInstance()->GenerateCylinder(size);
+			_modelName = "Model Cylinder";
+			_meshName = "Cylinder";
+			break;
+		case TruthEngine::Core::TE_PRIMITIVE_TYPE::CAPPEDCYLINDER:
+			mesh = MeshGenerator::GetInstance()->GenerateCappedCylinder(size);
+			_modelName = "Model Cylinder";
+			_meshName = "Cylinder";
+			break;
+		case TE_PRIMITIVE_TYPE::PLANE:
+			mesh = MeshGenerator::GetInstance()->GeneratePlane(size);
+			_modelName = "Model Plane";
+			_meshName = "Plane";
+			break;
+		default:
+			break;
+		}
+
+		InitVertexAndIndexBuffer();
+
+
+		auto scene = TE_INSTANCE_APPLICATION->GetActiveScene();
+
+		if (!modelEntity)
+		{
+			modelEntity = scene->AddEntity(_modelName.c_str());
+			modelEntity.AddComponent<ModelComponent>();
+		}
+
+		auto material = m_MaterialManager.AddDefaultMaterial(TE_IDX_MESH_TYPE::MESH_NTT);
+
+		auto meshEntity = scene->AddEntity(_meshName.c_str(), modelEntity, transform);
+		meshEntity.AddComponent<MeshComponent>(mesh);
+		meshEntity.AddComponent<MaterialComponent>(material);
+		meshEntity.AddComponent<BoundingBoxComponent>(mesh->GetBoundingBox());
+
+		return meshEntity;
+
+	}
+
+	/*TruthEngine::Core::Model3D* ModelManager::AddModel3D()
 	{
 		return &m_Models3D.emplace_back();
-	}
+	}*/
 
 
 }

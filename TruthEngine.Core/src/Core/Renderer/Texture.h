@@ -20,6 +20,10 @@ namespace TruthEngine
 
 			virtual ~Texture() = default;
 
+			inline uint32_t GetWidth() const noexcept { return m_Width; }
+			inline uint32_t GetHeight() const noexcept { return m_Height; }
+			inline TE_RESOURCE_FORMAT GetFormat() const noexcept { return m_Format; }
+
 			inline void Resize(uint32_t width, uint32_t height) noexcept
 			{
 				m_Width = width; m_Height = height;

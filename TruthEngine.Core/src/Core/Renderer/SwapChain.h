@@ -17,11 +17,13 @@ namespace TruthEngine::Core {
 	public:
 		virtual void Present() = 0;
 
-		virtual TE_RESULT Init(UINT clientWidth, UINT clientHeight, Window* outputWindow, UINT backBufferNum = 2) = 0;
+		virtual TE_RESULT Init(uint32_t clientWidth, uint32_t clientHeight, Window* outputWindow, uint32_t backBufferNum = 2) = 0;
 
 		virtual void Release() = 0;
 
-		virtual TE_RESULT Resize(UINT width, UINT height, UINT backBufferNum) = 0;
+		virtual TE_RESULT Resize(uint32_t width, uint32_t height, uint32_t backBufferNum) = 0;
+
+		virtual uint32_t GetCurrentFrameIndex() const = 0;
 
 		inline const ClearValue_RenderTarget GetClearValues() const noexcept
 		{
@@ -33,13 +35,8 @@ namespace TruthEngine::Core {
 			m_ClearValues = clearValues;
 		}
 
-		inline UINT GetBackBufferNum()const noexcept { return m_BackBufferNum; }
+		inline uint32_t GetBackBufferNum()const noexcept { return m_BackBufferNum; }
 
-		inline UINT GetCurrentFrameIndex() const noexcept 
-		{
-			auto app = TE_INSTANCE_APPLICATION;
-			return app->GetCurrentFrameIndex(); 
-		};
 
 		static SwapChain* GetInstance();
 
@@ -47,7 +44,7 @@ namespace TruthEngine::Core {
 
 		ClearValue_RenderTarget m_ClearValues = { 1.0f, 1.0f, 1.0f, 1.0f};
 
-		UINT m_BackBufferNum = 2;
+		uint32_t m_BackBufferNum = 2;
 
 		bool m_UseMSAA4X = false;
 

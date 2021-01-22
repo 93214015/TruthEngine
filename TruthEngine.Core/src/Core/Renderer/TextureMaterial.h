@@ -1,5 +1,5 @@
-#pragma once
 #include "Texture.h"
+#pragma once
 
 namespace TruthEngine
 {
@@ -14,7 +14,7 @@ namespace TruthEngine
 		class TextureMaterial : Texture
 		{
 		public:
-			TextureMaterial(const char* name, const char* fileName, uint8_t* pdata, uint32_t width, uint32_t height, size_t dataSize, TE_RESOURCE_FORMAT format);
+			TextureMaterial(uint32_t id, const char* name, const char* fileName, uint8_t* pdata, uint32_t width, uint32_t height, size_t dataSize, TE_RESOURCE_FORMAT format);
 			~TextureMaterial();
 
 			inline uint8_t* GetData() const noexcept
@@ -42,9 +42,15 @@ namespace TruthEngine
 				return m_DataSize;
 			}
 
+			inline uint32_t GetViewIndex()const noexcept
+			{
+				return m_ViewIndex;
+			}
+
 		protected:
 
 		protected:
+			uint32_t m_ID = -1;
 			std::string m_Name = "";
 			std::string m_FileName = "";
 

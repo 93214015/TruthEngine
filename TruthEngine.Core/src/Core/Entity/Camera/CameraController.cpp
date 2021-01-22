@@ -34,6 +34,8 @@ namespace TruthEngine::Core
 		TE_INSTANCE_APPLICATION->RegisterEventListener(EventType::KeyPressed, lambda_onKeyPressed);
 
 	}
+
+
 	void CameraController::Strafe(float d)
 	{
 		d *= m_Speed;

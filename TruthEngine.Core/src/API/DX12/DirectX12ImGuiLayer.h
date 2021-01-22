@@ -26,15 +26,24 @@ namespace TruthEngine::API::DirectX12
 
 		void End() override;
 
-		void OnSceneViewportResize();
+		//void RenderSceneViewport() override;
+		void RenderSceneViewport(const ImVec2& viewportSize) override;
 
 	private:
-		DescriptorHeapSRV m_DescHeapSRV;
+
+		void OnTextureResize(const Core::EventTextureResize& event);
+
+	private:
+		//DescriptorHeapSRV m_DescHeapSRV;
+		DescriptorHeapSRV* m_DescHeapSRV;
 		DescriptorHeapRTV m_DescHeapRTV;
 		std::shared_ptr<DirectX12CommandList> m_CommandList;
 
 		uint32_t m_SRVIndexScreenBuffer = -1;
 		ID3D12Resource* m_D3D12Resource_ScreenBuffer;
+
+		D3D12_VIEWPORT m_D3D12Viewport;
+		D3D12_RECT m_D3D12ViewRect;
 
 	};
 }

@@ -191,7 +191,6 @@ namespace TruthEngine::API::DirectX12
 
 	TE_RESULT DirectX12BufferManager::CreateResource(Core::BufferUpload* buffer)
 	{
-		const auto desc = GetBufferDesc(buffer->m_SizeInByte, buffer->m_Usage);
 
 		COMPTR<ID3D12Resource>* resource;
 
@@ -208,6 +207,7 @@ namespace TruthEngine::API::DirectX12
 			resource = &m_Resources[buffer->m_ResourceIndex];
 		}
 
+		const auto desc = GetBufferDesc(buffer->m_SizeInByte, buffer->m_Usage);
 
 		hr = TE_INSTANCE_API_DX12_GRAPHICDEVICE->CreateCommittedResource2(
 			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD)
@@ -362,10 +362,10 @@ namespace TruthEngine::API::DirectX12
 
 			switch (texture->m_Usage)
 			{
-			case TE_RESOURCE_USAGE_RENDERTARGET:
+			case ((uint32_t)TE_RESOURCE_USAGE_RENDERTARGET | (uint32_t)TE_RESOURCE_USAGE_SHADERRESOURCE):
 				m_DescHeapSRV.AddDescriptorSRV(m_Resources[texture->m_ResourceIndex].Get(), nullptr);
 				break;
-			case TE_RESOURCE_USAGE_DEPTHSTENCIL:
+			case ((uint32_t)TE_RESOURCE_USAGE_DEPTHSTENCIL | (uint32_t)TE_RESOURCE_USAGE_SHADERRESOURCE):
 			{
 				auto d = static_cast<Core::TextureDepthStencil*>(texture);
 				D3D12_SHADER_RESOURCE_VIEW_DESC desc;
@@ -374,6 +374,7 @@ namespace TruthEngine::API::DirectX12
 				desc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 				desc.Texture2D.MipLevels = 1;
 				desc.Texture2D.MostDetailedMip = 0;
+				desc.Texture2D.PlaneSlice = 0;
 				m_DescHeapSRV.AddDescriptorSRV(m_Resources[texture->m_ResourceIndex].Get(), &desc);
 				break;
 			}
@@ -386,10 +387,10 @@ namespace TruthEngine::API::DirectX12
 		{
 			switch (texture->m_Usage)
 			{
-			case TE_RESOURCE_USAGE_RENDERTARGET:
+			case  ((uint32_t)TE_RESOURCE_USAGE_RENDERTARGET | (uint32_t)TE_RESOURCE_USAGE_SHADERRESOURCE):
 				m_DescHeapSRV.ReplaceDescriptorSRV(m_Resources[texture->m_ResourceIndex].Get(), nullptr, SRV->ViewIndex);
 				break;
-			case TE_RESOURCE_USAGE_DEPTHSTENCIL:
+			case ((uint32_t)TE_RESOURCE_USAGE_DEPTHSTENCIL | (uint32_t)TE_RESOURCE_USAGE_SHADERRESOURCE):
 			{
 				auto d = static_cast<Core::TextureDepthStencil*>(texture);
 				D3D12_SHADER_RESOURCE_VIEW_DESC desc;
@@ -398,6 +399,7 @@ namespace TruthEngine::API::DirectX12
 				desc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 				desc.Texture2D.MipLevels = 1;
 				desc.Texture2D.MostDetailedMip = 0;
+				desc.Texture2D.PlaneSlice = 0;
 				m_DescHeapSRV.ReplaceDescriptorSRV(m_Resources[texture->m_ResourceIndex].Get(), &desc, SRV->ViewIndex);
 				break;
 			}
@@ -487,6 +489,8 @@ namespace TruthEngine::API::DirectX12
 
 	void DirectX12BufferManager::Init(uint32_t resourceNum, uint32_t shaderResourceViewNum, uint32_t renderTargetViewNum, uint32_t depthBufferViewNum)
 	{
+		m_DescHeapSRV = DescriptorHeapSRV(1);
+
 		m_DescHeapSRV.Init(TE_INSTANCE_API_DX12_GRAPHICDEVICE, shaderResourceViewNum);
 		m_DescHeapRTV.Init(TE_INSTANCE_API_DX12_GRAPHICDEVICE, renderTargetViewNum);
 		m_DescHeapDSV.Init(TE_INSTANCE_API_DX12_GRAPHICDEVICE, depthBufferViewNum);

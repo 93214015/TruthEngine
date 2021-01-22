@@ -17,6 +17,30 @@ namespace TruthEngine::Core
 	void MaterialManager::Init(BufferManager* bufferManager)
 	{
 		m_BufferManager = bufferManager;
+
+		AddMaterial(InitRenderStates()
+			, float4{ 0.5f, 0.4f, 0.7f, 1.0f }
+			, float3{ 0.3f, .3f, .3f }
+			, 1.0f
+			, -1
+			, -1
+			, -1
+			, 0
+			, .0f
+			, .0f
+			, TE_IDX_MESH_TYPE::MESH_NTT);
+
+		AddMaterial(InitRenderStates_CCW()
+			, float4{ 0.7f, 0.7f, 0.7f, 1.0f }
+			, float3{ 0.0f, .0f, .0f }
+			, 0.0f
+			, -1
+			, -1
+			, -1
+			, 0
+			, .0f
+			, .0f
+			, TE_IDX_MESH_TYPE::MESH_NTT);
 	}
 
 	Material* MaterialManager::AddMaterial(
@@ -51,5 +75,32 @@ namespace TruthEngine::Core
 		AddMaterial(InitRenderStates(), float4{ 1.0f, 0.0f, 0.0f, 1.0f }, float3{ 0.3f, 0.3f, 0.3f }, 0.7f, -1, -1, -1, 0, 0.0f, 0.0f, TE_IDX_MESH_TYPE::MESH_NTT);
 	}
 
+	TruthEngine::Core::Material* MaterialManager::AddDefaultMaterial(TE_IDX_MESH_TYPE meshType)
+	{
+		auto ID = static_cast<uint32_t>(m_Map_Materials.size());
+
+		auto material = std::make_shared<Material>(
+			ID
+			, InitRenderStates()
+			, float4{ static_cast<float>((float)rand() / (float)RAND_MAX), static_cast<float>((float)rand() / (float)RAND_MAX), static_cast<float>((float)rand() / (float)RAND_MAX), 1.0f }
+			, float3{ 0.3f, .3f, .3f }
+			, 1.0f
+			, -1
+			, -1
+			, -1
+			, 0
+			, .0f
+			, .0f
+			, meshType);
+
+		m_Map_Materials[ID] = material;
+		m_Materials.push_back(material.get());
+
+		EventEntityAddMaterial event(material.get());
+
+		TE_INSTANCE_APPLICATION->OnEvent(event);
+
+		return material.get();
+	}
 
 }

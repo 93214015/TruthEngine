@@ -27,9 +27,12 @@ namespace TruthEngine::Core {
 
 		inline uint32_t GetSceneViewportHeight() const noexcept { return m_SceneViewportHeight; }
 
+		inline uint32_t GetSceneViewportAspectRatio() const noexcept { return m_SceneViewportWidth / m_SceneViewportHeight; };
+
 		inline uint32_t GetFramesInFlightNum() const noexcept { return m_FramesInFlightNum; }
 
-		inline uint32_t GetCurrentFrameIndex() const noexcept { return m_CurrentFrameIndex; }
+		uint32_t GetCurrentFrameIndex() const noexcept;
+		//inline uint32_t GetCurrentFrameIndex() const noexcept { return m_CurrentFrameIndex; }
 
 		inline const char* GetTitle() const noexcept { return m_Title.c_str(); }
 
@@ -43,7 +46,10 @@ namespace TruthEngine::Core {
 			m_EventDispatcher.RegisterListener(eventType, listener);
 		}
 
+
+		inline double GetAverageCPUTime()const noexcept { return m_Timer.GetAverageCpuTime(); }
 		inline double FrameTime() const noexcept { return m_Timer.DeltaTime(); }
+		inline uint32_t GetFPS()const noexcept { return m_Timer.GetFPS(); }
 
 		void ResizeSceneViewport(uint32_t width, uint32_t height) noexcept;
 
@@ -59,7 +65,10 @@ namespace TruthEngine::Core {
 		static inline Application* GetApplication() { return s_Instance; }
 
 	protected:
+		void OnWindowResize(EventWindowResize& event);
 
+
+	protected:
 		static Application* s_Instance;
 
 		std::unique_ptr<Window> m_Window;

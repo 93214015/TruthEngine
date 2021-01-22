@@ -67,8 +67,18 @@ namespace TruthEngine
 				sg->ConstantBuffers = _CreateConstantBufferSlots(shaderClassIDX);
 				sg->Textures = _CreateTextureSlots(shaderClassIDX);
 				_CreateInputElements(sg->InputElements, shaderClassIDX);
+				break;
+			}
+			case TE_IDX_SHADERCLASS::GENERATEBASICSHADOWMAP:
+			{
+				sg = &m_Map_ShaderSignatures[shaderClassIDX];
+				sg->ConstantBuffers = _CreateConstantBufferSlots(shaderClassIDX);
+				sg->Textures = _CreateTextureSlots(shaderClassIDX);
+				_CreateInputElements(sg->InputElements, shaderClassIDX);
+				break;
 			}
 			default:
+				throw;
 				break;
 			}
 
@@ -93,6 +103,12 @@ namespace TruthEngine
 				ie.emplace_back("NORMAL", 0, TE_RESOURCE_FORMAT::R32G32B32_FLOAT, 1, 0, TE_RENDERER_SHADER_INPUT_CLASSIFICATION::PER_VERTEX, 0);
 				ie.emplace_back("TANGENT", 0, TE_RESOURCE_FORMAT::R32G32B32_FLOAT, 1, 12, TE_RENDERER_SHADER_INPUT_CLASSIFICATION::PER_VERTEX, 0);
 				ie.emplace_back("TEXCOORD", 0, TE_RESOURCE_FORMAT::R32G32_FLOAT, 1, 24, TE_RENDERER_SHADER_INPUT_CLASSIFICATION::PER_VERTEX, 0);
+				break;
+			}
+			case TE_IDX_SHADERCLASS::GENERATEBASICSHADOWMAP:
+			{
+				auto& ie = shaderInputs[(uint32_t)TE_IDX_MESH_TYPE::MESH_NTT];
+				ie.emplace_back("POSITION", 0, TE_RESOURCE_FORMAT::R32G32B32_FLOAT, 0, 0, TE_RENDERER_SHADER_INPUT_CLASSIFICATION::PER_VERTEX, 0);
 				break;
 			}
 			default:
@@ -120,6 +136,13 @@ namespace TruthEngine
 				};
 				break;
 			}
+			case TE_IDX_SHADERCLASS::GENERATEBASICSHADOWMAP:
+				v =
+				{
+					{ ShaderSignature::ShaderConstantBufferSlot{0, 0, TE_IDX_CONSTANTBUFFER::DIRECT_SHADOWMAP_PER_LIGHT} },
+					{ ShaderSignature::ShaderConstantBufferSlot{1, 0, TE_IDX_CONSTANTBUFFER::DIRECT_SHADOWMAP_PER_MESH} }
+				};
+				break;
 			default:
 				throw;
 				break;
@@ -140,11 +163,13 @@ namespace TruthEngine
 			{
 				v =
 				{ 
-					{ ShaderSignature::ShaderTextureSlot{0, 0, TE_IDX_TEXTURE::MATERIALTEXTURE_DIFFUSE} },
-					{ ShaderSignature::ShaderTextureSlot{ 0, 1, TE_IDX_TEXTURE::MATERIALTEXTURE_NORMAL } }
+					{ ShaderSignature::ShaderTextureSlot{0, 0, TE_IDX_TEXTURE::DS_SHADOWMAP} },
+					{ ShaderSignature::ShaderTextureSlot{1, 0, TE_IDX_TEXTURE::MATERIALTEXTURES} },
 				};
 				break;
 			}
+			case TE_IDX_SHADERCLASS::GENERATEBASICSHADOWMAP:
+				break;
 			default:
 				throw;
 				break;

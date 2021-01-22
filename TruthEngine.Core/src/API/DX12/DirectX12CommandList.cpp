@@ -231,17 +231,17 @@ namespace TruthEngine::API::DirectX12
 
 	void DirectX12CommandList::ClearRenderTarget(const Core::RenderTargetView RTV)
 	{
-		m_QueueClearRT.emplace_back(m_BufferManager->m_DescHeapRTV.GetCPUHandle(RTV.ViewIndex), RTV.Resource->GetClearValues());
+		m_QueueClearRT.emplace_back(m_BufferManager->m_DescHeapRTV.GetCPUHandle(RTV.ViewIndex), RTV.Resource->GetClearValues(), D3D12_RECT{static_cast<long>(0.0), static_cast < long>(0.0), static_cast<long>(RTV.Resource->GetWidth()), static_cast<long>(RTV.Resource->GetHeight())});
 	}
 
 	void DirectX12CommandList::ClearRenderTarget(const Core::SwapChain* swapChain, const Core::RenderTargetView RTV)
 	{
-		m_QueueClearRT.emplace_back(m_BufferManager->m_DescHeapRTV.GetCPUHandle(RTV.ViewIndex + swapChain->GetCurrentFrameIndex()), swapChain->GetClearValues());
+		m_QueueClearRT.emplace_back(m_BufferManager->m_DescHeapRTV.GetCPUHandle(RTV.ViewIndex + swapChain->GetCurrentFrameIndex()), swapChain->GetClearValues(), D3D12_RECT{ static_cast<long>(0.0), static_cast<long>(0.0), static_cast<long>(TE_INSTANCE_APPLICATION->GetClientWidth()), static_cast<long>(TE_INSTANCE_APPLICATION->GetClientHeight()) });
 	}
 
 	void DirectX12CommandList::ClearDepthStencil(const Core::DepthStencilView DSV)
 	{
-		m_QueueClearDS.emplace_back(m_BufferManager->m_DescHeapDSV.GetCPUHandle(DSV.ViewIndex), DSV.Resource->GetClearValues());
+		m_QueueClearDS.emplace_back(m_BufferManager->m_DescHeapDSV.GetCPUHandle(DSV.ViewIndex), DSV.Resource->GetClearValues(), D3D12_RECT{ static_cast<long>(0.0), static_cast<long>(0.0), static_cast<long>(DSV.Resource->GetWidth()), static_cast<long>(DSV.Resource->GetHeight())});
 	}
 
 	void DirectX12CommandList::Submit()
@@ -263,23 +263,24 @@ namespace TruthEngine::API::DirectX12
 
 		_UploadDefaultBuffers();
 
-		if (m_RTVHandleNum > 0)
+		if (m_RTVHandleNum > 0 || m_DSVHandleNum > 0)
 		{
-			m_D3D12CommandList->OMSetRenderTargets(1, m_RTVHandles, false, m_DSVHandleNum > 0 ? &m_DSVHandle : NULL);
+			m_D3D12CommandList->OMSetRenderTargets(m_RTVHandleNum, m_RTVHandleNum > 0 ? m_RTVHandles : nullptr, false, m_DSVHandleNum > 0 ? &m_DSVHandle : NULL);
 			m_RTVHandleNum = 0;
+			m_DSVHandleNum = 0;
 		}
 
 
 		for (auto& c : m_QueueClearRT)
 		{
-			m_D3D12CommandList->ClearRenderTargetView(c.RTV, &c.ClearValue.x, 1, &m_BufferManager->m_Rect_FullScreen);
+			m_D3D12CommandList->ClearRenderTargetView(c.RTV, &c.ClearValue.x, 1, &c.mRect);
 		}
 		m_QueueClearRT.clear();
 
 
 		for (auto& c : m_QueueClearDS)
 		{
-			m_D3D12CommandList->ClearDepthStencilView(c.DSV, D3D12_CLEAR_FLAG_DEPTH, c.ClearValue.depthValue, c.ClearValue.stencilValue, 1, &m_BufferManager->m_Rect_FullScreen);
+			m_D3D12CommandList->ClearDepthStencilView(c.DSV, D3D12_CLEAR_FLAG_DEPTH, c.ClearValue.depthValue, c.ClearValue.stencilValue, 1, &c.mRect);
 		}
 		m_QueueClearDS.clear();
 

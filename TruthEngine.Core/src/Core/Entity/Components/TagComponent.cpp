@@ -7,6 +7,11 @@ namespace TruthEngine::Core
 		: m_Tag(tag)
 	{}
 
+	TagComponent::TagComponent(const char* tag)
+		: m_Tag(tag)
+	{
+	}
+
 	TagComponent::TagComponent() = default;
 	TagComponent::TagComponent(const TagComponent&) = default;
 	TagComponent::TagComponent(TagComponent&&) noexcept = default;

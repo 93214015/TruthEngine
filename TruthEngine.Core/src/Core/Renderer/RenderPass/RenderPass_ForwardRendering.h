@@ -16,6 +16,7 @@ namespace TruthEngine
 		class ICamera;
 		class Material;
 		class EventEntityAddMaterial;
+		class EventEntityUpdateMaterial;
 
 
 		class RenderPass_ForwardRendering : public RenderPass
@@ -47,7 +48,7 @@ namespace TruthEngine
 			void RegisterOnEvents();
 
 			void OnAddMaterial(EventEntityAddMaterial& event);
-
+			void OnUpdateMaterial(const EventEntityUpdateMaterial& event);
 		private:
 
 			RendererCommand m_RendererCommand;
@@ -57,9 +58,9 @@ namespace TruthEngine
 			DepthStencilView m_DepthStencilView;
 
 			Viewport m_Viewport;
-			ViewRect m_ViewREct;
+			ViewRect m_ViewRect;
 
-			std::shared_ptr<ShaderManager> m_ShaderMgr;
+			ShaderManager* m_ShaderMgr;
 
 			BufferManager* m_BufferMgr;
 
@@ -67,14 +68,23 @@ namespace TruthEngine
 
 			struct ConstantBuffer_Data_Per_Mesh
 			{
+				ConstantBuffer_Data_Per_Mesh()
+					: WorldMatrix(IdentityMatrix), WorldInverseTransposeMatrix(IdentityMatrix), MaterialIndex(-1)
+				{}
+				ConstantBuffer_Data_Per_Mesh(float4x4 world, float4x4 worldIT, uint32_t materialIndex)
+					: WorldMatrix(world), WorldInverseTransposeMatrix(worldIT), MaterialIndex(materialIndex)
+				{}
+
 				float4x4 WorldMatrix;
-				uint32_t materialIndex;
+				float4x4 WorldInverseTransposeMatrix;
+				uint32_t MaterialIndex;
 			};
 
 			ConstantBufferDirect<ConstantBuffer_Data_Per_Mesh>* m_ConstantBufferDirect_PerMesh;
 
-			float4 m_Translate = float4{0.0f, 0.0f, 0.0f, 0.0f};
-
+			uint32_t m_TotalMeshNum = 0;
+			uint32_t m_TotalVertexNum = 0;
+			double m_RenderTime = 0.0;
 		};
 	}
 }

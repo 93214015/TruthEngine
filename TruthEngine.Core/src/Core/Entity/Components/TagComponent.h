@@ -10,6 +10,7 @@ namespace TruthEngine
 		public:
 			TagComponent();
 			TagComponent(const std::string& tag);
+			TagComponent(const char* tag);
 
 			~TagComponent();
 
@@ -22,6 +23,11 @@ namespace TruthEngine
 			inline const std::string& GetTag() const noexcept
 			{
 				return m_Tag;
+			}
+
+			inline void SetTag(const char* buffer)
+			{
+				m_Tag = std::string(buffer);
 			}
 
 		private:

@@ -17,12 +17,13 @@ namespace TruthEngine
 			TransformComponent(TransformComponent&&) noexcept;
 			TransformComponent& operator=(TransformComponent&&) noexcept;
 
-			inline const float4x4& GetTransform()const noexcept
+
+			inline float4x4& GetTransform() noexcept
 			{
 				return m_Transform;
 			}
 
-			inline operator const float4x4& ()
+			inline operator float4x4& ()
 			{
 				return m_Transform;
 			}

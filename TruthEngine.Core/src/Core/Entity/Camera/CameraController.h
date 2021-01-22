@@ -33,13 +33,22 @@ namespace TruthEngine
 			void RotateY(float angle);
 			void RotateCamera(float d);
 
+			inline float GetSpeed()const
+			{
+				return m_Speed;
+			}
+			inline void SetSpeed(float speed)
+			{
+				m_Speed = speed;
+			}
+
 		protected:
 			void OnMouseMove(EventMouseMoved& event);
 			void OnKeyPressed(EventKeyPressed& event);
 		protected:
 			Camera* m_Camera = nullptr;
 
-			float m_Speed = 1.0f;
+			float m_Speed = 0.1f;
 
 		};
 	}
