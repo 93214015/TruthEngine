@@ -21,10 +21,17 @@ namespace TruthEngine
 				return m_Map_Materials[materialID].get();
 			}
 
+			inline Material* GetDefaultMaterial(uint32_t index)
+			{
+				return m_Map_Materials[index].get();
+			}
+
 			inline size_t GetMatrialOffset() const noexcept
 			{
 				return m_Map_Materials.size();
 			}
+
+			Material* AddDefaultMaterial(TE_IDX_MESH_TYPE meshType);
 
 			Material* AddMaterial(
 				RendererStateSet states

@@ -82,12 +82,6 @@ namespace TruthEngine
 			}
 
 
-			inline uint32_t GetRenderTargetNum() const noexcept
-			{
-				return m_RenderTargetNum;
-			}
-
-
 			inline TE_IDX_SHADERCLASS GetShaderClassIDX()const noexcept
 			{
 				return m_ShaderClassIDX;
@@ -104,7 +98,6 @@ namespace TruthEngine
 			uint32_t m_ID = 0;
 			TE_IDX_SHADERCLASS m_ShaderClassIDX = TE_IDX_SHADERCLASS::NONE;
 			TE_IDX_MESH_TYPE m_MeshType = TE_IDX_MESH_TYPE::MESH_NTT;
-			uint32_t m_RenderTargetNum = 1;
 
 			ShaderSignature* m_ShaderSignature;
 			

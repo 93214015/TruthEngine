@@ -23,16 +23,30 @@ namespace TruthEngine::Core
 
 	TE_RESULT AssimpLib::ImportModel(Scene* scene, const char* filePath)
 	{
+		TE_TIMER_SCOPE_FUNC;
+
+		TE_ASSERT_CORE(scene && filePath != NULL, "");
+		//if (!(scene)) 
+		//{ 
+		//	//TE_LOG_CORE_ERROR("TE_Error: {0}", __VA_ARGS__); 
+		//	::TruthEngine::Core::Log::GetCoreLogger()->error("");
+		//	__debugbreak(); 
+		//}
+
 		m_ModelFilePath = filePath;
 
-		m_ModelManager->GetOffsets(m_BaseVertexOffset, m_BaseIndexOffset, m_ModelOffset, m_MeshOffset, m_MaterialOffset);
+		m_ModelManager->GetOffsets(m_BaseVertexOffset, m_BaseIndexOffset, m_MeshOffset, m_MaterialOffset);
 		m_TextureMaterialOffset = TextureMaterialManager::GetInstance()->GetOffset();
 
 		Assimp::Importer importer;
 
 		importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_PRESERVE_PIVOTS, true);
 
+		TimerProfile assimpTimer;
+		assimpTimer.Start();
 		auto aiscene = importer.ReadFile(filePath, aiProcessPreset_TargetRealtime_MaxQuality | aiProcess_ConvertToLeftHanded);
+		auto totalTime = assimpTimer.GetTotalTime();
+		TE_LOG_CORE_INFO("Assimp Library: The ReadFile() time was : {0} ms", totalTime);
 
 		if (aiscene == nullptr)
 			return TE_FAIL;
@@ -41,10 +55,31 @@ namespace TruthEngine::Core
 
 		AddSpace(aiscene);
 
-		ProcessTextures(aiscene);
-		ProcessMaterials(scene, aiscene);
-		ProcessMeshes(scene, aiscene);
-		ProcessNodes(aiscene->mRootNode, aiscene, meshOffset);
+		{
+			assimpTimer.Start();
+			ProcessTextures(aiscene);
+			auto t = assimpTimer.GetTotalTime();
+			TE_LOG_CORE_INFO("Import Model: Process Textures toke {0} ms", t);
+		}
+		{
+			assimpTimer.Start();
+			ProcessMaterials(scene, aiscene);
+			auto t = assimpTimer.GetTotalTime();
+			TE_LOG_CORE_INFO("Import Model: Process Materials toke {0} ms", t);
+		}
+
+		{
+			assimpTimer.Start();
+			ProcessMeshes(scene, aiscene);
+			auto t = assimpTimer.GetTotalTime();
+			TE_LOG_CORE_INFO("Import Model: Process Meshes toke {0} ms", t);
+		}
+		{
+			assimpTimer.Start();
+			ProcessNodes(scene, aiscene->mRootNode, aiscene, meshOffset);
+			auto t = assimpTimer.GetTotalTime();
+			TE_LOG_CORE_INFO("Import Model: Process Nodes toke {0} ms", t);
+		}
 
 		return TE_SUCCESSFUL;
 	}
@@ -101,7 +136,6 @@ namespace TruthEngine::Core
 
 			{
 				const auto diffuseTextureCount = aiMaterial->GetTextureCount(aiTextureType_DIFFUSE);
-				uint32_t diffuseMapTexIndex = -1;
 
 				if (diffuseTextureCount > 0)
 				{
@@ -116,14 +150,13 @@ namespace TruthEngine::Core
 						{
 							auto index = std::atoi(&ais.C_Str()[1]);
 
-							diffuseMapTexIndex = index + m_TextureMaterialOffset;
+							diffuseMapViewIndex = index + m_TextureMaterialOffset;
 						}
 						else
 						{
-							diffuseMapTexIndex = texManager->CreateTexture(ais.C_Str(), m_ModelFilePath);
+							diffuseMapViewIndex = texManager->CreateTexture(ais.C_Str(), m_ModelFilePath)->GetViewIndex();
 						}
 
-						diffuseMapViewIndex = texManager->CreateTextureMaterialDiffuse(diffuseMapTexIndex);
 					}
 				}
 			}
@@ -132,7 +165,6 @@ namespace TruthEngine::Core
 
 			{
 				const auto normalTextureCount = aiMaterial->GetTextureCount(aiTextureType_NORMALS);
-				uint32_t normalMapTexIndex = -1;
 
 				if (normalTextureCount > 0)
 				{
@@ -147,14 +179,13 @@ namespace TruthEngine::Core
 						{
 							auto index = std::atoi(&ais.C_Str()[1]);
 
-							normalMapTexIndex = index + m_TextureMaterialOffset;
+							normalMapViewIndex = index + m_TextureMaterialOffset;
 						}
 						else
 						{
-							normalMapTexIndex = texManager->CreateTexture(ais.C_Str(), m_ModelFilePath);
+							normalMapViewIndex = texManager->CreateTexture(ais.C_Str(), m_ModelFilePath)->GetViewIndex();
 						}
 
-						normalMapViewIndex = texManager->CreateTextureMaterialNormal(normalMapTexIndex);
 					}
 				}
 			}
@@ -162,7 +193,6 @@ namespace TruthEngine::Core
 
 			{
 				const auto heightTextureCount = aiMaterial->GetTextureCount(aiTextureType_HEIGHT);
-				uint32_t heightMapTexIndex = -1;
 
 				if (heightTextureCount > 0)
 				{
@@ -177,14 +207,13 @@ namespace TruthEngine::Core
 						{
 							auto index = std::atoi(&ais.C_Str()[1]);
 
-							heightMapTexIndex = index + m_TextureMaterialOffset;
+							normalMapViewIndex = index + m_TextureMaterialOffset;
 						}
 						else
 						{
-							heightMapTexIndex = texManager->CreateTexture(ais.C_Str(), m_ModelFilePath);
+							normalMapViewIndex = texManager->CreateTexture(ais.C_Str(), m_ModelFilePath)->GetViewIndex();
 						}
 
-						normalMapViewIndex = texManager->CreateTextureMaterialNormal(heightMapTexIndex);
 					}
 				}
 			}
@@ -202,22 +231,44 @@ namespace TruthEngine::Core
 	}
 
 
-	void AssimpLib::ProcessNodes(const aiNode* node, const aiScene* scene, const size_t meshOffset)
+	void AssimpLib::ProcessNodes(Scene* scene, const aiNode* node, const aiScene* aiscene, const size_t meshOffset)
 	{
 		auto nodeMeshNum = node->mNumMeshes;
+
 		if (nodeMeshNum > 0)
 		{
-			auto model3D = m_ModelManager->AddModel3D();
-			model3D->AddSpace(nodeMeshNum);
+			auto entity_model = scene->AddEntity(node->mName.C_Str());
+			auto& modelComponent = entity_model.AddComponent<ModelComponent>();
+			BoundingBox modelBoundingBox;
+
 			for (uint32_t i = 0; i < nodeMeshNum; ++i)
 			{
-				model3D->AddMesh(&m_ModelManager->m_Meshes[node->mMeshes[i] + meshOffset]);
+				auto aimesh = aiscene->mMeshes[node->mMeshes[i]];
+				auto material = m_ModelManager->m_MaterialManager.GetMaterial(aimesh->mMaterialIndex + m_MaterialOffset);
+				auto entity_mesh = scene->AddEntity(aimesh->mName.C_Str(), entity_model);
+				auto mesh = &m_ModelManager->m_Meshes[node->mMeshes[i] + meshOffset];
+				entity_mesh.AddComponent<MeshComponent>(mesh);
+				entity_mesh.AddComponent<MaterialComponent>(material);
+				auto& meshBoundingBox = mesh->GetBoundingBox();
+				entity_mesh.AddComponent<BoundingBoxComponent>(mesh->GetBoundingBox());
+
+
+				if (modelBoundingBox.Extents.x == 1 && modelBoundingBox.Extents.y == 1 && modelBoundingBox.Extents.z == 1)
+				{
+					modelBoundingBox = meshBoundingBox;
+				}
+				else
+				{
+					CreateBoundingBoxMerged(modelBoundingBox, modelBoundingBox, meshBoundingBox);
+				}
 			}
+
+			entity_model.AddComponent<BoundingBoxComponent>(modelBoundingBox);
 		}
 
 		for (uint32_t childIndex = 0; childIndex < node->mNumChildren; ++childIndex)
 		{
-			ProcessNodes(node->mChildren[childIndex], scene, meshOffset);
+			ProcessNodes(scene, node->mChildren[childIndex], aiscene, meshOffset);
 		}
 	}
 
@@ -232,6 +283,7 @@ namespace TruthEngine::Core
 			auto vertexOffset = m_ModelManager->GetVertexOffset();
 
 			auto aimesh = aiscene->mMeshes[j];
+
 
 			for (uint32_t i = 0; i < aimesh->mNumVertices; ++i)
 			{
@@ -257,7 +309,7 @@ namespace TruthEngine::Core
 				if (aimesh->HasTangentsAndBitangents())
 				{
 					auto& tangent = aimesh->mTangents[i];
-					vNormTanTex.Tanget = float3{ tangent.x, tangent.y, tangent.z };
+					vNormTanTex.Tangent = float3{ tangent.x, tangent.y, tangent.z };
 				}
 
 				m_ModelManager->m_VertexBuffer_PosNormTanTex.AddVertex(vPos, vNormTanTex);
@@ -277,13 +329,13 @@ namespace TruthEngine::Core
 				}
 			}
 
-			auto mesh = m_ModelManager->AddMesh(indexNum, indexOffset, vertexOffset);
+			auto mesh = m_ModelManager->AddMesh(indexNum, indexOffset, vertexOffset, aimesh->mNumVertices);
 
 			auto material = m_ModelManager->m_MaterialManager.GetMaterial(aimesh->mMaterialIndex + m_MaterialOffset);
 
-			auto entity = scene->AddEntity();
+			/*auto entity = scene->AddEntity(aimesh->mName.C_Str());
 			entity.AddComponent<MeshComponent>(mesh);
-			entity.AddComponent<MaterialComponent>(material);
+			entity.AddComponent<MaterialComponent>(material);*/
 		}
 	}
 
@@ -297,7 +349,7 @@ namespace TruthEngine::Core
 
 		auto meshNum = scene->mNumMeshes;
 
-		modelManager->AddSpace(1, meshNum);
+		modelManager->AddSpace(meshNum);
 
 		for (uint32_t i = 0; i < meshNum; ++i)
 		{

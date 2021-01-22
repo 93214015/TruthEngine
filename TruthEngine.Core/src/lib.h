@@ -8,3 +8,4 @@
 #pragma comment(lib, "dxcompiler.lib")
 #pragma comment(lib, "assimp-vc142-mtd.lib")
 #pragma comment(lib, "DirectXTK12.lib")
+

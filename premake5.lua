@@ -48,11 +48,54 @@ IncludeDir["Dependencies"] 			= 	"%{wks.location}/Dependencies"
 IncludeDir["spdlog"] 				= 	"%{wks.location}/Dependencies/spdlog/include"
 IncludeDir["imgui"] 				= 	"%{wks.location}/Dependencies/imgui"
 IncludeDir["d3dx12"] 				= 	"%{wks.location}/Dependencies/DirectXGraphicsSamples/Libraries/D3DX12"
+IncludeDir["physx"] 				= 	"%{wks.location}/Dependencies/Physx"
 
 
-filter ("configurations.Debug")
+libdirs 
+{ 
+	"%{wks.location}/Dependencies",
+	"%{wks.location}/Dependencies/DirectXShaderCompiler/lib/x64",
+	"%{wks.location}/Dependencies/assimp/lib/",
+}
+
+links
+{
+	"PhysX_static_64.lib",
+	"PhysXCharacterKinematic_static_64.lib",
+	"PhysXCommon_static_64.lib",
+	"PhysXCooking_static_64.lib",
+	"PhysXExtensions_static_64.lib",
+	"PhysXFoundation_static_64.lib",
+	"PhysXPvdSDK_static_64.lib",
+	"PhysXVehicle_static_64.lib"
+}
+
+
+filter "configurations:Debug"
+		libdirs
+		{
+			"%{wks.location}/Dependencies/GeometryGenerator/lib/x64/Debug",
+			"%{wks.location}/Dependencies/Physx/lib/debug",
+		}
+		
 		defines{
 			"TE_ENABLE_ASSERTS",
+		}
+
+
+filter "configurations:Release"
+	libdirs
+		{
+			"%{wks.location}/Dependencies/GeometryGenerator/lib/x64/Release",
+			"%{wks.location}/Dependencies/Physx/lib/release",
+		}
+
+
+filter "configurations:Dist"
+	libdirs
+		{
+			"%{wks.location}/Dependencies/GeometryGenerator/lib/x64/Release",
+			"%{wks.location}/Dependencies/Physx/lib/release",
 		}
 filter{}
 

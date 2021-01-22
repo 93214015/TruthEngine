@@ -1,8 +1,8 @@
 #pragma once
 
 
-#define TE_TIMER_SCOPE_FUNC auto t##__LINE__ = TruthEngine::Core::TimerScope(__func__)
-#define TE_TIMER_SCOPE(x) auto t##__LINE__  = TruthEngine::Core::TimerScope(x)
+#define TE_TIMER_SCOPE_FUNC auto t##__LINE__ = TruthEngine::Core::TimerScope(__func__);
+#define TE_TIMER_SCOPE(x) auto t##__LINE__  = TruthEngine::Core::TimerScope(x);
 
 namespace TruthEngine::Core {
 

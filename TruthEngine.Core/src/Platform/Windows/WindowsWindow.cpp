@@ -38,8 +38,10 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPara
 		return 0;
 
 	case WM_SIZE:
+		windowData->Width = LOWORD(lParam);
+		windowData->Height = HIWORD(lParam);
 		windowData->CallBack(TruthEngine::Core::EventWindowResize{ LOWORD(lParam), HIWORD(lParam) });
-		return 0;
+		break;
 
 
 	case WM_MOUSEMOVE:

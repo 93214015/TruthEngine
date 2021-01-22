@@ -1,17 +1,19 @@
 #include "pch.h"
 #include "Camera.h"
 
+#include "CameraManager.h"
+
 using namespace DirectX;
 
 namespace TruthEngine::Core
 {
 
-	Camera::Camera(TE_CAMERA_TYPE cameraType, const float3& position, const float3& look
+	Camera::Camera(uint32_t id, TE_CAMERA_TYPE cameraType, const float3& position, const float3& look
 		, const float3& up, const float3& right, const float zNear
 		, const float zFar, const float aspectRatio, const float fovY, const float fovX
 		, const float nearWindowHeight, const float farWindowHeight
 		, const float4x4& projMatrix)
-		: m_Position(position), m_Look(look), m_Up(up), m_Right(right)
+		: m_ID(id), m_CameraType(cameraType), m_Position(position), m_Look(look), m_Up(up), m_Right(right)
 		, m_ZNear(zNear), m_ZFar(zFar), m_AspectRatio(aspectRatio), m_FovY(fovY), m_FovX(fovX)
 		, m_NearWindowHeight(nearWindowHeight), m_FarWindowHeight(farWindowHeight)
 		, m_ProjectionMatrix(projMatrix)
@@ -80,5 +82,45 @@ namespace TruthEngine::Core
 		m_BoundingFrustum.Transform(m_BoundingFrustum, InvView);
 	}
 
+	void Camera::SetFrustum(float width, float height, float zNearPlane, float zFarPlane)
+	{
+		m_ZNear = zNearPlane;
+		m_ZFar = zFarPlane;
+		m_NearWindowHeight = height;
+		m_AspectRatio = width / height;
+		
+		m_FovY = 2.0f * atan(height / (2.0f *zNearPlane));
+		m_FovX = 2.0f * atan(width  / (2.0f * zNearPlane));
+
+		m_FarWindowHeight = 2.0f * tan(m_FovY * 0.5f) * zFarPlane;
+
+		CameraManager::GetInstance()->EditCameraFrustum(this);
+
+		m_ViewProjMatrix = m_ViewMatrix * m_ProjectionMatrix;
+	}
+
+	void Camera::SetZNearPlane(const float zNearPlane)
+	{
+		m_ZNear = zNearPlane;
+		CameraManager::GetInstance()->EditCameraFrustum(this);
+
+		m_ViewProjMatrix = m_ViewMatrix * m_ProjectionMatrix;
+	}
+
+	void Camera::SetZFarPlane(const float zFarPlane)
+	{
+		m_ZFar = zFarPlane;
+		CameraManager::GetInstance()->EditCameraFrustum(this);
+
+		m_ViewProjMatrix = m_ViewMatrix * m_ProjectionMatrix;
+	}
+
+	void Camera::SetAspectRatio(const float aspectRatio)
+	{
+		m_AspectRatio = aspectRatio;
+		CameraManager::GetInstance()->EditCameraFrustum(this);
+
+		m_ViewProjMatrix = m_ViewMatrix * m_ProjectionMatrix;
+	}
 
 }

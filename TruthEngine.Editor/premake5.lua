@@ -27,13 +27,8 @@ project "TruthEngine.Editor"
 		IncludeDir["spdlog"],
 		IncludeDir["Dependencies"],
 		IncludeDir["d3dx12"],
-		IncludeDir["imgui"]
-	}
-
-	libdirs 
-	{ 
-	"%{wks.location}/Dependencies/DirectXShaderCompiler/lib/x64",
-	"%{wks.location}/Dependencies/assimp/lib" 
+		IncludeDir["imgui"],
+		IncludeDir["physx"],
 	}
 
 	links{

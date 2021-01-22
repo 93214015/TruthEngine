@@ -1,10 +1,14 @@
 #pragma once
 #include "TruthEngine.h"
 
+#include "Panels/SceneHierarchyPanel.h"
+#include "Panels/EntityPropertyPanel.h"
+
+#include "Core/PhysicEngine/PhysicsEngine.h"
+
+
 namespace TruthEngine
 {
-	namespace Editor
-	{
 		class ApplicationEditor : public Core::Application
 		{
 		public:
@@ -26,6 +30,12 @@ namespace TruthEngine
 
 			void OnImGuiRender();
 
+
+		private:
+
+			SceneHierarchyPanel m_SceneHierarchyPanel;
+			EntityPropertyPanel m_EntityPropertyPanel;
+
 		};
-	}
+
 }

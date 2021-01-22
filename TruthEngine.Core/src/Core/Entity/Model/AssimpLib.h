@@ -26,14 +26,14 @@ namespace TruthEngine
 		protected:
 			void ProcessTextures(const aiScene* scene);
 			void ProcessMaterials(Scene* scene, const aiScene* aiscene);
-			void ProcessNodes(const aiNode* node, const aiScene* aiscene, const size_t meshOffset);
+			void ProcessNodes(Scene* scene, const aiNode* node, const aiScene* aiscene, const size_t meshOffset);
 			void ProcessMeshes(Scene* scene, const aiScene* aiscene);
 
 			void AddSpace(const aiScene* scene);
 
 		protected:
 			const char* m_ModelFilePath = nullptr;
-			size_t m_MeshOffset, m_ModelOffset, m_MaterialOffset, m_BaseVertexOffset, m_BaseIndexOffset, m_TextureMaterialOffset;
+			size_t m_MeshOffset, /*m_ModelOffset,*/ m_MaterialOffset, m_BaseVertexOffset, m_BaseIndexOffset, m_TextureMaterialOffset;
 			ModelManager* m_ModelManager;
 
 		};

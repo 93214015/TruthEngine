@@ -27,13 +27,7 @@ project "TruthEngine.Core"
 		IncludeDir["Dependencies"],
 		IncludeDir["imgui"],
 		IncludeDir["d3dx12"],
-		IncludeDir["OpenImageIO"]
-	}
-	
-	libdirs 
-	{ 
-	"%{wks.location}/Dependencies/DirectXShaderCompiler/lib/x64",
-	"%{wks.location}/Dependencies/assimp/lib/",
+		IncludeDir["physx"],
 	}
 
 	links{

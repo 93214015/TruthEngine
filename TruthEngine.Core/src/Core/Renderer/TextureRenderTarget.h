@@ -39,9 +39,6 @@ namespace TruthEngine::Core
 
 		virtual ~TextureRenderTarget() = default;
 
-		inline uint32_t GetWidth() const noexcept { return m_Width; }
-		inline uint32_t GetHeight() const noexcept { return m_Height; }
-		inline TE_RESOURCE_FORMAT GetFormat() const noexcept { return m_Format; }
 
 		inline void SetClearValues(const ClearValue_RenderTarget& clearValue)
 		{

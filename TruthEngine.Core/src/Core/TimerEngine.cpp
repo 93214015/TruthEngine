@@ -65,6 +65,17 @@ namespace TruthEngine::Core {
 		{
 			m_DeltaTime = 0.0;
 		}
+
+		m_FrameCount++;
+		m_OneSecondTimer += m_DeltaTime;
+
+		if (m_OneSecondTimer > 1000.0f)
+		{
+			m_avgCPUFrameTime = m_OneSecondTimer / m_FrameCount;
+			m_FPS = static_cast<uint32_t>((1000.0 / m_avgCPUFrameTime)) + 1;
+			m_FrameCount = 0;
+			m_OneSecondTimer = 0.0;
+		}
 	}
 
 	double TimerEngine::TotalTime() const
@@ -80,11 +91,6 @@ namespace TruthEngine::Core {
 			auto d = std::chrono::duration<double, std::milli>(m_CurrentTimePoint - m_BaseTimePoint).count();
 			return d - m_PausedTime;
 		}
-	}
-
-	double TimerEngine::DeltaTime() const
-	{
-		return m_DeltaTime;
 	}
 
 

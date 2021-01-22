@@ -12,4 +12,11 @@ namespace TruthEngine::Core
 	{}
 
 	EventEntityAddMaterial::~EventEntityAddMaterial() = default;
+
+
+	EventEntityUpdateMaterial::EventEntityUpdateMaterial(Material* material)
+		: m_Material(material)
+	{}
+
+	EventEntityUpdateMaterial::~EventEntityUpdateMaterial() = default;
 }

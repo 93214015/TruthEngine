@@ -70,7 +70,8 @@ Texture2D<float4> MaterialTextures_Normal[50] : register(t0, space1);
 ///////////////////////////////////////////////////
 //////////////// Samplers
 ///////////////////////////////////////////////////
-sampler sampler_point : register(s0);
+sampler sampler_linear : register(s0);
+sampler sampler_linear_BorderBlack : register(s1);
 
 
 struct vertexInput
@@ -115,7 +116,7 @@ float4 ps(vertexOut pin) : SV_Target
     [branch]
     if (MaterialArray[materialIndex].MapIndexNormal != -1)
     {
-        normal = MaterialTextures_Normal[MaterialArray[materialIndex].MapIndexNormal].Sample(sampler_point, pin.texCoord).xyz;
+        normal = MaterialTextures_Normal[MaterialArray[materialIndex].MapIndexNormal].Sample(sampler_linear, pin.texCoord).xyz;
         normal = (normal * 2.0f) - 1.0f;
         normal = normalize(normal);
         
@@ -127,7 +128,7 @@ float4 ps(vertexOut pin) : SV_Target
     [branch]
     if (MaterialArray[materialIndex].MapIndexDiffuse != -1)
     {
-        color = MaterialTextures_Diffuse[MaterialArray[materialIndex].MapIndexDiffuse].Sample(sampler_point, pin.texCoord).xyz;
+        color = MaterialTextures_Diffuse[MaterialArray[materialIndex].MapIndexDiffuse].Sample(sampler_linear, pin.texCoord).xyz;
     }
     
     float3 lightVector = -1.0 * normalize(Direction);

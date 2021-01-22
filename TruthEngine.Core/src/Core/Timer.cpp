@@ -12,9 +12,9 @@ namespace TruthEngine::Core {
 
 	double TimerProfile::GetTotalTime() const noexcept
 	{
-		auto endTimePoint = std::chrono::high_resolution_clock::now();
+		const auto endTimePoint = std::chrono::high_resolution_clock::now();
 		
-		std::chrono::duration<double, std::milli> d = (endTimePoint - m_startTimePoint);
+		std::chrono::duration<double, std::milli> d(endTimePoint - m_startTimePoint);
 
 		return d.count();
 	}
