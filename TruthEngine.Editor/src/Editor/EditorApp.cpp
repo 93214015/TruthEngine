@@ -386,7 +386,7 @@ using namespace Core;
 			}//End of Render Property Panel
 
 
-			if (ImGui::Begin("RenderingTextures", NULL, ImGuiWindowFlags_MenuBar))
+			/*if (ImGui::Begin("RenderingTextures", NULL, ImGuiWindowFlags_MenuBar))
 			{
 				if (ImGui::BeginMenuBar())
 				{
@@ -423,7 +423,7 @@ using namespace Core;
 				}
 
 				ImGui::End();
-			}
+			}*/
 
 			ImGui::End();
 		}//End of main window: Begin("TruthEngine")

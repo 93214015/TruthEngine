@@ -106,7 +106,7 @@ namespace TruthEngine::API::DirectX12
 				{
 					rootSig.Parameters[paramNum].Type = RootParameterType::Table;
 					rootSig.Parameters[paramNum].Table.Type = RootParameterDescriptorType::SRV;
-					rootSig.Parameters[paramNum].Table.NumDescriptor = 200;
+					rootSig.Parameters[paramNum].Table.NumDescriptor = 500;
 					rootSig.Parameters[paramNum].Table.Register = v[0].Register;
 					rootSig.Parameters[paramNum].Table.RegisterSpace = v[0].RegisterSpace;
 

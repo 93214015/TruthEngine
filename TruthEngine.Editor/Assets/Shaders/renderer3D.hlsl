@@ -100,7 +100,7 @@ cbuffer per_mesh : register(b3)
 ///////////////////////////////////////////////////
 Texture2D<float> tShadowMap : register(t0, space0);
 
-Texture2D<float4> MaterialTextures[50] : register(t1, space0);
+Texture2D<float4> MaterialTextures[500] : register(t1, space0);
 
 
 ///////////////////////////////////////////////////

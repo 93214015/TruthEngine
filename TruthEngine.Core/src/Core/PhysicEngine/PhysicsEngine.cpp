@@ -296,9 +296,7 @@ namespace TruthEngine::Core
 	physx::PxShape* PhysicsEngine::CreateBoxShape(const TEPhysicsRigidBoxDesc& rigidBoxDesc, const float4& scale)
 	{
 		PxMaterial* material = m_pxPhysics->createMaterial(rigidBoxDesc.mStaticFriction, rigidBoxDesc.mDynamicFriction, rigidBoxDesc.mRestitution);
-
 		
-
 		return m_pxPhysics->createShape(PxBoxGeometry(rigidBoxDesc.mHalfX * scale.x, rigidBoxDesc.mHalfY * scale.y, rigidBoxDesc.mHalfZ * scale.z), *material, true);
 	}
 
