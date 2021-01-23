@@ -69,16 +69,20 @@ namespace TruthEngine::Core
 	{
 		ImGui::Begin("RenderPass: Forward Rendering");
 
-		if(ImGui::BeginTable("##forwardrenderingtable", 3, ImGuiTableFlags_ColumnsWidthStretch))
+		if(ImGui::BeginTable("##forwardrenderingtable", 4, ImGuiTableFlags_ColumnsWidthStretch))
 		{
-			ImGui::TableSetupColumn("Render Time");
+			ImGui::TableSetupColumn("Render Time : Begin");
+			ImGui::TableSetupColumn("Render Time : Draw");
 			ImGui::TableSetupColumn("Drawn Mesh Count");
 			ImGui::TableSetupColumn("Total Vertex Count");
 			ImGui::TableHeadersRow();
 
 			ImGui::TableNextRow();
 			ImGui::TableNextColumn();
-			ImGui::Text("%.3f ms", m_RenderTime);
+			ImGui::Text("%.3f ms", m_TimerBegin.GetAverageTime());
+
+			ImGui::TableNextColumn();
+			ImGui::Text("%.3f ms", m_TimerRender.GetAverageTime());
 
 			ImGui::TableNextColumn();
 			ImGui::Text("%i", m_TotalMeshNum);
@@ -95,6 +99,8 @@ namespace TruthEngine::Core
 
 	void RenderPass_ForwardRendering::BeginScene()
 	{
+		m_TimerBegin.Start();
+
 		m_RendererCommand.Begin();
 
 		m_RendererCommand.SetViewPort(&m_Viewport, &m_ViewRect);
@@ -103,6 +109,8 @@ namespace TruthEngine::Core
 		m_RendererCommand.SetDepthStencil(m_DepthStencilView);
 		m_RendererCommand.ClearRenderTarget(m_RenderTartgetView);
 		m_RendererCommand.ClearDepthStencil(m_DepthStencilView);
+
+		m_TimerBegin.End();
 	}
 
 
@@ -113,12 +121,11 @@ namespace TruthEngine::Core
 
 	void RenderPass_ForwardRendering::Render()
 	{
-		TimerProfile timer;
 
 		m_TotalVertexNum = 0;
 		m_TotalMeshNum = 0;
 
-		timer.Start();
+		m_TimerRender.Start();
 
 		auto data = m_ConstantBufferDirect_PerMesh->GetData();
 
@@ -190,7 +197,7 @@ namespace TruthEngine::Core
 
 		m_RendererCommand.End();
 
-		m_RenderTime = timer.GetTotalTime();
+		m_TimerRender.End();
 	}
 
 

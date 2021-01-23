@@ -15,6 +15,7 @@ namespace TruthEngine::API::DirectX12 {
 			HANDLE e = CreateEventA(nullptr, false, false, NULL);
 
 			fence.SetEvent(m_FenceValue, e);
+
 			WaitForSingleObject(e, INFINITE);
 		}
 
@@ -27,7 +28,6 @@ namespace TruthEngine::API::DirectX12 {
 		event = CreateEventA(NULL, false, true, "");
 
 		return gDevice.CreateCommandAllocator(m_CommandAllocator, commandListType);
-
 	}
 
 	bool DirectX12CommandAllocator::IsRunning()

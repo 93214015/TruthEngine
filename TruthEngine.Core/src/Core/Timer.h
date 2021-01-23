@@ -20,6 +20,32 @@ namespace TruthEngine::Core {
 		std::chrono::high_resolution_clock::time_point m_startTimePoint;
 	};
 
+	class TimerProfile_Average {
+
+	public:
+		TimerProfile_Average(double averagingDuration);
+		//set start time point
+		void Start() noexcept;
+		void End() noexcept;
+		//return duration from start time point in milisecond
+		inline double GetAverageTime() const noexcept
+		{
+			return m_AverageTime;
+		}
+	private:
+
+
+	private:
+		double m_AveragingDuration;
+		double m_AverageTime = 0.0f;
+		double m_Accumulator = 0.0f;
+		double m_FrameTimeAccumulator = 0.0f;
+
+		double m_TickCount = 0.0f;
+
+		std::chrono::high_resolution_clock::time_point m_startTimePoint;
+	};
+
 	class TimerScope {
 	public:
 		TimerScope(const char* name) : m_Name(name), m_StartTimePoint(std::chrono::high_resolution_clock::now()) {}

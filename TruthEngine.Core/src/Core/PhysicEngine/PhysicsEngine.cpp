@@ -283,9 +283,6 @@ namespace TruthEngine::Core
 	}
 
 
-
-
-
 	physx::PxShape* PhysicsEngine::CreatePlaneShape(const TEPhysicsRigidPlaneDesc& rigidPlaneDesc)
 	{
 		PxMaterial* material = m_pxPhysics->createMaterial(rigidPlaneDesc.mStaticFriction, rigidPlaneDesc.mDynamicFriction, rigidPlaneDesc.mRestitution);
