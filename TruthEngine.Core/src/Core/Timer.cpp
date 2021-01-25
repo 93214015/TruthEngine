@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "Timer.h"
 #include "Application.h"
+#include "Event/EventApplication.h"
 
 namespace TruthEngine::Core {
 
@@ -20,16 +21,22 @@ namespace TruthEngine::Core {
 		return d.count();
 	}
 
-	TimerProfile_Average::TimerProfile_Average(double averagingDuration)
-		: m_AveragingDuration(averagingDuration)
-	{}
+	TimerProfile_OneSecond::TimerProfile_OneSecond()
+	{
+		auto listener_oneSecondPoint = [this](Event& event) 
+		{
+			OnEventOnSecond(static_cast<EventAppOneSecondPoint&>(event));
+		};
 
-	void TimerProfile_Average::Start() noexcept
+		TE_INSTANCE_APPLICATION->RegisterEventListener(EventType::AppOneSecondPoint, listener_oneSecondPoint);
+	}
+
+	void TimerProfile_OneSecond::Start() noexcept
 	{
 		m_startTimePoint = std::chrono::high_resolution_clock::now();
 	}
 
-	void TimerProfile_Average::End() noexcept
+	void TimerProfile_OneSecond::End() noexcept
 	{	
 		const auto endTimePoint = std::chrono::high_resolution_clock::now();
 
@@ -37,17 +44,13 @@ namespace TruthEngine::Core {
 
 		m_Accumulator += d.count();
 		m_TickCount++;
+	}
 
-		static auto application = TE_INSTANCE_APPLICATION;
-
-		if (m_FrameTimeAccumulator += application->FrameTime(); m_FrameTimeAccumulator  > m_AveragingDuration)
-		{
-			m_AverageTime = m_Accumulator / m_TickCount;
-			m_Accumulator = 0.0;
-			m_TickCount = 0.0f;
-			m_FrameTimeAccumulator = 0.0f;
-		}
-
+	void TimerProfile_OneSecond::OnEventOnSecond(EventAppOneSecondPoint& event)
+	{
+		m_AverageTime = m_Accumulator / m_TickCount;
+		m_Accumulator = 0.0;
+		m_TickCount = 0.0f;
 	}
 
 }

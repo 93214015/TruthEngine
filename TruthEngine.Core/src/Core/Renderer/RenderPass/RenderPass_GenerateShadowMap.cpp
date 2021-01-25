@@ -28,7 +28,7 @@ namespace TruthEngine::Core
 		m_BufferManager = TE_INSTANCE_BUFFERMANAGER.get();
 		m_LightManager = LightManager::GetInstace();
 
-		m_RendererCommand.Init(TE_IDX_RENDERPASS::GENERATEBASICSHADOWMAP, TE_IDX_SHADERCLASS::GENERATEBASICSHADOWMAP, 1, m_BufferManager, m_ShaderManager);
+		m_RendererCommand.Init(TE_IDX_RENDERPASS::GENERATEBASICSHADOWMAP, TE_IDX_SHADERCLASS::GENERATEBASICSHADOWMAP, m_BufferManager, m_ShaderManager);
 
 		m_TextureDepthStencil = m_RendererCommand.CreateDepthStencil(TE_IDX_TEXTURE::DS_SHADOWMAP, m_ShadoWMapSize, m_ShadoWMapSize, TE_RESOURCE_FORMAT::R32_TYPELESS, ClearValue_DepthStencil{ 0.0f, 0 }, true);
 		m_RendererCommand.CreateDepthStencilView(m_TextureDepthStencil, &m_DepthStencilView);

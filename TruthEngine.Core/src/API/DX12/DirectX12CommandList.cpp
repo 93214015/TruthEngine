@@ -32,8 +32,8 @@ namespace TruthEngine::API::DirectX12
 	};
 
 
-	DirectX12CommandList::DirectX12CommandList(Core::GraphicDevice* graphicDevice, TE_RENDERER_COMMANDLIST_TYPE type, Core::BufferManager* bufferManager, Core::ShaderManager* shaderManager, TE_IDX_RENDERPASS renderPassIDX, TE_IDX_SHADERCLASS shaderClassIDX)
-		: CommandList(renderPassIDX, shaderClassIDX)
+	DirectX12CommandList::DirectX12CommandList(Core::GraphicDevice* graphicDevice, TE_RENDERER_COMMANDLIST_TYPE type, Core::BufferManager* bufferManager, Core::ShaderManager* shaderManager, TE_IDX_RENDERPASS renderPassIDX, TE_IDX_SHADERCLASS shaderClassIDX, uint8_t frameIndex)
+		: CommandList(renderPassIDX, shaderClassIDX, frameIndex)
 		, m_ShaderManager(static_cast<DirectX12ShaderManager*>(shaderManager)), m_BufferManager(static_cast<DirectX12BufferManager*>(bufferManager))
 	{
 		TE_ASSERT_CORE(graphicDevice, "Null Graphic Device is sent to CommandList!");
@@ -97,7 +97,9 @@ namespace TruthEngine::API::DirectX12
 			sc->SetBackBufferState(D3D12_RESOURCE_STATE_RENDER_TARGET);
 		}
 
-		m_RTVHandles[m_RTVHandleNum] = m_BufferManager->m_DescHeapRTV.GetCPUHandle(RTV.ViewIndex + sc->GetCurrentFrameIndex());
+		auto frameIndex = sc->GetCurrentFrameIndex();
+
+		m_RTVHandles[m_RTVHandleNum] = m_BufferManager->m_DescHeapRTV.GetCPUHandle(RTV.ViewIndex + frameIndex);
 
 		m_RTVHandleNum++;
 
@@ -155,7 +157,7 @@ namespace TruthEngine::API::DirectX12
 		{
 			if (m_RootArguments == nullptr)
 			{
-				m_RootArguments = DirectX12Manager::GetInstance()->GetRootArguments(m_ShaderClassIDX);
+				m_RootArguments = DirectX12Manager::GetInstance()->GetRootArguments(m_ShaderClassIDX, m_FrameIndex);
 			}
 
 			for (auto& t : m_RootArguments->Tables)
@@ -334,6 +336,7 @@ namespace TruthEngine::API::DirectX12
 
 			Submit();
 		}
+
 		sc.Present();
 	}
 

@@ -33,13 +33,16 @@ namespace TruthEngine::API::DirectX12 {
 		m_D3D12Viewport = D3D12_VIEWPORT{ 0.0f, 0.0f, static_cast<float>(TE_INSTANCE_APPLICATION->GetClientWidth()), static_cast<float>(TE_INSTANCE_APPLICATION->GetClientHeight()), 0.0f, 1.0f };
 		m_D3D12ViewRect = D3D12_RECT{ static_cast<long>(0.0f), static_cast<long>(0.0f), static_cast<long>(TE_INSTANCE_APPLICATION->GetClientWidth()),  static_cast<long>(TE_INSTANCE_APPLICATION->GetClientHeight()) };
 
-		m_CommandList = std::make_shared<DirectX12CommandList>(&TE_INSTANCE_API_DX12_GRAPHICDEVICE, TE_RENDERER_COMMANDLIST_TYPE::DIRECT, nullptr, nullptr, TE_IDX_RENDERPASS::NONE, TE_IDX_SHADERCLASS::NONE);
+		m_CommandList.resize(TE_INSTANCE_APPLICATION->GetFramesOnTheFlyNum());
+
+		for (uint8_t i = 0; i < TE_INSTANCE_APPLICATION->GetFramesOnTheFlyNum(); ++i)
+			m_CommandList[i] = std::make_shared<DirectX12CommandList>(&TE_INSTANCE_API_DX12_GRAPHICDEVICE, TE_RENDERER_COMMANDLIST_TYPE::DIRECT, nullptr, nullptr, TE_IDX_RENDERPASS::NONE, TE_IDX_SHADERCLASS::NONE, i);
 
 		auto dx12bufferManager = static_cast<DirectX12BufferManager*>(TE_INSTANCE_BUFFERMANAGER.get());
 
 		//m_DescHeapSRV.Init(TE_INSTANCE_API_DX12_GRAPHICDEVICE, TE_INSTANCE_APPLICATION->GetFramesInFlightNum());
 		m_DescHeapSRV = &dx12bufferManager->GetDescriptorHeapSRV();
-		m_DescHeapRTV.Init(TE_INSTANCE_API_DX12_GRAPHICDEVICE, TE_INSTANCE_APPLICATION->GetFramesInFlightNum());
+		m_DescHeapRTV.Init(TE_INSTANCE_API_DX12_GRAPHICDEVICE, TE_INSTANCE_APPLICATION->GetFramesOnTheFlyNum());
 
 		TE_INSTANCE_API_DX12_SWAPCHAIN.InitRTVs(&m_DescHeapRTV, &m_RTVBackBuffer);
 
@@ -54,7 +57,7 @@ namespace TruthEngine::API::DirectX12 {
 		ImGui::StyleColorsDark();
 
 		io.Fonts->AddFontFromFileTTF("Assets/Fonts/Roboto-Medium.ttf", 13.0f);
-		
+
 
 		ImGuiStyle& style = ImGui::GetStyle();
 		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
@@ -80,7 +83,7 @@ namespace TruthEngine::API::DirectX12 {
 		HWND hwnd = static_cast<HWND>(TE_INSTANCE_APPLICATION->GetWindow()->GetNativeWindowHandle());
 		ImGui_ImplWin32_Init(hwnd);
 		ImGui_ImplDX12_Init(TE_INSTANCE_API_DX12_GRAPHICDEVICE.GetDevice()
-			, TE_INSTANCE_APPLICATION->GetFramesInFlightNum()
+			, TE_INSTANCE_APPLICATION->GetFramesOnTheFlyNum()
 			, DXGI_FORMAT_R8G8B8A8_UNORM
 			, m_DescHeapSRV->GetDescriptorHeap()
 			, m_DescHeapSRV->GetCPUHandle(0)
@@ -100,8 +103,8 @@ namespace TruthEngine::API::DirectX12 {
 		ImGui_ImplWin32_Shutdown();
 		ImGui::DestroyContext();
 
-
-		m_CommandList->Release();
+		for (auto& cmd : m_CommandList)
+			cmd->Release();
 	}
 
 	void DirectX12ImGuiLayer::Begin()
@@ -128,44 +131,44 @@ namespace TruthEngine::API::DirectX12 {
 		/*if (show_demo_window)
 			ImGui::ShowDemoWindow(&show_demo_window);*/
 
-		//// 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
-		//{
-		//	static float f = 0.0f;
-		//	static int counter = 0;
+			//// 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
+			//{
+			//	static float f = 0.0f;
+			//	static int counter = 0;
 
-		//	ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
+			//	ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
 
-		//	ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
-		//	ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
+			//	ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
+			//	ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
 
-		//	ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-		//	ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
+			//	ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
+			//	ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
 
-		//	if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
-		//		counter++;
-		//	ImGui::SameLine();
-		//	ImGui::Text("counter = %d", counter);
+			//	if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
+			//		counter++;
+			//	ImGui::SameLine();
+			//	ImGui::Text("counter = %d", counter);
 
-		//	ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-		//	ImGui::End();
-		//}
+			//	ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+			//	ImGui::End();
+			//}
 
-		/*ImGui::Begin("OpenFile");
-		if (ImGui::Button("Open File Dialog"))
-		{
-			const std::vector<const char*> fileExtensions = { ".obj", ".fbx" };
-			OpenFileDialog("Open Model", fileExtensions);
-		}
-		m_FileBrowser.Display();
-		ImGui::End();
-		if (CheckFileDialog())
-		{
-			GraphicDevice::GetPrimaryDevice()->WaitForGPU();
-			m_CommandList->WaitToFinish();
-			Core::ModelManager::GetInstance()->ImportModel(Core::Application::GetApplication()->GetActiveScene(), m_SelectedFile.c_str());
-		}*/
+			/*ImGui::Begin("OpenFile");
+			if (ImGui::Button("Open File Dialog"))
+			{
+				const std::vector<const char*> fileExtensions = { ".obj", ".fbx" };
+				OpenFileDialog("Open Model", fileExtensions);
+			}
+			m_FileBrowser.Display();
+			ImGui::End();
+			if (CheckFileDialog())
+			{
+				GraphicDevice::GetPrimaryDevice()->WaitForGPU();
+				m_CommandList->WaitToFinish();
+				Core::ModelManager::GetInstance()->ImportModel(Core::Application::GetApplication()->GetActiveScene(), m_SelectedFile.c_str());
+			}*/
 
-		
+
 	}
 
 	void DirectX12ImGuiLayer::End()
@@ -174,9 +177,9 @@ namespace TruthEngine::API::DirectX12 {
 
 		const uint32_t currentFrameIndex = TE_INSTANCE_APPLICATION->GetCurrentFrameIndex();
 
-		m_CommandList->GetCommandAllocator()->Reset();
-		auto dx12CmdList = m_CommandList->GetNativeObject();
-		dx12CmdList->Reset(m_CommandList->GetCommandAllocator()->GetNativeObject(), nullptr);
+		m_CommandList[currentFrameIndex]->GetCommandAllocator()->Reset();
+		auto dx12CmdList = m_CommandList[currentFrameIndex]->GetNativeObject();
+		dx12CmdList->Reset(m_CommandList[currentFrameIndex]->GetCommandAllocator()->GetNativeObject(), nullptr);
 
 		auto& sc = TE_INSTANCE_API_DX12_SWAPCHAIN;
 
@@ -212,7 +215,7 @@ namespace TruthEngine::API::DirectX12 {
 		ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), dx12CmdList);
 
 
-		TE_INSTANCE_API_DX12_COMMANDQUEUEDIRECT->ExecuteCommandList(m_CommandList.get());
+		TE_INSTANCE_API_DX12_COMMANDQUEUEDIRECT->ExecuteCommandList(m_CommandList[currentFrameIndex].get());
 
 
 		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)

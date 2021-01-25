@@ -39,7 +39,7 @@ namespace TruthEngine::Core
 
 		m_ShaderMgr = TE_INSTANCE_SHADERMANAGER.get();
 
-		m_RendererCommand.Init(TE_IDX_RENDERPASS::FORWARDRENDERING, TE_IDX_SHADERCLASS::FORWARDRENDERING, 1, m_BufferMgr, m_ShaderMgr);
+		m_RendererCommand.Init(TE_IDX_RENDERPASS::FORWARDRENDERING, TE_IDX_SHADERCLASS::FORWARDRENDERING, m_BufferMgr, m_ShaderMgr);
 
 		m_TextureDepthStencil = m_RendererCommand.CreateDepthStencil(TE_IDX_TEXTURE::DS_SCENEBUFFER, TE_INSTANCE_APPLICATION->GetClientWidth(), TE_INSTANCE_APPLICATION->GetClientHeight(), TE_RESOURCE_FORMAT::R32_TYPELESS, ClearValue_DepthStencil{ 1.0f, 0 }, false);
 
@@ -69,9 +69,8 @@ namespace TruthEngine::Core
 	{
 		ImGui::Begin("RenderPass: Forward Rendering");
 
-		if(ImGui::BeginTable("##forwardrenderingtable", 4, ImGuiTableFlags_ColumnsWidthStretch))
+		if(ImGui::BeginTable("##forwardrenderingtable", 3, ImGuiTableFlags_ColumnsWidthStretch))
 		{
-			ImGui::TableSetupColumn("Render Time : Begin");
 			ImGui::TableSetupColumn("Render Time : Draw");
 			ImGui::TableSetupColumn("Drawn Mesh Count");
 			ImGui::TableSetupColumn("Total Vertex Count");
@@ -79,10 +78,10 @@ namespace TruthEngine::Core
 
 			ImGui::TableNextRow();
 			ImGui::TableNextColumn();
-			ImGui::Text("%.3f ms", m_TimerBegin.GetAverageTime());
-
-			ImGui::TableNextColumn();
 			ImGui::Text("%.3f ms", m_TimerRender.GetAverageTime());
+			//ImGui::Text("FindRootTransform: %.3f ms", m_TimerRender_0.GetAverageTime());
+			//ImGui::Text("SetPipelineAndDraw: %.3f ms", m_TimerRender_1.GetAverageTime());
+
 
 			ImGui::TableNextColumn();
 			ImGui::Text("%i", m_TotalMeshNum);
@@ -99,7 +98,7 @@ namespace TruthEngine::Core
 
 	void RenderPass_ForwardRendering::BeginScene()
 	{
-		m_TimerBegin.Start();
+		//m_TimerBegin.Start();
 
 		m_RendererCommand.Begin();
 
@@ -110,7 +109,7 @@ namespace TruthEngine::Core
 		m_RendererCommand.ClearRenderTarget(m_RenderTartgetView);
 		m_RendererCommand.ClearDepthStencil(m_DepthStencilView);
 
-		m_TimerBegin.End();
+		//m_TimerBegin.End();
 	}
 
 
@@ -142,6 +141,7 @@ namespace TruthEngine::Core
 		for (auto entity_mesh : entityGroup)
 		{
 			float4x4 meshTransform = activeScene->CalcTransformsToRoot(entity_mesh);
+
 			Mesh* mesh = activeScene->GetComponent<MeshComponent>(entity_mesh).GetMesh();
 			Material* material = activeScene->GetComponent<MaterialComponent>(entity_mesh).GetMaterial();
 
@@ -154,46 +154,6 @@ namespace TruthEngine::Core
 			m_TotalVertexNum += mesh->GetVertexNum();
 			m_TotalMeshNum++;
 		}
-
-
-		//auto& entityGroup = activeScene->GroupEntities<MeshComponent, MaterialComponent>();
-		//auto& entityGroup = reg.group<MeshComponent, MaterialComponent>(); 
-		//auto& entityGroup = reg.view<ModelComponent>();
-
-		//for (auto entity_model : entityGroup)
-		//{
-		//	auto& modelComponent = activeScene->GetComponent<ModelComponent>(entity_model);
-		//	/*auto& modelTransform = activeScene->GetComponent<TransformComponent>(entity_model).GetTransform();*/
-		//	auto modelTransform = activeScene->CalcTransformsToRoot(entity_model)
-		//	for (auto& ent : modelComponent.GetEntities())
-		//	{
-		//		auto mesh = ent.GetComponent<MeshComponent>().GetMesh();
-		//		auto material = ent.GetComponent<MaterialComponent>().GetMaterial();
-		//		auto& meshTransform = activeScene->GetComponent<TransformComponent>(ent).GetTransform();
-
-		//		const auto worldMatrix = modelTransform * meshTransform;
-
-		//		data->materialIndex = material->GetID();
-		//		data->WorldMatrix = worldMatrix;
-
-		//		m_RendererCommand.UploadData(m_ConstantBufferDirect_PerMesh);
-		//		m_RendererCommand.SetPipeline(m_MaterialPipelines[material->GetID()].get());
-		//		m_RendererCommand.DrawIndexed(mesh);
-
-		//	}
-		//}
-
-		/*for (auto m : models)
-		{
-			for (auto mesh : m->GetMeshes())
-			{
-				data->materialIndex = mesh->GetMaterial()->GetID();
-
-				m_RendererCommand.UploadData(m_ConstantBufferDirect_PerMesh);
-				m_RendererCommand.SetPipeline(m_MaterialPipelines[mesh->GetMaterial()->GetID()].get());
-				m_RendererCommand.DrawIndexed(mesh);
-			}
-		}*/
 
 		m_RendererCommand.End();
 

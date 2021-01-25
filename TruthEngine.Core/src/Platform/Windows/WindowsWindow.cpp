@@ -8,6 +8,9 @@
 #include "Core/Input/InputManager.h"
 
 #include "Core/Renderer/SwapChain.h"
+#include "API/DX12/DirectX12SwapChain.h"
+
+using namespace TruthEngine::Core;
 
 //forward declaration of ImGui function for processing window events.
 extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -62,9 +65,12 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPara
 		return 0;
 
 	case WM_KEYDOWN:
-	case WM_KEYUP:
 	case WM_SYSKEYUP:
 		//KeyboardObject::ProcessWNDMessages(*DirectXApplication::GetKeyboard(), message, wParam, lParam);
+		return 0;
+
+	case WM_KEYUP:
+		InputManager::OnKeyReleased((KeyCode)wParam);
 		return 0;
 
 	case WM_SYSKEYDOWN:
@@ -110,17 +116,17 @@ namespace TruthEngine::Platforms::Windows {
 		wndclass.lpszClassName = title;
 		RegisterClassExA(&wndclass);
 
-		RECT rect = { 0, 0, static_cast<LONG>(width), static_cast<LONG>(height) };
-		AdjustWindowRect(&rect, WS_OVERLAPPEDWINDOW, FALSE);
+		m_WindowRect = { 0, 0, static_cast<LONG>(width), static_cast<LONG>(height) };
+		AdjustWindowRect(&m_WindowRect, WS_OVERLAPPEDWINDOW, FALSE);
 
 		m_HWND = CreateWindowA(
 			wndclass.lpszClassName
 			, title
-			, WS_OVERLAPPEDWINDOW
+			, m_WindowStyle
 			, CW_USEDEFAULT
 			, CW_USEDEFAULT
-			, rect.right - rect.left
-			, rect.bottom - rect.top
+			, m_WindowRect.right - m_WindowRect.left
+			, m_WindowRect.bottom - m_WindowRect.top
 			, nullptr
 			, nullptr
 			, hInstance
@@ -151,6 +157,62 @@ namespace TruthEngine::Platforms::Windows {
 	void WindowsWindow::Show()
 	{
 		ShowWindow(m_HWND, SW_SHOW);
+	}
+
+	void WindowsWindow::ToggleFullScreenMode()
+	{
+		auto windowMode = TE_INSTANCE_APPLICATION->GetWindowMode();
+
+		if (!windowMode)
+		{
+			// Restore the window's attributes and size.
+			SetWindowLong(m_HWND, GWL_STYLE, m_WindowStyle);
+
+			SetWindowPos(
+				m_HWND,
+				HWND_NOTOPMOST,
+				m_WindowRect.left,
+				m_WindowRect.top,
+				m_WindowRect.right - m_WindowRect.left,
+				m_WindowRect.bottom - m_WindowRect.top,
+				SWP_FRAMECHANGED | SWP_NOACTIVATE);
+
+			ShowWindow(m_HWND, SW_NORMAL);
+		}
+		else
+		{
+			// Save the old window rect so we can restore it when exiting fullscreen mode.
+			GetWindowRect(m_HWND, &m_WindowRect);
+
+			// Make the window borderless so that the client area can fill the screen.
+			SetWindowLong(m_HWND, GWL_STYLE, m_WindowStyle & ~(WS_CAPTION | WS_MAXIMIZEBOX | WS_MINIMIZEBOX | WS_SYSMENU | WS_THICKFRAME));
+
+			RECT fullscreenWindowRect;
+
+			auto _swapChain = TE_INSTANCE_API_DX12_SWAPCHAIN.GetNativeObject();
+
+			// Get the settings of the display on which the app's window is currently displayed
+			COMPTR<IDXGIOutput> pOutput;
+			_swapChain->GetContainingOutput(&pOutput);
+			DXGI_OUTPUT_DESC Desc;
+			pOutput->GetDesc(&Desc);
+			fullscreenWindowRect = Desc.DesktopCoordinates;
+
+
+			SetWindowPos(
+				m_HWND,
+				HWND_TOPMOST,
+				fullscreenWindowRect.left,
+				fullscreenWindowRect.top,
+				fullscreenWindowRect.right,
+				fullscreenWindowRect.bottom,
+				SWP_FRAMECHANGED | SWP_NOACTIVATE);
+
+
+			ShowWindow(m_HWND, SW_MAXIMIZE);
+		}
+
+		TE_INSTANCE_APPLICATION->SetWindowMode(!windowMode);
 	}
 
 }

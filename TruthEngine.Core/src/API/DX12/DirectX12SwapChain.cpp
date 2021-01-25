@@ -48,7 +48,12 @@ namespace TruthEngine::API::DirectX12 {
 
 	void DirectX12SwapChain::Present()
 	{
-		m_SwapChain->Present(1, 0);
+		UINT presentFlags = (TE_INSTANCE_IDXGI.CheckSupportAllowTearing() && TE_INSTANCE_APPLICATION->GetWindowMode()) ? DXGI_PRESENT_ALLOW_TEARING : 0;
+
+		if (FAILED(m_SwapChain->Present(0, presentFlags)))
+		{
+			TE_ASSERT_CORE(false, "SwapChain Present was failed");
+		}
 	}
 
 	void DirectX12SwapChain::CreateSwapChain(HWND outputHWND)
@@ -61,7 +66,8 @@ namespace TruthEngine::API::DirectX12 {
 			desc1.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
 			desc1.BufferCount = m_BackBufferNum;
 			desc1.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-			desc1.Flags = DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT;
+			//desc1.Flags = DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT;
+			desc1.Flags =  (TE_INSTANCE_IDXGI.CheckSupportAllowTearing() ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0) | DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT;
 			desc1.Format = m_BackbufferFormat;
 			desc1.Width = TE_INSTANCE_APPLICATION->GetClientWidth();
 			desc1.Height = TE_INSTANCE_APPLICATION->GetClientHeight();
@@ -155,15 +161,19 @@ namespace TruthEngine::API::DirectX12 {
 			m_SwapChain->GetBuffer(i, IID_PPV_ARGS(m_BackBuffers[i].ReleaseAndGetAddressOf()));
 		}
 
+		BOOL _fullscreened = false;
+		m_SwapChain->GetFullscreenState(&_fullscreened, nullptr);
+		TE_INSTANCE_APPLICATION->SetWindowMode((bool)!_fullscreened);
+
 		if (SUCCEEDED(hr))
 			return TE_SUCCESSFUL;
 		else
 			return TE_FAIL;
 	}
 
-	uint32_t DirectX12SwapChain::GetCurrentFrameIndex() const
+	uint8_t DirectX12SwapChain::GetCurrentFrameIndex() const
 	{
-		return m_SwapChain->GetCurrentBackBufferIndex();
+		return static_cast<uint8_t>(m_SwapChain->GetCurrentBackBufferIndex());
 	}
 
 	TruthEngine::API::DirectX12::DirectX12SwapChain DirectX12SwapChain::s_SwapChain;

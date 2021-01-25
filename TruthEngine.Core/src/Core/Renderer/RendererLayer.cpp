@@ -17,6 +17,7 @@
 
 #include "Core/Entity/Light/LightManager.h"
 #include "Core/Entity/Light/LightDirectional.h"
+#include "../Timer.h"
 
 namespace TruthEngine::Core
 {
@@ -37,7 +38,7 @@ namespace TruthEngine::Core
 		m_BufferManager->Init(1000, 1000, 10, 10);
 
 		// init singleton object of dx12 swap chain
-		TE_INSTANCE_SWAPCHAIN->Init(TE_INSTANCE_APPLICATION->GetClientWidth(), TE_INSTANCE_APPLICATION->GetClientHeight(), TE_INSTANCE_APPLICATION->GetWindow(), TE_INSTANCE_APPLICATION->GetFramesInFlightNum());
+		TE_INSTANCE_SWAPCHAIN->Init(TE_INSTANCE_APPLICATION->GetClientWidth(), TE_INSTANCE_APPLICATION->GetClientHeight(), TE_INSTANCE_APPLICATION->GetWindow(), TE_INSTANCE_APPLICATION->GetFramesOnTheFlyNum());
 
 		m_RendererCommand.Init(TE_IDX_RENDERPASS::NONE, TE_IDX_SHADERCLASS::NONE);
 
@@ -50,11 +51,14 @@ namespace TruthEngine::Core
 		m_CB_PerFrame = m_RendererCommand.CreateConstantBufferUpload<ConstantBuffer_Data_Per_Frame>(TE_IDX_CONSTANTBUFFER::PER_FRAME);
 		m_CB_PerDLight = m_RendererCommand.CreateConstantBufferUpload<ConstantBuffer_Data_Per_DLight>(TE_IDX_CONSTANTBUFFER::PER_DLIGHT);
 		m_CB_Materials = m_RendererCommand.CreateConstantBufferUpload<ConstantBuffer_Data_Materials>(TE_IDX_CONSTANTBUFFER::MATERIALS);
-		
-		auto _lightManager = LightManager::GetInstace();
-		auto _light0 = _lightManager->GetDirectionalLight("dlight_0");
-		const auto& lightdata = _light0->GetDirectionalLightData();
-		*(m_CB_PerDLight->GetData()) = ConstantBuffer_Data_Per_DLight(lightdata.Diffuse, lightdata.Ambient, lightdata.Specular, lightdata.Direction, lightdata.LightSize, lightdata.Position, static_cast<uint32_t>(lightdata.CastShadow), lightdata.Range, _lightManager->GetShadowTransform(_light0));
+
+		m_RendererCommand.AddUpdateTask([&CB_PerDLight = m_CB_PerDLight]()
+			{
+				auto _lightManager = LightManager::GetInstace();
+				auto _light0 = _lightManager->GetDirectionalLight("dlight_0");
+				const auto& lightdata = _light0->GetDirectionalLightData();
+				*(CB_PerDLight->GetData()) = ConstantBuffer_Data_Per_DLight(lightdata.Diffuse, lightdata.Ambient, lightdata.Specular, lightdata.Direction, lightdata.LightSize, lightdata.Position, static_cast<uint32_t>(lightdata.CastShadow), lightdata.Range, _lightManager->GetShadowTransform(_light0));
+			});
 
 		m_ImGuiLayer->OnAttach();
 
@@ -198,27 +202,36 @@ namespace TruthEngine::Core
 
 	void RendererLayer::OnAddMaterial(const EventEntityAddMaterial& event)
 	{
-		auto material = event.GetMaterial();
-		auto& cbMaterialData = m_CB_Materials->GetData()->MaterialArray[material->GetID()];
-		cbMaterialData = ConstantBuffer_Data_Materials::Material(material->GetColorDiffuse(), material->GetFresnelR0(), material->GetShininess(), material->GetMapIndexDiffuse(), material->GetMapIndexNormal(), material->GetMapIndexDisplacement());
+		m_RendererCommand.AddUpdateTask([event, &CB_MAterials = m_CB_Materials]()
+		{
+			auto material = event.GetMaterial();
+			auto& cbMaterialData = CB_MAterials->GetData()->MaterialArray[material->GetID()];
+			cbMaterialData = ConstantBuffer_Data_Materials::Material(material->GetColorDiffuse(), material->GetFresnelR0(), material->GetShininess(), material->GetMapIndexDiffuse(), material->GetMapIndexNormal(), material->GetMapIndexDisplacement());
+		});
 	}
 
 	void RendererLayer::OnUpdateMaterial(const EventEntityUpdateMaterial& event)
 	{
-		auto material = event.GetMaterial();
-		auto& cbMaterialData = m_CB_Materials->GetData()->MaterialArray[material->GetID()];
-		cbMaterialData = ConstantBuffer_Data_Materials::Material(material->GetColorDiffuse(), material->GetFresnelR0(), material->GetShininess(), material->GetMapIndexDiffuse(), material->GetMapIndexNormal(), material->GetMapIndexDisplacement());
+		m_RendererCommand.AddUpdateTask([event, &CB_MAterials = m_CB_Materials]()
+		{
+			auto material = event.GetMaterial();
+			auto& cbMaterialData = CB_MAterials->GetData()->MaterialArray[material->GetID()];
+			cbMaterialData = ConstantBuffer_Data_Materials::Material(material->GetColorDiffuse(), material->GetFresnelR0(), material->GetShininess(), material->GetMapIndexDiffuse(), material->GetMapIndexNormal(), material->GetMapIndexDisplacement());
+		});
 	}
 
 	void RendererLayer::OnUpdateLight(const EventEntityUpdateLight& event)
 	{
-		auto _lightManager = LightManager::GetInstace();
-		auto _light0 = _lightManager->GetDirectionalLight("dlight_0");
-		const auto& lightdata = _light0->GetDirectionalLightData();
+		m_RendererCommand.AddUpdateTask([event, &CB_Lights = m_CB_PerDLight]()
+		{
+			auto _lightManager = LightManager::GetInstace();
+			auto _light0 = _lightManager->GetDirectionalLight("dlight_0");
+			const auto& lightdata = _light0->GetDirectionalLightData();
 
-		*(m_CB_PerDLight->GetData()) =  ConstantBuffer_Data_Per_DLight(lightdata.Diffuse, lightdata.Ambient, lightdata.Specular
-			, lightdata.Direction, lightdata.LightSize, lightdata.Position
-			, static_cast<uint32_t>(lightdata.CastShadow), lightdata.Range, _lightManager->GetShadowTransform(_light0));
+			*(CB_Lights->GetData()) = ConstantBuffer_Data_Per_DLight(lightdata.Diffuse, lightdata.Ambient, lightdata.Specular
+				, lightdata.Direction, lightdata.LightSize, lightdata.Position
+				, static_cast<uint32_t>(lightdata.CastShadow), lightdata.Range, _lightManager->GetShadowTransform(_light0));
+		});
 	}
 
 }

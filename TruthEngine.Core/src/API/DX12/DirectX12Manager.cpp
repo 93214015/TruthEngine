@@ -7,6 +7,7 @@
 #include "DirectX12TextureMaterialManager.h"	
 
 #include "Core/Renderer/Shader.h"
+#include "Core/Application.h"
 
 namespace TruthEngine::API::DirectX12
 {
@@ -45,10 +46,12 @@ namespace TruthEngine::API::DirectX12
 			}
 		}
 
-
+		const auto framesOnTheFlyNum = TE_INSTANCE_APPLICATION->GetFramesOnTheFlyNum();
 		auto& rootSig = m_DirectX12RootSignatures[shaderClassIDX];
 		auto& rootArg = m_DirectX12RootArguments[shaderClassIDX];
+
 		rootSig.Parameters.resize(paramNum);
+		rootArg.resize(framesOnTheFlyNum);
 
 		paramNum = 0;
 
@@ -66,7 +69,11 @@ namespace TruthEngine::API::DirectX12
 					rootSig.Parameters[paramNum].DirectConstant.RegisterSpace = v[0].RegisterSpace;
 					rootSig.Parameters[paramNum].DirectConstant.Num32Bits = bufferManager->GetConstantBufferDirect(idx)->Get32BitNum();
 
-					rootArg.DircectConstants[idx] = DirectX12RootArgumentDirectConstant(paramNum);
+					for (uint8_t frameIndex = 0; frameIndex < framesOnTheFlyNum; ++frameIndex)
+					{
+						rootArg[frameIndex].DircectConstants[idx] = DirectX12RootArgumentDirectConstant(paramNum);
+					}
+
 					paramNum++;
 
 					continue;
@@ -78,20 +85,22 @@ namespace TruthEngine::API::DirectX12
 				rootSig.Parameters[paramNum].Table.RegisterSpace = v[0].RegisterSpace;
 				rootSig.Parameters[paramNum].Table.Type = RootParameterDescriptorType::CBV;
 
-				auto cb = bufferManager->GetConstantBufferUpload(v[0].ConstantBufferIDX);
-				Core::ConstantBufferView cbv{};
-				bufferManager->CreateConstantBufferView(cb, &cbv);
-				auto gpuHandle = descHeapSRV.GetGPUHandle(cbv.ViewIndex);
-
-				rootArg.Tables.emplace_back(paramNum, gpuHandle);
-
-				for (uint32_t j = 1; j < v.size(); ++j)
+				for (uint8_t frameIndex = 0; frameIndex < framesOnTheFlyNum; ++frameIndex)
 				{
-					auto cb = bufferManager->GetConstantBufferUpload(v[j].ConstantBufferIDX);
+					auto cb = bufferManager->GetConstantBufferUpload(v[0].ConstantBufferIDX);
 					Core::ConstantBufferView cbv{};
-					bufferManager->CreateConstantBufferView(cb, &cbv);
-				}
+					bufferManager->CreateConstantBufferView(cb, &cbv, frameIndex);
+					auto gpuHandle = descHeapSRV.GetGPUHandle(cbv.ViewIndex);
 
+					rootArg[frameIndex].Tables.emplace_back(paramNum, gpuHandle);
+
+					for (uint32_t j = 1; j < v.size(); ++j)
+					{
+						auto cb = bufferManager->GetConstantBufferUpload(v[j].ConstantBufferIDX);
+						Core::ConstantBufferView cbv{};
+						bufferManager->CreateConstantBufferView(cb, &cbv, frameIndex);
+					}
+				}
 				paramNum++;
 			}
 		}
@@ -112,7 +121,10 @@ namespace TruthEngine::API::DirectX12
 
 					auto gpuHandle = static_cast<DirectX12TextureMaterialManager*>(Core::TextureMaterialManager::GetInstance())->GetGPUHandle();
 
-					rootArg.Tables.emplace_back(paramNum, gpuHandle);
+					for (uint8_t frameIndex = 0; frameIndex < framesOnTheFlyNum; ++frameIndex)
+					{
+						rootArg[frameIndex].Tables.emplace_back(paramNum, gpuHandle);
+					}
 
 					paramNum++;
 					continue;
@@ -130,7 +142,10 @@ namespace TruthEngine::API::DirectX12
 				bufferManager->CreateShaderResourceView(tex, &srv);
 				auto gpuHandle = descHeapSRV.GetGPUHandle(srv.ViewIndex);
 
-				rootArg.Tables.emplace_back(paramNum, gpuHandle);
+				for (uint8_t frameIndex = 0; frameIndex < framesOnTheFlyNum; ++frameIndex)
+				{
+					rootArg[frameIndex].Tables.emplace_back(paramNum, gpuHandle);
+				}
 
 				for (uint32_t j = 1; j < v.size(); ++j)
 				{
@@ -143,8 +158,8 @@ namespace TruthEngine::API::DirectX12
 			}
 		}
 
-		std::vector<CD3DX12_ROOT_PARAMETER> params(rootSig.Parameters.size());
-		std::vector< D3D12_DESCRIPTOR_RANGE> ranges(paramNum);
+		std::vector<CD3DX12_ROOT_PARAMETER1> params(rootSig.Parameters.size());
+		std::vector<CD3DX12_DESCRIPTOR_RANGE1> ranges(paramNum);
 
 		paramNum = 0;
 
@@ -155,11 +170,14 @@ namespace TruthEngine::API::DirectX12
 			{
 			case RootParameterType::Table:
 			{
-				ranges[paramNum].BaseShaderRegister = param.Table.Register;
+				/*ranges[paramNum].BaseShaderRegister = param.Table.Register;
 				ranges[paramNum].RegisterSpace = param.Table.RegisterSpace;
 				ranges[paramNum].OffsetInDescriptorsFromTableStart = 0;
 				ranges[paramNum].NumDescriptors = param.Table.NumDescriptor;
-				ranges[paramNum].RangeType = static_cast<D3D12_DESCRIPTOR_RANGE_TYPE>(param.Table.Type);
+				ranges[paramNum].RangeType = static_cast<D3D12_DESCRIPTOR_RANGE_TYPE>(param.Table.Type);*/
+
+				ranges[paramNum].Init(static_cast<D3D12_DESCRIPTOR_RANGE_TYPE>(param.Table.Type), param.Table.NumDescriptor, param.Table.Register, param.Table.RegisterSpace, D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC);
+
 				params[paramNum].InitAsDescriptorTable(1, &ranges[paramNum], D3D12_SHADER_VISIBILITY_ALL);
 				paramNum++;
 				break;
@@ -210,18 +228,34 @@ namespace TruthEngine::API::DirectX12
 		COMPTR<ID3DBlob> errorBlob;
 		COMPTR<ID3DBlob> signatureBlob;
 
-		auto signatureDesc = CD3DX12_ROOT_SIGNATURE_DESC(params.size(), params.data(), 2, sampler_desc, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT
+		/*auto signatureDesc = CD3DX12_ROOT_SIGNATURE_DESC(params.size(), params.data(), 2, sampler_desc, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT
 			| D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS
 			| D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS
 			| D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS
-			| D3D12_ROOT_SIGNATURE_FLAG_DENY_MESH_SHADER_ROOT_ACCESS);
+			| D3D12_ROOT_SIGNATURE_FLAG_DENY_MESH_SHADER_ROOT_ACCESS);*/
 
-		if (FAILED(D3D12SerializeRootSignature(&signatureDesc, D3D_ROOT_SIGNATURE_VERSION_1_0, signatureBlob.ReleaseAndGetAddressOf(), errorBlob.ReleaseAndGetAddressOf())))
+		D3D12_ROOT_SIGNATURE_FLAGS signatureFlags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT
+			| D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS
+			| D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS
+			| D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS
+			| D3D12_ROOT_SIGNATURE_FLAG_DENY_MESH_SHADER_ROOT_ACCESS;
+
+		CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC signatureDesc;
+		signatureDesc.Init_1_1(params.size(), params.data(), _countof(sampler_desc), sampler_desc, signatureFlags);
+
+		if (FAILED(D3DX12SerializeVersionedRootSignature(&signatureDesc, TE_INSTANCE_API_DX12_GRAPHICDEVICE.GetFeature_RootSignature().HighestVersion, signatureBlob.ReleaseAndGetAddressOf(), errorBlob.ReleaseAndGetAddressOf())))
 		{
 			OutputDebugString(L"TE_DX12: the serialization of root signature of Renderer3D is failed!");
 			OutputDebugStringA(static_cast<const char*>(errorBlob->GetBufferPointer()));
 			exit(1);
 		}
+
+		/*if (FAILED(D3D12SerializeRootSignature(&signatureDesc, D3D_ROOT_SIGNATURE_VERSION_1_0, signatureBlob.ReleaseAndGetAddressOf(), errorBlob.ReleaseAndGetAddressOf())))
+		{
+			OutputDebugString(L"TE_DX12: the serialization of root signature of Renderer3D is failed!");
+			OutputDebugStringA(static_cast<const char*>(errorBlob->GetBufferPointer()));
+			exit(1);
+		}*/
 
 		if (FAILED(TE_INSTANCE_API_DX12_GRAPHICDEVICE->CreateRootSignature(0, signatureBlob->GetBufferPointer(), signatureBlob->GetBufferSize(), IID_PPV_ARGS(m_ID3D12RootSignatures[shaderClassIDX].GetAddressOf()))))
 		{

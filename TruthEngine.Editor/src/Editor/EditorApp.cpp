@@ -12,6 +12,10 @@
 #include "Core/Helper/HardwareInfo.h"
 #include "Core/Renderer/TextureMaterialManager.h"
 #include "Core/Renderer/TextureMaterial.h"
+#include "Core/Renderer/RendererLayer.h"
+#include "Core/ImGui/ImGuiLayer.h"
+#include "Core/Event/EventKey.h"
+#include "Core/Event/Event.h"
 
 
 
@@ -34,6 +38,7 @@ using namespace Core;
 		Core::InputManager::RegisterKey('W');
 		Core::InputManager::RegisterKey('S');
 		Core::InputManager::RegisterKey('D');
+		Core::InputManager::RegisterKey(Key::Space);
 
 
 		/*auto mainCamera = std::make_shared<Core::CameraPerspective>("mainCamera");
@@ -82,14 +87,23 @@ using namespace Core;
 
 
 		TE_INSTANCE_PHYSICSENGINE->Init();
+
+		auto onKeyReleased = [this](Event& event)
+		{
+			OnEventKeyReleased(static_cast<EventKeyReleased&>(event));
+		};
+
+		RegisterEventListener(EventType::KeyReleased, onKeyReleased);
 	}
 
 
 	void ApplicationEditor::OnUpdate()
 	{
 
+
 		TE_INSTANCE_PHYSICSENGINE->Simulate(m_Timer.DeltaTime());
 
+		m_TimerAvg_ImGuiPass.Start();
 
 		Core::InputManager::ProcessInput();
 
@@ -97,10 +111,15 @@ using namespace Core;
 		m_RendererLayer->BeginRendering();
 
 
+		m_TimerAvg_UpdateRenderPasses.Start();
+
 		for (auto layer : m_LayerStack)
 		{
 			layer->OnUpdate(m_Timer.DeltaTime());
 		}
+
+		m_TimerAvg_UpdateRenderPasses.End();
+
 
 
 		if (m_RendererLayer->BeginImGuiLayer())
@@ -113,8 +132,14 @@ using namespace Core;
 			m_RendererLayer->EndImGuiLayer();
 		}
 
+		m_TimerAvg_ImGuiPass.End();
+
+
+		m_TimerAvg_Update.Start();
 
 		m_RendererLayer->EndRendering();
+
+		m_TimerAvg_Update.End();
 	}
 
 
@@ -125,6 +150,14 @@ using namespace Core;
 
 	void ApplicationEditor::OnDestroy()
 	{
+	}
+
+	void ApplicationEditor::OnEventKeyReleased(EventKeyReleased& event)
+	{
+		if (event.GetKeyCode() == Key::Space)
+		{
+			m_Window->ToggleFullScreenMode();
+		}
 	}
 
 	void ApplicationEditor::OnImGuiRender()
@@ -289,9 +322,13 @@ using namespace Core;
 						ImGui::TableNextRow();
 						ImGui::TableNextColumn();
 
-						ImGui::TextColored(ImVec4{ 0.972, 0.925, 0.407, 1.0f }, "CPU: "); ImGui::SameLine(110.0); ImGui::TextColored(ImVec4{ 1, 0.980, 0.760, 1.0f }, "%s", sysInfo.mCPUModel.c_str());
-						ImGui::TextColored(ImVec4{ 0.972, 0.925, 0.407, 1.0f }, "Logical Processors: "); ImGui::SameLine(110.0); ImGui::TextColored(ImVec4{ 1, 0.980, 0.760, 1.0f }, "%i", sysInfo.mThreadNum);
-						ImGui::TextColored(ImVec4{ 0.972, 0.925, 0.407, 1.0f }, "Installed RAM: "); ImGui::SameLine(110.0); ImGui::TextColored(ImVec4{ 1, 0.980, 0.760, 1.0f }, "%i GB", sysInfo.mInstalledRAM);
+						static auto _CpuModel = sysInfo.mCPUModel.c_str();
+						static auto _CpuThreadNum = sysInfo.mThreadNum;
+						static auto _InstalledRAM = sysInfo.mInstalledRAM;
+
+						ImGui::TextColored(ImVec4{ 0.972, 0.925, 0.407, 1.0f }, "CPU: "); ImGui::SameLine(110.0); ImGui::TextColored(ImVec4{ 1, 0.980, 0.760, 1.0f }, "%s", _CpuModel);
+						ImGui::TextColored(ImVec4{ 0.972, 0.925, 0.407, 1.0f }, "Logical Processors: "); ImGui::SameLine(110.0); ImGui::TextColored(ImVec4{ 1, 0.980, 0.760, 1.0f }, "%i", _CpuThreadNum);
+						ImGui::TextColored(ImVec4{ 0.972, 0.925, 0.407, 1.0f }, "Installed RAM: "); ImGui::SameLine(110.0); ImGui::TextColored(ImVec4{ 1, 0.980, 0.760, 1.0f }, "%i GB", _InstalledRAM);
 
 						ImGui::TableNextColumn();
 
@@ -307,8 +344,11 @@ using namespace Core;
 							break;
 						}
 
-						ImGui::TextColored(ImVec4{ 0.949, 0.129, 0.329, 1.0f }, "GPU: "); ImGui::SameLine(90.0); ImGui::TextColored(ImVec4{ 1, 0.658, 0.745,1.0f }, "%s", sysInfo.mGPUDesc.c_str());
-						ImGui::TextColored(ImVec4{ 0.949, 0.129, 0.329, 1.0f }, "GPU Memory: "); ImGui::SameLine(90.0); ImGui::TextColored(ImVec4{ 1, 0.658, 0.745,1.0f }, "%i GB", sysInfo.mGPUMemory);
+						static auto _GPUDesc = sysInfo.mGPUDesc.c_str();
+						static auto _GPUMemory = sysInfo.mGPUMemory;
+
+						ImGui::TextColored(ImVec4{ 0.949, 0.129, 0.329, 1.0f }, "GPU: "); ImGui::SameLine(90.0); ImGui::TextColored(ImVec4{ 1, 0.658, 0.745,1.0f }, "%s", _GPUDesc);
+						ImGui::TextColored(ImVec4{ 0.949, 0.129, 0.329, 1.0f }, "GPU Memory: "); ImGui::SameLine(90.0); ImGui::TextColored(ImVec4{ 1, 0.658, 0.745,1.0f }, "%i GB", _GPUMemory);
 						ImGui::TextColored(ImVec4{ 0.949, 0.129, 0.329, 1.0f }, "Graphic API: "); ImGui::SameLine(90.0); ImGui::TextColored(ImVec4{ 1, 0.658, 0.745,1.0f }, "%s", api.c_str());
 
 						ImGui::EndTable();
@@ -334,6 +374,9 @@ using namespace Core;
 						ImGui::TextColored(ImVec4{ 0.529, 0.952, 0.486 ,1.0f }, "CPU Frame Time: ");
 						ImGui::TableNextColumn();
 						ImGui::TextColored(ImVec4{ 0.529, 0.952, 0.486 ,1.0f }, "%.3f", m_Timer.GetAverageCpuTime());
+						ImGui::Text("RenderPass Time: %0.3f", m_TimerAvg_UpdateRenderPasses.GetAverageTime());
+						ImGui::Text("ImGUiPass Time: %0.3f", m_TimerAvg_ImGuiPass.GetAverageTime());
+						ImGui::Text("AppUpdate Time: %0.3f", m_TimerAvg_Update.GetAverageTime());
 
 						ImGui::EndTable();
 					}
@@ -448,5 +491,5 @@ using namespace Core;
 }
 
 TruthEngine::Core::Application* TruthEngine::Core::CreateApplication() {
-	return new TruthEngine::ApplicationEditor(1366, 1000, 2);
+	return new TruthEngine::ApplicationEditor(1366, 1000, 3);
 }

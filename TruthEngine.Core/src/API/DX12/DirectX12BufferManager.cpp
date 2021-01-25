@@ -192,6 +192,8 @@ namespace TruthEngine::API::DirectX12
 	TE_RESULT DirectX12BufferManager::CreateResource(Core::BufferUpload* buffer)
 	{
 
+		auto framesOnTheFly = TE_INSTANCE_APPLICATION->GetFramesOnTheFlyNum();
+
 		COMPTR<ID3D12Resource>* resource;
 
 		HRESULT hr;
@@ -200,7 +202,10 @@ namespace TruthEngine::API::DirectX12
 		{
 			buffer->m_ResourceIndex = static_cast<uint32_t>(m_Resources.size());
 
-			resource = &m_Resources.emplace_back();
+			for (uint8_t i = 0; i < framesOnTheFly; ++i)
+				m_Resources.emplace_back();
+
+			resource = &m_Resources[buffer->m_ResourceIndex];
 		}
 		else
 		{
@@ -209,17 +214,18 @@ namespace TruthEngine::API::DirectX12
 
 		const auto desc = GetBufferDesc(buffer->m_SizeInByte, buffer->m_Usage);
 
-		hr = TE_INSTANCE_API_DX12_GRAPHICDEVICE->CreateCommittedResource2(
-			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD)
-			, D3D12_HEAP_FLAG_NONE
-			, &desc, DX12_GET_STATE(buffer->m_State), nullptr
-			, nullptr, IID_PPV_ARGS(resource->ReleaseAndGetAddressOf()));
+		for (uint8_t i = 0; i < framesOnTheFly; ++i)
+		{
+			hr = TE_INSTANCE_API_DX12_GRAPHICDEVICE->CreateCommittedResource2(
+				&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD)
+				, D3D12_HEAP_FLAG_NONE
+				, &desc, DX12_GET_STATE(buffer->m_State), nullptr
+				, nullptr, IID_PPV_ARGS(resource[i].ReleaseAndGetAddressOf()));
 
-		CD3DX12_RANGE range(0, 0);
+			CD3DX12_RANGE range(0, 0);
 
-		(*resource)->Map(0, &range, reinterpret_cast<void**>(&buffer->m_MappedData));
-		resource++;
-
+			resource[i]->Map(0, &range, reinterpret_cast<void**>(&buffer->m_MappedData[i]));
+		}
 
 		return SUCCEEDED(hr) ? TE_SUCCESSFUL : TE_RESULT::TE_FAIL;
 
@@ -248,9 +254,9 @@ namespace TruthEngine::API::DirectX12
 			, nullptr, IID_PPV_ARGS(resource->ReleaseAndGetAddressOf()));
 
 
-		size_t offset = vb->GetSizeInByte();
+		/*size_t offset = vb->GetSizeInByte();
 
-		/*ResourceBufferUpload* uploadBuffer = new ResourceBufferUpload();
+		ResourceBufferUpload* uploadBuffer = new ResourceBufferUpload();
 		uploadBuffer->Initialization(device, static_cast<UINT>(offset));
 
 		offset = 0;
@@ -410,13 +416,15 @@ namespace TruthEngine::API::DirectX12
 		}
 	}
 
-	void DirectX12BufferManager::CreateConstantBufferView(Core::ConstantBufferUploadBase* constantBuffer, Core::ConstantBufferView* CBV)
+	void DirectX12BufferManager::CreateConstantBufferView(Core::ConstantBufferUploadBase* constantBuffer, Core::ConstantBufferView* CBV, uint8_t frameIndex)
 	{
-		D3D12_CONSTANT_BUFFER_VIEW_DESC desc{ m_Resources[constantBuffer->m_ResourceIndex]->GetGPUVirtualAddress(), static_cast<uint32_t>(constantBuffer->GetRequiredSize()) };
+		uint32_t resourceIndex = constantBuffer->m_ResourceIndex + frameIndex;
+
+		D3D12_CONSTANT_BUFFER_VIEW_DESC desc{ m_Resources[resourceIndex]->GetGPUVirtualAddress(), static_cast<uint32_t>(constantBuffer->GetRequiredSize()) };
 
 		if (CBV->ViewIndex == -1)
 		{
-			*CBV = Core::ConstantBufferView{ m_DescHeapSRV.GetCurrentIndex(), constantBuffer->m_ResourceIndex, constantBuffer };
+			*CBV = Core::ConstantBufferView{ m_DescHeapSRV.GetCurrentIndex(), resourceIndex, constantBuffer };
 
 			m_DescHeapSRV.AddDescriptorCBV(&desc);
 		}

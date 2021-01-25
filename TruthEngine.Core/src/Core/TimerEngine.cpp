@@ -1,5 +1,7 @@
 #include "pch.h"
 #include "TimerEngine.h"
+#include "Event/EventApplication.h"
+#include "Application.h"
 
 
 namespace TruthEngine::Core {
@@ -75,6 +77,9 @@ namespace TruthEngine::Core {
 			m_FPS = static_cast<uint32_t>((1000.0 / m_avgCPUFrameTime)) + 1;
 			m_FrameCount = 0;
 			m_OneSecondTimer = 0.0;
+
+			EventAppOneSecondPoint event;
+			TE_INSTANCE_APPLICATION->OnEvent(event);
 		}
 	}
 

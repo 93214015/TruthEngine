@@ -4,6 +4,8 @@
 
 #include "Buffer.h"
 
+#include "Core/Application.h"
+
 namespace TruthEngine
 {
 	namespace API
@@ -71,7 +73,7 @@ namespace TruthEngine::Core
 
 		T* GetData() noexcept
 		{
-			return reinterpret_cast<T*>(m_MappedData);
+			return reinterpret_cast<T*>(m_MappedData[TE_INSTANCE_APPLICATION->GetCurrentFrameIndex()]);
 		}
 
 		inline void UploadData() const override

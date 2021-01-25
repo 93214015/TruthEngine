@@ -18,13 +18,15 @@ namespace TruthEngine::API {
 		void EnumAdapters();
 		inline IDXGIFactory7* GetDXGIFactory() noexcept { return m_Factory.Get(); };
 		inline const std::vector<Microsoft::WRL::ComPtr<IDXGIAdapter4>>& GetAdapters() { return m_Adapters; }
+		inline bool CheckSupportAllowTearing()const noexcept { return m_SupportAllowTearing; }
 
 	private:
 		IDXGI();
 
 		Microsoft::WRL::ComPtr<IDXGIFactory7> m_Factory;
 		std::vector<Microsoft::WRL::ComPtr<IDXGIAdapter4>> m_Adapters;
-		bool m_IsInit;
+		bool m_IsInit = false;
+		bool m_SupportAllowTearing = false;
 
 	};
 

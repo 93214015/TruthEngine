@@ -1,6 +1,8 @@
 #pragma once
 #include "GraphicResource.h"
 
+
+
 namespace TruthEngine
 {
 	namespace API::DirectX12
@@ -16,10 +18,12 @@ namespace TruthEngine::Core
 	class Buffer : public GraphicResource
 	{
 	public:
-		Buffer(size_t sizeInByte, TE_RESOURCE_USAGE usage, TE_RESOURCE_STATES initState)
+		Buffer(size_t sizeInByte, TE_RESOURCE_USAGE usage, TE_RESOURCE_STATES initState);
+			/*Buffer(size_t sizeInByte, TE_RESOURCE_USAGE usage, TE_RESOURCE_STATES initState)
 			: GraphicResource(usage, TE_RESOURCE_TYPE::BUFFER, initState)
-			, m_SizeInByte(static_cast<uint64_t>(sizeInByte))
-		{}
+			, m_SizeInByte(static_cast<uint64_t>(sizeInByte))*/
+		
+
 		virtual ~Buffer() = default;
 
 
@@ -33,7 +37,11 @@ namespace TruthEngine::Core
 			m_SizeInByte = size;
 		}
 
+		const void* GetDataPtr(uint8_t frameIndex) const noexcept;
+	
+
 	protected:
+		std::vector<uint8_t*> m_MappedData;
 		uint64_t m_SizeInByte = 0;
 
 	};
@@ -57,13 +65,8 @@ namespace TruthEngine::Core
 		BufferUpload& operator=(BufferUpload&&) noexcept = default;
 
 
-		inline const void* GetDataPtr() const noexcept
-		{
-			return m_MappedData;
-		}
 
 	protected:
-		uint8_t* m_MappedData;
 
 		//friend classes
 		friend class BufferManager;

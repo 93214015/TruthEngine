@@ -48,7 +48,7 @@ namespace TruthEngine::API::DirectX12 {
 
 		void CreateShaderResourceView(Core::Texture* texture, Core::ShaderResourceView* SRV) override;
 
-		void CreateConstantBufferView(Core::ConstantBufferUploadBase* constantBuffer, Core::ConstantBufferView* CBV) override;
+		void CreateConstantBufferView(Core::ConstantBufferUploadBase* constantBuffer, Core::ConstantBufferView* CBV, uint8_t frameIndex) override;
 
 		uint64_t GetRequiredSize(const Core::GraphicResource* graphicResource) const override;
 

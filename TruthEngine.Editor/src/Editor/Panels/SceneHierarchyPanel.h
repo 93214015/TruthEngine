@@ -7,7 +7,7 @@ namespace TruthEngine
 	namespace Core
 	{
 		class Scene;
-		class EntityNode;
+		struct EntityNode;
 	}
 
 	class SceneHierarchyPanel
