@@ -324,6 +324,9 @@
     <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_ForwardRendering.h">
       <Filter>Core\Renderer\RenderPass</Filter>
     </ClInclude>
+    <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_GenerateShadowMap.h">
+      <Filter>Core\Renderer\RenderPass</Filter>
+    </ClInclude>
     <ClInclude Include="src\Core\Renderer\RenderPassStack.h">
       <Filter>Core\Renderer</Filter>
     </ClInclude>
@@ -402,7 +405,6 @@
     <ClInclude Include="src\TruthEngine.h" />
     <ClInclude Include="src\lib.h" />
     <ClInclude Include="src\pch.h" />
-    <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_GenerateShadowMap.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\API\DX12\DirectX12BufferManager.cpp">
@@ -549,6 +551,9 @@
     <ClCompile Include="src\Core\Helper\HardwareInfo.cpp">
       <Filter>Core\Helper</Filter>
     </ClCompile>
+    <ClCompile Include="src\Core\Helper\MathHelper.cpp">
+      <Filter>Core\Helper</Filter>
+    </ClCompile>
     <ClCompile Include="src\Core\Helper\MeshGenerator.cpp">
       <Filter>Core\Helper</Filter>
     </ClCompile>
@@ -609,6 +614,9 @@
     <ClCompile Include="src\Core\PhysicEngine\PhysicsEngine.cpp">
       <Filter>Core\PhysicEngine</Filter>
     </ClCompile>
+    <ClCompile Include="src\Core\Renderer\Buffer.cpp">
+      <Filter>Core\Renderer</Filter>
+    </ClCompile>
     <ClCompile Include="src\Core\Renderer\BufferManager.cpp">
       <Filter>Core\Renderer</Filter>
     </ClCompile>
@@ -640,6 +648,9 @@
       <Filter>Core\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_ForwardRendering.cpp">
+      <Filter>Core\Renderer\RenderPass</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_GenerateShadowMap.cpp">
       <Filter>Core\Renderer\RenderPass</Filter>
     </ClCompile>
     <ClCompile Include="src\Core\Renderer\RenderPassStack.cpp">
@@ -712,7 +723,5 @@
       <Filter>Platform\Windows</Filter>
     </ClCompile>
     <ClCompile Include="src\pch.cpp" />
-    <ClCompile Include="src\Core\Helper\MathHelper.cpp" />
-    <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_GenerateShadowMap.cpp" />
   </ItemGroup>
 </Project>

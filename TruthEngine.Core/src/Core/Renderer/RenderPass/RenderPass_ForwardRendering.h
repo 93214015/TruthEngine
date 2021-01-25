@@ -85,9 +85,7 @@ namespace TruthEngine
 			uint32_t m_TotalMeshNum = 0;
 			uint32_t m_TotalVertexNum = 0;
 
-
-			TimerProfile_Average m_TimerBegin{ 1000 };
-			TimerProfile_Average m_TimerRender{ 1000 };
+			TimerProfile_OneSecond m_TimerRender;
 		};
 	}
 }

@@ -30,6 +30,8 @@ namespace TruthEngine::Core {
 
 		virtual void SetEventCallBack(const EventCallBack& fn) { m_Data.CallBack = fn; };
 
+		virtual void ToggleFullScreenMode() = 0;
+
 		uint16_t GetWidth() { return m_Data.Width; }
 		uint16_t GetHeight() { return m_Data.Height; }
 

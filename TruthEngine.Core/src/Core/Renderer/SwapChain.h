@@ -23,7 +23,7 @@ namespace TruthEngine::Core {
 
 		virtual TE_RESULT Resize(uint32_t width, uint32_t height, uint32_t backBufferNum) = 0;
 
-		virtual uint32_t GetCurrentFrameIndex() const = 0;
+		virtual uint8_t GetCurrentFrameIndex() const = 0;
 
 		inline const ClearValue_RenderTarget GetClearValues() const noexcept
 		{
@@ -35,7 +35,7 @@ namespace TruthEngine::Core {
 			m_ClearValues = clearValues;
 		}
 
-		inline uint32_t GetBackBufferNum()const noexcept { return m_BackBufferNum; }
+		inline uint8_t GetBackBufferNum()const noexcept { return m_BackBufferNum; }
 
 
 		static SwapChain* GetInstance();
@@ -44,7 +44,7 @@ namespace TruthEngine::Core {
 
 		ClearValue_RenderTarget m_ClearValues = { 1.0f, 1.0f, 1.0f, 1.0f};
 
-		uint32_t m_BackBufferNum = 2;
+		uint8_t m_BackBufferNum = 2;
 
 		bool m_UseMSAA4X = false;
 

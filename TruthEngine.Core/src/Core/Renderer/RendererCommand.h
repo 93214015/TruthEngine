@@ -26,7 +26,7 @@ namespace TruthEngine
 		public:
 			RendererCommand();
 
-			void Init(TE_IDX_RENDERPASS renderPassIDX, TE_IDX_SHADERCLASS shaderClassIDX, uint32_t ParallelCommandsNum = 1, BufferManager* bufferManager = nullptr, ShaderManager* shaderManager = nullptr);
+			void Init(TE_IDX_RENDERPASS renderPassIDX, TE_IDX_SHADERCLASS shaderClassIDX, BufferManager* bufferManager = nullptr, ShaderManager* shaderManager = nullptr);
 			void Release();
 
 			TextureRenderTarget* CreateRenderTarget(TE_IDX_TEXTURE idx, uint32_t width, uint32_t height, TE_RESOURCE_FORMAT format, const ClearValue_RenderTarget& clearValue, bool useAsShaderResource);
@@ -72,36 +72,36 @@ namespace TruthEngine
 			TE_RESULT CreateIndexBuffer(IndexBuffer* ib);
 
 
-			void SetPipeline(Pipeline* pipeline, uint32_t cmdListIndex = 0);
-			void SetRenderTarget(const RenderTargetView RTV, uint32_t cmdListIndex = 0);
-			void SetRenderTarget(SwapChain* swapChain, const RenderTargetView RTV, uint32_t cmdListIndex = 0);
-			void SetDepthStencil(const DepthStencilView DSV, uint32_t cmdListIndex = 0);
-			void SetShaderResource(const ShaderResourceView SRV, uint32_t registerIndex, uint32_t cmdListIndex = 0);
-			void SetConstantBuffer(const ConstantBufferView CBV, uint32_t registerIndex, uint32_t cmdListIndex = 0);
+			void SetPipeline(Pipeline* pipeline);
+			void SetRenderTarget(const RenderTargetView RTV);
+			void SetRenderTarget(SwapChain* swapChain, const RenderTargetView RTV);
+			void SetDepthStencil(const DepthStencilView DSV);
+			void SetShaderResource(const ShaderResourceView SRV, uint32_t registerIndex);
+			void SetConstantBuffer(const ConstantBufferView CBV, uint32_t registerIndex);
 
-			void UploadData(ConstantBufferUploadBase* cb, uint32_t cmdListIndex = 0);
-			void UploadData(ConstantBufferDirectBase* cb, uint32_t cmdListIndex = 0);
-			void UploadData(Buffer* buffer, void* Data, size_t sizeInByte, uint32_t cmdListIndex = 0);
-			void UploadData(VertexBufferBase* vertexBuffer, uint32_t cmdListIndex = 0);
-			void UploadData(IndexBuffer* indexBuffer, uint32_t cmdListIndex = 0);
+			void UploadData(ConstantBufferUploadBase* cb);
+			void UploadData(ConstantBufferDirectBase* cb);
+			void UploadData(Buffer* buffer, void* Data, size_t sizeInByte);
+			void UploadData(VertexBufferBase* vertexBuffer);
+			void UploadData(IndexBuffer* indexBuffer);
 
-			void SetVertexBuffer(VertexBufferBase* vertexBuffer, uint32_t cmdListIndex = 0);
-			void SetIndexBuffer(IndexBuffer* indexBuffer, uint32_t cmdListIndex = 0);
+			void SetVertexBuffer(VertexBufferBase* vertexBuffer);
+			void SetIndexBuffer(IndexBuffer* indexBuffer);
 			
-			void SetViewPort(Viewport* viewport, ViewRect* rect, uint32_t cmdListIndex = 0);
+			void SetViewPort(Viewport* viewport, ViewRect* rect);
 
-			void Begin(uint32_t cmdListIndex = 0);
-			void Begin(Pipeline* pipeline, uint32_t cmdListIndex = 0);
-			void End(uint32_t cmdListIndex = 0);
+			void Begin();
+			void Begin(Pipeline* pipeline);
 			
-			void EndAndPresent(uint32_t cmdListIndex = 0);
+			void End();
+			void EndAndPresent();
 
-			void DrawIndexed(Mesh* mesh, uint32_t cmdListIndex = 0);
-			void Draw(Mesh* mesh, uint32_t cmdListIndex = 0);
+			void DrawIndexed(Mesh* mesh);
+			void Draw(Mesh* mesh);
 
-			void ClearRenderTarget(const RenderTargetView RTV, uint32_t cmdListIndex = 0);
-			void ClearRenderTarget(const SwapChain* swapChain, const RenderTargetView RTV, uint32_t cmdListIndex = 0);
-			void ClearDepthStencil(const DepthStencilView DSV, uint32_t cmdListIndex = 0);
+			void ClearRenderTarget(const RenderTargetView RTV);
+			void ClearRenderTarget(const SwapChain* swapChain, const RenderTargetView RTV);
+			void ClearDepthStencil(const DepthStencilView DSV);
 
 			void ResizeRenderTarget(TextureRenderTarget* texture, uint32_t width, uint32_t height, RenderTargetView* RTV, ShaderResourceView* SRV);
 			void ResizeRenderTarget(TE_IDX_TEXTURE idx, uint32_t width, uint32_t height, RenderTargetView* RTV, ShaderResourceView* SRV);
@@ -109,15 +109,17 @@ namespace TruthEngine
 			void ResizeDepthStencil(TE_IDX_TEXTURE idx, uint32_t width, uint32_t height, DepthStencilView* DSV, ShaderResourceView* SRV);
 			void ResizeSwapChain(SwapChain* swapChain, uint32_t width, uint32_t height, RenderTargetView* RTV, ShaderResourceView* SRV);
 
-			bool IsRunning(uint32_t cmdListIndex = 0);
+			void AddUpdateTask(const std::function<void()>& task);
+
+			bool IsRunning();
 
 		private:
 			void WaitForGPU();
 
 		private:
-			uint32_t m_LastCommadListIndex = 0;
 
 			std::vector<std::shared_ptr<CommandList>> m_CommandLists;
+			CommandList* m_CurrentCommandList = nullptr;
 
 			BufferManager* m_BufferManager;
 			ShaderManager* m_ShaderManager;

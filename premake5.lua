@@ -76,9 +76,14 @@ filter "configurations:Debug"
 		{
 			"%{wks.location}/Dependencies/GeometryGenerator/lib/x64/Debug",
 			"%{wks.location}/Dependencies/Physx/lib/debug",
+			"%{wks.location}/Dependencies/assimp/lib/debug",
 		}
-		
+		links
+		{
+			"assimp-vc142-mtd.lib"
+		}
 		defines{
+			"_DEBUG",
 			"TE_ENABLE_ASSERTS",
 		}
 
@@ -88,6 +93,14 @@ filter "configurations:Release"
 		{
 			"%{wks.location}/Dependencies/GeometryGenerator/lib/x64/Release",
 			"%{wks.location}/Dependencies/Physx/lib/release",
+			"%{wks.location}/Dependencies/assimp/lib/release",
+		}		
+		links
+		{
+			"assimp-vc142-mt.lib"
+		}
+		defines{
+			"NDEBUG",			
 		}
 
 
@@ -96,6 +109,14 @@ filter "configurations:Dist"
 		{
 			"%{wks.location}/Dependencies/GeometryGenerator/lib/x64/Release",
 			"%{wks.location}/Dependencies/Physx/lib/release",
+			"%{wks.location}/Dependencies/assimp/lib/release",
+		}	
+		links
+		{
+			"assimp-vc142-mt.lib"
+		}
+		defines{
+			"NDEBUG",			
 		}
 filter{}
 

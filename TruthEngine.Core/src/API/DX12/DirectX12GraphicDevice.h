@@ -31,6 +31,7 @@ namespace TruthEngine::API::DirectX12 {
 		inline DirectX12CommandQueue_Direct* GetCommandQueuDirect() { return &m_CommandQueueDirect; }
 		inline DirectX12CommandQueue_Copy* GetCommandQueuCopy() { return &m_CommandQueueCopy; }
 		inline DirectX12Fence& GetFence() { return m_Fence; }
+		inline const D3D12_FEATURE_DATA_ROOT_SIGNATURE& GetFeature_RootSignature() { return m_FeatureData_RootSignature; }
 
 		static inline DirectX12GraphicDevice& GetPrimaryDeviceDX12() { return s_PrimaryDevice; }
 
@@ -38,11 +39,13 @@ namespace TruthEngine::API::DirectX12 {
 		TE_RESULT CreateDevice(UINT adapterIndex);
 		TE_RESULT InitCommandQueues();
 		void InitDescriptorSize()const;
+		void CheckFeatures();
 
 		inline UINT GetDescriptorSizeRTV() const noexcept { return m_Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV); }
 		inline UINT GetDescriptorSizeSRV() const noexcept { return m_Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV); }
 		inline UINT GetDescriptorSizeDSV() const noexcept { return m_Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV); }
 		inline UINT GetDescriptorSizeSampler() const noexcept { return m_Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER); }
+
 
 		TE_RESULT CreateCommandQueue(COMPTR<ID3D12CommandQueue>& cmdQueue, D3D12_COMMAND_LIST_TYPE type) const;
 
@@ -60,6 +63,9 @@ namespace TruthEngine::API::DirectX12 {
 
 		HANDLE m_EventGPUWorkFinished_DirectQueue;
 		HANDLE m_EventGPUWorkFinished_CopyQueue;
+
+
+		D3D12_FEATURE_DATA_ROOT_SIGNATURE m_FeatureData_RootSignature = {};
 
 		static DirectX12GraphicDevice s_PrimaryDevice;
 

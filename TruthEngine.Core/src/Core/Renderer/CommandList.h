@@ -27,7 +27,7 @@ namespace TruthEngine::Core
 	{
 
 	public:
-		CommandList(TE_IDX_RENDERPASS renderPassIDX, TE_IDX_SHADERCLASS shaderClassIDX);
+		CommandList(TE_IDX_RENDERPASS renderPassIDX, TE_IDX_SHADERCLASS shaderClassIDX, uint8_t frameIndex);
 		virtual ~CommandList() = default;
 
 		virtual void Reset() = 0;
@@ -69,12 +69,34 @@ namespace TruthEngine::Core
 
 		virtual void WaitToFinish() = 0;
 
-		static std::shared_ptr<CommandList> Factory(GraphicDevice* graphicDevice, TE_RENDERER_COMMANDLIST_TYPE type, BufferManager* bufferManager, ShaderManager* shaderManager, TE_IDX_RENDERPASS renderPassIDX, TE_IDX_SHADERCLASS shaderClassIDX);
+		inline void AddUpdateTask(const std::function<void()>& task)
+		{
+			m_UpdateQueue.emplace_back(task);
+		}
+
+		inline void ExecuteUpdateTasks()
+		{
+			if (m_UpdateQueue.size() > 0)
+			{
+				for (auto& task : m_UpdateQueue)
+					task();
+
+				m_UpdateQueue.clear();
+			}
+		}
+
+
+		static std::shared_ptr<CommandList> Factory(GraphicDevice* graphicDevice, TE_RENDERER_COMMANDLIST_TYPE type, BufferManager* bufferManager, ShaderManager* shaderManager, TE_IDX_RENDERPASS renderPassIDX, TE_IDX_SHADERCLASS shaderClassIDX, uint8_t frameIndex);
 
 	protected:
 		CommandList() = default;
 
 	protected:
+
+		std::vector<std::function<void()>> m_UpdateQueue;
+
+		uint8_t m_FrameIndex = 0;
+
 		uint32_t m_AssignedVertexBufferID = -1;
 		uint32_t m_AssignedIndexBufferID = -1;
 

@@ -99,4 +99,13 @@ namespace TruthEngine::Core {
 		EVENT_CLASS_CATEGORY(EventCategoryApplication)
 	};
 
+	class EventAppOneSecondPoint : public Event
+	{
+	public:
+		EventAppOneSecondPoint() = default;
+
+		EVENT_CLASS_TYPE(AppOneSecondPoint);
+		EVENT_CLASS_CATEGORY(EventCategoryApplication);
+	};
+
 }

@@ -6,6 +6,8 @@
 
 namespace TruthEngine::Core {
 
+	class EventAppOneSecondPoint;
+
 	class TimerProfile {
 
 	public:
@@ -20,10 +22,10 @@ namespace TruthEngine::Core {
 		std::chrono::high_resolution_clock::time_point m_startTimePoint;
 	};
 
-	class TimerProfile_Average {
+	class TimerProfile_OneSecond {
 
 	public:
-		TimerProfile_Average(double averagingDuration);
+		TimerProfile_OneSecond();
 		//set start time point
 		void Start() noexcept;
 		void End() noexcept;
@@ -32,14 +34,14 @@ namespace TruthEngine::Core {
 		{
 			return m_AverageTime;
 		}
+
+		void OnEventOnSecond(EventAppOneSecondPoint& event);
 	private:
 
 
 	private:
-		double m_AveragingDuration;
 		double m_AverageTime = 0.0f;
 		double m_Accumulator = 0.0f;
-		double m_FrameTimeAccumulator = 0.0f;
 
 		double m_TickCount = 0.0f;
 
