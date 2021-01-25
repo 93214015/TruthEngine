@@ -28,6 +28,10 @@ namespace TruthEngine
 		{
 			m_Context->ClearSelectedEntity();
 		}
+		if (auto _selectedEntity = m_Context->GetSelectedEntity(); _selectedEntity)
+		{
+			ImGui::Text("Selected Entity: %s", _selectedEntity.GetComponent<TagComponent>().GetTag().c_str());
+		}
 		ImGui::PopStyleColor(3);
 
 

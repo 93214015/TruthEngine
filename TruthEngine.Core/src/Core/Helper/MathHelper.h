@@ -9,6 +9,12 @@ struct float2 : DirectX::XMFLOAT2
 {
 	using DirectX::XMFLOAT2::XMFLOAT2;
 
+	float2(const ImVec2& imVec2)
+	{
+		x = imVec2.x;
+		y = imVec2.y;
+	}
+
 	operator ImVec2();
 	operator ImVec2()const;
 };

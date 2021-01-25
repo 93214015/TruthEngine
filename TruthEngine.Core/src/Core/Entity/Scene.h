@@ -53,6 +53,11 @@ namespace TruthEngine
 				m_SelectedEntity = entity;
 			}
 
+			inline void SelectEntity(entt::entity entityHandle)
+			{
+				m_SelectedEntity = Entity(this, entityHandle);
+			}
+
 			inline void ClearSelectedEntity()
 			{
 				m_SelectedEntity = {};

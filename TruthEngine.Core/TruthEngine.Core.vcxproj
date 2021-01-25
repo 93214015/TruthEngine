@@ -196,6 +196,7 @@
     <ClInclude Include="src\Core\Entity\Model\Model2D.h" />
     <ClInclude Include="src\Core\Entity\Model\Model3D.h" />
     <ClInclude Include="src\Core\Entity\Model\ModelManager.h" />
+    <ClInclude Include="src\Core\Entity\PickingEntity.h" />
     <ClInclude Include="src\Core\Entity\Scene.h" />
     <ClInclude Include="src\Core\EntryPoint.h" />
     <ClInclude Include="src\Core\Event\Event.h" />
@@ -314,6 +315,7 @@
     <ClCompile Include="src\Core\Entity\Model\Model2D.cpp" />
     <ClCompile Include="src\Core\Entity\Model\Model3D.cpp" />
     <ClCompile Include="src\Core\Entity\Model\ModelManager.cpp" />
+    <ClCompile Include="src\Core\Entity\PickingEntity.cpp" />
     <ClCompile Include="src\Core\Entity\Scene.cpp" />
     <ClCompile Include="src\Core\Event\Event.cpp" />
     <ClCompile Include="src\Core\Event\EventApplication.cpp" />

@@ -16,14 +16,14 @@
 #include "Core/ImGui/ImGuiLayer.h"
 #include "Core/Event/EventKey.h"
 #include "Core/Event/Event.h"
+#include "Core/Entity/PickingEntity.h"
 
-
-
+std::future<void> m_PickEntity;
 
 namespace TruthEngine
 {
 
-using namespace Core;
+	using namespace Core;
 
 	ApplicationEditor::ApplicationEditor(uint16_t clientWidth, uint16_t clientHeight, uint8_t framesInFlightNum)
 		: Core::Application("TruthEngine.Editor", clientWidth, clientHeight, framesInFlightNum)
@@ -67,7 +67,7 @@ using namespace Core;
 
 
 		auto lightManager = Core::LightManager::GetInstace();
-		auto dirLight0 = lightManager->AddLightDirectional("dlight_0", float4{ 0.8f, 0.8f, 0.8f, 0.8f }, float4{ 0.3f, 0.3f, 0.3f, 0.3f }, float4{ 0.0f, 0.0f, 0.0f, 0.0f }, float3{.38f, -.60f, .71f}, float3{ -42.0f, 66.0f, -80.0f }, 0.05f, true, 200.0f);
+		auto dirLight0 = lightManager->AddLightDirectional("dlight_0", float4{ 0.8f, 0.8f, 0.8f, 0.8f }, float4{ 0.3f, 0.3f, 0.3f, 0.3f }, float4{ 0.0f, 0.0f, 0.0f, 0.0f }, float3{ .38f, -.60f, .71f }, float3{ -42.0f, 66.0f, -80.0f }, 0.05f, true, 200.0f);
 		lightManager->AddLightCamera(dirLight0, Core::TE_CAMERA_TYPE::Perspective);
 
 		auto entityLight = m_ActiveScene.AddEntity("Directional Light 0");
@@ -258,6 +258,30 @@ using namespace Core;
 			//Render Scene Viewport
 			{
 				ImGui::Begin("SceneViewport", NULL, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove);
+				m_IsHoveredSceneViewport = ImGui::IsWindowHovered();
+
+
+
+				if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) && m_IsHoveredSceneViewport)
+				{
+					auto _windowPos = ImGui::GetWindowPos();
+					auto _mousePos = ImGui::GetMousePos();
+					auto _windowAreaMin = ImGui::GetWindowContentRegionMin();
+					auto _windowAreaMax = ImGui::GetWindowContentRegionMax();
+					auto _windowContentWidth = ImGui::GetWindowContentRegionWidth();
+					auto _windowViewport = ImGui::GetWindowViewport();
+					auto _viewportSize = _windowViewport->Pos;
+
+					auto _windowMousePos = float2{ _mousePos.x - _windowPos.x - _windowAreaMin.x, _mousePos.y - _windowPos.y - _windowAreaMin.y };
+
+					if (_windowMousePos.x > 0 && _windowMousePos.y > 0)
+					{
+
+						std::function<void()> lambda = [this, _windowMousePos]() { PickingEntity::PickEntity(_windowMousePos, &m_ActiveScene, CameraManager::GetInstance()->GetActiveCamera()); };
+
+						m_PickEntity = TE_INSTANCE_THREADPOOL.Queue(lambda);
+					}
+				}
 
 				ImGuizmo::SetOrthographic(false);
 				ImGuizmo::SetDrawlist();
@@ -275,7 +299,7 @@ using namespace Core;
 
 				imguiLayer->RenderSceneViewport(viewportSize);
 
-				
+
 
 				ImGui::End();
 			}//End of Render Scene Viewport

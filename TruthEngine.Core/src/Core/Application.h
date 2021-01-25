@@ -65,6 +65,8 @@ namespace TruthEngine::Core {
 		virtual void OnDestroy() = 0;
 		virtual void OnEvent(Event& e);
 
+		inline bool IsHoveredSceneViewPort() const noexcept { return m_IsHoveredSceneViewport; }
+		inline void IsHoveredSceneViewPort(bool hovered) noexcept { m_IsHoveredSceneViewport = hovered; }
 
 		static inline Application* GetApplication() { return s_Instance; }
 
@@ -98,6 +100,7 @@ namespace TruthEngine::Core {
 
 		bool m_Running = true;
 		bool m_WindowMode = true;
+		bool m_IsHoveredSceneViewport = false;
 
 	};
 

@@ -104,6 +104,9 @@ namespace TruthEngine::Core
 
 	void CameraController::OnMouseMove(EventMouseMoved& event)
 	{
+		if (!TE_INSTANCE_APPLICATION->IsHoveredSceneViewPort())
+			return;
+
 		if (InputManager::IsMouseRightDown())
 		{
 			float dx_angle = XMConvertToRadians(0.25f * static_cast<float>(InputManager::GetDX()));
@@ -113,12 +116,16 @@ namespace TruthEngine::Core
 			RotateY(dx_angle / 10);
 
 			m_Camera->UpdateViewMatrix();
+
 		}
 	}
 
 
 	void CameraController::OnKeyPressed(EventKeyPressed& event)
 	{
+		if (!TE_INSTANCE_APPLICATION->IsHoveredSceneViewPort())
+			return;
+
 		float dt = TE_INSTANCE_APPLICATION->FrameTime();
 		switch (event.GetKeyCode())
 		{
