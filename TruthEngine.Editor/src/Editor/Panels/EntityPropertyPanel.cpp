@@ -227,6 +227,7 @@ namespace TruthEngine
 
 					if (ImGui::Button("Clear##normalMap"))
 					{
+						ImGui::SameLine();
 						material->SetMapIndexNormal(-1);
 					}
 

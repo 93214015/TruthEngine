@@ -18,7 +18,7 @@
 #include "Core/Event/Event.h"
 #include "Core/Entity/PickingEntity.h"
 
-std::future<void> m_PickEntity;
+std::future<void> gFeaturePickEntity;
 
 namespace TruthEngine
 {
@@ -88,12 +88,7 @@ namespace TruthEngine
 
 		TE_INSTANCE_PHYSICSENGINE->Init();
 
-		auto onKeyReleased = [this](Event& event)
-		{
-			OnEventKeyReleased(static_cast<EventKeyReleased&>(event));
-		};
-
-		RegisterEventListener(EventType::KeyReleased, onKeyReleased);
+		RegisterOnEvents();
 	}
 
 
@@ -245,6 +240,10 @@ namespace TruthEngine
 					{
 						TE_INSTANCE_PHYSICSENGINE->Stop();
 					}
+					if (ImGui::MenuItem("PickCenter"))
+					{
+						PickingEntity::PickEntity(float2{ .0f, .0f }, &m_ActiveScene, CameraManager::GetInstance()->GetActiveCamera());
+					}
 					ImGui::EndMenu();
 				}
 
@@ -262,24 +261,26 @@ namespace TruthEngine
 
 
 
-				if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) && m_IsHoveredSceneViewport)
+				if (ImGui::IsMouseReleased(ImGuiMouseButton_Left) && m_IsHoveredSceneViewport)
 				{
-					auto _windowPos = ImGui::GetWindowPos();
-					auto _mousePos = ImGui::GetMousePos();
-					auto _windowAreaMin = ImGui::GetWindowContentRegionMin();
-					auto _windowAreaMax = ImGui::GetWindowContentRegionMax();
-					auto _windowContentWidth = ImGui::GetWindowContentRegionWidth();
-					auto _windowViewport = ImGui::GetWindowViewport();
-					auto _viewportSize = _windowViewport->Pos;
-
-					auto _windowMousePos = float2{ _mousePos.x - _windowPos.x - _windowAreaMin.x, _mousePos.y - _windowPos.y - _windowAreaMin.y };
-
-					if (_windowMousePos.x > 0 && _windowMousePos.y > 0)
+					auto dragDelta = ImGui::GetMouseDragDelta(ImGuiMouseButton_Left);
+					if (dragDelta.x == 0 && dragDelta.y == 0)
 					{
+						m_ActiveScene.ClearSelectedEntity();
+						m_SceneViewPortPos = ImGui::GetWindowPos();
+						auto _mousePos = ImGui::GetMousePos();
+						m_SceneViewPortAreaMin = ImGui::GetWindowContentRegionMin();
+						m_SceneViewPortAreaMax = ImGui::GetWindowContentRegionMax();
 
-						std::function<void()> lambda = [this, _windowMousePos]() { PickingEntity::PickEntity(_windowMousePos, &m_ActiveScene, CameraManager::GetInstance()->GetActiveCamera()); };
+						auto _windowMousePos = float2{ _mousePos.x - m_SceneViewPortPos.x - m_SceneViewPortAreaMin.x, _mousePos.y - m_SceneViewPortPos.y - m_SceneViewPortAreaMin.y };
 
-						m_PickEntity = TE_INSTANCE_THREADPOOL.Queue(lambda);
+						if ((_windowMousePos.x > 0 && _windowMousePos.y > 0) && (_windowMousePos.x < m_SceneViewPortAreaMax.x && _windowMousePos.y < m_SceneViewPortAreaMax.y))
+						{
+
+							std::function<void()> lambda = [this, _windowMousePos]() { PickingEntity::PickEntity(_windowMousePos, &m_ActiveScene, CameraManager::GetInstance()->GetActiveCamera()); };
+
+							gFeaturePickEntity = TE_INSTANCE_THREADPOOL.Queue(lambda);
+						}
 					}
 				}
 
@@ -511,6 +512,18 @@ namespace TruthEngine
 
 	}
 
+
+	void ApplicationEditor::RegisterOnEvents()
+	{
+		auto onKeyReleased = [this](Event& event)
+		{
+			OnEventKeyReleased(static_cast<EventKeyReleased&>(event));
+		};
+
+		RegisterEventListener(EventType::KeyReleased, onKeyReleased);
+
+		
+	}
 
 }
 

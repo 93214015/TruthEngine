@@ -66,16 +66,22 @@ namespace TruthEngine::Core
 
 	float4x4 Scene::CalcTransformsToRoot(Entity& entity)
 	{
+		if (!entity)
+			return IdentityMatrix;
+
 		auto& t = entity.GetComponent<TransformComponent>().GetTransform();
 		auto itr = m_EntityTree.m_Tree.find(entity);
-		return t * GetParentTransforms(itr->second.mParent);
+		return CalcTransformsToRoot(itr->second.mParent) * t;
 	}
 
 	float4x4 Scene::CalcTransformsToRoot(entt::entity entityHandler)
 	{
+		if (entityHandler == entt::null)
+			return IdentityMatrix;
+
 		auto& t = m_Registery.get<TransformComponent>(entityHandler).GetTransform();
 		auto itr = m_EntityTree.m_Tree.find(static_cast<uint32_t>(entityHandler));
-		return t * GetParentTransforms(itr->second.mParent);
+		return CalcTransformsToRoot(itr->second.mParent) * t;
 	}
 
 	float4x4 Scene::GetParentTransforms(Entity parent)
@@ -85,7 +91,7 @@ namespace TruthEngine::Core
 
 		auto& t = parent.GetComponent<TransformComponent>().GetTransform();
 
-		return t * GetParentTransforms(m_EntityTree.m_Tree.find(parent)->second.mParent);
+		return GetParentTransforms(m_EntityTree.m_Tree.find(parent)->second.mParent) * t;
 	}
 
 	float4x4 Scene::GetParentTransforms(entt::entity parentHandler)
@@ -95,7 +101,7 @@ namespace TruthEngine::Core
 
 		auto& t = m_Registery.get<TransformComponent>(parentHandler).GetTransform();
 
-		return t * GetParentTransforms(m_EntityTree.m_Tree.find(static_cast<uint32_t>(parentHandler))->second.mParent);
+		return GetParentTransforms(m_EntityTree.m_Tree.find(static_cast<uint32_t>(parentHandler))->second.mParent) * t;
 	}
 
 	std::vector<Entity> Scene::GetChildrenEntity(Entity entity)

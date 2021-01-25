@@ -11,6 +11,10 @@ namespace TruthEngine::Core
 
 	void EntityTree::AddNode(Entity entity, Entity parent)
 	{
+		UINT io = 0;
+		if (parent)
+			io = 1;
+
 		EntityNode node(entity, parent);
 
 		//auto& result = m_Tree.emplace( std::pair(entity, node) );

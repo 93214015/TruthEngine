@@ -69,10 +69,10 @@ namespace TruthEngine::Core
 			throw;
 		}*/
 
-		auto modelmanager = ModelManager::GetInstance().get();
 
 		auto material = m_pxPhysics->createMaterial(.1f, .1f, 0.6f);
 
+		/*auto modelmanager = ModelManager::GetInstance().get();
 		m_planeEntity = modelmanager->GeneratePrimitiveMesh(TE_PRIMITIVE_TYPE::PLANE, 20.0, IdentityMatrix);
 
 		PxPlane pxPlane(0.0, 1.0, 0.0, 0);
@@ -81,7 +81,7 @@ namespace TruthEngine::Core
 		pPlaneActor = m_pxPhysics->createRigidStatic(PxTransformFromPlaneEquation(pxPlane));
 		pPlaneActor->attachShape(*planeShape);
 
-		m_pxScene->addActor(*pPlaneActor);
+		m_pxScene->addActor(*pPlaneActor);*/
 
 
 		m_PhysicsComponentEntities.reserve(1000);

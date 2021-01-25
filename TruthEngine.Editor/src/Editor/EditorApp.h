@@ -33,18 +33,24 @@ namespace TruthEngine
 		void OnDestroy() override;
 
 
-		void OnEventKeyReleased(Core::EventKeyReleased& event);
 
 	private:
 
 		void OnImGuiRender();
 
+		void RegisterOnEvents();
+
+		void OnEventKeyReleased(Core::EventKeyReleased& event);
 
 	private:
 
 		Core::TimerProfile_OneSecond m_TimerAvg_Update;
 		Core::TimerProfile_OneSecond m_TimerAvg_ImGuiPass;
 		Core::TimerProfile_OneSecond m_TimerAvg_UpdateRenderPasses;
+
+		float2 m_SceneViewPortPos = { .0f, .0f };
+		float2 m_SceneViewPortAreaMin = { .0f, .0f };
+		float2 m_SceneViewPortAreaMax = { .0f, .0f };
 
 		SceneHierarchyPanel m_SceneHierarchyPanel;
 		EntityPropertyPanel m_EntityPropertyPanel;
