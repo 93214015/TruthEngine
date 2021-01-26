@@ -52,6 +52,11 @@ namespace TruthEngine
 				return m_MaterialManager.m_Materials;
 			}
 
+			inline MaterialManager* GetMaterialManager()
+			{
+				return &m_MaterialManager;
+			}
+
 			inline void AddSpace(/*size_t Model3DNum, */size_t MeshNum)
 			{
 				/*if (auto freeSpace = m_Models3D.capacity() - m_Models3D.size(); freeSpace < Model3DNum)
@@ -105,6 +110,7 @@ namespace TruthEngine
 
 			//void AddMesh(std::shared_ptr<Mesh> mesh);
 			Mesh* AddMesh(uint32_t IndexNum, size_t IndexOffset, size_t VertexOffset, size_t vertexNum);
+			Mesh* CopyMesh(Mesh* mesh);
 
 			void ImportModel(Scene* scene, const char* filePath);
 

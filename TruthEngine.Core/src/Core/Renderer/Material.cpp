@@ -3,6 +3,7 @@
 
 #include "Core/Application.h"
 #include "Core/Event/EventEntity.h"
+#include "Core/Entity/Model/ModelManager.h"
 
 namespace TruthEngine
 {
@@ -23,6 +24,7 @@ namespace TruthEngine
 			, m_MeshType(meshType)
 		{}
 
+		
 		void Material::InvokeEventChangeMaterial()
 		{
 			EventEntityUpdateMaterial event(this);

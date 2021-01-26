@@ -43,7 +43,7 @@ namespace TruthEngine::Core
 		}
 
 		PxSceneDesc sceneDesc(m_pxPhysics->getTolerancesScale());
-		sceneDesc.gravity = PxVec3(.0f, -90.81f, .0f);
+		sceneDesc.gravity = PxVec3(.0f, -9.81f, .0f);
 		m_pxCpuDispatcher = PxDefaultCpuDispatcherCreate(6);
 		sceneDesc.cpuDispatcher = m_pxCpuDispatcher;
 		sceneDesc.filterShader = PxDefaultSimulationFilterShader;
@@ -127,6 +127,15 @@ namespace TruthEngine::Core
 
 			auto dynamicActor = component.GetActor();
 
+			if (activeScene->HasComponent<BoundingBoxComponent>(entity))
+			{
+				auto& aabb = activeScene->GetComponent<BoundingBoxComponent>(entity).GetBoundingBox();
+
+				translate.x += aabb.Center.x;
+				translate.y += aabb.Center.y;
+				translate.z += aabb.Center.z;
+			}
+
 			PxTransform pxTrans({ translate.x, translate.y, translate.z }, { quat.x, quat.y, quat.z, quat.w });
 
 
@@ -144,6 +153,15 @@ namespace TruthEngine::Core
 
 			DirectX::XMStoreFloat4(&translate, xmTranslate);
 			DirectX::XMStoreFloat4(&quat, xmQuat);
+
+			if (activeScene->HasComponent<BoundingBoxComponent>(entity))
+			{
+				auto& aabb = activeScene->GetComponent<BoundingBoxComponent>(entity).GetBoundingBox();
+
+				translate.x += aabb.Center.x;
+				translate.y += aabb.Center.y;
+				translate.z += aabb.Center.z;
+			}
 
 			auto staticActor = activeScene->GetComponent<PhysicsStaticComponent>(entity).GetActor();
 			staticActor->setGlobalPose(PxTransform({ translate.x, translate.y, translate.z }, { quat.x, quat.y, quat.z, quat.w }));
@@ -170,7 +188,6 @@ namespace TruthEngine::Core
 		if (m_Stopped)
 			return false;
 
-
 		static auto mAccumulator = 0.0f;
 		static auto  mStepSize = 1.0f / 60.0f;
 
@@ -196,7 +213,6 @@ namespace TruthEngine::Core
 			
 			auto& actorPos = actor->getGlobalPose();
 			auto m = XMMatrixAffineTransformation(DirectX::XMVectorSet(1.0f, 1.0f, 1.0f, 1.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f), XMVectorSet(actorPos.q.x, actorPos.q.y, actorPos.q.z, actorPos.q.w), XMVectorSet(actorPos.p.x, actorPos.p.y, actorPos.p.z, 1.0f));
-
 			auto& transform = ent->GetComponent<TransformComponent>().GetTransform();
 			XMStoreFloat4x4(&transform, m);
 		}
@@ -294,14 +310,20 @@ namespace TruthEngine::Core
 	{
 		PxMaterial* material = m_pxPhysics->createMaterial(rigidBoxDesc.mStaticFriction, rigidBoxDesc.mDynamicFriction, rigidBoxDesc.mRestitution);
 		
-		return m_pxPhysics->createShape(PxBoxGeometry(rigidBoxDesc.mHalfX * scale.x, rigidBoxDesc.mHalfY * scale.y, rigidBoxDesc.mHalfZ * scale.z), *material, true);
+		float halfX = rigidBoxDesc.mHalfX == 0.0 ? 0.5f : rigidBoxDesc.mHalfX;
+		float halfY = rigidBoxDesc.mHalfY == 0.0 ? 0.5f : rigidBoxDesc.mHalfY;
+		float halfZ = rigidBoxDesc.mHalfZ == 0.0 ? 0.5f : rigidBoxDesc.mHalfZ;
+
+		return m_pxPhysics->createShape(PxBoxGeometry(halfX * scale.x, halfY * scale.y, halfZ * scale.z), *material, true);
 	}
 
 	physx::PxShape* PhysicsEngine::CreateSphereShape(const TEPhysicsRigidSphereDesc& rigidSphereDesc, const float4& scale)
 	{
 		PxMaterial* material = m_pxPhysics->createMaterial(rigidSphereDesc.mStaticFriction, rigidSphereDesc.mDynamicFriction, rigidSphereDesc.mRestitution);
 
-		return m_pxPhysics->createShape(PxSphereGeometry(rigidSphereDesc.mRadius * scale.x), *material, true);
+		float radius = rigidSphereDesc.mRadius == 0 ? 0.5f : rigidSphereDesc.mRadius;
+
+		return m_pxPhysics->createShape(PxSphereGeometry(radius * scale.x), *material, true);
 	}
 
 }

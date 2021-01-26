@@ -72,15 +72,20 @@ namespace TruthEngine
 				return static_cast<uint32_t>(m_EntityHandle);
 			}
 
+			inline Scene* GetScene()const noexcept
+			{
+				return m_Scene;
+			}
+
 
 		private:
 
 
 
 		private:
-			Scene* m_Scene;
-			entt::registry* m_Registery;
-			entt::entity m_EntityHandle;
+			Scene* m_Scene = nullptr;
+			entt::registry* m_Registery = nullptr;
+			entt::entity m_EntityHandle = entt::null;
 		};
 
 	}

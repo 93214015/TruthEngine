@@ -46,6 +46,8 @@ namespace TruthEngine
 				, float extraDepthBiasClamp
 				, TE_IDX_MESH_TYPE meshType);
 
+			Material* AddMaterial(Material* material);
+
 			void AddSampleMaterial();
 
 		protected:

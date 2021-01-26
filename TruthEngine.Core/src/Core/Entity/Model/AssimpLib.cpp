@@ -237,15 +237,16 @@ namespace TruthEngine::Core
 
 		if (nodeMeshNum > 0)
 		{
-			auto entity_model = scene->AddEntity(node->mName.C_Str());
-			auto& modelComponent = entity_model.AddComponent<ModelComponent>();
-			BoundingBox modelBoundingBox;
+			//auto entity_model = scene->AddEntity(node->mName.C_Str());
+			//auto& modelComponent = entity_model.AddComponent<ModelComponent>();
+			//BoundingBox modelBoundingBox;
 
 			for (uint32_t i = 0; i < nodeMeshNum; ++i)
 			{
 				auto aimesh = aiscene->mMeshes[node->mMeshes[i]];
 				auto material = m_ModelManager->m_MaterialManager.GetMaterial(aimesh->mMaterialIndex + m_MaterialOffset);
-				auto entity_mesh = scene->AddEntity(aimesh->mName.C_Str(), entity_model);
+				//auto entity_mesh = scene->AddEntity(aimesh->mName.C_Str(), entity_model);
+				auto entity_mesh = scene->AddEntity(aimesh->mName.C_Str());
 				auto mesh = &m_ModelManager->m_Meshes[node->mMeshes[i] + meshOffset];
 				entity_mesh.AddComponent<MeshComponent>(mesh);
 				entity_mesh.AddComponent<MaterialComponent>(material);
@@ -253,17 +254,17 @@ namespace TruthEngine::Core
 				entity_mesh.AddComponent<BoundingBoxComponent>(mesh->GetBoundingBox());
 
 
-				if (modelBoundingBox.Extents.x == 1 && modelBoundingBox.Extents.y == 1 && modelBoundingBox.Extents.z == 1)
+				/*if (modelBoundingBox.Extents.x == 1 && modelBoundingBox.Extents.y == 1 && modelBoundingBox.Extents.z == 1)
 				{
 					modelBoundingBox = meshBoundingBox;
 				}
 				else
 				{
 					CreateBoundingBoxMerged(modelBoundingBox, modelBoundingBox, meshBoundingBox);
-				}
+				}*/
 			}
 
-			entity_model.AddComponent<BoundingBoxComponent>(modelBoundingBox);
+			//entity_model.AddComponent<BoundingBoxComponent>(modelBoundingBox);
 		}
 
 		for (uint32_t childIndex = 0; childIndex < node->mNumChildren; ++childIndex)

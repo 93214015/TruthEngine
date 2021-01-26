@@ -36,14 +36,24 @@ namespace TruthEngine::Core
 	}
 
 
-	void CameraController::Strafe(float d)
+	void CameraController::Panning(float right, float up)
 	{
-		d *= m_Speed;
+		right *= m_Speed;
+		up *= m_Speed;
 		// mPosition += d*mRight
-		XMVECTOR s = XMVectorReplicate(d);
+		XMVECTOR s = XMVectorReplicate(right);
 		XMVECTOR r = XMLoadFloat3(&m_Camera->m_Right);
+		auto sr = XMVectorMultiply(s, r);
+
+
+		s = XMVectorReplicate(up);
+		XMVECTOR u = XMLoadFloat3(&m_Camera->m_Up);
+		auto su = XMVectorMultiply(s, u);
+
+		s = XMVectorAdd(sr, su);
+
 		XMVECTOR p = XMLoadFloat3(&m_Camera->m_Position);
-		XMStoreFloat3(&m_Camera->m_Position, XMVectorMultiplyAdd(s, r, p));
+		XMStoreFloat3(&m_Camera->m_Position, XMVectorAdd(s, p));
 
 		m_Camera->UpdateViewMatrix();
 	}
@@ -115,8 +125,16 @@ namespace TruthEngine::Core
 			Pitch(dy_angle / 10);
 			RotateY(dx_angle / 10);
 
-			m_Camera->UpdateViewMatrix();
+		}
 
+		if (InputManager::IsMouseMiddleDown())
+		{
+			const auto dt = TE_INSTANCE_APPLICATION->FrameTime();
+
+			float dx = -InputManager::GetDX() * dt;
+			float dy = -InputManager::GetDY() * dt;
+
+			Panning(dx, dy);
 		}
 	}
 
@@ -136,10 +154,10 @@ namespace TruthEngine::Core
 			Walk(-dt);
 			return;
 		case 'A':
-			Strafe(-dt);
+			Panning(-dt, 0.0f);
 			break;
 		case'D':
-			Strafe(dt);
+			Panning(dt, 0.0);
 			break;
 		case 'Q':
 			RotateCamera(dt);

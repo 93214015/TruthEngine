@@ -19,6 +19,8 @@ namespace TruthEngine
 
 		enum class TE_PHYSICS_RIGID_TYPE;
 		enum class TE_PHYSICS_RIGID_SHAPE;
+
+		class TEPhysicsRigidDesc;
 	}
 
 	class EntityPropertyPanel
@@ -37,7 +39,7 @@ namespace TruthEngine
 		inline void DrawCameraComponent(Core::CameraComponent& component);
 		inline void DrawLightComponent(Core::LightComponent& component);
 
-		void AddPhysicsComponent(Core::TE_PHYSICS_RIGID_TYPE rigidType, Core::TE_PHYSICS_RIGID_SHAPE rigidshape);
+		void AddPhysicsComponent(Core::TE_PHYSICS_RIGID_TYPE rigidType, Core::TE_PHYSICS_RIGID_SHAPE rigidshape, Core::TEPhysicsRigidDesc& rigidDesc);
 	private:
 		Core::Entity m_Context;
 

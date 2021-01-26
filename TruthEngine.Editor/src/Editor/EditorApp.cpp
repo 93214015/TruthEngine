@@ -258,7 +258,7 @@ namespace TruthEngine
 			{
 				ImGui::Begin("SceneViewport", NULL, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove);
 				m_IsHoveredSceneViewport = ImGui::IsWindowHovered();
-
+				auto _viewportSize = ImGui::GetContentRegionAvail();
 
 
 				if (ImGui::IsMouseReleased(ImGuiMouseButton_Left) && m_IsHoveredSceneViewport)
@@ -271,15 +271,19 @@ namespace TruthEngine
 						auto _mousePos = ImGui::GetMousePos();
 						m_SceneViewPortAreaMin = ImGui::GetWindowContentRegionMin();
 						m_SceneViewPortAreaMax = ImGui::GetWindowContentRegionMax();
+						
 
 						auto _windowMousePos = float2{ _mousePos.x - m_SceneViewPortPos.x - m_SceneViewPortAreaMin.x, _mousePos.y - m_SceneViewPortPos.y - m_SceneViewPortAreaMin.y };
 
 						if ((_windowMousePos.x > 0 && _windowMousePos.y > 0) && (_windowMousePos.x < m_SceneViewPortAreaMax.x && _windowMousePos.y < m_SceneViewPortAreaMax.y))
 						{
 
-							std::function<void()> lambda = [this, _windowMousePos]() { PickingEntity::PickEntity(_windowMousePos, &m_ActiveScene, CameraManager::GetInstance()->GetActiveCamera()); };
+							/*std::function<void()> lambda = [this, _windowMousePos]() { PickingEntity::PickEntity(_windowMousePos, &m_ActiveScene, CameraManager::GetInstance()->GetActiveCamera()); };
 
-							gFeaturePickEntity = TE_INSTANCE_THREADPOOL.Queue(lambda);
+							gFeaturePickEntity = TE_INSTANCE_THREADPOOL.Queue(lambda);*/
+
+							//PickingEntity::PickEntity2(_windowMousePos, _viewportSize.x, _viewportSize.y, &m_ActiveScene, CameraManager::GetInstance()->GetActiveCamera());
+							PickingEntity::PickEntity(_windowMousePos, &m_ActiveScene, CameraManager::GetInstance()->GetActiveCamera());
 						}
 					}
 				}

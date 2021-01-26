@@ -413,9 +413,35 @@ namespace TruthEngine
 
 			auto activeCamera = Core::CameraManager::GetInstance()->GetActiveCamera();
 
-			auto& transform = m_Context.GetComponent<TransformComponent>().GetTransform();
+			auto& _transform = m_Context.GetComponent<TransformComponent>().GetTransform();
+			float4x4 _guizmoTransform = _transform;
 
-			ImGuizmo::Manipulate(&activeCamera->GetView()._11, &activeCamera->GetProjection()._11, _operationMode, _currentGizmoMode, &transform._11, nullptr);
+			if (m_Context.HasComponent<BoundingBoxComponent>())
+			{
+				const auto& _aabb = m_Context.GetComponent<BoundingBoxComponent>().GetBoundingBox();
+				_guizmoTransform._41 += _aabb.Center.x;
+				_guizmoTransform._42 += _aabb.Center.y;
+				_guizmoTransform._43 += _aabb.Center.z;
+			}
+
+
+			static auto s_CopyingMesh = false;
+
+			float4x4 _deltaTransform;
+
+			if(ImGuizmo::Manipulate(&activeCamera->GetView()._11, &activeCamera->GetProjection()._11, _operationMode, _currentGizmoMode, &_guizmoTransform._11, &_deltaTransform._11))
+			{
+				if (InputManager::IsKeyPressed(VK_SHIFT) && !s_CopyingMesh)
+				{
+					m_Context.GetScene()->CopyMeshEntity(m_Context);
+					s_CopyingMesh = true;
+				}
+				else 
+				{
+					_transform = _transform * _deltaTransform;
+					s_CopyingMesh = false;
+				}
+			}
 
 
 			/*auto& transform = selectedEntity.GetComponent<TransformComponent>().GetTransform();
@@ -515,11 +541,18 @@ namespace TruthEngine
 					rigidType = Core::TE_PHYSICS_RIGID_TYPE::DYNAMIC;
 					rigidshape = Core::TE_PHYSICS_RIGID_SHAPE::TRIANGLED;
 				}
+				
+				static TEPhysicsRigidDesc _rigidDesc(0.5f, 0.5f, 0.5f, IdentityMatrix);
+
+				ImGui::Text("Rigid Body Properties");
+				ImGui::DragFloat("Static Friction", &_rigidDesc.mStaticFriction, 0.01f, 0.0f, 1.0f, "%0.2f", 1.0f);
+				ImGui::DragFloat("Dynamic Friction", &_rigidDesc.mDynamicFriction, 0.01f, 0.0f, 1.0f, "%0.2f", 1.0f);
+				ImGui::DragFloat("Restitution", &_rigidDesc.mRestitution, 0.01f, 0.0f, 1.0f, "%0.2f", 1.0f);
 
 
 				if (ImGui::Button("Create"))
 				{
-					AddPhysicsComponent(rigidType, rigidshape);
+					AddPhysicsComponent(rigidType, rigidshape, _rigidDesc);
 
 					ImGui::CloseCurrentPopup();
 				}
@@ -536,7 +569,7 @@ namespace TruthEngine
 	}
 
 
-	void EntityPropertyPanel::AddPhysicsComponent(TE_PHYSICS_RIGID_TYPE rigidType, TE_PHYSICS_RIGID_SHAPE rigidshape)
+	void EntityPropertyPanel::AddPhysicsComponent(TE_PHYSICS_RIGID_TYPE rigidType, TE_PHYSICS_RIGID_SHAPE rigidshape, TEPhysicsRigidDesc& rigidDesc)
 	{
 		auto physicsEngine = TE_INSTANCE_PHYSICSENGINE;
 
@@ -544,7 +577,6 @@ namespace TruthEngine
 		{
 		case TruthEngine::Core::TE_PHYSICS_RIGID_SHAPE::PLANE:
 		{
-			TEPhysicsRigidDesc rigidDesc(.5f, .5f, 0.0f, IdentityMatrix);
 			TEPhysicsRigidPlaneDesc desc(.0f, 1.0f, .0f, 0.0, rigidDesc);
 			switch (rigidType)
 			{
@@ -558,10 +590,13 @@ namespace TruthEngine
 		}
 		case TruthEngine::Core::TE_PHYSICS_RIGID_SHAPE::BOX:
 		{
-			auto& transform = m_Context.GetComponent<TransformComponent>().GetTransform();
-			auto& aabb = m_Context.GetComponent<BoundingBoxComponent>().GetBoundingBox();
+			const auto& transform = m_Context.GetComponent<TransformComponent>().GetTransform();
+			const auto& aabb = m_Context.GetComponent<BoundingBoxComponent>().GetBoundingBox();
 			auto halfExtents = aabb.Extents;
-			TEPhysicsRigidDesc rigidDesc(.5f, .5f, 0.0f, transform);
+			rigidDesc.mTransform = transform;
+			rigidDesc.mTransform._41 += aabb.Center.x;
+			rigidDesc.mTransform._42 += aabb.Center.y;
+			rigidDesc.mTransform._43 += aabb.Center.z;
 			TEPhysicsRigidBoxDesc desc(halfExtents.x, halfExtents.y, halfExtents.z, rigidDesc);
 			switch (rigidType)
 			{
@@ -576,10 +611,13 @@ namespace TruthEngine
 		}
 		case TruthEngine::Core::TE_PHYSICS_RIGID_SHAPE::SPHERE:
 		{
-			auto& transform = m_Context.GetComponent<TransformComponent>().GetTransform();
-			auto& aabb = m_Context.GetComponent<BoundingBoxComponent>().GetBoundingBox();
+			const auto& transform = m_Context.GetComponent<TransformComponent>().GetTransform();
+			const auto& aabb = m_Context.GetComponent<BoundingBoxComponent>().GetBoundingBox();
 			auto halfExtents = aabb.Extents;
-			TEPhysicsRigidDesc rigidDesc(.5f, .5f, 0.0f, transform);
+			rigidDesc.mTransform = transform;
+			rigidDesc.mTransform._41 += aabb.Center.x;
+			rigidDesc.mTransform._42 += aabb.Center.y;
+			rigidDesc.mTransform._43 += aabb.Center.z;
 			TEPhysicsRigidSphereDesc desc(halfExtents.x, rigidDesc);
 			switch (rigidType)
 			{

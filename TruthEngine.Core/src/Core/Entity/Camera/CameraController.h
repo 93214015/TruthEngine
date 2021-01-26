@@ -25,7 +25,7 @@ namespace TruthEngine
 			}
 
 			// Strafe/Walk the camera a distance d.
-			void Strafe(float d);
+			void Panning(float right, float up);
 			void Walk(float d);
 
 			// Rotate the camera.

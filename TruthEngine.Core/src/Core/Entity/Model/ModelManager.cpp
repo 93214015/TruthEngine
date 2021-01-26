@@ -196,6 +196,13 @@ namespace TruthEngine::Core
 
 	}
 
+	TruthEngine::Core::Mesh* ModelManager::CopyMesh(Mesh* mesh)
+	{
+		auto& _newMesh = m_Meshes.emplace_back(mesh->m_IndexNum , mesh->m_IndexOffset, mesh->m_VertexOffset, mesh->m_VertexNum, mesh->m_BoundingBox, &m_VertexBuffer_PosNormTanTex, &m_IndexBuffer);
+
+		return &_newMesh;
+	}
+
 	/*TruthEngine::Core::Model3D* ModelManager::AddModel3D()
 	{
 		return &m_Models3D.emplace_back();

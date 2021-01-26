@@ -46,6 +46,8 @@ struct float4x4 : DirectX::XMFLOAT4X4
 
 	operator physx::PxMat44();
 	operator physx::PxMat44()const;
+
+
 };
 
 
@@ -220,12 +222,13 @@ namespace TruthEngine
 
 	inline float4x4 operator*(const float4x4& m1, const float4x4& m2)
 	{
+		float4x4 r;
+
 		const auto xm1 = DirectX::XMLoadFloat4x4(&m1);
 		const auto xm2 = DirectX::XMLoadFloat4x4(&m2);
 
-		auto xm3 = xm1 * xm2;
+		auto xm3 = XMMatrixMultiply(xm1, xm2);
 
-		float4x4 r;
 		DirectX::XMStoreFloat4x4(&r, xm3);
 		return r;
 	}

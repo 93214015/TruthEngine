@@ -136,8 +136,8 @@ vertexOut vs(vertexInput vin)
     vout.pos = mul(posW, viewProj);
     vout.posW = posW.xyz;
     vout.posLight = mul(posW, shadowTransform);
-    vout.normalW = vin.normal;
-    vout.tangentW = vin.tangent;
+    vout.normalW = mul(vin.normal, (float3x3)gWorldInverseTranspose);
+    vout.tangentW = mul(vin.tangent, (float3x3) gWorld);
     vout.texCoord = vin.texCoord;
     
     return vout;
@@ -160,7 +160,7 @@ float4 ps(vertexOut pin) : SV_Target
         normal = mul(normal, TBN);
     #endif
     
-    normal = mul(normal, (float3x3)gWorldInverseTranspose);
+    //normal = mul(normal, (float3x3)gWorldInverseTranspose);
     
     float3 illumination_albedo = MaterialArray[materialIndex].Diffuse.xyz;
     

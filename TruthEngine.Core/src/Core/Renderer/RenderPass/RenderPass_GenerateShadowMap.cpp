@@ -10,6 +10,7 @@
 #include "Core/Entity/Camera/Camera.h"
 #include "Core/Renderer/Pipeline.h"
 #include "Core/Entity/Camera/CameraManager.h"
+#include "Core/Entity/Components/TransformComponent.h"
 
 namespace TruthEngine::Core
 {
@@ -90,7 +91,8 @@ namespace TruthEngine::Core
 
 		for (auto entity_mesh : entityGroup)
 		{
-			float4x4 meshTransform = activeScene->CalcTransformsToRoot(entity_mesh);
+			//float4x4 meshTransform = activeScene->CalcTransformsToRoot(entity_mesh);
+			float4x4 meshTransform = activeScene->GetComponent<TransformComponent>(entity_mesh).GetTransform();
 			Mesh* mesh = activeScene->GetComponent<MeshComponent>(entity_mesh).GetMesh();
 			Material* material = activeScene->GetComponent<MaterialComponent>(entity_mesh).GetMaterial();
 

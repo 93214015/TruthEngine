@@ -14,6 +14,8 @@ namespace TruthEngine
 			Entity AddEntity(const char* entityTag, Entity parent, const float4x4& transform = IdentityMatrix);
 			Entity AddEntity(const char* entityTag, const float4x4& transform = IdentityMatrix);
 
+			Entity CopyMeshEntity(Entity meshsEntity);
+
 			template<class... Ts>
 			auto GroupEntities()
 			{

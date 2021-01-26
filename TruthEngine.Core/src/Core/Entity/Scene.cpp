@@ -2,6 +2,7 @@
 #include "Scene.h"
 
 #include "Components.h"
+#include "Model/ModelManager.h"
 
 namespace TruthEngine::Core
 {
@@ -126,6 +127,33 @@ namespace TruthEngine::Core
 		}
 
 		return r;
+	}
+
+	TruthEngine::Core::Entity Scene::CopyMeshEntity(Entity meshEntity)
+	{
+		static uint32_t copyIndex = 0;
+
+		std::string name = meshEntity.GetComponent<TagComponent>().GetTag();
+		name = name + "_Copy" + std::to_string(copyIndex);
+
+		auto& transform = meshEntity.GetComponent<TransformComponent>().GetTransform();
+
+		auto _newMeshEntity = AddEntity(name.c_str(), Entity(), transform);
+
+		auto mesh = meshEntity.GetComponent<MeshComponent>().GetMesh();
+		auto newMesh = TE_INSTANCE_MODELMANAGER->CopyMesh(mesh);
+
+		auto material = meshEntity.GetComponent<MaterialComponent>().GetMaterial();
+
+		auto newMaterial = TE_INSTANCE_MODELMANAGER->GetMaterialManager()->AddMaterial(material);
+
+		_newMeshEntity.AddComponent<MeshComponent>(newMesh);
+		_newMeshEntity.AddComponent<MaterialComponent>(newMaterial);
+		_newMeshEntity.AddComponent<BoundingBoxComponent>(newMesh->GetBoundingBox());
+
+		SelectEntity(_newMeshEntity);
+
+		return _newMeshEntity;
 	}
 
 }
