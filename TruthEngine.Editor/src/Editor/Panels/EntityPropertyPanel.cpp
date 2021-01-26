@@ -439,8 +439,12 @@ namespace TruthEngine
 				else 
 				{
 					_transform = _transform * _deltaTransform;
-					s_CopyingMesh = false;
 				}
+			}
+
+			if (!ImGui::IsMouseDragging(0))
+			{
+				s_CopyingMesh = false;
 			}
 
 
