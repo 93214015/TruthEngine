@@ -255,7 +255,13 @@
     <ClInclude Include="src\Core\Helper\SysInfo\systeminfo.h">
       <Filter>Core\Helper\SysInfo</Filter>
     </ClInclude>
+    <ClInclude Include="src\Core\ImGui\ImGuiHelpers.h">
+      <Filter>Core\ImGui</Filter>
+    </ClInclude>
     <ClInclude Include="src\Core\ImGui\ImGuiLayer.h">
+      <Filter>Core\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\ImGui\ImGuiNodeEditor.h">
       <Filter>Core\ImGui</Filter>
     </ClInclude>
     <ClInclude Include="src\Core\Input\InputManager.h">
@@ -408,7 +414,6 @@
     <ClInclude Include="src\TruthEngine.h" />
     <ClInclude Include="src\lib.h" />
     <ClInclude Include="src\pch.h" />
-    <ClInclude Include="src\Core\ImGui\ImGuiNodeEditor.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\API\DX12\DirectX12BufferManager.cpp">
@@ -600,7 +605,13 @@
     <ClCompile Include="src\Core\Helper\SysInfo\systemcommand.cpp">
       <Filter>Core\Helper\SysInfo</Filter>
     </ClCompile>
+    <ClCompile Include="src\Core\ImGui\ImGuiHelpers.cpp">
+      <Filter>Core\ImGui</Filter>
+    </ClCompile>
     <ClCompile Include="src\Core\ImGui\ImGuiLayer.cpp">
+      <Filter>Core\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\ImGui\ImGuiNodeEditor.cpp">
       <Filter>Core\ImGui</Filter>
     </ClCompile>
     <ClCompile Include="src\Core\Input\InputManager.cpp">
@@ -730,6 +741,5 @@
       <Filter>Platform\Windows</Filter>
     </ClCompile>
     <ClCompile Include="src\pch.cpp" />
-    <ClCompile Include="src\Core\ImGui\ImGuiNodeEditor.cpp" />
   </ItemGroup>
 </Project>

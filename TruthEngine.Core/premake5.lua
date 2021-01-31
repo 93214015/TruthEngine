@@ -21,14 +21,7 @@ project "TruthEngine.Core"
 		"TE_API_DX12"
 	}
 
-	includedirs{
-		IncludeDir["TruthEngine.Core"],
-		IncludeDir["spdlog"],
-		IncludeDir["Dependencies"],
-		IncludeDir["imgui"],
-		IncludeDir["d3dx12"],
-		IncludeDir["physx"],
-	}
+	
 
 	links{
 		"ImGui",

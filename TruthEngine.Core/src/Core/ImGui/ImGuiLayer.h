@@ -4,6 +4,7 @@
 
 #include "imgui-fileBrowser/imfilebrowser.h"
 #include "Core/Renderer/BufferManager.h"
+#include "Core/ImGui/ImGuiNodeEditor.h"
 
 namespace TruthEngine::Core
 {
@@ -47,6 +48,10 @@ namespace TruthEngine::Core
 		bool CheckFileDialog(ImGui::FileBrowser* fileBrowser, std::string& outSelectedFile);
 		bool CheckFileDialog_MultipleSelection(ImGui::FileBrowser* fileBrowser, std::vector<std::filesystem::path>& outSelectedFile);
 
+		inline NodeEditor* GetNodeEditor()
+		{
+			return &m_NodeEditor;
+		}
 
 		inline void ShowDemoWindow(bool show)
 		{
@@ -61,6 +66,7 @@ namespace TruthEngine::Core
 		bool WindowMaterialTextures();
 
 	protected:
+		NodeEditor m_NodeEditor;
 		TextureRenderTarget* m_RenderTargetScreenBuffer;
 		RenderTargetView m_RTVBackBuffer;
 		ImGui::FileBrowser m_FileBrowser;

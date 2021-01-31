@@ -23,12 +23,6 @@ project "TruthEngine.Editor"
 
 	includedirs{
 		IncludeDir["TruthEngine.Editor"],
-		IncludeDir["TruthEngine.Core"],
-		IncludeDir["spdlog"],
-		IncludeDir["Dependencies"],
-		IncludeDir["d3dx12"],
-		IncludeDir["imgui"],
-		IncludeDir["physx"],
 	}
 
 	links{

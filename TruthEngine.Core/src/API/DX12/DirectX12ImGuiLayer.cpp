@@ -93,11 +93,17 @@ namespace TruthEngine::API::DirectX12 {
 		auto lambda_OnViewportResize = [this](Core::Event& event) { OnTextureResize(static_cast<Core::EventTextureResize&>(event)); };
 		TE_INSTANCE_APPLICATION->RegisterEventListener(Core::EventType::RenderTargetResize, lambda_OnViewportResize);
 
+		m_NodeEditor.Init();
+		auto node = m_NodeEditor.AddNode("SimpleNode1", float2{50.0f, 50.0f});
+		auto pin = m_NodeEditor.AddPin("InputPin1", node, NodeEditor::PinKind::Input, NodeEditor::PinType::Bool);
+		
 	}
 
 	void DirectX12ImGuiLayer::OnDetach()
 	{
 		//TE_TIMER_SCOPE_FUNC;
+
+		m_NodeEditor.Shutdown();
 
 		ImGui_ImplDX12_Shutdown();
 		ImGui_ImplWin32_Shutdown();

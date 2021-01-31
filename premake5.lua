@@ -46,10 +46,20 @@ IncludeDir["TruthEngine.Sandbox"] 	= 	"%{wks.location}/TruthEngine.Sandbox/src"
 IncludeDir["TruthEngine.Editor"] 	= 	"%{wks.location}/TruthEngine.Editor/src"
 IncludeDir["Dependencies"] 			= 	"%{wks.location}/Dependencies"
 IncludeDir["spdlog"] 				= 	"%{wks.location}/Dependencies/spdlog/include"
-IncludeDir["imgui"] 				= 	"%{wks.location}/Dependencies/imgui"
+IncludeDir["imgui"] 				= 	"%{wks.location}/Dependencies/Imgui"
 IncludeDir["d3dx12"] 				= 	"%{wks.location}/Dependencies/DirectXGraphicsSamples/Libraries/D3DX12"
 IncludeDir["physx"] 				= 	"%{wks.location}/Dependencies/Physx"
 
+
+includedirs
+{
+		IncludeDir["TruthEngine.Core"],
+		IncludeDir["spdlog"],
+		IncludeDir["Dependencies"],
+		IncludeDir["imgui"],
+		IncludeDir["d3dx12"],
+		IncludeDir["physx"],
+}
 
 libdirs 
 { 

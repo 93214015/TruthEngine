@@ -19,17 +19,12 @@ project "ImGui"
 		"imgui/backends/imgui_impl_win32.h",
 		"imgui/backends/imgui_impl_win32.cpp",
 		"ImGuizmo/ImGuizmo.h",
-		"ImGuizmo/ImGuizmo.cpp",
-		"ImGuiNodeEditor/*.cpp"
+		"ImGuizmo/ImGuizmo.cpp"
 	}
 
 
 	defines{
 		
-	}
-
-	includedirs{
-		IncludeDir["imgui"]
 	}
 
 	links{

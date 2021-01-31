@@ -1,6 +1,7 @@
 #pragma once
 #include "ImGuiNodeEditor/imgui_node_editor.h"
 #include "ImGuiNodeEditor/examples/blueprints-example/utilities/widgets.h"
+#include "ImGuiNodeEditor/examples/blueprints-example/utilities/builders.h"
 
 namespace ImGuiNodeEditor = ax::NodeEditor;
 
@@ -42,13 +43,13 @@ namespace TruthEngine
 		struct Pin
 		{
 			ImGuiNodeEditor::PinId   ID;
-			Node* Node;
+			Node* mNode;
 			std::string Name;
 			PinType     Type;
 			PinKind     Kind;
 
-			Pin(int id, const char* name, PinType type) :
-				ID(id), Node(nullptr), Name(name), Type(type), Kind(PinKind::Input)
+			Pin(int id, const char* name, Node* _node, PinType type, PinKind _kind) :
+				ID(id), mNode(_node), Name(name), Type(type), Kind(_kind)
 			{
 			}
 		};
@@ -98,21 +99,26 @@ namespace TruthEngine
 		void Init();
 		void Shutdown();
 		void NewFrame();
+		Node* AddNode(const char* name, const ImVec2& size = ImVec2{.0f, .0f}, const ImColor& color = ImColor(255, 255, 255), NodeType nodeType = NodeType::Simple);
+		Pin* AddPin(const char* _name, Node* _node, PinKind _pinKind, PinType _pinType);
 
 	private:
 		void BuildNodes();
 		
+		ImColor GetIconColor(PinType type);
+		void DrawPinIcon(const Pin& pin, bool connected, int alpha);
+
 	public:
 
-		static const int            s_PinIconSize = 24;
-		static const float          s_TouchTime;
-		static std::vector<Node>    s_Nodes;
-		static std::vector<Link>    s_Links;
-		static ImTextureID          s_HeaderBackground;
-		//static ImTextureID        s_SampleImage = nullptr;
-		static ImTextureID          s_SaveIcon;
-		static ImTextureID          s_RestoreIcon;
-		static std::map<ImGuiNodeEditor::NodeId, float, NodeIdLess> s_NodeTouchTime;
+		int                  m_NextId = 1;
+		const int            m_PinIconSize = 24;
+		std::vector<Node>    m_Nodes;
+		std::vector<Link>    m_Links;
+		ImTextureID          m_HeaderBackground = nullptr;
+		ImTextureID          m_SaveIcon = nullptr;
+		ImTextureID          m_RestoreIcon = nullptr;
+		const float          m_TouchTime = 1.0f;
+		std::map<ax::NodeEditor::NodeId, float, NodeIdLess> m_NodeTouchTime;
 
 	private:
 
