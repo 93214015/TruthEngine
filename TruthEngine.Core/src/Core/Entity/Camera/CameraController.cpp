@@ -38,8 +38,8 @@ namespace TruthEngine::Core
 
 	void CameraController::Panning(float right, float up)
 	{
-		right *= m_Speed;
-		up *= m_Speed;
+		right *= m_Speed * .05f;
+		up *= -m_Speed * .05f;
 		// mPosition += d*mRight
 		XMVECTOR s = XMVectorReplicate(right);
 		XMVECTOR r = XMLoadFloat3(&m_Camera->m_Right);

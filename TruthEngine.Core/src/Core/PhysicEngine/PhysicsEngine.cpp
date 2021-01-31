@@ -56,7 +56,15 @@ namespace TruthEngine::Core
 			throw;
 		}
 
-		m_pxCooking = PxCreateCooking(PX_PHYSICS_VERSION, *m_pxFoundation, PxCookingParams(m_pxPhysics->getTolerancesScale()));
+		PxCookingParams cookingParams(m_pxPhysics->getTolerancesScale());
+		// disable mesh cleaning - perform mesh validation on development configurations
+		//cookingParams.meshPreprocessParams |= PxMeshPreprocessingFlag::eDISABLE_CLEAN_MESH;
+		// disable edge precompute, edges are set for each triangle, slows contact generation
+		//cookingParams.meshPreprocessParams |= PxMeshPreprocessingFlag::eDISABLE_ACTIVE_EDGES_PRECOMPUTE;
+		// lower hierarchy for internal mesh
+		//cookingParams.meshCookingHint = PxMeshCookingHint::eCOOKING_PERFORMANCE;
+
+		m_pxCooking = PxCreateCooking(PX_PHYSICS_VERSION, *m_pxFoundation, cookingParams);
 		if (!m_pxCooking)
 		{
 			TE_LOG_CORE_ERROR("Creating Physx::pxCooking Failed!");
@@ -84,7 +92,7 @@ namespace TruthEngine::Core
 		m_pxScene->addActor(*pPlaneActor);*/
 
 
-		m_PhysicsComponentEntities.reserve(1000);
+		//m_PhysicsComponentEntities.reserve(1000);
 	}
 
 	PhysicsEngine::~PhysicsEngine()
@@ -104,6 +112,78 @@ namespace TruthEngine::Core
 		m_Stopped = false;
 
 		/*auto& transform = m_sphereEntity.GetComponent<TransformComponent>();*/
+
+		return true;
+	}
+
+	bool PhysicsEngine::Stop()
+	{
+		if (m_Stopped)
+		{
+			TE_LOG_CORE_TRACE("The Physics Engine is stopped already!");
+			return false;
+		}
+
+		m_Stopped = true;
+
+		return true;
+	}
+
+	bool PhysicsEngine::Simulate(double dt)
+	{
+		if (m_Stopped)
+			return false;
+
+		static auto mAccumulator = 0.0;
+		static auto  mStepSize = 1.0f / 60.0f;
+
+		mAccumulator += dt;
+		if (mAccumulator < mStepSize)
+			return false;
+
+		mAccumulator -= mStepSize;
+
+		m_pxScene->simulate(mStepSize);
+
+		m_pxScene->fetchResults(true);
+
+		uint32_t actorsNum;
+		auto actors = m_pxScene->getActiveActors(actorsNum);
+
+		for (uint32_t i = 0; i < actorsNum; ++i)
+		{
+			PxRigidActor* _actor = (PxRigidActor*)actors[i];
+
+			PhysicsDynamicComponent& _physicsComponent = TE_INSTANCE_APPLICATION->GetActiveScene()->GetComponent<PhysicsDynamicComponent>((entt::entity)(reinterpret_cast<uint32_t>(_actor->userData)));
+
+			const auto actorPos = _actor->getGlobalPose();
+
+			_physicsComponent.UpdatePxTransform(actorPos);
+
+			//auto& transform = ent->GetComponent<TransformComponent>().GetTransform();
+			//auto _XMTranslate = XMMatrixTranslation(meshPos.x - actorPos.p.x, meshPos.y - actorPos.p.y, meshPos.z - actorPos.p.z);
+			//auto _XMRotate = XMMatrixRotationQuaternion(XMVectorSet(actorPos.q.x, actorPos.q.y, actorPos.q.z, actorPos.q.w));
+			//auto _XMTransform = XMLoadFloat4x4(&transform);
+			////auto m = XMMatrixAffineTransformation(DirectX::XMVectorSet(transform._11, transform._22, transform._33, 1.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f), XMVectorSet(actorPos.q.x, actorPos.q.y, actorPos.q.z, actorPos.q.w), XMVectorSet(actorPos.p.x, actorPos.p.y, actorPos.p.z, 1.0f));
+			//XMStoreFloat4x4(&transform, XMMatrixMultiply(_XMTransform, XMMatrixMultiply(_XMRotate, _XMTranslate)));
+
+		}
+
+		return true;
+	}
+
+
+	/*bool PhysicsEngine::Play()
+	{
+		if (!m_Stopped)
+		{
+			TE_LOG_CORE_TRACE("The Physics Engine is running already!");
+			return false;
+		}
+
+		m_Stopped = false;
+
+		/ *auto& transform = m_sphereEntity.GetComponent<TransformComponent>();* /
 
 		XMVECTOR xmTranslate;
 		XMVECTOR xmQuat;
@@ -140,7 +220,7 @@ namespace TruthEngine::Core
 
 
 			dynamicActor->setGlobalPose(pxTrans);
-			
+
 		}
 
 		auto view_staic = activeScene->ViewEntities<PhysicsStaticComponent>();
@@ -181,44 +261,9 @@ namespace TruthEngine::Core
 		m_Stopped = true;
 
 		return true;
-	}
+	}*/
 
-	bool PhysicsEngine::Simulate(double dt)
-	{
-		if (m_Stopped)
-			return false;
 
-		static auto mAccumulator = 0.0f;
-		static auto  mStepSize = 1.0f / 60.0f;
-
-		mAccumulator += dt;
-		if (mAccumulator < mStepSize)
-			return false;
-
-		mAccumulator -= mStepSize;
-
-		m_pxScene->simulate(mStepSize);
-
-		m_pxScene->fetchResults(true);
-
-		uint32_t actorsNum;
-		auto actors = m_pxScene->getActiveActors(actorsNum);
-
-		for (uint32_t i = 0; i < actorsNum; ++i)
-		{
-			PxRigidActor* actor = (PxRigidActor*)actors[i];
-
-			Entity* ent = (Entity*)actor->userData;
-
-			
-			auto& actorPos = actor->getGlobalPose();
-			auto m = XMMatrixAffineTransformation(DirectX::XMVectorSet(1.0f, 1.0f, 1.0f, 1.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f), XMVectorSet(actorPos.q.x, actorPos.q.y, actorPos.q.z, actorPos.q.w), XMVectorSet(actorPos.p.x, actorPos.p.y, actorPos.p.z, 1.0f));
-			auto& transform = ent->GetComponent<TransformComponent>().GetTransform();
-			XMStoreFloat4x4(&transform, m);
-		}
-
-		return true;
-	}
 
 
 	physx::PxRigidStatic* PhysicsEngine::AddRigidStaticPlane(const TEPhysicsRigidPlaneDesc& rigidPlaneDesc, Entity entity)
@@ -228,15 +273,15 @@ namespace TruthEngine::Core
 		auto actorStatic = m_pxPhysics->createRigidStatic(PxTransformFromPlaneEquation(pxPlane));
 		auto shapePlane = CreatePlaneShape(rigidPlaneDesc);
 		actorStatic->attachShape(*shapePlane);
-
-		actorStatic->userData = &m_PhysicsComponentEntities.emplace_back(entity);
 		shapePlane->release();
+
+		auto physicsComponent = &entity.AddComponent<PhysicsStaticComponent>(actorStatic);
+		actorStatic->userData = physicsComponent;
 
 		m_pxScene->addActor(*actorStatic);
 
 		return actorStatic;
 	}
-
 	physx::PxRigidStatic* PhysicsEngine::AddRigidStaticBox(const TEPhysicsRigidBoxDesc& rigidBoxDesc, Entity entity)
 	{
 		float4 _translate, _quaternion, _scale;
@@ -244,8 +289,10 @@ namespace TruthEngine::Core
 		auto actorStatic = m_pxPhysics->createRigidStatic(PxTransform(_translate, _quaternion));
 		auto shapeBox = CreateBoxShape(rigidBoxDesc, _scale);
 		actorStatic->attachShape(*shapeBox);
-		actorStatic->userData = &m_PhysicsComponentEntities.emplace_back(entity);
 		shapeBox->release();
+
+		auto physicsComponent = &entity.AddComponent<PhysicsStaticComponent>(actorStatic);
+		actorStatic->userData = physicsComponent;
 
 		m_pxScene->addActor(*actorStatic);
 
@@ -258,13 +305,17 @@ namespace TruthEngine::Core
 		auto actorStatic = m_pxPhysics->createRigidStatic(PxTransform(_translate, _quaternion));
 		auto shapeSphere = CreateSphereShape(rigidSphereDesc, _scale);
 		actorStatic->attachShape(*shapeSphere);
-		actorStatic->userData = &m_PhysicsComponentEntities.emplace_back(entity);
 		shapeSphere->release();
+
+		auto physicsComponent = &entity.AddComponent<PhysicsStaticComponent>(actorStatic);
+		actorStatic->userData = physicsComponent;
+
 
 		m_pxScene->addActor(*actorStatic);
 
 		return actorStatic;
 	}
+
 
 
 	physx::PxRigidDynamic* PhysicsEngine::AddRigidDynamicBox(const TEPhysicsRigidBoxDesc& rigidBoxDesc, Entity entity)
@@ -274,9 +325,11 @@ namespace TruthEngine::Core
 		auto actorDynamic = m_pxPhysics->createRigidDynamic(PxTransform(_translate, _quaternion));
 		auto shapeBox = CreateBoxShape(rigidBoxDesc, _scale);
 		actorDynamic->attachShape(*shapeBox);
-		PxRigidBodyExt::updateMassAndInertia(*actorDynamic, 10.0f);
-		actorDynamic->userData = &m_PhysicsComponentEntities.emplace_back(entity);
 		shapeBox->release();
+		PxRigidBodyExt::updateMassAndInertia(*actorDynamic, 10.0f);
+
+		auto physicsComponent = &entity.AddComponent<PhysicsDynamicComponent>(actorDynamic, reinterpret_cast<const float3&>(_scale));
+		actorDynamic->userData = (void*)static_cast<uint32_t>(entity);
 
 		m_pxScene->addActor(*actorDynamic);
 
@@ -289,14 +342,17 @@ namespace TruthEngine::Core
 		auto actorDynamic = m_pxPhysics->createRigidDynamic(PxTransform(_translate, _quaternion));
 		auto shapeSphere = CreateSphereShape(rigidSphereDesc, _scale);
 		actorDynamic->attachShape(*shapeSphere);
-		PxRigidBodyExt::updateMassAndInertia(*actorDynamic, 10.0f);
-		actorDynamic->userData = &m_PhysicsComponentEntities.emplace_back(entity);
 		shapeSphere->release();
+		PxRigidBodyExt::updateMassAndInertia(*actorDynamic, 10.0f);
+
+		auto physicsComponent = &entity.AddComponent<PhysicsDynamicComponent>(actorDynamic, reinterpret_cast<const float3&>(_scale));
+		actorDynamic->userData = (void*)static_cast<uint32_t>(entity);
 
 		m_pxScene->addActor(*actorDynamic);
 
 		return actorDynamic;
 	}
+
 
 
 	physx::PxShape* PhysicsEngine::CreatePlaneShape(const TEPhysicsRigidPlaneDesc& rigidPlaneDesc)
@@ -305,18 +361,16 @@ namespace TruthEngine::Core
 
 		return m_pxPhysics->createShape(PxPlaneGeometry(), *material, true);
 	}
-
 	physx::PxShape* PhysicsEngine::CreateBoxShape(const TEPhysicsRigidBoxDesc& rigidBoxDesc, const float4& scale)
 	{
 		PxMaterial* material = m_pxPhysics->createMaterial(rigidBoxDesc.mStaticFriction, rigidBoxDesc.mDynamicFriction, rigidBoxDesc.mRestitution);
-		
-		float halfX = rigidBoxDesc.mHalfX == 0.0 ? 0.5f : rigidBoxDesc.mHalfX;
-		float halfY = rigidBoxDesc.mHalfY == 0.0 ? 0.5f : rigidBoxDesc.mHalfY;
-		float halfZ = rigidBoxDesc.mHalfZ == 0.0 ? 0.5f : rigidBoxDesc.mHalfZ;
+
+		float halfX = rigidBoxDesc.mHalfSize.x == 0.0 ? 0.5f : rigidBoxDesc.mHalfSize.x;
+		float halfY = rigidBoxDesc.mHalfSize.y == 0.0 ? 0.5f : rigidBoxDesc.mHalfSize.y;
+		float halfZ = rigidBoxDesc.mHalfSize.z == 0.0 ? 0.5f : rigidBoxDesc.mHalfSize.z;
 
 		return m_pxPhysics->createShape(PxBoxGeometry(halfX * scale.x, halfY * scale.y, halfZ * scale.z), *material, true);
 	}
-
 	physx::PxShape* PhysicsEngine::CreateSphereShape(const TEPhysicsRigidSphereDesc& rigidSphereDesc, const float4& scale)
 	{
 		PxMaterial* material = m_pxPhysics->createMaterial(rigidSphereDesc.mStaticFriction, rigidSphereDesc.mDynamicFriction, rigidSphereDesc.mRestitution);
@@ -324,6 +378,88 @@ namespace TruthEngine::Core
 		float radius = rigidSphereDesc.mRadius == 0 ? 0.5f : rigidSphereDesc.mRadius;
 
 		return m_pxPhysics->createShape(PxSphereGeometry(radius * scale.x), *material, true);
+	}
+
+	physx::PxShape* PhysicsEngine::CreateTriangleMeshShape(const TEPhysicsRigidTriangleMeshDesc& rigidTriangleMeshDesc)
+	{
+
+#ifdef TE_DEBUG
+		auto validated = m_pxCooking->validateTriangleMesh(rigidTriangleMeshDesc.mTriangleMeshDesc);
+		if (!validated)
+			TE_LOG_CORE_WARN("PhysicsEngine: RigidBodyMeshTriangle Validation failed!");
+		//TE_ASSERT_CORE(validated, "Creation of Physics Traingle Mesh is failed!");
+#endif
+
+		PxTriangleMesh* _pxTriangleMesh = m_pxCooking->createTriangleMesh(rigidTriangleMeshDesc.mTriangleMeshDesc, m_pxPhysics->getPhysicsInsertionCallback());
+		
+		PxMeshScale _pxMeshScale( rigidTriangleMeshDesc.mScale);
+		PxTriangleMeshGeometry _pxTriangleMeshGeo(_pxTriangleMesh, _pxMeshScale);
+
+		PxMaterial* material = m_pxPhysics->createMaterial(rigidTriangleMeshDesc.mStaticFriction, rigidTriangleMeshDesc.mDynamicFriction, rigidTriangleMeshDesc.mRestitution);
+
+		return m_pxPhysics->createShape(_pxTriangleMeshGeo, *material);
+	}
+
+	bool PhysicsEngine::Reset()
+	{
+		auto scene = TE_INSTANCE_APPLICATION->GetActiveScene();
+
+		auto& groups = scene->ViewEntities<PhysicsDynamicComponent>();
+
+		for (auto& entity : groups)
+		{
+			auto& physicsComponent = scene->GetComponent<PhysicsDynamicComponent>(entity);
+			auto& boundingBox = scene->GetComponent<BoundingBoxComponent>(entity).GetBoundingBox();
+			auto staticTransform = scene->CalcTransformsToRoot(entity);
+			staticTransform._41 += boundingBox.Center.x;
+			staticTransform._42 += boundingBox.Center.y;
+			staticTransform._43 += boundingBox.Center.z;
+
+			auto actor = physicsComponent.GetActor();
+
+			float4 _scale, _translate, _quaternion;
+			Math::DecomposeMatrix(staticTransform, _scale, _translate, _quaternion);
+
+			const PxTransform pxTrans = PxTransform(_translate, _quaternion);
+
+			actor->setGlobalPose(pxTrans);
+
+			physicsComponent.UpdatePxTransform(pxTrans);
+		}
+
+		return true;
+	}
+
+	physx::PxRigidStatic* PhysicsEngine::AddRigidStaticTriangleMesh(const TEPhysicsRigidTriangleMeshDesc& rigidTriangleMeshDesc, Entity entity)
+	{
+		float4 _translate, _quaternion, _scale;
+		Math::DecomposeMatrix(rigidTriangleMeshDesc.mTransform, _scale, _translate, _quaternion);
+		auto staticActor = m_pxPhysics->createRigidStatic(PxTransform(_translate, _quaternion));
+		auto shape = CreateTriangleMeshShape(rigidTriangleMeshDesc);
+		staticActor->attachShape(*shape);
+		shape->release();
+
+		m_pxScene->addActor(*staticActor);
+
+		return staticActor;
+	}
+
+	physx::PxRigidDynamic* PhysicsEngine::AddRigidDynamicTriangleMesh(const TEPhysicsRigidTriangleMeshDesc& rigidTriangleMeshDesc, Entity entity)
+	{
+		float4 _translate, _quaternion, _scale;
+		Math::DecomposeMatrix(rigidTriangleMeshDesc.mTransform, _scale, _translate, _quaternion);
+		auto dynamicActor = m_pxPhysics->createRigidDynamic(PxTransform(_translate, _quaternion));
+		dynamicActor->setRigidBodyFlag(PxRigidBodyFlag::eKINEMATIC, true);
+		auto shape = CreateTriangleMeshShape(rigidTriangleMeshDesc);
+		dynamicActor->attachShape(*shape);
+		shape->release();
+
+		m_pxScene->addActor(*dynamicActor);
+
+		auto physicsComponent = entity.AddComponent<PhysicsDynamicComponent>(dynamicActor, reinterpret_cast<const float3&>(_scale));
+		dynamicActor->userData = (void*)static_cast<uint32_t>(entity);
+
+		return dynamicActor;
 	}
 
 }

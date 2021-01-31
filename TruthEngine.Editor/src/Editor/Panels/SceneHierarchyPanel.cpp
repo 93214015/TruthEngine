@@ -48,10 +48,12 @@ namespace TruthEngine
 
 	void SceneHierarchyPanel::DrawModelEntities() const
 	{
-		ImVec2 contentRegionAvailable = ImGui::GetContentRegionAvail();
-		float lineHeight = GImGui->Font->FontSize + (GImGui->Style.FramePadding.y * 2.0f);
 
 		auto isHeaderOpen = ImGui::CollapsingHeader("Meshes", ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_AllowItemOverlap | ImGuiTreeNodeFlags_FramePadding);
+
+		ImVec2 contentRegionAvailable = ImGui::GetContentRegionAvail();
+		float lineHeight = GImGui->Font->FontSize + (GImGui->Style.FramePadding.y * 2.0f);
+		ImGui::SameLine(contentRegionAvailable.x - 80);
 
 		if (ImGui::Button("Add Mesh", ImVec2{ 80, lineHeight }))
 		{

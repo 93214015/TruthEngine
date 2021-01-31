@@ -22,8 +22,10 @@ struct float2 : DirectX::XMFLOAT2
 struct float3 : DirectX::XMFLOAT3
 {
 	using  DirectX::XMFLOAT3::XMFLOAT3;
+	float3(const DirectX::XMFLOAT3&);
 
 	operator physx::PxVec3();
+	operator physx::PxVec3()const;
 };
 
 struct float4 : DirectX::XMFLOAT4

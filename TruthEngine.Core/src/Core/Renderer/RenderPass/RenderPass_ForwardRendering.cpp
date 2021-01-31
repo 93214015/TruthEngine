@@ -135,14 +135,34 @@ namespace TruthEngine::Core
 		auto& reg = activeScene->GetEntityRegistery();
 
 
-		auto& entityGroup = reg.view<MeshComponent>();
+		auto& dynamicEntityGroup = reg.view<MeshComponent, PhysicsDynamicComponent>();
 
-
-		for (auto entity_mesh : entityGroup)
+		for (auto entity_mesh : dynamicEntityGroup)
 		{
 			//float4x4 meshTransform = activeScene->CalcTransformsToRoot(entity_mesh);
-			float4x4 meshTransform = activeScene->GetComponent<TransformComponent>(entity_mesh).GetTransform();
+			//const float4x4& meshTransform = activeScene->GetComponent<TransformComponent>(entity_mesh).GetTransform();
+			const auto& phComponent = activeScene->GetComponent<PhysicsDynamicComponent>(entity_mesh);
+			const float4x4& physicsTransform = phComponent.GetTranform();
 
+			Mesh* mesh = activeScene->GetComponent<MeshComponent>(entity_mesh).GetMesh();
+			Material* material = activeScene->GetComponent<MaterialComponent>(entity_mesh).GetMaterial();
+
+			*data = ConstantBuffer_Data_Per_Mesh(physicsTransform, Math::InverseTranspose(physicsTransform), material->GetID());
+
+			m_RendererCommand.UploadData(m_ConstantBufferDirect_PerMesh);
+			m_RendererCommand.SetPipeline(m_MaterialPipelines[material->GetID()].get());
+			m_RendererCommand.DrawIndexed(mesh);
+
+			m_TotalVertexNum += mesh->GetVertexNum();
+			m_TotalMeshNum++;
+		}
+
+		auto& staticEntityGroup = reg.view<MeshComponent>(entt::exclude<PhysicsDynamicComponent>);
+
+		for (auto entity_mesh : staticEntityGroup)
+		{
+			//float4x4 meshTransform = activeScene->CalcTransformsToRoot(entity_mesh);
+			const float4x4& meshTransform = activeScene->GetComponent<TransformComponent>(entity_mesh).GetTransform();
 
 			Mesh* mesh = activeScene->GetComponent<MeshComponent>(entity_mesh).GetMesh();
 			Material* material = activeScene->GetComponent<MaterialComponent>(entity_mesh).GetMaterial();
@@ -156,6 +176,28 @@ namespace TruthEngine::Core
 			m_TotalVertexNum += mesh->GetVertexNum();
 			m_TotalMeshNum++;
 		}
+
+		//auto& entityGroup = reg.view<MeshComponent>();
+
+
+		//for (auto entity_mesh : entityGroup)
+		//{
+		//	//float4x4 meshTransform = activeScene->CalcTransformsToRoot(entity_mesh);
+		//	float4x4 meshTransform = activeScene->GetComponent<TransformComponent>(entity_mesh).GetTransform();
+
+
+		//	Mesh* mesh = activeScene->GetComponent<MeshComponent>(entity_mesh).GetMesh();
+		//	Material* material = activeScene->GetComponent<MaterialComponent>(entity_mesh).GetMaterial();
+
+		//	*data = ConstantBuffer_Data_Per_Mesh(meshTransform, Math::InverseTranspose(meshTransform), material->GetID());
+
+		//	m_RendererCommand.UploadData(m_ConstantBufferDirect_PerMesh);
+		//	m_RendererCommand.SetPipeline(m_MaterialPipelines[material->GetID()].get());
+		//	m_RendererCommand.DrawIndexed(mesh);
+
+		//	m_TotalVertexNum += mesh->GetVertexNum();
+		//	m_TotalMeshNum++;
+		//}
 
 		m_RendererCommand.End();
 

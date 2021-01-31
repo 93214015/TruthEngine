@@ -8,6 +8,9 @@ struct Material
     float3 FresnelR0;
     float Shininess;
     
+    float2 UVScale;
+    float2 UVTranslate;
+    
     uint MapIndexDiffuse;
     uint MapIndexNormal;
     uint MapIndexDisplacement;
@@ -147,13 +150,17 @@ float4 ps(vertexOut pin) : SV_Target
 {
 
     float3 normal = normalize(pin.normalW);
+
+    Material _material = MaterialArray[materialIndex];
+    float2 _texUV = (pin.texCoord * _material.UVScale) + _material.UVTranslate;
     
     #ifdef ENABLE_MAP_NORMAL
         float3 tangent = normalize(pin.tangentW);
         float3 bitangent = cross(normal, tangent);
         float3x3 TBN = float3x3(tangent, bitangent, normal);
     
-        normal = MaterialTextures[MaterialArray[materialIndex].MapIndexNormal].Sample(sampler_linear, pin.texCoord).xyz;
+    
+        normal = MaterialTextures[_material.MapIndexNormal].Sample(sampler_linear, _texUV).xyz;
         normal = (normal * 2.0f) - 1.0f;
         normal = normalize(normal);
         
@@ -162,10 +169,10 @@ float4 ps(vertexOut pin) : SV_Target
     
     //normal = mul(normal, (float3x3)gWorldInverseTranspose);
     
-    float3 illumination_albedo = MaterialArray[materialIndex].Diffuse.xyz;
+    float3 illumination_albedo = _material.Diffuse.xyz;
     
     #ifdef ENABLE_MAP_DIFFUSE
-        illumination_albedo = MaterialTextures[MaterialArray[materialIndex].MapIndexDiffuse].Sample(sampler_linear, pin.texCoord).xyz;
+        illumination_albedo = MaterialTextures[_material.MapIndexDiffuse].Sample(sampler_linear, _texUV).xyz;
     #endif
     
     float3 lightVector = -1.0 * normalize(Direction);
@@ -175,7 +182,7 @@ float4 ps(vertexOut pin) : SV_Target
     
     float3 lightStrength = lightFactor * Diffuse.xyz;
     
-    float3 litColor = BlinnPhong(lightStrength, lightVector, normal, toEye, MaterialArray[materialIndex], illumination_albedo);
+    float3 litColor = BlinnPhong(lightStrength, lightVector, normal, toEye, _material, illumination_albedo);
     
     float3 shadowMapClipSpace = pin.posLight.xyz / pin.posLight.w;
     float shadowMapSample = tShadowMap.Sample(sampler_linear_borderBlack, shadowMapClipSpace.xy);

@@ -131,10 +131,19 @@ namespace TruthEngine::Core
 
 	TruthEngine::Core::Entity Scene::CopyMeshEntity(Entity meshEntity)
 	{
-		static uint32_t copyIndex = 0;
+		static uint32_t s_copyIndex = 0;
 
 		std::string name = meshEntity.GetComponent<TagComponent>().GetTag();
-		name = name + "_Copy" + std::to_string(copyIndex);
+
+		if (name.find("_Copy") != std::string::npos)
+		{
+			name = name + std::to_string(s_copyIndex);
+		}
+		else
+		{
+			name = name + "_Copy" + std::to_string(s_copyIndex);
+		}
+
 
 		auto& transform = meshEntity.GetComponent<TransformComponent>().GetTransform();
 
@@ -153,7 +162,47 @@ namespace TruthEngine::Core
 
 		SelectEntity(_newMeshEntity);
 
+		s_copyIndex++;
+
 		return _newMeshEntity;
+	}
+
+	float3 Scene::GetPosition(Entity entity)
+	{
+		const auto& _transform = CalcTransformsToRoot(entity);
+		float3 _worldPostition = { 0.0f, 0.0f, 0.0f };
+		if (HasComponent<BoundingBoxComponent>(entity))
+		{
+			const auto& _aabb = GetComponent<BoundingBoxComponent>(entity).GetBoundingBox();
+
+			_worldPostition.x += _aabb.Center.x;
+			_worldPostition.y += _aabb.Center.y;
+			_worldPostition.z += _aabb.Center.z;
+		}
+
+		auto xmPos = XMVector3TransformCoord(XMLoadFloat3(&_worldPostition), XMLoadFloat4x4(&_transform));
+		XMStoreFloat3(&_worldPostition, xmPos);
+
+		return  _worldPostition;
+	}
+
+	float3 Scene::GetPosition(entt::entity entityHandle)
+	{
+		const auto& _transform = CalcTransformsToRoot(entityHandle);
+		float3 _worldPostition = { 0.0f, 0.0f, 0.0f };
+		if (HasComponent<BoundingBoxComponent>(entityHandle))
+		{
+			const auto& _aabb = GetComponent<BoundingBoxComponent>(entityHandle).GetBoundingBox();
+
+			_worldPostition.x += _aabb.Center.x;
+			_worldPostition.y += _aabb.Center.y;
+			_worldPostition.z += _aabb.Center.z;
+		}
+
+		auto xmPos = XMVector3TransformCoord(XMLoadFloat3(&_worldPostition), XMLoadFloat4x4(&_transform));
+		XMStoreFloat3(&_worldPostition, xmPos);
+
+		return  _worldPostition;
 	}
 
 }

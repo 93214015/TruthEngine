@@ -206,7 +206,7 @@ namespace TruthEngine::Core
 		{
 			auto material = event.GetMaterial();
 			auto& cbMaterialData = CB_MAterials->GetData()->MaterialArray[material->GetID()];
-			cbMaterialData = ConstantBuffer_Data_Materials::Material(material->GetColorDiffuse(), material->GetFresnelR0(), material->GetShininess(), material->GetMapIndexDiffuse(), material->GetMapIndexNormal(), material->GetMapIndexDisplacement());
+			cbMaterialData = ConstantBuffer_Data_Materials::Material(material->GetColorDiffuse(), material->GetFresnelR0(), material->GetShininess(), material->GetUVScale(), material->GetUVTranslate(), material->GetMapIndexDiffuse(), material->GetMapIndexNormal(), material->GetMapIndexDisplacement());
 		});
 	}
 
@@ -216,7 +216,7 @@ namespace TruthEngine::Core
 		{
 			auto material = event.GetMaterial();
 			auto& cbMaterialData = CB_MAterials->GetData()->MaterialArray[material->GetID()];
-			cbMaterialData = ConstantBuffer_Data_Materials::Material(material->GetColorDiffuse(), material->GetFresnelR0(), material->GetShininess(), material->GetMapIndexDiffuse(), material->GetMapIndexNormal(), material->GetMapIndexDisplacement());
+			cbMaterialData = ConstantBuffer_Data_Materials::Material(material->GetColorDiffuse(), material->GetFresnelR0(), material->GetShininess(), material->GetUVScale(), material->GetUVTranslate(), material->GetMapIndexDiffuse(), material->GetMapIndexNormal(), material->GetMapIndexDisplacement());
 		});
 	}
 

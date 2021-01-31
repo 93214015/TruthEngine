@@ -41,13 +41,6 @@ namespace TruthEngine
 		Core::InputManager::RegisterKey(Key::Space);
 
 
-		/*auto mainCamera = std::make_shared<Core::CameraPerspective>("mainCamera");
-		mainCamera->SetPosition(0.0f, 0.0f, -10.0f); //3Cylinder_Big
-		mainCamera->LookAt(mainCamera->GetPosition(), float3(0.0f, 0.0f, 0.0f), float3(0.0, 1.0, 0.0));
-		mainCamera->SetLens(DirectX::XM_PIDIV4, static_cast<float>(m_ClientWidth) / m_ClientHeight, 10.0f, 1000.0f);
-		mainCamera->SetSpeed(0.1f);
-		Core::CameraManager::GetInstance()->AddCamera(mainCamera);*/
-
 		auto mainCamera = Core::CameraManager::GetInstance()->CreatePerspectiveFOV("mainCamera"
 			, float3{ -12.0f, 17.0f, -30.0f }
 			, float3{ 0.48f, -.5f, 0.72f }
@@ -203,6 +196,17 @@ namespace TruthEngine
 				}
 				if (ImGui::BeginMenu("Test"))
 				{
+					if (ImGui::MenuItem("Show ImGui Demo Window"))
+					{
+						static bool s_showDemoWindow = false;
+						s_showDemoWindow = !s_showDemoWindow;
+						imguiLayer->ShowDemoWindow(s_showDemoWindow);
+					}
+					if (ImGui::MenuItem("Show MaterialTextures Window"))
+					{
+						auto dummyFunc = [](uint32_t i) {};
+						ImGuiLayer::ShowWindowMaterialTexture(dummyFunc, true);
+					}
 					if (ImGui::MenuItem("Generate Plane"))
 					{
 						ModelManager::GetInstance()->GeneratePrimitiveMesh(TE_PRIMITIVE_TYPE::PLANE);
@@ -240,9 +244,9 @@ namespace TruthEngine
 					{
 						TE_INSTANCE_PHYSICSENGINE->Stop();
 					}
-					if (ImGui::MenuItem("PickCenter"))
+					if (ImGui::MenuItem("Reset Physics"))
 					{
-						PickingEntity::PickEntity(float2{ .0f, .0f }, &m_ActiveScene, CameraManager::GetInstance()->GetActiveCamera());
+						TE_INSTANCE_PHYSICSENGINE->Reset();
 					}
 					ImGui::EndMenu();
 				}
@@ -282,7 +286,6 @@ namespace TruthEngine
 
 							gFeaturePickEntity = TE_INSTANCE_THREADPOOL.Queue(lambda);*/
 
-							//PickingEntity::PickEntity2(_windowMousePos, _viewportSize.x, _viewportSize.y, &m_ActiveScene, CameraManager::GetInstance()->GetActiveCamera());
 							PickingEntity::PickEntity(_windowMousePos, &m_ActiveScene, CameraManager::GetInstance()->GetActiveCamera());
 						}
 					}
@@ -351,11 +354,11 @@ namespace TruthEngine
 						ImGui::TableNextRow();
 						ImGui::TableNextColumn();
 
-						static auto _CpuModel = sysInfo.mCPUModel.c_str();
+						static std::string _CpuModel = sysInfo.mCPUModel;
 						static auto _CpuThreadNum = sysInfo.mThreadNum;
 						static auto _InstalledRAM = sysInfo.mInstalledRAM;
 
-						ImGui::TextColored(ImVec4{ 0.972, 0.925, 0.407, 1.0f }, "CPU: "); ImGui::SameLine(110.0); ImGui::TextColored(ImVec4{ 1, 0.980, 0.760, 1.0f }, "%s", _CpuModel);
+						ImGui::TextColored(ImVec4{ 0.972, 0.925, 0.407, 1.0f }, "CPU: "); ImGui::SameLine(110.0); ImGui::TextColored(ImVec4{ 1, 0.980, 0.760, 1.0f }, "%s", _CpuModel.c_str());
 						ImGui::TextColored(ImVec4{ 0.972, 0.925, 0.407, 1.0f }, "Logical Processors: "); ImGui::SameLine(110.0); ImGui::TextColored(ImVec4{ 1, 0.980, 0.760, 1.0f }, "%i", _CpuThreadNum);
 						ImGui::TextColored(ImVec4{ 0.972, 0.925, 0.407, 1.0f }, "Installed RAM: "); ImGui::SameLine(110.0); ImGui::TextColored(ImVec4{ 1, 0.980, 0.760, 1.0f }, "%i GB", _InstalledRAM);
 
@@ -373,10 +376,10 @@ namespace TruthEngine
 							break;
 						}
 
-						static auto _GPUDesc = sysInfo.mGPUDesc.c_str();
+						static std::string _GPUDesc = sysInfo.mGPUDesc;
 						static auto _GPUMemory = sysInfo.mGPUMemory;
 
-						ImGui::TextColored(ImVec4{ 0.949, 0.129, 0.329, 1.0f }, "GPU: "); ImGui::SameLine(90.0); ImGui::TextColored(ImVec4{ 1, 0.658, 0.745,1.0f }, "%s", _GPUDesc);
+						ImGui::TextColored(ImVec4{ 0.949, 0.129, 0.329, 1.0f }, "GPU: "); ImGui::SameLine(90.0); ImGui::TextColored(ImVec4{ 1, 0.658, 0.745,1.0f }, "%s", _GPUDesc.c_str());
 						ImGui::TextColored(ImVec4{ 0.949, 0.129, 0.329, 1.0f }, "GPU Memory: "); ImGui::SameLine(90.0); ImGui::TextColored(ImVec4{ 1, 0.658, 0.745,1.0f }, "%i GB", _GPUMemory);
 						ImGui::TextColored(ImVec4{ 0.949, 0.129, 0.329, 1.0f }, "Graphic API: "); ImGui::SameLine(90.0); ImGui::TextColored(ImVec4{ 1, 0.658, 0.745,1.0f }, "%s", api.c_str());
 

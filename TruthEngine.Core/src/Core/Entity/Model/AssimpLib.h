@@ -8,6 +8,10 @@ namespace TruthEngine
 	{
 		class ModelManager;
 		class Scene;
+		class Mesh;
+		class Entity;
+		class Material;
+
 
 		class AssimpLib
 		{
@@ -31,10 +35,14 @@ namespace TruthEngine
 
 			void AddSpace(const aiScene* scene);
 
+			void CenteralizeMeshVerteciesAddMeshEntity(const char* meshName, Mesh* mesh, Material* material, Scene* scene);
+
 		protected:
 			const char* m_ModelFilePath = nullptr;
 			size_t m_MeshOffset, /*m_ModelOffset,*/ m_MaterialOffset, m_BaseVertexOffset, m_BaseIndexOffset, m_TextureMaterialOffset;
 			ModelManager* m_ModelManager;
+
+			std::vector<std::future<void>> m_Futures;
 
 		};
 	}

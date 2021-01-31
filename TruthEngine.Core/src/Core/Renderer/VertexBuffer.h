@@ -106,6 +106,12 @@ namespace TruthEngine::Core
 			return std::get<VertexBufferStream<T>>(m_VertexStreams).GetData();
 		}
 
+		template<class T>
+		std::vector<T>& GetVertexData()
+		{
+			return std::get<VertexBufferStream<T>>(m_VertexStreams).GetData();
+		}
+
 
 	protected:
 		uint32_t m_VertexBufferResourceIndex = 0;

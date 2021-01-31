@@ -77,6 +77,8 @@ namespace TruthEngine
 				return m_Scene;
 			}
 
+			float3 GetPosition() noexcept;
+
 
 		private:
 

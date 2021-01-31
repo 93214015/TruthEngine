@@ -67,11 +67,11 @@ namespace TruthEngine::Core
 	struct TEPhysicsRigidBoxDesc : TEPhysicsRigidDesc
 	{
 		TEPhysicsRigidBoxDesc() = default;
-		TEPhysicsRigidBoxDesc(float halfX, float halfY, float halfZ, const TEPhysicsRigidDesc& rigidDesc)
-			: TEPhysicsRigidDesc(rigidDesc), mHalfX(halfX), mHalfY(halfY), mHalfZ(halfZ)
+		TEPhysicsRigidBoxDesc(const float3& halfSize, const TEPhysicsRigidDesc& rigidDesc)
+			: TEPhysicsRigidDesc(rigidDesc), mHalfSize(halfSize)
 		{}
 
-		float mHalfX = .0f, mHalfY = .0f, mHalfZ = .0f;
+		float3 mHalfSize{ .0f, .0f,.0f };
 	};
 
 	struct TEPhysicsRigidSphereDesc : TEPhysicsRigidDesc
@@ -82,6 +82,27 @@ namespace TruthEngine::Core
 		{}
 
 		float mRadius = .0f;
+	};
+
+	struct TEPhysicsRigidTriangleMeshDesc : TEPhysicsRigidDesc
+	{
+		TEPhysicsRigidTriangleMeshDesc() = default;
+		TEPhysicsRigidTriangleMeshDesc(uint32_t vertexNum, void* vertexData, const size_t vertexStride, uint32_t triangleNum, void* indexData, const TEPhysicsRigidDesc& rigidDesc, const float3& scale = float3{1.0f, 1.0f, 1.0f})
+			: TEPhysicsRigidDesc(rigidDesc), mScale(scale)
+		{
+			mTriangleMeshDesc.points.count = vertexNum;
+			mTriangleMeshDesc.points.data = vertexData;
+			mTriangleMeshDesc.points.stride = vertexStride;
+
+			mTriangleMeshDesc.triangles.count = triangleNum;
+			mTriangleMeshDesc.triangles.data = indexData;
+			mTriangleMeshDesc.triangles.stride = 3 * sizeof(uint32_t);
+
+		}
+
+		physx::PxTriangleMeshDesc mTriangleMeshDesc;
+		float3 mScale;
+
 	};
 
 
@@ -96,17 +117,18 @@ namespace TruthEngine::Core
 		bool Play();
 		bool Simulate(double dt);
 		bool Stop();
+		bool Reset();
 
 		physx::PxRigidStatic* AddRigidStaticPlane(const TEPhysicsRigidPlaneDesc& rigidPlaneDesc, Entity entity);
 		physx::PxRigidStatic* AddRigidStaticBox(const TEPhysicsRigidBoxDesc& rigidBoxDesc, Entity entity);
 		physx::PxRigidStatic* AddRigidStaticSphere(const TEPhysicsRigidSphereDesc& rigidSphereDesc, Entity entity);
 		physx::PxRigidStatic* AddRigidStaticConvex(Entity entity);
-		physx::PxRigidStatic* AddRigidStaticTriangled(Entity entity);
+		physx::PxRigidStatic* AddRigidStaticTriangleMesh(const TEPhysicsRigidTriangleMeshDesc& rigidTriangleMeshDesc, Entity entity);
 
 		physx::PxRigidDynamic* AddRigidDynamicBox(const TEPhysicsRigidBoxDesc& rigidBoxDesc, Entity entity);
 		physx::PxRigidDynamic* AddRigidDynamicSphere(const TEPhysicsRigidSphereDesc& rigidSphereDesc, Entity entity);
 		physx::PxRigidDynamic* AddRigidDynamicConvex(Entity entity);
-		physx::PxRigidDynamic* AddRigidDynamicTriangled(Entity entity);
+		physx::PxRigidDynamic* AddRigidDynamicTriangleMesh(const TEPhysicsRigidTriangleMeshDesc& rigidTriangleMeshDesc, Entity entity);
 
 		static PhysicsEngine* GetInstance()
 		{
@@ -120,13 +142,11 @@ namespace TruthEngine::Core
 		physx::PxShape* CreatePlaneShape(const TEPhysicsRigidPlaneDesc& rigidPlaneDesc);
 		physx::PxShape* CreateBoxShape(const TEPhysicsRigidBoxDesc& rigidBoxDesc, const float4& scale);
 		physx::PxShape* CreateSphereShape(const TEPhysicsRigidSphereDesc& rigidSphereDesc, const float4& scale);
+		physx::PxShape* CreateTriangleMeshShape(const TEPhysicsRigidTriangleMeshDesc& rigidTriangleMeshDesc);
 
 	private:
 
 		bool m_Stopped = true;
-
-		Entity m_planeEntity;
-		Entity m_sphereEntity;
 
 		physx::PxFoundation* m_pxFoundation;
 		physx::PxPhysics* m_pxPhysics;
@@ -143,7 +163,7 @@ namespace TruthEngine::Core
 		physx::PxRigidStatic* pBoxActor;
 		physx::PxRigidDynamic* pSphereActor;
 
-		std::vector<Entity> m_PhysicsComponentEntities;
+		//std::vector<Entity> m_PhysicsComponentEntities;
 
 	};
 }

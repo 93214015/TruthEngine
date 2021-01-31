@@ -32,60 +32,60 @@ namespace TruthEngine::Core
 		InitVertexAndIndexBuffer();
 	}
 
-	void ModelManager::AddSampleModel()
-	{
-		m_MaterialManager.AddSampleMaterial();
+	//void ModelManager::AddSampleModel()
+	//{
+	//	m_MaterialManager.AddSampleMaterial();
 
 
-		auto& mesh = m_Meshes.emplace_back();
-		mesh.m_IndexNum = 6;
-		mesh.m_IndexOffset = 0;
-		//mesh.m_Material = m_MaterialManager.GetMaterial(0u);
-		mesh.m_VertexOffset = 0;
+	//	auto& mesh = m_Meshes.emplace_back();
+	//	mesh.m_IndexNum = 6;
+	//	mesh.m_IndexOffset = 0;
+	//	//mesh.m_Material = m_MaterialManager.GetMaterial(0u);
+	//	mesh.m_VertexOffset = 0;
 
 
-		//auto& model = m_Models3D.emplace_back();
-		//model.m_Meshes.emplace_back(&mesh);
+	//	//auto& model = m_Models3D.emplace_back();
+	//	//model.m_Meshes.emplace_back(&mesh);
 
 
-		VertexData::Pos pos;
-		VertexData::NormTanTex normTex{ float3{0.0f, 0.0f, -1.0f}, float3{0.0f, 0.0f, 0.0f}, float2{0.0f, 0.0f} };
+	//	VertexData::Pos pos;
+	//	VertexData::NormTanTex normTex{ float3{0.0f, 0.0f, -1.0f}, float3{0.0f, 0.0f, 0.0f}, float2{0.0f, 0.0f} };
 
-		pos.Position = float3{ -0.5f, -0.5f, 0.5f };
+	//	pos.Position = float3{ -0.5f, -0.5f, 0.5f };
 
-		m_VertexBuffer_PosNormTanTex.AddVertex(pos, normTex);
+	//	m_VertexBuffer_PosNormTanTex.AddVertex(pos, normTex);
 
-		pos.Position = float3{ -0.5f, 0.5f, 0.5f };
+	//	pos.Position = float3{ -0.5f, 0.5f, 0.5f };
 
-		m_VertexBuffer_PosNormTanTex.AddVertex(pos, normTex);
+	//	m_VertexBuffer_PosNormTanTex.AddVertex(pos, normTex);
 
-		pos.Position = float3{ 0.5f, 0.5f, 0.5f };
+	//	pos.Position = float3{ 0.5f, 0.5f, 0.5f };
 
-		m_VertexBuffer_PosNormTanTex.AddVertex(pos, normTex);
-
-
-		pos.Position = float3{ -0.5f, -0.5f, 0.5f };
-
-		m_VertexBuffer_PosNormTanTex.AddVertex(pos, normTex);
-
-		pos.Position = float3{ 0.5f, 0.5f, 0.5f };
-
-		m_VertexBuffer_PosNormTanTex.AddVertex(pos, normTex);
-
-		pos.Position = float3{ 0.5f, -0.5f, 0.5f };
-
-		m_VertexBuffer_PosNormTanTex.AddVertex(pos, normTex);
+	//	m_VertexBuffer_PosNormTanTex.AddVertex(pos, normTex);
 
 
-		m_IndexBuffer.AddIndex(0);
-		m_IndexBuffer.AddIndex(1);
-		m_IndexBuffer.AddIndex(2);
-		m_IndexBuffer.AddIndex(3);
-		m_IndexBuffer.AddIndex(4);
-		m_IndexBuffer.AddIndex(5);
+	//	pos.Position = float3{ -0.5f, -0.5f, 0.5f };
 
-		InitVertexAndIndexBuffer();
-	}
+	//	m_VertexBuffer_PosNormTanTex.AddVertex(pos, normTex);
+
+	//	pos.Position = float3{ 0.5f, 0.5f, 0.5f };
+
+	//	m_VertexBuffer_PosNormTanTex.AddVertex(pos, normTex);
+
+	//	pos.Position = float3{ 0.5f, -0.5f, 0.5f };
+
+	//	m_VertexBuffer_PosNormTanTex.AddVertex(pos, normTex);
+
+
+	//	m_IndexBuffer.AddIndex(0);
+	//	m_IndexBuffer.AddIndex(1);
+	//	m_IndexBuffer.AddIndex(2);
+	//	m_IndexBuffer.AddIndex(3);
+	//	m_IndexBuffer.AddIndex(4);
+	//	m_IndexBuffer.AddIndex(5);
+
+	//	InitVertexAndIndexBuffer();
+	//}
 
 	void ModelManager::InitVertexAndIndexBuffer()
 	{
