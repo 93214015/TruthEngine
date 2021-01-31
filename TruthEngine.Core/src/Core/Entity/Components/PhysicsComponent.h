@@ -28,18 +28,29 @@ namespace TruthEngine::Core
 	class PhysicsDynamicComponent
 	{
 	public:
-		PhysicsDynamicComponent(physx::PxRigidDynamic* actor);
+		PhysicsDynamicComponent(physx::PxRigidDynamic* actor, const float3& scale = float3{1.0f, 1.0f, 1.0f});
 		~PhysicsDynamicComponent();
-		
+
 		physx::PxRigidDynamic* GetActor()
 		{
 			return m_physicsActor;
 		}
 
+		const float4x4& GetTranform() const
+		{
+			return m_Transform;
+		}
+
+		void UpdatePxTransform(const physx::PxTransform& _pxTransform);
+		
+
 	private:
 
 	private:
 		physx::PxRigidDynamic* m_physicsActor = nullptr;
+		physx::PxTransform m_PxTransform;
+		float4x4 m_Transform = IdentityMatrix;
+		float4x4 m_Scale = IdentityMatrix;
 	};
 
 }

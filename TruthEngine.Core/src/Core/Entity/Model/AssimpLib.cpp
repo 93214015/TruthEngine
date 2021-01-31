@@ -8,6 +8,7 @@
 #include "Core/Entity/Scene.h"
 #include "Core/Entity/Entity.h"
 #include "Core/Entity/Components.h"
+#include "Core/ThreadPool.h"
 
 
 namespace TruthEngine::Core
@@ -79,6 +80,11 @@ namespace TruthEngine::Core
 			ProcessNodes(scene, aiscene->mRootNode, aiscene, meshOffset);
 			auto t = assimpTimer.GetTotalTime();
 			TE_LOG_CORE_INFO("Import Model: Process Nodes toke {0} ms", t);
+		}
+
+		for (auto& f : m_Futures)
+		{
+			f.get();
 		}
 
 		return TE_SUCCESSFUL;
@@ -223,11 +229,50 @@ namespace TruthEngine::Core
 				, float4{ aiColorDiffuse.r, aiColorDiffuse.g, aiColorDiffuse.b, 1.0f }
 				, float3{ aiColorSpecular.r, aiColorSpecular.g, aiColorSpecular.b }
 				, aiShininess
+				, float2{1.0f, 1.0f}
+				, float2{.0f, .0f}
 				, diffuseMapViewIndex
 				, normalMapViewIndex
 				, -1
 				, 0, 0.0f, 0.0f, TE_IDX_MESH_TYPE::MESH_NTT);
 		}
+	}
+
+	void AssimpLib::CenteralizeMeshVerteciesAddMeshEntity(const char* meshName, Mesh* mesh, Material* material, Scene* scene)
+	{
+		auto& _aabb = mesh->GetBoundingBox();
+		float4x4 _transform = IdentityMatrix;
+		if (_aabb.Center.x == 0 && _aabb.Center.y == 0 && _aabb.Center.z == 0)
+		{
+			return;
+		}
+		else
+		{
+
+			auto _xmMatrixTranslate = DirectX::XMMatrixTranslation(_aabb.Center.x, _aabb.Center.y, _aabb.Center.z);
+			auto _xmMatrixTranslateInv = DirectX::XMMatrixInverse(nullptr, _xmMatrixTranslate);
+
+			auto& _vertexPosData = m_ModelManager->m_VertexBuffer_PosNormTanTex.GetVertexData<VertexData::Pos>();
+
+			auto _vertexOffset = mesh->GetVertexOffset();
+			for (uint32_t _vertexIndex = 0; _vertexIndex < mesh->GetVertexNum(); ++_vertexIndex)
+			{
+				auto& pos = _vertexPosData[_vertexOffset + _vertexIndex].Position;
+				auto _xmVertex = XMLoadFloat3(&pos);
+				_xmVertex = XMVector3TransformCoord(_xmVertex, _xmMatrixTranslateInv);
+				XMStoreFloat3(&pos, _xmVertex);
+			}
+
+			XMStoreFloat4x4(&_transform, _xmMatrixTranslate);
+
+			_aabb.Center = float3{ .0f, .0f, .0f };
+		}
+
+		auto entity_mesh = scene->AddEntity(meshName, _transform);
+		entity_mesh.AddComponent<MeshComponent>(mesh);
+		entity_mesh.AddComponent<MaterialComponent>(material);
+		entity_mesh.AddComponent<BoundingBoxComponent>(_aabb);
+
 	}
 
 
@@ -244,14 +289,20 @@ namespace TruthEngine::Core
 			for (uint32_t i = 0; i < nodeMeshNum; ++i)
 			{
 				auto aimesh = aiscene->mMeshes[node->mMeshes[i]];
+
 				auto material = m_ModelManager->m_MaterialManager.GetMaterial(aimesh->mMaterialIndex + m_MaterialOffset);
 				//auto entity_mesh = scene->AddEntity(aimesh->mName.C_Str(), entity_model);
-				auto entity_mesh = scene->AddEntity(aimesh->mName.C_Str());
 				auto mesh = &m_ModelManager->m_Meshes[node->mMeshes[i] + meshOffset];
-				entity_mesh.AddComponent<MeshComponent>(mesh);
-				entity_mesh.AddComponent<MaterialComponent>(material);
-				auto& meshBoundingBox = mesh->GetBoundingBox();
-				entity_mesh.AddComponent<BoundingBoxComponent>(mesh->GetBoundingBox());
+				auto meshName = aimesh->mName.C_Str();
+
+				CenteralizeMeshVerteciesAddMeshEntity(meshName, mesh, material, scene);
+
+				/*std::function<void()> func([this, mesh, material, meshName, scene]()
+					{
+						CenteralizeMeshVerteciesAddMeshEntity(meshName, mesh, material, scene);
+					});
+
+				m_Futures.emplace_back(TE_INSTANCE_THREADPOOL.Queue(func));*/
 
 
 				/*if (modelBoundingBox.Extents.x == 1 && modelBoundingBox.Extents.y == 1 && modelBoundingBox.Extents.z == 1)
@@ -334,9 +385,6 @@ namespace TruthEngine::Core
 
 			auto material = m_ModelManager->m_MaterialManager.GetMaterial(aimesh->mMaterialIndex + m_MaterialOffset);
 
-			/*auto entity = scene->AddEntity(aimesh->mName.C_Str());
-			entity.AddComponent<MeshComponent>(mesh);
-			entity.AddComponent<MaterialComponent>(material);*/
 		}
 	}
 

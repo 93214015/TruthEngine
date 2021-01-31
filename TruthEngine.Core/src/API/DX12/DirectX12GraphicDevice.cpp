@@ -49,7 +49,10 @@ namespace TruthEngine::API::DirectX12
 		auto result = D3D12CreateDevice(TE_INSTANCE_IDXGI.GetAdapters()[adapterIndex].Get(), D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(m_Device.GetAddressOf()));
 		TE_ASSERT_CORE(TE_SUCCEEDED(result), "API::DirectX12  Creating DX12 device if failed!");
 
+
+#ifdef _PROFILING
 		m_Device->SetStablePowerState(true);
+#endif // _PROFILING
 
 		CheckFeatures();
 

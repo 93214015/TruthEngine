@@ -35,9 +35,11 @@ namespace TruthEngine
 
 			Material* AddMaterial(
 				RendererStateSet states
-				, float4 colorDiffuse
-				, float3 fresnelR0
+				, const float4& colorDiffuse
+				, const float3& fresnelR0
 				, float shininess
+				, const float2& uvScale
+				, const float2& uvTranslate
 				, uint32_t diffuseMapIndex
 				, uint32_t normalMapIndex
 				, uint32_t displacementMapIndex
@@ -48,7 +50,6 @@ namespace TruthEngine
 
 			Material* AddMaterial(Material* material);
 
-			void AddSampleMaterial();
 
 		protected:
 

@@ -46,6 +46,11 @@ namespace TruthEngine
 				return m_VertexNum;
 			}
 
+			inline BoundingBox& GetBoundingBox() noexcept
+			{
+				return m_BoundingBox;
+			}
+
 			inline const BoundingBox& GetBoundingBox()const noexcept
 			{
 				return m_BoundingBox;

@@ -4,13 +4,11 @@
 #include "Core/Renderer/ShaderManager.h"
 #include "Core/Renderer/BufferManager.h"
 #include "Core/Application.h"
-#include "Core/Entity/Components/MeshComponent.h"
-#include "Core/Entity/Components/MaterialComponent.h"
 #include "Core/Entity/Light/LightManager.h"
 #include "Core/Entity/Camera/Camera.h"
 #include "Core/Renderer/Pipeline.h"
 #include "Core/Entity/Camera/CameraManager.h"
-#include "Core/Entity/Components/TransformComponent.h"
+#include "Core/Entity/Components.h"
 
 namespace TruthEngine::Core
 {
@@ -86,13 +84,32 @@ namespace TruthEngine::Core
 
 		auto& reg = activeScene->GetEntityRegistery();
 
-		auto& entityGroup = reg.view<MeshComponent>();
+		auto& dynamicEntityGroup = reg.group<MeshComponent, PhysicsDynamicComponent>();
 
 
-		for (auto entity_mesh : entityGroup)
+		for (auto entity_mesh : dynamicEntityGroup)
 		{
-			//float4x4 meshTransform = activeScene->CalcTransformsToRoot(entity_mesh);
-			float4x4 meshTransform = activeScene->GetComponent<TransformComponent>(entity_mesh).GetTransform();
+			const float4x4& physicsTransform = activeScene->GetComponent<PhysicsDynamicComponent>(entity_mesh).GetTranform();
+
+			Mesh* mesh = activeScene->GetComponent<MeshComponent>(entity_mesh).GetMesh();
+			Material* material = activeScene->GetComponent<MaterialComponent>(entity_mesh).GetMaterial();
+
+			*data_perMesh = ConstantBuffer_Data_Per_Mesh(physicsTransform);
+
+			m_RendererCommand.UploadData(m_ConstantBufferDirect_PerMesh);
+			m_RendererCommand.SetPipeline(m_Pipelines[material->GetMeshType()].get());
+			m_RendererCommand.DrawIndexed(mesh);
+
+		}
+
+
+		auto& staticEntityGroup = reg.view<MeshComponent>(entt::exclude<PhysicsDynamicComponent>);
+		
+
+		for (auto entity_mesh : staticEntityGroup)
+		{
+			const float4x4& meshTransform = activeScene->GetComponent<TransformComponent>(entity_mesh).GetTransform();
+
 			Mesh* mesh = activeScene->GetComponent<MeshComponent>(entity_mesh).GetMesh();
 			Material* material = activeScene->GetComponent<MaterialComponent>(entity_mesh).GetMaterial();
 

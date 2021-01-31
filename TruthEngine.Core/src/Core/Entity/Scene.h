@@ -91,6 +91,9 @@ namespace TruthEngine
 				return parentEntity;
 			}
 
+			float3 GetPosition(Entity entity);
+			float3 GetPosition(entt::entity entityHandle);
+
 		private:
 			float4x4 GetParentTransforms(Entity parent);
 			float4x4 GetParentTransforms(entt::entity parentHandler);

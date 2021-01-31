@@ -46,6 +46,16 @@ float3::operator physx::PxVec3()
 	return physx::PxVec3(x, y, z);
 }
 
+float3::operator physx::PxVec3() const
+{
+	return physx::PxVec3(x, y, z);
+}
+
+float3::float3(const DirectX::XMFLOAT3& xmfloat3)
+	: XMFLOAT3(xmfloat3)
+{
+}
+
 float4::operator physx::PxVec3()
 {
 	return physx::PxVec3(x, y, z);

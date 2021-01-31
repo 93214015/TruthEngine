@@ -15,9 +15,11 @@ namespace TruthEngine
 			Material(
 				uint32_t ID
 				, RendererStateSet states
-				, float4 colorDiffuse
-				, float3 fresnelR0
+				, const float4& colorDiffuse
+				, const float3& fresnelR0
 				, float shininess
+				, const float2& uvScale
+				, const float2& uvTranslate
 				, uint32_t diffuseMapIndex
 				, uint32_t normalMapIndex
 				, uint32_t displacementMapIndex
@@ -52,6 +54,16 @@ namespace TruthEngine
 			inline float GetShininess() const noexcept
 			{
 				return m_Shininess;
+			}
+
+			inline const float2& GetUVScale() const noexcept
+			{
+				return m_UVScale;
+			}
+
+			inline const float2& GetUVTranslate() const noexcept
+			{
+				return m_UVTranslate;
 			}
 
 			inline uint32_t GetMapIndexDiffuse()const noexcept
@@ -99,6 +111,18 @@ namespace TruthEngine
 				InvokeEventChangeMaterial();
 			}
 
+			inline void SetUVScale(const float2& _uvScale)
+			{
+				m_UVScale = _uvScale;
+				InvokeEventChangeMaterial();
+			}
+
+			inline void SetUVTranslate(const float2& _uvTranslate)
+			{
+				m_UVTranslate = _uvTranslate;
+				InvokeEventChangeMaterial();
+			}
+
 			void SetMapIndexDiffuse(uint32_t index);
 
 			void SetMapIndexNormal(uint32_t index);
@@ -119,6 +143,9 @@ namespace TruthEngine
 			float4 m_ColorDiffuse;
 			float3 m_FresnelR0;
 			float m_Shininess;
+
+			float2 m_UVScale = { 1.0f, 1.0f };
+			float2 m_UVTranslate = { .0f, .0f };
 
 			uint32_t m_MapIndexDiffuse = -1;
 			uint32_t m_MapIndexNormal = -1;
