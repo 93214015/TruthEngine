@@ -20,6 +20,7 @@ project "ImGui"
 		"imgui/backends/imgui_impl_win32.cpp",
 		"ImGuizmo/ImGuizmo.h",
 		"ImGuizmo/ImGuizmo.cpp",
+		"ImGuiNodeEditor/*.cpp"
 	}
 
 

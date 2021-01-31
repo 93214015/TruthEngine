@@ -186,6 +186,9 @@
     <ClInclude Include="src\Core\Entity\Model\ModelManager.h">
       <Filter>Core\Entity\Model</Filter>
     </ClInclude>
+    <ClInclude Include="src\Core\Entity\PickingEntity.h">
+      <Filter>Core\Entity</Filter>
+    </ClInclude>
     <ClInclude Include="src\Core\Entity\Scene.h">
       <Filter>Core\Entity</Filter>
     </ClInclude>
@@ -405,7 +408,7 @@
     <ClInclude Include="src\TruthEngine.h" />
     <ClInclude Include="src\lib.h" />
     <ClInclude Include="src\pch.h" />
-    <ClInclude Include="src\Core\Entity\PickingEntity.h" />
+    <ClInclude Include="src\Core\ImGui\ImGuiNodeEditor.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\API\DX12\DirectX12BufferManager.cpp">
@@ -530,6 +533,9 @@
     </ClCompile>
     <ClCompile Include="src\Core\Entity\Model\ModelManager.cpp">
       <Filter>Core\Entity\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Entity\PickingEntity.cpp">
+      <Filter>Core\Entity</Filter>
     </ClCompile>
     <ClCompile Include="src\Core\Entity\Scene.cpp">
       <Filter>Core\Entity</Filter>
@@ -724,6 +730,6 @@
       <Filter>Platform\Windows</Filter>
     </ClCompile>
     <ClCompile Include="src\pch.cpp" />
-    <ClCompile Include="src\Core\Entity\PickingEntity.cpp" />
+    <ClCompile Include="src\Core\ImGui\ImGuiNodeEditor.cpp" />
   </ItemGroup>
 </Project>

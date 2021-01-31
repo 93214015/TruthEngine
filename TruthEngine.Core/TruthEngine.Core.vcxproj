@@ -220,6 +220,7 @@
     <ClInclude Include="src\Core\Helper\SysInfo\systemcommand.h" />
     <ClInclude Include="src\Core\Helper\SysInfo\systeminfo.h" />
     <ClInclude Include="src\Core\ImGui\ImGuiLayer.h" />
+    <ClInclude Include="src\Core\ImGui\ImGuiNodeEditor.h" />
     <ClInclude Include="src\Core\Input\InputManager.h" />
     <ClInclude Include="src\Core\Input\KeyCodes.h" />
     <ClInclude Include="src\Core\Input\Mouse.h" />
@@ -338,6 +339,7 @@
     <ClCompile Include="src\Core\Helper\SysInfo\raminfodelegate.cpp" />
     <ClCompile Include="src\Core\Helper\SysInfo\systemcommand.cpp" />
     <ClCompile Include="src\Core\ImGui\ImGuiLayer.cpp" />
+    <ClCompile Include="src\Core\ImGui\ImGuiNodeEditor.cpp" />
     <ClCompile Include="src\Core\Input\InputManager.cpp" />
     <ClCompile Include="src\Core\Input\Mouse.cpp" />
     <ClCompile Include="src\Core\Layer.cpp" />

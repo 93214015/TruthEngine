@@ -212,6 +212,12 @@ namespace TruthEngine
 
 	}
 
+	 /*
+	 * 
+	 * DirectXMath Opertaors overloading 
+	 * 
+	 */
+
 	inline float4 operator+(const float4& v1, const float4& v2)
 	{
 		return float4{ v1.x + v2.x, v1.y + v2.y, v1.z + v2.z, v1.w + v2.w };
@@ -245,4 +251,15 @@ namespace TruthEngine
 		DirectX::BoundingBox::CreateMerged(outBoundingBox, boundingBox1, boundingBox2);
 	}
 
+
+
+	/*
+	 *
+	 * ImGui Opertaors overloading
+	 *
+	 */
+	inline ImVec2 operator+(const ImVec2& v1, const ImVec2& v2)
+	{
+		return ImVec2{ v1.x + v2.x, v1.y + v2.y };
+	}
 }
