@@ -22,7 +22,7 @@ namespace TruthEngine::API::DirectX12 {
 
 	DirectX12SwapChain::DirectX12SwapChain() = default;
 
-	TE_RESULT DirectX12SwapChain::Init(UINT clientWidth, UINT clientHeight, Core::Window* outputHWND, UINT backBufferNum)
+	TE_RESULT DirectX12SwapChain::Init(uint32_t clientWidth, uint32_t clientHeight, Core::Window* outputHWND, uint32_t backBufferNum)
 	{
 
 		m_BackBufferNum = backBufferNum;
@@ -48,7 +48,12 @@ namespace TruthEngine::API::DirectX12 {
 
 	void DirectX12SwapChain::Present()
 	{
-		m_SwapChain->Present(1, 0);
+		UINT presentFlags = (TE_INSTANCE_IDXGI.CheckSupportAllowTearing() && TE_INSTANCE_APPLICATION->GetWindowMode()) ? DXGI_PRESENT_ALLOW_TEARING : 0;
+
+		if (FAILED(m_SwapChain->Present(0, presentFlags)))
+		{
+			TE_ASSERT_CORE(false, "SwapChain Present was failed");
+		}
 	}
 
 	void DirectX12SwapChain::CreateSwapChain(HWND outputHWND)
@@ -61,7 +66,8 @@ namespace TruthEngine::API::DirectX12 {
 			desc1.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
 			desc1.BufferCount = m_BackBufferNum;
 			desc1.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-			desc1.Flags = DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT;
+			//desc1.Flags = DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT;
+			desc1.Flags =  (TE_INSTANCE_IDXGI.CheckSupportAllowTearing() ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0) | DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT;
 			desc1.Format = m_BackbufferFormat;
 			desc1.Width = TE_INSTANCE_APPLICATION->GetClientWidth();
 			desc1.Height = TE_INSTANCE_APPLICATION->GetClientHeight();
@@ -73,7 +79,7 @@ namespace TruthEngine::API::DirectX12 {
 
 			auto r = TE_INSTANCE_IDXGI.GetDXGIFactory()->CreateSwapChainForHwnd(TE_INSTANCE_API_DX12_COMMANDQUEUEDIRECT->m_CommandQueue.Get(), outputHWND, &desc1, NULL, NULL, swapChain1.GetAddressOf());
 
-			TE_ASSERT_CORE(r, "API::DirectX12  Creation of 'SwapChain' factory is failed!");
+			TE_ASSERT_CORE(SUCCEEDED(r), "API::DirectX12  Creation of 'SwapChain' factory is failed!");
 
 			swapChain1->QueryInterface(m_SwapChain.ReleaseAndGetAddressOf());
 
@@ -84,7 +90,7 @@ namespace TruthEngine::API::DirectX12 {
 		m_BackBuffers.clear();
 		m_BackBuffers.resize(m_BackBufferNum);
 
-		for (UINT i = 0; i < m_BackBufferNum; i++)
+		for (uint32_t i = 0; i < m_BackBufferNum; i++)
 		{
 			m_SwapChain->GetBuffer(i, IID_PPV_ARGS(m_BackBuffers[i].GetAddressOf()));
 		}
@@ -97,7 +103,7 @@ namespace TruthEngine::API::DirectX12 {
 		{
 			RTV->ViewIndex = descHeap->GetCurrentIndex();
 
-			for (UINT i = 0; i < m_BackBufferNum; i++)
+			for (uint32_t i = 0; i < m_BackBufferNum; i++)
 			{
 				ComPtr<ID3D12Resource> buffer;
 				m_SwapChain->GetBuffer(i, IID_PPV_ARGS(buffer.ReleaseAndGetAddressOf()));
@@ -107,7 +113,7 @@ namespace TruthEngine::API::DirectX12 {
 		}
 		else
 		{
-			for (UINT i = 0; i < m_BackBufferNum; i++)
+			for (uint32_t i = 0; i < m_BackBufferNum; i++)
 			{
 				ComPtr<ID3D12Resource> buffer;
 				m_SwapChain->GetBuffer(i, IID_PPV_ARGS(buffer.ReleaseAndGetAddressOf()));
@@ -134,26 +140,40 @@ namespace TruthEngine::API::DirectX12 {
 		}
 	}
 
-	TE_RESULT DirectX12SwapChain::Resize(UINT width, UINT height, UINT backBufferNum)
+	TE_RESULT DirectX12SwapChain::Resize(uint32_t width, uint32_t height, uint32_t backBufferNum)
 	{
 		m_BackBufferNum = backBufferNum;
 
 		m_SwapChain->SetMaximumFrameLatency(backBufferNum);
 
-		m_BackBuffers.clear();
-		m_BackBuffers.resize(backBufferNum);
+// 		m_BackBuffers.clear();
+// 		m_BackBuffers.resize(backBufferNum);
 
-		auto hr = m_SwapChain->ResizeBuffers(backBufferNum, width, height, m_BackbufferFormat, 0);
+		for (uint32_t i = 0; i < backBufferNum; i++)
+		{
+			m_BackBuffers[i].Reset();
+		}
 
-		for (UINT i = 0; i < backBufferNum; i++)
+		auto hr = m_SwapChain->ResizeBuffers(backBufferNum, width, height, m_BackbufferFormat, DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT);
+
+		for (uint32_t i = 0; i < backBufferNum; i++)
 		{
 			m_SwapChain->GetBuffer(i, IID_PPV_ARGS(m_BackBuffers[i].ReleaseAndGetAddressOf()));
 		}
+
+		BOOL _fullscreened = false;
+		m_SwapChain->GetFullscreenState(&_fullscreened, nullptr);
+		TE_INSTANCE_APPLICATION->SetWindowMode((bool)!_fullscreened);
 
 		if (SUCCEEDED(hr))
 			return TE_SUCCESSFUL;
 		else
 			return TE_FAIL;
+	}
+
+	uint8_t DirectX12SwapChain::GetCurrentFrameIndex() const
+	{
+		return static_cast<uint8_t>(m_SwapChain->GetCurrentBackBufferIndex());
 	}
 
 	TruthEngine::API::DirectX12::DirectX12SwapChain DirectX12SwapChain::s_SwapChain;

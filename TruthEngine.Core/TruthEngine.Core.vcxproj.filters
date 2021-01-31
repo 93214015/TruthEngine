@@ -16,6 +16,9 @@
     <Filter Include="Core\Entity\Camera">
       <UniqueIdentifier>{F2BFEAD2-DEA3-AB28-4704-A67B330796AA}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Core\Entity\Components">
+      <UniqueIdentifier>{8F3D0171-7B37-2AC3-64A4-C0D3503D902F}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Core\Entity\Light">
       <UniqueIdentifier>{E1B77FD8-4DCE-7D6E-9645-0990029B4EF6}</UniqueIdentifier>
     </Filter>
@@ -28,11 +31,17 @@
     <Filter Include="Core\Helper">
       <UniqueIdentifier>{DDD6EA79-498C-636F-D280-5D463E355A73}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Core\Helper\SysInfo">
+      <UniqueIdentifier>{F74A91D1-63AC-6EDF-EC19-B591587AA59E}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Core\ImGui">
       <UniqueIdentifier>{D8137ACD-C4CB-BB1A-2DD3-947619AA560B}</UniqueIdentifier>
     </Filter>
     <Filter Include="Core\Input">
       <UniqueIdentifier>{AD4E7BCD-9906-BD1A-020E-9676EEE4570B}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\PhysicEngine">
+      <UniqueIdentifier>{630C3CE5-CF22-3A7B-189A-C59C84EF0A03}</UniqueIdentifier>
     </Filter>
     <Filter Include="Core\Renderer">
       <UniqueIdentifier>{948B5FDE-004C-DB14-C986-2492350620F1}</UniqueIdentifier>
@@ -96,6 +105,12 @@
     <ClInclude Include="src\Core\Core.h">
       <Filter>Core</Filter>
     </ClInclude>
+    <ClInclude Include="src\Core\Entity\Camera\Camera.h">
+      <Filter>Core\Entity\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Entity\Camera\CameraController.h">
+      <Filter>Core\Entity\Camera</Filter>
+    </ClInclude>
     <ClInclude Include="src\Core\Entity\Camera\CameraManager.h">
       <Filter>Core\Entity\Camera</Filter>
     </ClInclude>
@@ -107,6 +122,42 @@
     </ClInclude>
     <ClInclude Include="src\Core\Entity\Camera\ICamera.h">
       <Filter>Core\Entity\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Entity\Components.h">
+      <Filter>Core\Entity</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Entity\Components\BoundingBoxComponent.h">
+      <Filter>Core\Entity\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Entity\Components\CameraComponent.h">
+      <Filter>Core\Entity\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Entity\Components\LightComponent.h">
+      <Filter>Core\Entity\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Entity\Components\MaterialComponent.h">
+      <Filter>Core\Entity\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Entity\Components\MeshComponent.h">
+      <Filter>Core\Entity\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Entity\Components\ModelComponent.h">
+      <Filter>Core\Entity\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Entity\Components\PhysicsComponent.h">
+      <Filter>Core\Entity\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Entity\Components\TagComponent.h">
+      <Filter>Core\Entity\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Entity\Components\TransformComponent.h">
+      <Filter>Core\Entity\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Entity\Entity.h">
+      <Filter>Core\Entity</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Entity\EntityTree.h">
+      <Filter>Core\Entity</Filter>
     </ClInclude>
     <ClInclude Include="src\Core\Entity\Light\ILight.h">
       <Filter>Core\Entity\Light</Filter>
@@ -135,6 +186,9 @@
     <ClInclude Include="src\Core\Entity\Model\ModelManager.h">
       <Filter>Core\Entity\Model</Filter>
     </ClInclude>
+    <ClInclude Include="src\Core\Entity\Scene.h">
+      <Filter>Core\Entity</Filter>
+    </ClInclude>
     <ClInclude Include="src\Core\EntryPoint.h">
       <Filter>Core</Filter>
     </ClInclude>
@@ -153,8 +207,50 @@
     <ClInclude Include="src\Core\Event\EventMouse.h">
       <Filter>Core\Event</Filter>
     </ClInclude>
+    <ClInclude Include="src\Core\Helper\HardwareInfo.h">
+      <Filter>Core\Helper</Filter>
+    </ClInclude>
     <ClInclude Include="src\Core\Helper\MathHelper.h">
       <Filter>Core\Helper</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Helper\MeshGenerator.h">
+      <Filter>Core\Helper</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Helper\SysInfo\cpuinfo.h">
+      <Filter>Core\Helper\SysInfo</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Helper\SysInfo\cpuinfodelegate.h">
+      <Filter>Core\Helper\SysInfo</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Helper\SysInfo\gpuinfo.h">
+      <Filter>Core\Helper\SysInfo</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Helper\SysInfo\gpuinfodelegate.h">
+      <Filter>Core\Helper\SysInfo</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Helper\SysInfo\motherboardinfo.h">
+      <Filter>Core\Helper\SysInfo</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Helper\SysInfo\motherboardinfodelegate.h">
+      <Filter>Core\Helper\SysInfo</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Helper\SysInfo\osinfo.h">
+      <Filter>Core\Helper\SysInfo</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Helper\SysInfo\osinfodelegate.h">
+      <Filter>Core\Helper\SysInfo</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Helper\SysInfo\raminfo.h">
+      <Filter>Core\Helper\SysInfo</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Helper\SysInfo\raminfodelegate.h">
+      <Filter>Core\Helper\SysInfo</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Helper\SysInfo\systemcommand.h">
+      <Filter>Core\Helper\SysInfo</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Helper\SysInfo\systeminfo.h">
+      <Filter>Core\Helper\SysInfo</Filter>
     </ClInclude>
     <ClInclude Include="src\Core\ImGui\ImGuiLayer.h">
       <Filter>Core\ImGui</Filter>
@@ -179,6 +275,9 @@
     </ClInclude>
     <ClInclude Include="src\Core\Log.h">
       <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\PhysicEngine\PhysicsEngine.h">
+      <Filter>Core\PhysicEngine</Filter>
     </ClInclude>
     <ClInclude Include="src\Core\Renderer\Buffer.h">
       <Filter>Core\Renderer</Filter>
@@ -223,6 +322,9 @@
       <Filter>Core\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_ForwardRendering.h">
+      <Filter>Core\Renderer\RenderPass</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_GenerateShadowMap.h">
       <Filter>Core\Renderer\RenderPass</Filter>
     </ClInclude>
     <ClInclude Include="src\Core\Renderer\RenderPassStack.h">
@@ -303,6 +405,7 @@
     <ClInclude Include="src\TruthEngine.h" />
     <ClInclude Include="src\lib.h" />
     <ClInclude Include="src\pch.h" />
+    <ClInclude Include="src\Core\Entity\PickingEntity.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\API\DX12\DirectX12BufferManager.cpp">
@@ -350,6 +453,12 @@
     <ClCompile Include="src\Core\Application.cpp">
       <Filter>Core</Filter>
     </ClCompile>
+    <ClCompile Include="src\Core\Entity\Camera\Camera.cpp">
+      <Filter>Core\Entity\Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Entity\Camera\CameraController.cpp">
+      <Filter>Core\Entity\Camera</Filter>
+    </ClCompile>
     <ClCompile Include="src\Core\Entity\Camera\CameraManager.cpp">
       <Filter>Core\Entity\Camera</Filter>
     </ClCompile>
@@ -361,6 +470,39 @@
     </ClCompile>
     <ClCompile Include="src\Core\Entity\Camera\ICamera.cpp">
       <Filter>Core\Entity\Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Entity\Components\BoundingBoxComponent.cpp">
+      <Filter>Core\Entity\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Entity\Components\CameraComponent.cpp">
+      <Filter>Core\Entity\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Entity\Components\LightComponent.cpp">
+      <Filter>Core\Entity\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Entity\Components\MaterialComponent.cpp">
+      <Filter>Core\Entity\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Entity\Components\MeshComponent.cpp">
+      <Filter>Core\Entity\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Entity\Components\ModelComponent.cpp">
+      <Filter>Core\Entity\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Entity\Components\PhysicsComponent.cpp">
+      <Filter>Core\Entity\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Entity\Components\TagComponent.cpp">
+      <Filter>Core\Entity\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Entity\Components\TransformComponent.cpp">
+      <Filter>Core\Entity\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Entity\Entity.cpp">
+      <Filter>Core\Entity</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Entity\EntityTree.cpp">
+      <Filter>Core\Entity</Filter>
     </ClCompile>
     <ClCompile Include="src\Core\Entity\Light\ILight.cpp">
       <Filter>Core\Entity\Light</Filter>
@@ -389,6 +531,9 @@
     <ClCompile Include="src\Core\Entity\Model\ModelManager.cpp">
       <Filter>Core\Entity\Model</Filter>
     </ClCompile>
+    <ClCompile Include="src\Core\Entity\Scene.cpp">
+      <Filter>Core\Entity</Filter>
+    </ClCompile>
     <ClCompile Include="src\Core\Event\Event.cpp">
       <Filter>Core\Event</Filter>
     </ClCompile>
@@ -403,6 +548,51 @@
     </ClCompile>
     <ClCompile Include="src\Core\Event\EventMouse.cpp">
       <Filter>Core\Event</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Helper\HardwareInfo.cpp">
+      <Filter>Core\Helper</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Helper\MathHelper.cpp">
+      <Filter>Core\Helper</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Helper\MeshGenerator.cpp">
+      <Filter>Core\Helper</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Helper\SysInfo\cpuinfo.cpp">
+      <Filter>Core\Helper\SysInfo</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Helper\SysInfo\cpuinfodelegate.cpp">
+      <Filter>Core\Helper\SysInfo</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Helper\SysInfo\gpuinfo.cpp">
+      <Filter>Core\Helper\SysInfo</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Helper\SysInfo\gpuinfodelegate.cpp">
+      <Filter>Core\Helper\SysInfo</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Helper\SysInfo\main.cpp">
+      <Filter>Core\Helper\SysInfo</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Helper\SysInfo\motherboardinfo.cpp">
+      <Filter>Core\Helper\SysInfo</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Helper\SysInfo\motherboardinfodelegate.cpp">
+      <Filter>Core\Helper\SysInfo</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Helper\SysInfo\osinfo.cpp">
+      <Filter>Core\Helper\SysInfo</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Helper\SysInfo\osinfodelegate.cpp">
+      <Filter>Core\Helper\SysInfo</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Helper\SysInfo\raminfo.cpp">
+      <Filter>Core\Helper\SysInfo</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Helper\SysInfo\raminfodelegate.cpp">
+      <Filter>Core\Helper\SysInfo</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Helper\SysInfo\systemcommand.cpp">
+      <Filter>Core\Helper\SysInfo</Filter>
     </ClCompile>
     <ClCompile Include="src\Core\ImGui\ImGuiLayer.cpp">
       <Filter>Core\ImGui</Filter>
@@ -421,6 +611,12 @@
     </ClCompile>
     <ClCompile Include="src\Core\Log.cpp">
       <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\PhysicEngine\PhysicsEngine.cpp">
+      <Filter>Core\PhysicEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Renderer\Buffer.cpp">
+      <Filter>Core\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="src\Core\Renderer\BufferManager.cpp">
       <Filter>Core\Renderer</Filter>
@@ -446,10 +642,16 @@
     <ClCompile Include="src\Core\Renderer\Pipeline.cpp">
       <Filter>Core\Renderer</Filter>
     </ClCompile>
+    <ClCompile Include="src\Core\Renderer\PipelineState.cpp">
+      <Filter>Core\Renderer</Filter>
+    </ClCompile>
     <ClCompile Include="src\Core\Renderer\RenderPass.cpp">
       <Filter>Core\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_ForwardRendering.cpp">
+      <Filter>Core\Renderer\RenderPass</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_GenerateShadowMap.cpp">
       <Filter>Core\Renderer\RenderPass</Filter>
     </ClCompile>
     <ClCompile Include="src\Core\Renderer\RenderPassStack.cpp">
@@ -522,5 +724,6 @@
       <Filter>Platform\Windows</Filter>
     </ClCompile>
     <ClCompile Include="src\pch.cpp" />
+    <ClCompile Include="src\Core\Entity\PickingEntity.cpp" />
   </ItemGroup>
 </Project>

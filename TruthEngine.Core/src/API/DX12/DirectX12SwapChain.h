@@ -15,11 +15,13 @@ namespace TruthEngine::API::DirectX12 {
 	public:
 		static inline DirectX12SwapChain& GetInstance() { return s_SwapChain; }
 
-		TE_RESULT Init(UINT clientWidth, UINT clientHeight, Core::Window* outputWindow, UINT backBufferNum = 2) override;
+		TE_RESULT Init(uint32_t clientWidth, uint32_t clientHeight, Core::Window* outputWindow, uint32_t backBufferNum = 2) override;
 
 		void Release() override;
 
-		TE_RESULT Resize(UINT width, UINT height, UINT backBufferNum) override;
+		TE_RESULT Resize(uint32_t width, uint32_t height, uint32_t backBufferNum) override;
+
+		uint8_t GetCurrentFrameIndex() const override;
 
 		void InitRTVs(DescriptorHeapRTV* descHeap, Core::RenderTargetView* RTV);
 
@@ -28,6 +30,8 @@ namespace TruthEngine::API::DirectX12 {
 		inline D3D12_RESOURCE_STATES GetBackBufferState() const { return m_CurrentBackBufferResourceState[GetCurrentFrameIndex()]; };
 
 		inline void SetBackBufferState(D3D12_RESOURCE_STATES state) noexcept { m_CurrentBackBufferResourceState[GetCurrentFrameIndex()] = state; };
+
+		IDXGISwapChain4* GetNativeObject() const noexcept { return m_SwapChain.Get(); }
 
 		void Present() override;
 
@@ -42,7 +46,7 @@ namespace TruthEngine::API::DirectX12 {
 		void CheckDeviceFeatures();
 
 	protected:
-
+		
 		Microsoft::WRL::ComPtr<IDXGISwapChain4> m_SwapChain = nullptr;
 
 		std::vector<Microsoft::WRL::ComPtr<ID3D12Resource>> m_BackBuffers{};
@@ -50,8 +54,7 @@ namespace TruthEngine::API::DirectX12 {
 		DXGI_FORMAT m_BackbufferFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
 
 		D3D12_FEATURE_DATA_MULTISAMPLE_QUALITY_LEVELS m_MSAAQualityLevels{};
-
-		
+			
 
 		std::vector<D3D12_RESOURCE_STATES> m_CurrentBackBufferResourceState;
 

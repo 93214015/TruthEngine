@@ -16,8 +16,14 @@ namespace TruthEngine::Platforms::Windows {
 
 		HWND GetHandle();
 
+		void ToggleFullScreenMode() override;
+
 	private:
 		HWND m_HWND;
+
+		RECT m_WindowRect;
+		UINT m_WindowStyle = WS_OVERLAPPEDWINDOW;
+
 	};
 
 }

@@ -49,6 +49,13 @@ namespace TruthEngine::API::DirectX12
 		auto result = D3D12CreateDevice(TE_INSTANCE_IDXGI.GetAdapters()[adapterIndex].Get(), D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(m_Device.GetAddressOf()));
 		TE_ASSERT_CORE(TE_SUCCEEDED(result), "API::DirectX12  Creating DX12 device if failed!");
 
+
+#ifdef _PROFILING
+		m_Device->SetStablePowerState(true);
+#endif // _PROFILING
+
+		CheckFeatures();
+
 		return TE_SUCCESSFUL;
 	}
 
@@ -113,6 +120,14 @@ namespace TruthEngine::API::DirectX12
 		{
 			TE_LOG_CORE_ERROR("API::DirectX12  CommandAllocator creation was failed");
 			return TE_FAIL;
+		}
+	}
+
+	void DirectX12GraphicDevice::CheckFeatures()
+	{
+		if (FAILED(m_Device->CheckFeatureSupport(D3D12_FEATURE_ROOT_SIGNATURE, &m_FeatureData_RootSignature, sizeof(m_FeatureData_RootSignature))))
+		{
+			m_FeatureData_RootSignature.HighestVersion = D3D_ROOT_SIGNATURE_VERSION_1_0;
 		}
 	}
 

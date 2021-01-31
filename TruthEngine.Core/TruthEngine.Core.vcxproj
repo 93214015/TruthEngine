@@ -79,8 +79,8 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>TE_API_DX12;TE_PLATFORM_WINDOWS;TE_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;..\Dependencies\spdlog\include;..\Dependencies;..\Dependencies\imgui;..\Dependencies\DirectXGraphicsSamples\Libraries\D3DX12;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_DEBUG;TE_ENABLE_ASSERTS;TE_API_DX12;TE_PLATFORM_WINDOWS;TE_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>src;..\Dependencies\spdlog\include;..\Dependencies;..\Dependencies\imgui;..\Dependencies\DirectXGraphicsSamples\Libraries\D3DX12;..\Dependencies\Physx;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
       <MinimalRebuild>false</MinimalRebuild>
@@ -94,7 +94,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalLibraryDirectories>..\Dependencies\DirectXShaderCompiler\lib\x64;..\Dependencies\assimp\lib;..\Dependencies\DirectXTK12\Lib\x64\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>PhysX_static_64.lib;PhysXCharacterKinematic_static_64.lib;PhysXCommon_static_64.lib;PhysXCooking_static_64.lib;PhysXExtensions_static_64.lib;PhysXFoundation_static_64.lib;PhysXPvdSDK_static_64.lib;PhysXVehicle_static_64.lib;assimp-vc142-mtd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\Dependencies;..\Dependencies\DirectXShaderCompiler\lib\x64;..\Dependencies\assimp\lib;..\Dependencies\GeometryGenerator\lib\x64\Debug;..\Dependencies\Physx\lib\debug;..\Dependencies\assimp\lib\debug;..\Dependencies\DirectXTK12\Lib\x64\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -102,8 +103,8 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>TE_API_DX12;TE_PLATFORM_WINDOWS;TE_RELEASE;TE_NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;..\Dependencies\spdlog\include;..\Dependencies;..\Dependencies\imgui;..\Dependencies\DirectXGraphicsSamples\Libraries\D3DX12;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>NDEBUG;TE_API_DX12;TE_PLATFORM_WINDOWS;TE_RELEASE;TE_NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>src;..\Dependencies\spdlog\include;..\Dependencies;..\Dependencies\imgui;..\Dependencies\DirectXGraphicsSamples\Libraries\D3DX12;..\Dependencies\Physx;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -120,7 +121,8 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <Lib>
-      <AdditionalLibraryDirectories>..\Dependencies\DirectXShaderCompiler\lib\x64;..\Dependencies\assimp\lib;..\Dependencies\DirectXTK12\Lib\x64\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>PhysX_static_64.lib;PhysXCharacterKinematic_static_64.lib;PhysXCommon_static_64.lib;PhysXCooking_static_64.lib;PhysXExtensions_static_64.lib;PhysXFoundation_static_64.lib;PhysXPvdSDK_static_64.lib;PhysXVehicle_static_64.lib;assimp-vc142-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\Dependencies;..\Dependencies\DirectXShaderCompiler\lib\x64;..\Dependencies\assimp\lib;..\Dependencies\GeometryGenerator\lib\x64\Release;..\Dependencies\Physx\lib\release;..\Dependencies\assimp\lib\release;..\Dependencies\DirectXTK12\Lib\x64\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Dist|x64'">
@@ -128,8 +130,8 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>TE_API_DX12;TE_PLATFORM_WINDOWS;TE_DIST;TE_NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;..\Dependencies\spdlog\include;..\Dependencies;..\Dependencies\imgui;..\Dependencies\DirectXGraphicsSamples\Libraries\D3DX12;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>NDEBUG;TE_API_DX12;TE_PLATFORM_WINDOWS;TE_DIST;TE_NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>src;..\Dependencies\spdlog\include;..\Dependencies;..\Dependencies\imgui;..\Dependencies\DirectXGraphicsSamples\Libraries\D3DX12;..\Dependencies\Physx;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -146,7 +148,8 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <Lib>
-      <AdditionalLibraryDirectories>..\Dependencies\DirectXShaderCompiler\lib\x64;..\Dependencies\assimp\lib;..\Dependencies\DirectXTK12\Lib\x64\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>PhysX_static_64.lib;PhysXCharacterKinematic_static_64.lib;PhysXCommon_static_64.lib;PhysXCooking_static_64.lib;PhysXExtensions_static_64.lib;PhysXFoundation_static_64.lib;PhysXPvdSDK_static_64.lib;PhysXVehicle_static_64.lib;assimp-vc142-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\Dependencies;..\Dependencies\DirectXShaderCompiler\lib\x64;..\Dependencies\assimp\lib;..\Dependencies\GeometryGenerator\lib\x64\Release;..\Dependencies\Physx\lib\release;..\Dependencies\assimp\lib\release;..\Dependencies\DirectXTK12\Lib\x64\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -166,10 +169,24 @@
     <ClInclude Include="src\API\IDXGI.h" />
     <ClInclude Include="src\Core\Application.h" />
     <ClInclude Include="src\Core\Core.h" />
+    <ClInclude Include="src\Core\Entity\Camera\Camera.h" />
+    <ClInclude Include="src\Core\Entity\Camera\CameraController.h" />
     <ClInclude Include="src\Core\Entity\Camera\CameraManager.h" />
     <ClInclude Include="src\Core\Entity\Camera\CameraOrthographic.h" />
     <ClInclude Include="src\Core\Entity\Camera\CameraPerspective.h" />
     <ClInclude Include="src\Core\Entity\Camera\ICamera.h" />
+    <ClInclude Include="src\Core\Entity\Components.h" />
+    <ClInclude Include="src\Core\Entity\Components\BoundingBoxComponent.h" />
+    <ClInclude Include="src\Core\Entity\Components\CameraComponent.h" />
+    <ClInclude Include="src\Core\Entity\Components\LightComponent.h" />
+    <ClInclude Include="src\Core\Entity\Components\MaterialComponent.h" />
+    <ClInclude Include="src\Core\Entity\Components\MeshComponent.h" />
+    <ClInclude Include="src\Core\Entity\Components\ModelComponent.h" />
+    <ClInclude Include="src\Core\Entity\Components\PhysicsComponent.h" />
+    <ClInclude Include="src\Core\Entity\Components\TagComponent.h" />
+    <ClInclude Include="src\Core\Entity\Components\TransformComponent.h" />
+    <ClInclude Include="src\Core\Entity\Entity.h" />
+    <ClInclude Include="src\Core\Entity\EntityTree.h" />
     <ClInclude Include="src\Core\Entity\Light\ILight.h" />
     <ClInclude Include="src\Core\Entity\Light\LightDirectional.h" />
     <ClInclude Include="src\Core\Entity\Light\LightManager.h" />
@@ -179,13 +196,29 @@
     <ClInclude Include="src\Core\Entity\Model\Model2D.h" />
     <ClInclude Include="src\Core\Entity\Model\Model3D.h" />
     <ClInclude Include="src\Core\Entity\Model\ModelManager.h" />
+    <ClInclude Include="src\Core\Entity\PickingEntity.h" />
+    <ClInclude Include="src\Core\Entity\Scene.h" />
     <ClInclude Include="src\Core\EntryPoint.h" />
     <ClInclude Include="src\Core\Event\Event.h" />
     <ClInclude Include="src\Core\Event\EventApplication.h" />
     <ClInclude Include="src\Core\Event\EventEntity.h" />
     <ClInclude Include="src\Core\Event\EventKey.h" />
     <ClInclude Include="src\Core\Event\EventMouse.h" />
+    <ClInclude Include="src\Core\Helper\HardwareInfo.h" />
     <ClInclude Include="src\Core\Helper\MathHelper.h" />
+    <ClInclude Include="src\Core\Helper\MeshGenerator.h" />
+    <ClInclude Include="src\Core\Helper\SysInfo\cpuinfo.h" />
+    <ClInclude Include="src\Core\Helper\SysInfo\cpuinfodelegate.h" />
+    <ClInclude Include="src\Core\Helper\SysInfo\gpuinfo.h" />
+    <ClInclude Include="src\Core\Helper\SysInfo\gpuinfodelegate.h" />
+    <ClInclude Include="src\Core\Helper\SysInfo\motherboardinfo.h" />
+    <ClInclude Include="src\Core\Helper\SysInfo\motherboardinfodelegate.h" />
+    <ClInclude Include="src\Core\Helper\SysInfo\osinfo.h" />
+    <ClInclude Include="src\Core\Helper\SysInfo\osinfodelegate.h" />
+    <ClInclude Include="src\Core\Helper\SysInfo\raminfo.h" />
+    <ClInclude Include="src\Core\Helper\SysInfo\raminfodelegate.h" />
+    <ClInclude Include="src\Core\Helper\SysInfo\systemcommand.h" />
+    <ClInclude Include="src\Core\Helper\SysInfo\systeminfo.h" />
     <ClInclude Include="src\Core\ImGui\ImGuiLayer.h" />
     <ClInclude Include="src\Core\Input\InputManager.h" />
     <ClInclude Include="src\Core\Input\KeyCodes.h" />
@@ -194,6 +227,7 @@
     <ClInclude Include="src\Core\Layer.h" />
     <ClInclude Include="src\Core\LayerStack.h" />
     <ClInclude Include="src\Core\Log.h" />
+    <ClInclude Include="src\Core\PhysicEngine\PhysicsEngine.h" />
     <ClInclude Include="src\Core\Renderer\Buffer.h" />
     <ClInclude Include="src\Core\Renderer\BufferManager.h" />
     <ClInclude Include="src\Core\Renderer\CommandList.h" />
@@ -209,6 +243,7 @@
     <ClInclude Include="src\Core\Renderer\PipelineState.h" />
     <ClInclude Include="src\Core\Renderer\RenderPass.h" />
     <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_ForwardRendering.h" />
+    <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_GenerateShadowMap.h" />
     <ClInclude Include="src\Core\Renderer\RenderPassStack.h" />
     <ClInclude Include="src\Core\Renderer\RendererCommand.h" />
     <ClInclude Include="src\Core\Renderer\RendererIDX.h" />
@@ -254,10 +289,23 @@
     <ClCompile Include="src\API\DX12\DirectX12TextureMaterialManager.cpp" />
     <ClCompile Include="src\API\IDXGI.cpp" />
     <ClCompile Include="src\Core\Application.cpp" />
+    <ClCompile Include="src\Core\Entity\Camera\Camera.cpp" />
+    <ClCompile Include="src\Core\Entity\Camera\CameraController.cpp" />
     <ClCompile Include="src\Core\Entity\Camera\CameraManager.cpp" />
     <ClCompile Include="src\Core\Entity\Camera\CameraOrthographic.cpp" />
     <ClCompile Include="src\Core\Entity\Camera\CameraPerspective.cpp" />
     <ClCompile Include="src\Core\Entity\Camera\ICamera.cpp" />
+    <ClCompile Include="src\Core\Entity\Components\BoundingBoxComponent.cpp" />
+    <ClCompile Include="src\Core\Entity\Components\CameraComponent.cpp" />
+    <ClCompile Include="src\Core\Entity\Components\LightComponent.cpp" />
+    <ClCompile Include="src\Core\Entity\Components\MaterialComponent.cpp" />
+    <ClCompile Include="src\Core\Entity\Components\MeshComponent.cpp" />
+    <ClCompile Include="src\Core\Entity\Components\ModelComponent.cpp" />
+    <ClCompile Include="src\Core\Entity\Components\PhysicsComponent.cpp" />
+    <ClCompile Include="src\Core\Entity\Components\TagComponent.cpp" />
+    <ClCompile Include="src\Core\Entity\Components\TransformComponent.cpp" />
+    <ClCompile Include="src\Core\Entity\Entity.cpp" />
+    <ClCompile Include="src\Core\Entity\EntityTree.cpp" />
     <ClCompile Include="src\Core\Entity\Light\ILight.cpp" />
     <ClCompile Include="src\Core\Entity\Light\LightDirectional.cpp" />
     <ClCompile Include="src\Core\Entity\Light\LightManager.cpp" />
@@ -267,17 +315,36 @@
     <ClCompile Include="src\Core\Entity\Model\Model2D.cpp" />
     <ClCompile Include="src\Core\Entity\Model\Model3D.cpp" />
     <ClCompile Include="src\Core\Entity\Model\ModelManager.cpp" />
+    <ClCompile Include="src\Core\Entity\PickingEntity.cpp" />
+    <ClCompile Include="src\Core\Entity\Scene.cpp" />
     <ClCompile Include="src\Core\Event\Event.cpp" />
     <ClCompile Include="src\Core\Event\EventApplication.cpp" />
     <ClCompile Include="src\Core\Event\EventEntity.cpp" />
     <ClCompile Include="src\Core\Event\EventKey.cpp" />
     <ClCompile Include="src\Core\Event\EventMouse.cpp" />
+    <ClCompile Include="src\Core\Helper\HardwareInfo.cpp" />
+    <ClCompile Include="src\Core\Helper\MathHelper.cpp" />
+    <ClCompile Include="src\Core\Helper\MeshGenerator.cpp" />
+    <ClCompile Include="src\Core\Helper\SysInfo\cpuinfo.cpp" />
+    <ClCompile Include="src\Core\Helper\SysInfo\cpuinfodelegate.cpp" />
+    <ClCompile Include="src\Core\Helper\SysInfo\gpuinfo.cpp" />
+    <ClCompile Include="src\Core\Helper\SysInfo\gpuinfodelegate.cpp" />
+    <ClCompile Include="src\Core\Helper\SysInfo\main.cpp" />
+    <ClCompile Include="src\Core\Helper\SysInfo\motherboardinfo.cpp" />
+    <ClCompile Include="src\Core\Helper\SysInfo\motherboardinfodelegate.cpp" />
+    <ClCompile Include="src\Core\Helper\SysInfo\osinfo.cpp" />
+    <ClCompile Include="src\Core\Helper\SysInfo\osinfodelegate.cpp" />
+    <ClCompile Include="src\Core\Helper\SysInfo\raminfo.cpp" />
+    <ClCompile Include="src\Core\Helper\SysInfo\raminfodelegate.cpp" />
+    <ClCompile Include="src\Core\Helper\SysInfo\systemcommand.cpp" />
     <ClCompile Include="src\Core\ImGui\ImGuiLayer.cpp" />
     <ClCompile Include="src\Core\Input\InputManager.cpp" />
     <ClCompile Include="src\Core\Input\Mouse.cpp" />
     <ClCompile Include="src\Core\Layer.cpp" />
     <ClCompile Include="src\Core\LayerStack.cpp" />
     <ClCompile Include="src\Core\Log.cpp" />
+    <ClCompile Include="src\Core\PhysicEngine\PhysicsEngine.cpp" />
+    <ClCompile Include="src\Core\Renderer\Buffer.cpp" />
     <ClCompile Include="src\Core\Renderer\BufferManager.cpp" />
     <ClCompile Include="src\Core\Renderer\CommandList.cpp" />
     <ClCompile Include="src\Core\Renderer\ConstantBuffer.cpp" />
@@ -286,8 +353,10 @@
     <ClCompile Include="src\Core\Renderer\Material.cpp" />
     <ClCompile Include="src\Core\Renderer\MaterialManager.cpp" />
     <ClCompile Include="src\Core\Renderer\Pipeline.cpp" />
+    <ClCompile Include="src\Core\Renderer\PipelineState.cpp" />
     <ClCompile Include="src\Core\Renderer\RenderPass.cpp" />
     <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_ForwardRendering.cpp" />
+    <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_GenerateShadowMap.cpp" />
     <ClCompile Include="src\Core\Renderer\RenderPassStack.cpp" />
     <ClCompile Include="src\Core\Renderer\RendererCommand.cpp" />
     <ClCompile Include="src\Core\Renderer\RendererLayer.cpp" />

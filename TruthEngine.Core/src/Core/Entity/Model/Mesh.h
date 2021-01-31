@@ -14,7 +14,7 @@ namespace TruthEngine
 		{
 		public:
 			Mesh();
-			Mesh(uint32_t IndexNum, size_t IndexOffset, size_t VertexOffset, Material* MaterialPtr, VertexBuffer<VertexData::Pos, VertexData::NormTanTex>* VertexBufferPtr, IndexBuffer* IndexBufferPtr);
+			Mesh(uint32_t IndexNum, size_t IndexOffset, size_t VertexOffset, size_t vertexNum, const BoundingBox& boundingBox, VertexBuffer<VertexData::Pos, VertexData::NormTanTex>* VertexBufferPtr, IndexBuffer* IndexBufferPtr);
 
 			VertexBuffer<VertexData::Pos, VertexData::NormTanTex>* GetVertexBuffer() const noexcept
 			{
@@ -24,11 +24,6 @@ namespace TruthEngine
 			inline IndexBuffer* GetIndexBuffer() const noexcept
 			{
 				return m_IndexBuffer;
-			}
-
-			inline Material* GetMaterial() const noexcept
-			{
-				return m_Material;
 			}
 
 			inline uint32_t GetVertexOffset() const noexcept
@@ -46,18 +41,34 @@ namespace TruthEngine
 				return m_IndexNum;
 			}
 
+			inline uint32_t GetVertexNum()const noexcept
+			{
+				return m_VertexNum;
+			}
+
+			inline BoundingBox& GetBoundingBox() noexcept
+			{
+				return m_BoundingBox;
+			}
+
+			inline const BoundingBox& GetBoundingBox()const noexcept
+			{
+				return m_BoundingBox;
+			}
+
 		protected:
 
 
 		protected:
-			Material* m_Material = nullptr;
 			VertexBuffer<VertexData::Pos, VertexData::NormTanTex>* m_VertexBuffer = nullptr;
 			IndexBuffer* m_IndexBuffer = nullptr;
 
 			uint32_t m_VertexOffset = 0;
+			uint32_t m_VertexNum = 0;
 			uint32_t m_IndexOffset = 0;
 			uint32_t m_IndexNum = 0;
 
+			BoundingBox m_BoundingBox;
 
 			//Friend Classes
 			friend class ModelManager;

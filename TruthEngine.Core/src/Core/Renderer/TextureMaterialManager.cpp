@@ -1,7 +1,8 @@
 #include "pch.h"
 #include "TextureMaterialManager.h"
 
-#include "BufferManager.h"
+#include "Core/Renderer/BufferManager.h"
+#include "Core/Renderer/TextureMaterial.h"
 
 #include "API/DX12/DirectX12TextureMaterialManager.h"
 
@@ -9,6 +10,10 @@ namespace TruthEngine
 {
 	namespace Core
 	{
+		uint32_t TextureMaterialManager::GetTextureViewIndex(uint32_t textureID) const
+		{
+			return m_Textures[textureID]->GetViewIndex();
+		}
 		std::shared_ptr<TextureMaterialManager> TextureMaterialManager::Factory()
 		{
 

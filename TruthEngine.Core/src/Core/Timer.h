@@ -1,10 +1,12 @@
 #pragma once
 
 
-#define TE_TIMER_SCOPE_FUNC auto t##__LINE__ = TruthEngine::Core::TimerScope(__func__)
-#define TE_TIMER_SCOPE(x) auto t##__LINE__  = TruthEngine::Core::TimerScope(x)
+#define TE_TIMER_SCOPE_FUNC auto t##__LINE__ = TruthEngine::Core::TimerScope(__func__);
+#define TE_TIMER_SCOPE(x) auto t##__LINE__  = TruthEngine::Core::TimerScope(x);
 
 namespace TruthEngine::Core {
+
+	class EventAppOneSecondPoint;
 
 	class TimerProfile {
 
@@ -17,6 +19,32 @@ namespace TruthEngine::Core {
 
 
 	private:
+		std::chrono::high_resolution_clock::time_point m_startTimePoint;
+	};
+
+	class TimerProfile_OneSecond {
+
+	public:
+		TimerProfile_OneSecond();
+		//set start time point
+		void Start() noexcept;
+		void End() noexcept;
+		//return duration from start time point in milisecond
+		inline double GetAverageTime() const noexcept
+		{
+			return m_AverageTime;
+		}
+
+		void OnEventOnSecond(EventAppOneSecondPoint& event);
+	private:
+
+
+	private:
+		double m_AverageTime = 0.0f;
+		double m_Accumulator = 0.0f;
+
+		double m_TickCount = 0.0f;
+
 		std::chrono::high_resolution_clock::time_point m_startTimePoint;
 	};
 

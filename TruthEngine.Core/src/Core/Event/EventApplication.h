@@ -45,6 +45,26 @@ namespace TruthEngine::Core {
 
 	};
 
+	class EventTextureResize : public Event 
+	{
+	public:
+		EventTextureResize(const uint16_t width, const uint16_t height, TE_IDX_TEXTURE texturedIDX)
+			: m_Width(width), m_Height(height), m_TextureIDX(texturedIDX)
+		{}
+
+		uint32_t GetWidth() const noexcept { return m_Width; }
+		uint32_t GetHeight() const noexcept { return m_Height; }
+		TE_IDX_TEXTURE GetIDX()const noexcept { return m_TextureIDX; }
+
+
+		EVENT_CLASS_TYPE(RenderTargetResize)
+		EVENT_CLASS_CATEGORY(EventCategoryApplication)
+
+	protected:
+		uint16_t m_Width, m_Height;
+		TE_IDX_TEXTURE m_TextureIDX;
+	};
+
 
 	class EventWindowClose : public Event {
 	public:
@@ -77,6 +97,15 @@ namespace TruthEngine::Core {
 
 		EVENT_CLASS_TYPE(AppProcess)
 		EVENT_CLASS_CATEGORY(EventCategoryApplication)
+	};
+
+	class EventAppOneSecondPoint : public Event
+	{
+	public:
+		EventAppOneSecondPoint() = default;
+
+		EVENT_CLASS_TYPE(AppOneSecondPoint);
+		EVENT_CLASS_CATEGORY(EventCategoryApplication);
 	};
 
 }

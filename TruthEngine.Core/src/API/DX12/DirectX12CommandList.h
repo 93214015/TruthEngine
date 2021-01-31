@@ -25,7 +25,8 @@ namespace TruthEngine
 		{
 
 		public:
-			DirectX12CommandList(Core::GraphicDevice* graphicDevice, TE_RENDERER_COMMANDLIST_TYPE type, Core::BufferManager* bufferManager, Core::ShaderManager* shaderManager, TE_IDX_RENDERPASS renderPassIDX, TE_IDX_SHADERCLASS shaderClassIDX);
+			DirectX12CommandList(Core::GraphicDevice* graphicDevice, TE_RENDERER_COMMANDLIST_TYPE type, Core::BufferManager* bufferManager
+				, Core::ShaderManager* shaderManager, TE_IDX_RENDERPASS renderPassIDX, TE_IDX_SHADERCLASS shaderClassIDX, uint8_t frameIndex);
 
 
 			void Release() override;
@@ -144,22 +145,24 @@ namespace TruthEngine
 			
 			struct ClearingRenderTarget
 			{
-				ClearingRenderTarget(D3D12_CPU_DESCRIPTOR_HANDLE rtv, Core::ClearValue_RenderTarget clearValue) : RTV(rtv), ClearValue(clearValue)
+				ClearingRenderTarget(D3D12_CPU_DESCRIPTOR_HANDLE rtv, Core::ClearValue_RenderTarget clearValue, D3D12_RECT rect) : RTV(rtv), ClearValue(clearValue), mRect(rect)
 				{}
 
 				D3D12_CPU_DESCRIPTOR_HANDLE RTV;
 				Core::ClearValue_RenderTarget ClearValue;
+				D3D12_RECT mRect;
 			};
 
 
 			struct ClearingDepthStencil
 			{
-				ClearingDepthStencil(D3D12_CPU_DESCRIPTOR_HANDLE dsv, Core::ClearValue_DepthStencil clearValue)
-					: DSV(dsv), ClearValue(clearValue)
+				ClearingDepthStencil(D3D12_CPU_DESCRIPTOR_HANDLE dsv, Core::ClearValue_DepthStencil clearValue, D3D12_RECT rect)
+					: DSV(dsv), ClearValue(clearValue), mRect(rect)
 				{}
 
 				D3D12_CPU_DESCRIPTOR_HANDLE DSV;
 				Core::ClearValue_DepthStencil ClearValue;
+				D3D12_RECT mRect;
 			};
 
 
@@ -207,7 +210,7 @@ namespace TruthEngine
 
 			COMPTR<ID3D12Resource> m_IntermediateResource;
 
-			const DirectX12RootArguments* m_RootArguments;
+			const DirectX12RootArguments* m_RootArguments = nullptr;
 
 			//
 			// friend class

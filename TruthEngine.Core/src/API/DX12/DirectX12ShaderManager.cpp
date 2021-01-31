@@ -27,7 +27,7 @@ namespace TruthEngine
 			}
 
 
-			TE_RESULT DirectX12ShaderManager::AddShader(Core::Shader** outShader, TE_IDX_SHADERCLASS shaderClassID, std::string_view name, std::string_view filePath, std::string_view vsEntry, std::string_view psEntry, std::string_view csEntry /*= ""*/, std::string_view dsEntry /*= ""*/, std::string_view hsEntry /*= ""*/, std::string_view gsEntry /*= ""*/)
+			TE_RESULT DirectX12ShaderManager::AddShader(Core::Shader** outShader, TE_IDX_SHADERCLASS shaderClassID, TE_IDX_MESH_TYPE meshType, std::string_view name, std::string_view filePath, std::string_view vsEntry, std::string_view psEntry, std::string_view csEntry /*= ""*/, std::string_view dsEntry /*= ""*/, std::string_view hsEntry /*= ""*/, std::string_view gsEntry /*= ""*/)
 			{
 				auto item = m_ShadersNameMap.find(name);
 
@@ -37,7 +37,7 @@ namespace TruthEngine
 					return TE_RESULT_RENDERER_SHADER_HAS_EXIST;
 				}
 
-				auto shader = std::make_shared<Core::Shader>(shaderClassID, name, filePath);
+				auto shader = std::make_shared<Core::Shader>(name, shaderClassID, meshType, GetShaderSignature(shaderClassID), filePath);
 				shader->m_ID = m_ShaderID++;
 
 				m_ShadersNameMap[name] = shader;
@@ -69,12 +69,11 @@ namespace TruthEngine
 					shader->m_HS = CompileShader(name, shader->m_ID, filePath, hsEntry, "hs");
 				}
 
-
-				return DirectX12Manager::GetInstance()->AddRootSignature(shader.get());
+				return DirectX12Manager::GetInstance()->AddRootSignature(shader->GetShaderClassIDX());
 
 			}
 
-			TE_RESULT DirectX12ShaderManager::AddShader(Core::Shader** outShader, TE_IDX_SHADERCLASS shaderClassID, RendererStateSet states, std::string_view filePath, std::string_view vsEntry, std::string_view psEntry, std::string_view csEntry, std::string_view dsEntry, std::string_view hsEntry, std::string_view gsEntry)
+			TE_RESULT DirectX12ShaderManager::AddShader(Core::Shader** outShader, TE_IDX_SHADERCLASS shaderClassID, TE_IDX_MESH_TYPE meshType, RendererStateSet states, std::string_view filePath, std::string_view vsEntry, std::string_view psEntry, std::string_view csEntry, std::string_view dsEntry, std::string_view hsEntry, std::string_view gsEntry)
 			{
 				states &= m_StateMask;
 
@@ -90,9 +89,11 @@ namespace TruthEngine
 					return TE_RESULT_RENDERER_SHADER_HAS_EXIST;
 				}
 
+				_GetShaderDefines(states);
+
 				std::string name = "shader" + std::to_string(map.size());
 
-				auto shader = std::make_shared<Core::Shader>(shaderClassID, name, filePath);
+				auto shader = std::make_shared<Core::Shader>(name, shaderClassID, meshType, GetShaderSignature(shaderClassID), filePath);
 				shader->m_ID = m_ShaderID++;
 
 				map[states] = shader;
@@ -100,31 +101,31 @@ namespace TruthEngine
 
 				if (csEntry != "")
 				{
-					shader->m_CS = CompileShader_OLD(name, shader->m_ID, filePath, csEntry, "cs");
+					shader->m_CS = CompileShader(name, shader->m_ID, filePath, csEntry, "cs");
 				}
 				if (vsEntry != "")
 				{
-					shader->m_VS = CompileShader_OLD(name, shader->m_ID, filePath, vsEntry, "vs");
+					shader->m_VS = CompileShader(name, shader->m_ID, filePath, vsEntry, "vs");
 				}
 				if (psEntry != "")
 				{
-					shader->m_PS = CompileShader_OLD(name, shader->m_ID, filePath, psEntry, "ps");
+					shader->m_PS = CompileShader(name, shader->m_ID, filePath, psEntry, "ps");
 				}
 				if (gsEntry != "")
 				{
-					shader->m_GS = CompileShader_OLD(name, shader->m_ID, filePath, gsEntry, "gs");
+					shader->m_GS = CompileShader(name, shader->m_ID, filePath, gsEntry, "gs");
 				}
 				if (dsEntry != "")
 				{
-					shader->m_DS = CompileShader_OLD(name, shader->m_ID, filePath, dsEntry, "ds");
+					shader->m_DS = CompileShader(name, shader->m_ID, filePath, dsEntry, "ds");
 				}
 				if (hsEntry != "")
 				{
-					shader->m_HS = CompileShader_OLD(name, shader->m_ID, filePath, hsEntry, "hs");
+					shader->m_HS = CompileShader(name, shader->m_ID, filePath, hsEntry, "hs");
 				}
 
 
-				return DirectX12Manager::GetInstance()->AddRootSignature(shader.get());
+				return DirectX12Manager::GetInstance()->AddRootSignature(shader->GetShaderClassIDX());
 
 			}
 
@@ -135,7 +136,18 @@ namespace TruthEngine
 				ID3DBlob* codeBlob;
 				COMPTR<ID3DBlob> errorBlob;
 
-				auto hr = D3DCompileFromFile(to_wstring(filePath).c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, entry.data(), target.c_str(), D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION, 0, &codeBlob, errorBlob.GetAddressOf());
+				std::vector <D3D_SHADER_MACRO> macros;
+
+				for (const auto& d : m_Defines)
+				{
+					std::string name = std::string(d.begin(), d.end());
+					D3D_SHADER_MACRO m{  name.c_str() , "" };
+					macros.emplace_back(m);
+				}
+
+				macros.emplace_back(D3D_SHADER_MACRO{ NULL, NULL });
+
+				auto hr = D3DCompileFromFile(to_wstring(filePath).c_str(), macros.data(), D3D_COMPILE_STANDARD_FILE_INCLUDE, entry.data(), target.c_str(), D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION, 0, &codeBlob, errorBlob.GetAddressOf());
 				if (FAILED(hr))
 				{
 					TE_LOG_CORE_ERROR("The Shader Compilation was failed;\n file: {0}\n error: {1}", filePath.data(), static_cast<const char*>(errorBlob->GetBufferPointer()));
@@ -174,7 +186,22 @@ namespace TruthEngine
 				auto binaryOutput = (name + L".bin");
 				auto debugOutput = (name + L".pdb");
 
-				LPCWSTR args[] =
+				std::vector<LPCWSTR> vargs{ 
+					name.c_str(),
+					L"-E", entryL.c_str(),
+					L"-T", target.c_str(),
+					L"-Zi",
+					L"-Fo",binaryOutput.c_str(),
+					L"-Fd", debugOutput.c_str(),
+					L"-Qstrip_reflect" };
+
+				for (auto& d : m_Defines)
+				{
+					vargs.emplace_back(L"-D");
+					vargs.emplace_back(d.c_str());
+				}
+
+				/*LPCWSTR args[] =
 				{
 					name.c_str(),
 					L"-E", entryL.c_str(),
@@ -183,7 +210,7 @@ namespace TruthEngine
 					L"-Fo",binaryOutput.c_str(),
 					L"-Fd", debugOutput.c_str(),
 					L"-Qstrip_reflect"
-				};
+				};*/
 
 				//
 				// Open source file.  
@@ -200,7 +227,7 @@ namespace TruthEngine
 				// Compile it with specified arguments.
 				//
 				COMPTR<IDxcResult> result;
-				compiler->Compile(&source, args, _countof(args), includeHandler.Get(), IID_PPV_ARGS(&result));
+				compiler->Compile(&source, vargs.data(), vargs.size(), includeHandler.Get(), IID_PPV_ARGS(&result));
 
 				//
 				// Print errors if present.

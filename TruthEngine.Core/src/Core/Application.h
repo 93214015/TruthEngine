@@ -3,13 +3,15 @@
 #include "Core/Window.h"
 #include "Core/Event/Event.h"
 #include "Core/LayerStack.h"
-#include "Core/ImGui/ImGuiLayer.h"
-#include "Core/Renderer/RendererLayer.h"
 #include "Core/TimerEngine.h"
 
 #include "Core/Entity/Camera/CameraPerspective.h"
+#include "Core/Entity/Scene.h"
 
 namespace TruthEngine::Core {
+
+	class EventWindowResize;
+	class RendererLayer;
 
 	class Application {
 
@@ -26,18 +28,31 @@ namespace TruthEngine::Core {
 
 		inline uint32_t GetSceneViewportHeight() const noexcept { return m_SceneViewportHeight; }
 
-		inline uint32_t GetFramesInFlightNum() const noexcept { return m_FramesInFlightNum; }
+		inline float GetSceneViewportAspectRatio() const noexcept { return static_cast<float>(m_SceneViewportWidth)/ m_SceneViewportHeight; };
 
-		inline uint32_t GetCurrentFrameIndex() const noexcept { return m_CurrentFrameIndex; }
+		inline uint8_t GetFramesOnTheFlyNum() const noexcept { return m_FramesOnTheFlyNum; }
+
+		uint8_t GetCurrentFrameIndex() const noexcept;
+		//inline uint32_t GetCurrentFrameIndex() const noexcept { return m_CurrentFrameIndex; }
 
 		inline const char* GetTitle() const noexcept { return m_Title.c_str(); }
+
+		inline Scene* GetActiveScene()
+		{
+			return &m_ActiveScene;
+		}
 
 		inline void RegisterEventListener(EventType eventType, const EventListener& listener)
 		{
 			m_EventDispatcher.RegisterListener(eventType, listener);
 		}
 
+
+		inline double GetAverageCPUTime()const noexcept { return m_Timer.GetAverageCpuTime(); }
 		inline double FrameTime() const noexcept { return m_Timer.DeltaTime(); }
+		inline uint32_t GetFPS()const noexcept { return m_Timer.GetFPS(); }
+		inline bool GetWindowMode() const noexcept { return m_WindowMode; }
+		inline void SetWindowMode(bool windowedMode) noexcept { m_WindowMode = windowedMode; }
 
 		void ResizeSceneViewport(uint32_t width, uint32_t height) noexcept;
 
@@ -50,10 +65,16 @@ namespace TruthEngine::Core {
 		virtual void OnDestroy() = 0;
 		virtual void OnEvent(Event& e);
 
+		inline bool IsHoveredSceneViewPort() const noexcept { return m_IsHoveredSceneViewport; }
+		inline void IsHoveredSceneViewPort(bool hovered) noexcept { m_IsHoveredSceneViewport = hovered; }
+
 		static inline Application* GetApplication() { return s_Instance; }
 
 	protected:
+		void OnWindowResize(EventWindowResize& event);
 
+
+	protected:
 		static Application* s_Instance;
 
 		std::unique_ptr<Window> m_Window;
@@ -63,20 +84,23 @@ namespace TruthEngine::Core {
 
 		std::shared_ptr<RendererLayer> m_RendererLayer;
 
-
 		TimerEngine m_Timer;
 
+		Scene m_ActiveScene;
 
 		uint32_t m_ClientWidth = 0;
 		uint32_t m_ClientHeight = 0;
 		uint32_t m_SceneViewportWidth = 0;
 		uint32_t m_SceneViewportHeight = 0;
-		uint32_t m_CurrentFrameIndex = 0;
-		uint8_t m_FramesInFlightNum = 2;
+
+		uint8_t m_CurrentFrameOnTheFly = 0;
+		uint8_t m_FramesOnTheFlyNum = 2;
 
 		std::string m_Title;
 
 		bool m_Running = true;
+		bool m_WindowMode = true;
+		bool m_IsHoveredSceneViewport = false;
 
 	};
 

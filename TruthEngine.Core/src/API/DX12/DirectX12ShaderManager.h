@@ -9,18 +9,13 @@ namespace TruthEngine
 	{
 
 
-
-		
-
-
-
 		class DirectX12ShaderManager : public Core::ShaderManager
 		{
 		public:
 			DirectX12ShaderManager();
 
-			TE_RESULT AddShader(Core::Shader** outShader, TE_IDX_SHADERCLASS shaderClassID, std::string_view name, std::string_view filePath, std::string_view vsEntry, std::string_view psEntry, std::string_view csEntry, std::string_view dsEntry, std::string_view hsEntry, std::string_view gsEntry) override;
-			TE_RESULT AddShader(Core::Shader** outShader, TE_IDX_SHADERCLASS shaderClassID, RendererStateSet states, std::string_view filePath, std::string_view vsEntry, std::string_view psEntry, std::string_view csEntry, std::string_view dsEntry, std::string_view hsEntry, std::string_view gsEntry) override;
+			TE_RESULT AddShader(Core::Shader** outShader, TE_IDX_SHADERCLASS shaderClassID, TE_IDX_MESH_TYPE meshType, std::string_view name, std::string_view filePath, std::string_view vsEntry, std::string_view psEntry, std::string_view csEntry, std::string_view dsEntry, std::string_view hsEntry, std::string_view gsEntry) override;
+			TE_RESULT AddShader(Core::Shader** outShader, TE_IDX_SHADERCLASS shaderClassID, TE_IDX_MESH_TYPE meshType, RendererStateSet states, std::string_view filePath, std::string_view vsEntry, std::string_view psEntry, std::string_view csEntry, std::string_view dsEntry, std::string_view hsEntry, std::string_view gsEntry) override;
 
 
 		protected:
@@ -33,13 +28,9 @@ namespace TruthEngine
 
 			std::wstring compileTargetVersion = L"_6_0";
 
-
-
 			struct pImpl;
 
 			std::shared_ptr<pImpl> m_pImpl;
-
-
 
 		};
 

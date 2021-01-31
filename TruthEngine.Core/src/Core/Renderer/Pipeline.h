@@ -17,7 +17,7 @@ namespace TruthEngine
 		class Pipeline
 		{
 		public:
-			Pipeline(RendererStateSet states, Shader* shader);
+			Pipeline(RendererStateSet states, Shader* shader, uint32_t renderTargetNum, TE_RESOURCE_FORMAT* rtvFormat,float depthBias = 0.0f, float depthBiasClamp = 0.0f, float slopeScaledDepthBias = 0.0f);
 
 			virtual ~Pipeline() = default;
 
@@ -193,6 +193,11 @@ namespace TruthEngine
 				return m_DSVFormat;
 			}
 
+			inline uint32_t GetRenderTargetNum() const noexcept
+			{
+				return m_RenderTargetNum;
+			}
+
 		private:
 
 
@@ -203,7 +208,13 @@ namespace TruthEngine
 			RendererStateSet m_States;
 			Shader* m_Shader;
 
-			TE_RESOURCE_FORMAT m_RTVFormats[8] = {TE_RESOURCE_FORMAT::R8G8B8A8_UNORM};
+			uint32_t m_RenderTargetNum;
+
+			float m_DepthBias;
+			float m_DepthBiasClamp;
+			float m_SlopeScaledDepthBias;
+
+			TE_RESOURCE_FORMAT m_RTVFormats[8] = {TE_RESOURCE_FORMAT::UNKNOWN, TE_RESOURCE_FORMAT::UNKNOWN , TE_RESOURCE_FORMAT::UNKNOWN , TE_RESOURCE_FORMAT::UNKNOWN , TE_RESOURCE_FORMAT::UNKNOWN, TE_RESOURCE_FORMAT::UNKNOWN, TE_RESOURCE_FORMAT::UNKNOWN, TE_RESOURCE_FORMAT::UNKNOWN };
 			TE_RESOURCE_FORMAT m_DSVFormat = TE_RESOURCE_FORMAT::D32_FLOAT;
 
 			friend class PiplineManager;

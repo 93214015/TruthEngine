@@ -4,6 +4,8 @@
 
 #include "Buffer.h"
 
+#include "Core/Application.h"
+
 namespace TruthEngine
 {
 	namespace API
@@ -24,7 +26,6 @@ namespace TruthEngine::Core
 		ConstantBuffer(TE_IDX_CONSTANTBUFFER idx);
 
 
-
 		inline TE_IDX_CONSTANTBUFFER GetIDX() const noexcept
 		{
 			return m_IDX;
@@ -35,7 +36,6 @@ namespace TruthEngine::Core
 	protected:
 		TE_IDX_CONSTANTBUFFER m_IDX;
 	};
-
 	
 	
 
@@ -73,7 +73,7 @@ namespace TruthEngine::Core
 
 		T* GetData() noexcept
 		{
-			return reinterpret_cast<T*>(m_MappedData);
+			return reinterpret_cast<T*>(m_MappedData[TE_INSTANCE_APPLICATION->GetCurrentFrameIndex()]);
 		}
 
 		inline void UploadData() const override
@@ -119,8 +119,6 @@ namespace TruthEngine::Core
 
 	protected:
 	};
-
-
 
 
 	class ConstantBufferDirectBase : public ConstantBuffer

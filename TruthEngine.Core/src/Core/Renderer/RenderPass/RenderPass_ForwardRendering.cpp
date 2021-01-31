@@ -4,6 +4,8 @@
 #include "Core/Entity/Model/Model3D.h"
 #include "Core/Entity/Model/Mesh.h"
 #include "Core/Entity/Model/ModelManager.h"
+#include "Core/Entity/Components.h"
+
 #include "Core/Renderer/Material.h"
 #include "Core/Renderer/Pipeline.h"
 
@@ -20,7 +22,7 @@ namespace TruthEngine::Core
 		: RenderPass(TE_IDX_RENDERPASS::FORWARDRENDERING)
 		, m_TextureDepthStencil(nullptr)
 		, m_Viewport{ 0.0f, 0.0f, static_cast<float>(TE_INSTANCE_APPLICATION->GetClientWidth()), static_cast<float>(TE_INSTANCE_APPLICATION->GetClientHeight()), 0.0f, 1.0f }
-		, m_ViewREct{ static_cast<long>(0.0), static_cast<long>(0.0), static_cast<long>(TE_INSTANCE_APPLICATION->GetClientWidth()), static_cast<long>(TE_INSTANCE_APPLICATION->GetClientHeight()) }
+		, m_ViewRect{ static_cast<long>(0.0), static_cast<long>(0.0), static_cast<long>(TE_INSTANCE_APPLICATION->GetClientWidth()), static_cast<long>(TE_INSTANCE_APPLICATION->GetClientHeight()) }
 		, m_ConstantBufferDirect_PerMesh(nullptr)
 	{};
 
@@ -35,9 +37,9 @@ namespace TruthEngine::Core
 	{
 		m_BufferMgr = TE_INSTANCE_BUFFERMANAGER.get();
 
-		m_ShaderMgr = TE_INSTANCE_SHADERMANAGER;
+		m_ShaderMgr = TE_INSTANCE_SHADERMANAGER.get();
 
-		m_RendererCommand.Init(TE_IDX_RENDERPASS::FORWARDRENDERING, TE_IDX_SHADERCLASS::FORWARDRENDERING, 1, TE_INSTANCE_BUFFERMANAGER, m_ShaderMgr);
+		m_RendererCommand.Init(TE_IDX_RENDERPASS::FORWARDRENDERING, TE_IDX_SHADERCLASS::FORWARDRENDERING, m_BufferMgr, m_ShaderMgr);
 
 		m_TextureDepthStencil = m_RendererCommand.CreateDepthStencil(TE_IDX_TEXTURE::DS_SCENEBUFFER, TE_INSTANCE_APPLICATION->GetClientWidth(), TE_INSTANCE_APPLICATION->GetClientHeight(), TE_RESOURCE_FORMAT::R32_TYPELESS, ClearValue_DepthStencil{ 1.0f, 0 }, false);
 
@@ -53,7 +55,6 @@ namespace TruthEngine::Core
 		}
 
 
-
 		RegisterOnEvents();
 	}
 
@@ -66,19 +67,49 @@ namespace TruthEngine::Core
 
 	void RenderPass_ForwardRendering::OnImGuiRender()
 	{
+		ImGui::Begin("RenderPass: Forward Rendering");
+
+		if(ImGui::BeginTable("##forwardrenderingtable", 3, ImGuiTableFlags_ColumnsWidthStretch))
+		{
+			ImGui::TableSetupColumn("Render Time : Draw");
+			ImGui::TableSetupColumn("Drawn Mesh Count");
+			ImGui::TableSetupColumn("Total Vertex Count");
+			ImGui::TableHeadersRow();
+
+			ImGui::TableNextRow();
+			ImGui::TableNextColumn();
+			ImGui::Text("%.3f ms", m_TimerRender.GetAverageTime());
+			//ImGui::Text("FindRootTransform: %.3f ms", m_TimerRender_0.GetAverageTime());
+			//ImGui::Text("SetPipelineAndDraw: %.3f ms", m_TimerRender_1.GetAverageTime());
+
+
+			ImGui::TableNextColumn();
+			ImGui::Text("%i", m_TotalMeshNum);
+
+			ImGui::TableNextColumn();
+			ImGui::Text("%i", m_TotalVertexNum);
+
+			ImGui::EndTable();
+		}
+
+		ImGui::End();
 	}
 
 
 	void RenderPass_ForwardRendering::BeginScene()
 	{
+		//m_TimerBegin.Start();
+
 		m_RendererCommand.Begin();
 
-		m_RendererCommand.SetViewPort(&m_Viewport, &m_ViewREct);
+		m_RendererCommand.SetViewPort(&m_Viewport, &m_ViewRect);
 		//m_RendererCommand.SetRenderTarget(TE_INSTANCE_SWAPCHAIN, m_RenderTartgetView);
 		m_RendererCommand.SetRenderTarget(m_RenderTartgetView);
 		m_RendererCommand.SetDepthStencil(m_DepthStencilView);
 		m_RendererCommand.ClearRenderTarget(m_RenderTartgetView);
 		m_RendererCommand.ClearDepthStencil(m_DepthStencilView);
+
+		//m_TimerBegin.End();
 	}
 
 
@@ -87,38 +118,103 @@ namespace TruthEngine::Core
 	}
 
 
-	void RenderPass_ForwardRendering::Render(std::vector<const Model3D*> models)
+	void RenderPass_ForwardRendering::Render()
 	{
+
+		m_TotalVertexNum = 0;
+		m_TotalMeshNum = 0;
+
+		m_TimerRender.Start();
 
 		auto data = m_ConstantBufferDirect_PerMesh->GetData();
 
-		
-		for (auto m : models)
-		{
-			for (auto mesh : m->GetMeshes())
-			{				
-				data->materialIndex = mesh->GetMaterial()->GetID();
+		auto scene = Application::GetApplication()->GetActiveScene();
 
-				m_RendererCommand.UploadData(m_ConstantBufferDirect_PerMesh);
-				m_RendererCommand.SetPipeline(m_MaterialPipelines[mesh->GetMaterial()->GetID()].get());
-				m_RendererCommand.DrawIndexed(mesh);
-			}
+		auto activeScene = Application::GetApplication()->GetActiveScene();
+
+		auto& reg = activeScene->GetEntityRegistery();
+
+
+		auto& dynamicEntityGroup = reg.view<MeshComponent, PhysicsDynamicComponent>();
+
+		for (auto entity_mesh : dynamicEntityGroup)
+		{
+			//float4x4 meshTransform = activeScene->CalcTransformsToRoot(entity_mesh);
+			//const float4x4& meshTransform = activeScene->GetComponent<TransformComponent>(entity_mesh).GetTransform();
+			const auto& phComponent = activeScene->GetComponent<PhysicsDynamicComponent>(entity_mesh);
+			const float4x4& physicsTransform = phComponent.GetTranform();
+
+			Mesh* mesh = activeScene->GetComponent<MeshComponent>(entity_mesh).GetMesh();
+			Material* material = activeScene->GetComponent<MaterialComponent>(entity_mesh).GetMaterial();
+
+			*data = ConstantBuffer_Data_Per_Mesh(physicsTransform, Math::InverseTranspose(physicsTransform), material->GetID());
+
+			m_RendererCommand.UploadData(m_ConstantBufferDirect_PerMesh);
+			m_RendererCommand.SetPipeline(m_MaterialPipelines[material->GetID()].get());
+			m_RendererCommand.DrawIndexed(mesh);
+
+			m_TotalVertexNum += mesh->GetVertexNum();
+			m_TotalMeshNum++;
 		}
+
+		auto& staticEntityGroup = reg.view<MeshComponent>(entt::exclude<PhysicsDynamicComponent>);
+
+		for (auto entity_mesh : staticEntityGroup)
+		{
+			//float4x4 meshTransform = activeScene->CalcTransformsToRoot(entity_mesh);
+			const float4x4& meshTransform = activeScene->GetComponent<TransformComponent>(entity_mesh).GetTransform();
+
+			Mesh* mesh = activeScene->GetComponent<MeshComponent>(entity_mesh).GetMesh();
+			Material* material = activeScene->GetComponent<MaterialComponent>(entity_mesh).GetMaterial();
+
+			*data = ConstantBuffer_Data_Per_Mesh(meshTransform, Math::InverseTranspose(meshTransform), material->GetID());
+
+			m_RendererCommand.UploadData(m_ConstantBufferDirect_PerMesh);
+			m_RendererCommand.SetPipeline(m_MaterialPipelines[material->GetID()].get());
+			m_RendererCommand.DrawIndexed(mesh);
+
+			m_TotalVertexNum += mesh->GetVertexNum();
+			m_TotalMeshNum++;
+		}
+
+		//auto& entityGroup = reg.view<MeshComponent>();
+
+
+		//for (auto entity_mesh : entityGroup)
+		//{
+		//	//float4x4 meshTransform = activeScene->CalcTransformsToRoot(entity_mesh);
+		//	float4x4 meshTransform = activeScene->GetComponent<TransformComponent>(entity_mesh).GetTransform();
+
+
+		//	Mesh* mesh = activeScene->GetComponent<MeshComponent>(entity_mesh).GetMesh();
+		//	Material* material = activeScene->GetComponent<MaterialComponent>(entity_mesh).GetMaterial();
+
+		//	*data = ConstantBuffer_Data_Per_Mesh(meshTransform, Math::InverseTranspose(meshTransform), material->GetID());
+
+		//	m_RendererCommand.UploadData(m_ConstantBufferDirect_PerMesh);
+		//	m_RendererCommand.SetPipeline(m_MaterialPipelines[material->GetID()].get());
+		//	m_RendererCommand.DrawIndexed(mesh);
+
+		//	m_TotalVertexNum += mesh->GetVertexNum();
+		//	m_TotalMeshNum++;
+		//}
 
 		m_RendererCommand.End();
 
+		m_TimerRender.End();
 	}
 
 
 	void RenderPass_ForwardRendering::OnSceneViewportResize(uint32_t width, uint32_t height)
 	{
-		m_RendererCommand.ResizeDepthStencil(m_TextureDepthStencil, width, height, &m_DepthStencilView, nullptr);
 
+		m_RendererCommand.ResizeDepthStencil(m_TextureDepthStencil, width, height, &m_DepthStencilView, nullptr);
 		m_RendererCommand.CreateRenderTargetView(TE_IDX_TEXTURE::RT_SCENEBUFFER, &m_RenderTartgetView);
+		m_RendererCommand.CreateDepthStencilView(m_TextureDepthStencil, &m_DepthStencilView);
 
 		m_Viewport.Resize(width, height);
 
-		m_ViewREct = ViewRect{ 0, 0, static_cast<long>(width), static_cast<long>(height) };
+		m_ViewRect = ViewRect{ 0, 0, static_cast<long>(width), static_cast<long>(height) };
 	}
 
 	void RenderPass_ForwardRendering::PreparePiplineMaterial(const Material* material)
@@ -127,49 +223,11 @@ namespace TruthEngine::Core
 
 		Shader* shader = nullptr;
 
-		auto result = m_ShaderMgr->AddShader(&shader, TE_IDX_SHADERCLASS::FORWARDRENDERING, material->GetRendererStates(), "Assets/Shaders/renderer3D.hlsl", "vs", "ps");
+		auto result = m_ShaderMgr->AddShader(&shader, TE_IDX_SHADERCLASS::FORWARDRENDERING, material->GetMeshType(), material->GetRendererStates(), "Assets/Shaders/renderer3D.hlsl", "vs", "ps");
 
-		if (result != TE_RESULT_RENDERER_SHADER_HAS_EXIST)
-		{
-			ShaderInputElement inputElement;
-			inputElement.AlignedByteOffset = 0;
-			inputElement.Format = TE_RESOURCE_FORMAT::R32G32B32_FLOAT;
-			inputElement.InputSlot = 0;
-			inputElement.InputSlotClass = TE_RENDERER_SHADER_INPUT_CLASSIFICATION::PER_VERTEX;
-			inputElement.InstanceDataStepRate = 0;
-			inputElement.SemanticIndex = 0;
-			inputElement.SemanticName = "POSITION";
-			shader->AddInputElement(inputElement);
+		static TE_RESOURCE_FORMAT rtvFormats[1] = { TE_RESOURCE_FORMAT::R8G8B8A8_UNORM };
 
-			inputElement.AlignedByteOffset = 0;
-			inputElement.Format = TE_RESOURCE_FORMAT::R32G32B32_FLOAT;
-			inputElement.InputSlot = 1;
-			inputElement.InputSlotClass = TE_RENDERER_SHADER_INPUT_CLASSIFICATION::PER_VERTEX;
-			inputElement.InstanceDataStepRate = 0;
-			inputElement.SemanticIndex = 0;
-			inputElement.SemanticName = "NORMAL";
-			shader->AddInputElement(inputElement);
-
-			inputElement.AlignedByteOffset = 12;
-			inputElement.Format = TE_RESOURCE_FORMAT::R32G32B32_FLOAT;
-			inputElement.InputSlot = 1;
-			inputElement.InputSlotClass = TE_RENDERER_SHADER_INPUT_CLASSIFICATION::PER_VERTEX;
-			inputElement.InstanceDataStepRate = 0;
-			inputElement.SemanticIndex = 0;
-			inputElement.SemanticName = "TANGENT";
-			shader->AddInputElement(inputElement);
-
-			inputElement.AlignedByteOffset = 24;
-			inputElement.Format = TE_RESOURCE_FORMAT::R32G32_FLOAT;
-			inputElement.InputSlot = 1;
-			inputElement.InputSlotClass = TE_RENDERER_SHADER_INPUT_CLASSIFICATION::PER_VERTEX;
-			inputElement.InstanceDataStepRate = 0;
-			inputElement.SemanticIndex = 0;
-			inputElement.SemanticName = "TEXCOORD";
-			shader->AddInputElement(inputElement);
-		}
-
-		auto pipeline = std::make_shared<Pipeline>(material->GetRendererStates(), shader);
+		auto pipeline = std::make_shared<Pipeline>(material->GetRendererStates(), shader, 1, rtvFormats);
 
 		m_MaterialPipelines[material->GetID()] = pipeline;
 	}
@@ -180,6 +238,12 @@ namespace TruthEngine::Core
 			this->OnAddMaterial(static_cast<EventEntityAddMaterial&>(event));
 		};
 		TE_INSTANCE_APPLICATION->RegisterEventListener(EventType::EntityAddMaterial, lambda_OnAddMaterial);
+
+
+		auto lambda_OnUpdateMaterial = [this](Event& event) {
+			this->OnUpdateMaterial(static_cast<const EventEntityUpdateMaterial&>(event));
+		};
+		TE_INSTANCE_APPLICATION->RegisterEventListener(EventType::EntityUpdatedMaterial, lambda_OnUpdateMaterial);
 	}
 
 	void RenderPass_ForwardRendering::OnAddMaterial(EventEntityAddMaterial& event)
@@ -187,6 +251,19 @@ namespace TruthEngine::Core
 		PreparePiplineMaterial(event.GetMaterial());
 	}
 
+	void RenderPass_ForwardRendering::OnUpdateMaterial(const EventEntityUpdateMaterial& event)
+	{
+
+		auto material = event.GetMaterial();
+
+		if (auto itr = m_MaterialPipelines.find(material->GetID()); itr != m_MaterialPipelines.end())
+		{
+			if (itr->second->GetStates() == material->GetRendererStates())
+				return;
+		}
+
+		PreparePiplineMaterial(event.GetMaterial());
+	}
 
 
 }

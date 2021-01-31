@@ -8,6 +8,9 @@ struct Material
     float3 FresnelR0;
     float Shininess;
     
+    float2 UVScale;
+    float2 UVTranslate;
+    
     uint MapIndexDiffuse;
     uint MapIndexNormal;
     uint MapIndexDisplacement;
@@ -66,12 +69,6 @@ cbuffer per_frame : register(b0)
 
 cbuffer per_dlight : register(b1)
 {
-    float4x4 View;
-    float4x4 ViewProj;
-    float4x4 ShadowTransform;
-
-    float4 PerpectiveValues;
-
     float4 Diffuse;
     float4 Ambient;
     float4 Specular;
@@ -80,40 +77,40 @@ cbuffer per_dlight : register(b1)
     float LightSize;
 
     float3 Position;
-    float zNear;
-
-    float2 DirInEyeScreen_Horz;
-    float2 DirInEyeScreen_Vert;
-
-    float zFar;
     bool CastShadow;
-    int IndexShadowMapSRV;
-    float pad00;
     
-    float4 pad2[12];
+    float Range;
+    float3 padLight;
+    
+    row_major matrix shadowTransform;
 }
 
 cbuffer materials : register(b2)
 {
-    Material MaterialArray[100];
+    Material MaterialArray[200];
 }
 
 cbuffer per_mesh : register(b3)
 {
+    row_major matrix gWorld;
+    row_major matrix gWorldInverseTranspose;
+    
     uint materialIndex;
 }
 
 ///////////////////////////////////////////////////
 //////////////// Textures
 ///////////////////////////////////////////////////
-Texture2D<float4> MaterialTextures_Diffuse[50] : register(t0, space0);
-Texture2D<float4> MaterialTextures_Normal[50] : register(t0, space1);
+Texture2D<float> tShadowMap : register(t0, space0);
+
+Texture2D<float4> MaterialTextures[500] : register(t1, space0);
 
 
 ///////////////////////////////////////////////////
 //////////////// Samplers
 ///////////////////////////////////////////////////
-sampler sampler_point : register(s0);
+sampler sampler_linear : register(s0);
+sampler sampler_linear_borderBlack : register(s1);
 
 
 struct vertexInput
@@ -128,7 +125,8 @@ struct vertexInput
 struct vertexOut
 {
     float4 pos : SV_Position;
-    float3 posW : POSITION;
+    float3 posW : POSITION0;
+    float4 posLight : POSITION1;
     float3 normalW : NORMAL;
     float3 tangentW : TANGENT;
     float2 texCoord : TEXCOORD;
@@ -137,10 +135,12 @@ struct vertexOut
 vertexOut vs(vertexInput vin)
 {
     vertexOut vout;
-    vout.pos = mul(float4(vin.position, 1.0f), viewProj);
-    vout.posW = vin.position;
-    vout.normalW = vin.normal;
-    vout.tangentW = vin.tangent;
+    float4 posW = mul(float4(vin.position, 1.0f), gWorld);
+    vout.pos = mul(posW, viewProj);
+    vout.posW = posW.xyz;
+    vout.posLight = mul(posW, shadowTransform);
+    vout.normalW = mul(vin.normal, (float3x3)gWorldInverseTranspose);
+    vout.tangentW = mul(vin.tangent, (float3x3) gWorld);
     vout.texCoord = vin.texCoord;
     
     return vout;
@@ -151,27 +151,29 @@ float4 ps(vertexOut pin) : SV_Target
 
     float3 normal = normalize(pin.normalW);
 
-    [branch]
-    if (MaterialArray[materialIndex].MapIndexNormal != -1)
-    {
+    Material _material = MaterialArray[materialIndex];
+    float2 _texUV = (pin.texCoord * _material.UVScale) + _material.UVTranslate;
+    
+    #ifdef ENABLE_MAP_NORMAL
         float3 tangent = normalize(pin.tangentW);
         float3 bitangent = cross(normal, tangent);
         float3x3 TBN = float3x3(tangent, bitangent, normal);
     
-        normal = MaterialTextures_Normal[MaterialArray[materialIndex].MapIndexNormal].Sample(sampler_point, pin.texCoord).xyz;
+    
+        normal = MaterialTextures[_material.MapIndexNormal].Sample(sampler_linear, _texUV).xyz;
         normal = (normal * 2.0f) - 1.0f;
         normal = normalize(normal);
         
         normal = mul(normal, TBN);
-    }
+    #endif
     
-    float3 illumination_albedo = MaterialArray[materialIndex].Diffuse.xyz;
+    //normal = mul(normal, (float3x3)gWorldInverseTranspose);
     
-    [branch]
-    if (MaterialArray[materialIndex].MapIndexDiffuse != -1)
-    {
-        illumination_albedo = MaterialTextures_Diffuse[MaterialArray[materialIndex].MapIndexDiffuse].Sample(sampler_point, pin.texCoord).xyz;
-    }
+    float3 illumination_albedo = _material.Diffuse.xyz;
+    
+    #ifdef ENABLE_MAP_DIFFUSE
+        illumination_albedo = MaterialTextures[_material.MapIndexDiffuse].Sample(sampler_linear, _texUV).xyz;
+    #endif
     
     float3 lightVector = -1.0 * normalize(Direction);
     float3 toEye = normalize(EyePos.xyz - pin.posW);
@@ -180,11 +182,16 @@ float4 ps(vertexOut pin) : SV_Target
     
     float3 lightStrength = lightFactor * Diffuse.xyz;
     
-    float3 litColor = BlinnPhong(lightStrength, lightVector, normal, toEye, MaterialArray[materialIndex], illumination_albedo);
+    float3 litColor = BlinnPhong(lightStrength, lightVector, normal, toEye, _material, illumination_albedo);
+    
+    float3 shadowMapClipSpace = pin.posLight.xyz / pin.posLight.w;
+    float shadowMapSample = tShadowMap.Sample(sampler_linear_borderBlack, shadowMapClipSpace.xy);
+    
+    float shadowFactor = (float) (shadowMapSample < shadowMapClipSpace.z);
     
     //illumination_albedo = lightFactor * (illumination_albedo * Diffuse.xyz).xyz;
     float3 illumination_ambient = Ambient.xyz * illumination_albedo;
     
     
-    return float4(litColor + illumination_ambient, 1.0f);
+    return float4( (litColor * shadowFactor) + illumination_ambient, 1.0f);
 }

@@ -22,6 +22,8 @@ namespace TruthEngine::API::DirectX12 {
 
 	public:
 
+
+
 		static std::shared_ptr<DirectX12BufferManager> GetInstance()
 		{
 			static std::shared_ptr<DirectX12BufferManager> s_Instance = std::make_shared<DirectX12BufferManager>();
@@ -46,7 +48,7 @@ namespace TruthEngine::API::DirectX12 {
 
 		void CreateShaderResourceView(Core::Texture* texture, Core::ShaderResourceView* SRV) override;
 
-		void CreateConstantBufferView(Core::ConstantBufferUploadBase* constantBuffer, Core::ConstantBufferView* CBV) override;
+		void CreateConstantBufferView(Core::ConstantBufferUploadBase* constantBuffer, Core::ConstantBufferView* CBV, uint8_t frameIndex) override;
 
 		uint64_t GetRequiredSize(const Core::GraphicResource* graphicResource) const override;
 
@@ -59,6 +61,11 @@ namespace TruthEngine::API::DirectX12 {
 		D3D12_GPU_DESCRIPTOR_HANDLE AddDescriptorUAV(ID3D12Resource* resource, ID3D12Resource* counterResource, const D3D12_UNORDERED_ACCESS_VIEW_DESC* desc);
 		D3D12_CPU_DESCRIPTOR_HANDLE AddDescriptorRTV(ID3D12Resource* resource);
 		D3D12_CPU_DESCRIPTOR_HANDLE AddDescriptorDSV(ID3D12Resource* resource, const D3D12_DEPTH_STENCIL_VIEW_DESC* desc);
+
+		inline DescriptorHeapSRV& GetDescriptorHeapSRV()
+		{
+			return m_DescHeapSRV;
+		}
 
 	private:
 		TE_RESULT CreateResource(Core::BufferUpload* buffer) override;

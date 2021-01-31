@@ -1,11 +1,15 @@
 #include "pch.h"
 #include "Core/Application.h"
+
 #include "Core/Renderer/GraphicDevice.h"
+#include "core/Renderer/SwapChain.h"
+#include "Core/Renderer/RendererLayer.h"
+
 #include "Core/Entity/Model/ModelManager.h"
 #include "Core/Entity/Light/LightManager.h"
 
-#include "Core/Event/EventApplication.h"
 
+#include "Core/Event/EventApplication.h"
 #include "Core/Entity/Camera/CameraPerspective.h"
 #include "Core/Entity/Camera/CameraManager.h"
 
@@ -13,7 +17,7 @@
 
 namespace TruthEngine::Core {
 
-	Application::Application(const char* title, uint32_t clientWidth, uint32_t clientHeight, uint8_t framesInFlightNum) : m_Title(title), m_ClientWidth(clientWidth), m_ClientHeight(clientHeight), m_FramesInFlightNum(framesInFlightNum)
+	Application::Application(const char* title, uint32_t clientWidth, uint32_t clientHeight, uint8_t framesInFlightNum) : m_Title(title), m_ClientWidth(clientWidth), m_ClientHeight(clientHeight), m_FramesOnTheFlyNum(framesInFlightNum)
 	{
 
 		TE_ASSERT_CORE(!s_Instance, "Aplication already exists!");
@@ -21,14 +25,25 @@ namespace TruthEngine::Core {
 
 		m_Window = TruthEngine::Core::TECreateWindow(title, clientWidth, clientHeight);
 
-		m_Window->SetEventCallBack(std::bind(&EventDispatcher::OnEvent, &m_EventDispatcher, std::placeholders::_1));
+		auto windowEventCallback = [this]
+		(Event& event)
+		{
+			m_EventDispatcher.OnEvent(event);
+		};
+
+		m_Window->SetEventCallBack(windowEventCallback);
+
+		auto listener_OnWindowResize = [this](Event& event)
+		{
+			OnWindowResize(static_cast<EventWindowResize&>(event));
+		};
+		RegisterEventListener(EventType::WindowResize, listener_OnWindowResize);
 
 		m_RendererLayer = std::make_shared<RendererLayer>();
 		
 	}
 
 	Application::~Application() = default;
-
 
 	void Application::ResizeSceneViewport(uint32_t width, uint32_t height) noexcept
 	{
@@ -48,7 +63,7 @@ namespace TruthEngine::Core {
 		TE_RUN_TASK([]() { TE_LOG_CORE_INFO("This message is snet by threadID = {0}", std::this_thread::get_id()); });
 
 		auto r = CreateGDevice(0);
-		TE_ASSERT_CORE(r, "Creation of GDevice is failed!");
+		TE_ASSERT_CORE(TE_SUCCEEDED(r), "Creation of GDevice is failed!");
 
 		m_Window->Show();
 
@@ -66,13 +81,24 @@ namespace TruthEngine::Core {
 
 			m_Window->OnUpdate();
 
-			m_CurrentFrameIndex = (m_CurrentFrameIndex + 1) % m_FramesInFlightNum;
+			//m_CurrentFrameIndex = (m_CurrentFrameIndex + 1) % m_FramesInFlightNum;
 		}
 	}
 
 	void Application::OnEvent(Event& e)
 	{
 		m_EventDispatcher.OnEvent(e);
+	}
+
+	void Application::OnWindowResize(EventWindowResize& event)
+	{
+		m_ClientWidth = event.GetWidth();
+		m_ClientHeight = event.GetHeight();
+	}
+
+	uint8_t Application::GetCurrentFrameIndex() const noexcept
+	{
+		return TE_INSTANCE_SWAPCHAIN->GetCurrentFrameIndex(); 
 	}
 
 	Application* Application::s_Instance = nullptr;

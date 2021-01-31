@@ -15,17 +15,22 @@ namespace TruthEngine
 			Material(
 				uint32_t ID
 				, RendererStateSet states
-				, uint8_t shaderProperties
-				, float4 colorDiffuse
-				, float3 fresnelR0
+				, const float4& colorDiffuse
+				, const float3& fresnelR0
 				, float shininess
+				, const float2& uvScale
+				, const float2& uvTranslate
 				, uint32_t diffuseMapIndex
 				, uint32_t normalMapIndex
 				, uint32_t displacementMapIndex
-			, int32_t extraDepthBias
-			, float extraSlopeScaledDepthBias
-			, float extraDepthBiasClamp);
+				, int32_t extraDepthBias
+				, float extraSlopeScaledDepthBias
+				, float extraDepthBiasClamp
+				, TE_IDX_MESH_TYPE meshType);
 
+			//
+			//////Get Methods
+			//
 			inline RendererStateSet GetRendererStates() const noexcept
 			{
 				return m_RendererStates;
@@ -36,12 +41,12 @@ namespace TruthEngine
 				return m_ID;
 			}
 
-			inline float4 GetColorDiffuse() const noexcept
+			inline const float4& GetColorDiffuse() const noexcept
 			{
 				return m_ColorDiffuse;
 			}
 
-			inline float3 GetFresnelR0() const noexcept
+			inline const float3& GetFresnelR0() const noexcept
 			{
 				return m_FresnelR0;
 			}
@@ -49,6 +54,16 @@ namespace TruthEngine
 			inline float GetShininess() const noexcept
 			{
 				return m_Shininess;
+			}
+
+			inline const float2& GetUVScale() const noexcept
+			{
+				return m_UVScale;
+			}
+
+			inline const float2& GetUVTranslate() const noexcept
+			{
+				return m_UVTranslate;
 			}
 
 			inline uint32_t GetMapIndexDiffuse()const noexcept
@@ -66,22 +81,71 @@ namespace TruthEngine
 				return m_MapIndexDisplacement;
 			}
 
+			inline TE_IDX_MESH_TYPE GetMeshType() const noexcept
+			{
+				return m_MeshType;
+			}
+
+
+			//
+			//////Set Methods
+			//
+			void InvokeEventChangeMaterial();
+
+
+			inline void SetColorDiffuse(const float4& color)
+			{
+				m_ColorDiffuse = color;
+				InvokeEventChangeMaterial();
+			}
+
+			inline void SetFresnelR0(const float3& r0)
+			{
+				m_FresnelR0 = r0;
+				InvokeEventChangeMaterial();
+			}
+
+			inline void SetShininess(const float shininess)
+			{
+				m_Shininess = shininess;
+				InvokeEventChangeMaterial();
+			}
+
+			inline void SetUVScale(const float2& _uvScale)
+			{
+				m_UVScale = _uvScale;
+				InvokeEventChangeMaterial();
+			}
+
+			inline void SetUVTranslate(const float2& _uvTranslate)
+			{
+				m_UVTranslate = _uvTranslate;
+				InvokeEventChangeMaterial();
+			}
+
+			void SetMapIndexDiffuse(uint32_t index);
+
+			void SetMapIndexNormal(uint32_t index);
+
+			void SetMapIndexDisplacement(uint32_t index);
+			
+
+
 		private:
 
 
 		private:
 			uint32_t m_ID;
 			RendererStateSet m_RendererStates = InitRenderStates();
-			uint8_t m_ShaderProperties;
-			
+
+			TE_IDX_MESH_TYPE m_MeshType;
 
 			float4 m_ColorDiffuse;
 			float3 m_FresnelR0;
 			float m_Shininess;
 
-			/*MaterialTexture* m_MapDiffuse = nullptr;
-			MaterialTexture* m_MapNormal = nullptr;
-			MaterialTexture* m_MapDisplacement = nullptr;*/
+			float2 m_UVScale = { 1.0f, 1.0f };
+			float2 m_UVTranslate = { .0f, .0f };
 
 			uint32_t m_MapIndexDiffuse = -1;
 			uint32_t m_MapIndexNormal = -1;

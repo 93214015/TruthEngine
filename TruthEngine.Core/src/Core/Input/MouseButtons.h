@@ -21,7 +21,7 @@ namespace TruthEngine::Core {
 			ButtonLast = Button7,
 			ButtonLeft = Button1,
 			ButtonRight = Button2,
-			ButtonMiddle = Button3
+			ButtonMiddle = VK_MBUTTON
 		};
 	}
 

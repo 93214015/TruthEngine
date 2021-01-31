@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "IDXGI.h"
+#include "Core/Application.h"
 
 using namespace Microsoft::WRL;
 
@@ -35,6 +36,15 @@ namespace TruthEngine::API {
 			factory3->QueryInterface(m_Factory.ReleaseAndGetAddressOf());
 		}
 
+		m_Factory->CheckFeatureSupport(DXGI_FEATURE_PRESENT_ALLOW_TEARING, &m_SupportAllowTearing, sizeof(m_SupportAllowTearing));
+
+		if (m_SupportAllowTearing)
+		{
+			// When tearing support is enabled we will handle ALT+Enter key presses in the
+		// window message loop rather than let DXGI handle it by calling SetFullscreenState.
+			m_Factory->MakeWindowAssociation(static_cast<HWND>(TE_INSTANCE_APPLICATION->GetWindow()->GetNativeWindowHandle()), DXGI_MWA_NO_ALT_ENTER);
+		}
+
 	}
 
 	void IDXGI::EnumAdapters()
@@ -44,7 +54,7 @@ namespace TruthEngine::API {
 		ComPtr<IDXGIAdapter4> adapter;
 
 
-		auto hr = m_Factory->EnumAdapterByGpuPreference(i,DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE,  IID_PPV_ARGS(&adapter));
+		auto hr = m_Factory->EnumAdapterByGpuPreference(i, DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE, IID_PPV_ARGS(&adapter));
 
 		while (hr != DXGI_ERROR_NOT_FOUND)
 		{
@@ -54,6 +64,12 @@ namespace TruthEngine::API {
 		}
 	}
 
-	TruthEngine::API::IDXGI IDXGI::s_IDXGI;
+	IDXGI::IDXGI()
+	{
+		CreateFactory();
+		EnumAdapters();
+
+		m_IsInit = true;
+	}
 
 }

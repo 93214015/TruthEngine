@@ -1,9 +1,11 @@
 #pragma once
 #include "GraphicResource.h"
 
+
+
 namespace TruthEngine
 {
-	namespace API::DirectX12 
+	namespace API::DirectX12
 	{
 		class DirectX12BufferManager;
 	}
@@ -16,13 +18,12 @@ namespace TruthEngine::Core
 	class Buffer : public GraphicResource
 	{
 	public:
-		Buffer(
-			size_t sizeInByte
-			, TE_RESOURCE_USAGE usage
-			, TE_RESOURCE_STATES initState)
+		Buffer(size_t sizeInByte, TE_RESOURCE_USAGE usage, TE_RESOURCE_STATES initState);
+			/*Buffer(size_t sizeInByte, TE_RESOURCE_USAGE usage, TE_RESOURCE_STATES initState)
 			: GraphicResource(usage, TE_RESOURCE_TYPE::BUFFER, initState)
-			, m_SizeInByte(static_cast<uint64_t>(sizeInByte))
-		{}
+			, m_SizeInByte(static_cast<uint64_t>(sizeInByte))*/
+		
+
 		virtual ~Buffer() = default;
 
 
@@ -36,9 +37,12 @@ namespace TruthEngine::Core
 			m_SizeInByte = size;
 		}
 
-	protected:
-		uint64_t m_SizeInByte = 0;
+		const void* GetDataPtr(uint8_t frameIndex) const noexcept;
+	
 
+	protected:
+		std::vector<uint8_t*> m_MappedData;
+		uint64_t m_SizeInByte = 0;
 
 	};
 
@@ -48,9 +52,7 @@ namespace TruthEngine::Core
 	{
 	public:
 
-		BufferUpload(
-			size_t sizeInByte
-			, TE_RESOURCE_USAGE usage)
+		BufferUpload(size_t sizeInByte , TE_RESOURCE_USAGE usage)
 			: Buffer(sizeInByte, usage, TE_RESOURCE_STATES::GENERIC_READ0)
 		{}
 
@@ -62,23 +64,13 @@ namespace TruthEngine::Core
 		BufferUpload(BufferUpload&&) noexcept = default;
 		BufferUpload& operator=(BufferUpload&&) noexcept = default;
 
-		inline void SetData(void* data) noexcept
-		{
-			m_DataSource = data;
-		}
 
-		inline const void* GetDataPtr() const noexcept
-		{
-			return m_MappedData;
-		}
 
 	protected:
-		uint8_t* m_MappedData = nullptr;
-		void* m_DataSource;
 
 		//friend classes
 		friend class BufferManager;
-		friend class API::DirectX12 ::DirectX12BufferManager;
+		friend class API::DirectX12::DirectX12BufferManager;
 	};
 
 
@@ -98,14 +90,14 @@ namespace TruthEngine::Core
 		BufferUploadIntermediate(BufferUploadIntermediate&&) noexcept = default;
 		BufferUploadIntermediate& operator=(BufferUploadIntermediate&&) noexcept = default;
 
-	
+
 	protected:
 
 	};
 
 
 
-	class BufferDefault : public Buffer 
+	class BufferDefault : public Buffer
 	{
 	public:
 		using Buffer::Buffer;

@@ -25,6 +25,11 @@ namespace TruthEngine::Core
 
 	struct RenderTargetView
 	{
+		RenderTargetView() = default;
+		RenderTargetView(uint32_t viewIndex, uint32_t resourceIndex, TextureRenderTarget* resource)
+			: ViewIndex(viewIndex), ResourceIndex(resourceIndex), Resource(resource)
+		{}
+
 		uint32_t ViewIndex = -1;
 		uint32_t ResourceIndex = -1;
 		TextureRenderTarget* Resource = nullptr;
@@ -32,6 +37,11 @@ namespace TruthEngine::Core
 
 	struct ShaderResourceView
 	{
+		ShaderResourceView() = default;
+		ShaderResourceView(uint32_t viewIndex, uint32_t resourceIndex, Texture* resource)
+			: ViewIndex(viewIndex), ResourceIndex(resourceIndex), Resource(resource)
+		{}
+
 		uint32_t ViewIndex = -1;
 		uint32_t ResourceIndex = -1;
 		Texture* Resource = nullptr;
@@ -39,6 +49,11 @@ namespace TruthEngine::Core
 
 	struct DepthStencilView
 	{
+		DepthStencilView() = default;
+		DepthStencilView(uint32_t viewIndex, uint32_t resourceIndex, TextureDepthStencil* resource)
+			: ViewIndex(viewIndex), ResourceIndex(resourceIndex), Resource(resource)
+		{}
+
 		uint32_t ViewIndex = -1;
 		uint32_t ResourceIndex = -1;
 		TextureDepthStencil* Resource = nullptr;
@@ -46,6 +61,11 @@ namespace TruthEngine::Core
 
 	struct ConstantBufferView
 	{
+		ConstantBufferView() = default;
+		ConstantBufferView(uint32_t viewIndex, uint32_t resourceIndex, Buffer* resource)
+			: ViewIndex(viewIndex), ResourceIndex(resourceIndex), Resource(resource)
+		{}
+
 		uint32_t ViewIndex = -1;
 		uint32_t ResourceIndex = -1;
 		Buffer* Resource = nullptr;
@@ -141,7 +161,7 @@ namespace TruthEngine::Core
 
 		virtual void CreateShaderResourceView(Texture* texture, ShaderResourceView* srv) = 0;
 
-		virtual void CreateConstantBufferView(ConstantBufferUploadBase* constantBuffer, ConstantBufferView* cbv) = 0;
+		virtual void CreateConstantBufferView(ConstantBufferUploadBase* constantBuffer, ConstantBufferView* cbv, uint8_t frameIndex) = 0;
 
 		virtual TE_RESULT CreateVertexBuffer(VertexBufferBase* vb) = 0;
 

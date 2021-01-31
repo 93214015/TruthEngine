@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "DirectX12CommandAllocator.h"
 #include "DirectX12GraphicDevice.h"
+#include "Core/Application.h"
 
 namespace TruthEngine::API::DirectX12 {
 
@@ -15,7 +16,9 @@ namespace TruthEngine::API::DirectX12 {
 			HANDLE e = CreateEventA(nullptr, false, false, NULL);
 
 			fence.SetEvent(m_FenceValue, e);
+
 			WaitForSingleObject(e, INFINITE);
+
 		}
 
 		return static_cast<TE_RESULT>(m_CommandAllocator->Reset());
@@ -27,7 +30,6 @@ namespace TruthEngine::API::DirectX12 {
 		event = CreateEventA(NULL, false, true, "");
 
 		return gDevice.CreateCommandAllocator(m_CommandAllocator, commandListType);
-
 	}
 
 	bool DirectX12CommandAllocator::IsRunning()

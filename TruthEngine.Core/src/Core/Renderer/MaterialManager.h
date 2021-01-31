@@ -21,25 +21,35 @@ namespace TruthEngine
 				return m_Map_Materials[materialID].get();
 			}
 
+			inline Material* GetDefaultMaterial(uint32_t index)
+			{
+				return m_Map_Materials[index].get();
+			}
+
 			inline size_t GetMatrialOffset() const noexcept
 			{
 				return m_Map_Materials.size();
 			}
 
+			Material* AddDefaultMaterial(TE_IDX_MESH_TYPE meshType);
+
 			Material* AddMaterial(
-				 RendererStateSet states
-				, uint8_t shaderProperties
-				, float4 colorDiffuse
-				, float3 fresnelR0
+				RendererStateSet states
+				, const float4& colorDiffuse
+				, const float3& fresnelR0
 				, float shininess
+				, const float2& uvScale
+				, const float2& uvTranslate
 				, uint32_t diffuseMapIndex
 				, uint32_t normalMapIndex
 				, uint32_t displacementMapIndex
 				, int32_t extraDepthBias
 				, float extraSlopeScaledDepthBias
-				, float extraDepthBiasClamp);
+				, float extraDepthBiasClamp
+				, TE_IDX_MESH_TYPE meshType);
 
-			void AddSampleMaterial();
+			Material* AddMaterial(Material* material);
+
 
 		protected:
 

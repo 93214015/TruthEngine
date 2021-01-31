@@ -23,16 +23,20 @@ namespace TruthEngine::Core
 
 	RendererCommand::RendererCommand() = default;
 
-	void RendererCommand::Init(TE_IDX_RENDERPASS renderPassIDX, TE_IDX_SHADERCLASS shaderClassIDX, uint32_t ParallelCommandsNum, std::shared_ptr<BufferManager> bufferManager, std::shared_ptr<ShaderManager> shaderManager)
+	void RendererCommand::Init(TE_IDX_RENDERPASS renderPassIDX, TE_IDX_SHADERCLASS shaderClassIDX, BufferManager* bufferManager, ShaderManager* shaderManager)
 	{
-		m_BufferManager = bufferManager ? bufferManager : TE_INSTANCE_BUFFERMANAGER;
-		m_ShaderManager = shaderManager ? shaderManager : TE_INSTANCE_SHADERMANAGER;
+		m_BufferManager = bufferManager ? bufferManager : TE_INSTANCE_BUFFERMANAGER.get();
+		m_ShaderManager = shaderManager ? shaderManager : TE_INSTANCE_SHADERMANAGER.get();
 
 		//m_CommandLists = std::vector<std::shared_ptr<CommandList>>(ParallelCommandsNum, CommandList::Factory(&TE_INSTANCE_GRAPHICDEVICE, TE_RENDERER_COMMANDLIST_TYPE::DIRECT, m_BufferManager, shaderManager));
 
-		for (uint32_t i = 0; i < ParallelCommandsNum; ++i)
+		auto frameOnTheFlyNum = TE_INSTANCE_APPLICATION->GetFramesOnTheFlyNum();
+
+		m_CommandLists.reserve(frameOnTheFlyNum);
+
+		for (uint32_t i = 0; i < frameOnTheFlyNum; ++i)
 		{
-			m_CommandLists.push_back(CommandList::Factory(TE_INSTANCE_GRAPHICDEVICE, TE_RENDERER_COMMANDLIST_TYPE::DIRECT, m_BufferManager, shaderManager, renderPassIDX, shaderClassIDX));
+			m_CommandLists.push_back(CommandList::Factory(TE_INSTANCE_GRAPHICDEVICE, TE_RENDERER_COMMANDLIST_TYPE::DIRECT, m_BufferManager, shaderManager, renderPassIDX, shaderClassIDX, i));
 		}
 
 	}
@@ -47,53 +51,53 @@ namespace TruthEngine::Core
 		m_CommandLists.clear();
 	}
 
-	void RendererCommand::SetPipeline(Pipeline* pipeline, uint32_t cmdListIndex /*= 0*/)
+	void RendererCommand::SetPipeline(Pipeline* pipeline)
 	{
-		m_CommandLists[cmdListIndex]->SetPipeline(pipeline);
+		m_CurrentCommandList->SetPipeline(pipeline);
 	}
 
-	void RendererCommand::SetRenderTarget(const RenderTargetView RTV, uint32_t cmdListIndex /*= 0*/)
+	void RendererCommand::SetRenderTarget(const RenderTargetView RTV)
 	{
-		m_CommandLists[cmdListIndex]->SetRenderTarget(RTV);
+		m_CurrentCommandList->SetRenderTarget(RTV);
 	}
 
-	void RendererCommand::SetRenderTarget(SwapChain* swapChain, const RenderTargetView RTV, uint32_t cmdListIndex /*= 0*/)
+	void RendererCommand::SetRenderTarget(SwapChain* swapChain, const RenderTargetView RTV)
 	{
-		m_CommandLists[cmdListIndex]->SetRenderTarget(swapChain, RTV);
+		m_CurrentCommandList->SetRenderTarget(swapChain, RTV);
 	}
 
-	void RendererCommand::SetDepthStencil(const DepthStencilView DSV, uint32_t cmdListIndex /*= 0*/)
+	void RendererCommand::SetDepthStencil(const DepthStencilView DSV)
 	{
-		m_CommandLists[cmdListIndex]->SetDepthStencil(DSV);
+		m_CurrentCommandList->SetDepthStencil(DSV);
 	}
 
-	void RendererCommand::SetShaderResource(const ShaderResourceView SRV, uint32_t registerIndex, uint32_t cmdListIndex /*= 0*/)
+	void RendererCommand::SetShaderResource(const ShaderResourceView SRV, uint32_t registerIndex)
 	{
-		m_CommandLists[cmdListIndex]->SetShaderResource(SRV, registerIndex);
+		m_CurrentCommandList->SetShaderResource(SRV, registerIndex);
 	}
 
-	void RendererCommand::SetConstantBuffer(const ConstantBufferView CBV, uint32_t registerIndex, uint32_t cmdListIndex /*= 0*/)
+	void RendererCommand::SetConstantBuffer(const ConstantBufferView CBV, uint32_t registerIndex)
 	{
-		m_CommandLists[cmdListIndex]->SetConstantBuffer(CBV, registerIndex);
+		m_CurrentCommandList->SetConstantBuffer(CBV, registerIndex);
 	}
 
-	void RendererCommand::UploadData(ConstantBufferUploadBase* cb, uint32_t cmdListIndex)
+	void RendererCommand::UploadData(ConstantBufferUploadBase* cb)
 	{
 	}
 
-	void RendererCommand::UploadData(ConstantBufferDirectBase* cb, uint32_t cmdListIndex)
+	void RendererCommand::UploadData(ConstantBufferDirectBase* cb)
 	{
-		m_CommandLists[cmdListIndex]->UploadData(cb);
+		m_CurrentCommandList->UploadData(cb);
 	}
 
-	void RendererCommand::UploadData(Buffer* buffer, void* data, size_t sizeInByte, uint32_t cmdListIndex /*= 0*/)
+	void RendererCommand::UploadData(Buffer* buffer, void* data, size_t sizeInByte)
 	{
-		m_CommandLists[cmdListIndex]->UploadData(buffer, data, sizeInByte);
+		m_CurrentCommandList->UploadData(buffer, data, sizeInByte);
 	}
 
-	void RendererCommand::UploadData(VertexBufferBase* vertexBuffer, uint32_t cmdListIndex)
+	void RendererCommand::UploadData(VertexBufferBase* vertexBuffer)
 	{
-		auto cmdList = m_CommandLists[cmdListIndex];
+		auto cmdList = m_CurrentCommandList;
 
 		for (auto vbs : vertexBuffer->GetVertexBufferStreams())
 		{
@@ -101,47 +105,46 @@ namespace TruthEngine::Core
 		}
 	}
 
-	void RendererCommand::UploadData(IndexBuffer* indexBuffer, uint32_t cmdListIndex)
+	void RendererCommand::UploadData(IndexBuffer* indexBuffer)
 	{
-		m_CommandLists[cmdListIndex]->UploadData(indexBuffer, indexBuffer->GetDataPtr(), indexBuffer->GetBufferSize());
+		m_CurrentCommandList->UploadData(indexBuffer, indexBuffer->GetDataPtr(), indexBuffer->GetBufferSize());
 	}
 
-	void RendererCommand::SetVertexBuffer(VertexBufferBase* vertexBuffer, uint32_t cmdListIndex /*= 0*/)
+	void RendererCommand::SetVertexBuffer(VertexBufferBase* vertexBuffer)
 	{
-		m_CommandLists[cmdListIndex]->SetVertexBuffer(vertexBuffer);
+		m_CurrentCommandList->SetVertexBuffer(vertexBuffer);
 	}
 
-	void RendererCommand::SetIndexBuffer(IndexBuffer* indexBuffer, uint32_t cmdListIndex /*= 0*/)
+	void RendererCommand::SetIndexBuffer(IndexBuffer* indexBuffer)
 	{
-		m_CommandLists[cmdListIndex]->SetIndexBuffer(indexBuffer);
+		m_CurrentCommandList->SetIndexBuffer(indexBuffer);
 	}
 
-	void RendererCommand::DrawIndexed(Mesh* mesh, uint32_t cmdListIndex /*= 0*/)
+	void RendererCommand::DrawIndexed(Mesh* mesh)
 	{
-		m_CommandLists[cmdListIndex]->SetVertexBuffer(mesh->GetVertexBuffer());
-		m_CommandLists[cmdListIndex]->SetIndexBuffer(mesh->GetIndexBuffer());
+		m_CurrentCommandList->SetVertexBuffer(mesh->GetVertexBuffer());
+		m_CurrentCommandList->SetIndexBuffer(mesh->GetIndexBuffer());
 
-		m_CommandLists[cmdListIndex]->DrawIndexed(mesh->GetIndexNum(), mesh->GetIndexOffset(), mesh->GetVertexOffset());
+		m_CurrentCommandList->DrawIndexed(mesh->GetIndexNum(), mesh->GetIndexOffset(), mesh->GetVertexOffset());
 	}
 
-	void RendererCommand::Draw(Mesh* mesh, uint32_t cmdListIndex /*= 0*/)
+	void RendererCommand::Draw(Mesh* mesh)
 	{
-
 	}
 
-	void RendererCommand::ClearRenderTarget(const RenderTargetView RTV, uint32_t cmdListIndex /*= 0*/)
+	void RendererCommand::ClearRenderTarget(const RenderTargetView RTV)
 	{
-		m_CommandLists[cmdListIndex]->ClearRenderTarget(RTV);
+		m_CurrentCommandList->ClearRenderTarget(RTV);
 	}
 
-	void RendererCommand::ClearRenderTarget(const SwapChain* swapChain, const RenderTargetView RTV, uint32_t cmdListIndex /*= 0*/)
+	void RendererCommand::ClearRenderTarget(const SwapChain* swapChain, const RenderTargetView RTV)
 	{
-		m_CommandLists[cmdListIndex]->ClearRenderTarget(swapChain, RTV);
+		m_CurrentCommandList->ClearRenderTarget(swapChain, RTV);
 	}
 
-	void RendererCommand::ClearDepthStencil(const DepthStencilView DSV, uint32_t cmdListIndex /*= 0*/)
+	void RendererCommand::ClearDepthStencil(const DepthStencilView DSV)
 	{
-		m_CommandLists[cmdListIndex]->ClearDepthStencil(DSV);
+		m_CurrentCommandList->ClearDepthStencil(DSV);
 	}
 
 	void RendererCommand::ResizeRenderTarget(TextureRenderTarget* texture, uint32_t width, uint32_t height, RenderTargetView* RTV, ShaderResourceView* SRV)
@@ -194,7 +197,7 @@ namespace TruthEngine::Core
 	{
 		WaitForGPU();
 
-		swapChain->Resize(width, height, TE_INSTANCE_APPLICATION->GetFramesInFlightNum());
+		swapChain->Resize(width, height, TE_INSTANCE_APPLICATION->GetFramesOnTheFlyNum());
 
 		if (RTV != nullptr)
 		{
@@ -207,34 +210,40 @@ namespace TruthEngine::Core
 	}
 
 
-	void RendererCommand::EndAndPresent(uint32_t cmdListIndex /*= 0*/)
+	void RendererCommand::EndAndPresent()
 	{
-		m_LastCommadListIndex = cmdListIndex;
-
-		m_CommandLists[cmdListIndex]->Present();
+		m_CurrentCommandList->Present();
 	}
 
-	void RendererCommand::End(uint32_t cmdListIndex /*= 0*/)
+	void RendererCommand::End()
 	{
-		m_LastCommadListIndex = cmdListIndex;
-
-		m_CommandLists[cmdListIndex]->Commit();
-		m_CommandLists[cmdListIndex]->Submit();
+		m_CurrentCommandList->Commit();
+		m_CurrentCommandList->Submit();
 	}
 
-	void RendererCommand::Begin(uint32_t cmdListIndex /*= 0*/)
+	void RendererCommand::Begin()
 	{
-		m_CommandLists[cmdListIndex]->Reset();
+		m_CurrentCommandList = m_CommandLists[TE_INSTANCE_APPLICATION->GetCurrentFrameIndex()].get();
+
+		m_CurrentCommandList->Reset();
+
+		m_CurrentCommandList->ExecuteUpdateTasks();
+
 	}
 
-	void RendererCommand::Begin(Pipeline* pipeline, uint32_t cmdListIndex /*= 0*/)
+	void RendererCommand::Begin(Pipeline* pipeline)
 	{
-		m_CommandLists[cmdListIndex]->Reset(pipeline);
+		m_CurrentCommandList = m_CommandLists[TE_INSTANCE_APPLICATION->GetCurrentFrameIndex()].get();
+
+		m_CurrentCommandList->Reset(pipeline);
+
+		m_CurrentCommandList->ExecuteUpdateTasks();
+
 	}
 
-	void RendererCommand::SetViewPort(Viewport* viewport, ViewRect* rect, uint32_t cmdListIndex /* =0 */)
+	void RendererCommand::SetViewPort(Viewport* viewport, ViewRect* rect /* =0 */)
 	{
-		m_CommandLists[cmdListIndex]->SetViewport(viewport, rect);
+		m_CurrentCommandList->SetViewport(viewport, rect);
 	}
 
 
@@ -312,7 +321,7 @@ namespace TruthEngine::Core
 	void RendererCommand::CreateConstantBufferView(TE_IDX_CONSTANTBUFFER idx, ConstantBufferView* CBV)
 	{
 		auto cb = TE_INSTANCE_BUFFERMANAGER->GetConstantBufferUpload(idx);
-		return TE_INSTANCE_BUFFERMANAGER->CreateConstantBufferView(cb, CBV);
+		return TE_INSTANCE_BUFFERMANAGER->CreateConstantBufferView(cb, CBV, TE_INSTANCE_APPLICATION->GetCurrentFrameIndex());
 	}
 
 	TE_RESULT RendererCommand::CreateVertexBuffer(VertexBufferBase* vb)
@@ -325,14 +334,20 @@ namespace TruthEngine::Core
 		return TE_INSTANCE_BUFFERMANAGER->CreateIndexBuffer(ib);
 	}
 
-	bool RendererCommand::IsRunning(uint32_t cmdListIndex)
+	bool RendererCommand::IsRunning()
 	{
-		return m_CommandLists[cmdListIndex]->IsRunning();
+		return m_CurrentCommandList->IsRunning();
 	}
 
 	void RendererCommand::WaitForGPU()
 	{
 		TE_INSTANCE_GRAPHICDEVICE->WaitForGPU();
+	}
+
+	void RendererCommand::AddUpdateTask(const std::function<void()>& task)
+	{
+		for (auto commandList : m_CommandLists)
+			commandList->AddUpdateTask(task);
 	}
 
 }

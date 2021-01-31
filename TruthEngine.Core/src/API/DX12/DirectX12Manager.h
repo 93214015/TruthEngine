@@ -128,16 +128,44 @@ namespace TruthEngine
 		class DirectX12Manager
 		{
 		public:
-			TE_RESULT AddRootSignature(Core::Shader* shader);
+			TE_RESULT AddRootSignature(TE_IDX_SHADERCLASS shaderClassIDX);
 
-			inline ID3D12RootSignature* GetD3D12RootSignature(TE_IDX_SHADERCLASS shaderClassIDX)
+			ID3D12RootSignature* GetD3D12RootSignature(TE_IDX_SHADERCLASS shaderClassIDX)
 			{
-				return m_ID3D12RootSignatures[shaderClassIDX].Get();
+				auto itr = m_ID3D12RootSignatures.find(shaderClassIDX);
+				if (itr != m_ID3D12RootSignatures.end())
+				{
+					return itr->second.Get();
+				}
+				else
+				{
+					AddRootSignature(shaderClassIDX);
+					itr = m_ID3D12RootSignatures.find(shaderClassIDX);
+					if (itr == m_ID3D12RootSignatures.end())
+					{
+						throw;
+					}
+					return itr->second.Get();
+				}
 			}
 
-			inline const DirectX12RootArguments* GetRootArguments(TE_IDX_SHADERCLASS shaderClassIDX)
+			const DirectX12RootArguments* GetRootArguments(TE_IDX_SHADERCLASS shaderClassIDX, uint8_t frameIndex)
 			{
-				return &m_DirectX12RootArguments[shaderClassIDX];
+				auto itr = m_DirectX12RootArguments.find(shaderClassIDX);
+				if (itr != m_DirectX12RootArguments.end())
+				{
+					return &itr->second[frameIndex];
+				}
+				else
+				{
+					AddRootSignature(shaderClassIDX);
+					itr = m_DirectX12RootArguments.find(shaderClassIDX);
+					if (itr == m_DirectX12RootArguments.end())
+					{
+						throw;
+					}
+					return &itr->second[frameIndex];
+				}
 			}
 
 			static std::shared_ptr<DirectX12Manager> GetInstance()
@@ -150,7 +178,7 @@ namespace TruthEngine
 		private:
 
 			std::unordered_map<TE_IDX_SHADERCLASS, DirectX12RootSignature> m_DirectX12RootSignatures;
-			std::unordered_map<TE_IDX_SHADERCLASS, DirectX12RootArguments> m_DirectX12RootArguments;
+			std::unordered_map<TE_IDX_SHADERCLASS, std::vector<DirectX12RootArguments>> m_DirectX12RootArguments;
 			std::unordered_map<TE_IDX_SHADERCLASS, COMPTR<ID3D12RootSignature>> m_ID3D12RootSignatures;
 
 		};

@@ -24,8 +24,8 @@ namespace TruthEngine
 				return m_Textures.size();
 			}
 
-			virtual uint32_t CreateTexture(const char* name, uint8_t* data, uint32_t width, uint32_t height, uint32_t dataSize, TE_RESOURCE_FORMAT format) = 0;
-			virtual uint32_t CreateTexture(const char* _texturefilePath, const char* _modelFilePath) = 0;
+			virtual TextureMaterial* CreateTexture(const char* name, uint8_t* data, uint32_t width, uint32_t height, uint32_t dataSize, TE_RESOURCE_FORMAT format) = 0;
+			virtual TextureMaterial* CreateTexture(const char* _texturefilePath, const char* _modelFilePath) = 0;
 
 			inline TextureMaterial* GetTexture(uint32_t index)const
 			{
@@ -42,17 +42,24 @@ namespace TruthEngine
 				return itr->second;
 			}
 
+			uint32_t GetTextureViewIndex(uint32_t textureID)const;
+			
 
-			virtual uint32_t CreateTextureMaterialDiffuse(uint32_t texIndex) = 0;
-			virtual uint32_t CreateTextureMaterialNormal(uint32_t texIndex) = 0;
-			virtual uint32_t CreateTextureMaterialDisplacement(uint32_t texIndex) = 0;
+
+			//virtual uint32_t CreateTextureMaterialDiffuse(uint32_t texIndex) = 0;
+			//virtual uint32_t CreateTextureMaterialNormal(uint32_t texIndex) = 0;
+			//virtual uint32_t CreateTextureMaterialDisplacement(uint32_t texIndex) = 0;
+
+			const std::vector<std::shared_ptr<TextureMaterial>>& GetAllTextures()const
+			{
+				return m_Textures;
+			}
 
 			static TextureMaterialManager* GetInstance()
 			{
 				static std::shared_ptr<TextureMaterialManager> s_Instance = Factory();
 				return s_Instance.get();
 			}
-
 			static std::shared_ptr<TextureMaterialManager> Factory();
 			
 		protected:

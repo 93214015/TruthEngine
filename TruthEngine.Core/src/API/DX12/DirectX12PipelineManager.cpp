@@ -85,6 +85,11 @@ namespace TruthEngine::API::DirectX12
 		}
 	}
 
+	D3D12_COMPARISON_FUNC DX12_GET_COMPARISON_FUNC(RendererStateSet states)
+	{
+		return static_cast<D3D12_COMPARISON_FUNC>(GET_RENDERER_STATE(states, TE_RENDERER_STATE_COMPARISSON_FUNC));
+	}
+
 	inline DXGI_FORMAT DX12_GET_FORMAT(const TE_RESOURCE_FORMAT format)
 	{
 		return static_cast<DXGI_FORMAT>(format);
@@ -161,9 +166,9 @@ namespace TruthEngine::API::DirectX12
 		desc.RasterizerState.CullMode = DX12_GET_CULL_MODE(states);
 		desc.RasterizerState.FillMode = DX12_GET_FILL_MODE(states);
 		desc.RasterizerState.FrontCounterClockwise = DX12_GET_FRONTCOUNTERCLOCKWISE(states);
-		desc.RasterizerState.DepthBias = DX12_DEFAULT_DEPTH_BIAS();
-		desc.RasterizerState.DepthBiasClamp = DX12_DEFAULT_DEPTH_BIAS_CLAMP();
-		desc.RasterizerState.SlopeScaledDepthBias = DX12_DEFAULT_SLOPE_SCALED_DEPTH_BIAS();
+		desc.RasterizerState.DepthBias = pipeline->m_DepthBias;
+		desc.RasterizerState.DepthBiasClamp = pipeline->m_DepthBiasClamp;
+		desc.RasterizerState.SlopeScaledDepthBias = pipeline->m_SlopeScaledDepthBias;
 		desc.RasterizerState.DepthClipEnable = true;
 		desc.RasterizerState.MultisampleEnable = false;
 		desc.RasterizerState.AntialiasedLineEnable = false;
@@ -174,7 +179,7 @@ namespace TruthEngine::API::DirectX12
 		auto depthEnabled = DX12_GET_ENABLED_DEPTH(states);
 		desc.DepthStencilState.DepthEnable = depthEnabled;
 		desc.DepthStencilState.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
-		desc.DepthStencilState.DepthFunc = depthEnabled ? D3D12_COMPARISON_FUNC_LESS : D3D12_COMPARISON_FUNC_ALWAYS;
+		desc.DepthStencilState.DepthFunc = depthEnabled ? DX12_GET_COMPARISON_FUNC(states) : D3D12_COMPARISON_FUNC_ALWAYS;
 		desc.DepthStencilState.StencilEnable = false;
 		desc.DepthStencilState.StencilReadMask = D3D12_DEFAULT_STENCIL_READ_MASK;
 		desc.DepthStencilState.StencilWriteMask = D3D12_DEFAULT_STENCIL_WRITE_MASK;
@@ -189,13 +194,13 @@ namespace TruthEngine::API::DirectX12
 
 		//Input Layout
 		std::vector<D3D12_INPUT_ELEMENT_DESC> inputElements;
-		DX12_GET_INPUT_ELEMENTS(shader->GetInputElements(), inputElements);
+		DX12_GET_INPUT_ELEMENTS(*shader->GetInputElements(), inputElements);
 		desc.InputLayout.NumElements = static_cast<UINT>(inputElements.size());
 		desc.InputLayout.pInputElementDescs = inputElements.data();
 
 		desc.IBStripCutValue = D3D12_INDEX_BUFFER_STRIP_CUT_VALUE_DISABLED;
 		desc.PrimitiveTopologyType = DX12_GET_PRIMITIVE_TOPOLOGY_TYPE(states);
-		desc.NumRenderTargets = shader->GetRenderTargetNum();
+		desc.NumRenderTargets = pipeline->m_RenderTargetNum;
 		DX12_GET_RTV_FORMATS(pipeline->GetRenderTargetFormats(), desc.RTVFormats);
 		desc.DSVFormat = DX12_GET_FORMAT(pipeline->GetDSVFormat());
 
@@ -217,18 +222,15 @@ namespace TruthEngine::API::DirectX12
 			AddPipeline(pipeline, PSO, desc);
 		}
 
-
 		return PSO;
 	}
 
-	
+
 	TE_RESULT DirectX12PiplineManager::AddPipeline(Core::Pipeline* pipeline, COMPTR<ID3D12PipelineState>& PSO, D3D12_GRAPHICS_PIPELINE_STATE_DESC& desc)
 	{
 		auto hr = TE_INSTANCE_API_DX12_GRAPHICDEVICE->CreateGraphicsPipelineState(&desc, IID_PPV_ARGS(PSO.GetAddressOf()));
-		if (FAILED(hr))
-		{
-			TE_ASSERT_CORE(false, "Pipeline Creation failed!");
-		}
+		TE_ASSERT_CORE(TE_SUCCEEDED(hr), "Pipeline Creation failed!");
+
 		pipeline->m_Name = std::string("PSO_") + std::to_string(m_PipelineNum);
 		hr = m_PiplineLibrary->StorePipeline(to_wstring(pipeline->m_Name).c_str(), PSO.Get());
 

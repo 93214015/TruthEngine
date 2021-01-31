@@ -89,6 +89,11 @@ namespace TruthEngine
 				return m_Vertecies;
 			}
 
+			inline std::vector<T>& GetData() noexcept
+			{
+				return m_Vertecies;
+			}
+
 			inline const void* GetDataPtr() const noexcept override
 			{
 				return static_cast<const void*>(m_Vertecies.data());

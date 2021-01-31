@@ -6,6 +6,7 @@
 #include "RenderPassStack.h"
 
 #include "RenderPass/RenderPass_ForwardRendering.h"
+#include "RenderPass/RenderPass_GenerateShadowMap.h"
 
 
 namespace TruthEngine::Core
@@ -15,6 +16,8 @@ namespace TruthEngine::Core
 	class EventWindowResize;
 	class EventSceneViewportResize;
 	class EventEntityAddMaterial;
+	class EventEntityUpdateMaterial;
+	class EventEntityUpdateLight;
 
 	template<class T> class ConstantBufferUpload;
 	struct ConstantBuffer_Data_Per_Frame;
@@ -44,6 +47,13 @@ namespace TruthEngine::Core
 		void BeginRendering();
 		void EndRendering();
 
+		void OnImGuiRender();
+
+		inline ImGuiLayer* GetImGuiLayer()
+		{
+			return m_ImGuiLayer.get();
+		}
+
 
 	private:
 		void RegisterEvents();
@@ -51,6 +61,8 @@ namespace TruthEngine::Core
 		void OnWindowResize(const EventWindowResize& event);
 		void OnSceneViewportResize(const EventSceneViewportResize& event);
 		void OnAddMaterial(const EventEntityAddMaterial& event);
+		void OnUpdateMaterial(const EventEntityUpdateMaterial& event);
+		void OnUpdateLight(const EventEntityUpdateLight& event);
 
 
 	private:
@@ -61,6 +73,7 @@ namespace TruthEngine::Core
 		std::shared_ptr<ImGuiLayer> m_ImGuiLayer;
 
 		std::shared_ptr<RenderPass_ForwardRendering> m_RenderPass_ForwardRendering;
+		std::shared_ptr<RenderPass_GenerateShadowMap> m_RenderPass_GenerateShadowMap;
 
 		std::shared_ptr<ModelManager> m_ModelManagers;
 
