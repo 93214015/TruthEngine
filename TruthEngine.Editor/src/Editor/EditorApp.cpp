@@ -519,14 +519,6 @@ namespace TruthEngine
 			auto tex = TextureMaterialManager::GetInstance()->CreateTexture(importFilePath.c_str(), "");
 		}
 
-		auto nodeEditor = imguiLayer->GetNodeEditor();
-
-		ImGui::Begin("NodeEditorWindow");
-
-		nodeEditor->NewFrame();
-
-		ImGui::End();
-
 	}
 
 
