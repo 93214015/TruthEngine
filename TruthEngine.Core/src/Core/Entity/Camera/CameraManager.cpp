@@ -9,10 +9,8 @@
 
 using namespace DirectX;
 
-namespace TruthEngine {
-
-	namespace Core
-	{
+namespace TruthEngine 
+{
 
 		/*void CameraManager::AddCamera(std::shared_ptr<ICamera> camera)
 		{
@@ -45,6 +43,19 @@ namespace TruthEngine {
 
 			return nullptr;
 		}
+
+
+		TruthEngine::CameraCascadedFrustumBase* CameraManager::GetCameraCascaded(std::string_view name)
+		{
+			auto itr = m_Map_CameraCascadedName.find(name);
+			if (itr != m_Map_CameraCascadedName.end())
+			{
+				return itr->second;
+			}
+
+			return nullptr;
+		}
+
 
 		CameraController* CameraManager::GetCameraController()
 		{
@@ -262,7 +273,7 @@ namespace TruthEngine {
 		}
 
 
-		TruthEngine::Core::Camera* CameraManager::CreatePerspectiveDirection(const char* name, const float3& position, const float3& look, const float3& worldUpVector, float fovY, float aspectRatio, float zNearPlane, float zFarPlane)
+		TruthEngine::Camera* CameraManager::CreatePerspectiveDirection(const char* name, const float3& position, const float3& look, const float3& worldUpVector, float fovY, float aspectRatio, float zNearPlane, float zFarPlane)
 		{
 			auto vPosition = XMLoadFloat3(&position);
 			auto vWorldUp = XMLoadFloat3(&worldUpVector);
@@ -476,7 +487,8 @@ namespace TruthEngine {
 			return camera;
 		}
 
-		TruthEngine::Core::Camera* CameraManager::CreateOrthographicDirection(const char* name, const float3& position, const float3& direction, const float3& worldUpVector, float viewLeft, float viewTop, float viewRight, float viewBottom, float zNearPlane, float zFarPlane)
+
+		TruthEngine::Camera* CameraManager::CreateOrthographicDirection(const char* name, const float3& position, const float3& direction, const float3& worldUpVector, float viewLeft, float viewTop, float viewRight, float viewBottom, float zNearPlane, float zFarPlane)
 		{
 			auto vPosition = XMLoadFloat3(&position);
 			auto vWorldUp = XMLoadFloat3(&worldUpVector);
@@ -527,5 +539,5 @@ namespace TruthEngine {
 			return camera;
 		}
 
-	}
+
 }

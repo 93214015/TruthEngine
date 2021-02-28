@@ -17,6 +17,7 @@ struct Material
     uint pad;
 };
 
+
 //
 //Helper Funcitions
 //
@@ -65,6 +66,8 @@ cbuffer per_frame : register(b0)
     
     float3 EyePos : packoffset(c4.x);
     float pad : packoffset(c4.w);
+
+    row_major matrix gCascadedShadowTransform[4] : packoffset(c5);
 }
 
 cbuffer per_dlight : register(b1)
@@ -110,7 +113,9 @@ Texture2D<float4> MaterialTextures[500] : register(t1, space0);
 //////////////// Samplers
 ///////////////////////////////////////////////////
 sampler sampler_linear : register(s0);
-sampler sampler_linear_borderBlack : register(s1);
+sampler sampler_point_borderBlack : register(s1);
+sampler sampler_point_borderWhite : register(s2);
+SamplerComparisonState samplerComparison_great_point_borderWhite : register(s3);
 
 
 struct vertexInput
@@ -126,7 +131,7 @@ struct vertexOut
 {
     float4 pos : SV_Position;
     float3 posW : POSITION0;
-    float4 posLight : POSITION1;
+    //float4 posLight : POSITION1;
     float3 normalW : NORMAL;
     float3 tangentW : TANGENT;
     float2 texCoord : TEXCOORD;
@@ -138,7 +143,7 @@ vertexOut vs(vertexInput vin)
     float4 posW = mul(float4(vin.position, 1.0f), gWorld);
     vout.pos = mul(posW, viewProj);
     vout.posW = posW.xyz;
-    vout.posLight = mul(posW, shadowTransform);
+    //vout.posLight = mul(posW, shadowTransform);
     vout.normalW = mul(vin.normal, (float3x3)gWorldInverseTranspose);
     vout.tangentW = mul(vin.tangent, (float3x3) gWorld);
     vout.texCoord = vin.texCoord;
@@ -184,10 +189,62 @@ float4 ps(vertexOut pin) : SV_Target
     
     float3 litColor = BlinnPhong(lightStrength, lightVector, normal, toEye, _material, illumination_albedo);
     
-    float3 shadowMapClipSpace = pin.posLight.xyz / pin.posLight.w;
-    float shadowMapSample = tShadowMap.Sample(sampler_linear_borderBlack, shadowMapClipSpace.xy);
+    //float3 shadowMapCoords = pin.posLight.xyz / pin.posLight.w;
+
+    //code for cascaded shadow map; finding corrsponding shadow map cascade and coords
+    bool found = false;
+    float3 shadowMapCoords = float3(0.0f, 0.0f, 0.0f);
     
-    float shadowFactor = (float) (shadowMapSample < shadowMapClipSpace.z);
+    shadowMapCoords = mul(float4(pin.posW, 1.0f), gCascadedShadowTransform[0]).xyz;
+
+    if(shadowMapCoords.x > 0.0f && shadowMapCoords.y > 0.0f && shadowMapCoords.x < 0.5f && shadowMapCoords.y < 0.5f)
+    {
+        found = true;
+    }
+    
+    if(!found)
+    {
+        shadowMapCoords = mul(float4(pin.posW, 1.0f), gCascadedShadowTransform[1]).xyz;
+
+        if (shadowMapCoords.x > 0.5f && shadowMapCoords.y > 0.0f && shadowMapCoords.x < 1.0f && shadowMapCoords.y < 0.5f)
+        {
+            found = true;
+        }
+    }
+    if (!found)
+    {
+        shadowMapCoords = mul(float4(pin.posW, 1.0f), gCascadedShadowTransform[2]).xyz;
+
+        if (shadowMapCoords.x > 0.0f && shadowMapCoords.y > 0.5f && shadowMapCoords.x < 0.5f && shadowMapCoords.y < 1.0f)
+        {
+            found = true;
+        }
+    }
+    if (!found)
+    {
+        shadowMapCoords = mul(float4(pin.posW, 1.0f), gCascadedShadowTransform[3]).xyz;
+
+        if (shadowMapCoords.x > 0.5f && shadowMapCoords.y > 0.5f && shadowMapCoords.x < 1.0f && shadowMapCoords.y < 1.0f)
+        {
+            found = true;
+        }
+    }
+
+    float shadowMapSample = tShadowMap.Sample(sampler_point_borderWhite, shadowMapCoords.xy);
+    float shadowFactor = (float) (shadowMapSample < shadowMapCoords.z);
+    
+    shadowMapSample = tShadowMap.Sample(sampler_point_borderWhite, shadowMapCoords.xy, int2(0,1));
+    shadowFactor += (float) (shadowMapSample < shadowMapCoords.z);
+    
+    shadowMapSample = tShadowMap.Sample(sampler_point_borderWhite, shadowMapCoords.xy, int2(1, 0));
+    shadowFactor += (float) (shadowMapSample < shadowMapCoords.z);
+    
+    shadowMapSample = tShadowMap.Sample(sampler_point_borderWhite, shadowMapCoords.xy, int2(1, 1));
+    shadowFactor += (float) (shadowMapSample < shadowMapCoords.z);
+    
+    shadowFactor *= 0.25;
+    //float shadowFactor = tShadowMap.SampleCmp(samplerComparison_great_point_borderWhite, shadowMapCoords.xy, shadowMapCoords.z);
+    
     
     //illumination_albedo = lightFactor * (illumination_albedo * Diffuse.xyz).xyz;
     float3 illumination_ambient = Ambient.xyz * illumination_albedo;

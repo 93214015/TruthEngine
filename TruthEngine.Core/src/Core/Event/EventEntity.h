@@ -1,11 +1,10 @@
 #pragma once
 #include "Event.h"
+#include "Core/Entity/Entity.h"
 
 namespace TruthEngine
 {
 
-	namespace Core
-	{
 		class Mesh;
 		class Material;
 		class ILight;
@@ -118,6 +117,40 @@ namespace TruthEngine
 		private:
 			ILight* m_ILight;
 		};
-	}
 
+
+		enum class ETransformType
+		{
+			Translate,
+			Scale,
+			Rotate
+		};
+		ENUM_BIT_OPERATIONS_DEFINITION(ETransformType);
+
+
+		class EventEntityTransform : public Event
+		{
+		public:
+			EventEntityTransform(Entity _entity, ETransformType _type);
+			virtual ~EventEntityTransform() = default;
+
+			EVENT_CLASS_TYPE(EntityTransform);
+			EVENT_CLASS_CATEGORY(EventCategoryEntity);
+
+			inline ETransformType GetTransformType() const noexcept
+			{
+				return mTransformType;
+			}
+
+			inline Entity GetEntity() const noexcept
+			{
+				return mEntity;
+			}
+
+		protected:
+
+		protected:
+			Entity mEntity;
+			ETransformType mTransformType;
+		};
 }

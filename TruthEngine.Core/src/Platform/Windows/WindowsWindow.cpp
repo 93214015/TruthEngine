@@ -10,14 +10,14 @@
 #include "Core/Renderer/SwapChain.h"
 #include "API/DX12/DirectX12SwapChain.h"
 
-using namespace TruthEngine::Core;
+using namespace TruthEngine;
 
 //forward declaration of ImGui function for processing window events.
 extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	static TruthEngine::Core::Window::WindowData* windowData = nullptr;
+	static TruthEngine::Window::WindowData* windowData = nullptr;
 
 	if (ImGui_ImplWin32_WndProcHandler(hwnd, message, wParam, lParam))
 	{
@@ -32,7 +32,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPara
 		LPCREATESTRUCT pCreateStruct = reinterpret_cast<LPCREATESTRUCT>(lParam);
 		SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(pCreateStruct->lpCreateParams));
 
-		windowData = reinterpret_cast<TruthEngine::Core::Window::WindowData*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
+		windowData = reinterpret_cast<TruthEngine::Window::WindowData*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
 	}
 	return 0;
 
@@ -43,12 +43,12 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPara
 	case WM_SIZE:
 		windowData->Width = LOWORD(lParam);
 		windowData->Height = HIWORD(lParam);
-		windowData->CallBack(TruthEngine::Core::EventWindowResize{ LOWORD(lParam), HIWORD(lParam) });
+		windowData->CallBack(TruthEngine::EventWindowResize{ LOWORD(lParam), HIWORD(lParam) });
 		break;
 
 
 	case WM_MOUSEMOVE:
-		TruthEngine::Core::InputManager::OnMouseMove(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+		TruthEngine::InputManager::OnMouseMove(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 
 	case WM_INPUT:
 	case WM_LBUTTONDOWN:
@@ -145,7 +145,7 @@ namespace TruthEngine::Platforms::Windows {
 		}
 
 		if (msg.message == WM_QUIT)
-			m_Data.CallBack(TruthEngine::Core::EventWindowClose());
+			m_Data.CallBack(TruthEngine::EventWindowClose());
 
 	}
 
@@ -218,7 +218,7 @@ namespace TruthEngine::Platforms::Windows {
 }
 
 
-std::unique_ptr<TruthEngine::Core::Window> TruthEngine::Core::TECreateWindow(const char* title, uint32_t width, uint32_t height)
+std::unique_ptr<TruthEngine::Window> TruthEngine::TECreateWindow(const char* title, uint32_t width, uint32_t height)
 {
 	return std::make_unique<TruthEngine::Platforms::Windows::WindowsWindow>(title, width, height);
 }

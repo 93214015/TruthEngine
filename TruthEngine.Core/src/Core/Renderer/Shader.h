@@ -11,8 +11,6 @@ namespace TruthEngine
 		}
 	}
 
-	namespace Core
-	{
 
 		struct ShaderSignature
 		{
@@ -117,7 +115,5 @@ namespace TruthEngine
 			friend class API::DirectX12::DirectX12ShaderManager;
 
 		};
-
-	}
 
 }

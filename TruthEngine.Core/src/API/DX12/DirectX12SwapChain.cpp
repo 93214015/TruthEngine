@@ -10,7 +10,7 @@ using namespace Microsoft::WRL;
 
 #ifdef TE_API_DX12
 
-TruthEngine::Core::SwapChain* TruthEngine::Core::SwapChain::GetInstance()
+TruthEngine::SwapChain* TruthEngine::SwapChain::GetInstance()
 {
 	return &TruthEngine::API::DirectX12::DirectX12SwapChain::GetInstance();
 }
@@ -22,7 +22,7 @@ namespace TruthEngine::API::DirectX12 {
 
 	DirectX12SwapChain::DirectX12SwapChain() = default;
 
-	TE_RESULT DirectX12SwapChain::Init(uint32_t clientWidth, uint32_t clientHeight, Core::Window* outputHWND, uint32_t backBufferNum)
+	TE_RESULT DirectX12SwapChain::Init(uint32_t clientWidth, uint32_t clientHeight, Window* outputHWND, uint32_t backBufferNum)
 	{
 
 		m_BackBufferNum = backBufferNum;
@@ -41,7 +41,7 @@ namespace TruthEngine::API::DirectX12 {
 		m_SwapChain->Release();
 	}
 
-	void DirectX12SwapChain::InitRTVs(DescriptorHeapRTV* descHeap, Core::RenderTargetView* RTV)
+	void DirectX12SwapChain::InitRTVs(DescriptorHeapRTV* descHeap, RenderTargetView* RTV)
 	{
 		CreateSwapChainRTVs(descHeap, RTV);
 	}
@@ -96,7 +96,7 @@ namespace TruthEngine::API::DirectX12 {
 		}
 	}
 
-	void DirectX12SwapChain::CreateSwapChainRTVs(DescriptorHeapRTV* descHeap, Core::RenderTargetView* RTV)
+	void DirectX12SwapChain::CreateSwapChainRTVs(DescriptorHeapRTV* descHeap, RenderTargetView* RTV)
 	{
 
 		if (RTV->ViewIndex == -1)

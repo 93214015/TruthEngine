@@ -13,9 +13,10 @@
 #include "Core/Renderer/SwapChain.h"
 
 #include "Core/Event/EventEntity.h"
+#include "Core/Entity/Camera/CameraManager.h"
 
 
-namespace TruthEngine::Core
+namespace TruthEngine
 {
 
 	RenderPass_ForwardRendering::RenderPass_ForwardRendering()
@@ -35,13 +36,13 @@ namespace TruthEngine::Core
 
 	void RenderPass_ForwardRendering::OnAttach()
 	{
-		m_BufferMgr = TE_INSTANCE_BUFFERMANAGER.get();
+		m_BufferMgr = TE_INSTANCE_BUFFERMANAGER;
 
-		m_ShaderMgr = TE_INSTANCE_SHADERMANAGER.get();
+		m_ShaderMgr = TE_INSTANCE_SHADERMANAGER;
 
 		m_RendererCommand.Init(TE_IDX_RENDERPASS::FORWARDRENDERING, TE_IDX_SHADERCLASS::FORWARDRENDERING, m_BufferMgr, m_ShaderMgr);
 
-		m_TextureDepthStencil = m_RendererCommand.CreateDepthStencil(TE_IDX_TEXTURE::DS_SCENEBUFFER, TE_INSTANCE_APPLICATION->GetClientWidth(), TE_INSTANCE_APPLICATION->GetClientHeight(), TE_RESOURCE_FORMAT::R32_TYPELESS, ClearValue_DepthStencil{ 1.0f, 0 }, false);
+		m_TextureDepthStencil = m_RendererCommand.CreateDepthStencil(TE_IDX_TEXTURE::DS_SCENEBUFFER, TE_INSTANCE_APPLICATION->GetClientWidth(), TE_INSTANCE_APPLICATION->GetClientHeight(), TE_RESOURCE_FORMAT::R32_TYPELESS, ClearValue_DepthStencil{ 1.0f, 0 }, false, true);
 
 		m_RendererCommand.CreateDepthStencilView(m_TextureDepthStencil, &m_DepthStencilView);
 
@@ -67,31 +68,33 @@ namespace TruthEngine::Core
 
 	void RenderPass_ForwardRendering::OnImGuiRender()
 	{
-		ImGui::Begin("RenderPass: Forward Rendering");
-
-		if(ImGui::BeginTable("##forwardrenderingtable", 3, ImGuiTableFlags_ColumnsWidthStretch))
+		if (ImGui::Begin("RenderPass: Forward Rendering"))
 		{
-			ImGui::TableSetupColumn("Render Time : Draw");
-			ImGui::TableSetupColumn("Drawn Mesh Count");
-			ImGui::TableSetupColumn("Total Vertex Count");
-			ImGui::TableHeadersRow();
 
-			ImGui::TableNextRow();
-			ImGui::TableNextColumn();
-			ImGui::Text("%.3f ms", m_TimerRender.GetAverageTime());
-			//ImGui::Text("FindRootTransform: %.3f ms", m_TimerRender_0.GetAverageTime());
-			//ImGui::Text("SetPipelineAndDraw: %.3f ms", m_TimerRender_1.GetAverageTime());
+			if (ImGui::BeginTable("##forwardrenderingtable", 3, ImGuiTableFlags_ColumnsWidthStretch))
+			{
+				ImGui::TableSetupColumn("Render Time : Draw");
+				ImGui::TableSetupColumn("Drawn Mesh Count");
+				ImGui::TableSetupColumn("Total Vertex Count");
+				ImGui::TableHeadersRow();
+
+				ImGui::TableNextRow();
+				ImGui::TableNextColumn();
+				ImGui::Text("%.3f ms", m_TimerRender.GetAverageTime());
+				//ImGui::Text("FindRootTransform: %.3f ms", m_TimerRender_0.GetAverageTime());
+				//ImGui::Text("SetPipelineAndDraw: %.3f ms", m_TimerRender_1.GetAverageTime());
 
 
-			ImGui::TableNextColumn();
-			ImGui::Text("%i", m_TotalMeshNum);
+				ImGui::TableNextColumn();
+				ImGui::Text("%i", m_TotalMeshNum);
 
-			ImGui::TableNextColumn();
-			ImGui::Text("%i", m_TotalVertexNum);
+				ImGui::TableNextColumn();
+				ImGui::Text("%i", m_TotalVertexNum);
 
-			ImGui::EndTable();
+				ImGui::EndTable();
+			}
+
 		}
-
 		ImGui::End();
 	}
 
@@ -128,14 +131,47 @@ namespace TruthEngine::Core
 
 		auto data = m_ConstantBufferDirect_PerMesh->GetData();
 
-		auto scene = Application::GetApplication()->GetActiveScene();
-
 		auto activeScene = Application::GetApplication()->GetActiveScene();
 
 		auto& reg = activeScene->GetEntityRegistery();
 
+		auto activeCamera = CameraManager::GetInstance()->GetActiveCamera();
+		const BoundingFrustum& _CameraBoundingFrustum = activeCamera->GetBoundingFrustumWorldSpace();
 
-		auto& dynamicEntityGroup = reg.view<MeshComponent, PhysicsDynamicComponent>();
+		auto& EntityMeshView = reg.view<MeshComponent>();
+
+		for (auto entity_mesh : EntityMeshView)
+		{
+			const float4x4* _transform = nullptr;
+			if (activeScene->HasComponent<PhysicsDynamicComponent>(entity_mesh))
+			{
+				_transform = &activeScene->GetComponent<PhysicsDynamicComponent>(entity_mesh).GetTranform();
+			}
+			else
+			{
+				_transform = &activeScene->GetComponent<TransformComponent>(entity_mesh).GetTransform();
+			}
+
+			const BoundingBox& _AABB = activeScene->GetComponent<BoundingBoxComponent>(entity_mesh).GetBoundingBox();
+			const BoundingBox _TransformedAABB = Math::TransformBoundingBox(_AABB, *_transform);
+
+			if (_CameraBoundingFrustum.Contains(_TransformedAABB) == DirectX::DISJOINT)
+				continue;
+
+			Mesh* mesh = activeScene->GetComponent<MeshComponent>(entity_mesh).GetMesh();
+			Material* material = activeScene->GetComponent<MaterialComponent>(entity_mesh).GetMaterial();
+
+			*data = ConstantBuffer_Data_Per_Mesh(*_transform, Math::InverseTranspose(*_transform), material->GetID());
+
+			m_RendererCommand.UploadData(m_ConstantBufferDirect_PerMesh);
+			m_RendererCommand.SetPipeline(m_MaterialPipelines[material->GetID()].get());
+			m_RendererCommand.DrawIndexed(mesh);
+
+			m_TotalVertexNum += mesh->GetVertexNum();
+			m_TotalMeshNum++;
+		}
+
+		/*auto& dynamicEntityGroup = reg.view<MeshComponent, PhysicsDynamicComponent>();
 
 		for (auto entity_mesh : dynamicEntityGroup)
 		{
@@ -143,6 +179,11 @@ namespace TruthEngine::Core
 			//const float4x4& meshTransform = activeScene->GetComponent<TransformComponent>(entity_mesh).GetTransform();
 			const auto& phComponent = activeScene->GetComponent<PhysicsDynamicComponent>(entity_mesh);
 			const float4x4& physicsTransform = phComponent.GetTranform();
+			const BoundingBox& _AABB = activeScene->GetComponent<BoundingBoxComponent>(entity_mesh).GetBoundingBox();
+			const BoundingBox _TransformedAABB = Math::TransformBoundingBox(_AABB, physicsTransform);
+
+			if (_CameraBoundingFrustum.Contains(_TransformedAABB) == DirectX::DISJOINT)
+				continue;
 
 			Mesh* mesh = activeScene->GetComponent<MeshComponent>(entity_mesh).GetMesh();
 			Material* material = activeScene->GetComponent<MaterialComponent>(entity_mesh).GetMaterial();
@@ -163,6 +204,11 @@ namespace TruthEngine::Core
 		{
 			//float4x4 meshTransform = activeScene->CalcTransformsToRoot(entity_mesh);
 			const float4x4& meshTransform = activeScene->GetComponent<TransformComponent>(entity_mesh).GetTransform();
+			const BoundingBox& _AABB = activeScene->GetComponent<BoundingBoxComponent>(entity_mesh).GetBoundingBox();
+			const BoundingBox _TransformedAABB = Math::TransformBoundingBox(_AABB, meshTransform);
+
+			if (_CameraBoundingFrustum.Contains(_TransformedAABB) == DirectX::DISJOINT)
+				continue;
 
 			Mesh* mesh = activeScene->GetComponent<MeshComponent>(entity_mesh).GetMesh();
 			Material* material = activeScene->GetComponent<MaterialComponent>(entity_mesh).GetMaterial();
@@ -175,7 +221,7 @@ namespace TruthEngine::Core
 
 			m_TotalVertexNum += mesh->GetVertexNum();
 			m_TotalMeshNum++;
-		}
+		}*/
 
 		//auto& entityGroup = reg.view<MeshComponent>();
 
@@ -207,7 +253,6 @@ namespace TruthEngine::Core
 
 	void RenderPass_ForwardRendering::OnSceneViewportResize(uint32_t width, uint32_t height)
 	{
-
 		m_RendererCommand.ResizeDepthStencil(m_TextureDepthStencil, width, height, &m_DepthStencilView, nullptr);
 		m_RendererCommand.CreateRenderTargetView(TE_IDX_TEXTURE::RT_SCENEBUFFER, &m_RenderTartgetView);
 		m_RendererCommand.CreateDepthStencilView(m_TextureDepthStencil, &m_DepthStencilView);
@@ -227,7 +272,7 @@ namespace TruthEngine::Core
 
 		static TE_RESOURCE_FORMAT rtvFormats[1] = { TE_RESOURCE_FORMAT::R8G8B8A8_UNORM };
 
-		auto pipeline = std::make_shared<Pipeline>(material->GetRendererStates(), shader, 1, rtvFormats);
+		auto pipeline = std::make_shared<Pipeline>(material->GetRendererStates(), shader, 1, rtvFormats, TE_RESOURCE_FORMAT::D32_FLOAT, true);
 
 		m_MaterialPipelines[material->GetID()] = pipeline;
 	}

@@ -8,7 +8,7 @@
 #include "Core/Entity/Camera/CameraPerspective.h"
 #include "Core/Entity/Scene.h"
 
-namespace TruthEngine::Core {
+namespace TruthEngine {
 
 	class EventWindowResize;
 	class RendererLayer;
@@ -109,4 +109,4 @@ namespace TruthEngine::Core {
 
 }
 
-#define TE_INSTANCE_APPLICATION TruthEngine::Core::Application::GetApplication()
+#define TE_INSTANCE_APPLICATION TruthEngine::Application::GetApplication()

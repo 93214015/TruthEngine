@@ -4,10 +4,10 @@
 
 #ifdef TE_PLATFORM_WINDOWS
 
-	namespace TruthEngine::Core
+	namespace TruthEngine
 	{
 
-		bool InputManager::IsKeyPressed(const TruthEngine::Core::KeyCode key)
+		bool InputManager::IsKeyPressed(const TruthEngine::KeyCode key)
 		{
 			return GetAsyncKeyState(key) & 0x8000;
 		}

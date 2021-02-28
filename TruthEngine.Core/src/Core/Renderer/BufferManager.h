@@ -2,7 +2,7 @@
 
 #include "ConstantBuffer.h"
 
-namespace TruthEngine::Core
+namespace TruthEngine
 {
 
 	class CommandList;
@@ -77,9 +77,9 @@ namespace TruthEngine::Core
 		BufferManager() = default;
 		~BufferManager() = default;
 
-		static std::shared_ptr<BufferManager> GetInstance() {
+		static BufferManager* GetInstance() {
 			static auto s_BufferManager = Factory();
-			return s_BufferManager;
+			return s_BufferManager.get();
 		}
 
 		virtual void Init(uint32_t resourceNum, uint32_t shaderResourceViewNum, uint32_t renderTargetViewNum, uint32_t depthBufferViewNum) = 0;
@@ -137,9 +137,9 @@ namespace TruthEngine::Core
 			return cb.get();
 		}
 
-		TextureRenderTarget* CreateRenderTarget(TE_IDX_TEXTURE idx, uint32_t width, uint32_t height, TE_RESOURCE_FORMAT format, const ClearValue_RenderTarget& clearValue, bool useAsShaderResource);
+		TextureRenderTarget* CreateRenderTarget(TE_IDX_TEXTURE idx, uint32_t width, uint32_t height, TE_RESOURCE_FORMAT format, const ClearValue_RenderTarget& clearValue, bool useAsShaderResource, bool enbaleMSAA);
 
-		TextureDepthStencil* CreateDepthStencil(TE_IDX_TEXTURE idx, uint32_t width, uint32_t height, TE_RESOURCE_FORMAT format, const ClearValue_DepthStencil& clearValue, bool useAsShaderResource);
+		TextureDepthStencil* CreateDepthStencil(TE_IDX_TEXTURE idx, uint32_t width, uint32_t height, TE_RESOURCE_FORMAT format, const ClearValue_DepthStencil& clearValue, bool useAsShaderResource, bool enbaleMSAA);
 
 		TextureRenderTarget* GetRenderTarget(TE_IDX_TEXTURE idx);
 
@@ -196,4 +196,4 @@ namespace TruthEngine::Core
 	};
 }
 
-#define TE_INSTANCE_BUFFERMANAGER TruthEngine::Core::BufferManager::GetInstance()
+#define TE_INSTANCE_BUFFERMANAGER TruthEngine::BufferManager::GetInstance()

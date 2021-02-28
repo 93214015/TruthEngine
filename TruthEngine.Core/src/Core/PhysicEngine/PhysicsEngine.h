@@ -16,7 +16,7 @@ public:
 
 };
 
-namespace TruthEngine::Core
+namespace TruthEngine
 {
 
 
@@ -168,4 +168,4 @@ namespace TruthEngine::Core
 	};
 }
 
-#define TE_INSTANCE_PHYSICSENGINE TruthEngine::Core::PhysicsEngine::GetInstance()
+#define TE_INSTANCE_PHYSICSENGINE TruthEngine::PhysicsEngine::GetInstance()

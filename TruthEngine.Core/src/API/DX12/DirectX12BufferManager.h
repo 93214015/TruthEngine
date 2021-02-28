@@ -4,7 +4,7 @@
 #include "DirectX12DescriptorHeap.h"
 
 
-//namespace TruthEngine::Core
+//namespace TruthEngine
 //{
 //	class VertexBuffer;
 //	class GraphicResource;
@@ -15,9 +15,9 @@
 //}
 
 namespace TruthEngine::API::DirectX12 {
-	
 
-	class DirectX12BufferManager : public Core::BufferManager
+
+	class DirectX12BufferManager : public BufferManager
 	{
 
 	public:
@@ -34,27 +34,27 @@ namespace TruthEngine::API::DirectX12 {
 
 		void Release() override;
 
-		TE_RESULT CreateVertexBuffer(Core::VertexBufferBase* vb) override;
+		TE_RESULT CreateVertexBuffer(VertexBufferBase* vb) override;
 
-		TE_RESULT CreateIndexBuffer(Core::IndexBuffer* ib) override;
+		TE_RESULT CreateIndexBuffer(IndexBuffer* ib) override;
 
-		void CreateRenderTargetView(Core::TextureRenderTarget* RT, Core::RenderTargetView* RTV) override;
+		void CreateRenderTargetView(TextureRenderTarget* RT, RenderTargetView* RTV) override;
 
-		void CreateRenderTargetView(Core::SwapChain* swapChain, Core::RenderTargetView* RTV) override;
+		void CreateRenderTargetView(SwapChain* swapChain, RenderTargetView* RTV) override;
 
-		void CreateDepthStencilView(Core::TextureDepthStencil* DS, Core::DepthStencilView* DSV) override;
+		void CreateDepthStencilView(TextureDepthStencil* DS, DepthStencilView* DSV) override;
 
-		void CreateShaderResourceView(Core::Texture* textures[], uint32_t textureNum, Core::ShaderResourceView* SRV) override;
+		void CreateShaderResourceView(Texture* textures[], uint32_t textureNum, ShaderResourceView* SRV) override;
 
-		void CreateShaderResourceView(Core::Texture* texture, Core::ShaderResourceView* SRV) override;
+		void CreateShaderResourceView(Texture* texture, ShaderResourceView* SRV) override;
 
-		void CreateConstantBufferView(Core::ConstantBufferUploadBase* constantBuffer, Core::ConstantBufferView* CBV, uint8_t frameIndex) override;
+		void CreateConstantBufferView(ConstantBufferUploadBase* constantBuffer, ConstantBufferView* CBV, uint8_t frameIndex) override;
 
-		uint64_t GetRequiredSize(const Core::GraphicResource* graphicResource) const override;
+		uint64_t GetRequiredSize(const GraphicResource* graphicResource) const override;
 
-		void ReleaseResource(Core::GraphicResource* resource) override;
+		void ReleaseResource(GraphicResource* resource) override;
 
-		ID3D12Resource* GetResource(Core::GraphicResource* graphicResource);
+		ID3D12Resource* GetResource(GraphicResource* graphicResource);
 
 		D3D12_GPU_DESCRIPTOR_HANDLE AddDescriptorSRV(ID3D12Resource* resource, const D3D12_SHADER_RESOURCE_VIEW_DESC* desc);
 		D3D12_GPU_DESCRIPTOR_HANDLE AddDescriptorCBV(const D3D12_CONSTANT_BUFFER_VIEW_DESC* cbvDesc);
@@ -68,17 +68,17 @@ namespace TruthEngine::API::DirectX12 {
 		}
 
 	private:
-		TE_RESULT CreateResource(Core::BufferUpload* buffer) override;
+		TE_RESULT CreateResource(BufferUpload* buffer) override;
 
-		TE_RESULT CreateResource(Core::TextureRenderTarget* tRT) override;
+		TE_RESULT CreateResource(TextureRenderTarget* tRT) override;
 
-		TE_RESULT CreateResource(Core::TextureDepthStencil* tDS) override;
+		TE_RESULT CreateResource(TextureDepthStencil* tDS) override;
 
-		TE_RESULT CreateResource(Core::VertexBufferStreamBase* vb) override;
+		TE_RESULT CreateResource(VertexBufferStreamBase* vb) override;
 
-		TE_RESULT CreateResource(Core::IndexBuffer* ib) override;
+		TE_RESULT CreateResource(IndexBuffer* ib) override;
 
-		TE_RESULT CreateResource(Core::TextureMaterial* texture) override;
+		TE_RESULT CreateResource(TextureMaterial* texture) override;
 
 
 	private:

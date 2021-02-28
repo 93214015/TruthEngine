@@ -12,11 +12,11 @@
 
 using namespace DirectX;
 
-void TruthEngine::Core::PickingEntity::PickEntity(float3 rayOrigin, float3 rayDirection, Scene* scene, Camera* camera)
+void TruthEngine::PickingEntity::PickEntity(float3 rayOrigin, float3 rayDirection, Scene* scene, Camera* camera)
 {
 }
 
-void TruthEngine::Core::PickingEntity::PickEntity(float2 mousePosition, Scene* scene, Camera* camera)
+void TruthEngine::PickingEntity::PickEntity(float2 mousePosition, Scene* scene, Camera* camera)
 {
 	const auto& _proj = camera->GetProjection();
 

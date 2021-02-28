@@ -9,13 +9,13 @@
 namespace TruthEngine::API::DirectX12 {
 
 
-	class DirectX12SwapChain : public TruthEngine::Core::SwapChain
+	class DirectX12SwapChain : public TruthEngine::SwapChain
 	{
 
 	public:
 		static inline DirectX12SwapChain& GetInstance() { return s_SwapChain; }
 
-		TE_RESULT Init(uint32_t clientWidth, uint32_t clientHeight, Core::Window* outputWindow, uint32_t backBufferNum = 2) override;
+		TE_RESULT Init(uint32_t clientWidth, uint32_t clientHeight, Window* outputWindow, uint32_t backBufferNum = 2) override;
 
 		void Release() override;
 
@@ -23,7 +23,7 @@ namespace TruthEngine::API::DirectX12 {
 
 		uint8_t GetCurrentFrameIndex() const override;
 
-		void InitRTVs(DescriptorHeapRTV* descHeap, Core::RenderTargetView* RTV);
+		void InitRTVs(DescriptorHeapRTV* descHeap, RenderTargetView* RTV);
 
 		inline ID3D12Resource* GetBackBufferResource() const { return m_BackBuffers[GetCurrentFrameIndex()].Get(); };
 
@@ -41,7 +41,7 @@ namespace TruthEngine::API::DirectX12 {
 
 		void CreateSwapChain(HWND outputHWND);
 
-		void CreateSwapChainRTVs(DescriptorHeapRTV* descHeap, Core::RenderTargetView* RTV);
+		void CreateSwapChainRTVs(DescriptorHeapRTV* descHeap, RenderTargetView* RTV);
 
 		void CheckDeviceFeatures();
 

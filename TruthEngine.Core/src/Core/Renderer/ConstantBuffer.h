@@ -17,7 +17,7 @@ namespace TruthEngine
 	}
 }
 
-namespace TruthEngine::Core
+namespace TruthEngine
 {
 
 	class ConstantBuffer

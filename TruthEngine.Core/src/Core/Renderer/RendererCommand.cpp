@@ -18,15 +18,15 @@
 
 #include "API/DX12/DirectX12CommandList.h"
 
-namespace TruthEngine::Core
+namespace TruthEngine
 {
 
 	RendererCommand::RendererCommand() = default;
 
 	void RendererCommand::Init(TE_IDX_RENDERPASS renderPassIDX, TE_IDX_SHADERCLASS shaderClassIDX, BufferManager* bufferManager, ShaderManager* shaderManager)
 	{
-		m_BufferManager = bufferManager ? bufferManager : TE_INSTANCE_BUFFERMANAGER.get();
-		m_ShaderManager = shaderManager ? shaderManager : TE_INSTANCE_SHADERMANAGER.get();
+		m_BufferManager = bufferManager ? bufferManager : TE_INSTANCE_BUFFERMANAGER;
+		m_ShaderManager = shaderManager ? shaderManager : TE_INSTANCE_SHADERMANAGER;
 
 		//m_CommandLists = std::vector<std::shared_ptr<CommandList>>(ParallelCommandsNum, CommandList::Factory(&TE_INSTANCE_GRAPHICDEVICE, TE_RENDERER_COMMANDLIST_TYPE::DIRECT, m_BufferManager, shaderManager));
 
@@ -120,7 +120,7 @@ namespace TruthEngine::Core
 		m_CurrentCommandList->SetIndexBuffer(indexBuffer);
 	}
 
-	void RendererCommand::DrawIndexed(Mesh* mesh)
+	void RendererCommand::DrawIndexed(const Mesh* mesh)
 	{
 		m_CurrentCommandList->SetVertexBuffer(mesh->GetVertexBuffer());
 		m_CurrentCommandList->SetIndexBuffer(mesh->GetIndexBuffer());
@@ -247,15 +247,15 @@ namespace TruthEngine::Core
 	}
 
 
-	TruthEngine::Core::TextureRenderTarget* RendererCommand::CreateRenderTarget(TE_IDX_TEXTURE idx, uint32_t width, uint32_t height, TE_RESOURCE_FORMAT format, const ClearValue_RenderTarget& clearValue, bool useAsShaderResource)
+	TruthEngine::TextureRenderTarget* RendererCommand::CreateRenderTarget(TE_IDX_TEXTURE idx, uint32_t width, uint32_t height, TE_RESOURCE_FORMAT format, const ClearValue_RenderTarget& clearValue, bool useAsShaderResource, bool enbaleMSAA)
 	{
-		return TE_INSTANCE_BUFFERMANAGER->CreateRenderTarget(idx, width, height, format, clearValue, useAsShaderResource);
+		return TE_INSTANCE_BUFFERMANAGER->CreateRenderTarget(idx, width, height, format, clearValue, useAsShaderResource, enbaleMSAA);
 	}
 
 
-	TruthEngine::Core::TextureDepthStencil* RendererCommand::CreateDepthStencil(TE_IDX_TEXTURE idx, uint32_t width, uint32_t height, TE_RESOURCE_FORMAT format, const ClearValue_DepthStencil& clearValue, bool useAsShaderResource)
+	TruthEngine::TextureDepthStencil* RendererCommand::CreateDepthStencil(TE_IDX_TEXTURE idx, uint32_t width, uint32_t height, TE_RESOURCE_FORMAT format, const ClearValue_DepthStencil& clearValue, bool useAsShaderResource, bool enbaleMSAA)
 	{
-		return TE_INSTANCE_BUFFERMANAGER->CreateDepthStencil(idx, width, height, format, clearValue, useAsShaderResource);
+		return TE_INSTANCE_BUFFERMANAGER->CreateDepthStencil(idx, width, height, format, clearValue, useAsShaderResource, enbaleMSAA);
 	}
 
 

@@ -4,115 +4,118 @@
 
 namespace TruthEngine
 {
-	namespace Core
+
+	class Material;
+	class Mesh;
+
+	class Scene
 	{
-		class Scene
+	public:
+		Scene();
+
+		Entity AddEntity(const char* entityTag, Entity parent, const float4x4& transform = IdentityMatrix);
+		Entity AddEntity(const char* entityTag, const float4x4& transform = IdentityMatrix);
+
+		Entity AddMeshEntity(const char* meshName, const float4x4& transform, Mesh* mesh, Material* material, Entity parentEntity = Entity());
+
+		Entity CopyMeshEntity(Entity meshsEntity);
+
+		template<class... Ts>
+		auto GroupEntities()
 		{
-		public:
-			Scene();
+			return m_Registery.group<Ts...>();
+		}
 
-			Entity AddEntity(const char* entityTag, Entity parent, const float4x4& transform = IdentityMatrix);
-			Entity AddEntity(const char* entityTag, const float4x4& transform = IdentityMatrix);
+		template<class... Ts>
+		auto ViewEntities()
+		{
+			return m_Registery.view<Ts...>();
+		}
 
-			Entity CopyMeshEntity(Entity meshsEntity);
+		template<class T>
+		T& GetComponent(entt::entity entityHandler)
+		{
+			return m_Registery.get<T>(entityHandler);
+		}
 
-			template<class... Ts>
-			auto GroupEntities()
-			{
-				return m_Registery.group<Ts...>();
-			}
+		template<typename T>
+		bool HasComponent(entt::entity entityHandler)
+		{
+			return m_Registery.has<T>(entityHandler);
+		}
 
-			template<class... Ts>
-			auto ViewEntities()
-			{
-				return m_Registery.view<Ts...>();
-			}
+		entt::registry& GetEntityRegistery()
+		{
+			return m_Registery;
+		}
 
-			template<class T>
-			T& GetComponent(entt::entity entityHandler)
-			{
-				return m_Registery.get<T>(entityHandler);
-			}
+		inline Entity GetSelectedEntity() const
+		{
+			return m_SelectedEntity;
+		}
 
-			template<typename T>
-			bool HasComponent(entt::entity entityHandler)
-			{
-				return m_Registery.has<T>(entityHandler);
-			}
+		inline void SelectEntity(const Entity& entity)
+		{
+			m_SelectedEntity = entity;
+		}
 
-			entt::registry& GetEntityRegistery()
-			{
-				return m_Registery;
-			}
+		inline void SelectEntity(entt::entity entityHandle)
+		{
+			m_SelectedEntity = Entity(this, entityHandle);
+		}
 
-			inline Entity GetSelectedEntity() const
-			{
-				return m_SelectedEntity;
-			}
+		inline void ClearSelectedEntity()
+		{
+			m_SelectedEntity = {};
+		}
 
-			inline void SelectEntity(const Entity& entity)
-			{
-				m_SelectedEntity = entity;
-			}
+		std::vector<Entity> GetChildrenEntity(Entity entity);
+		std::vector<Entity> GetChildrenEntity(entt::entity entityHandler);
 
-			inline void SelectEntity(entt::entity entityHandle)
-			{
-				m_SelectedEntity = Entity(this, entityHandle);
-			}
+		inline std::vector<EntityNode>& GetChildrenNodes(Entity entity)
+		{
+			return m_EntityTree.m_Tree.find(entity)->second.mChildren;
+		}
+		inline std::vector<EntityNode>& GetChildrenNodes(entt::entity entityHandler)
+		{
+			return m_EntityTree.m_Tree.find(static_cast<uint32_t>(entityHandler))->second.mChildren;
+		}
 
-			inline void ClearSelectedEntity()
-			{
-				m_SelectedEntity = {};
-			}
+		std::vector<Entity> GetAncestor(const Entity& entity);
+		float4x4 CalcTransformsToRoot(Entity& entity);
+		std::vector<Entity> GetAncestor(entt::entity entityHandler);
+		float4x4 CalcTransformsToRoot(entt::entity entityHandler);
 
-			std::vector<Entity> GetChildrenEntity(Entity entity);
-			std::vector<Entity> GetChildrenEntity(entt::entity entityHandler);
+		const BoundingBox& GetBoundingBox() const noexcept;
+		void UpdateBoundingBox(const BoundingBox& _boundingBox);
 
-			inline std::vector<EntityNode>& GetChildrenNodes(Entity entity)
-			{
-				return m_EntityTree.m_Tree.find(entity)->second.mChildren;
-			}
-			inline std::vector<EntityNode>& GetChildrenNodes(entt::entity entityHandler)
-			{
-				return m_EntityTree.m_Tree.find(static_cast<uint32_t>(entityHandler))->second.mChildren;
-			}
+		inline bool HasParent(const Entity& entity)
+		{
+			auto itr = m_EntityTree.m_Tree.find(entity);
+			auto parentEntity = itr->second.mParent;
+			return parentEntity;
+		}
 
-			std::vector<Entity> GetAncestor(const Entity& entity);
-			float4x4 CalcTransformsToRoot(Entity& entity);
-			std::vector<Entity> GetAncestor(entt::entity entityHandler);
-			float4x4 CalcTransformsToRoot(entt::entity entityHandler);
+		float3 GetPosition(Entity entity);
+		float3 GetPosition(entt::entity entityHandle);
 
+	private:
+		float4x4 GetParentTransforms(Entity parent);
+		float4x4 GetParentTransforms(entt::entity parentHandler);
+	private:
+		entt::registry m_Registery;
 
+		EntityTree m_EntityTree;
+		Entity m_SelectedEntity;
 
-			inline bool HasParent(const Entity& entity)
-			{
-				auto itr = m_EntityTree.m_Tree.find(entity);
-				auto parentEntity = itr->second.mParent;
-				return parentEntity;
-			}
+		std::unordered_map<const char*, Entity> m_Entites;
 
-			float3 GetPosition(Entity entity);
-			float3 GetPosition(entt::entity entityHandle);
+		BoundingBox m_BoundingBox;
 
-		private:
-			float4x4 GetParentTransforms(Entity parent);
-			float4x4 GetParentTransforms(entt::entity parentHandler);
-		private:
-			entt::registry m_Registery;
-
-			EntityTree m_EntityTree;
-			Entity m_SelectedEntity;
-
-			std::unordered_map<const char*, Entity> m_Entites;
-
-			//
-			//Friend Classes
-			//
-			friend class Entity;
-			/*friend class EntityTree;*/
-		};
-
-
-
-	}
+		//
+		//Friend Classes
+		//
+		friend class Entity;
+		/*friend class EntityTree;*/
+	};
 }

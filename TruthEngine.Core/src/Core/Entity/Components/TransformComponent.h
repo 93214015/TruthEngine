@@ -2,8 +2,6 @@
 
 namespace TruthEngine
 {
-	namespace Core
-	{
 		class TransformComponent
 		{
 		public:
@@ -23,7 +21,7 @@ namespace TruthEngine
 				return m_Transform;
 			}
 
-			inline operator float4x4& ()
+			inline operator float4x4&()
 			{
 				return m_Transform;
 			}
@@ -33,5 +31,4 @@ namespace TruthEngine
 		private:
 			float4x4 m_Transform = IdentityMatrix;
 		};
-	}
 }

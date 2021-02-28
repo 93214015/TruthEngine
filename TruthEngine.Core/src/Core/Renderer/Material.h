@@ -3,9 +3,6 @@
 
 namespace TruthEngine
 {
-	namespace Core
-	{
-
 		class MaterialTexture;
 
 		class Material
@@ -161,5 +158,4 @@ namespace TruthEngine
 			friend class MaterialManager;
 
 		};
-	}
 }

@@ -8,7 +8,7 @@
 #define TE_INSTANCE_API_DX12_COMMANDQUEUEDIRECT		TruthEngine::API::DirectX12::DirectX12GraphicDevice::GetPrimaryDeviceDX12().GetCommandQueuDirect()
 #define TE_INSTANCE_API_DX12_COMMANDQUEUECOPY		TruthEngine::API::DirectX12::DirectX12GraphicDevice::GetPrimaryDeviceDX12().GetCommandQueuCopy()
 
-namespace TruthEngine::Core {
+namespace TruthEngine {
 
 	class GraphicResource;
 
@@ -17,15 +17,15 @@ namespace TruthEngine::Core {
 namespace TruthEngine::API::DirectX12 {
 
 
-	class DirectX12GraphicDevice : public TruthEngine::Core::GraphicDevice {
-		
+	class DirectX12GraphicDevice : public TruthEngine::GraphicDevice {
+
 	public:
 		TE_RESULT Init(UINT adapterIndex) override;
 
 		inline ID3D12Device8* GetDevice() const noexcept { return m_Device.Get(); }
 
 		inline ID3D12Device8* operator->() { return m_Device.Get(); }
-		
+
 		void WaitForGPU() override;
 
 		inline DirectX12CommandQueue_Direct* GetCommandQueuDirect() { return &m_CommandQueueDirect; }
@@ -66,6 +66,10 @@ namespace TruthEngine::API::DirectX12 {
 
 
 		D3D12_FEATURE_DATA_ROOT_SIGNATURE m_FeatureData_RootSignature = {};
+		
+
+		uint32_t m_MSAA_QualityLevels_4X = 0;
+		uint32_t m_MSAA_QualityLevels_8X = 0;
 
 		static DirectX12GraphicDevice s_PrimaryDevice;
 

@@ -12,7 +12,7 @@ namespace TruthEngine
 	}
 }
 
-namespace TruthEngine::Core
+namespace TruthEngine
 {
 
 
@@ -35,6 +35,7 @@ namespace TruthEngine::Core
 			, TE_RESOURCE_FORMAT format
 			, ClearValue_RenderTarget clearValue
 			, bool useAsShaderResource
+			, bool enableMSAA
 		);
 
 		virtual ~TextureRenderTarget() = default;

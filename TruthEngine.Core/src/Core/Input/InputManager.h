@@ -2,7 +2,7 @@
 #include "Mouse.h"
 #include "KeyCodes.h"
 
-namespace TruthEngine::Core {
+namespace TruthEngine {
 
 	class InputManager {
 

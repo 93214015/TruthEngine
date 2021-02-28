@@ -2,7 +2,7 @@
 #include "Event.h"
 #include "Core/Input/MouseButtons.h"
 
-namespace TruthEngine::Core {
+namespace TruthEngine {
 
 	class EventMouseMoved : public Event {
 

@@ -4,8 +4,6 @@
 
 namespace TruthEngine
 {
-	namespace Core
-	{
 		class MaterialComponent
 		{
 		public:
@@ -27,5 +25,4 @@ namespace TruthEngine
 			//
 			friend class MaterialManager;
 		};
-	}
 }

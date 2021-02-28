@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "TagComponent.h"
 
-namespace TruthEngine::Core
+namespace TruthEngine
 {
 	TagComponent::TagComponent(const std::string& tag)
 		: m_Tag(tag)

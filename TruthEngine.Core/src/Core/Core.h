@@ -47,3 +47,4 @@ enum TE_RESULT : int {
 #include "Core/Settings.h"
 #include "Core/StaticInstances.h"
 #include "Core/Helper/MathHelper.h"
+#include "Core/Helper/Macros.h"

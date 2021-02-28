@@ -2,7 +2,7 @@
 
 #include "Entity.h"
 
-namespace TruthEngine::Core
+namespace TruthEngine
 {
 	struct EntityNode
 	{

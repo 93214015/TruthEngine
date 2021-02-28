@@ -3,7 +3,7 @@
 #include "TextureRenderTarget.h"
 #include "TextureDepthStencil.h"
 
-namespace TruthEngine::Core
+namespace TruthEngine
 {
 
 	class GraphicDevice;
@@ -33,7 +33,7 @@ namespace TruthEngine::Core
 		virtual void Reset() = 0;
 		virtual void Reset(Pipeline* pipeline) = 0;
 
-		virtual void SetPipeline(Core::Pipeline* pipeline) = 0;
+		virtual void SetPipeline(Pipeline* pipeline) = 0;
 //		virtual void SetRenderTarget(TextureRenderTarget* RenderTargets[], const uint32_t RenderTargetNum, const TextureDepthStencil* DepthStencil) = 0;
 		virtual void SetRenderTarget(const RenderTargetView RTV) = 0;
 		virtual void SetRenderTarget(SwapChain* swapChain, const RenderTargetView RTV) = 0;

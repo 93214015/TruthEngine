@@ -10,12 +10,9 @@
 namespace TruthEngine
 {
 
-	namespace Core
-	{
-		class EventKeyReleased;
-	}
+	class EventKeyReleased;
 
-	class ApplicationEditor : public Core::Application
+	class ApplicationEditor : public Application
 	{
 	public:
 		ApplicationEditor(uint16_t clientWidth, uint16_t clientHeight, uint8_t framesInFlightNum);
@@ -40,13 +37,13 @@ namespace TruthEngine
 
 		void RegisterOnEvents();
 
-		void OnEventKeyReleased(Core::EventKeyReleased& event);
+		void OnEventKeyReleased(EventKeyReleased& event);
 
 	private:
 
-		Core::TimerProfile_OneSecond m_TimerAvg_Update;
-		Core::TimerProfile_OneSecond m_TimerAvg_ImGuiPass;
-		Core::TimerProfile_OneSecond m_TimerAvg_UpdateRenderPasses;
+		TimerProfile_OneSecond m_TimerAvg_Update;
+		TimerProfile_OneSecond m_TimerAvg_ImGuiPass;
+		TimerProfile_OneSecond m_TimerAvg_UpdateRenderPasses;
 
 		float2 m_SceneViewPortPos = { .0f, .0f };
 		float2 m_SceneViewPortAreaMin = { .0f, .0f };

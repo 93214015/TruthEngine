@@ -8,8 +8,6 @@ namespace TruthEngine
 		class DirectX12BufferManager;
 	}
 
-	namespace Core
-	{
 		class IndexBuffer : public Buffer
 		{
 		public:
@@ -72,5 +70,4 @@ namespace TruthEngine
 			friend class BufferManager;
 			friend class API::DirectX12 ::DirectX12BufferManager;
 		};
-	}
 }

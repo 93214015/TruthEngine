@@ -7,11 +7,11 @@
 
 #include "API/DX12/DirectX12BufferManager.h"
 
-namespace TruthEngine::Core {
+namespace TruthEngine {
 
 
 
-	std::shared_ptr<TruthEngine::Core::BufferManager> BufferManager::Factory()
+	std::shared_ptr<TruthEngine::BufferManager> BufferManager::Factory()
 	{
 		switch (Settings::RendererAPI)
 		{
@@ -24,9 +24,9 @@ namespace TruthEngine::Core {
 	}
 
 
-	TruthEngine::Core::TextureRenderTarget* BufferManager::CreateRenderTarget(TE_IDX_TEXTURE idx, uint32_t width, uint32_t height, TE_RESOURCE_FORMAT format, const ClearValue_RenderTarget& clearValue, bool useAsShaderResource)
+	TruthEngine::TextureRenderTarget* BufferManager::CreateRenderTarget(TE_IDX_TEXTURE idx, uint32_t width, uint32_t height, TE_RESOURCE_FORMAT format, const ClearValue_RenderTarget& clearValue, bool useAsShaderResource, bool enbaleMSAA)
 	{
-		auto rt = std::make_shared<TextureRenderTarget>(width, height, format, clearValue, useAsShaderResource);
+		auto rt = std::make_shared<TextureRenderTarget>(width, height, format, clearValue, useAsShaderResource, enbaleMSAA);
 
 		m_Map_Textures[idx] = rt;
 
@@ -36,9 +36,9 @@ namespace TruthEngine::Core {
 	}
 
 
-	TruthEngine::Core::TextureDepthStencil* BufferManager::CreateDepthStencil(TE_IDX_TEXTURE idx, uint32_t width, uint32_t height, TE_RESOURCE_FORMAT format, const ClearValue_DepthStencil& clearValue, bool useAsShaderResource)
+	TruthEngine::TextureDepthStencil* BufferManager::CreateDepthStencil(TE_IDX_TEXTURE idx, uint32_t width, uint32_t height, TE_RESOURCE_FORMAT format, const ClearValue_DepthStencil& clearValue, bool useAsShaderResource, bool enbaleMSAA)
 	{
-		auto ds = std::make_shared<TextureDepthStencil>(width, height, format, clearValue, useAsShaderResource);
+		auto ds = std::make_shared<TextureDepthStencil>(width, height, format, clearValue, useAsShaderResource, enbaleMSAA);
 
 		m_Map_Textures[idx] = ds;
 
@@ -48,7 +48,7 @@ namespace TruthEngine::Core {
 	}
 
 
-	TruthEngine::Core::TextureRenderTarget* BufferManager::GetRenderTarget(TE_IDX_TEXTURE idx)
+	TruthEngine::TextureRenderTarget* BufferManager::GetRenderTarget(TE_IDX_TEXTURE idx)
 	{
 		auto rt = m_Map_Textures.find(idx);
 
@@ -60,7 +60,7 @@ namespace TruthEngine::Core {
 		return static_cast<TextureRenderTarget*>(rt->second.get());
 	}
 
-	TruthEngine::Core::TextureDepthStencil* BufferManager::GetDepthStencil(TE_IDX_TEXTURE idx)
+	TruthEngine::TextureDepthStencil* BufferManager::GetDepthStencil(TE_IDX_TEXTURE idx)
 	{
 		auto ds = m_Map_Textures.find(idx);
 

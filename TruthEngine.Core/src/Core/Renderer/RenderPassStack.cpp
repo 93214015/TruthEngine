@@ -3,7 +3,7 @@
 
 #include "RenderPass.h";
 
-namespace TruthEngine::Core 
+namespace TruthEngine 
 {
 
 

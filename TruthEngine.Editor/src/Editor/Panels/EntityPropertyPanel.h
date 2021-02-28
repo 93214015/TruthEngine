@@ -7,8 +7,7 @@
 namespace TruthEngine
 {
 	//Forward Declaration
-	namespace Core
-	{
+	
 		class Entity;
 		
 		class TransformComponent;
@@ -21,27 +20,26 @@ namespace TruthEngine
 		enum class TE_PHYSICS_RIGID_SHAPE;
 
 		class TEPhysicsRigidDesc;
-	}
 
 	class EntityPropertyPanel
 	{
 	public:
 		EntityPropertyPanel() = default;
 
-		inline void SetContext(Core::Entity context) { m_Context = context; }
+		inline void SetContext(Entity context) { m_Context = context; }
 		
 		void OnImGuiRender();
 
 	private:
-		inline void DrawTagComponent(Core::TagComponent& component);
-		inline void DrawTransformComponent(Core::TransformComponent& component);
-		inline void DrawMaterialComponent(Core::MaterialComponent& component);
-		inline void DrawCameraComponent(Core::CameraComponent& component);
-		inline void DrawLightComponent(Core::LightComponent& component);
+		inline void DrawTagComponent(TagComponent& component);
+		inline void DrawTransformComponent(TransformComponent& component);
+		inline void DrawMaterialComponent(MaterialComponent& component);
+		inline void DrawCameraComponent(CameraComponent& component);
+		inline void DrawLightComponent(LightComponent& component);
 
-		void AddPhysicsComponent(Core::TE_PHYSICS_RIGID_TYPE rigidType, Core::TE_PHYSICS_RIGID_SHAPE rigidshape, Core::TEPhysicsRigidDesc& rigidDesc);
+		void AddPhysicsComponent(TE_PHYSICS_RIGID_TYPE rigidType, TE_PHYSICS_RIGID_SHAPE rigidshape, TEPhysicsRigidDesc& rigidDesc);
 	private:
-		Core::Entity m_Context;
+		Entity m_Context;
 
 		void DrawImGuizmo();
 		void DrawPhysicComponent();

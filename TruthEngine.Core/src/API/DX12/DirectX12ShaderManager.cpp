@@ -27,7 +27,7 @@ namespace TruthEngine
 			}
 
 
-			TE_RESULT DirectX12ShaderManager::AddShader(Core::Shader** outShader, TE_IDX_SHADERCLASS shaderClassID, TE_IDX_MESH_TYPE meshType, std::string_view name, std::string_view filePath, std::string_view vsEntry, std::string_view psEntry, std::string_view csEntry /*= ""*/, std::string_view dsEntry /*= ""*/, std::string_view hsEntry /*= ""*/, std::string_view gsEntry /*= ""*/)
+			TE_RESULT DirectX12ShaderManager::AddShader(Shader** outShader, TE_IDX_SHADERCLASS shaderClassID, TE_IDX_MESH_TYPE meshType, std::string_view name, std::string_view filePath, std::string_view vsEntry, std::string_view psEntry, std::string_view csEntry /*= ""*/, std::string_view dsEntry /*= ""*/, std::string_view hsEntry /*= ""*/, std::string_view gsEntry /*= ""*/)
 			{
 				auto item = m_ShadersNameMap.find(name);
 
@@ -37,7 +37,7 @@ namespace TruthEngine
 					return TE_RESULT_RENDERER_SHADER_HAS_EXIST;
 				}
 
-				auto shader = std::make_shared<Core::Shader>(name, shaderClassID, meshType, GetShaderSignature(shaderClassID), filePath);
+				auto shader = std::make_shared<Shader>(name, shaderClassID, meshType, GetShaderSignature(shaderClassID), filePath);
 				shader->m_ID = m_ShaderID++;
 
 				m_ShadersNameMap[name] = shader;
@@ -46,34 +46,34 @@ namespace TruthEngine
 
 				if (csEntry != "")
 				{
-					shader->m_CS = CompileShader(name, shader->m_ID, filePath, csEntry, "cs");
+					shader->m_CS = CompileShader_OLD(name, shader->m_ID, filePath, csEntry, "cs");
 				}
 				if (vsEntry != "")
 				{
-					shader->m_VS = CompileShader(name, shader->m_ID, filePath, vsEntry, "vs");
+					shader->m_VS = CompileShader_OLD(name, shader->m_ID, filePath, vsEntry, "vs");
 				}
 				if (psEntry != "")
 				{
-					shader->m_PS = CompileShader(name, shader->m_ID, filePath, psEntry, "ps");
+					shader->m_PS = CompileShader_OLD(name, shader->m_ID, filePath, psEntry, "ps");
 				}
 				if (gsEntry != "")
 				{
-					shader->m_GS = CompileShader(name, shader->m_ID, filePath, gsEntry, "gs");
+					shader->m_GS = CompileShader_OLD(name, shader->m_ID, filePath, gsEntry, "gs");
 				}
 				if (dsEntry != "")
 				{
-					shader->m_DS = CompileShader(name, shader->m_ID, filePath, dsEntry, "ds");
+					shader->m_DS = CompileShader_OLD(name, shader->m_ID, filePath, dsEntry, "ds");
 				}
 				if (hsEntry != "")
 				{
-					shader->m_HS = CompileShader(name, shader->m_ID, filePath, hsEntry, "hs");
+					shader->m_HS = CompileShader_OLD(name, shader->m_ID, filePath, hsEntry, "hs");
 				}
 
 				return DirectX12Manager::GetInstance()->AddRootSignature(shader->GetShaderClassIDX());
 
 			}
 
-			TE_RESULT DirectX12ShaderManager::AddShader(Core::Shader** outShader, TE_IDX_SHADERCLASS shaderClassID, TE_IDX_MESH_TYPE meshType, RendererStateSet states, std::string_view filePath, std::string_view vsEntry, std::string_view psEntry, std::string_view csEntry, std::string_view dsEntry, std::string_view hsEntry, std::string_view gsEntry)
+			TE_RESULT DirectX12ShaderManager::AddShader(Shader** outShader, TE_IDX_SHADERCLASS shaderClassID, TE_IDX_MESH_TYPE meshType, RendererStateSet states, std::string_view filePath, std::string_view vsEntry, std::string_view psEntry, std::string_view csEntry, std::string_view dsEntry, std::string_view hsEntry, std::string_view gsEntry)
 			{
 				states &= m_StateMask;
 
@@ -93,7 +93,7 @@ namespace TruthEngine
 
 				std::string name = "shader" + std::to_string(map.size());
 
-				auto shader = std::make_shared<Core::Shader>(name, shaderClassID, meshType, GetShaderSignature(shaderClassID), filePath);
+				auto shader = std::make_shared<Shader>(name, shaderClassID, meshType, GetShaderSignature(shaderClassID), filePath);
 				shader->m_ID = m_ShaderID++;
 
 				map[states] = shader;
@@ -101,27 +101,27 @@ namespace TruthEngine
 
 				if (csEntry != "")
 				{
-					shader->m_CS = CompileShader(name, shader->m_ID, filePath, csEntry, "cs");
+					shader->m_CS = CompileShader_OLD(name, shader->m_ID, filePath, csEntry, "cs");
 				}
 				if (vsEntry != "")
 				{
-					shader->m_VS = CompileShader(name, shader->m_ID, filePath, vsEntry, "vs");
+					shader->m_VS = CompileShader_OLD(name, shader->m_ID, filePath, vsEntry, "vs");
 				}
 				if (psEntry != "")
 				{
-					shader->m_PS = CompileShader(name, shader->m_ID, filePath, psEntry, "ps");
+					shader->m_PS = CompileShader_OLD(name, shader->m_ID, filePath, psEntry, "ps");
 				}
 				if (gsEntry != "")
 				{
-					shader->m_GS = CompileShader(name, shader->m_ID, filePath, gsEntry, "gs");
+					shader->m_GS = CompileShader_OLD(name, shader->m_ID, filePath, gsEntry, "gs");
 				}
 				if (dsEntry != "")
 				{
-					shader->m_DS = CompileShader(name, shader->m_ID, filePath, dsEntry, "ds");
+					shader->m_DS = CompileShader_OLD(name, shader->m_ID, filePath, dsEntry, "ds");
 				}
 				if (hsEntry != "")
 				{
-					shader->m_HS = CompileShader(name, shader->m_ID, filePath, hsEntry, "hs");
+					shader->m_HS = CompileShader_OLD(name, shader->m_ID, filePath, hsEntry, "hs");
 				}
 
 
@@ -129,7 +129,7 @@ namespace TruthEngine
 
 			}
 
-			TruthEngine::Core::Shader::ShaderCode DirectX12ShaderManager::CompileShader_OLD(std::string_view shaderName, uint32_t shaderID, std::string_view filePath, std::string_view entry, std::string_view shaderStage)
+			TruthEngine::Shader::ShaderCode DirectX12ShaderManager::CompileShader_OLD(std::string_view shaderName, uint32_t shaderID, std::string_view filePath, std::string_view entry, std::string_view shaderStage)
 			{
 				std::string target = shaderStage.data() + std::string("_5_1");
 
@@ -155,10 +155,10 @@ namespace TruthEngine
 				}
 
 
-				return Core::Shader::ShaderCode(codeBlob->GetBufferSize(), codeBlob->GetBufferPointer());
+				return Shader::ShaderCode(codeBlob->GetBufferSize(), codeBlob->GetBufferPointer());
 			}
 
-			Core::Shader::ShaderCode DirectX12ShaderManager::CompileShader(std::string_view shaderName, uint32_t shaderID, std::string_view filePath, std::string_view entry, std::string_view shaderStage)
+			Shader::ShaderCode DirectX12ShaderManager::CompileShader(std::string_view shaderName, uint32_t shaderID, std::string_view filePath, std::string_view entry, std::string_view shaderStage)
 			{
 
 				// 
@@ -317,7 +317,7 @@ namespace TruthEngine
 
 				}*/
 
-				return Core::Shader::ShaderCode{ shaderBin->GetBufferSize(), shaderBin->GetBufferPointer() };
+				return Shader::ShaderCode{ shaderBin->GetBufferSize(), shaderBin->GetBufferPointer() };
 
 			}
 

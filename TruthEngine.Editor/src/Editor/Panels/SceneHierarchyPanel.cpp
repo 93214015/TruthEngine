@@ -9,11 +9,11 @@
 #include "Core/Application.h"
 #include "Core/Entity/Model/ModelManager.h"
 
-using namespace TruthEngine::Core;
+using namespace TruthEngine;
 
 namespace TruthEngine
 {
-	SceneHierarchyPanel::SceneHierarchyPanel(Core::Scene* context)
+	SceneHierarchyPanel::SceneHierarchyPanel(Scene* context)
 		: m_Context(context)
 	{
 	}
@@ -116,7 +116,7 @@ namespace TruthEngine
 			return;
 		}
 
-		auto g = m_Context->ViewEntities<Core::MeshComponent>();
+		auto g = m_Context->ViewEntities<MeshComponent>();
 
 		if (g.size() < 1)
 			return;
@@ -133,7 +133,7 @@ namespace TruthEngine
 		for (auto entity : g)
 		{
 
-			auto& tag = m_Context->GetComponent<Core::TagComponent>(entity);
+			auto& tag = m_Context->GetComponent<TagComponent>(entity);
 
 
 			auto is_open = ImGui::TreeNodeEx(tag.GetTag().c_str(), flags | (entity == m_Context->GetSelectedEntity() ? ImGuiTreeNodeFlags_Selected : 0));
@@ -181,7 +181,7 @@ namespace TruthEngine
 			return;
 		}
 
-		auto g = m_Context->ViewEntities<Core::ModelComponent>();
+		auto g = m_Context->ViewEntities<ModelComponent>();
 
 		if (g.size() < 1)
 			return;
@@ -196,7 +196,7 @@ namespace TruthEngine
 		for (auto entity : g)
 		{
 
-			auto& tag = m_Context->GetComponent<Core::TagComponent>(entity);
+			auto& tag = m_Context->GetComponent<TagComponent>(entity);
 
 
 			auto is_open = ImGui::TreeNodeEx(tag.GetTag().c_str(), flags | (entity == m_Context->GetSelectedEntity() ? ImGuiTreeNodeFlags_Selected : 0));
@@ -324,10 +324,10 @@ namespace TruthEngine
 				Camera* camera;
 				switch (cameraType)
 				{
-				case TruthEngine::Core::TE_CAMERA_TYPE::Perspective:
+				case TruthEngine::TE_CAMERA_TYPE::Perspective:
 					camera = cameraManager->CreatePerspectiveFOV("", float3{ .0f, .10f, -10.0f }, float3{ .0f, .0f, .0f }, float3{ .0f, 1.0f, .0f }, DirectX::XM_PIDIV4, TE_INSTANCE_APPLICATION->GetSceneViewportAspectRatio(), 1.0f, 100.0f);
 					break;
-				case TruthEngine::Core::TE_CAMERA_TYPE::Orthographic:
+				case TruthEngine::TE_CAMERA_TYPE::Orthographic:
 					camera = cameraManager->CreateOrthographicCenterOff("", float3{ .0f, 20.0f, -20.0f }, float3{ .0f, .0f, .0f }, float3{ .0f, 1.0f, .0f }, -20.0f, 20.0f, 20.0f, -20.0f, 1.0, 100.0f);
 					break;
 				default:
@@ -352,7 +352,7 @@ namespace TruthEngine
 			return;
 		}
 
-		auto g = m_Context->ViewEntities<Core::CameraComponent>();
+		auto g = m_Context->ViewEntities<CameraComponent>();
 
 		if (g.size() < 1)
 			return;
@@ -365,7 +365,7 @@ namespace TruthEngine
 
 		for (auto entity : g)
 		{
-			auto& tag = m_Context->GetComponent<Core::TagComponent>(entity);
+			auto& tag = m_Context->GetComponent<TagComponent>(entity);
 
 			auto is_open = ImGui::TreeNodeEx(tag.GetTag().c_str(), flags | (entity == m_Context->GetSelectedEntity() ? ImGuiTreeNodeFlags_Selected : 0));
 
@@ -423,7 +423,7 @@ namespace TruthEngine
 
 		for (auto lightEntity : g)
 		{
-			auto& tag = m_Context->GetComponent<Core::TagComponent>(lightEntity);
+			auto& tag = m_Context->GetComponent<TagComponent>(lightEntity);
 
 			auto is_open = ImGui::TreeNodeEx(tag.GetTag().c_str(), flags | (lightEntity == m_Context->GetSelectedEntity() ? ImGuiTreeNodeFlags_Selected : 0));
 

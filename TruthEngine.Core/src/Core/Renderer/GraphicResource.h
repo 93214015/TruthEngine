@@ -6,9 +6,6 @@
 //////////////////////////////////////////////////////////////////////////
 namespace TruthEngine
 {
-	namespace Core {
-	}
-
 	namespace API::DirectX12 
 	{
 		class DirectX12BufferManager;
@@ -17,7 +14,7 @@ namespace TruthEngine
 
 
 
-namespace TruthEngine::Core
+namespace TruthEngine
 {
 	class GraphicResource {
 
@@ -36,6 +33,7 @@ namespace TruthEngine::Core
 		inline uint32_t GetResourceIndex() const noexcept { return m_ResourceIndex; }
 		/*inline uint32_t GetViewIndex() const noexcept { return m_ViewIndex; }*/
 		inline TE_RESOURCE_STATES GetState() const noexcept { return m_State; }
+		inline TE_RESOURCE_USAGE GetUsage() const noexcept { return m_Usage; }
 		inline void SetState(TE_RESOURCE_STATES state) noexcept { m_State = state; }
 
 		uint64_t GetRequiredSize() const;

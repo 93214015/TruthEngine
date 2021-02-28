@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "BoundingBoxComponent.h"
 
-namespace TruthEngine::Core
+namespace TruthEngine
 {
 	BoundingBoxComponent::BoundingBoxComponent()
 	{}

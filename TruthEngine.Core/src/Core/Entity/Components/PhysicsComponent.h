@@ -2,7 +2,7 @@
 
 #include "PxPhysicsAPI.h"
 
-namespace TruthEngine::Core
+namespace TruthEngine
 {
 
 	class PhysicsStaticComponent

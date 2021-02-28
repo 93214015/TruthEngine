@@ -1,7 +1,7 @@
 #pragma once
 #include "MouseButtons.h"
 
-namespace TruthEngine::Core {
+namespace TruthEngine {
 
 	struct MousePoint
 	{

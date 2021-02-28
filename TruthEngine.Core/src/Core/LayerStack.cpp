@@ -2,7 +2,7 @@
 #include "LayerStack.h"
 #include "Core/Layer.h"
 
-namespace TruthEngine::Core {
+namespace TruthEngine {
 
 
 

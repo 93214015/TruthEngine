@@ -16,7 +16,7 @@ namespace TruthEngine::Sandbox {
 
 		//must put ModelManager initiation after RendererLayer attachment so that the bufferManager has been initiated 
 		auto modelManager = Core::ModelManager::GetInstance().get();
-		modelManager->Init(TE_INSTANCE_BUFFERMANAGER.get());
+		modelManager->Init(TE_INSTANCE_BUFFERMANAGER);
 		modelManager->AddSampleModel();
 	}
 
@@ -60,6 +60,6 @@ namespace TruthEngine::Sandbox {
 
 }
 
-TruthEngine::Core::Application* TruthEngine::Core::CreateApplication() {
+TruthEngine::Application* TruthEngine::CreateApplication() {
 	return new TruthEngine::Sandbox::SandboxApp(1024, 768, 2);
 }

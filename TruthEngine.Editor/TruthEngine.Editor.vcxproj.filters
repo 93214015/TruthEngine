@@ -31,4 +31,7 @@
     </ClCompile>
     <ClCompile Include="src\pch.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Assets\Shaders\RenderBoundingBox.hlsl" />
+  </ItemGroup>
 </Project>

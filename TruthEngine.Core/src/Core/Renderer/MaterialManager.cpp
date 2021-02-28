@@ -6,7 +6,7 @@
 #include "Core/Event/EventEntity.h"
 
 
-namespace TruthEngine::Core
+namespace TruthEngine
 {
 
 
@@ -72,7 +72,7 @@ namespace TruthEngine::Core
 		return material.get();
 	}
 
-	TruthEngine::Core::Material* MaterialManager::AddMaterial(Material* material)
+	TruthEngine::Material* MaterialManager::AddMaterial(Material* material)
 	{
 		auto ID = static_cast<uint32_t>(m_Map_Materials.size());
 
@@ -88,7 +88,7 @@ namespace TruthEngine::Core
 		return _newMaterial.get();
 	}
 
-	TruthEngine::Core::Material* MaterialManager::AddDefaultMaterial(TE_IDX_MESH_TYPE meshType)
+	TruthEngine::Material* MaterialManager::AddDefaultMaterial(TE_IDX_MESH_TYPE meshType)
 	{
 		auto ID = static_cast<uint32_t>(m_Map_Materials.size());
 

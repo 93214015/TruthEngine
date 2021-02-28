@@ -17,7 +17,7 @@
 
 #ifdef TE_API_DX12
 
-//TruthEngine::Core::ImGuiLayer* TruthEngine::Core::ImGuiLayer::Factory() {
+//TruthEngine::ImGuiLayer* TruthEngine::ImGuiLayer::Factory() {
 //
 //	return new API::DirectX12::DX12ImGuiLayer();
 //};
@@ -38,11 +38,22 @@ namespace TruthEngine::API::DirectX12 {
 		for (uint8_t i = 0; i < TE_INSTANCE_APPLICATION->GetFramesOnTheFlyNum(); ++i)
 			m_CommandList[i] = std::make_shared<DirectX12CommandList>(&TE_INSTANCE_API_DX12_GRAPHICDEVICE, TE_RENDERER_COMMANDLIST_TYPE::DIRECT, nullptr, nullptr, TE_IDX_RENDERPASS::NONE, TE_IDX_SHADERCLASS::NONE, i);
 
-		auto dx12bufferManager = static_cast<DirectX12BufferManager*>(TE_INSTANCE_BUFFERMANAGER.get());
+		auto dx12bufferManager = static_cast<DirectX12BufferManager*>(TE_INSTANCE_BUFFERMANAGER);
 
 		//m_DescHeapSRV.Init(TE_INSTANCE_API_DX12_GRAPHICDEVICE, TE_INSTANCE_APPLICATION->GetFramesInFlightNum());
 		m_DescHeapSRV = &dx12bufferManager->GetDescriptorHeapSRV();
 		m_DescHeapRTV.Init(TE_INSTANCE_API_DX12_GRAPHICDEVICE, TE_INSTANCE_APPLICATION->GetFramesOnTheFlyNum());
+
+
+		auto desc = CD3DX12_RESOURCE_DESC1::Tex2D(DXGI_FORMAT_R8G8B8A8_UNORM, static_cast<uint64_t>(TE_INSTANCE_APPLICATION->GetClientWidth()), TE_INSTANCE_APPLICATION->GetClientHeight());
+		TE_INSTANCE_API_DX12_GRAPHICDEVICE->CreateCommittedResource2(
+			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT)
+			, D3D12_HEAP_FLAG_NONE
+			, &desc
+			, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE
+			, nullptr
+			, nullptr
+			, IID_PPV_ARGS(m_TextureMultiSampleResolved.ReleaseAndGetAddressOf()));
 
 		TE_INSTANCE_API_DX12_SWAPCHAIN.InitRTVs(&m_DescHeapRTV, &m_RTVBackBuffer);
 
@@ -71,13 +82,27 @@ namespace TruthEngine::API::DirectX12 {
 
 		m_D3D12Resource_ScreenBuffer = dx12bufferManager->GetResource(m_RenderTargetScreenBuffer);
 
-		if (m_SRVIndexScreenBuffer == -1)
+		if (Settings::IsMSAAEnabled())
 		{
-			m_SRVIndexScreenBuffer = m_DescHeapSRV->AddDescriptorSRV(m_D3D12Resource_ScreenBuffer, nullptr);
+			if (m_SRVIndexScreenBuffer == -1)
+			{
+				m_SRVIndexScreenBuffer = m_DescHeapSRV->AddDescriptorSRV(m_TextureMultiSampleResolved.Get(), nullptr);
+			}
+			else
+			{
+				m_DescHeapSRV->ReplaceDescriptorSRV(m_TextureMultiSampleResolved.Get(), nullptr, m_SRVIndexScreenBuffer);
+			}
 		}
 		else
 		{
-			m_DescHeapSRV->ReplaceDescriptorSRV(m_D3D12Resource_ScreenBuffer, nullptr, m_SRVIndexScreenBuffer);
+			if (m_SRVIndexScreenBuffer == -1)
+			{
+				m_SRVIndexScreenBuffer = m_DescHeapSRV->AddDescriptorSRV(m_D3D12Resource_ScreenBuffer, nullptr);
+			}
+			else
+			{
+				m_DescHeapSRV->ReplaceDescriptorSRV(m_D3D12Resource_ScreenBuffer, nullptr, m_SRVIndexScreenBuffer);
+			}
 		}
 
 		HWND hwnd = static_cast<HWND>(TE_INSTANCE_APPLICATION->GetWindow()->GetNativeWindowHandle());
@@ -90,8 +115,10 @@ namespace TruthEngine::API::DirectX12 {
 			, m_DescHeapSRV->GetGPUHandle(0));
 
 
-		auto lambda_OnViewportResize = [this](Core::Event& event) { OnTextureResize(static_cast<Core::EventTextureResize&>(event)); };
-		TE_INSTANCE_APPLICATION->RegisterEventListener(Core::EventType::RenderTargetResize, lambda_OnViewportResize);
+		auto lambda_OnViewportResize = [this](Event& event) { OnTextureResize(static_cast<EventTextureResize&>(event)); };
+		TE_INSTANCE_APPLICATION->RegisterEventListener(EventType::RenderTargetResize, lambda_OnViewportResize);
+
+
 
 	}
 
@@ -131,42 +158,42 @@ namespace TruthEngine::API::DirectX12 {
 		if (m_ShowDemoWindow)
 			ImGui::ShowDemoWindow(&show_demo_window);
 
-			//// 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
-			//{
-			//	static float f = 0.0f;
-			//	static int counter = 0;
+		//// 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
+		//{
+		//	static float f = 0.0f;
+		//	static int counter = 0;
 
-			//	ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
+		//	ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
 
-			//	ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
-			//	ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
+		//	ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
+		//	ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
 
-			//	ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-			//	ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
+		//	ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
+		//	ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
 
-			//	if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
-			//		counter++;
-			//	ImGui::SameLine();
-			//	ImGui::Text("counter = %d", counter);
+		//	if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
+		//		counter++;
+		//	ImGui::SameLine();
+		//	ImGui::Text("counter = %d", counter);
 
-			//	ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-			//	ImGui::End();
-			//}
+		//	ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+		//	ImGui::End();
+		//}
 
-			/*ImGui::Begin("OpenFile");
-			if (ImGui::Button("Open File Dialog"))
-			{
-				const std::vector<const char*> fileExtensions = { ".obj", ".fbx" };
-				OpenFileDialog("Open Model", fileExtensions);
-			}
-			m_FileBrowser.Display();
-			ImGui::End();
-			if (CheckFileDialog())
-			{
-				GraphicDevice::GetPrimaryDevice()->WaitForGPU();
-				m_CommandList->WaitToFinish();
-				Core::ModelManager::GetInstance()->ImportModel(Core::Application::GetApplication()->GetActiveScene(), m_SelectedFile.c_str());
-			}*/
+		/*ImGui::Begin("OpenFile");
+		if (ImGui::Button("Open File Dialog"))
+		{
+			const std::vector<const char*> fileExtensions = { ".obj", ".fbx" };
+			OpenFileDialog("Open Model", fileExtensions);
+		}
+		m_FileBrowser.Display();
+		ImGui::End();
+		if (CheckFileDialog())
+		{
+			GraphicDevice::GetPrimaryDevice()->WaitForGPU();
+			m_CommandList->WaitToFinish();
+			ModelManager::GetInstance()->ImportModel(Application::GetApplication()->GetActiveScene(), m_SelectedFile.c_str());
+		}*/
 
 
 	}
@@ -185,7 +212,7 @@ namespace TruthEngine::API::DirectX12 {
 
 		auto& sc = TE_INSTANCE_API_DX12_SWAPCHAIN;
 
-		CD3DX12_RESOURCE_BARRIER barriers[2];
+		CD3DX12_RESOURCE_BARRIER barriers[3];
 		uint32_t barrierNum = 0;
 
 		if (sc.GetBackBufferState() != D3D12_RESOURCE_STATE_RENDER_TARGET)
@@ -194,15 +221,48 @@ namespace TruthEngine::API::DirectX12 {
 			sc.SetBackBufferState(D3D12_RESOURCE_STATE_RENDER_TARGET);
 			barrierNum++;
 		}
-		if (m_RenderTargetScreenBuffer->GetState() != TE_RESOURCE_STATES::PIXEL_SHADER_RESOURCE)
+		/*if (m_RenderTargetScreenBuffer->GetState() != TE_RESOURCE_STATES::PIXEL_SHADER_RESOURCE)
 		{
 			barriers[barrierNum] = CD3DX12_RESOURCE_BARRIER::Transition(m_D3D12Resource_ScreenBuffer, static_cast<D3D12_RESOURCE_STATES>(m_RenderTargetScreenBuffer->GetState()), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 			m_RenderTargetScreenBuffer->SetState(TE_RESOURCE_STATES::PIXEL_SHADER_RESOURCE);
 			barrierNum++;
+		}*/
+
+		if (Settings::IsMSAAEnabled())
+		{
+			if (m_RenderTargetScreenBuffer->GetState() != TE_RESOURCE_STATES::RESOLVE_SOURCE)
+			{
+				barriers[barrierNum] = CD3DX12_RESOURCE_BARRIER::Transition(m_D3D12Resource_ScreenBuffer, static_cast<D3D12_RESOURCE_STATES>(m_RenderTargetScreenBuffer->GetState()), D3D12_RESOURCE_STATE_RESOLVE_SOURCE);
+				m_RenderTargetScreenBuffer->SetState(TE_RESOURCE_STATES::RESOLVE_SOURCE);
+				barrierNum++;
+			}
+
+			barriers[barrierNum] = CD3DX12_RESOURCE_BARRIER::Transition(m_TextureMultiSampleResolved.Get(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_RESOLVE_DEST);
+			barrierNum++;
 		}
+		else
+		{
+			if (m_RenderTargetScreenBuffer->GetState() != TE_RESOURCE_STATES::PIXEL_SHADER_RESOURCE)
+			{
+				barriers[barrierNum] = CD3DX12_RESOURCE_BARRIER::Transition(m_D3D12Resource_ScreenBuffer, static_cast<D3D12_RESOURCE_STATES>(m_RenderTargetScreenBuffer->GetState()), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+				m_RenderTargetScreenBuffer->SetState(TE_RESOURCE_STATES::PIXEL_SHADER_RESOURCE);
+				barrierNum++;
+			}
+		}
+
 		if (barrierNum > 0)
 		{
 			dx12CmdList->ResourceBarrier(barrierNum, barriers);
+		}
+
+		if (Settings::IsMSAAEnabled())
+		{
+			dx12CmdList->ResolveSubresource(m_TextureMultiSampleResolved.Get(), 0, m_D3D12Resource_ScreenBuffer, 0, DXGI_FORMAT_R8G8B8A8_UNORM);
+
+			CD3DX12_RESOURCE_BARRIER _barriers[1];
+			_barriers[0] = CD3DX12_RESOURCE_BARRIER::Transition(m_TextureMultiSampleResolved.Get(), D3D12_RESOURCE_STATE_RESOLVE_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+
+			dx12CmdList->ResourceBarrier(1, _barriers);
 		}
 
 		auto& io = ImGui::GetIO();
@@ -250,21 +310,49 @@ namespace TruthEngine::API::DirectX12 {
 		ImGui::Image((ImTextureID)m_DescHeapSRV->GetGPUHandle(m_SRVIndexScreenBuffer).ptr, viewportSize);
 	}
 
-	void DirectX12ImGuiLayer::OnTextureResize(const Core::EventTextureResize& event)
+	void DirectX12ImGuiLayer::OnTextureResize(const EventTextureResize& event)
 	{
 		if (event.GetIDX() == TE_IDX_TEXTURE::RT_SCENEBUFFER)
 		{
-			auto dx12bufferManager = static_cast<DirectX12BufferManager*>(TE_INSTANCE_BUFFERMANAGER.get());
-			m_D3D12Resource_ScreenBuffer = dx12bufferManager->GetResource(m_RenderTargetScreenBuffer);
-
-			if (m_SRVIndexScreenBuffer == -1)
+			if (Settings::IsMSAAEnabled())
 			{
-				m_SRVIndexScreenBuffer = m_DescHeapSRV->AddDescriptorSRV(m_D3D12Resource_ScreenBuffer, nullptr);
+
+				//D3D12_CLEAR_VALUE clearValue{ DXGI_FORMAT_R8G8B8A8_UNORM , { 0.0f, .0f, .0f, 1.0f } };
+				auto desc = CD3DX12_RESOURCE_DESC1::Tex2D(DXGI_FORMAT_R8G8B8A8_UNORM, static_cast<uint64_t>(TE_INSTANCE_APPLICATION->GetSceneViewportWidth()), TE_INSTANCE_APPLICATION->GetSceneViewportHeight());
+				TE_INSTANCE_API_DX12_GRAPHICDEVICE->CreateCommittedResource2(
+					&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT)
+					, D3D12_HEAP_FLAG_NONE
+					, &desc
+					, D3D12_RESOURCE_STATE_RESOLVE_DEST
+					, nullptr
+					, nullptr
+					, IID_PPV_ARGS(m_TextureMultiSampleResolved.ReleaseAndGetAddressOf()));
+
+
+				if (m_SRVIndexScreenBuffer == -1)
+				{
+					m_SRVIndexScreenBuffer = m_DescHeapSRV->AddDescriptorSRV(m_TextureMultiSampleResolved.Get(), nullptr);
+				}
+				else
+				{
+					m_DescHeapSRV->ReplaceDescriptorSRV(m_TextureMultiSampleResolved.Get(), nullptr, m_SRVIndexScreenBuffer);
+				}
 			}
 			else
 			{
-				m_DescHeapSRV->ReplaceDescriptorSRV(m_D3D12Resource_ScreenBuffer, nullptr, m_SRVIndexScreenBuffer);
+				auto dx12bufferManager = static_cast<DirectX12BufferManager*>(TE_INSTANCE_BUFFERMANAGER);
+				m_D3D12Resource_ScreenBuffer = dx12bufferManager->GetResource(m_RenderTargetScreenBuffer);
+
+				if (m_SRVIndexScreenBuffer == -1)
+				{
+					m_SRVIndexScreenBuffer = m_DescHeapSRV->AddDescriptorSRV(m_D3D12Resource_ScreenBuffer, nullptr);
+				}
+				else
+				{
+					m_DescHeapSRV->ReplaceDescriptorSRV(m_D3D12Resource_ScreenBuffer, nullptr, m_SRVIndexScreenBuffer);
+				}
 			}
+
 		}
 
 		if (event.GetIDX() == TE_IDX_TEXTURE::RT_BACKBUFFER)

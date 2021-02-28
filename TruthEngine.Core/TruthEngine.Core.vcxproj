@@ -174,6 +174,7 @@
     <ClInclude Include="src\Core\Entity\Camera\CameraManager.h" />
     <ClInclude Include="src\Core\Entity\Camera\CameraOrthographic.h" />
     <ClInclude Include="src\Core\Entity\Camera\CameraPerspective.h" />
+    <ClInclude Include="src\Core\Entity\Camera\CameraCascadedFrustum.h" />
     <ClInclude Include="src\Core\Entity\Camera\ICamera.h" />
     <ClInclude Include="src\Core\Entity\Components.h" />
     <ClInclude Include="src\Core\Entity\Components\BoundingBoxComponent.h" />
@@ -205,6 +206,7 @@
     <ClInclude Include="src\Core\Event\EventKey.h" />
     <ClInclude Include="src\Core\Event\EventMouse.h" />
     <ClInclude Include="src\Core\Helper\HardwareInfo.h" />
+    <ClInclude Include="src\Core\Helper\Macros.h" />
     <ClInclude Include="src\Core\Helper\MathHelper.h" />
     <ClInclude Include="src\Core\Helper\MeshGenerator.h" />
     <ClInclude Include="src\Core\Helper\SysInfo\cpuinfo.h" />
@@ -248,6 +250,7 @@
     <ClInclude Include="src\Core\Renderer\RendererCommand.h" />
     <ClInclude Include="src\Core\Renderer\RendererIDX.h" />
     <ClInclude Include="src\Core\Renderer\RendererLayer.h" />
+    <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_RenderBoudingBoxes.h" />
     <ClInclude Include="src\Core\Renderer\Shader.h" />
     <ClInclude Include="src\Core\Renderer\ShaderInputLayout.h" />
     <ClInclude Include="src\Core\Renderer\ShaderManager.h" />
@@ -294,6 +297,7 @@
     <ClCompile Include="src\Core\Entity\Camera\CameraManager.cpp" />
     <ClCompile Include="src\Core\Entity\Camera\CameraOrthographic.cpp" />
     <ClCompile Include="src\Core\Entity\Camera\CameraPerspective.cpp" />
+    <ClCompile Include="src\Core\Entity\Camera\CameraCascadedFrustum.cpp" />
     <ClCompile Include="src\Core\Entity\Camera\ICamera.cpp" />
     <ClCompile Include="src\Core\Entity\Components\BoundingBoxComponent.cpp" />
     <ClCompile Include="src\Core\Entity\Components\CameraComponent.cpp" />
@@ -360,6 +364,7 @@
     <ClCompile Include="src\Core\Renderer\RenderPassStack.cpp" />
     <ClCompile Include="src\Core\Renderer\RendererCommand.cpp" />
     <ClCompile Include="src\Core\Renderer\RendererLayer.cpp" />
+    <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_RenderBoudingBoxes.cpp" />
     <ClCompile Include="src\Core\Renderer\Shader.cpp" />
     <ClCompile Include="src\Core\Renderer\ShaderInputLayout.cpp" />
     <ClCompile Include="src\Core\Renderer\ShaderManager.cpp" />

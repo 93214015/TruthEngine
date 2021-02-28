@@ -5,7 +5,7 @@
 #include "TextureRenderTarget.h"
 
 
-namespace TruthEngine::Core {
+namespace TruthEngine {
 
 	struct SwapChainRenderTargets
 	{
@@ -52,4 +52,4 @@ namespace TruthEngine::Core {
 
 }
 
-#define TE_INSTANCE_SWAPCHAIN TruthEngine::Core::SwapChain::GetInstance()
+#define TE_INSTANCE_SWAPCHAIN TruthEngine::SwapChain::GetInstance()

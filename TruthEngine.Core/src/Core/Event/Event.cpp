@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "Event.h"
 
-namespace TruthEngine::Core {
+namespace TruthEngine {
    
 
     void EventDispatcher::RegisterListener(const EventType eventType, const EventListener& eventFunc)

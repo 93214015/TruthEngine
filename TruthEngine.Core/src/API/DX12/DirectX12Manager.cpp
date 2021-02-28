@@ -88,7 +88,7 @@ namespace TruthEngine::API::DirectX12
 				for (uint8_t frameIndex = 0; frameIndex < framesOnTheFlyNum; ++frameIndex)
 				{
 					auto cb = bufferManager->GetConstantBufferUpload(v[0].ConstantBufferIDX);
-					Core::ConstantBufferView cbv{};
+					ConstantBufferView cbv{};
 					bufferManager->CreateConstantBufferView(cb, &cbv, frameIndex);
 					auto gpuHandle = descHeapSRV.GetGPUHandle(cbv.ViewIndex);
 
@@ -97,7 +97,7 @@ namespace TruthEngine::API::DirectX12
 					for (uint32_t j = 1; j < v.size(); ++j)
 					{
 						auto cb = bufferManager->GetConstantBufferUpload(v[j].ConstantBufferIDX);
-						Core::ConstantBufferView cbv{};
+						ConstantBufferView cbv{};
 						bufferManager->CreateConstantBufferView(cb, &cbv, frameIndex);
 					}
 				}
@@ -119,7 +119,7 @@ namespace TruthEngine::API::DirectX12
 					rootSig.Parameters[paramNum].Table.Register = v[0].Register;
 					rootSig.Parameters[paramNum].Table.RegisterSpace = v[0].RegisterSpace;
 
-					auto gpuHandle = static_cast<DirectX12TextureMaterialManager*>(Core::TextureMaterialManager::GetInstance())->GetGPUHandle();
+					auto gpuHandle = static_cast<DirectX12TextureMaterialManager*>(TextureMaterialManager::GetInstance())->GetGPUHandle();
 
 					for (uint8_t frameIndex = 0; frameIndex < framesOnTheFlyNum; ++frameIndex)
 					{
@@ -138,7 +138,7 @@ namespace TruthEngine::API::DirectX12
 				rootSig.Parameters[paramNum].Table.RegisterSpace = v[0].RegisterSpace;
 
 				auto tex = bufferManager->GetTexture(v[0].TextureIDX);
-				Core::ShaderResourceView srv;
+				ShaderResourceView srv;
 				bufferManager->CreateShaderResourceView(tex, &srv);
 				auto gpuHandle = descHeapSRV.GetGPUHandle(srv.ViewIndex);
 
@@ -150,7 +150,7 @@ namespace TruthEngine::API::DirectX12
 				for (uint32_t j = 1; j < v.size(); ++j)
 				{
 					auto tex = bufferManager->GetTexture(v[j].TextureIDX);
-					Core::ShaderResourceView srv{};
+					ShaderResourceView srv{};
 					bufferManager->CreateShaderResourceView(tex, &srv);
 				}
 
@@ -192,9 +192,10 @@ namespace TruthEngine::API::DirectX12
 		}
 
 		//
-		////Define Static Samplers
+		//Define Static Samplers
 		//
-		D3D12_STATIC_SAMPLER_DESC sampler_desc[2];
+		D3D12_STATIC_SAMPLER_DESC sampler_desc[4];
+
 		sampler_desc[0].AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
 		sampler_desc[0].AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
 		sampler_desc[0].AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
@@ -208,14 +209,12 @@ namespace TruthEngine::API::DirectX12
 		sampler_desc[0].MaxLOD = D3D12_FLOAT32_MAX;
 		sampler_desc[0].MipLODBias = 0;
 
-
-
 		sampler_desc[1].AddressU = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
 		sampler_desc[1].AddressV = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
 		sampler_desc[1].AddressW = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
 		sampler_desc[1].BorderColor = D3D12_STATIC_BORDER_COLOR_OPAQUE_BLACK;
 		sampler_desc[1].ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER;
-		sampler_desc[1].Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
+		sampler_desc[1].Filter = D3D12_FILTER_MIN_MAG_MIP_POINT;
 		sampler_desc[1].RegisterSpace = 0;
 		sampler_desc[1].ShaderRegister = 1;
 		sampler_desc[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
@@ -223,6 +222,34 @@ namespace TruthEngine::API::DirectX12
 		sampler_desc[1].MinLOD = 0;
 		sampler_desc[1].MaxLOD = D3D12_FLOAT32_MAX;
 		sampler_desc[1].MipLODBias = 0;
+
+		sampler_desc[2].AddressU = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+		sampler_desc[2].AddressV = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+		sampler_desc[2].AddressW = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+		sampler_desc[2].BorderColor = D3D12_STATIC_BORDER_COLOR_OPAQUE_WHITE;
+		sampler_desc[2].ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER;
+		sampler_desc[2].Filter = D3D12_FILTER_MIN_MAG_MIP_POINT;
+		sampler_desc[2].RegisterSpace = 0;
+		sampler_desc[2].ShaderRegister = 2;
+		sampler_desc[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+		sampler_desc[2].MaxAnisotropy = 1;
+		sampler_desc[2].MinLOD = 0;
+		sampler_desc[2].MaxLOD = D3D12_FLOAT32_MAX;
+		sampler_desc[2].MipLODBias = 0;
+
+		sampler_desc[3].AddressU = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+		sampler_desc[3].AddressV = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+		sampler_desc[3].AddressW = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+		sampler_desc[3].BorderColor = D3D12_STATIC_BORDER_COLOR_OPAQUE_WHITE;
+		sampler_desc[3].ComparisonFunc = D3D12_COMPARISON_FUNC_GREATER;
+		sampler_desc[3].Filter = D3D12_FILTER_MIN_MAG_MIP_POINT;
+		sampler_desc[3].RegisterSpace = 0;
+		sampler_desc[3].ShaderRegister = 3;
+		sampler_desc[3].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+		sampler_desc[3].MaxAnisotropy = 1;
+		sampler_desc[3].MinLOD = 0;
+		sampler_desc[3].MaxLOD = D3D12_FLOAT32_MAX;
+		sampler_desc[3].MipLODBias = 0;
 
 
 		COMPTR<ID3DBlob> errorBlob;

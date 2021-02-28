@@ -2,17 +2,22 @@
 
 #include "Core/Entity/Light/ILight.h"
 
-namespace TruthEngine::Core {
+namespace TruthEngine {
 
 	struct ConstantBuffer_Data_Per_Frame
 	{
-		ConstantBuffer_Data_Per_Frame(const float4x4& viewProj, const float3& eyePos)
+		ConstantBuffer_Data_Per_Frame(const float4x4& viewProj, const float3& eyePos, const float4x4 cascadedShadowTransforms[4])
 			: ViewProj(viewProj), EyePos(eyePos)
-		{}
+		{
+			memcpy(CascadedShadowTransforms, cascadedShadowTransforms, 4 * sizeof(float4x4));
+		}
 
 		float4x4 ViewProj;
+
 		float3 EyePos{0.0f, 0.0f, 0.0f};
 		float pad = 0.0f;
+
+		float4x4 CascadedShadowTransforms[4];
 	};
 
 	struct ConstantBuffer_Data_Per_DLight

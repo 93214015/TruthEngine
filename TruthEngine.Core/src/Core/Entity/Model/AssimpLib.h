@@ -3,9 +3,6 @@
 
 namespace TruthEngine
 {
-
-	namespace Core
-	{
 		class ModelManager;
 		class Scene;
 		class Mesh;
@@ -45,5 +42,4 @@ namespace TruthEngine
 			std::vector<std::future<void>> m_Futures;
 
 		};
-	}
 }

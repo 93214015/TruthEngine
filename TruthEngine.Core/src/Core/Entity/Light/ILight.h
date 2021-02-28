@@ -10,9 +10,6 @@ enum class TE_LIGHT_TYPE
 namespace TruthEngine
 {
 
-	namespace Core
-	{
-
 		//
 	//Light Data
 	//
@@ -108,6 +105,8 @@ namespace TruthEngine
 
 			void SetRange(const float _range) noexcept;
 
+			void SetUseCascadedShadows(const bool _use) noexcept;
+
 
 			//
 			//Get Methods
@@ -163,6 +162,11 @@ namespace TruthEngine
 				return m_LightData->Range;
 			}
 
+			inline bool GetUseCascadedShadows()const noexcept
+			{
+				return m_UseCascadedShadows;
+			}
+
 			//
 			//abstract functions
 			//
@@ -178,14 +182,15 @@ namespace TruthEngine
 
 			LightData* m_LightData = nullptr;
 
-			bool m_Disabled;
+			bool m_Disabled = false;
 
-			bool m_ShadowDynamicObjects;
+			bool m_ShadowDynamicObjects = false;
+
+			bool m_UseCascadedShadows = false;
 
 			TE_LIGHT_TYPE m_LightType;
 
 			std::function<void(const float&)> m_Func_Update = [](const float& dt) {return; };
 		};
-	}
 }
 

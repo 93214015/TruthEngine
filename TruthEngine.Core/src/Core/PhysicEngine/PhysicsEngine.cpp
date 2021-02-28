@@ -11,7 +11,7 @@ using namespace physx;
 using namespace DirectX;
 
 
-namespace TruthEngine::Core
+namespace TruthEngine
 {
 
 	PhysicsEngine::PhysicsEngine()

@@ -1,10 +1,10 @@
 #pragma once
 
 
-#define TE_INSTANCE_GRAPHICDEVICE TruthEngine::Core::GraphicDevice::GetPrimaryDevice()
+#define TE_INSTANCE_GRAPHICDEVICE TruthEngine::GraphicDevice::GetPrimaryDevice()
 
 
-namespace TruthEngine::Core {
+namespace TruthEngine {
 
 	class GraphicResource;
 

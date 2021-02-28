@@ -13,7 +13,7 @@
 
 
 
-namespace TruthEngine::Core
+namespace TruthEngine
 {
 	MeshGenerator::MeshGenerator()
 	{}
@@ -112,7 +112,7 @@ namespace TruthEngine::Core
 		return modelManager->AddMesh(indexNum, indexOffset, vertexOffset, vertexNum);
 	}
 
-	TruthEngine::Core::Mesh* MeshGenerator::GenerateRoundedBoxMesh(float size)
+	TruthEngine::Mesh* MeshGenerator::GenerateRoundedBoxMesh(float size)
 	{
 		auto modelManager = ModelManager::GetInstance();
 		auto& vertexBuffer = modelManager->m_VertexBuffer_PosNormTanTex;
@@ -152,7 +152,7 @@ namespace TruthEngine::Core
 		return modelManager->AddMesh(indexNum, indexOffset, vertexOffset, vertexNum);
 	}
 
-	TruthEngine::Core::Mesh* MeshGenerator::GenerateCylinder(float size)
+	TruthEngine::Mesh* MeshGenerator::GenerateCylinder(float size)
 	{
 		auto modelManager = ModelManager::GetInstance();
 		auto& vertexBuffer = modelManager->m_VertexBuffer_PosNormTanTex;
@@ -193,7 +193,7 @@ namespace TruthEngine::Core
 		return modelManager->AddMesh(indexNum, indexOffset, vertexOffset, vertexNum);
 	}
 
-	TruthEngine::Core::Mesh* MeshGenerator::GenerateCappedCylinder(float size)
+	TruthEngine::Mesh* MeshGenerator::GenerateCappedCylinder(float size)
 	{
 		auto modelManager = ModelManager::GetInstance();
 		auto& vertexBuffer = modelManager->m_VertexBuffer_PosNormTanTex;
@@ -233,7 +233,7 @@ namespace TruthEngine::Core
 		return modelManager->AddMesh(indexNum, indexOffset, vertexOffset, vertexNum);
 	}
 
-	TruthEngine::Core::Mesh* MeshGenerator::GeneratePlane(float size)
+	TruthEngine::Mesh* MeshGenerator::GeneratePlane(float size)
 	{
 		auto modelManager = ModelManager::GetInstance().get();
 		auto& vertexBuffer = modelManager->m_VertexBuffer_PosNormTanTex;

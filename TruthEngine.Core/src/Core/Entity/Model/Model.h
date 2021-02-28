@@ -4,8 +4,6 @@
 
 namespace TruthEngine
 {
-	namespace Core 
-	{
 		/*Scene;
 
 		class Model
@@ -33,5 +31,4 @@ namespace TruthEngine
 
 			Scene m_Scene;
 		};*/
-	}
 }

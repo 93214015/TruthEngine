@@ -406,6 +406,9 @@
     <ClInclude Include="src\lib.h" />
     <ClInclude Include="src\pch.h" />
     <ClInclude Include="src\Core\Entity\PickingEntity.h" />
+    <ClInclude Include="src\Core\Entity\Camera\CameraCascadedFrustum.h" />
+    <ClInclude Include="src\Core\Helper\Macros.h" />
+    <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_RenderBoudingBoxes.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\API\DX12\DirectX12BufferManager.cpp">
@@ -725,5 +728,7 @@
     </ClCompile>
     <ClCompile Include="src\pch.cpp" />
     <ClCompile Include="src\Core\Entity\PickingEntity.cpp" />
+    <ClCompile Include="src\Core\Entity\Camera\CameraCascadedFrustum.cpp" />
+    <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_RenderBoudingBoxes.cpp" />
   </ItemGroup>
 </Project>

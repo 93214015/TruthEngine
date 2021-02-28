@@ -5,7 +5,7 @@
 #include "Core/Event/EventKey.h"
 #include "Core/Event/EventMouse.h"
 
-namespace TruthEngine::Core {
+namespace TruthEngine {
 
 
 	void InputManager::OnMouseMove(int x, int y)
@@ -100,13 +100,13 @@ namespace TruthEngine::Core {
 
 	void InputManager::OnKeyPressed(const KeyCode key)
 	{
-		auto event = TruthEngine::Core::EventKeyPressed(key, 0);
+		auto event = TruthEngine::EventKeyPressed(key, 0);
 		TE_INSTANCE_APPLICATION->OnEvent(event);
 	}
 
 	void InputManager::OnKeyReleased(const KeyCode key)
 	{
-		auto event = TruthEngine::Core::EventKeyReleased(key);
+		auto event = TruthEngine::EventKeyReleased(key);
 		TE_INSTANCE_APPLICATION->OnEvent(event);
 	}
 
@@ -137,7 +137,7 @@ namespace TruthEngine::Core {
 		return MousePoint{m_MouseX, m_MouseY};
 	}
 
-	std::list<TruthEngine::Core::KeyCode> InputManager::m_RegisteredKeys;
+	std::list<TruthEngine::KeyCode> InputManager::m_RegisteredKeys;
 
 	int InputManager::m_MouseX, InputManager::m_MouseY, InputManager::m_MouseLastX, InputManager::m_MouseLastY;
 

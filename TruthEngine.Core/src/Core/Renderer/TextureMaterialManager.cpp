@@ -6,28 +6,24 @@
 
 #include "API/DX12/DirectX12TextureMaterialManager.h"
 
-namespace TruthEngine 
+namespace TruthEngine
 {
-	namespace Core
+	uint32_t TextureMaterialManager::GetTextureViewIndex(uint32_t textureID) const
 	{
-		uint32_t TextureMaterialManager::GetTextureViewIndex(uint32_t textureID) const
-		{
-			return m_Textures[textureID]->GetViewIndex();
-		}
-		std::shared_ptr<TextureMaterialManager> TextureMaterialManager::Factory()
-		{
+		return m_Textures[textureID]->GetViewIndex();
+	}
+	std::shared_ptr<TextureMaterialManager> TextureMaterialManager::Factory()
+	{
 
+		{
+			switch (Settings::RendererAPI)
 			{
-				switch (Settings::RendererAPI)
-				{
-				case TE_RENDERER_API::DirectX12:
-					return std::make_shared<API::DirectX12::DirectX12TextureMaterialManager>();
-					break;
-				default:
-					break;
-				}
+			case TE_RENDERER_API::DirectX12:
+				return std::make_shared<API::DirectX12::DirectX12TextureMaterialManager>();
+				break;
+			default:
+				break;
 			}
-
 		}
 
 	}

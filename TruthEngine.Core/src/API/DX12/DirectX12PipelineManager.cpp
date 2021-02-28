@@ -100,7 +100,7 @@ namespace TruthEngine::API::DirectX12
 		return static_cast<D3D12_INPUT_CLASSIFICATION>(inputClass);
 	}
 
-	void DX12_GET_INPUT_ELEMENTS(const std::vector<Core::ShaderInputElement>& elements, std::vector<D3D12_INPUT_ELEMENT_DESC>& outElements)
+	void DX12_GET_INPUT_ELEMENTS(const std::vector<ShaderInputElement>& elements, std::vector<D3D12_INPUT_ELEMENT_DESC>& outElements)
 	{
 		outElements.reserve(elements.size());
 
@@ -137,7 +137,7 @@ namespace TruthEngine::API::DirectX12
 
 
 
-	COMPTR<ID3D12PipelineState> DirectX12PiplineManager::GetPipeline(Core::Pipeline* pipeline)
+	COMPTR<ID3D12PipelineState> DirectX12PiplineManager::GetPipeline(Pipeline* pipeline)
 	{
 		COMPTR<ID3D12PipelineState> PSO;
 
@@ -170,7 +170,7 @@ namespace TruthEngine::API::DirectX12
 		desc.RasterizerState.DepthBiasClamp = pipeline->m_DepthBiasClamp;
 		desc.RasterizerState.SlopeScaledDepthBias = pipeline->m_SlopeScaledDepthBias;
 		desc.RasterizerState.DepthClipEnable = true;
-		desc.RasterizerState.MultisampleEnable = false;
+		desc.RasterizerState.MultisampleEnable = true;
 		desc.RasterizerState.AntialiasedLineEnable = false;
 		desc.RasterizerState.ForcedSampleCount = 0;
 		desc.RasterizerState.ConservativeRaster = D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF;
@@ -205,7 +205,7 @@ namespace TruthEngine::API::DirectX12
 		desc.DSVFormat = DX12_GET_FORMAT(pipeline->GetDSVFormat());
 
 		//Sample desc
-		desc.SampleDesc.Count = 1;
+		desc.SampleDesc.Count = pipeline->m_EnableMSAA ? static_cast<uint32_t>(Settings::MSAA) : 1;
 		desc.SampleDesc.Quality = 0;
 
 		desc.pRootSignature = DirectX12Manager::GetInstance()->GetD3D12RootSignature(shader->GetShaderClassIDX());
@@ -226,7 +226,7 @@ namespace TruthEngine::API::DirectX12
 	}
 
 
-	TE_RESULT DirectX12PiplineManager::AddPipeline(Core::Pipeline* pipeline, COMPTR<ID3D12PipelineState>& PSO, D3D12_GRAPHICS_PIPELINE_STATE_DESC& desc)
+	TE_RESULT DirectX12PiplineManager::AddPipeline(Pipeline* pipeline, COMPTR<ID3D12PipelineState>& PSO, D3D12_GRAPHICS_PIPELINE_STATE_DESC& desc)
 	{
 		auto hr = TE_INSTANCE_API_DX12_GRAPHICDEVICE->CreateGraphicsPipelineState(&desc, IID_PPV_ARGS(PSO.GetAddressOf()));
 		TE_ASSERT_CORE(TE_SUCCEEDED(hr), "Pipeline Creation failed!");

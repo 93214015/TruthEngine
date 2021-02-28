@@ -35,6 +35,8 @@ namespace TruthEngine::API::DirectX12
 			return DXGI_FORMAT_D32_FLOAT;
 		case TE_RESOURCE_FORMAT::R24_UNORM_X8_TYPELESS:
 			return DXGI_FORMAT_D24_UNORM_S8_UINT;
+		case TE_RESOURCE_FORMAT::R24G8_TYPELESS:
+			return DXGI_FORMAT_D24_UNORM_S8_UINT;
 		case TE_RESOURCE_FORMAT::R32_FLOAT_X8X24_TYPELESS:
 			return DXGI_FORMAT_D32_FLOAT_S8X24_UINT;
 		default:
@@ -50,6 +52,8 @@ namespace TruthEngine::API::DirectX12
 		case TE_RESOURCE_FORMAT::R32_TYPELESS:
 			return DXGI_FORMAT_R32_FLOAT;
 		case TE_RESOURCE_FORMAT::R24_UNORM_X8_TYPELESS:
+			return DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
+		case TE_RESOURCE_FORMAT::R24G8_TYPELESS:
 			return DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
 		case TE_RESOURCE_FORMAT::R32_FLOAT_X8X24_TYPELESS:
 			return DXGI_FORMAT_R32_FLOAT_X8X24_TYPELESS;
@@ -99,10 +103,19 @@ namespace TruthEngine::API::DirectX12
 	}
 
 
-	inline D3D12_RESOURCE_DESC1 GetTextureDesc(uint32_t width, uint32_t height, TE_RESOURCE_USAGE usage, TE_RESOURCE_FORMAT format)
+	inline D3D12_RESOURCE_DESC1 GetTextureDesc(Texture* _Texture)
 	{
-		const auto resourceFlags = GetResourceFlags(usage);
-		return CD3DX12_RESOURCE_DESC1::Tex2D(GetFormat(format), static_cast<uint64_t>(width), height, 1, 0, 1, 0, resourceFlags);
+		const auto resourceFlags = GetResourceFlags(_Texture->GetUsage());
+		auto desc = CD3DX12_RESOURCE_DESC1::Tex2D(GetFormat(_Texture->GetFormat()), static_cast<uint64_t>(_Texture->GetWidth()), _Texture->GetHeight(), 1, 0, 1, 0, resourceFlags);
+
+		if (_Texture->IsMultiSample())
+		{
+			desc.MipLevels = 1;
+			desc.SampleDesc.Count = static_cast<int>(Settings::MSAA);
+			desc.SampleDesc.Quality = 0;
+		}
+
+		return desc;
 	}
 
 
@@ -130,9 +143,9 @@ namespace TruthEngine::API::DirectX12
 
 
 
-	TE_RESULT DirectX12BufferManager::CreateResource(Core::TextureRenderTarget* tRT)
+	TE_RESULT DirectX12BufferManager::CreateResource(TextureRenderTarget* tRT)
 	{
-		const auto desc = GetTextureDesc(tRT->m_Width, tRT->m_Height, tRT->m_Usage, tRT->m_Format);
+		const auto desc = GetTextureDesc(tRT);
 
 		//		COMPTR<ID3D12Resource>& resource = tRT->m_ResourceIndex == -1 ? m_Resources.emplace_back() : m_Resources[tRT->m_ResourceIndex];
 
@@ -161,9 +174,9 @@ namespace TruthEngine::API::DirectX12
 		return SUCCEEDED(hr) ? TE_SUCCESSFUL : TE_RESULT::TE_FAIL;
 	}
 
-	TE_RESULT DirectX12BufferManager::CreateResource(Core::TextureDepthStencil* tDS)
+	TE_RESULT DirectX12BufferManager::CreateResource(TextureDepthStencil* tDS)
 	{
-		const auto desc = GetTextureDesc(tDS->m_Width, tDS->m_Height, tDS->m_Usage, tDS->m_Format);
+		const auto desc = GetTextureDesc(tDS);
 
 		COMPTR<ID3D12Resource>* resource;
 		if (tDS->m_ResourceIndex == -1)
@@ -189,7 +202,7 @@ namespace TruthEngine::API::DirectX12
 		return SUCCEEDED(hr) ? TE_SUCCESSFUL : TE_RESULT::TE_FAIL;
 	}
 
-	TE_RESULT DirectX12BufferManager::CreateResource(Core::BufferUpload* buffer)
+	TE_RESULT DirectX12BufferManager::CreateResource(BufferUpload* buffer)
 	{
 
 		auto framesOnTheFly = TE_INSTANCE_APPLICATION->GetFramesOnTheFlyNum();
@@ -231,7 +244,7 @@ namespace TruthEngine::API::DirectX12
 
 	}
 
-	TE_RESULT DirectX12BufferManager::CreateResource(Core::VertexBufferStreamBase* vb)
+	TE_RESULT DirectX12BufferManager::CreateResource(VertexBufferStreamBase* vb)
 	{
 		const auto desc = GetBufferDesc(vb->GetBufferSize(), vb->m_Usage);
 
@@ -270,7 +283,7 @@ namespace TruthEngine::API::DirectX12
 		return SUCCEEDED(hr) ? TE_SUCCESSFUL : TE_RESULT::TE_FAIL;
 	}
 
-	TE_RESULT DirectX12BufferManager::CreateResource(Core::IndexBuffer* ib)
+	TE_RESULT DirectX12BufferManager::CreateResource(IndexBuffer* ib)
 	{
 		const auto desc = GetBufferDesc(ib->GetBufferSize(), TE_RESOURCE_USAGE_INDEXBUFFER);
 
@@ -296,7 +309,7 @@ namespace TruthEngine::API::DirectX12
 		return SUCCEEDED(hr) ? TE_SUCCESSFUL : TE_RESULT::TE_FAIL;
 	}
 
-	TE_RESULT DirectX12BufferManager::CreateResource(Core::TextureMaterial* texture)
+	TE_RESULT DirectX12BufferManager::CreateResource(TextureMaterial* texture)
 	{
 		auto d3d12device = static_cast<DirectX12GraphicDevice*>(TE_INSTANCE_GRAPHICDEVICE)->GetDevice();
 		DirectX::ResourceUploadBatch uploadBatch(d3d12device);
@@ -311,11 +324,11 @@ namespace TruthEngine::API::DirectX12
 	}
 
 
-	void DirectX12BufferManager::CreateRenderTargetView(Core::TextureRenderTarget* RT, Core::RenderTargetView* RTV)
+	void DirectX12BufferManager::CreateRenderTargetView(TextureRenderTarget* RT, RenderTargetView* RTV)
 	{
 		if (RTV->ViewIndex == -1)
 		{
-			*RTV = Core::RenderTargetView{ m_DescHeapRTV.GetCurrentIndex(), RT->m_ResourceIndex, RT };
+			*RTV = RenderTargetView{ m_DescHeapRTV.GetCurrentIndex(), RT->m_ResourceIndex, RT };
 			m_DescHeapRTV.AddDescriptor(m_Resources[RT->m_ResourceIndex].Get());
 
 		}
@@ -325,25 +338,25 @@ namespace TruthEngine::API::DirectX12
 		}
 	}
 
-	void DirectX12BufferManager::CreateRenderTargetView(Core::SwapChain* swapChain, Core::RenderTargetView* RTV)
+	void DirectX12BufferManager::CreateRenderTargetView(SwapChain* swapChain, RenderTargetView* RTV)
 	{
 		auto sc = static_cast<DirectX12SwapChain*>(swapChain);
 
 		sc->InitRTVs(&m_DescHeapRTV, RTV);
 	}
 
-	void DirectX12BufferManager::CreateDepthStencilView(Core::TextureDepthStencil* DS, Core::DepthStencilView* DSV)
+	void DirectX12BufferManager::CreateDepthStencilView(TextureDepthStencil* DS, DepthStencilView* DSV)
 	{
 
 		D3D12_DEPTH_STENCIL_VIEW_DESC desc{};
 		desc.Format = GetDSVFormat(DS->m_Format);
-		desc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
+		desc.ViewDimension = DS->m_EnableMSAA ? D3D12_DSV_DIMENSION_TEXTURE2DMS : D3D12_DSV_DIMENSION_TEXTURE2D;
 		desc.Flags = D3D12_DSV_FLAG_NONE;
 		desc.Texture2D.MipSlice = 0;
 
 		if (DSV->ViewIndex == -1)
 		{
-			*DSV = Core::DepthStencilView{ m_DescHeapDSV.GetCurrentIndex(), DS->m_ResourceIndex, DS };
+			*DSV = DepthStencilView{ m_DescHeapDSV.GetCurrentIndex(), DS->m_ResourceIndex, DS };
 
 			m_DescHeapDSV.AddDescriptor(m_Resources[DS->m_ResourceIndex].Get(), &desc);
 		}
@@ -354,17 +367,17 @@ namespace TruthEngine::API::DirectX12
 
 	}
 
-	void DirectX12BufferManager::CreateShaderResourceView(Core::Texture* textures[], uint32_t textureNum, Core::ShaderResourceView* SRV)
+	void DirectX12BufferManager::CreateShaderResourceView(Texture* textures[], uint32_t textureNum, ShaderResourceView* SRV)
 	{
 		throw;
 	}
 
-	void DirectX12BufferManager::CreateShaderResourceView(Core::Texture* texture, Core::ShaderResourceView* SRV)
+	void DirectX12BufferManager::CreateShaderResourceView(Texture* texture, ShaderResourceView* SRV)
 	{
 
 		if (SRV->ViewIndex == -1)
 		{
-			*SRV = Core::ShaderResourceView{ m_DescHeapSRV.GetCurrentIndex(), texture->m_ResourceIndex, texture };
+			*SRV = ShaderResourceView{ m_DescHeapSRV.GetCurrentIndex(), texture->m_ResourceIndex, texture };
 
 			switch (texture->m_Usage)
 			{
@@ -373,7 +386,7 @@ namespace TruthEngine::API::DirectX12
 				break;
 			case ((uint32_t)TE_RESOURCE_USAGE_DEPTHSTENCIL | (uint32_t)TE_RESOURCE_USAGE_SHADERRESOURCE):
 			{
-				auto d = static_cast<Core::TextureDepthStencil*>(texture);
+				auto d = static_cast<TextureDepthStencil*>(texture);
 				D3D12_SHADER_RESOURCE_VIEW_DESC desc;
 				desc.Format = GetDepthStencilSRVFormat(d->m_Format);
 				desc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
@@ -398,7 +411,7 @@ namespace TruthEngine::API::DirectX12
 				break;
 			case ((uint32_t)TE_RESOURCE_USAGE_DEPTHSTENCIL | (uint32_t)TE_RESOURCE_USAGE_SHADERRESOURCE):
 			{
-				auto d = static_cast<Core::TextureDepthStencil*>(texture);
+				auto d = static_cast<TextureDepthStencil*>(texture);
 				D3D12_SHADER_RESOURCE_VIEW_DESC desc;
 				desc.Format = GetDepthStencilSRVFormat(d->m_Format);
 				desc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
@@ -416,7 +429,7 @@ namespace TruthEngine::API::DirectX12
 		}
 	}
 
-	void DirectX12BufferManager::CreateConstantBufferView(Core::ConstantBufferUploadBase* constantBuffer, Core::ConstantBufferView* CBV, uint8_t frameIndex)
+	void DirectX12BufferManager::CreateConstantBufferView(ConstantBufferUploadBase* constantBuffer, ConstantBufferView* CBV, uint8_t frameIndex)
 	{
 		uint32_t resourceIndex = constantBuffer->m_ResourceIndex + frameIndex;
 
@@ -424,7 +437,7 @@ namespace TruthEngine::API::DirectX12
 
 		if (CBV->ViewIndex == -1)
 		{
-			*CBV = Core::ConstantBufferView{ m_DescHeapSRV.GetCurrentIndex(), resourceIndex, constantBuffer };
+			*CBV = ConstantBufferView{ m_DescHeapSRV.GetCurrentIndex(), resourceIndex, constantBuffer };
 
 			m_DescHeapSRV.AddDescriptorCBV(&desc);
 		}
@@ -435,7 +448,7 @@ namespace TruthEngine::API::DirectX12
 
 	}
 
-	uint64_t DirectX12BufferManager::GetRequiredSize(const Core::GraphicResource* graphicResource) const
+	uint64_t DirectX12BufferManager::GetRequiredSize(const GraphicResource* graphicResource) const
 	{
 		auto resource = m_Resources[graphicResource->m_ResourceIndex].Get();
 
@@ -452,7 +465,7 @@ namespace TruthEngine::API::DirectX12
 		return requiredSize;
 	}
 
-	TE_RESULT DirectX12BufferManager::CreateVertexBuffer(Core::VertexBufferBase* vb)
+	TE_RESULT DirectX12BufferManager::CreateVertexBuffer(VertexBufferBase* vb)
 	{
 		uint32_t vertexStreamsNum = vb->GetVertexStreamNum();
 		auto vertexStreams = vb->GetVertexBufferStreams();
@@ -479,7 +492,7 @@ namespace TruthEngine::API::DirectX12
 		return TE_SUCCESSFUL;
 	}
 
-	TE_RESULT DirectX12BufferManager::CreateIndexBuffer(Core::IndexBuffer* ib)
+	TE_RESULT DirectX12BufferManager::CreateIndexBuffer(IndexBuffer* ib)
 	{
 		CreateResource(ib);
 
@@ -525,7 +538,7 @@ namespace TruthEngine::API::DirectX12
 		m_VertexBufferViews.clear();
 	}
 
-	void DirectX12BufferManager::ReleaseResource(Core::GraphicResource* resource)
+	void DirectX12BufferManager::ReleaseResource(GraphicResource* resource)
 	{
 		auto resourceIndex = resource->m_ResourceIndex;
 
@@ -538,7 +551,7 @@ namespace TruthEngine::API::DirectX12
 	}
 
 
-	ID3D12Resource* DirectX12BufferManager::GetResource(Core::GraphicResource* graphicResource)
+	ID3D12Resource* DirectX12BufferManager::GetResource(GraphicResource* graphicResource)
 	{
 		return m_Resources[graphicResource->m_ResourceIndex].Get();
 	}

@@ -5,20 +5,22 @@
 
 namespace TruthEngine
 {
-
-	namespace Core
-	{
 		class Material;
 
 		class Mesh 
 		{
 		public:
 			Mesh();
-			Mesh(uint32_t IndexNum, size_t IndexOffset, size_t VertexOffset, size_t vertexNum, const BoundingBox& boundingBox, VertexBuffer<VertexData::Pos, VertexData::NormTanTex>* VertexBufferPtr, IndexBuffer* IndexBufferPtr);
+			Mesh(uint32_t ID, uint32_t IndexNum, size_t IndexOffset, size_t VertexOffset, size_t vertexNum, const BoundingBox& boundingBox, VertexBuffer<VertexData::Pos, VertexData::NormTanTex>* VertexBufferPtr, IndexBuffer* IndexBufferPtr);
 
 			VertexBuffer<VertexData::Pos, VertexData::NormTanTex>* GetVertexBuffer() const noexcept
 			{
 				return m_VertexBuffer;
+			}
+
+			inline uint32_t GetID() const noexcept
+			{
+				return m_ID;
 			}
 
 			inline IndexBuffer* GetIndexBuffer() const noexcept
@@ -60,6 +62,8 @@ namespace TruthEngine
 
 
 		protected:
+			uint32_t m_ID = -1;
+
 			VertexBuffer<VertexData::Pos, VertexData::NormTanTex>* m_VertexBuffer = nullptr;
 			IndexBuffer* m_IndexBuffer = nullptr;
 
@@ -73,5 +77,4 @@ namespace TruthEngine
 			//Friend Classes
 			friend class ModelManager;
 		};
-	}
 }

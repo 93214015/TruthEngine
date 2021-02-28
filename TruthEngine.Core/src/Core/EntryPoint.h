@@ -3,7 +3,7 @@
 
 #ifdef TE_PLATFORM_WINDOWS
 
-extern TruthEngine::Core::Application* TruthEngine::Core::CreateApplication();
+extern TruthEngine::Application* TruthEngine::CreateApplication();
 
 #ifdef TE_WIN32
 
@@ -13,12 +13,12 @@ extern TruthEngine::Core::Application* TruthEngine::Core::CreateApplication();
 		_In_ int       nCmdShow)
 	{
 		
-		TruthEngine::Core::Log::Init();
+		TruthEngine::Log::Init();
 		TE_LOG_CORE_WARN("Initialized Logger!");
 		TE_LOG_APP_INFO("The App Started!");
 
 
-		TruthEngine::Core::Application* app = TruthEngine::Core::CreateApplication();
+		TruthEngine::Application* app = TruthEngine::CreateApplication();
 		app->Run();
 		delete app;
 		
@@ -28,12 +28,12 @@ extern TruthEngine::Core::Application* TruthEngine::Core::CreateApplication();
 
 	int main(int argc, char** argv) {
 
-		TruthEngine::Core::Log::Init();
+		TruthEngine::Log::Init();
 		TE_LOG_CORE_WARN("Initialized Logger!");
 		TE_LOG_APP_INFO("The App Started!");
 
 
-		std::unique_ptr<TruthEngine::Core::Application> app(TruthEngine::Core::CreateApplication());
+		std::unique_ptr<TruthEngine::Application> app(TruthEngine::CreateApplication());
 		app->Run();
 	}
 
