@@ -2,7 +2,7 @@
 #include "ICamera.h"
 /*
 
-namespace TruthEngine::Core {
+namespace TruthEngine {
 
 	class CameraPerspective : public ICamera
 	{

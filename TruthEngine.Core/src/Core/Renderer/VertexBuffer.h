@@ -11,7 +11,7 @@ namespace TruthEngine {
 	}
 }
 
-namespace TruthEngine::Core
+namespace TruthEngine
 {
 
 	class VertexBufferBase

@@ -4,19 +4,16 @@
 namespace TruthEngine
 {
 
-	namespace Core
-	{
-		class Scene;
-		struct EntityNode;
-	}
+	class Scene;
+	struct EntityNode;
 
 	class SceneHierarchyPanel
 	{
 	public:
 		SceneHierarchyPanel() = default;
-		SceneHierarchyPanel(Core::Scene* context);
+		SceneHierarchyPanel(Scene* context);
 
-		inline void SetContext(Core::Scene* context)
+		inline void SetContext(Scene* context)
 		{
 			m_Context = context;
 		}
@@ -27,10 +24,10 @@ namespace TruthEngine
 		void DrawModelEntities() const;
 		void DrawCameraEntities() const;
 		void DrawLightEntities() const;
-		void DrawChilrenNodes(std::vector<Core::EntityNode>& childrenNodes) const;
+		void DrawChilrenNodes(std::vector<EntityNode>& childrenNodes) const;
 
 	private:
-		Core::Scene* m_Context = nullptr;
+		Scene* m_Context = nullptr;
 
 		const ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_AllowItemOverlap | ImGuiTreeNodeFlags_FramePadding | ImGuiTreeNodeFlags_OpenOnArrow;
 	};

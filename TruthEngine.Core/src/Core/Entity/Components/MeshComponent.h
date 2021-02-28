@@ -8,8 +8,6 @@
 
 namespace TruthEngine
 {
-	namespace Core
-	{
 		class MeshComponent
 		{
 		public:
@@ -32,5 +30,4 @@ namespace TruthEngine
 			//Friend Classes
 			friend class ModelManager;
 		};
-	}
 }

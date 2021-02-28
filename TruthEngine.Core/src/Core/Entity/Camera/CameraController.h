@@ -2,8 +2,7 @@
 
 namespace TruthEngine
 {
-	namespace Core
-	{
+	
 		class Camera;
 		class EventMouseMoved;
 		class EventKeyPressed;
@@ -51,5 +50,4 @@ namespace TruthEngine
 			float m_Speed = 0.1f;
 
 		};
-	}
 }

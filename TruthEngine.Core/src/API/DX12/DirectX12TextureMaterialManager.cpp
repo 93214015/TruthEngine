@@ -11,7 +11,7 @@
 #include "DirectXTK12/Inc/ResourceUploadBatch.h"
 #include "DirectXTK12/Inc/WICTextureLoader.h"
 
-using namespace TruthEngine::Core;
+using namespace TruthEngine;
 
 namespace TruthEngine::API::DirectX12
 {
@@ -21,10 +21,10 @@ namespace TruthEngine::API::DirectX12
 	{
 		auto index = static_cast<uint32_t>(m_Textures.size());
 
-		auto tex = m_Textures.emplace_back(std::make_shared<Core::TextureMaterial>(index, name, "", data, width, height, dataSize, format));
+		auto tex = m_Textures.emplace_back(std::make_shared<TextureMaterial>(index, name, "", data, width, height, dataSize, format));
 		m_Map_Textures[name] = tex.get();
 
-		auto bufferManager = static_cast<DirectX12BufferManager*>(TE_INSTANCE_BUFFERMANAGER.get());
+		auto bufferManager = static_cast<DirectX12BufferManager*>(TE_INSTANCE_BUFFERMANAGER);
 
 		auto d3d12device = static_cast<DirectX12GraphicDevice*>(TE_INSTANCE_GRAPHICDEVICE)->GetDevice();
 		DirectX::ResourceUploadBatch uploadBatch(d3d12device);
@@ -64,7 +64,7 @@ namespace TruthEngine::API::DirectX12
 			fullPath = textureFilePath.string();
 		}
 
-		auto bufferManager = static_cast<DirectX12BufferManager*>(TE_INSTANCE_BUFFERMANAGER.get());
+		auto bufferManager = static_cast<DirectX12BufferManager*>(TE_INSTANCE_BUFFERMANAGER);
 
 		auto d3d12device = static_cast<DirectX12GraphicDevice*>(TE_INSTANCE_GRAPHICDEVICE)->GetDevice();
 		DirectX::ResourceUploadBatch uploadBatch(d3d12device);
@@ -78,7 +78,7 @@ namespace TruthEngine::API::DirectX12
 		auto desc = (*resource)->GetDesc();
 
 
-		auto tex = m_Textures.emplace_back(std::make_shared<Core::TextureMaterial>(index, fileName.c_str(), fullPath.c_str(), nullptr, desc.Width, desc.Height, 0, static_cast<TE_RESOURCE_FORMAT>(desc.Format)));
+		auto tex = m_Textures.emplace_back(std::make_shared<TextureMaterial>(index, fileName.c_str(), fullPath.c_str(), nullptr, desc.Width, desc.Height, 0, static_cast<TE_RESOURCE_FORMAT>(desc.Format)));
 		tex->m_ResourceIndex = resourceIndex;
 		m_Map_Textures[fileName.c_str()] = tex.get();
 
@@ -90,18 +90,18 @@ namespace TruthEngine::API::DirectX12
 
 	D3D12_GPU_DESCRIPTOR_HANDLE DirectX12TextureMaterialManager::GetGPUHandle() const
 	{
-		auto bufferManager = static_cast<DirectX12BufferManager*>(Core::BufferManager::GetInstance().get());
+		auto bufferManager = static_cast<DirectX12BufferManager*>(TE_INSTANCE_BUFFERMANAGER);
 		return bufferManager->m_DescHeapSRV.GetGPUHandle(m_DefaultOffset);
 	}
 
 
 	void DirectX12TextureMaterialManager::CreateTextureView(TextureMaterial* tex)
 	{
-		auto bufferManager = static_cast<DirectX12BufferManager*>(TE_INSTANCE_BUFFERMANAGER.get());
+		auto bufferManager = static_cast<DirectX12BufferManager*>(TE_INSTANCE_BUFFERMANAGER);
 
 		auto& descHeap = bufferManager->m_DescHeapSRV;
 
-		auto graphicDevice = static_cast<DirectX12GraphicDevice*>(Core::GraphicDevice::GetPrimaryDevice());
+		auto graphicDevice = static_cast<DirectX12GraphicDevice*>(GraphicDevice::GetPrimaryDevice());
 
 		auto d3d12device = graphicDevice->GetDevice();
 

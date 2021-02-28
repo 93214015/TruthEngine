@@ -11,9 +11,6 @@
 namespace TruthEngine
 {
 
-	namespace Core
-	{
-
 		enum class TE_PRIMITIVE_TYPE
 		{
 			BOX,
@@ -106,6 +103,7 @@ namespace TruthEngine
 				return m_MaterialManager.GetMatrialOffset();
 			}
 
+
 			//Model3D* AddModel3D();
 
 			//void AddMesh(std::shared_ptr<Mesh> mesh);
@@ -121,6 +119,12 @@ namespace TruthEngine
 
 		protected:
 			void InitVertexAndIndexBuffer();
+
+			inline uint32_t GenerateMeshID()
+			{
+				static uint32_t s_ID = 0;
+				return s_ID++;
+			}
 
 		protected:
 			//std::vector<Model3D> m_Models3D;
@@ -142,7 +146,6 @@ namespace TruthEngine
 			friend class MeshGenerator;
 
 		};
-	}
 }
 
-#define TE_INSTANCE_MODELMANAGER TruthEngine::Core::ModelManager::GetInstance()
+#define TE_INSTANCE_MODELMANAGER TruthEngine::ModelManager::GetInstance()

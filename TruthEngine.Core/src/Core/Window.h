@@ -1,7 +1,7 @@
 #pragma once
 #include "Event/Event.h"
 
-namespace TruthEngine::Core {
+namespace TruthEngine {
 
 	class Window {
 

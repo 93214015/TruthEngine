@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "Settings.h"
 
-namespace TruthEngine::Core
+namespace TruthEngine
 {
 
 	TE_RENDERER_API Settings::RendererAPI = TE_RENDERER_API::DirectX12 ;
@@ -13,5 +13,7 @@ namespace TruthEngine::Core
 	std::string Settings::CPUModelSTR = "AMD FX6300";
 
 	std::string Settings::CPUThreadNumSTR = "6";
+
+	TE_SETTING_MSAA Settings::MSAA = TE_SETTING_MSAA::X1;
 
 }

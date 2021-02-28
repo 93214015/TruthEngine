@@ -2,8 +2,6 @@
 
 namespace TruthEngine
 {
-	namespace Core
-	{
 		class Mesh;
 
 		class MeshGenerator
@@ -29,5 +27,4 @@ namespace TruthEngine
 		private:
 
 		};
-	}
 }

@@ -3,11 +3,6 @@
 
 namespace TruthEngine
 {
-
-
-	namespace Core 
-	{
-
 		class LightDirectional : public ILight
 		{
 		public:
@@ -32,6 +27,4 @@ namespace TruthEngine
 			DirectionalLightData m_DLightData;
 
 		};
-
-	}
 }

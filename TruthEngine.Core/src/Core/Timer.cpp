@@ -3,7 +3,7 @@
 #include "Application.h"
 #include "Event/EventApplication.h"
 
-namespace TruthEngine::Core {
+namespace TruthEngine {
 
 
 

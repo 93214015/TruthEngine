@@ -1,10 +1,12 @@
 #include "pch.h"
 #include "Scene.h"
 
-#include "Components.h"
-#include "Model/ModelManager.h"
+#include "Core/Entity/Components.h"
 
-namespace TruthEngine::Core
+#include "Core/Entity/Model/ModelManager.h" // Mesh and Material Included
+
+
+namespace TruthEngine
 {
 
 	Scene::Scene()
@@ -20,7 +22,7 @@ namespace TruthEngine::Core
 		return entity;
 	}
 
-	TruthEngine::Core::Entity Scene::AddEntity(const char* entityTag, const float4x4& tranform)
+	TruthEngine::Entity Scene::AddEntity(const char* entityTag, const float4x4& tranform)
 	{
 		Entity entity(this);
 		entity.AddComponent<TransformComponent>(tranform);
@@ -29,7 +31,23 @@ namespace TruthEngine::Core
 		return entity;
 	}
 
-	std::vector<TruthEngine::Core::Entity> Scene::GetAncestor(const Entity& entity)
+	Entity Scene::AddMeshEntity(const char* meshName, const float4x4& transform, Mesh* mesh, Material* material, Entity parentEntity)
+	{
+		auto entity_mesh = AddEntity(meshName, parentEntity, transform);
+		entity_mesh.AddComponent<MeshComponent>(mesh);
+		entity_mesh.AddComponent<MaterialComponent>(material);
+		const auto& _meshAABB = mesh->GetBoundingBox();
+		entity_mesh.AddComponent<BoundingBoxComponent>(_meshAABB);
+
+		BoundingBox _transformedAABB;
+		_meshAABB.Transform(_transformedAABB, XMLoadFloat4x4(&transform));
+
+		BoundingBox::CreateMerged(m_BoundingBox, m_BoundingBox, _transformedAABB);
+
+		return entity_mesh;
+	}
+
+	std::vector<TruthEngine::Entity> Scene::GetAncestor(const Entity& entity)
 	{
 		std::vector<Entity> ancestors;
 
@@ -47,7 +65,7 @@ namespace TruthEngine::Core
 		return ancestors;
 	}
 
-	std::vector<TruthEngine::Core::Entity> Scene::GetAncestor(entt::entity entityHandler)
+	std::vector<TruthEngine::Entity> Scene::GetAncestor(entt::entity entityHandler)
 	{
 		std::vector<Entity> ancestors;
 
@@ -83,6 +101,20 @@ namespace TruthEngine::Core
 		auto& t = m_Registery.get<TransformComponent>(entityHandler).GetTransform();
 		auto itr = m_EntityTree.m_Tree.find(static_cast<uint32_t>(entityHandler));
 		return CalcTransformsToRoot(itr->second.mParent) * t;
+	}
+
+	const BoundingBox& Scene::GetBoundingBox() const noexcept
+	{
+
+		return m_BoundingBox;
+	}
+
+	void Scene::UpdateBoundingBox(const BoundingBox& _boundingBox)
+	{
+		if (m_BoundingBox.Contains(_boundingBox) == DirectX::CONTAINS)
+			return;
+
+		BoundingBox::CreateMerged(m_BoundingBox, m_BoundingBox, _boundingBox);
 	}
 
 	float4x4 Scene::GetParentTransforms(Entity parent)
@@ -129,7 +161,7 @@ namespace TruthEngine::Core
 		return r;
 	}
 
-	TruthEngine::Core::Entity Scene::CopyMeshEntity(Entity meshEntity)
+	TruthEngine::Entity Scene::CopyMeshEntity(Entity meshEntity)
 	{
 		static uint32_t s_copyIndex = 0;
 

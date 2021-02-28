@@ -1,6 +1,6 @@
 #pragma once
 
-namespace TruthEngine::Core
+namespace TruthEngine
 {
 	using KeyCode = uint16_t;
 	

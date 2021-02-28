@@ -11,7 +11,7 @@
 
 namespace TruthEngine::API::DirectX12
 {
-	class DirectX12ImGuiLayer : public TruthEngine::Core::ImGuiLayer
+	class DirectX12ImGuiLayer : public TruthEngine::ImGuiLayer
 	{
 
 	public:
@@ -31,7 +31,7 @@ namespace TruthEngine::API::DirectX12
 
 	private:
 
-		void OnTextureResize(const Core::EventTextureResize& event);
+		void OnTextureResize(const EventTextureResize& event);
 
 	private:
 		//DescriptorHeapSRV m_DescHeapSRV;
@@ -44,6 +44,8 @@ namespace TruthEngine::API::DirectX12
 
 		D3D12_VIEWPORT m_D3D12Viewport;
 		D3D12_RECT m_D3D12ViewRect;
+
+		COMPTR<ID3D12Resource> m_TextureMultiSampleResolved;
 
 	};
 }

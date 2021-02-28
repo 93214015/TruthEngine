@@ -4,7 +4,7 @@
 #include "Core/Renderer/RendererCommand.h"
 #include "Core/Renderer/Viewport.h"
 
-namespace TruthEngine::Core
+namespace TruthEngine
 {
 	template<class T>
 	class ConstantBufferDirect;
@@ -47,7 +47,7 @@ namespace TruthEngine::Core
 
 	private:
 
-		uint32_t m_ShadoWMapSize = 1024;
+		uint32_t m_ShadoWMapSize = 2048;
 
 		RendererCommand m_RendererCommand;
 		TextureDepthStencil* m_TextureDepthStencil;
@@ -67,7 +67,7 @@ namespace TruthEngine::Core
 			ConstantBuffer_Data_Per_Mesh()
 				: mWorldMatrix(IdentityMatrix)
 			{}
-			ConstantBuffer_Data_Per_Mesh(float4x4 world)
+			ConstantBuffer_Data_Per_Mesh(const float4x4& world)
 				: mWorldMatrix(world)
 			{}
 
@@ -88,5 +88,9 @@ namespace TruthEngine::Core
 
 		ConstantBufferDirect<ConstantBuffer_Data_Per_Mesh>* m_ConstantBufferDirect_PerMesh;
 		ConstantBufferDirect<ConstantBuffer_Data_Per_Light>* m_ConstantBufferDirect_PerLight;
+
+		TimerProfile_OneSecond m_TimerBegin;
+		TimerProfile_OneSecond m_TimerEnd;
+		TimerProfile_OneSecond m_TimerRender;
 	};
 }

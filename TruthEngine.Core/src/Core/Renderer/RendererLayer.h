@@ -9,7 +9,7 @@
 #include "RenderPass/RenderPass_GenerateShadowMap.h"
 
 
-namespace TruthEngine::Core
+namespace TruthEngine
 {
 	class ModelManager;
 	class ImGuiLayer;
@@ -64,6 +64,8 @@ namespace TruthEngine::Core
 		void OnUpdateMaterial(const EventEntityUpdateMaterial& event);
 		void OnUpdateLight(const EventEntityUpdateLight& event);
 
+		void InitTextures();
+		void InitBuffers();
 
 	private:
 		RendererCommand m_RendererCommand;
@@ -77,7 +79,7 @@ namespace TruthEngine::Core
 
 		std::shared_ptr<ModelManager> m_ModelManagers;
 
-		std::shared_ptr<BufferManager> m_BufferManager;
+		BufferManager* m_BufferManager;
 
 		std::vector<const Model3D*> m_Model3DQueue;
 
@@ -88,6 +90,8 @@ namespace TruthEngine::Core
 		ConstantBufferUpload<ConstantBuffer_Data_Materials>* m_CB_Materials;
 
 		bool m_EnabledImGuiLayer = true;
+
+		TimerProfile_OneSecond m_TimerRenderLayerUpdate;
 
 	};
 

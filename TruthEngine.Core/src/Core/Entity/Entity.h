@@ -2,8 +2,6 @@
 
 namespace TruthEngine
 {
-	namespace Core
-	{
 		class Scene;
 
 		class Entity
@@ -77,7 +75,7 @@ namespace TruthEngine
 				return m_Scene;
 			}
 
-			float3 GetPosition() noexcept;
+			/*float3 GetPosition() noexcept;*/
 
 
 		private:
@@ -89,6 +87,4 @@ namespace TruthEngine
 			entt::registry* m_Registery = nullptr;
 			entt::entity m_EntityHandle = entt::null;
 		};
-
-	}
 }

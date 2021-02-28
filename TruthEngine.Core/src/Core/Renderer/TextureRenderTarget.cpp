@@ -1,13 +1,13 @@
 #include "pch.h"
 #include "TextureRenderTarget.h"
 
-namespace TruthEngine::Core
+namespace TruthEngine
 {
 
 	TextureRenderTarget::TextureRenderTarget(uint32_t width
 		, uint32_t height, TE_RESOURCE_FORMAT format
-		, ClearValue_RenderTarget clearValue, bool useAsShaderResource)
-		: Texture(width, height, format, TE_RESOURCE_USAGE_RENDERTARGET, TE_RESOURCE_TYPE::TEXTURE2D, TE_RESOURCE_STATES::RENDER_TARGET)
+		, ClearValue_RenderTarget clearValue, bool useAsShaderResource, bool enableMSAA)
+		: Texture(width, height, format, TE_RESOURCE_USAGE_RENDERTARGET, TE_RESOURCE_TYPE::TEXTURE2D, TE_RESOURCE_STATES::RENDER_TARGET, enableMSAA)
 		,m_ClearValue(clearValue)
 	{
 		if (useAsShaderResource)

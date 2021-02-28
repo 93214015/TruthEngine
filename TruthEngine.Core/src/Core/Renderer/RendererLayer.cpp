@@ -19,7 +19,7 @@
 #include "Core/Entity/Light/LightDirectional.h"
 #include "../Timer.h"
 
-namespace TruthEngine::Core
+namespace TruthEngine
 {
 
 	RendererLayer::RendererLayer() : m_ImGuiLayer(ImGuiLayer::Factory()), m_RenderPass_ForwardRendering(std::make_shared<RenderPass_ForwardRendering>()), m_RenderPass_GenerateShadowMap(std::make_shared<RenderPass_GenerateShadowMap>())
@@ -33,6 +33,9 @@ namespace TruthEngine::Core
 
 	void RendererLayer::OnAttach()
 	{
+
+		Settings::MSAA = TE_SETTING_MSAA::X4;
+
 		m_BufferManager = TE_INSTANCE_BUFFERMANAGER;
 
 		m_BufferManager->Init(1000, 1000, 10, 10);
@@ -44,13 +47,8 @@ namespace TruthEngine::Core
 
 		m_ModelManagers = TE_INSTANCE_MODELMANAGER;
 
-		m_RendererCommand.CreateRenderTarget(TE_IDX_TEXTURE::RT_SCENEBUFFER, TE_INSTANCE_APPLICATION->GetClientWidth(), TE_INSTANCE_APPLICATION->GetClientHeight(), TE_RESOURCE_FORMAT::R8G8B8A8_UNORM, ClearValue_RenderTarget{ 1.0f, 1.0f, 1.0f, 1.0f }, true);
-
-		m_RendererCommand.CreateRenderTargetView(TE_INSTANCE_SWAPCHAIN, &m_RTVBackBuffer);
-
-		m_CB_PerFrame = m_RendererCommand.CreateConstantBufferUpload<ConstantBuffer_Data_Per_Frame>(TE_IDX_CONSTANTBUFFER::PER_FRAME);
-		m_CB_PerDLight = m_RendererCommand.CreateConstantBufferUpload<ConstantBuffer_Data_Per_DLight>(TE_IDX_CONSTANTBUFFER::PER_DLIGHT);
-		m_CB_Materials = m_RendererCommand.CreateConstantBufferUpload<ConstantBuffer_Data_Materials>(TE_IDX_CONSTANTBUFFER::MATERIALS);
+		InitTextures();
+		InitBuffers();
 
 		m_RendererCommand.AddUpdateTask([&CB_PerDLight = m_CB_PerDLight]()
 			{
@@ -82,13 +80,21 @@ namespace TruthEngine::Core
 	void RendererLayer::OnUpdate(double deltaFrameTime)
 	{
 
-		auto data_perFrame = m_CB_PerFrame->GetData();
+		m_TimerRenderLayerUpdate.Start();
 
+		auto data_perFrame = m_CB_PerFrame->GetData();
 
 		auto activeCamera = CameraManager::GetInstance()->GetActiveCamera();
 
-		data_perFrame->EyePos = activeCamera->GetPosition();
-		data_perFrame->ViewProj = activeCamera->GetViewProj();
+		auto _lightManager = LightManager::GetInstace();
+		static auto _dirLight0 = _lightManager->GetDirectionalLight("dlight_0");
+		auto cameraCascaded = _lightManager->GetLightCameraCascaded(_dirLight0);
+		cameraCascaded->UpdateFrustums(TE_INSTANCE_APPLICATION->GetActiveScene(), activeCamera);
+		float4x4 _cascadedShadowTransforms[4];
+		_lightManager->GetCascadedShadowTransform(cameraCascaded, _cascadedShadowTransforms);
+
+		*data_perFrame = ConstantBuffer_Data_Per_Frame(activeCamera->GetViewProj(), activeCamera->GetPosition(), _cascadedShadowTransforms);
+
 
 		/*m_Model3DQueue.clear();
 		for (auto& model : m_ModelManagers->GetModel3D())
@@ -100,12 +106,15 @@ namespace TruthEngine::Core
 		m_RenderPass_ForwardRendering->EndScene();
 		m_RenderPass_ForwardRendering->Render();*/
 
+
+
 		for (auto renderPass : m_RenderPassStack)
 		{
 			renderPass->BeginScene();
 			renderPass->EndScene();
 			renderPass->Render();
 		}
+		m_TimerRenderLayerUpdate.End();
 	}
 
 
@@ -147,6 +156,12 @@ namespace TruthEngine::Core
 		{
 			renderPass->OnImGuiRender();
 		}
+
+		if (ImGui::Begin("RendererLayer"))
+		{
+			ImGui::Text("RendererLayer Update Time: %0.3f", m_TimerRenderLayerUpdate.GetAverageTime());
+		}
+		ImGui::End();
 	}
 
 	void RendererLayer::RegisterEvents()
@@ -232,6 +247,20 @@ namespace TruthEngine::Core
 				, lightdata.Direction, lightdata.LightSize, lightdata.Position
 				, static_cast<uint32_t>(lightdata.CastShadow), lightdata.Range, _lightManager->GetShadowTransform(_light0));
 		});
+	}
+
+	void RendererLayer::InitTextures()
+	{
+		m_RendererCommand.CreateRenderTarget(TE_IDX_TEXTURE::RT_SCENEBUFFER, TE_INSTANCE_APPLICATION->GetClientWidth(), TE_INSTANCE_APPLICATION->GetClientHeight(), TE_RESOURCE_FORMAT::R8G8B8A8_UNORM, ClearValue_RenderTarget{ 1.0f, 1.0f, 1.0f, 1.0f }, true, true);
+
+		m_RendererCommand.CreateRenderTargetView(TE_INSTANCE_SWAPCHAIN, &m_RTVBackBuffer);
+	}
+
+	void RendererLayer::InitBuffers()
+	{
+		m_CB_PerFrame = m_RendererCommand.CreateConstantBufferUpload<ConstantBuffer_Data_Per_Frame>(TE_IDX_CONSTANTBUFFER::PER_FRAME);
+		m_CB_PerDLight = m_RendererCommand.CreateConstantBufferUpload<ConstantBuffer_Data_Per_DLight>(TE_IDX_CONSTANTBUFFER::PER_DLIGHT);
+		m_CB_Materials = m_RendererCommand.CreateConstantBufferUpload<ConstantBuffer_Data_Materials>(TE_IDX_CONSTANTBUFFER::MATERIALS);
 	}
 
 }

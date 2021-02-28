@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "TransformComponent.h"
 
-namespace TruthEngine::Core
+namespace TruthEngine
 {
 	TransformComponent::TransformComponent() = default;
 

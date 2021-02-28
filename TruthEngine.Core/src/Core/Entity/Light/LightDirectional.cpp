@@ -2,7 +2,7 @@
 #include "LightDirectional.h"
 
 
-namespace TruthEngine::Core
+namespace TruthEngine
 {
 	LightDirectional::LightDirectional(
 		uint32_t id

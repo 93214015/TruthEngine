@@ -8,11 +8,11 @@ namespace TruthEngine
 	{
 		class DirectX12BufferManager;
 
-		class DirectX12TextureMaterialManager : public Core::TextureMaterialManager
+		class DirectX12TextureMaterialManager : public TextureMaterialManager
 		{
 		public:
-			Core::TextureMaterial* CreateTexture(const char* name, uint8_t* data, uint32_t width, uint32_t height, uint32_t dataSize, TE_RESOURCE_FORMAT format) override;
-			Core::TextureMaterial* CreateTexture(const char* _texturefilePath, const char* _modelFilePath) override;
+			TextureMaterial* CreateTexture(const char* name, uint8_t* data, uint32_t width, uint32_t height, uint32_t dataSize, TE_RESOURCE_FORMAT format) override;
+			TextureMaterial* CreateTexture(const char* _texturefilePath, const char* _modelFilePath) override;
 
 			/*uint32_t CreateTextureMaterialDiffuse(uint32_t texIndex) override;
 			uint32_t CreateTextureMaterialNormal(uint32_t texIndex) override;
@@ -27,7 +27,7 @@ namespace TruthEngine
 
 
 		protected:
-			void CreateTextureView(Core::TextureMaterial* tex);
+			void CreateTextureView(TextureMaterial* tex);
 
 
 		protected:

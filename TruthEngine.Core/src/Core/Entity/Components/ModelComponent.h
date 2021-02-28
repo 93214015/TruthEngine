@@ -4,8 +4,6 @@
 
 namespace TruthEngine
 {
-	namespace Core
-	{
 		class ModelComponent
 		{
 		public:
@@ -17,5 +15,4 @@ namespace TruthEngine
 		private:
 			uint32_t m_ID;
 		};
-	}
 }

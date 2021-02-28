@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "Mouse.h"
 
-namespace TruthEngine::Core {
+namespace TruthEngine {
 
 	void Mouse::OnLeftPressed(int x, int y)
 	{

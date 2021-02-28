@@ -1,7 +1,7 @@
 #pragma once
 
 
-namespace TruthEngine::Core {
+namespace TruthEngine {
 
 	enum class EventType : uint8_t {
 		None = 0,
@@ -9,7 +9,7 @@ namespace TruthEngine::Core {
 		AppTick, AppUpdate, AppProcess, AppOneSecondPoint,
 		KeyPressed, KeyReleased, KeyTyped,
 		MouseButtonPressed, MouseButtonReleased, MouseMoved, MouseScrolled,
-		EntityAddMesh, EntityAddMaterial, EntityUpdatedMaterial, EntityAddLight, EntityUpdatedLight,
+		EntityAddMesh, EntityAddMaterial, EntityUpdatedMaterial, EntityAddLight, EntityUpdatedLight, EntityTransform,
 		EventTypeNum
 	};
 
@@ -22,8 +22,6 @@ namespace TruthEngine::Core {
 		EventCategoryMouseButton =		BIT(4),
 		EventCategoryEntity =			BIT(5),
 	};
-
-
 
 
 #define EVENT_CLASS_TYPE(type) static EventType GetStaticEventType(){ return EventType::##type; }\
@@ -43,6 +41,7 @@ namespace TruthEngine::Core {
 		virtual const char* GetName() const = 0;
 		virtual int GetCategoryFlags() const = 0;
 		virtual std::string ToString() const { return GetName(); }
+
 
 		bool IsInCategory(EventCategory category)
 		{

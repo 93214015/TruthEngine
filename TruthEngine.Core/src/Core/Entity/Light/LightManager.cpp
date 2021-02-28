@@ -10,7 +10,31 @@ constexpr float4x4 m_ProjToUV = float4x4(0.5f, 0.0f, 0.0f, 0.0f,
 	0.0f, 0.0f, 1.0f, 0.0f,
 	0.5f, 0.5f, 0.0f, 1.0f);
 
-namespace TruthEngine::Core
+constexpr float4x4 m_ProjToUVCascaded0 = float4x4(
+	0.25f, 0.0f, 0.0f, 0.0f,
+	0.0f, -0.25, 0.0f, 0.0f,
+	0.0f, 0.0f, 1.0f, 0.0f,
+	0.25f, 0.25f, 0.0f, 1.0f);
+
+constexpr float4x4 m_ProjToUVCascaded1 = float4x4(
+	0.25f, 0.0f, 0.0f, 0.0f,
+	0.0f, -0.25, 0.0f, 0.0f,
+	0.0f, 0.0f, 1.0f, 0.0f,
+	0.75f, 0.25f, 0.0f, 1.0f);
+
+constexpr float4x4 m_ProjToUVCascaded2 = float4x4(
+	0.25f, 0.0f, 0.0f, 0.0f,
+	0.0f, -0.25, 0.0f, 0.0f,
+	0.0f, 0.0f, 1.0f, 0.0f,
+	0.25f, 0.75f, 0.0f, 1.0f);
+
+constexpr float4x4 m_ProjToUVCascaded3 = float4x4(
+	0.25f, 0.0f, 0.0f, 0.0f,
+	0.0f, -0.25, 0.0f, 0.0f,
+	0.0f, 0.0f, 1.0f, 0.0f,
+	0.75f, 0.75f, 0.0f, 1.0f);
+
+namespace TruthEngine
 {
 	LightDirectional* LightManager::AddLightDirectional(const std::string_view name, const float4 diffusecolor, const float4 ambientColor, const float4 specularColor, const float3 direction, const float3 position, const float lightSize, const int castShadow, const float range)
 	{
@@ -56,7 +80,7 @@ namespace TruthEngine::Core
 		return nullptr;
 	}
 
-	TruthEngine::Core::Camera* LightManager::GetLightCamera(const ILight* light)
+	TruthEngine::Camera* LightManager::GetLightCamera(const ILight* light)
 	{
 		auto itr = m_Map_LightsCamera.find(light->GetID());
 		if (itr != m_Map_LightsCamera.end())
@@ -67,7 +91,20 @@ namespace TruthEngine::Core
 		return nullptr;
 	}
 
-	TruthEngine::Core::Camera* LightManager::AddLightCamera(const ILight* light, TE_CAMERA_TYPE cameraType)
+
+	TruthEngine::CameraCascadedFrustumBase* LightManager::GetLightCameraCascaded(const ILight* light)
+	{
+		auto itr = m_Map_LightsCameraCascaded.find(light->GetID());
+		if (itr != m_Map_LightsCameraCascaded.end())
+		{
+			return itr->second;
+		}
+
+		return nullptr;
+	}
+
+
+	TruthEngine::Camera* LightManager::AddLightCamera(const ILight* light, TE_CAMERA_TYPE cameraType)
 	{
 		auto cameraManager = CameraManager::GetInstance();
 
@@ -98,6 +135,33 @@ namespace TruthEngine::Core
 		{
 			return IdentityMatrix;
 		}
+	}
+
+	void LightManager::GetCascadedShadowTransform(const ILight* light, float4x4 _outTransforms[4])
+	{
+
+		auto itr = m_Map_LightsCameraCascaded.find(light->GetID());
+		if (itr == m_Map_LightsCameraCascaded.end())
+		{
+			TE_ASSERT_CORE(false, "Cascaded Camera Not Found!");
+			throw;
+		}
+
+		auto camera = itr->second;
+
+		_outTransforms[0] = camera->GetViewProj(0) * m_ProjToUVCascaded0;
+		_outTransforms[1] = camera->GetViewProj(1) * m_ProjToUVCascaded1;
+		_outTransforms[2] = camera->GetViewProj(2) * m_ProjToUVCascaded2;
+		_outTransforms[3] = camera->GetViewProj(3) * m_ProjToUVCascaded3;
+		
+	}
+
+	void LightManager::GetCascadedShadowTransform(const CameraCascadedFrustumBase* _cameraCascaded, float4x4 _outTransforms[4])
+	{
+		_outTransforms[0] = _cameraCascaded->GetViewProj(0) * m_ProjToUVCascaded0;
+		_outTransforms[1] = _cameraCascaded->GetViewProj(1) * m_ProjToUVCascaded1;
+		_outTransforms[2] = _cameraCascaded->GetViewProj(2) * m_ProjToUVCascaded2;
+		_outTransforms[3] = _cameraCascaded->GetViewProj(3) * m_ProjToUVCascaded3;
 	}
 
 }

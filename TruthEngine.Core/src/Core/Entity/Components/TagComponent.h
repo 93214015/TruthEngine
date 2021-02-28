@@ -2,8 +2,6 @@
 
 namespace TruthEngine
 {
-	namespace Core
-	{
 
 		class TagComponent
 		{
@@ -35,5 +33,4 @@ namespace TruthEngine
 		private:
 			std::string m_Tag;
 		};
-	}
 }

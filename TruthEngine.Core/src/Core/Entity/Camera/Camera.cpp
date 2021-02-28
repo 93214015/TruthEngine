@@ -5,7 +5,7 @@
 
 using namespace DirectX;
 
-namespace TruthEngine::Core
+namespace TruthEngine
 {
 
 	Camera::Camera(uint32_t id, TE_CAMERA_TYPE cameraType, const float3& position, const float3& look
@@ -74,12 +74,13 @@ namespace TruthEngine::Core
 
 	void Camera::CreateBoundingFrustum()
 	{
-		auto XMView = XMLoadFloat4x4(&m_ViewMatrix);
-		auto XMProj = XMLoadFloat4x4(&m_ProjectionMatrix);
 
-		BoundingFrustum::CreateFromMatrix(m_BoundingFrustum, XMProj);
+		auto XMProj = XMLoadFloat4x4(&m_ProjectionMatrix);
+		BoundingFrustum::CreateFromMatrix(m_BoundingFrustumViewSpace, XMProj);
+
+		auto XMView = XMLoadFloat4x4(&m_ViewMatrix);
 		const auto InvView = XMMatrixInverse(nullptr, XMView);
-		m_BoundingFrustum.Transform(m_BoundingFrustum, InvView);
+		m_BoundingFrustumViewSpace.Transform(m_BoundingFrustumWorldSpace, InvView);
 	}
 
 	void Camera::SetFrustum(float width, float height, float zNearPlane, float zFarPlane)

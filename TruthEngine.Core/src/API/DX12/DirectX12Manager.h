@@ -3,10 +3,8 @@
 namespace TruthEngine
 {
 
-	namespace Core
-	{
+	
 		class Shader;
-	}
 
 	namespace API::DirectX12
 	{

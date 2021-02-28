@@ -5,7 +5,7 @@
 #include "Core/Event/EventEntity.h"
 
 
-namespace TruthEngine::Core
+namespace TruthEngine
 {
 	ILight::ILight(
 		uint32_t id
@@ -15,8 +15,6 @@ namespace TruthEngine::Core
 		: m_ID(id)
 		, m_Name(name)
 		, m_LightData(lightData)
-		, m_Disabled(false)
-		, m_ShadowDynamicObjects(false)
 		, m_LightType(lightType)
 	{
 	}
@@ -109,6 +107,11 @@ namespace TruthEngine::Core
 
 		EventEntityUpdateLight event(this);
 		TE_INSTANCE_APPLICATION->OnEvent(event);
+	}
+
+	void ILight::SetUseCascadedShadows(const bool _use) noexcept
+	{
+		m_UseCascadedShadows = _use;
 	}
 
 }

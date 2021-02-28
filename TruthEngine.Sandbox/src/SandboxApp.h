@@ -5,7 +5,7 @@
 
 namespace TruthEngine::Sandbox {
 
-	class SandboxApp : public TruthEngine::Core::Application {
+	class SandboxApp : public TruthEngine::Application {
 
 	public:
 		SandboxApp(uint16_t clientWidth, uint16_t clientHeight, uint8_t frameInFlightNum);

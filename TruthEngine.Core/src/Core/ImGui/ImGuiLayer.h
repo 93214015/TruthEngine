@@ -5,7 +5,7 @@
 #include "imgui-fileBrowser/imfilebrowser.h"
 #include "Core/Renderer/BufferManager.h"
 
-namespace TruthEngine::Core
+namespace TruthEngine
 {
 
 	class TextureRenderTarget;
@@ -16,13 +16,14 @@ namespace TruthEngine::Core
 	void TEImGuiRenderImage_MaterialTexture(uint32_t viewIndex, const float2& size, const float2& uv0 = { 0.0f, 0.0f }, const float2& uv1 = { 1.0f, 1.0f });
 
 
+
 	class ImGuiLayer: public Layer
 	{
 
 
 	public:
 
-		static std::shared_ptr<TruthEngine::Core::ImGuiLayer> Factory();
+		static std::shared_ptr<TruthEngine::ImGuiLayer> Factory();
 
 
 		virtual ~ImGuiLayer() = default;

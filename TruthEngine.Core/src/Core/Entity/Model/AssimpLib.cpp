@@ -11,7 +11,7 @@
 #include "Core/ThreadPool.h"
 
 
-namespace TruthEngine::Core
+namespace TruthEngine
 {
 	AssimpLib::AssimpLib()
 	{
@@ -30,7 +30,7 @@ namespace TruthEngine::Core
 		//if (!(scene)) 
 		//{ 
 		//	//TE_LOG_CORE_ERROR("TE_Error: {0}", __VA_ARGS__); 
-		//	::TruthEngine::Core::Log::GetCoreLogger()->error("");
+		//	::TruthEngine::Log::GetCoreLogger()->error("");
 		//	__debugbreak(); 
 		//}
 
@@ -268,13 +268,8 @@ namespace TruthEngine::Core
 			_aabb.Center = float3{ .0f, .0f, .0f };
 		}
 
-		auto entity_mesh = scene->AddEntity(meshName, _transform);
-		entity_mesh.AddComponent<MeshComponent>(mesh);
-		entity_mesh.AddComponent<MaterialComponent>(material);
-		entity_mesh.AddComponent<BoundingBoxComponent>(_aabb);
-
+		scene->AddMeshEntity(meshName, _transform, mesh, material);
 	}
-
 
 	void AssimpLib::ProcessNodes(Scene* scene, const aiNode* node, const aiScene* aiscene, const size_t meshOffset)
 	{
@@ -323,7 +318,6 @@ namespace TruthEngine::Core
 			ProcessNodes(scene, node->mChildren[childIndex], aiscene, meshOffset);
 		}
 	}
-
 
 	void AssimpLib::ProcessMeshes(Scene* scene, const aiScene* aiscene)
 	{

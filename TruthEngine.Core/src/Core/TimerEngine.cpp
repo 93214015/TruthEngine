@@ -4,7 +4,7 @@
 #include "Application.h"
 
 
-namespace TruthEngine::Core {
+namespace TruthEngine {
 
 
 	TimerEngine::TimerEngine()

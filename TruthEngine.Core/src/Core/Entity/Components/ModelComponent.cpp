@@ -3,7 +3,7 @@
 
 #include "Core/Entity/Components.h"
 
-namespace TruthEngine::Core
+namespace TruthEngine
 {
 	
 }

@@ -9,7 +9,7 @@
 #include "Core/Renderer/TextureMaterial.h"
 
 
-namespace TruthEngine::Core
+namespace TruthEngine
 {
 
 	std::function<void(uint32_t)> g_MaterialTextureWindowCallBack;
@@ -55,7 +55,7 @@ namespace TruthEngine::Core
 	}
 
 
-	std::shared_ptr<TruthEngine::Core::ImGuiLayer> ImGuiLayer::Factory()
+	std::shared_ptr<TruthEngine::ImGuiLayer> ImGuiLayer::Factory()
 	{
 		switch (Settings::RendererAPI)
 		{

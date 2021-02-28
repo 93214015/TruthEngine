@@ -1,7 +1,7 @@
 #pragma once
 #include "Core/Entity/Camera/Camera.h"
 
-namespace TruthEngine::Core
+namespace TruthEngine
 {
 	class CameraComponent
 	{

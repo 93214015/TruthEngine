@@ -17,16 +17,15 @@
 #include "Core/Event/EventKey.h"
 #include "Core/Event/Event.h"
 #include "Core/Entity/PickingEntity.h"
+#include "Core/Event/EventEntity.h"
 
 std::future<void> gFeaturePickEntity;
 
 namespace TruthEngine
 {
 
-	using namespace Core;
-
 	ApplicationEditor::ApplicationEditor(uint16_t clientWidth, uint16_t clientHeight, uint8_t framesInFlightNum)
-		: Core::Application("TruthEngine.Editor", clientWidth, clientHeight, framesInFlightNum)
+		: Application("TruthEngine.Editor", clientWidth, clientHeight, framesInFlightNum)
 	{
 	}
 
@@ -34,34 +33,36 @@ namespace TruthEngine
 	void ApplicationEditor::OnInit()
 	{
 
-		Core::InputManager::RegisterKey('A');
-		Core::InputManager::RegisterKey('W');
-		Core::InputManager::RegisterKey('S');
-		Core::InputManager::RegisterKey('D');
-		Core::InputManager::RegisterKey(Key::Space);
+		InputManager::RegisterKey('A');
+		InputManager::RegisterKey('W');
+		InputManager::RegisterKey('S');
+		InputManager::RegisterKey('D');
+		InputManager::RegisterKey(Key::Space);
 
 
-		auto mainCamera = Core::CameraManager::GetInstance()->CreatePerspectiveFOV("mainCamera"
+		auto mainCamera = CameraManager::GetInstance()->CreatePerspectiveFOV("mainCamera"
 			, float3{ -12.0f, 17.0f, -30.0f }
 			, float3{ 0.48f, -.5f, 0.72f }
 			, float3{ 0.0f, 1.0f, 0.0f }
 			, DirectX::XM_PIDIV4
 			, static_cast<float>(m_ClientWidth) / m_ClientHeight
 			, 1.0f
-			, 1000.0f
+			, 200.0f
 		);
 
 
-		Core::CameraManager::GetInstance()->SetActiveCamera(mainCamera);
+		CameraManager::GetInstance()->SetActiveCamera(mainCamera);
 
 
 		auto entity = m_ActiveScene.AddEntity("MainCamera");
-		entity.AddComponent<Core::CameraComponent>(mainCamera, Core::CameraManager::GetInstance()->GetCameraController());
+		entity.AddComponent<CameraComponent>(mainCamera, CameraManager::GetInstance()->GetCameraController());
 
 
-		auto lightManager = Core::LightManager::GetInstace();
+		auto lightManager = LightManager::GetInstace();
 		auto dirLight0 = lightManager->AddLightDirectional("dlight_0", float4{ 0.8f, 0.8f, 0.8f, 0.8f }, float4{ 0.3f, 0.3f, 0.3f, 0.3f }, float4{ 0.0f, 0.0f, 0.0f, 0.0f }, float3{ .38f, -.60f, .71f }, float3{ -42.0f, 66.0f, -80.0f }, 0.05f, true, 200.0f);
-		lightManager->AddLightCamera(dirLight0, Core::TE_CAMERA_TYPE::Perspective);
+		//lightManager->AddLightCamera(dirLight0, TE_CAMERA_TYPE::Perspective);
+		const float _cascadeCoveringPercentage[] = { .008f, .03f, .1f, 1.0f };
+		lightManager->AddLightCameraCascaded<4>(dirLight0, _cascadeCoveringPercentage, TE_CAMERA_TYPE::Orthographic);
 
 		auto entityLight = m_ActiveScene.AddEntity("Directional Light 0");
 		entityLight.AddComponent<LightComponent>(dirLight0);
@@ -71,8 +72,8 @@ namespace TruthEngine
 
 
 		//must put ModelManager initiation after RendererLayer attachment so that the bufferManager has been initiated 
-		auto modelManager = Core::ModelManager::GetInstance().get();
-		modelManager->Init(TE_INSTANCE_BUFFERMANAGER.get());
+		auto modelManager = ModelManager::GetInstance().get();
+		modelManager->Init(TE_INSTANCE_BUFFERMANAGER);
 		//modelManager->AddSampleModel();
 
 
@@ -91,9 +92,8 @@ namespace TruthEngine
 
 		TE_INSTANCE_PHYSICSENGINE->Simulate(m_Timer.DeltaTime());
 
-		m_TimerAvg_ImGuiPass.Start();
 
-		Core::InputManager::ProcessInput();
+		InputManager::ProcessInput();
 
 
 		m_RendererLayer->BeginRendering();
@@ -109,6 +109,7 @@ namespace TruthEngine
 		m_TimerAvg_UpdateRenderPasses.End();
 
 
+		m_TimerAvg_ImGuiPass.Start();
 
 		if (m_RendererLayer->BeginImGuiLayer())
 		{
@@ -509,8 +510,8 @@ namespace TruthEngine
 		static std::string importFilePath;
 		if (imguiLayer->CheckFileDialog(&fileBrowserImportModel, importFilePath))
 		{
-			Core::GraphicDevice::GetPrimaryDevice()->WaitForGPU();
-			Core::ModelManager::GetInstance()->ImportModel(&m_ActiveScene, importFilePath.c_str());
+			GraphicDevice::GetPrimaryDevice()->WaitForGPU();
+			ModelManager::GetInstance()->ImportModel(&m_ActiveScene, importFilePath.c_str());
 		}
 		if (imguiLayer->CheckFileDialog(&fileBrowserImportTexture, importFilePath))
 		{
@@ -529,11 +530,23 @@ namespace TruthEngine
 
 		RegisterEventListener(EventType::KeyReleased, onKeyReleased);
 
+		auto onEntityTransform = [this](Event& event)
+		{
+			EventEntityTransform& _e = static_cast<EventEntityTransform&>(event);
+
+			Entity _entity = _e.GetEntity();
+			const BoundingBox& _BoundingBox = _entity.GetComponent<BoundingBoxComponent>().GetBoundingBox();
+			BoundingBox _TransformedBoundingBox = Math::TransformBoundingBox(_BoundingBox, _entity.GetComponent<TransformComponent>().GetTransform());
+
+			m_ActiveScene.UpdateBoundingBox(_TransformedBoundingBox);
+		};
+
+		RegisterEventListener(EventType::EntityTransform, onEntityTransform);
 		
 	}
 
 }
 
-TruthEngine::Core::Application* TruthEngine::Core::CreateApplication() {
+TruthEngine::Application* TruthEngine::CreateApplication() {
 	return new TruthEngine::ApplicationEditor(1366, 1000, 3);
 }

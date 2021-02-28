@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "ConstantBuffer.h"
 
-namespace TruthEngine::Core {
+namespace TruthEngine {
 
 
 	ConstantBuffer::ConstantBuffer(TE_IDX_CONSTANTBUFFER idx)

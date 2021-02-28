@@ -4,13 +4,8 @@
 
 namespace TruthEngine
 {
-
-
-	namespace Core
-	{
 		class Pipeline;
 		class Shader;
-	}
 
 	namespace API::DirectX12 
 	{
@@ -27,11 +22,11 @@ namespace TruthEngine
 				return s_DX12PipelineManager;
 			}
 
-			COMPTR<ID3D12PipelineState> GetPipeline(Core::Pipeline* pipeline);
+			COMPTR<ID3D12PipelineState> GetPipeline(Pipeline* pipeline);
 
 		private:
-			//D3D12_GRAPHICS_PIPELINE_STATE_DESC GetGraphicPipelineDesc(const Core::Pipeline* pipeline);
-			TE_RESULT AddPipeline(Core::Pipeline* pipeline, COMPTR<ID3D12PipelineState>& PSO, D3D12_GRAPHICS_PIPELINE_STATE_DESC& desc);
+			//D3D12_GRAPHICS_PIPELINE_STATE_DESC GetGraphicPipelineDesc(const Pipeline* pipeline);
+			TE_RESULT AddPipeline(Pipeline* pipeline, COMPTR<ID3D12PipelineState>& PSO, D3D12_GRAPHICS_PIPELINE_STATE_DESC& desc);
 
 		private:
 			COMPTR<ID3D12PipelineLibrary1> m_PiplineLibrary;

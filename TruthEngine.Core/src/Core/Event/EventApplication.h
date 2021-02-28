@@ -1,7 +1,7 @@
 #pragma once
 #include "Event.h"
 
-namespace TruthEngine::Core {
+namespace TruthEngine {
 
 	class EventWindowResize : public Event {
 	public:

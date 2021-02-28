@@ -8,9 +8,6 @@ namespace TruthEngine
 	{
 		class DirectX12CommandList;
 	}
-
-	namespace Core
-	{
 		class GraphicResource;
 		class Shader;
 		class ConstantBufferUploadBase;
@@ -29,8 +26,8 @@ namespace TruthEngine
 			void Init(TE_IDX_RENDERPASS renderPassIDX, TE_IDX_SHADERCLASS shaderClassIDX, BufferManager* bufferManager = nullptr, ShaderManager* shaderManager = nullptr);
 			void Release();
 
-			TextureRenderTarget* CreateRenderTarget(TE_IDX_TEXTURE idx, uint32_t width, uint32_t height, TE_RESOURCE_FORMAT format, const ClearValue_RenderTarget& clearValue, bool useAsShaderResource);
-			TextureDepthStencil* CreateDepthStencil(TE_IDX_TEXTURE idx, uint32_t width, uint32_t height, TE_RESOURCE_FORMAT format, const ClearValue_DepthStencil& clearValue, bool useAsShaderResource);
+			TextureRenderTarget* CreateRenderTarget(TE_IDX_TEXTURE idx, uint32_t width, uint32_t height, TE_RESOURCE_FORMAT format, const ClearValue_RenderTarget& clearValue, bool useAsShaderResource, bool enbaleMSAA);
+			TextureDepthStencil* CreateDepthStencil(TE_IDX_TEXTURE idx, uint32_t width, uint32_t height, TE_RESOURCE_FORMAT format, const ClearValue_DepthStencil& clearValue, bool useAsShaderResource, bool enbaleMSAA);
 
 			template<class T> ConstantBufferUpload<T>* CreateConstantBufferUpload(TE_IDX_CONSTANTBUFFER idx)
 			{
@@ -96,7 +93,7 @@ namespace TruthEngine
 			void End();
 			void EndAndPresent();
 
-			void DrawIndexed(Mesh* mesh);
+			void DrawIndexed(const Mesh* mesh);
 			void Draw(Mesh* mesh);
 
 			void ClearRenderTarget(const RenderTargetView RTV);
@@ -125,5 +122,4 @@ namespace TruthEngine
 			ShaderManager* m_ShaderManager;
 
 		};
-	}
 }

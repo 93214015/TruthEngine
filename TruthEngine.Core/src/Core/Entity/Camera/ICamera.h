@@ -1,7 +1,7 @@
 #pragma once
 
 /*
-namespace TruthEngine::Core {
+namespace TruthEngine {
 
 	class EventMouseMoved;
 	class EventKeyPressed;
