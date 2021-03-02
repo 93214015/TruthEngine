@@ -22,11 +22,17 @@ namespace TruthEngine {
 
 	struct ConstantBuffer_Data_UnFrequent
 	{
-		ConstantBuffer_Data_UnFrequent(int _DLightCount)
-			: mDLightCount(_DLightCount)
+		ConstantBuffer_Data_UnFrequent()
+			: mDLightCount(0), mEnabledEnvironmentMap(1)
 		{}
 
-		int mDLightCount;
+		ConstantBuffer_Data_UnFrequent(int _LightDirectionalCount, bool _EnabledEnvironmentMap)
+			: mDLightCount(_LightDirectionalCount), mEnabledEnvironmentMap(static_cast<uint32_t>(_EnabledEnvironmentMap))
+		{}
+
+		uint32_t mDLightCount;
+		uint32_t mEnabledEnvironmentMap;
+		uint32_t mPad0[2];
 	};
 
 	struct ConstantBuffer_Struct_DLight

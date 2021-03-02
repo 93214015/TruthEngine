@@ -17,7 +17,9 @@
 
 #include "Core/Entity/Light/LightManager.h"
 #include "Core/Entity/Light/LightDirectional.h"
-#include "../Timer.h"
+
+#include "Core/Timer.h"
+#include "Core/ThreadPool.h"
 
 namespace TruthEngine
 {
@@ -96,24 +98,41 @@ namespace TruthEngine
 		*data_perFrame = ConstantBuffer_Data_Per_Frame(activeCamera->GetViewProj(), activeCamera->GetPosition(), _cascadedShadowTransforms);
 
 
-		/*m_Model3DQueue.clear();
-		for (auto& model : m_ModelManagers->GetModel3D())
-		{
-			m_Model3DQueue.emplace_back(model.get());
-		}*/
-
-		/*m_RenderPass_ForwardRendering->BeginScene();
-		m_RenderPass_ForwardRendering->EndScene();
-		m_RenderPass_ForwardRendering->Render();*/
-
-
-
+		//
+		////Use MultiThreaded Rendering
+		//
+		static std::vector<std::future<void>> m_futures;
+		m_futures.clear();
 		for (auto renderPass : m_RenderPassStack)
 		{
 			renderPass->BeginScene();
-			renderPass->EndScene();
-			renderPass->Render();
+			auto f = [renderPass]() { renderPass->Render(); };
+			m_futures.emplace_back(std::move(ThreadPool::GetInstance()->Queue(f)));
 		}
+
+		for (auto& f : m_futures)
+		{
+			f.wait();
+		}
+
+		for (auto renderPass : m_RenderPassStack)
+		{
+			renderPass->EndScene();
+		}
+
+
+		//
+		////Use SingleThreaded Rendering
+		//
+		/*for (auto renderPass : m_RenderPassStack)
+		{
+			renderPass->BeginScene();
+			renderPass->Render();
+			renderPass->EndScene();
+		}*/
+
+
+
 		m_TimerRenderLayerUpdate.End();
 	}
 
@@ -302,12 +321,25 @@ namespace TruthEngine
 
 			auto _DLightCount = TE_INSTANCE_LIGHTMANAGER->GetLightDirectionalCount();
 
-			m_RendererCommand.AddUpdateTask([_DLightCount, CB_UnFrequent = m_CB_UnFrequent]()
-			{
-				CB_UnFrequent->GetData()->mDLightCount = _DLightCount;
-			});
+			_ChangeUnfrequentBuffer_LightDirectionalLight(_DLightCount);
 
 		}
+	}
+
+	void RendererLayer::_ChangeUnfrequentBuffer_EnabledEnvironmentMap(bool _EnabledEnvironmentMap)
+	{
+		m_RendererCommand.AddUpdateTask([_EnabledEnvironmentMap, CB_UnFrequent = m_CB_UnFrequent]()
+			{
+				CB_UnFrequent->GetData()->mEnabledEnvironmentMap = static_cast<uint32_t>(_EnabledEnvironmentMap);
+			});
+	}
+
+	void RendererLayer::_ChangeUnfrequentBuffer_LightDirectionalLight(uint32_t _LightDirectionalCount)
+	{
+		m_RendererCommand.AddUpdateTask([_LightDirectionalCount, CB_UnFrequent = m_CB_UnFrequent]()
+			{
+				CB_UnFrequent->GetData()->mDLightCount = _LightDirectionalCount;
+			});
 	}
 
 	void RendererLayer::InitTextures()

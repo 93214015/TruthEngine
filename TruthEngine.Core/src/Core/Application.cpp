@@ -58,7 +58,7 @@ namespace TruthEngine {
 	void Application::Run()
 	{
 
-		TE_INSTANCE_THREADPOOL.Start(std::thread::hardware_concurrency());
+		TE_INSTANCE_THREADPOOL->Start(std::thread::hardware_concurrency());
 
 		TE_RUN_TASK([]() { TE_LOG_CORE_INFO("This message is snet by threadID = {0}", std::this_thread::get_id()); });
 

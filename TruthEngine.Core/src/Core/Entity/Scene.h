@@ -24,24 +24,28 @@ namespace TruthEngine
 		template<class... Ts>
 		auto GroupEntities()
 		{
+			std::scoped_lock<std::mutex> lock(m_Mutex);
 			return m_Registery.group<Ts...>();
 		}
 
 		template<class... Ts>
 		auto ViewEntities()
 		{
+			std::scoped_lock<std::mutex> lock(m_Mutex);
 			return m_Registery.view<Ts...>();
 		}
 
 		template<class T>
 		T& GetComponent(entt::entity entityHandler)
 		{
+			std::scoped_lock<std::mutex> lock(m_Mutex);
 			return m_Registery.get<T>(entityHandler);
 		}
 
 		template<typename T>
 		bool HasComponent(entt::entity entityHandler)
 		{
+			std::scoped_lock<std::mutex> lock(m_Mutex);
 			return m_Registery.has<T>(entityHandler);
 		}
 
@@ -112,6 +116,8 @@ namespace TruthEngine
 		std::unordered_map<const char*, Entity> m_Entites;
 
 		BoundingBox m_BoundingBox;
+
+		std::mutex m_Mutex;
 
 		//
 		//Friend Classes

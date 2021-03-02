@@ -65,7 +65,7 @@ float3 BlinnPhong(float3 lightStrength, float3 lightVec, float3 normal, float3 t
     //const float m = mat.Shininess;
     float3 halfVec = normalize(toEye + lightVec);
     
-    float roughnessFactor =  (m + 8.0f) * pow(max(dot(halfVec, normal), 0.0f), m) / 8.0f;
+    float roughnessFactor = (m + 8.0f) * pow(max(dot(halfVec, normal), 0.0f), m) / 8.0f;
     roughnessFactor = max(roughnessFactor, 0.0f);
     
     float3 fresnelFactor = SchlikFresnel(mat.FresnelR0, normal, lightVec);
@@ -106,8 +106,9 @@ cbuffer CBMaterials : register(b2)
 
 cbuffer CBUnfrequent : register(b3)
 {
-    int gDLightCount;
-    float3 padCBunfrequent;
+    uint gDLightCount;
+    bool gEnabledEnvironmentMap;
+    uint2 padCBunfrequent;
 }
 
 cbuffer per_mesh : register(b4)
@@ -142,7 +143,7 @@ struct vertexInput
     float3 position : POSITION;
     float3 normal : NORMAL;
     float3 tangent : TANGENT;
-    float2 texCoord : TEXCOORD;    
+    float2 texCoord : TEXCOORD;
 };
 
 struct vertexOut
@@ -202,7 +203,7 @@ float4 ps(vertexOut pin) : SV_Target
 
     float3 litColor = float3(.0f, .0f, .0f);
     
-    for (int i = 0; i < gDLightCount; ++i)
+    for (uint i = 0; i < gDLightCount; ++i)
     {
         float3 lightVector = -1.0 * normalize(gDLights[0].Direction);
         float lightFactor = dot(lightVector, normal);
@@ -279,12 +280,14 @@ float4 ps(vertexOut pin) : SV_Target
         
     }
     
-
-    float3 reflectVector = reflect(-toEye, pin.normalW);
-    float3 evironmentReflectColor = tEnvironmentMap.Sample(sampler_linear, reflectVector).xyz;
-    float3 frenselFactor = SchlikFresnel(_material.FresnelR0, pin.normalW, reflectVector);
+    if (gEnabledEnvironmentMap)
+    {
+        float3 reflectVector = reflect(-toEye, pin.normalW);
+        float3 evironmentReflectColor = tEnvironmentMap.Sample(sampler_linear, reflectVector).xyz;
+        float3 frenselFactor = SchlikFresnel(_material.FresnelR0, pin.normalW, reflectVector);
     
-    litColor.rgb += _material.Shininess * frenselFactor * evironmentReflectColor;
+        litColor.rgb += _material.Shininess * frenselFactor * evironmentReflectColor;
+    }
     
     return float4(litColor, 1.0f);
 }

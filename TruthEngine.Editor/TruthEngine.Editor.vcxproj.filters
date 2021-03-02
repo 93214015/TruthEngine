@@ -34,6 +34,8 @@
   <ItemGroup>
     <None Include="Assets\Shaders\RenderBoundingBox.hlsl" />
     <None Include="Assets\Shaders\RenderEnvironmentCube.hlsl" />
+    <None Include="Assets\Shaders\renderer3D.hlsl" />
+    <None Include="Assets\Shaders\generateShadowMap.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="K:\EBook\Game Programming\Source Codes\d3d12book-master\d3d12book-master\Textures\grasscube1024.dds" />

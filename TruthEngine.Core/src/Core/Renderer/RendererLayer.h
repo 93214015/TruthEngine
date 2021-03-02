@@ -66,6 +66,9 @@ namespace TruthEngine
 		void OnUpdateLight(const EventEntityUpdateLight& event);
 		void OnAddLight(const EventEntityAddLight& event);
 
+		void _ChangeUnfrequentBuffer_EnabledEnvironmentMap(bool _EnabledEnvironmentMap);
+		void _ChangeUnfrequentBuffer_LightDirectionalLight(uint32_t _LightDirectionalCount);
+
 		void InitTextures();
 		void InitBuffers();
 

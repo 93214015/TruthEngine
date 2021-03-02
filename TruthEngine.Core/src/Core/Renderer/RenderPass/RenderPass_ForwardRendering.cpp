@@ -119,6 +119,7 @@ namespace TruthEngine
 
 	void RenderPass_ForwardRendering::EndScene()
 	{
+		m_RendererCommand.End();
 	}
 
 
@@ -134,12 +135,10 @@ namespace TruthEngine
 
 		auto activeScene = Application::GetApplication()->GetActiveScene();
 
-		auto& reg = activeScene->GetEntityRegistery();
-
 		auto activeCamera = CameraManager::GetInstance()->GetActiveCamera();
 		const BoundingFrustum& _CameraBoundingFrustum = activeCamera->GetBoundingFrustumWorldSpace();
 
-		auto& EntityMeshView = reg.view<MeshComponent>();
+		auto& EntityMeshView = activeScene->ViewEntities<MeshComponent>();
 
 		for (auto entity_mesh : EntityMeshView)
 		{
@@ -259,7 +258,6 @@ namespace TruthEngine
 		//	m_TotalMeshNum++;
 		//}
 
-		m_RendererCommand.End();
 
 		m_TimerRender.End();
 	}

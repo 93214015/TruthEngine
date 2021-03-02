@@ -72,7 +72,7 @@ namespace TruthEngine
 
 	void RenderPass_GenerateShadowMap::EndScene()
 	{
-
+		m_RendererCommand.End();
 	}
 
 	void RenderPass_GenerateShadowMap::Render()
@@ -89,12 +89,10 @@ namespace TruthEngine
 		auto data_perLight = m_ConstantBufferDirect_PerLight->GetData();
 
 
-		auto& reg = scene->GetEntityRegistery();
-
 
 		//auto& dynamicEntityGroup = reg.group<MeshComponent, PhysicsDynamicComponent>();
 		//auto& staticEntityGroup = reg.view<MeshComponent>(entt::exclude<PhysicsDynamicComponent>);
-		auto& EntityMeshView = reg.view<MeshComponent>();
+		auto& EntityMeshView = scene->ViewEntities<MeshComponent>();
 
 
 		m_Viewport.Width = 1024.0f;
@@ -262,8 +260,6 @@ namespace TruthEngine
 			}
 
 		}*/
-
-		m_RendererCommand.End();
 
 		m_TimerRender.End();
 
