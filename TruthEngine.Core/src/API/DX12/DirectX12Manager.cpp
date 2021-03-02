@@ -111,7 +111,7 @@ namespace TruthEngine::API::DirectX12
 			if (v.size() > 0)
 			{
 
-				if (v[0].TextureIDX == TE_IDX_TEXTURE::MATERIALTEXTURES)
+				if (IsIDXTextureMaterialTexture(v[0].TextureIDX))
 				{
 					rootSig.Parameters[paramNum].Type = RootParameterType::Table;
 					rootSig.Parameters[paramNum].Table.Type = RootParameterDescriptorType::SRV;
@@ -129,7 +129,6 @@ namespace TruthEngine::API::DirectX12
 					paramNum++;
 					continue;
 				}
-
 
 				rootSig.Parameters[paramNum].Type = RootParameterType::Table;
 				rootSig.Parameters[paramNum].Table.Type = RootParameterDescriptorType::SRV;

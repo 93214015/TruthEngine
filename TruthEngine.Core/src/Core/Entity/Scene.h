@@ -17,6 +17,7 @@ namespace TruthEngine
 		Entity AddEntity(const char* entityTag, const float4x4& transform = IdentityMatrix);
 
 		Entity AddMeshEntity(const char* meshName, const float4x4& transform, Mesh* mesh, Material* material, Entity parentEntity = Entity());
+		Entity AddEnvironmentEntity();
 
 		Entity CopyMeshEntity(Entity meshsEntity);
 

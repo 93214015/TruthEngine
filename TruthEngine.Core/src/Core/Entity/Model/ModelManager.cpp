@@ -125,13 +125,6 @@ namespace TruthEngine
 
 		auto scene = TE_INSTANCE_APPLICATION->GetActiveScene();
 
-
-		if (!modelEntity)
-		{
-			modelEntity = scene->AddEntity(_modelName.c_str());
-			modelEntity.AddComponent<ModelComponent>();
-		}
-
 		auto material = m_MaterialManager.AddDefaultMaterial(TE_IDX_MESH_TYPE::MESH_NTT);
 
 		return scene->AddMeshEntity(_meshName.c_str(), transform, mesh, material);
@@ -145,9 +138,22 @@ namespace TruthEngine
 
 	}
 
+	void ModelManager::GenerateEnvironmentMesh(Mesh** outMesh)
+	{
+		std::string _modelName, _meshName;
+
+
+		*outMesh = MeshGenerator::GetInstance()->GenerateSphere(1.0f);
+		_modelName = "Model Environment";
+		_meshName = "EnvironmentSphere";
+
+		InitVertexAndIndexBuffer();
+
+	}
+
 	TruthEngine::Mesh* ModelManager::CopyMesh(Mesh* mesh)
 	{
-		auto& _newMesh = m_Meshes.emplace_back(GenerateMeshID(), mesh->m_IndexNum , mesh->m_IndexOffset, mesh->m_VertexOffset, mesh->m_VertexNum, mesh->m_BoundingBox, &m_VertexBuffer_PosNormTanTex, &m_IndexBuffer);
+		auto& _newMesh = m_Meshes.emplace_back(GenerateMeshID(), mesh->m_IndexNum, mesh->m_IndexOffset, mesh->m_VertexOffset, mesh->m_VertexNum, mesh->m_BoundingBox, &m_VertexBuffer_PosNormTanTex, &m_IndexBuffer);
 
 		return &_newMesh;
 	}

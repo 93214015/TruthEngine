@@ -56,28 +56,10 @@ namespace TruthEngine
 	{
 		ShaderSignature* sg;
 
-		switch (shaderClassIDX)
-		{
-		case TE_IDX_SHADERCLASS::FORWARDRENDERING:
-		{
-			sg = &m_Map_ShaderSignatures[shaderClassIDX];
-			sg->ConstantBuffers = _CreateConstantBufferSlots(shaderClassIDX);
-			sg->Textures = _CreateTextureSlots(shaderClassIDX);
-			_CreateInputElements(sg->InputElements, shaderClassIDX);
-			break;
-		}
-		case TE_IDX_SHADERCLASS::GENERATEBASICSHADOWMAP:
-		{
-			sg = &m_Map_ShaderSignatures[shaderClassIDX];
-			sg->ConstantBuffers = _CreateConstantBufferSlots(shaderClassIDX);
-			sg->Textures = _CreateTextureSlots(shaderClassIDX);
-			_CreateInputElements(sg->InputElements, shaderClassIDX);
-			break;
-		}
-		default:
-			throw;
-			break;
-		}
+		sg = &m_Map_ShaderSignatures[shaderClassIDX];
+		sg->ConstantBuffers = _CreateConstantBufferSlots(shaderClassIDX);
+		sg->Textures = _CreateTextureSlots(shaderClassIDX);
+		_CreateInputElements(sg->InputElements, shaderClassIDX);
 
 		return sg;
 
@@ -103,6 +85,7 @@ namespace TruthEngine
 			break;
 		}
 		case TE_IDX_SHADERCLASS::GENERATEBASICSHADOWMAP:
+		case TE_IDX_SHADERCLASS::RENDERENVIRONMENTMAP:
 		{
 			auto& ie = shaderInputs[(uint32_t)TE_IDX_MESH_TYPE::MESH_NTT];
 			ie.emplace_back("POSITION", 0, TE_RESOURCE_FORMAT::R32G32B32_FLOAT, 0, 0, TE_RENDERER_SHADER_INPUT_CLASSIFICATION::PER_VERTEX, 0);
@@ -125,11 +108,12 @@ namespace TruthEngine
 		case TE_IDX_SHADERCLASS::NONE:
 			break;
 		case TE_IDX_SHADERCLASS::FORWARDRENDERING:
+		case TE_IDX_SHADERCLASS::RENDERENVIRONMENTMAP:
 		{
 			v =
 			{
-				{ ShaderSignature::ShaderConstantBufferSlot{0, 0, TE_IDX_CONSTANTBUFFER::PER_FRAME}, ShaderSignature::ShaderConstantBufferSlot{1, 0, TE_IDX_CONSTANTBUFFER::PER_DLIGHT}, ShaderSignature::ShaderConstantBufferSlot{2, 0, TE_IDX_CONSTANTBUFFER::MATERIALS} },
-				{ ShaderSignature::ShaderConstantBufferSlot{3, 0, TE_IDX_CONSTANTBUFFER::DIRECT_PER_MESH} }
+				{ ShaderSignature::ShaderConstantBufferSlot{0, 0, TE_IDX_CONSTANTBUFFER::PER_FRAME}, ShaderSignature::ShaderConstantBufferSlot{1, 0, TE_IDX_CONSTANTBUFFER::LIGHTDATA}, ShaderSignature::ShaderConstantBufferSlot{2, 0, TE_IDX_CONSTANTBUFFER::MATERIALS}, ShaderSignature::ShaderConstantBufferSlot{3, 0, TE_IDX_CONSTANTBUFFER::UNFREQUENT} },
+				{ ShaderSignature::ShaderConstantBufferSlot{4, 0, TE_IDX_CONSTANTBUFFER::DIRECT_PER_MESH} }
 			};
 			break;
 		}
@@ -157,11 +141,12 @@ namespace TruthEngine
 		case TE_IDX_SHADERCLASS::NONE:
 			break;
 		case TE_IDX_SHADERCLASS::FORWARDRENDERING:
+		case TE_IDX_SHADERCLASS::RENDERENVIRONMENTMAP:
 		{
 			v =
 			{
-				{ ShaderSignature::ShaderTextureSlot{0, 0, TE_IDX_TEXTURE::DS_SHADOWMAP} },
-				{ ShaderSignature::ShaderTextureSlot{1, 0, TE_IDX_TEXTURE::MATERIALTEXTURES} },
+				{ ShaderSignature::ShaderTextureSlot{0, 0, TE_IDX_TEXTURE::DS_SHADOWMAP}, ShaderSignature::ShaderTextureSlot{1, 0, TE_IDX_TEXTURE::CUBEMAP_ENVIRONMENT} },
+				{ ShaderSignature::ShaderTextureSlot{2, 0, TE_IDX_TEXTURE::MATERIALTEXTURES} },
 			};
 			break;
 		}

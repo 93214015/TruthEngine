@@ -97,7 +97,7 @@ namespace TruthEngine
 			, InitRenderStates()
 			, float4{ static_cast<float>((float)rand() / (float)RAND_MAX), static_cast<float>((float)rand() / (float)RAND_MAX), static_cast<float>((float)rand() / (float)RAND_MAX), 1.0f }
 			, float3{ 0.3f, .3f, .3f }
-			, 1.0f
+			, 0.0f
 			, float2{1.0f, 1.0f}
 			, float2{.0f,.0f}
 			, -1

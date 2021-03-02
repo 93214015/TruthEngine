@@ -409,6 +409,8 @@
     <ClInclude Include="src\Core\Entity\Camera\CameraCascadedFrustum.h" />
     <ClInclude Include="src\Core\Helper\Macros.h" />
     <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_RenderBoudingBoxes.h" />
+    <ClInclude Include="src\Core\Renderer\TextureCubeMap.h" />
+    <ClInclude Include="src\Core\Entity\Components\EnvironmentComponent.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\API\DX12\DirectX12BufferManager.cpp">
@@ -730,5 +732,7 @@
     <ClCompile Include="src\Core\Entity\PickingEntity.cpp" />
     <ClCompile Include="src\Core\Entity\Camera\CameraCascadedFrustum.cpp" />
     <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_RenderBoudingBoxes.cpp" />
+    <ClCompile Include="src\Core\Renderer\TextureCubeMap.cpp" />
+    <ClCompile Include="src\Core\Entity\Components\EnvironmentComponent.cpp" />
   </ItemGroup>
 </Project>

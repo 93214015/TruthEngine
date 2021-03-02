@@ -42,6 +42,7 @@ namespace TruthEngine
 
 	private:
 		void PreparePiplineMaterial(const Material* material);
+		void PreparePiplineEnvironment();
 
 		void RegisterOnEvents();
 
@@ -63,6 +64,7 @@ namespace TruthEngine
 		BufferManager* m_BufferMgr;
 
 		std::unordered_map<uint32_t, std::shared_ptr<Pipeline>> m_MaterialPipelines;
+		std::shared_ptr<Pipeline> m_PipelineEnvironmentCube;
 
 		struct ConstantBuffer_Data_Per_Mesh
 		{
@@ -76,6 +78,7 @@ namespace TruthEngine
 			float4x4 WorldMatrix;
 			float4x4 WorldInverseTransposeMatrix;
 			uint32_t MaterialIndex;
+			float3   Pad;
 		};
 
 		ConstantBufferDirect<ConstantBuffer_Data_Per_Mesh>* m_ConstantBufferDirect_PerMesh;

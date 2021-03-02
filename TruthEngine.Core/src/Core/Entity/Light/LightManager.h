@@ -25,7 +25,13 @@ namespace TruthEngine
 				, const int castShadow
 				, const float range);
 
-			LightDirectional* GetDirectionalLight(const std::string_view name);
+			LightDirectional* GetDirectionalLight(const std::string_view name)const;
+			LightDirectional* GetDirectionalLight(uint32_t _LightID)const;
+
+			inline uint32_t GetLightDirectionalCount() const noexcept
+			{
+				return static_cast<uint32_t>(m_LightsDirectional.size());
+			}
 
 			Camera* GetLightCamera(const ILight* light);
 			CameraCascadedFrustumBase* GetLightCameraCascaded(const ILight* light);
@@ -82,3 +88,4 @@ namespace TruthEngine
 
 }
 
+#define TE_INSTANCE_LIGHTMANAGER TruthEngine::LightManager::GetInstace()

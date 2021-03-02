@@ -47,6 +47,18 @@ namespace TruthEngine
 		return entity_mesh;
 	}
 
+	TruthEngine::Entity Scene::AddEnvironmentEntity()
+	{
+		auto entity_environment = AddEntity("EnvironmentSphere", Entity());
+
+		Mesh* _Mesh = nullptr;
+
+		TE_INSTANCE_MODELMANAGER->GenerateEnvironmentMesh(&_Mesh);
+		entity_environment.AddComponent<EnvironmentComponent>(_Mesh);
+
+		return entity_environment;
+	}
+
 	std::vector<TruthEngine::Entity> Scene::GetAncestor(const Entity& entity)
 	{
 		std::vector<Entity> ancestors;

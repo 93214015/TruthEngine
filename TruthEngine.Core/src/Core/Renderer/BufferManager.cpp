@@ -3,6 +3,7 @@
 
 #include "TextureRenderTarget.h"
 #include "TextureDepthStencil.h"
+#include "TextureCubeMap.h"
 #include "TextureMaterial.h"
 
 #include "API/DX12/DirectX12BufferManager.h"
@@ -26,27 +27,27 @@ namespace TruthEngine {
 
 	TruthEngine::TextureRenderTarget* BufferManager::CreateRenderTarget(TE_IDX_TEXTURE idx, uint32_t width, uint32_t height, TE_RESOURCE_FORMAT format, const ClearValue_RenderTarget& clearValue, bool useAsShaderResource, bool enbaleMSAA)
 	{
-		auto rt = std::make_shared<TextureRenderTarget>(width, height, format, clearValue, useAsShaderResource, enbaleMSAA);
+		TextureRenderTarget& rt = m_TexturesRenderTarget.emplace_back(width, height, format, clearValue, useAsShaderResource, enbaleMSAA);
 
-		m_Map_Textures[idx] = rt;
+		m_Map_Textures[idx] = &rt;
 
-		CreateResource(rt.get());
+		CreateResource(&rt);
 
-		return rt.get();
+		return &rt;
 	}
 
 
 	TruthEngine::TextureDepthStencil* BufferManager::CreateDepthStencil(TE_IDX_TEXTURE idx, uint32_t width, uint32_t height, TE_RESOURCE_FORMAT format, const ClearValue_DepthStencil& clearValue, bool useAsShaderResource, bool enbaleMSAA)
 	{
-		auto ds = std::make_shared<TextureDepthStencil>(width, height, format, clearValue, useAsShaderResource, enbaleMSAA);
 
-		m_Map_Textures[idx] = ds;
+		TextureDepthStencil& ds = m_TexturesDepthStencil.emplace_back(width, height, format, clearValue, useAsShaderResource, enbaleMSAA);
 
-		CreateResource(ds.get());
+		m_Map_Textures[idx] = &ds;
 
-		return ds.get();
+		CreateResource(&ds);
+
+		return &ds;
 	}
-
 
 	TruthEngine::TextureRenderTarget* BufferManager::GetRenderTarget(TE_IDX_TEXTURE idx)
 	{
@@ -57,7 +58,7 @@ namespace TruthEngine {
 			return nullptr;
 		}
 
-		return static_cast<TextureRenderTarget*>(rt->second.get());
+		return static_cast<TextureRenderTarget*>(rt->second);
 	}
 
 	TruthEngine::TextureDepthStencil* BufferManager::GetDepthStencil(TE_IDX_TEXTURE idx)
@@ -69,7 +70,17 @@ namespace TruthEngine {
 			return nullptr;
 		}
 
-		return static_cast<TextureDepthStencil*>(ds->second.get());
+		return static_cast<TextureDepthStencil*>(ds->second);
+	}
+
+	TruthEngine::TextureCubeMap* BufferManager::GetCubeMap(uint32_t index)
+	{
+		return &m_TexturesCubeMap[index];
+	}
+
+	TruthEngine::TextureCubeMap* BufferManager::GetSkyCubeMap()
+	{
+		return &m_TexturesCubeMap[m_SkyCubeMapIndex];
 	}
 
 	Texture* BufferManager::GetTexture(TE_IDX_TEXTURE idx)
@@ -81,7 +92,7 @@ namespace TruthEngine {
 			return nullptr;
 		}
 
-		return itr->second.get();
+		return itr->second;
 	}
 
 	ConstantBufferUploadBase* BufferManager::GetConstantBufferUpload(TE_IDX_CONSTANTBUFFER cbIDX)

@@ -18,6 +18,12 @@
 #include "DirectX12SwapChain.h"
 #include "DirectX12Manager.h"
 
+#include "DirectXTK12/Inc/ResourceUploadBatch.h"
+#include "DirectXTK12/Inc/WICTextureLoader.h"
+#include "DirectXTK12/Inc/DDSTextureLoader.h"
+
+#include <boost/filesystem.hpp>
+
 namespace TruthEngine::API::DirectX12
 {
 
@@ -106,7 +112,7 @@ namespace TruthEngine::API::DirectX12
 	inline D3D12_RESOURCE_DESC1 GetTextureDesc(Texture* _Texture)
 	{
 		const auto resourceFlags = GetResourceFlags(_Texture->GetUsage());
-		auto desc = CD3DX12_RESOURCE_DESC1::Tex2D(GetFormat(_Texture->GetFormat()), static_cast<uint64_t>(_Texture->GetWidth()), _Texture->GetHeight(), 1, 0, 1, 0, resourceFlags);
+		auto desc = CD3DX12_RESOURCE_DESC1::Tex2D(GetFormat(_Texture->GetFormat()), static_cast<uint64_t>(_Texture->GetWidth()), _Texture->GetHeight(), 1, 1, 1, 0, resourceFlags);
 
 		if (_Texture->IsMultiSample())
 		{
@@ -375,26 +381,63 @@ namespace TruthEngine::API::DirectX12
 	void DirectX12BufferManager::CreateShaderResourceView(Texture* texture, ShaderResourceView* SRV)
 	{
 
+		D3D12_SHADER_RESOURCE_VIEW_DESC _SRVDesc{};
+		auto _D3DResource = m_Resources[texture->m_ResourceIndex].Get();
+		auto _ResourceDesc = _D3DResource->GetDesc();
+		_SRVDesc.Format = _ResourceDesc.Format;
+		_SRVDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+
 		if (SRV->ViewIndex == -1)
 		{
 			*SRV = ShaderResourceView{ m_DescHeapSRV.GetCurrentIndex(), texture->m_ResourceIndex, texture };
 
+
+			switch (texture->m_Type)
+			{
+			case TE_RESOURCE_TYPE::TEXTURE1D:
+			{
+				_SRVDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE1D;
+				_SRVDesc.Texture1D.MipLevels = _ResourceDesc.MipLevels;
+				_SRVDesc.Texture1D.MostDetailedMip = 0;
+				_SRVDesc.Texture1D.ResourceMinLODClamp = 0.0f;
+				break;
+			}
+			case TE_RESOURCE_TYPE::TEXTURE2D:
+			{
+				_SRVDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+				_SRVDesc.Texture2D.MipLevels = _ResourceDesc.MipLevels;
+				_SRVDesc.Texture2D.MostDetailedMip = 0;
+				_SRVDesc.Texture2D.ResourceMinLODClamp = 0.0f;
+				_SRVDesc.Texture2D.PlaneSlice = 0;
+				break;
+			}
+			case TE_RESOURCE_TYPE::TEXTURE3D:
+				_SRVDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE3D;
+				_SRVDesc.Texture3D.MipLevels = _ResourceDesc.MipLevels;
+				_SRVDesc.Texture3D.MostDetailedMip = 0;
+				_SRVDesc.Texture3D.ResourceMinLODClamp = 0.0f;
+				break;
+			case TE_RESOURCE_TYPE::TEXTURECUBE:
+				_SRVDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
+				_SRVDesc.TextureCube.MipLevels = _ResourceDesc.MipLevels;
+				_SRVDesc.TextureCube.MostDetailedMip = 0;
+				_SRVDesc.TextureCube.ResourceMinLODClamp = 0.0f;
+				break;
+			default:
+				break;
+			}
+
 			switch (texture->m_Usage)
 			{
+			case (TE_RESOURCE_USAGE_SHADERRESOURCE):
 			case ((uint32_t)TE_RESOURCE_USAGE_RENDERTARGET | (uint32_t)TE_RESOURCE_USAGE_SHADERRESOURCE):
-				m_DescHeapSRV.AddDescriptorSRV(m_Resources[texture->m_ResourceIndex].Get(), nullptr);
+				m_DescHeapSRV.AddDescriptorSRV(m_Resources[texture->m_ResourceIndex].Get(), &_SRVDesc);
 				break;
 			case ((uint32_t)TE_RESOURCE_USAGE_DEPTHSTENCIL | (uint32_t)TE_RESOURCE_USAGE_SHADERRESOURCE):
 			{
-				auto d = static_cast<TextureDepthStencil*>(texture);
-				D3D12_SHADER_RESOURCE_VIEW_DESC desc;
-				desc.Format = GetDepthStencilSRVFormat(d->m_Format);
-				desc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-				desc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-				desc.Texture2D.MipLevels = 1;
-				desc.Texture2D.MostDetailedMip = 0;
-				desc.Texture2D.PlaneSlice = 0;
-				m_DescHeapSRV.AddDescriptorSRV(m_Resources[texture->m_ResourceIndex].Get(), &desc);
+				_SRVDesc.Format = GetDepthStencilSRVFormat(static_cast<TE_RESOURCE_FORMAT>(_SRVDesc.Format));
+
+				m_DescHeapSRV.AddDescriptorSRV(m_Resources[texture->m_ResourceIndex].Get(), &_SRVDesc);
 				break;
 			}
 			default:
@@ -407,19 +450,14 @@ namespace TruthEngine::API::DirectX12
 			switch (texture->m_Usage)
 			{
 			case  ((uint32_t)TE_RESOURCE_USAGE_RENDERTARGET | (uint32_t)TE_RESOURCE_USAGE_SHADERRESOURCE):
-				m_DescHeapSRV.ReplaceDescriptorSRV(m_Resources[texture->m_ResourceIndex].Get(), nullptr, SRV->ViewIndex);
+				m_DescHeapSRV.ReplaceDescriptorSRV(m_Resources[texture->m_ResourceIndex].Get(), &_SRVDesc, SRV->ViewIndex);
 				break;
 			case ((uint32_t)TE_RESOURCE_USAGE_DEPTHSTENCIL | (uint32_t)TE_RESOURCE_USAGE_SHADERRESOURCE):
 			{
-				auto d = static_cast<TextureDepthStencil*>(texture);
-				D3D12_SHADER_RESOURCE_VIEW_DESC desc;
-				desc.Format = GetDepthStencilSRVFormat(d->m_Format);
-				desc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-				desc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-				desc.Texture2D.MipLevels = 1;
-				desc.Texture2D.MostDetailedMip = 0;
-				desc.Texture2D.PlaneSlice = 0;
-				m_DescHeapSRV.ReplaceDescriptorSRV(m_Resources[texture->m_ResourceIndex].Get(), &desc, SRV->ViewIndex);
+				
+				_SRVDesc.Format = GetDepthStencilSRVFormat(static_cast<TE_RESOURCE_FORMAT>(_SRVDesc.Format));
+
+				m_DescHeapSRV.ReplaceDescriptorSRV(m_Resources[texture->m_ResourceIndex].Get(), &_SRVDesc, SRV->ViewIndex);
 				break;
 			}
 			default:
@@ -510,6 +548,11 @@ namespace TruthEngine::API::DirectX12
 
 	void DirectX12BufferManager::Init(uint32_t resourceNum, uint32_t shaderResourceViewNum, uint32_t renderTargetViewNum, uint32_t depthBufferViewNum)
 	{
+		m_TexturesRenderTarget.reserve(20);
+		m_TexturesDepthStencil.reserve(20);
+		m_TexturesCubeMap.reserve(10);
+
+
 		m_DescHeapSRV = DescriptorHeapSRV(1);
 
 		m_DescHeapSRV.Init(TE_INSTANCE_API_DX12_GRAPHICDEVICE, shaderResourceViewNum);
@@ -584,6 +627,33 @@ namespace TruthEngine::API::DirectX12
 	{
 		auto index = m_DescHeapDSV.AddDescriptor(resource, desc);
 		return m_DescHeapDSV.GetCPUHandle(index);
+	}
+
+	TruthEngine::TextureCubeMap* DirectX12BufferManager::CreateTextureCube(TE_IDX_TEXTURE idx, const char* filePath)
+	{
+		auto index = static_cast<uint32_t>(m_TexturesCubeMap.size());
+
+		boost::filesystem::path textureFilePath(filePath);
+		std::string fileName = textureFilePath.filename().string();
+
+		auto d3d12device = static_cast<DirectX12GraphicDevice*>(TE_INSTANCE_GRAPHICDEVICE)->GetDevice();
+		DirectX::ResourceUploadBatch uploadBatch(d3d12device);
+
+		uploadBatch.Begin(D3D12_COMMAND_LIST_TYPE_COPY);
+		auto resourceIndex = static_cast<uint32_t>(m_Resources.size());
+		auto resource = std::addressof(m_Resources.emplace_back());
+		bool isCubeMap = false;
+		DirectX::CreateDDSTextureFromFileEx(d3d12device, uploadBatch, to_wstring(std::string_view(filePath)).c_str(), 0, D3D12_RESOURCE_FLAG_NONE, DirectX::DDS_LOADER_DEFAULT, resource->ReleaseAndGetAddressOf(), nullptr, &isCubeMap);
+		uploadBatch.End(TE_INSTANCE_API_DX12_COMMANDQUEUECOPY->GetNativeObject());
+
+		auto desc = (*resource)->GetDesc();
+
+		TextureCubeMap& tex = m_TexturesCubeMap.emplace_back(index, fileName.c_str(), filePath, nullptr, desc.Width, desc.Height, 0, static_cast<TE_RESOURCE_FORMAT>(desc.Format));
+		tex.m_ResourceIndex = resourceIndex;
+
+		m_Map_Textures[idx] = &tex;
+
+		return &tex;
 	}
 
 }

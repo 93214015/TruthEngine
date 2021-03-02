@@ -46,27 +46,27 @@ namespace TruthEngine
 
 				if (csEntry != "")
 				{
-					shader->m_CS = CompileShader_OLD(name, shader->m_ID, filePath, csEntry, "cs");
+					shader->m_CS = CompileShader(name, shader->m_ID, filePath, csEntry, "cs");
 				}
 				if (vsEntry != "")
 				{
-					shader->m_VS = CompileShader_OLD(name, shader->m_ID, filePath, vsEntry, "vs");
+					shader->m_VS = CompileShader(name, shader->m_ID, filePath, vsEntry, "vs");
 				}
 				if (psEntry != "")
 				{
-					shader->m_PS = CompileShader_OLD(name, shader->m_ID, filePath, psEntry, "ps");
+					shader->m_PS = CompileShader(name, shader->m_ID, filePath, psEntry, "ps");
 				}
 				if (gsEntry != "")
 				{
-					shader->m_GS = CompileShader_OLD(name, shader->m_ID, filePath, gsEntry, "gs");
+					shader->m_GS = CompileShader(name, shader->m_ID, filePath, gsEntry, "gs");
 				}
 				if (dsEntry != "")
 				{
-					shader->m_DS = CompileShader_OLD(name, shader->m_ID, filePath, dsEntry, "ds");
+					shader->m_DS = CompileShader(name, shader->m_ID, filePath, dsEntry, "ds");
 				}
 				if (hsEntry != "")
 				{
-					shader->m_HS = CompileShader_OLD(name, shader->m_ID, filePath, hsEntry, "hs");
+					shader->m_HS = CompileShader(name, shader->m_ID, filePath, hsEntry, "hs");
 				}
 
 				return DirectX12Manager::GetInstance()->AddRootSignature(shader->GetShaderClassIDX());
@@ -101,27 +101,27 @@ namespace TruthEngine
 
 				if (csEntry != "")
 				{
-					shader->m_CS = CompileShader_OLD(name, shader->m_ID, filePath, csEntry, "cs");
+					shader->m_CS = CompileShader(name, shader->m_ID, filePath, csEntry, "cs");
 				}
 				if (vsEntry != "")
 				{
-					shader->m_VS = CompileShader_OLD(name, shader->m_ID, filePath, vsEntry, "vs");
+					shader->m_VS = CompileShader(name, shader->m_ID, filePath, vsEntry, "vs");
 				}
 				if (psEntry != "")
 				{
-					shader->m_PS = CompileShader_OLD(name, shader->m_ID, filePath, psEntry, "ps");
+					shader->m_PS = CompileShader(name, shader->m_ID, filePath, psEntry, "ps");
 				}
 				if (gsEntry != "")
 				{
-					shader->m_GS = CompileShader_OLD(name, shader->m_ID, filePath, gsEntry, "gs");
+					shader->m_GS = CompileShader(name, shader->m_ID, filePath, gsEntry, "gs");
 				}
 				if (dsEntry != "")
 				{
-					shader->m_DS = CompileShader_OLD(name, shader->m_ID, filePath, dsEntry, "ds");
+					shader->m_DS = CompileShader(name, shader->m_ID, filePath, dsEntry, "ds");
 				}
 				if (hsEntry != "")
 				{
-					shader->m_HS = CompileShader_OLD(name, shader->m_ID, filePath, hsEntry, "hs");
+					shader->m_HS = CompileShader(name, shader->m_ID, filePath, hsEntry, "hs");
 				}
 
 
@@ -184,16 +184,18 @@ namespace TruthEngine
 				//
 				auto entryL = to_wstring(entry);
 				auto binaryOutput = (name + L".bin");
-				auto debugOutput = (name + L".pdb");
+				auto debugOutput = (L"./" + name + L".pdb");
 
 				std::vector<LPCWSTR> vargs{ 
 					name.c_str(),
 					L"-E", entryL.c_str(),
 					L"-T", target.c_str(),
 					L"-Zi",
-					L"-Fo",binaryOutput.c_str(),
-					L"-Fd", debugOutput.c_str(),
-					L"-Qstrip_reflect" };
+					L"-Qembed_debug",
+					L"-Od",
+					/*L"-Fo",binaryOutput.c_str(),
+					/*L"-Fd", debugOutput.c_str(),
+					L"-Qstrip_reflect"*/};
 
 				for (auto& d : m_Defines)
 				{

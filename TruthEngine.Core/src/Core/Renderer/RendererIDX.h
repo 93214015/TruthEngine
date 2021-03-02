@@ -12,8 +12,9 @@ enum class TE_IDX_CONSTANTBUFFER : IDX
 	PER_FRAME,
 	PER_OBJECT,
 	PER_MESH,
-	PER_DLIGHT,
+	LIGHTDATA,
 	MATERIALS,
+	UNFREQUENT,
 
 	DIRECT_CONSTANTS,
 	DIRECT_PER_MESH,
@@ -25,6 +26,7 @@ enum class TE_IDX_CONSTANTBUFFER : IDX
 enum class TE_IDX_TEXTURE : IDX
 {
 	MATERIALTEXTURES,
+	CUBEMAP_ENVIRONMENT,
 	RT_BACKBUFFER,
 	RT_GBUFFER_COLOR,
 	RT_GBUFFER_NORMAL,
@@ -34,6 +36,22 @@ enum class TE_IDX_TEXTURE : IDX
 	DS_SHADOWMAP,
 };
 
+inline bool IsIDXTextureMaterialTexture(TE_IDX_TEXTURE _IDX)
+{
+	return _IDX == TE_IDX_TEXTURE::MATERIALTEXTURES;
+}
+inline bool IsIDXTextureCubeMap(TE_IDX_TEXTURE _IDX)
+{
+	return _IDX == TE_IDX_TEXTURE::CUBEMAP_ENVIRONMENT;
+}
+inline bool IsIDXTextureRenderTarget(TE_IDX_TEXTURE _IDX)
+{
+	return (static_cast<uint32_t>(_IDX) >= static_cast<uint32_t>(TE_IDX_TEXTURE::RT_BACKBUFFER) && static_cast<uint32_t>(_IDX) <= static_cast<uint32_t>(TE_IDX_TEXTURE::RT_SCENEBUFFER));
+}
+inline bool IsIDXTextureDepthStencil(TE_IDX_TEXTURE _IDX)
+{
+	return (static_cast<uint32_t>(_IDX) >= static_cast<uint32_t>(TE_IDX_TEXTURE::DS_SCENEBUFFER) && static_cast<uint32_t>(_IDX) <= static_cast<uint32_t>(TE_IDX_TEXTURE::DS_SHADOWMAP));
+}
 
 enum class TE_IDX_SHADERCLASS : IDX
 {
@@ -41,6 +59,7 @@ enum class TE_IDX_SHADERCLASS : IDX
 	FORWARDRENDERING,
 	GENERATEBASICSHADOWMAP,
 	RENDERBOUNDINGBOX,
+	RENDERENVIRONMENTMAP,
 	TOTALNUM
 };
 

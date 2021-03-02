@@ -179,6 +179,7 @@
     <ClInclude Include="src\Core\Entity\Components.h" />
     <ClInclude Include="src\Core\Entity\Components\BoundingBoxComponent.h" />
     <ClInclude Include="src\Core\Entity\Components\CameraComponent.h" />
+    <ClInclude Include="src\Core\Entity\Components\EnvironmentComponent.h" />
     <ClInclude Include="src\Core\Entity\Components\LightComponent.h" />
     <ClInclude Include="src\Core\Entity\Components\MaterialComponent.h" />
     <ClInclude Include="src\Core\Entity\Components\MeshComponent.h" />
@@ -256,6 +257,7 @@
     <ClInclude Include="src\Core\Renderer\ShaderManager.h" />
     <ClInclude Include="src\Core\Renderer\SwapChain.h" />
     <ClInclude Include="src\Core\Renderer\Texture.h" />
+    <ClInclude Include="src\Core\Renderer\TextureCubeMap.h" />
     <ClInclude Include="src\Core\Renderer\TextureDepthStencil.h" />
     <ClInclude Include="src\Core\Renderer\TextureMaterial.h" />
     <ClInclude Include="src\Core\Renderer\TextureMaterialManager.h" />
@@ -301,6 +303,7 @@
     <ClCompile Include="src\Core\Entity\Camera\ICamera.cpp" />
     <ClCompile Include="src\Core\Entity\Components\BoundingBoxComponent.cpp" />
     <ClCompile Include="src\Core\Entity\Components\CameraComponent.cpp" />
+    <ClCompile Include="src\Core\Entity\Components\EnvironmentComponent.cpp" />
     <ClCompile Include="src\Core\Entity\Components\LightComponent.cpp" />
     <ClCompile Include="src\Core\Entity\Components\MaterialComponent.cpp" />
     <ClCompile Include="src\Core\Entity\Components\MeshComponent.cpp" />
@@ -370,6 +373,7 @@
     <ClCompile Include="src\Core\Renderer\ShaderManager.cpp" />
     <ClCompile Include="src\Core\Renderer\SwapChain.cpp" />
     <ClCompile Include="src\Core\Renderer\Texture.cpp" />
+    <ClCompile Include="src\Core\Renderer\TextureCubeMap.cpp" />
     <ClCompile Include="src\Core\Renderer\TextureDepthStencil.cpp" />
     <ClCompile Include="src\Core\Renderer\TextureMaterial.cpp" />
     <ClCompile Include="src\Core\Renderer\TextureMaterialManager.cpp" />

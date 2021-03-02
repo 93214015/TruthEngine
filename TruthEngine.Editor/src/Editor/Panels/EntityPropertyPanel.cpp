@@ -157,7 +157,7 @@ namespace TruthEngine
 				{
 					auto shininess = material->GetShininess();
 
-					if (ImGui::DragFloat("Shininess", &shininess, 0.1f, 0.0f, 100.0f, nullptr, 1.0f))
+					if (ImGui::DragFloat("Shininess", &shininess, 0.01f, 0.0f, 1.0f, nullptr, 1.0f))
 					{
 						material->SetShininess(shininess);
 					}
@@ -182,7 +182,7 @@ namespace TruthEngine
 						material->SetUVTranslate(uvTranslate);
 					}
 					ImGui::SameLine();
-					ImGui::Checkbox("Chained##uvScale", &s_chainedUVTranslate);
+					ImGui::Checkbox("Chained##uvTranslate", &s_chainedUVTranslate);
 				}
 
 				{

@@ -115,7 +115,7 @@ namespace TruthEngine
 			void AddSampleModel();
 
 			Entity GeneratePrimitiveMesh(TE_PRIMITIVE_TYPE type, float size = 1.0f, const float4x4& transform = IdentityMatrix, Entity modelEntity = Entity());
-
+			void GenerateEnvironmentMesh(Mesh** outMesh);
 
 		protected:
 			void InitVertexAndIndexBuffer();

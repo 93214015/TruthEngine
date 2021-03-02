@@ -259,6 +259,11 @@ namespace TruthEngine
 	}
 
 
+	TruthEngine::TextureCubeMap* RendererCommand::CreateTextureCubeMap(TE_IDX_TEXTURE idx, const char* filePath)
+	{
+		return TE_INSTANCE_BUFFERMANAGER->CreateTextureCube(idx, filePath);
+	}
+
 	TE_RESULT RendererCommand::CreateResource(BufferUpload* cb)
 	{
 		return TE_INSTANCE_BUFFERMANAGER->CreateResource(cb);

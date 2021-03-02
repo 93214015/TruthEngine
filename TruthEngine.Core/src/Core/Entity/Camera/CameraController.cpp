@@ -38,8 +38,8 @@ namespace TruthEngine
 
 	void CameraController::Panning(float right, float up)
 	{
-		right *= m_Speed * .05f;
-		up *= -m_Speed * .05f;
+		right *= m_Speed;
+		up *= -m_Speed;
 		// mPosition += d*mRight
 		XMVECTOR s = XMVectorReplicate(right);
 		XMVECTOR r = XMLoadFloat3(&m_Camera->m_Right);
@@ -131,8 +131,8 @@ namespace TruthEngine
 		{
 			const auto dt = TE_INSTANCE_APPLICATION->FrameTime();
 
-			float dx = -InputManager::GetDX() * dt;
-			float dy = -InputManager::GetDY() * dt;
+			float dx = -InputManager::GetDX() * dt * 0.5;
+			float dy = -InputManager::GetDY() * dt * 0.5;
 
 			Panning(dx, dy);
 		}

@@ -38,6 +38,8 @@ namespace TruthEngine::API::DirectX12 {
 
 		TE_RESULT CreateIndexBuffer(IndexBuffer* ib) override;
 
+		virtual TextureCubeMap* CreateTextureCube(TE_IDX_TEXTURE idx, const char* filePath);
+
 		void CreateRenderTargetView(TextureRenderTarget* RT, RenderTargetView* RTV) override;
 
 		void CreateRenderTargetView(SwapChain* swapChain, RenderTargetView* RTV) override;

@@ -1,6 +1,9 @@
 #pragma once
 
 #include "ConstantBuffer.h"
+#include "TextureCubeMap.h"
+#include "TextureRenderTarget.h"
+#include "TextureDepthStencil.h"
 
 namespace TruthEngine
 {
@@ -11,6 +14,7 @@ namespace TruthEngine
 	class TextureMaterial;
 	class TextureRenderTarget;
 	class TextureDepthStencil;
+	class TextureCubeMap;
 	class VertexBufferBase;
 	class VertexBufferStreamBase;
 	class Buffer;
@@ -145,11 +149,17 @@ namespace TruthEngine
 
 		TextureDepthStencil* GetDepthStencil(TE_IDX_TEXTURE idx);
 
+		TextureCubeMap* GetCubeMap(uint32_t index);
+
+		TextureCubeMap* GetSkyCubeMap();
+
 		Texture* GetTexture(TE_IDX_TEXTURE idx);
 
 		ConstantBufferUploadBase* GetConstantBufferUpload(TE_IDX_CONSTANTBUFFER cbIDX);
 
 		ConstantBufferDirectBase* GetConstantBufferDirect(TE_IDX_CONSTANTBUFFER cbIDX);
+
+		virtual TextureCubeMap* CreateTextureCube(TE_IDX_TEXTURE idx, const char* filePath) = 0;
 
 		virtual void CreateRenderTargetView(TextureRenderTarget* RT, RenderTargetView* rtv) = 0;
 
@@ -184,9 +194,15 @@ namespace TruthEngine
 		uint32_t m_LastVertexBufferID;
 		uint32_t m_LastIndexBufferID;
 
+		uint32_t m_SkyCubeMapIndex = 0;
+
 		std::unordered_map<TE_IDX_CONSTANTBUFFER, std::shared_ptr<ConstantBufferUploadBase>> m_Map_ConstantBufferUpload;
 		std::unordered_map<TE_IDX_CONSTANTBUFFER, std::shared_ptr<ConstantBufferDirectBase>> m_Map_ConstantBufferDirect;
-		std::unordered_map<TE_IDX_TEXTURE, std::shared_ptr<Texture>> m_Map_Textures;
+		std::unordered_map<TE_IDX_TEXTURE, Texture*> m_Map_Textures;
+
+		std::vector<TextureRenderTarget> m_TexturesRenderTarget;
+		std::vector<TextureDepthStencil> m_TexturesDepthStencil;
+		std::vector<TextureCubeMap> m_TexturesCubeMap;
 
 		static std::shared_ptr<BufferManager> Factory();
 

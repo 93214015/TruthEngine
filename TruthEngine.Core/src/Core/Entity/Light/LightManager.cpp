@@ -4,6 +4,8 @@
 #include "LightDirectional.h"
 
 #include "Core/Entity/Camera/CameraManager.h"
+#include "Core/Application.h"
+#include "Core/Event/EventEntity.h"
 
 constexpr float4x4 m_ProjToUV = float4x4(0.5f, 0.0f, 0.0f, 0.0f,
 	0.0f, -0.5, 0.0f, 0.0f,
@@ -57,11 +59,14 @@ namespace TruthEngine
 		auto dlight = &m_LightsDirectional.emplace_back(_id, name, diffusecolor, ambientColor, specularColor, direction, position, lightSize, castShadow, range);
 		m_Map_Lights[_id] = dlight;
 		m_Map_LightsName[name] = dlight;
+
+		EventEntityAddLight _Event(dlight);
+		TE_INSTANCE_APPLICATION->OnEvent(_Event);
 		
 		return dlight;
 	}
 
-	LightDirectional* LightManager::GetDirectionalLight(const std::string_view name)
+	LightDirectional* LightManager::GetDirectionalLight(const std::string_view name) const
 	{
 		auto itr = m_Map_LightsName.find(name);
 		if (itr != m_Map_LightsName.end())
@@ -77,6 +82,24 @@ namespace TruthEngine
 			}
 		}
 
+		return nullptr;
+	}
+
+	TruthEngine::LightDirectional* LightManager::GetDirectionalLight(uint32_t _LightID) const
+	{
+		auto itr = m_Map_Lights.find(_LightID);
+		if (itr != m_Map_Lights.end())
+		{
+			if (itr->second->GetLightType() == TE_LIGHT_TYPE::Directional)
+			{
+				return static_cast<LightDirectional*>(itr->second);
+			}
+			else
+			{
+				TE_LOG_CORE_ERROR("The querried light was exist but the type was wrong!");
+				return nullptr;
+			}
+		}
 		return nullptr;
 	}
 

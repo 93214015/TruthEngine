@@ -18,6 +18,7 @@ namespace TruthEngine
 	class EventEntityAddMaterial;
 	class EventEntityUpdateMaterial;
 	class EventEntityUpdateLight;
+	class EventEntityAddLight;
 
 	template<class T> class ConstantBufferUpload;
 	struct ConstantBuffer_Data_Per_Frame;
@@ -63,6 +64,7 @@ namespace TruthEngine
 		void OnAddMaterial(const EventEntityAddMaterial& event);
 		void OnUpdateMaterial(const EventEntityUpdateMaterial& event);
 		void OnUpdateLight(const EventEntityUpdateLight& event);
+		void OnAddLight(const EventEntityAddLight& event);
 
 		void InitTextures();
 		void InitBuffers();
@@ -86,8 +88,11 @@ namespace TruthEngine
 		RenderTargetView m_RTVBackBuffer, m_RTVSceneBuffer;
 
 		ConstantBufferUpload<ConstantBuffer_Data_Per_Frame>* m_CB_PerFrame;
-		ConstantBufferUpload<ConstantBuffer_Data_Per_DLight>* m_CB_PerDLight;
+		ConstantBufferUpload<ConstantBuffer_Data_LightData>* m_CB_LightData;
 		ConstantBufferUpload<ConstantBuffer_Data_Materials>* m_CB_Materials;
+		ConstantBufferUpload<ConstantBuffer_Data_UnFrequent>* m_CB_UnFrequent;
+
+		std::map<int, int> m_Map_DLightToCBuffer;
 
 		bool m_EnabledImGuiLayer = true;
 

@@ -55,6 +55,7 @@ namespace TruthEngine
 			PreparePiplineMaterial(mat);
 		}
 
+		PreparePiplineEnvironment();
 
 		RegisterOnEvents();
 	}
@@ -171,6 +172,19 @@ namespace TruthEngine
 			m_TotalMeshNum++;
 		}
 
+		if (true)
+		{
+			auto _EntityViewEnv = activeScene->ViewEntities<EnvironmentComponent>();
+
+			for (auto& _EntityEnv : _EntityViewEnv)
+			{
+				Mesh* mesh = activeScene->GetComponent<EnvironmentComponent>(_EntityEnv).GetMesh();
+				m_RendererCommand.SetPipeline(m_PipelineEnvironmentCube.get());
+				m_RendererCommand.DrawIndexed(mesh);
+			}
+
+		}
+
 		/*auto& dynamicEntityGroup = reg.view<MeshComponent, PhysicsDynamicComponent>();
 
 		for (auto entity_mesh : dynamicEntityGroup)
@@ -275,6 +289,22 @@ namespace TruthEngine
 		auto pipeline = std::make_shared<Pipeline>(material->GetRendererStates(), shader, 1, rtvFormats, TE_RESOURCE_FORMAT::D32_FLOAT, true);
 
 		m_MaterialPipelines[material->GetID()] = pipeline;
+	}
+
+	void RenderPass_ForwardRendering::PreparePiplineEnvironment()
+	{
+		std::string shaderName = std::string("renderer3D_EnvironmentCube");
+
+		Shader* shader = nullptr;
+
+		RendererStateSet states = InitRenderStates();
+		SET_RENDERER_STATE(states, TE_RENDERER_STATE_CULL_MODE, TE_RENDERER_STATE_CULL_MODE::TE_RENDERER_STATE_CULL_MODE_NONE);
+
+		auto result = m_ShaderMgr->AddShader(&shader, TE_IDX_SHADERCLASS::RENDERENVIRONMENTMAP, TE_IDX_MESH_TYPE::MESH_NTT, states, "Assets/Shaders/RenderEnvironmentCube.hlsl", "vs", "ps");
+
+		static TE_RESOURCE_FORMAT rtvFormats[1] = { TE_RESOURCE_FORMAT::R8G8B8A8_UNORM };
+
+		m_PipelineEnvironmentCube = std::make_shared<Pipeline>(states, shader, 1, rtvFormats, TE_RESOURCE_FORMAT::D32_FLOAT, true);
 	}
 
 	void RenderPass_ForwardRendering::RegisterOnEvents()

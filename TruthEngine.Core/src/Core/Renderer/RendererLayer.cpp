@@ -34,7 +34,7 @@ namespace TruthEngine
 	void RendererLayer::OnAttach()
 	{
 
-		Settings::MSAA = TE_SETTING_MSAA::X4;
+		Settings::MSAA = TE_SETTING_MSAA::X1;
 
 		m_BufferManager = TE_INSTANCE_BUFFERMANAGER;
 
@@ -50,13 +50,13 @@ namespace TruthEngine
 		InitTextures();
 		InitBuffers();
 
-		m_RendererCommand.AddUpdateTask([&CB_PerDLight = m_CB_PerDLight]()
+		/*m_RendererCommand.AddUpdateTask([&CB_LightData = m_CB_LightData]()
 			{
 				auto _lightManager = LightManager::GetInstace();
 				auto _light0 = _lightManager->GetDirectionalLight("dlight_0");
 				const auto& lightdata = _light0->GetDirectionalLightData();
-				*(CB_PerDLight->GetData()) = ConstantBuffer_Data_Per_DLight(lightdata.Diffuse, lightdata.Ambient, lightdata.Specular, lightdata.Direction, lightdata.LightSize, lightdata.Position, static_cast<uint32_t>(lightdata.CastShadow), lightdata.Range, _lightManager->GetShadowTransform(_light0));
-			});
+				*(CB_LightData->GetData()) = ConstantBuffer_Data_LightData(lightdata.Diffuse, lightdata.Ambient, lightdata.Specular, lightdata.Direction, lightdata.LightSize, lightdata.Position, static_cast<uint32_t>(lightdata.CastShadow), lightdata.Range, _lightManager->GetShadowTransform(_light0));
+			});*/
 
 		m_ImGuiLayer->OnAttach();
 
@@ -182,8 +182,13 @@ namespace TruthEngine
 		{
 			OnUpdateLight(static_cast<EventEntityUpdateLight&>(event));
 		};
-
 		TE_INSTANCE_APPLICATION->RegisterEventListener(EventType::EntityUpdatedLight, listener_updateLight);
+
+		auto _Listener_AddLight = [this](Event& event)
+		{
+			OnAddLight(static_cast<EventEntityAddLight&>(event));
+		};
+		TE_INSTANCE_APPLICATION->RegisterEventListener(EventType::EntityAddLight, _Listener_AddLight);
 	}
 
 	void RendererLayer::OnWindowResize(const EventWindowResize& event)
@@ -237,16 +242,72 @@ namespace TruthEngine
 
 	void RendererLayer::OnUpdateLight(const EventEntityUpdateLight& event)
 	{
-		m_RendererCommand.AddUpdateTask([event, &CB_Lights = m_CB_PerDLight]()
-		{
-			auto _lightManager = LightManager::GetInstace();
-			auto _light0 = _lightManager->GetDirectionalLight("dlight_0");
-			const auto& lightdata = _light0->GetDirectionalLightData();
+		auto _Light = event.GetLight();
+		auto _LightType = _Light->GetLightType();
+		auto _LightID = _Light->GetID();
 
-			*(CB_Lights->GetData()) = ConstantBuffer_Data_Per_DLight(lightdata.Diffuse, lightdata.Ambient, lightdata.Specular
-				, lightdata.Direction, lightdata.LightSize, lightdata.Position
-				, static_cast<uint32_t>(lightdata.CastShadow), lightdata.Range, _lightManager->GetShadowTransform(_light0));
-		});
+		if (_LightType == TE_LIGHT_TYPE::Directional)
+		{
+			auto _Itr = m_Map_DLightToCBuffer.find(_LightID);
+			if (_Itr == m_Map_DLightToCBuffer.end())
+				return;
+
+			int _BufferIndex = _Itr->second;
+
+			m_RendererCommand.AddUpdateTask([_BufferIndex, _Light = static_cast<LightDirectional*>(event.GetLight()), CB_Lights = m_CB_LightData]()
+			{
+				const auto& _LightData = _Light->GetDirectionalLightData();
+
+				CB_Lights->GetData()->mDLights[_BufferIndex] = ConstantBuffer_Struct_DLight
+				(
+					_LightData.Diffuse
+					, _LightData.Ambient
+					, _LightData.Specular
+					, _LightData.Direction
+					, _LightData.LightSize
+					, static_cast<uint32_t>(_LightData.CastShadow)
+				);
+
+			});
+		}
+	}
+
+	void RendererLayer::OnAddLight(const EventEntityAddLight& event)
+	{
+		ILight* _Light = event.GetLight();
+		TE_LIGHT_TYPE _LightType = _Light->GetLightType();
+		uint32_t _LightID = _Light->GetID();
+
+		if (_LightType == TE_LIGHT_TYPE::Directional)
+		{
+			size_t _BufferIndex = m_Map_DLightToCBuffer.size();
+
+			m_Map_DLightToCBuffer[_LightID] = _BufferIndex;
+
+			m_RendererCommand.AddUpdateTask([_BufferIndex, _Light = static_cast<LightDirectional*>(event.GetLight()), CB_Lights = m_CB_LightData]()
+			{
+				const auto& _LightData = _Light->GetDirectionalLightData();
+
+				CB_Lights->GetData()->mDLights[_BufferIndex] = ConstantBuffer_Struct_DLight
+				(
+					_LightData.Diffuse
+					, _LightData.Ambient
+					, _LightData.Specular
+					, _LightData.Direction
+					, _LightData.LightSize
+					, static_cast<uint32_t>(_LightData.CastShadow)
+				);
+
+			});
+
+			auto _DLightCount = TE_INSTANCE_LIGHTMANAGER->GetLightDirectionalCount();
+
+			m_RendererCommand.AddUpdateTask([_DLightCount, CB_UnFrequent = m_CB_UnFrequent]()
+			{
+				CB_UnFrequent->GetData()->mDLightCount = _DLightCount;
+			});
+
+		}
 	}
 
 	void RendererLayer::InitTextures()
@@ -254,13 +315,18 @@ namespace TruthEngine
 		m_RendererCommand.CreateRenderTarget(TE_IDX_TEXTURE::RT_SCENEBUFFER, TE_INSTANCE_APPLICATION->GetClientWidth(), TE_INSTANCE_APPLICATION->GetClientHeight(), TE_RESOURCE_FORMAT::R8G8B8A8_UNORM, ClearValue_RenderTarget{ 1.0f, 1.0f, 1.0f, 1.0f }, true, true);
 
 		m_RendererCommand.CreateRenderTargetView(TE_INSTANCE_SWAPCHAIN, &m_RTVBackBuffer);
+
+		m_RendererCommand.CreateTextureCubeMap(TE_IDX_TEXTURE::CUBEMAP_ENVIRONMENT, "K:\\EBook\\Game Programming\\Source Codes\\d3d12book-master\\d3d12book-master\\Textures\\grasscube1024.dds");
+		//m_RendererCommand.CreateTextureCubeMap(TE_IDX_TEXTURE::CUBEMAP_ENVIRONMENT, "K:\\Downloads\\3D\\EnvironmentMap_BabylonJs_Sample1\\textures\\SpecularHDR.dds");
+		//m_RendererCommand.CreateTextureCubeMap(TE_IDX_TEXTURE::CUBEMAP_ENVIRONMENT, "K:\\Downloads\\3D\\EnvironmentMap_BabylonJs_Forest\\textures\\forest.dds");
 	}
 
 	void RendererLayer::InitBuffers()
 	{
 		m_CB_PerFrame = m_RendererCommand.CreateConstantBufferUpload<ConstantBuffer_Data_Per_Frame>(TE_IDX_CONSTANTBUFFER::PER_FRAME);
-		m_CB_PerDLight = m_RendererCommand.CreateConstantBufferUpload<ConstantBuffer_Data_Per_DLight>(TE_IDX_CONSTANTBUFFER::PER_DLIGHT);
+		m_CB_LightData = m_RendererCommand.CreateConstantBufferUpload<ConstantBuffer_Data_LightData>(TE_IDX_CONSTANTBUFFER::LIGHTDATA);
 		m_CB_Materials = m_RendererCommand.CreateConstantBufferUpload<ConstantBuffer_Data_Materials>(TE_IDX_CONSTANTBUFFER::MATERIALS);
+		m_CB_UnFrequent = m_RendererCommand.CreateConstantBufferUpload<ConstantBuffer_Data_UnFrequent>(TE_IDX_CONSTANTBUFFER::UNFREQUENT);
 	}
 
 }

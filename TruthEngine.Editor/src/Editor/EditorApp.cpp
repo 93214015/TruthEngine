@@ -57,6 +57,7 @@ namespace TruthEngine
 		auto entity = m_ActiveScene.AddEntity("MainCamera");
 		entity.AddComponent<CameraComponent>(mainCamera, CameraManager::GetInstance()->GetCameraController());
 
+		m_LayerStack.PushLayer(m_RendererLayer.get());
 
 		auto lightManager = LightManager::GetInstace();
 		auto dirLight0 = lightManager->AddLightDirectional("dlight_0", float4{ 0.8f, 0.8f, 0.8f, 0.8f }, float4{ 0.3f, 0.3f, 0.3f, 0.3f }, float4{ 0.0f, 0.0f, 0.0f, 0.0f }, float3{ .38f, -.60f, .71f }, float3{ -42.0f, 66.0f, -80.0f }, 0.05f, true, 200.0f);
@@ -66,9 +67,6 @@ namespace TruthEngine
 
 		auto entityLight = m_ActiveScene.AddEntity("Directional Light 0");
 		entityLight.AddComponent<LightComponent>(dirLight0);
-
-
-		m_LayerStack.PushLayer(m_RendererLayer.get());
 
 
 		//must put ModelManager initiation after RendererLayer attachment so that the bufferManager has been initiated 
@@ -81,6 +79,8 @@ namespace TruthEngine
 
 
 		TE_INSTANCE_PHYSICSENGINE->Init();
+
+		m_ActiveScene.AddEnvironmentEntity();
 
 		RegisterOnEvents();
 	}

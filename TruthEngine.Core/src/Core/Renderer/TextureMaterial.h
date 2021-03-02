@@ -65,4 +65,8 @@ namespace TruthEngine
 		friend class API::DirectX12::DirectX12BufferManager;
 		friend class API::DirectX12::DirectX12TextureMaterialManager;
 	};
+
+
+	
+
 }
