@@ -55,10 +55,11 @@ namespace TruthEngine
 
 		static TextureMaterialManager* GetInstance()
 		{
-			static std::shared_ptr<TextureMaterialManager> s_Instance = Factory();
-			return s_Instance.get();
+			static TextureMaterialManager* s_Instance = Factory();
+			return s_Instance;
 		}
-		static std::shared_ptr<TextureMaterialManager> Factory();
+
+		static TextureMaterialManager* Factory();
 
 	protected:
 

@@ -34,29 +34,40 @@ namespace TruthEngine::API::DirectX12 {
 
 		void Release() override;
 
+
+
 		TE_RESULT CreateVertexBuffer(VertexBufferBase* vb) override;
 
 		TE_RESULT CreateIndexBuffer(IndexBuffer* ib) override;
 
-		virtual TextureCubeMap* CreateTextureCube(TE_IDX_TEXTURE idx, const char* filePath);
+		virtual TextureCubeMap* CreateTextureCube(TE_IDX_GRESOURCES idx, const char* filePath);
 
-		void CreateRenderTargetView(TextureRenderTarget* RT, RenderTargetView* RTV) override;
 
-		void CreateRenderTargetView(SwapChain* swapChain, RenderTargetView* RTV) override;
+		//
+		//Create Views Methods
+		//
+		void CreateRenderTargetView(TextureRenderTarget* RT, RenderTargetView* _outRTV) override;
 
-		void CreateDepthStencilView(TextureDepthStencil* DS, DepthStencilView* DSV) override;
+		void CreateRenderTargetView(SwapChain* swapChain, RenderTargetView* _outRTV) override;
 
-		void CreateShaderResourceView(Texture* textures[], uint32_t textureNum, ShaderResourceView* SRV) override;
+		void CreateDepthStencilView(TextureDepthStencil* DS, DepthStencilView* _outDSV) override;
 
-		void CreateShaderResourceView(Texture* texture, ShaderResourceView* SRV) override;
 
-		void CreateConstantBufferView(ConstantBufferUploadBase* constantBuffer, ConstantBufferView* CBV, uint8_t frameIndex) override;
+		void CreateShaderResourceView(GraphicResource* _GraphicResource, ShaderResourceView* _SRV, uint32_t frameIndex) override;
+
+		void CreateUnorderedAccessView(Buffer* _BufferRW, UnorderedAccessView* _outUAV) override;
+
+		void CreateConstantBufferView(Buffer* constantBuffer, ConstantBufferView* CBV, uint32_t frameIndex) override;
+
 
 		uint64_t GetRequiredSize(const GraphicResource* graphicResource) const override;
 
+
 		void ReleaseResource(GraphicResource* resource) override;
 
+
 		ID3D12Resource* GetResource(GraphicResource* graphicResource);
+
 
 		D3D12_GPU_DESCRIPTOR_HANDLE AddDescriptorSRV(ID3D12Resource* resource, const D3D12_SHADER_RESOURCE_VIEW_DESC* desc);
 		D3D12_GPU_DESCRIPTOR_HANDLE AddDescriptorCBV(const D3D12_CONSTANT_BUFFER_VIEW_DESC* cbvDesc);
@@ -64,13 +75,33 @@ namespace TruthEngine::API::DirectX12 {
 		D3D12_CPU_DESCRIPTOR_HANDLE AddDescriptorRTV(ID3D12Resource* resource);
 		D3D12_CPU_DESCRIPTOR_HANDLE AddDescriptorDSV(ID3D12Resource* resource, const D3D12_DEPTH_STENCIL_VIEW_DESC* desc);
 
-		inline DescriptorHeapSRV& GetDescriptorHeapSRV()
+		inline DescriptorHeapSRV& GetDescriptorHeapSRV() noexcept
 		{
 			return m_DescHeapSRV;
 		}
 
+		inline DescriptorHeapDSV& GetDescriptorHeapDSV() noexcept
+		{
+			return m_DescHeapDSV;
+		}
+
+		inline DescriptorHeapRTV& GetDescriptorHeapRTV() noexcept
+		{
+			return m_DescHeapRTV;
+		}
+
+
+
 	private:
+
+		void CreateShaderResourceView(Texture* texture, ShaderResourceView* _outSRV) override;
+
+		void CreateShaderResourceView(Buffer* _Buffer, ShaderResourceView* _outSRV, uint32_t frameIndex) override;
+
+
 		TE_RESULT CreateResource(BufferUpload* buffer) override;
+
+		TE_RESULT CreateResource(Buffer* buffer) override;
 
 		TE_RESULT CreateResource(TextureRenderTarget* tRT) override;
 
@@ -82,12 +113,13 @@ namespace TruthEngine::API::DirectX12 {
 
 		TE_RESULT CreateResource(TextureMaterial* texture) override;
 
+		void OnReCreateResource(TE_IDX_GRESOURCES _IDX, uint32_t _ResourceIndexOffset) override;
+		void OnReCreateResource(GraphicResource* _GResource, uint32_t _ResourceIndexOffset) override;
+
 
 	private:
 
-		uint32_t m_OffsetSRVMaterialTexture_Diffuse = 50;
-		uint32_t m_OffsetSRVMaterialTexture_Normal = 400;
-		uint32_t m_OffsetSRVMaterialTexture_Displacement = 700;
+		uint32_t m_OffsetSRVMaterialTexture = 50;
 		uint32_t m_IndexSRVMaterialTexture_Diffuse = 0;
 		uint32_t m_IndexSRVMaterialTexture_Normal = 0;
 		uint32_t m_IndexSRVMaterialTexture_Displacement = 0;
@@ -103,11 +135,10 @@ namespace TruthEngine::API::DirectX12 {
 		D3D12_RECT m_Rect_FullScreen;
 
 		std::vector<D3D12_VERTEX_BUFFER_VIEW> m_VertexBufferViews;
-
 		std::vector<D3D12_INDEX_BUFFER_VIEW> m_IndexBufferViews;
 
-		std::unordered_map<TE_IDX_CONSTANTBUFFER, D3D12_GPU_DESCRIPTOR_HANDLE> m_UnboundedConstantBuffers;
-
+		std::unordered_map <TE_IDX_GRESOURCES, std::vector<uint32_t>> m_Map_SRVs;
+		std::unordered_map <TE_IDX_GRESOURCES, std::vector<uint32_t>> m_Map_UAVs;
 
 		//
 		// Friend Classes
@@ -120,4 +151,4 @@ namespace TruthEngine::API::DirectX12 {
 
 }
 
-#define TE_INSTANCE_API_DX12_BUFFERMANAGER TruthEngine::API::DirectX12::DX12BufferManager::GetInstance()
+#define TE_INSTANCE_API_DX12_BUFFERMANAGER TruthEngine::API::DirectX12::DirectX12BufferManager::GetInstance()

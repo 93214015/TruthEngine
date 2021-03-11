@@ -23,10 +23,10 @@ namespace TruthEngine
 	class ConstantBuffer
 	{
 	public:
-		ConstantBuffer(TE_IDX_CONSTANTBUFFER idx);
+		ConstantBuffer(TE_IDX_GRESOURCES idx);
 
 
-		inline TE_IDX_CONSTANTBUFFER GetIDX() const noexcept
+		inline TE_IDX_GRESOURCES GetIDX() const noexcept
 		{
 			return m_IDX;
 		}
@@ -34,7 +34,7 @@ namespace TruthEngine
 	protected:
 
 	protected:
-		TE_IDX_CONSTANTBUFFER m_IDX;
+		TE_IDX_GRESOURCES m_IDX;
 	};
 	
 	
@@ -42,8 +42,8 @@ namespace TruthEngine
 	class ConstantBufferUploadBase : public ConstantBuffer, public BufferUpload
 	{
 	public:
-		ConstantBufferUploadBase(TE_IDX_CONSTANTBUFFER idx, size_t sizeInByte)
-			: ConstantBuffer(idx) , BufferUpload(sizeInByte, TE_RESOURCE_USAGE_CONSTANTBUFFER)
+		ConstantBufferUploadBase(TE_IDX_GRESOURCES idx, size_t sizeInByte)
+			: ConstantBuffer(idx) , BufferUpload(idx, sizeInByte, TE_RESOURCE_USAGE_CONSTANTBUFFER)
 		{};
 
 		virtual ~ConstantBufferUploadBase() = default;
@@ -65,7 +65,7 @@ namespace TruthEngine
 	{
 	public:
 
-		ConstantBufferUpload(TE_IDX_CONSTANTBUFFER idx) 
+		ConstantBufferUpload(TE_IDX_GRESOURCES idx) 
 			: ConstantBufferUploadBase(idx, sizeof(T))
 		{};
 		
@@ -93,38 +93,11 @@ namespace TruthEngine
 		friend class TruthEngine::API::DirectX12::DirectX12BufferManager;
 	};
 
-	template<class T>
-	class ConstantBufferUploadArray : public ConstantBufferUploadBase
-	{
-	public:
-		ConstantBufferUploadArray(TE_IDX_CONSTANTBUFFER idx, uint32_t arrayNum)
-			: ConstantBufferUploadBase(idx, sizeof(T) * arrayNum)
-		{
-			m_DataArray.resize(ArrayNum);
-		}
-
-		virtual ~ConstantBufferUploadArray() = default;
-
-		T& operator[](uint32_t index)
-		{
-			return reinterpret_cast<T*>(m_MappedData)[index];
-		}
-
-		void UploadData()const
-		{}
-
-
-	protected:
-
-
-	protected:
-	};
-
 
 	class ConstantBufferDirectBase : public ConstantBuffer
 	{
 	public:
-		ConstantBufferDirectBase(TE_IDX_CONSTANTBUFFER idx);
+		ConstantBufferDirectBase(TE_IDX_GRESOURCES idx);
 		virtual ~ConstantBufferDirectBase();
 
 

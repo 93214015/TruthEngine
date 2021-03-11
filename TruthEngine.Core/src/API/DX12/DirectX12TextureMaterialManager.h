@@ -18,20 +18,25 @@ namespace TruthEngine
 			uint32_t CreateTextureMaterialNormal(uint32_t texIndex) override;
 			uint32_t CreateTextureMaterialDisplacement(uint32_t texIndex) override;*/
 
-			D3D12_GPU_DESCRIPTOR_HANDLE GetGPUHandle()const;
+			CD3DX12_GPU_DESCRIPTOR_HANDLE GetGPUHandle()const;
 
 			inline uint32_t GetIndexOffset()const noexcept
 			{
 				return m_DefaultOffset;
 			}
 
+			static DirectX12TextureMaterialManager* GetInstance()
+			{
+				static DirectX12TextureMaterialManager s_Instance;
+				return &s_Instance;
+			}
 
 		protected:
 			void CreateTextureView(TextureMaterial* tex);
 
 
 		protected:
-			const uint32_t m_DefaultOffset = 50;
+			const uint32_t m_DefaultOffset = 150;
 			//const uint32_t m_DefaultOffset_Normal = 400;
 			//const uint32_t m_DefaultOffset_Displacement = 700;
 

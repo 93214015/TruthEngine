@@ -4,12 +4,12 @@
 namespace TruthEngine {
 
 
-	ConstantBuffer::ConstantBuffer(TE_IDX_CONSTANTBUFFER idx)
+	ConstantBuffer::ConstantBuffer(TE_IDX_GRESOURCES idx)
 		: m_IDX(idx)
 	{
 	}
 
-	ConstantBufferDirectBase::ConstantBufferDirectBase(TE_IDX_CONSTANTBUFFER idx)
+	ConstantBufferDirectBase::ConstantBufferDirectBase(TE_IDX_GRESOURCES idx)
 		: ConstantBuffer(idx)
 	{
 	}

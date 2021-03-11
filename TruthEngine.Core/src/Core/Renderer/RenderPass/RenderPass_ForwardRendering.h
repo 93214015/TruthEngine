@@ -15,6 +15,7 @@ namespace TruthEngine
 	class Material;
 	class EventEntityAddMaterial;
 	class EventEntityUpdateMaterial;
+	class EventTextureResize;
 
 
 	class RenderPass_ForwardRendering : public RenderPass
@@ -38,7 +39,6 @@ namespace TruthEngine
 
 		void Render() override;
 
-		void OnSceneViewportResize(uint32_t width, uint32_t height) override;
 
 	private:
 		void PreparePiplineMaterial(const Material* material);
@@ -46,6 +46,7 @@ namespace TruthEngine
 
 		void RegisterOnEvents();
 
+		void OnRenderTargetResize(const EventTextureResize& _Event);
 		void OnAddMaterial(EventEntityAddMaterial& event);
 		void OnUpdateMaterial(const EventEntityUpdateMaterial& event);
 	private:
@@ -63,8 +64,8 @@ namespace TruthEngine
 
 		BufferManager* m_BufferMgr;
 
-		std::unordered_map<uint32_t, std::shared_ptr<Pipeline>> m_MaterialPipelines;
-		std::shared_ptr<Pipeline> m_PipelineEnvironmentCube;
+		std::unordered_map<uint32_t, PipelineGraphics*> m_MaterialPipelines;
+		PipelineGraphics* m_PipelineEnvironmentCube = nullptr;
 
 		struct ConstantBuffer_Data_Per_Mesh
 		{

@@ -21,7 +21,7 @@ namespace TruthEngine {
 	}
 
 	CommandList::CommandList(TE_IDX_RENDERPASS renderPassIDX, TE_IDX_SHADERCLASS shaderClassIDX, uint8_t frameIndex)
-		:  m_RenderPassIDX(renderPassIDX), m_ShaderClassIDX(shaderClassIDX), m_ShaderSignature(ShaderManager::GetInstance()->GetShaderSignature(shaderClassIDX)), m_FrameIndex(frameIndex)
+		:  m_RenderPassIDX(renderPassIDX), m_ShaderClassIDX(shaderClassIDX), m_FrameIndex(frameIndex)
 	{
 	}
 

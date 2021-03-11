@@ -14,7 +14,7 @@ namespace TruthEngine::API::DirectX12 {
 		inline ID3D12CommandAllocator* GetNativeObject() { return m_CommandAllocator.Get(); }
 //		inline ID3D12CommandAllocator* operator->() { return m_CommandAllocator.Get(); }
 
-		inline void Release() { m_CommandAllocator.Reset(); }
+		void Release();
 
 		bool IsRunning();
 

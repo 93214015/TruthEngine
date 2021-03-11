@@ -60,10 +60,10 @@ namespace TruthEngine
 		m_LayerStack.PushLayer(m_RendererLayer.get());
 
 		auto lightManager = LightManager::GetInstace();
-		auto dirLight0 = lightManager->AddLightDirectional("dlight_0", float4{ 0.8f, 0.8f, 0.8f, 0.8f }, float4{ 0.3f, 0.3f, 0.3f, 0.3f }, float4{ 0.0f, 0.0f, 0.0f, 0.0f }, float3{ .38f, -.60f, .71f }, float3{ -42.0f, 66.0f, -80.0f }, 0.05f, true, 200.0f);
+		const float4 _cascadeCoveringPercentage = { .07f, .21f, .4f, 1.0f };
+		auto dirLight0 = lightManager->AddLightDirectional("dlight_0", float4{ 0.8f, 0.8f, 0.8f, 0.8f }, float4{ 0.3f, 0.3f, 0.3f, 0.3f }, float4{ 0.0f, 0.0f, 0.0f, 0.0f }, float3{ .38f, -.60f, .71f }, float3{ -42.0f, 66.0f, -80.0f }, 0.05f, true, 200.0f, _cascadeCoveringPercentage);
 		//lightManager->AddLightCamera(dirLight0, TE_CAMERA_TYPE::Perspective);
-		const float _cascadeCoveringPercentage[] = { .008f, .03f, .1f, 1.0f };
-		lightManager->AddLightCameraCascaded<4>(dirLight0, _cascadeCoveringPercentage, TE_CAMERA_TYPE::Orthographic);
+		
 
 		auto entityLight = m_ActiveScene.AddEntity("Directional Light 0");
 		entityLight.AddComponent<LightComponent>(dirLight0);
@@ -313,6 +313,20 @@ namespace TruthEngine
 				ImGui::End();
 			}//End of Render Scene Viewport
 
+
+			//Render Scene Property Panel
+			{
+				ImGui::Begin("Scene Properties");
+
+				bool _IsEnvironmentMapEnabled = m_RendererLayer->IsEnvironmentMapEnabled();
+
+				if (ImGui::Checkbox("Environment Map", &_IsEnvironmentMapEnabled))
+				{
+					m_RendererLayer->SetEnabledEnvironmentMap(_IsEnvironmentMapEnabled);
+				}
+
+				ImGui::End();
+			}
 
 			//Render scene Hierarchy Panel
 			{

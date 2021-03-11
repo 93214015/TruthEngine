@@ -39,7 +39,10 @@ namespace TruthEngine::API::DirectX12
 #if defined(TE_DEBUG)
 		{
 			Microsoft::WRL::ComPtr<ID3D12Debug> debuglayer;
+			Microsoft::WRL::ComPtr<ID3D12Debug1> debuglayer1;
 			auto result = D3D12GetDebugInterface(IID_PPV_ARGS(debuglayer.GetAddressOf()));
+			/*debuglayer->QueryInterface(IID_PPV_ARGS(&debuglayer1));
+			debuglayer1->SetEnableGPUBasedValidation(true);*/
 
 			TE_ASSERT_CORE(TE_SUCCEEDED(result), "API::DirectX12  Enabling DX12 Debug Layer is failed!");
 
@@ -74,6 +77,7 @@ namespace TruthEngine::API::DirectX12
 		result = m_CommandQueueDirect.Init(this);
 		TE_ASSERT_CORE(TE_SUCCEEDED(result), "API::DirectX12  PrimaryDirectCommandQueue Creation was failed!");
 
+		//HRESULT _hr = m_CommandQueueDirect.GetNativeObject()->QueryInterface(IID_PPV_ARGS(m_DebugCommandQueue.ReleaseAndGetAddressOf()));
 
 		return TE_SUCCESSFUL;
 	}

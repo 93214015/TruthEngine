@@ -33,7 +33,32 @@ namespace TruthEngine
 
 	Entity Scene::AddMeshEntity(const char* meshName, const float4x4& transform, Mesh* mesh, Material* material, Entity parentEntity)
 	{
-		auto entity_mesh = AddEntity(meshName, parentEntity, transform);
+
+		//
+		///Here we are trying to place new Mesh near the selected entity
+		//
+		float4x4 _Transform = transform;
+		if (m_SelectedEntity)
+		{
+			if (HasComponent<BoundingBoxComponent>(m_SelectedEntity))
+			{
+				const BoundingBox& _AABB = GetComponent<BoundingBoxComponent>(m_SelectedEntity).GetBoundingBox();
+				const float4x4& _transformOffset = GetComponent<TransformComponent>(m_SelectedEntity).GetTransform();
+				_Transform._41 += _transformOffset._41;
+				_Transform._42 += _transformOffset._42 + (_AABB.Extents.y * 2.0);
+				_Transform._43 += _transformOffset._43;
+
+				float3 _v{0.0f, 1.0f, 0.0f};
+
+				_v = Math::TransformVector(_v, _transformOffset);
+
+				_Transform._41 += _v.x;
+				_Transform._42 += _v.y;
+				_Transform._43 += _v.z;
+			}
+		}
+
+		auto entity_mesh = AddEntity(meshName, parentEntity, _Transform);
 		entity_mesh.AddComponent<MeshComponent>(mesh);
 		entity_mesh.AddComponent<MaterialComponent>(material);
 		const auto& _meshAABB = mesh->GetBoundingBox();

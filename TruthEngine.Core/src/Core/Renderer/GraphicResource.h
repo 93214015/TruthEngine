@@ -21,7 +21,8 @@ namespace TruthEngine
 	public:
 
 		GraphicResource(
-			TE_RESOURCE_USAGE usage
+			TE_IDX_GRESOURCES _IDX
+			,TE_RESOURCE_USAGE usage
 			, TE_RESOURCE_TYPE type
 			, TE_RESOURCE_STATES initState
 		);
@@ -43,6 +44,7 @@ namespace TruthEngine
 		TE_RESOURCE_USAGE m_Usage = TE_RESOURCE_USAGE_UNKNOWN;
 		TE_RESOURCE_TYPE m_Type = TE_RESOURCE_TYPE::UNKNOWN;
 		TE_RESOURCE_STATES m_State = TE_RESOURCE_STATES::COMMON;
+		TE_IDX_GRESOURCES m_IDX = TE_IDX_GRESOURCES::NONE;
 
 
 		//

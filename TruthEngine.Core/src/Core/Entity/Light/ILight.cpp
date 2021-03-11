@@ -109,9 +109,5 @@ namespace TruthEngine
 		TE_INSTANCE_APPLICATION->OnEvent(event);
 	}
 
-	void ILight::SetUseCascadedShadows(const bool _use) noexcept
-	{
-		m_UseCascadedShadows = _use;
-	}
 
 }

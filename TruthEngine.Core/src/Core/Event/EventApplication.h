@@ -48,13 +48,13 @@ namespace TruthEngine {
 	class EventTextureResize : public Event 
 	{
 	public:
-		EventTextureResize(const uint16_t width, const uint16_t height, TE_IDX_TEXTURE texturedIDX)
+		EventTextureResize(const uint16_t width, const uint16_t height, TE_IDX_GRESOURCES texturedIDX)
 			: m_Width(width), m_Height(height), m_TextureIDX(texturedIDX)
 		{}
 
 		uint32_t GetWidth() const noexcept { return m_Width; }
 		uint32_t GetHeight() const noexcept { return m_Height; }
-		TE_IDX_TEXTURE GetIDX()const noexcept { return m_TextureIDX; }
+		TE_IDX_GRESOURCES GetIDX()const noexcept { return m_TextureIDX; }
 
 
 		EVENT_CLASS_TYPE(RenderTargetResize)
@@ -62,7 +62,7 @@ namespace TruthEngine {
 
 	protected:
 		uint16_t m_Width, m_Height;
-		TE_IDX_TEXTURE m_TextureIDX;
+		TE_IDX_GRESOURCES m_TextureIDX;
 	};
 
 

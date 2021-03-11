@@ -7,6 +7,7 @@
 
 #include "RenderPass/RenderPass_ForwardRendering.h"
 #include "RenderPass/RenderPass_GenerateShadowMap.h"
+#include "RenderPass/RenderPass_PostProcessing_HDR.h"
 
 
 namespace TruthEngine
@@ -55,6 +56,12 @@ namespace TruthEngine
 			return m_ImGuiLayer.get();
 		}
 
+		void SetEnabledEnvironmentMap(bool _EnabledEnvironmentMap);
+
+		bool IsEnvironmentMapEnabled()const noexcept
+		{
+			return m_EnabledEnvironmentMap;
+		}
 
 	private:
 		void RegisterEvents();
@@ -66,7 +73,6 @@ namespace TruthEngine
 		void OnUpdateLight(const EventEntityUpdateLight& event);
 		void OnAddLight(const EventEntityAddLight& event);
 
-		void _ChangeUnfrequentBuffer_EnabledEnvironmentMap(bool _EnabledEnvironmentMap);
 		void _ChangeUnfrequentBuffer_LightDirectionalLight(uint32_t _LightDirectionalCount);
 
 		void InitTextures();
@@ -81,6 +87,7 @@ namespace TruthEngine
 
 		std::shared_ptr<RenderPass_ForwardRendering> m_RenderPass_ForwardRendering;
 		std::shared_ptr<RenderPass_GenerateShadowMap> m_RenderPass_GenerateShadowMap;
+		std::shared_ptr<RenderPass_PostProcessing_HDR> m_RenderPass_PostProcessing_HDR;
 
 		std::shared_ptr<ModelManager> m_ModelManagers;
 
@@ -98,6 +105,7 @@ namespace TruthEngine
 		std::map<int, int> m_Map_DLightToCBuffer;
 
 		bool m_EnabledImGuiLayer = true;
+		bool m_EnabledEnvironmentMap = false;
 
 		TimerProfile_OneSecond m_TimerRenderLayerUpdate;
 

@@ -137,7 +137,7 @@ namespace TruthEngine::API::DirectX12
 
 
 
-	COMPTR<ID3D12PipelineState> DirectX12PiplineManager::GetPipeline(Pipeline* pipeline)
+	COMPTR<ID3D12PipelineState> DirectX12PiplineManager::GetGraphicsPipeline(PipelineGraphics* pipeline)
 	{
 		COMPTR<ID3D12PipelineState> PSO;
 
@@ -146,6 +146,8 @@ namespace TruthEngine::API::DirectX12
 		//
 
 		D3D12_GRAPHICS_PIPELINE_STATE_DESC desc = { 0 };
+		
+
 
 		const auto shader = pipeline->GetShader();
 		const auto states = pipeline->GetStates();
@@ -219,22 +221,67 @@ namespace TruthEngine::API::DirectX12
 
 		if (FAILED(hr))
 		{
-			AddPipeline(pipeline, PSO, desc);
+			AddGraphicsPipeline(pipeline, PSO, desc);
+		}
+
+		return PSO;
+	}
+
+	COMPTR<ID3D12PipelineState> DirectX12PiplineManager::GetComputePipeline(PipelineCompute* pipeline)
+	{
+		COMPTR<ID3D12PipelineState> PSO;
+
+		Shader* _Shader = pipeline->GetShader();
+
+		/*DirectX12ShaderManager _ShaderManager;
+		auto _ShaderCode = _ShaderManager.CompileShader_OLD("shaderTest.hlsl", 200, "Assets/Shaders/HDR_DownScaling.hlsl", "HDRDownScalingFirstPass", "cs");*/
+
+		//
+		////CreatePipline Desc
+		//
+
+
+		D3D12_COMPUTE_PIPELINE_STATE_DESC desc = { 0 };
+		desc.CS = CD3DX12_SHADER_BYTECODE(_Shader->GetCS().BufferPointer, _Shader->GetCS().BufferSize);
+		//desc.CS = CD3DX12_SHADER_BYTECODE(_ShaderCode.BufferPointer, _ShaderCode.BufferSize);
+		desc.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
+		desc.NodeMask = 0;
+
+		desc.pRootSignature = DirectX12Manager::GetInstance()->GetD3D12RootSignature(_Shader->GetShaderClassIDX());
+
+		auto _HR = m_PiplineLibrary->LoadComputePipeline(to_wstring(pipeline->m_Name).c_str(), &desc, IID_PPV_ARGS(PSO.GetAddressOf()));
+
+		if (FAILED(_HR))
+		{
+			AddComputePipeline(pipeline, PSO, desc);
 		}
 
 		return PSO;
 	}
 
 
-	TE_RESULT DirectX12PiplineManager::AddPipeline(Pipeline* pipeline, COMPTR<ID3D12PipelineState>& PSO, D3D12_GRAPHICS_PIPELINE_STATE_DESC& desc)
+	TE_RESULT DirectX12PiplineManager::AddGraphicsPipeline(PipelineGraphics* pipeline, COMPTR<ID3D12PipelineState>& PSO, D3D12_GRAPHICS_PIPELINE_STATE_DESC& desc)
 	{
 		auto hr = TE_INSTANCE_API_DX12_GRAPHICDEVICE->CreateGraphicsPipelineState(&desc, IID_PPV_ARGS(PSO.GetAddressOf()));
-		TE_ASSERT_CORE(TE_SUCCEEDED(hr), "Pipeline Creation failed!");
+		TE_ASSERT_CORE(TE_SUCCEEDED(hr), "PipelineGraphics Creation failed!");
 
 		pipeline->m_Name = std::string("PSO_") + std::to_string(m_PipelineNum);
 		hr = m_PiplineLibrary->StorePipeline(to_wstring(pipeline->m_Name).c_str(), PSO.Get());
 
-		pipeline->m_ID = m_PipelineNum++;
+		m_PipelineNum++;
+
+		return SUCCEEDED(hr) ? TE_SUCCESSFUL : TE_FAIL;
+	}
+
+	TE_RESULT DirectX12PiplineManager::AddComputePipeline(PipelineCompute* pipeline, COMPTR<ID3D12PipelineState>& PSO, D3D12_COMPUTE_PIPELINE_STATE_DESC& desc)
+	{
+		auto hr = TE_INSTANCE_API_DX12_GRAPHICDEVICE->CreateComputePipelineState(&desc, IID_PPV_ARGS(PSO.GetAddressOf()));
+		TE_ASSERT_CORE(TE_SUCCEEDED(hr), "PipelineCompute Creation failed!");
+
+		pipeline->m_Name = std::string("PSO_") + std::to_string(m_PipelineNum);
+		hr = m_PiplineLibrary->StorePipeline(to_wstring(pipeline->m_Name).c_str(), PSO.Get());
+
+		m_PipelineNum++;
 
 		return SUCCEEDED(hr) ? TE_SUCCESSFUL : TE_FAIL;
 	}

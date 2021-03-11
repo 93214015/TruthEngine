@@ -84,7 +84,16 @@ float3 BlinnPhong(float3 lightStrength, float3 lightVec, float3 normal, float3 t
 //////////////// Constant Buffers
 ///////////////////////////////////////////////////
 
-cbuffer CBPerFrame : register(b0)
+cbuffer per_mesh : register(b0)
+{
+    row_major matrix gWorld;
+    row_major matrix gWorldInverseTranspose;
+    
+    uint materialIndex;
+    float3 padPerMesh;
+}
+
+cbuffer CBPerFrame : register(b1)
 {
     row_major matrix viewProj;
     
@@ -94,30 +103,21 @@ cbuffer CBPerFrame : register(b0)
     row_major matrix gCascadedShadowTransform[4];
 }
 
-cbuffer CBLightData : register(b1)
+cbuffer CBLightData : register(b2)
 {
     CLightDirectionalData gDLights[1];
 }
 
-cbuffer CBMaterials : register(b2)
+cbuffer CBMaterials : register(b3)
 {
     Material MaterialArray[200];
 }
 
-cbuffer CBUnfrequent : register(b3)
+cbuffer CBUnfrequent : register(b4)
 {
     uint gDLightCount;
     bool gEnabledEnvironmentMap;
     uint2 padCBunfrequent;
-}
-
-cbuffer per_mesh : register(b4)
-{
-    row_major matrix gWorld;
-    row_major matrix gWorldInverseTranspose;
-    
-    uint materialIndex;
-    float3 padPerMesh;
 }
 
 ///////////////////////////////////////////////////

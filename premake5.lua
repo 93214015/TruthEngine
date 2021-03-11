@@ -67,7 +67,8 @@ links
 	"PhysXExtensions_static_64.lib",
 	"PhysXFoundation_static_64.lib",
 	"PhysXPvdSDK_static_64.lib",
-	"PhysXVehicle_static_64.lib"
+	"PhysXVehicle_static_64.lib",
+	"DirectXMesh.lib"
 }
 
 
@@ -77,6 +78,7 @@ filter "configurations:Debug"
 			"%{wks.location}/Dependencies/GeometryGenerator/lib/x64/Debug",
 			"%{wks.location}/Dependencies/Physx/lib/debug",
 			"%{wks.location}/Dependencies/assimp/lib/debug",
+			"%{wks.location}/Dependencies/DirectXMesh/lib/X64-Debug",
 		}
 		links
 		{
@@ -94,6 +96,7 @@ filter "configurations:Release"
 			"%{wks.location}/Dependencies/GeometryGenerator/lib/x64/Release",
 			"%{wks.location}/Dependencies/Physx/lib/release",
 			"%{wks.location}/Dependencies/assimp/lib/release",
+			"%{wks.location}/Dependencies/DirectXMesh/lib/X64-Release",
 		}		
 		links
 		{

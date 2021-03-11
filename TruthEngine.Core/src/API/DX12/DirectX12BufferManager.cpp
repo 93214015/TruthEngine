@@ -91,7 +91,7 @@ namespace TruthEngine::API::DirectX12
 			resourceFlags |= D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
 		}
 
-		if (usage & TE_RESOURCE_USAGE_UAV)
+		if (usage & TE_RESOURCE_USAGE_UNORDEREDACCESS)
 		{
 			resourceFlags |= D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
 		}
@@ -106,6 +106,7 @@ namespace TruthEngine::API::DirectX12
 
 		const auto resourceFlags = GetResourceFlags(usage);
 		return CD3DX12_RESOURCE_DESC1::Buffer(sizeInByte, resourceFlags);
+
 	}
 
 
@@ -138,7 +139,7 @@ namespace TruthEngine::API::DirectX12
 		case TE_RESOURCE_USAGE_DEPTHSTENCIL:
 			return D3D12_RESOURCE_STATE_DEPTH_WRITE;
 			break;
-		case TE_RESOURCE_USAGE_UAV:
+		case TE_RESOURCE_USAGE_UNORDEREDACCESS:
 			return D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
 			break;
 		case TE_RESOURCE_USAGE_SHADERRESOURCE:
@@ -157,6 +158,7 @@ namespace TruthEngine::API::DirectX12
 
 		COMPTR<ID3D12Resource>* resource;
 
+		bool _ReCreation = false;
 		if (tRT->m_ResourceIndex == -1)
 		{
 			tRT->m_ResourceIndex = static_cast<uint32_t>(m_Resources.size());
@@ -165,6 +167,7 @@ namespace TruthEngine::API::DirectX12
 		}
 		else
 		{
+			_ReCreation = true;
 			resource = std::addressof(m_Resources[tRT->m_ResourceIndex]);
 		}
 
@@ -177,6 +180,11 @@ namespace TruthEngine::API::DirectX12
 			, &v
 			, nullptr, IID_PPV_ARGS(resource->ReleaseAndGetAddressOf()));
 
+		if (_ReCreation)
+		{
+			OnReCreateResource(tRT, 0);
+		}
+
 		return SUCCEEDED(hr) ? TE_SUCCESSFUL : TE_RESULT::TE_FAIL;
 	}
 
@@ -184,6 +192,7 @@ namespace TruthEngine::API::DirectX12
 	{
 		const auto desc = GetTextureDesc(tDS);
 
+		bool _ReCreation = false;
 		COMPTR<ID3D12Resource>* resource;
 		if (tDS->m_ResourceIndex == -1)
 		{
@@ -193,6 +202,7 @@ namespace TruthEngine::API::DirectX12
 		}
 		else
 		{
+			_ReCreation = true;
 			resource = &m_Resources[tDS->m_ResourceIndex];
 		}
 
@@ -201,9 +211,15 @@ namespace TruthEngine::API::DirectX12
 		auto hr = TE_INSTANCE_API_DX12_GRAPHICDEVICE->CreateCommittedResource2(
 			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT)
 			, D3D12_HEAP_FLAG_NONE
-			, &desc, DX12_GET_STATE(tDS->m_State), &v
-			, nullptr, IID_PPV_ARGS(resource->ReleaseAndGetAddressOf()));
+			, &desc, DX12_GET_STATE(tDS->m_State)
+			, &v
+			, nullptr
+			, IID_PPV_ARGS(resource->ReleaseAndGetAddressOf()));
 
+		if (_ReCreation)
+		{
+			OnReCreateResource(tDS, 0);
+		}
 
 		return SUCCEEDED(hr) ? TE_SUCCESSFUL : TE_RESULT::TE_FAIL;
 	}
@@ -217,6 +233,7 @@ namespace TruthEngine::API::DirectX12
 
 		HRESULT hr;
 
+		bool _ReCreation = false;
 		if (buffer->m_ResourceIndex == -1)
 		{
 			buffer->m_ResourceIndex = static_cast<uint32_t>(m_Resources.size());
@@ -224,11 +241,12 @@ namespace TruthEngine::API::DirectX12
 			for (uint8_t i = 0; i < framesOnTheFly; ++i)
 				m_Resources.emplace_back();
 
-			resource = &m_Resources[buffer->m_ResourceIndex];
+			resource = std::addressof(m_Resources[buffer->m_ResourceIndex]);
 		}
 		else
 		{
-			resource = &m_Resources[buffer->m_ResourceIndex];
+			_ReCreation = true;
+			resource = std::addressof(m_Resources[buffer->m_ResourceIndex]);
 		}
 
 		const auto desc = GetBufferDesc(buffer->m_SizeInByte, buffer->m_Usage);
@@ -244,6 +262,11 @@ namespace TruthEngine::API::DirectX12
 			CD3DX12_RANGE range(0, 0);
 
 			resource[i]->Map(0, &range, reinterpret_cast<void**>(&buffer->m_MappedData[i]));
+
+			if (_ReCreation)
+			{
+				OnReCreateResource(buffer, i);
+			}
 		}
 
 		return SUCCEEDED(hr) ? TE_SUCCESSFUL : TE_RESULT::TE_FAIL;
@@ -329,6 +352,101 @@ namespace TruthEngine::API::DirectX12
 		return TE_SUCCESSFUL;
 	}
 
+	void DirectX12BufferManager::OnReCreateResource(TE_IDX_GRESOURCES _IDX, uint32_t _ResourceIndexOffset)
+	{
+		GraphicResource* _GResource = m_Map_GraphicResources.find(_IDX)->second;
+		OnReCreateResource(_GResource, _ResourceIndexOffset);
+	}
+
+	void DirectX12BufferManager::OnReCreateResource(GraphicResource* _GResource, uint32_t _ResourceIndexOffset)
+	{
+		if (_GResource->m_Usage & TE_RESOURCE_USAGE_SHADERRESOURCE)
+		{
+			auto _Itr = m_Map_SRVs.find(_GResource->m_IDX);
+			if (_Itr != m_Map_SRVs.end())
+			{
+				//for (uint32_t _ViewHeapOffset : _Itr->second)
+				for (uint32_t i = 0; i < _Itr->second.size(); ++i)
+				{
+					ShaderResourceView _SRV{ _Itr->second[i], _GResource->m_ResourceIndex, _GResource };
+					CreateShaderResourceView(_GResource, &_SRV, _ResourceIndexOffset);
+				}
+			}
+		}
+		if (_GResource->m_Usage & TE_RESOURCE_USAGE_UNORDEREDACCESS)
+		{
+			auto& _Itr = m_Map_UAVs.find(_GResource->m_IDX);
+			if (_Itr != m_Map_UAVs.end())
+			{
+				for (uint32_t _ViewHeapOffset : _Itr->second)
+				{
+					UnorderedAccessView _UAV{ _ViewHeapOffset, _GResource->m_ResourceIndex, static_cast<Buffer*>(_GResource) };
+					CreateUnorderedAccessView(static_cast<Buffer*>(_GResource), &_UAV);
+				}
+			}
+		}
+	}
+
+	TE_RESULT DirectX12BufferManager::CreateResource(Buffer* _Buffer)
+	{
+
+		auto _FramesOnTheFly = TE_INSTANCE_APPLICATION->GetFramesOnTheFlyNum();
+
+		_FramesOnTheFly = ((_Buffer->m_Usage & TE_RESOURCE_USAGE_CONSTANTBUFFER) || !(_Buffer->m_Usage & TE_RESOURCE_USAGE_UNORDEREDACCESS)) ? _FramesOnTheFly : 1;
+
+		COMPTR<ID3D12Resource>* _D3DResource;
+
+
+		bool _ReCreation = false;
+		if (_Buffer->m_ResourceIndex == -1)
+		{
+			_Buffer->m_ResourceIndex = static_cast<uint32_t>(m_Resources.size());
+
+			for (uint8_t i = 0; i < _FramesOnTheFly; ++i)
+				m_Resources.emplace_back();
+
+			_D3DResource = std::addressof(m_Resources[_Buffer->m_ResourceIndex]);
+
+		}
+		else
+		{
+			_ReCreation = true;
+			_D3DResource = std::addressof(m_Resources.emplace_back());
+		}
+
+		HRESULT hr;
+
+		D3D12_RESOURCE_DESC1 _BufferDesc = GetBufferDesc(_Buffer->GetSizeInByte(), _Buffer->m_Usage);
+
+		D3D12_HEAP_TYPE _HeapType = _Buffer->m_IsUploadHeapBuffer ? D3D12_HEAP_TYPE_UPLOAD : D3D12_HEAP_TYPE_DEFAULT;
+
+		for (uint8_t i = 0; i < _FramesOnTheFly; ++i)
+		{
+
+			hr = TE_INSTANCE_API_DX12_GRAPHICDEVICE->CreateCommittedResource2(
+				&CD3DX12_HEAP_PROPERTIES(_HeapType)
+				, D3D12_HEAP_FLAG_NONE
+				, &_BufferDesc
+				, DX12_GET_STATE(_Buffer->m_State)
+				, nullptr
+				, nullptr
+				, IID_PPV_ARGS(_D3DResource->ReleaseAndGetAddressOf())
+			);
+
+			CD3DX12_RANGE range(0, 0);
+
+			if (_Buffer->m_IsUploadHeapBuffer)
+				_D3DResource[i]->Map(0, &range, reinterpret_cast<void**>(&_Buffer->m_MappedData[i]));
+
+			if (_ReCreation)
+			{
+				OnReCreateResource(_Buffer, i);
+			}
+		}
+
+		return SUCCEEDED(hr) ? TE_SUCCESSFUL : TE_RESULT::TE_FAIL;
+	}
+
 
 	void DirectX12BufferManager::CreateRenderTargetView(TextureRenderTarget* RT, RenderTargetView* RTV)
 	{
@@ -373,11 +491,6 @@ namespace TruthEngine::API::DirectX12
 
 	}
 
-	void DirectX12BufferManager::CreateShaderResourceView(Texture* textures[], uint32_t textureNum, ShaderResourceView* SRV)
-	{
-		throw;
-	}
-
 	void DirectX12BufferManager::CreateShaderResourceView(Texture* texture, ShaderResourceView* SRV)
 	{
 
@@ -387,87 +500,113 @@ namespace TruthEngine::API::DirectX12
 		_SRVDesc.Format = _ResourceDesc.Format;
 		_SRVDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 
+
+		switch (texture->m_Type)
+		{
+		case TE_RESOURCE_TYPE::TEXTURE1D:
+		{
+			_SRVDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE1D;
+			_SRVDesc.Texture1D.MipLevels = _ResourceDesc.MipLevels;
+			_SRVDesc.Texture1D.MostDetailedMip = 0;
+			_SRVDesc.Texture1D.ResourceMinLODClamp = 0.0f;
+			break;
+		}
+		case TE_RESOURCE_TYPE::TEXTURE2D:
+		{
+			_SRVDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+			_SRVDesc.Texture2D.MipLevels = _ResourceDesc.MipLevels;
+			_SRVDesc.Texture2D.MostDetailedMip = 0;
+			_SRVDesc.Texture2D.ResourceMinLODClamp = 0.0f;
+			_SRVDesc.Texture2D.PlaneSlice = 0;
+			break;
+		}
+		case TE_RESOURCE_TYPE::TEXTURE3D:
+			_SRVDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE3D;
+			_SRVDesc.Texture3D.MipLevels = _ResourceDesc.MipLevels;
+			_SRVDesc.Texture3D.MostDetailedMip = 0;
+			_SRVDesc.Texture3D.ResourceMinLODClamp = 0.0f;
+			break;
+		case TE_RESOURCE_TYPE::TEXTURECUBE:
+			_SRVDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
+			_SRVDesc.TextureCube.MipLevels = _ResourceDesc.MipLevels;
+			_SRVDesc.TextureCube.MostDetailedMip = 0;
+			_SRVDesc.TextureCube.ResourceMinLODClamp = 0.0f;
+			break;
+		default:
+			break;
+		}
+
+		if (texture->m_Usage & TE_RESOURCE_USAGE_DEPTHSTENCIL)
+		{
+			_SRVDesc.Format = GetDepthStencilSRVFormat(static_cast<TE_RESOURCE_FORMAT>(_SRVDesc.Format));
+		}
+
 		if (SRV->ViewIndex == -1)
 		{
 			*SRV = ShaderResourceView{ m_DescHeapSRV.GetCurrentIndex(), texture->m_ResourceIndex, texture };
 
-
-			switch (texture->m_Type)
-			{
-			case TE_RESOURCE_TYPE::TEXTURE1D:
-			{
-				_SRVDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE1D;
-				_SRVDesc.Texture1D.MipLevels = _ResourceDesc.MipLevels;
-				_SRVDesc.Texture1D.MostDetailedMip = 0;
-				_SRVDesc.Texture1D.ResourceMinLODClamp = 0.0f;
-				break;
-			}
-			case TE_RESOURCE_TYPE::TEXTURE2D:
-			{
-				_SRVDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-				_SRVDesc.Texture2D.MipLevels = _ResourceDesc.MipLevels;
-				_SRVDesc.Texture2D.MostDetailedMip = 0;
-				_SRVDesc.Texture2D.ResourceMinLODClamp = 0.0f;
-				_SRVDesc.Texture2D.PlaneSlice = 0;
-				break;
-			}
-			case TE_RESOURCE_TYPE::TEXTURE3D:
-				_SRVDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE3D;
-				_SRVDesc.Texture3D.MipLevels = _ResourceDesc.MipLevels;
-				_SRVDesc.Texture3D.MostDetailedMip = 0;
-				_SRVDesc.Texture3D.ResourceMinLODClamp = 0.0f;
-				break;
-			case TE_RESOURCE_TYPE::TEXTURECUBE:
-				_SRVDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
-				_SRVDesc.TextureCube.MipLevels = _ResourceDesc.MipLevels;
-				_SRVDesc.TextureCube.MostDetailedMip = 0;
-				_SRVDesc.TextureCube.ResourceMinLODClamp = 0.0f;
-				break;
-			default:
-				break;
-			}
-
-			switch (texture->m_Usage)
-			{
-			case (TE_RESOURCE_USAGE_SHADERRESOURCE):
-			case ((uint32_t)TE_RESOURCE_USAGE_RENDERTARGET | (uint32_t)TE_RESOURCE_USAGE_SHADERRESOURCE):
-				m_DescHeapSRV.AddDescriptorSRV(m_Resources[texture->m_ResourceIndex].Get(), &_SRVDesc);
-				break;
-			case ((uint32_t)TE_RESOURCE_USAGE_DEPTHSTENCIL | (uint32_t)TE_RESOURCE_USAGE_SHADERRESOURCE):
-			{
-				_SRVDesc.Format = GetDepthStencilSRVFormat(static_cast<TE_RESOURCE_FORMAT>(_SRVDesc.Format));
-
-				m_DescHeapSRV.AddDescriptorSRV(m_Resources[texture->m_ResourceIndex].Get(), &_SRVDesc);
-				break;
-			}
-			default:
-				TE_ASSERT_CORE(false, "DX12: Wrong Resource format for creating SRV");
-				break;
-			}
+			m_DescHeapSRV.AddDescriptorSRV(m_Resources[texture->m_ResourceIndex].Get(), &_SRVDesc);
 		}
 		else
 		{
-			switch (texture->m_Usage)
-			{
-			case  ((uint32_t)TE_RESOURCE_USAGE_RENDERTARGET | (uint32_t)TE_RESOURCE_USAGE_SHADERRESOURCE):
-				m_DescHeapSRV.ReplaceDescriptorSRV(m_Resources[texture->m_ResourceIndex].Get(), &_SRVDesc, SRV->ViewIndex);
-				break;
-			case ((uint32_t)TE_RESOURCE_USAGE_DEPTHSTENCIL | (uint32_t)TE_RESOURCE_USAGE_SHADERRESOURCE):
-			{
-				
-				_SRVDesc.Format = GetDepthStencilSRVFormat(static_cast<TE_RESOURCE_FORMAT>(_SRVDesc.Format));
-
-				m_DescHeapSRV.ReplaceDescriptorSRV(m_Resources[texture->m_ResourceIndex].Get(), &_SRVDesc, SRV->ViewIndex);
-				break;
-			}
-			default:
-				TE_ASSERT_CORE(false, "DX12: Wrong Resource format for creating SRV");
-				break;
-			}
+			m_DescHeapSRV.ReplaceDescriptorSRV(m_Resources[texture->m_ResourceIndex].Get(), &_SRVDesc, SRV->ViewIndex);
 		}
 	}
 
-	void DirectX12BufferManager::CreateConstantBufferView(ConstantBufferUploadBase* constantBuffer, ConstantBufferView* CBV, uint8_t frameIndex)
+	void DirectX12BufferManager::CreateShaderResourceView(Buffer* _Buffer, ShaderResourceView* _SRV, uint32_t frameIndex)
+	{
+		uint32_t _ResourceIndex = _Buffer->m_ResourceIndex + (frameIndex * (uint32_t)!static_cast<bool>(_Buffer->m_Usage & TE_RESOURCE_USAGE_UNORDEREDACCESS));
+
+		D3D12_SHADER_RESOURCE_VIEW_DESC _SRVDesc{};
+		ID3D12Resource* _D3DResource = m_Resources[_ResourceIndex].Get();
+		D3D12_RESOURCE_DESC _ResourceDesc = _D3DResource->GetDesc();
+		_SRVDesc.Format = _ResourceDesc.Format;
+		_SRVDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+		_SRVDesc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
+		_SRVDesc.Buffer.FirstElement = 0;
+		_SRVDesc.Buffer.Flags = _Buffer->m_IsByteAddress ? D3D12_BUFFER_SRV_FLAG_RAW : D3D12_BUFFER_SRV_FLAG_NONE;
+		_SRVDesc.Buffer.NumElements = _Buffer->m_ElementNum;
+		_SRVDesc.Buffer.StructureByteStride = _Buffer->m_ElementSizeInByte;
+
+		if (_SRV->ViewIndex == -1)
+		{
+			*_SRV = ShaderResourceView{ m_DescHeapSRV.GetCurrentIndex(), _ResourceIndex, _Buffer };
+			m_DescHeapSRV.AddDescriptorSRV(_D3DResource, &_SRVDesc);
+		}
+		else
+		{
+			m_DescHeapSRV.ReplaceDescriptorSRV(_D3DResource, &_SRVDesc, _SRV->ViewIndex);
+		}
+	}
+
+	void DirectX12BufferManager::CreateShaderResourceView(GraphicResource* _GraphicResource, ShaderResourceView* _SRV, uint32_t frameIndex)
+	{
+		TE_ASSERT_CORE(_GraphicResource->m_Usage & TE_RESOURCE_USAGE_SHADERRESOURCE, "The Graphic Resource sent to create a ShaderResourceView doesn't have a ShaderResourceView Flag!");
+
+		const bool _ReplaceView = _SRV->ViewIndex != -1;
+
+		switch (_GraphicResource->m_Type)
+		{
+		case TE_RESOURCE_TYPE::TEXTURE1D:
+		case TE_RESOURCE_TYPE::TEXTURE2D:
+		case TE_RESOURCE_TYPE::TEXTURE3D:
+		case TE_RESOURCE_TYPE::TEXTURECUBE:
+			CreateShaderResourceView(static_cast<Texture*>(_GraphicResource), _SRV);
+			break;
+		case TE_RESOURCE_TYPE::BUFFER:
+			CreateShaderResourceView(static_cast<Buffer*>(_GraphicResource), _SRV, frameIndex);
+			break;
+		default:
+			throw std::runtime_error("BufferManager.CreateShaderResourceView: The GraphicResource doesn't have a valid RESOURCE_TYPE");
+			break;
+		}
+
+		if (!_ReplaceView)
+			m_Map_SRVs[_GraphicResource->m_IDX].emplace_back(_SRV->ViewIndex);
+
+	}
+
+	void DirectX12BufferManager::CreateConstantBufferView(Buffer* constantBuffer, ConstantBufferView* CBV, uint32_t frameIndex)
 	{
 		uint32_t resourceIndex = constantBuffer->m_ResourceIndex + frameIndex;
 
@@ -483,7 +622,6 @@ namespace TruthEngine::API::DirectX12
 		{
 			m_DescHeapSRV.ReplaceDescriptorCBV(&desc, CBV->ViewIndex);
 		}
-
 	}
 
 	uint64_t DirectX12BufferManager::GetRequiredSize(const GraphicResource* graphicResource) const
@@ -575,7 +713,6 @@ namespace TruthEngine::API::DirectX12
 		m_DescHeapDSV.Release();
 		m_DescHeapRTV.Release();
 
-		m_UnboundedConstantBuffers.clear();
 
 		m_IndexBufferViews.clear();
 		m_VertexBufferViews.clear();
@@ -629,7 +766,7 @@ namespace TruthEngine::API::DirectX12
 		return m_DescHeapDSV.GetCPUHandle(index);
 	}
 
-	TruthEngine::TextureCubeMap* DirectX12BufferManager::CreateTextureCube(TE_IDX_TEXTURE idx, const char* filePath)
+	TruthEngine::TextureCubeMap* DirectX12BufferManager::CreateTextureCube(TE_IDX_GRESOURCES idx, const char* filePath)
 	{
 		auto index = static_cast<uint32_t>(m_TexturesCubeMap.size());
 
@@ -648,12 +785,44 @@ namespace TruthEngine::API::DirectX12
 
 		auto desc = (*resource)->GetDesc();
 
-		TextureCubeMap& tex = m_TexturesCubeMap.emplace_back(index, fileName.c_str(), filePath, nullptr, desc.Width, desc.Height, 0, static_cast<TE_RESOURCE_FORMAT>(desc.Format));
+		TextureCubeMap& tex = m_TexturesCubeMap.emplace_back(idx, index, fileName.c_str(), filePath, nullptr, desc.Width, desc.Height, 0, static_cast<TE_RESOURCE_FORMAT>(desc.Format));
 		tex.m_ResourceIndex = resourceIndex;
 
 		m_Map_Textures[idx] = &tex;
+		m_Map_GraphicResources[idx] = &tex;
 
 		return &tex;
+	}
+
+	void DirectX12BufferManager::CreateUnorderedAccessView(Buffer* _Buffer, UnorderedAccessView* _UAV)
+	{
+		D3D12_UNORDERED_ACCESS_VIEW_DESC _UAVDesc;
+		_UAVDesc.ViewDimension = D3D12_UAV_DIMENSION_BUFFER;
+		_UAVDesc.Format = DXGI_FORMAT_UNKNOWN;
+		_UAVDesc.Buffer.FirstElement = 0;
+		_UAVDesc.Buffer.CounterOffsetInBytes = 0;
+		_UAVDesc.Buffer.NumElements = _Buffer->m_ElementNum;
+		_UAVDesc.Buffer.StructureByteStride = _Buffer->m_ElementSizeInByte;
+		_UAVDesc.Buffer.Flags = _Buffer->m_IsByteAddress ? D3D12_BUFFER_UAV_FLAG_RAW : D3D12_BUFFER_UAV_FLAG_NONE;
+
+		ID3D12Resource* _D3DResource = m_Resources[_Buffer->m_ResourceIndex].Get();
+
+		const bool _ReplaceView = _UAV->ViewIndex != -1;
+
+		if (_UAV->ViewIndex == -1)
+		{
+			_UAV->Resource = _Buffer;
+			_UAV->ResourceIndex = _Buffer->m_ResourceIndex;
+			_UAV->ViewIndex = m_DescHeapSRV.AddDescriptorUAV(_D3DResource, nullptr, &_UAVDesc);
+		}
+		else
+		{
+			m_DescHeapSRV.ReplaceDescriptorUAV(_D3DResource, nullptr, &_UAVDesc, _UAV->ViewIndex);
+		}
+
+		if (!_ReplaceView)
+			m_Map_UAVs[_Buffer->m_IDX].emplace_back(_UAV->ViewIndex);
+
 	}
 
 }

@@ -24,7 +24,10 @@
 namespace TruthEngine
 {
 
-	RendererLayer::RendererLayer() : m_ImGuiLayer(ImGuiLayer::Factory()), m_RenderPass_ForwardRendering(std::make_shared<RenderPass_ForwardRendering>()), m_RenderPass_GenerateShadowMap(std::make_shared<RenderPass_GenerateShadowMap>())
+	RendererLayer::RendererLayer() : m_ImGuiLayer(ImGuiLayer::Factory())
+		, m_RenderPass_ForwardRendering(std::make_shared<RenderPass_ForwardRendering>())
+		, m_RenderPass_GenerateShadowMap(std::make_shared<RenderPass_GenerateShadowMap>())
+		, m_RenderPass_PostProcessing_HDR(std::make_shared<RenderPass_PostProcessing_HDR>())
 	{
 	}
 	RendererLayer::~RendererLayer() = default;
@@ -64,6 +67,7 @@ namespace TruthEngine
 
 		m_RenderPassStack.PushRenderPass(m_RenderPass_GenerateShadowMap.get());
 		m_RenderPassStack.PushRenderPass(m_RenderPass_ForwardRendering.get());
+		m_RenderPassStack.PushRenderPass(m_RenderPass_PostProcessing_HDR.get());
 
 		RegisterEvents();
 	}
@@ -90,8 +94,8 @@ namespace TruthEngine
 
 		auto _lightManager = LightManager::GetInstace();
 		static auto _dirLight0 = _lightManager->GetDirectionalLight("dlight_0");
-		auto cameraCascaded = _lightManager->GetLightCameraCascaded(_dirLight0);
-		cameraCascaded->UpdateFrustums(TE_INSTANCE_APPLICATION->GetActiveScene(), activeCamera);
+		auto cameraCascaded = _dirLight0->GetCamera();
+		cameraCascaded->UpdateFrustums(TE_INSTANCE_APPLICATION->GetActiveScene(), activeCamera, true);
 		float4x4 _cascadedShadowTransforms[4];
 		_lightManager->GetCascadedShadowTransform(cameraCascaded, _cascadedShadowTransforms);
 
@@ -157,7 +161,7 @@ namespace TruthEngine
 	void RendererLayer::BeginRendering()
 	{
 		auto swapchain = TE_INSTANCE_SWAPCHAIN;
-		m_RendererCommand.Begin();
+		m_RendererCommand.BeginGraphics();
 		m_RendererCommand.SetRenderTarget(swapchain, m_RTVBackBuffer);
 		m_RendererCommand.ClearRenderTarget(swapchain, m_RTVBackBuffer);
 		m_RendererCommand.End();
@@ -165,7 +169,7 @@ namespace TruthEngine
 
 	void RendererLayer::EndRendering()
 	{
-		m_RendererCommand.Begin();
+		m_RendererCommand.BeginGraphics();
 		m_RendererCommand.EndAndPresent();
 	}
 
@@ -220,7 +224,7 @@ namespace TruthEngine
 		m_RendererCommand.ResizeSwapChain(TE_INSTANCE_SWAPCHAIN, width, height, &m_RTVBackBuffer, nullptr);
 		m_RendererCommand.CreateRenderTargetView(TE_INSTANCE_SWAPCHAIN, &m_RTVBackBuffer);
 
-		EventTextureResize eventResizeTexture(width, height, TE_IDX_TEXTURE::RT_BACKBUFFER);
+		EventTextureResize eventResizeTexture(width, height, TE_IDX_GRESOURCES::Texture_RT_BackBuffer);
 		TE_INSTANCE_APPLICATION->OnEvent(eventResizeTexture);
 
 	}
@@ -230,12 +234,14 @@ namespace TruthEngine
 		auto width = event.GetWidth();
 		auto height = event.GetHeight();
 
-		m_RendererCommand.ResizeRenderTarget(TE_IDX_TEXTURE::RT_SCENEBUFFER, width, height, nullptr, nullptr);
+		m_RendererCommand.ResizeRenderTarget(TE_IDX_GRESOURCES::Texture_RT_SceneBuffer, width, height, nullptr, nullptr);
+		m_RendererCommand.ResizeRenderTarget(TE_IDX_GRESOURCES::Texture_RT_SceneBufferHDR, width, height, nullptr, nullptr);
 
-		EventTextureResize RenderTargetResizeEvent(static_cast<uint16_t>(width), static_cast<uint16_t>(height), TE_IDX_TEXTURE::RT_SCENEBUFFER);
+		EventTextureResize RenderTargetResizeEvent(static_cast<uint16_t>(width), static_cast<uint16_t>(height), TE_IDX_GRESOURCES::Texture_RT_SceneBuffer);
 		TE_INSTANCE_APPLICATION->OnEvent(RenderTargetResizeEvent);
 
-		m_RenderPass_ForwardRendering->OnSceneViewportResize(width, height);
+		EventTextureResize RenderTargetResizeEventHDR(static_cast<uint16_t>(width), static_cast<uint16_t>(height), TE_IDX_GRESOURCES::Texture_RT_SceneBufferHDR);
+		TE_INSTANCE_APPLICATION->OnEvent(RenderTargetResizeEventHDR);
 
 	}
 
@@ -326,8 +332,10 @@ namespace TruthEngine
 		}
 	}
 
-	void RendererLayer::_ChangeUnfrequentBuffer_EnabledEnvironmentMap(bool _EnabledEnvironmentMap)
+	void RendererLayer::SetEnabledEnvironmentMap(bool _EnabledEnvironmentMap)
 	{
+		m_EnabledEnvironmentMap = _EnabledEnvironmentMap;
+
 		m_RendererCommand.AddUpdateTask([_EnabledEnvironmentMap, CB_UnFrequent = m_CB_UnFrequent]()
 			{
 				CB_UnFrequent->GetData()->mEnabledEnvironmentMap = static_cast<uint32_t>(_EnabledEnvironmentMap);
@@ -344,21 +352,22 @@ namespace TruthEngine
 
 	void RendererLayer::InitTextures()
 	{
-		m_RendererCommand.CreateRenderTarget(TE_IDX_TEXTURE::RT_SCENEBUFFER, TE_INSTANCE_APPLICATION->GetClientWidth(), TE_INSTANCE_APPLICATION->GetClientHeight(), TE_RESOURCE_FORMAT::R8G8B8A8_UNORM, ClearValue_RenderTarget{ 1.0f, 1.0f, 1.0f, 1.0f }, true, true);
+		m_RendererCommand.CreateRenderTarget(TE_IDX_GRESOURCES::Texture_RT_SceneBuffer, TE_INSTANCE_APPLICATION->GetClientWidth(), TE_INSTANCE_APPLICATION->GetClientHeight(), TE_RESOURCE_FORMAT::R8G8B8A8_UNORM, ClearValue_RenderTarget{ 1.0f, 1.0f, 1.0f, 1.0f }, true, true);
+		m_RendererCommand.CreateRenderTarget(TE_IDX_GRESOURCES::Texture_RT_SceneBufferHDR, TE_INSTANCE_APPLICATION->GetClientWidth(), TE_INSTANCE_APPLICATION->GetClientHeight(), TE_RESOURCE_FORMAT::R16G16B16A16_FLOAT, ClearValue_RenderTarget{ 0.0f, 0.0f, 0.0f, 1.0f }, true, true);
 
 		m_RendererCommand.CreateRenderTargetView(TE_INSTANCE_SWAPCHAIN, &m_RTVBackBuffer);
 
-		m_RendererCommand.CreateTextureCubeMap(TE_IDX_TEXTURE::CUBEMAP_ENVIRONMENT, "K:\\EBook\\Game Programming\\Source Codes\\d3d12book-master\\d3d12book-master\\Textures\\grasscube1024.dds");
+		m_RendererCommand.CreateTextureCubeMap(TE_IDX_GRESOURCES::Texture_CubeMap_Environment, "K:\\EBook\\Game Programming\\Source Codes\\d3d12book-master\\d3d12book-master\\Textures\\grasscube1024.dds");
 		//m_RendererCommand.CreateTextureCubeMap(TE_IDX_TEXTURE::CUBEMAP_ENVIRONMENT, "K:\\Downloads\\3D\\EnvironmentMap_BabylonJs_Sample1\\textures\\SpecularHDR.dds");
 		//m_RendererCommand.CreateTextureCubeMap(TE_IDX_TEXTURE::CUBEMAP_ENVIRONMENT, "K:\\Downloads\\3D\\EnvironmentMap_BabylonJs_Forest\\textures\\forest.dds");
 	}
 
 	void RendererLayer::InitBuffers()
 	{
-		m_CB_PerFrame = m_RendererCommand.CreateConstantBufferUpload<ConstantBuffer_Data_Per_Frame>(TE_IDX_CONSTANTBUFFER::PER_FRAME);
-		m_CB_LightData = m_RendererCommand.CreateConstantBufferUpload<ConstantBuffer_Data_LightData>(TE_IDX_CONSTANTBUFFER::LIGHTDATA);
-		m_CB_Materials = m_RendererCommand.CreateConstantBufferUpload<ConstantBuffer_Data_Materials>(TE_IDX_CONSTANTBUFFER::MATERIALS);
-		m_CB_UnFrequent = m_RendererCommand.CreateConstantBufferUpload<ConstantBuffer_Data_UnFrequent>(TE_IDX_CONSTANTBUFFER::UNFREQUENT);
+		m_CB_PerFrame = m_RendererCommand.CreateConstantBufferUpload<ConstantBuffer_Data_Per_Frame>(TE_IDX_GRESOURCES::CBuffer_PerFrame);
+		m_CB_LightData = m_RendererCommand.CreateConstantBufferUpload<ConstantBuffer_Data_LightData>(TE_IDX_GRESOURCES::CBuffer_LightData);
+		m_CB_Materials = m_RendererCommand.CreateConstantBufferUpload<ConstantBuffer_Data_Materials>(TE_IDX_GRESOURCES::CBuffer_Materials);
+		m_CB_UnFrequent = m_RendererCommand.CreateConstantBufferUpload<ConstantBuffer_Data_UnFrequent>(TE_IDX_GRESOURCES::CBuffer_UnFrequent);
 	}
 
 }
