@@ -18,6 +18,11 @@ namespace TruthEngine
 
 			struct DirectX12ShaderManager::pImpl
 			{
+				pImpl()
+				{
+					m_ShaderBlobs.reserve(1000);
+				}
+
 				std::vector<COMPTR<IDxcBlob>> m_ShaderBlobs;
 			};
 
@@ -46,7 +51,7 @@ namespace TruthEngine
 
 				if (csEntry != "")
 				{
-					shader->m_CS = CompileShader(name, shader->m_ID, filePath, csEntry, "cs");
+					shader->m_CS = CompileShader_OLD(name, shader->m_ID, filePath, csEntry, "cs");
 				}
 				if (vsEntry != "")
 				{
@@ -101,7 +106,7 @@ namespace TruthEngine
 
 				if (csEntry != "")
 				{
-					shader->m_CS = CompileShader(name, shader->m_ID, filePath, csEntry, "cs");
+					shader->m_CS = CompileShader_OLD(name, shader->m_ID, filePath, csEntry, "cs");
 				}
 				if (vsEntry != "")
 				{

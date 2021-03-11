@@ -93,20 +93,18 @@ namespace TruthEngine
 
 			void SetSpecularColor(const float4& _specularColor)noexcept;
 
-			void SetDirection(const float3& _direction) noexcept;
-
-			void SetDirection(const float x, const float y, const float z) noexcept;
-
-			void SetPosition(const float3& _position) noexcept;
-
-			void SetPosition(const float x, const float y, const float z) noexcept;
 
 			void SetCastShadow(const bool _castshadow) noexcept;
 
 			void SetRange(const float _range) noexcept;
 
-			void SetUseCascadedShadows(const bool _use) noexcept;
+			virtual void SetDirection(const float3& _direction) noexcept;
 
+			virtual void SetDirection(const float x, const float y, const float z) noexcept;
+
+			virtual void SetPosition(const float3& _position) noexcept;
+
+			virtual void SetPosition(const float x, const float y, const float z) noexcept;
 
 			//
 			//Get Methods
@@ -162,11 +160,6 @@ namespace TruthEngine
 				return m_LightData->Range;
 			}
 
-			inline bool GetUseCascadedShadows()const noexcept
-			{
-				return m_UseCascadedShadows;
-			}
-
 			//
 			//abstract functions
 			//
@@ -185,8 +178,6 @@ namespace TruthEngine
 			bool m_Disabled = false;
 
 			bool m_ShadowDynamicObjects = false;
-
-			bool m_UseCascadedShadows = false;
 
 			TE_LIGHT_TYPE m_LightType;
 

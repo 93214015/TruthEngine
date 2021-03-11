@@ -78,7 +78,7 @@ namespace TruthEngine::API::DirectX12 {
 		}
 
 
-		m_RenderTargetScreenBuffer = dx12bufferManager->GetRenderTarget(TE_IDX_TEXTURE::RT_SCENEBUFFER);
+		m_RenderTargetScreenBuffer = dx12bufferManager->GetRenderTarget(TE_IDX_GRESOURCES::Texture_RT_SceneBuffer);
 
 		m_D3D12Resource_ScreenBuffer = dx12bufferManager->GetResource(m_RenderTargetScreenBuffer);
 
@@ -200,91 +200,93 @@ namespace TruthEngine::API::DirectX12 {
 
 	void DirectX12ImGuiLayer::End()
 	{
-		//TE_TIMER_SCOPE_FUNC;
+			//TE_TIMER_SCOPE_FUNC;
 
-		WindowMaterialTextures();
+			WindowMaterialTextures();
 
-		const uint32_t currentFrameIndex = TE_INSTANCE_APPLICATION->GetCurrentFrameIndex();
+			const uint32_t currentFrameIndex = TE_INSTANCE_APPLICATION->GetCurrentFrameIndex();
 
-		m_CommandList[currentFrameIndex]->GetCommandAllocator()->Reset();
-		auto dx12CmdList = m_CommandList[currentFrameIndex]->GetNativeObject();
-		dx12CmdList->Reset(m_CommandList[currentFrameIndex]->GetCommandAllocator()->GetNativeObject(), nullptr);
+			m_CommandList[currentFrameIndex]->GetCommandAllocator()->Reset();
+			auto dx12CmdList = m_CommandList[currentFrameIndex]->GetNativeObject();
+			dx12CmdList->Reset(m_CommandList[currentFrameIndex]->GetCommandAllocator()->GetNativeObject(), nullptr);
 
-		auto& sc = TE_INSTANCE_API_DX12_SWAPCHAIN;
+			auto& sc = TE_INSTANCE_API_DX12_SWAPCHAIN;
 
-		CD3DX12_RESOURCE_BARRIER barriers[3];
-		uint32_t barrierNum = 0;
+			CD3DX12_RESOURCE_BARRIER barriers[3];
+			uint32_t barrierNum = 0;
 
-		if (sc.GetBackBufferState() != D3D12_RESOURCE_STATE_RENDER_TARGET)
-		{
-			barriers[barrierNum] = CD3DX12_RESOURCE_BARRIER::Transition(sc.GetBackBufferResource(), sc.GetBackBufferState(), D3D12_RESOURCE_STATE_RENDER_TARGET);
-			sc.SetBackBufferState(D3D12_RESOURCE_STATE_RENDER_TARGET);
-			barrierNum++;
-		}
-		/*if (m_RenderTargetScreenBuffer->GetState() != TE_RESOURCE_STATES::PIXEL_SHADER_RESOURCE)
-		{
-			barriers[barrierNum] = CD3DX12_RESOURCE_BARRIER::Transition(m_D3D12Resource_ScreenBuffer, static_cast<D3D12_RESOURCE_STATES>(m_RenderTargetScreenBuffer->GetState()), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-			m_RenderTargetScreenBuffer->SetState(TE_RESOURCE_STATES::PIXEL_SHADER_RESOURCE);
-			barrierNum++;
-		}*/
-
-		if (Settings::IsMSAAEnabled())
-		{
-			if (m_RenderTargetScreenBuffer->GetState() != TE_RESOURCE_STATES::RESOLVE_SOURCE)
+			if (sc.GetBackBufferState() != D3D12_RESOURCE_STATE_RENDER_TARGET)
 			{
-				barriers[barrierNum] = CD3DX12_RESOURCE_BARRIER::Transition(m_D3D12Resource_ScreenBuffer, static_cast<D3D12_RESOURCE_STATES>(m_RenderTargetScreenBuffer->GetState()), D3D12_RESOURCE_STATE_RESOLVE_SOURCE);
-				m_RenderTargetScreenBuffer->SetState(TE_RESOURCE_STATES::RESOLVE_SOURCE);
+				barriers[barrierNum] = CD3DX12_RESOURCE_BARRIER::Transition(sc.GetBackBufferResource(), sc.GetBackBufferState(), D3D12_RESOURCE_STATE_RENDER_TARGET);
+				sc.SetBackBufferState(D3D12_RESOURCE_STATE_RENDER_TARGET);
 				barrierNum++;
 			}
-
-			barriers[barrierNum] = CD3DX12_RESOURCE_BARRIER::Transition(m_TextureMultiSampleResolved.Get(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_RESOLVE_DEST);
-			barrierNum++;
-		}
-		else
-		{
-			if (m_RenderTargetScreenBuffer->GetState() != TE_RESOURCE_STATES::PIXEL_SHADER_RESOURCE)
+			/*if (m_RenderTargetScreenBuffer->GetState() != TE_RESOURCE_STATES::PIXEL_SHADER_RESOURCE)
 			{
 				barriers[barrierNum] = CD3DX12_RESOURCE_BARRIER::Transition(m_D3D12Resource_ScreenBuffer, static_cast<D3D12_RESOURCE_STATES>(m_RenderTargetScreenBuffer->GetState()), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 				m_RenderTargetScreenBuffer->SetState(TE_RESOURCE_STATES::PIXEL_SHADER_RESOURCE);
 				barrierNum++;
+			}*/
+
+			if (Settings::IsMSAAEnabled())
+			{
+				if (m_RenderTargetScreenBuffer->GetState() != TE_RESOURCE_STATES::RESOLVE_SOURCE)
+				{
+					barriers[barrierNum] = CD3DX12_RESOURCE_BARRIER::Transition(m_D3D12Resource_ScreenBuffer, static_cast<D3D12_RESOURCE_STATES>(m_RenderTargetScreenBuffer->GetState()), D3D12_RESOURCE_STATE_RESOLVE_SOURCE);
+					m_RenderTargetScreenBuffer->SetState(TE_RESOURCE_STATES::RESOLVE_SOURCE);
+					barrierNum++;
+
+				}
+
+				barriers[barrierNum] = CD3DX12_RESOURCE_BARRIER::Transition(m_TextureMultiSampleResolved.Get(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_RESOLVE_DEST);
+				barrierNum++;
 			}
-		}
+			else
+			{
+				if (m_RenderTargetScreenBuffer->GetState() != TE_RESOURCE_STATES::PIXEL_SHADER_RESOURCE)
+				{
+					barriers[barrierNum] = CD3DX12_RESOURCE_BARRIER::Transition(m_D3D12Resource_ScreenBuffer, static_cast<D3D12_RESOURCE_STATES>(m_RenderTargetScreenBuffer->GetState()), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+					m_RenderTargetScreenBuffer->SetState(TE_RESOURCE_STATES::PIXEL_SHADER_RESOURCE);
+					barrierNum++;
 
-		if (barrierNum > 0)
-		{
-			dx12CmdList->ResourceBarrier(barrierNum, barriers);
-		}
+				}
+			}
 
-		if (Settings::IsMSAAEnabled())
-		{
-			dx12CmdList->ResolveSubresource(m_TextureMultiSampleResolved.Get(), 0, m_D3D12Resource_ScreenBuffer, 0, DXGI_FORMAT_R8G8B8A8_UNORM);
+			if (barrierNum > 0)
+			{
+				dx12CmdList->ResourceBarrier(barrierNum, barriers);
+			}
 
 			CD3DX12_RESOURCE_BARRIER _barriers[1];
-			_barriers[0] = CD3DX12_RESOURCE_BARRIER::Transition(m_TextureMultiSampleResolved.Get(), D3D12_RESOURCE_STATE_RESOLVE_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+			if (Settings::IsMSAAEnabled())
+			{
+				dx12CmdList->ResolveSubresource(m_TextureMultiSampleResolved.Get(), 0, m_D3D12Resource_ScreenBuffer, 0, DXGI_FORMAT_R8G8B8A8_UNORM);
 
-			dx12CmdList->ResourceBarrier(1, _barriers);
-		}
+				_barriers[0] = CD3DX12_RESOURCE_BARRIER::Transition(m_TextureMultiSampleResolved.Get(), D3D12_RESOURCE_STATE_RESOLVE_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 
-		auto& io = ImGui::GetIO();
-		io.DisplaySize = ImVec2(TE_INSTANCE_APPLICATION->GetClientWidth(), TE_INSTANCE_APPLICATION->GetClientHeight());
+				dx12CmdList->ResourceBarrier(1, _barriers);
+			}
 
-		ID3D12DescriptorHeap* descheaps[] = { m_DescHeapSRV->GetDescriptorHeap() };
-		dx12CmdList->RSSetViewports(1, &m_D3D12Viewport);
-		dx12CmdList->RSSetScissorRects(1, &m_D3D12ViewRect);
-		dx12CmdList->SetDescriptorHeaps(1, descheaps);
-		dx12CmdList->OMSetRenderTargets(1, &m_DescHeapRTV.GetCPUHandle(currentFrameIndex), FALSE, NULL);
-		ImGui::Render();
-		ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), dx12CmdList);
+			auto& io = ImGui::GetIO();
+			io.DisplaySize = ImVec2(TE_INSTANCE_APPLICATION->GetClientWidth(), TE_INSTANCE_APPLICATION->GetClientHeight());
+
+			ID3D12DescriptorHeap* descheaps[] = { m_DescHeapSRV->GetDescriptorHeap() };
+			dx12CmdList->RSSetViewports(1, &m_D3D12Viewport);
+			dx12CmdList->RSSetScissorRects(1, &m_D3D12ViewRect);
+			dx12CmdList->SetDescriptorHeaps(1, descheaps);
+			dx12CmdList->OMSetRenderTargets(1, &m_DescHeapRTV.GetCPUHandle(currentFrameIndex), FALSE, NULL);
+			ImGui::Render();
+			ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), dx12CmdList);
 
 
-		TE_INSTANCE_API_DX12_COMMANDQUEUEDIRECT->ExecuteCommandList(m_CommandList[currentFrameIndex].get());
+			TE_INSTANCE_API_DX12_COMMANDQUEUEDIRECT->ExecuteCommandList(m_CommandList[currentFrameIndex].get());
 
 
-		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-		{
-			ImGui::UpdatePlatformWindows();
-			ImGui::RenderPlatformWindowsDefault(NULL, dx12CmdList);
-		}
+			if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+			{
+				ImGui::UpdatePlatformWindows();
+				ImGui::RenderPlatformWindowsDefault(NULL, dx12CmdList);
+			}
 	}
 
 	/*void DirectX12ImGuiLayer::RenderSceneViewport()
@@ -312,7 +314,7 @@ namespace TruthEngine::API::DirectX12 {
 
 	void DirectX12ImGuiLayer::OnTextureResize(const EventTextureResize& event)
 	{
-		if (event.GetIDX() == TE_IDX_TEXTURE::RT_SCENEBUFFER)
+		if (event.GetIDX() == TE_IDX_GRESOURCES::Texture_RT_SceneBuffer)
 		{
 			if (Settings::IsMSAAEnabled())
 			{
@@ -323,7 +325,7 @@ namespace TruthEngine::API::DirectX12 {
 					&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT)
 					, D3D12_HEAP_FLAG_NONE
 					, &desc
-					, D3D12_RESOURCE_STATE_RESOLVE_DEST
+					, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE
 					, nullptr
 					, nullptr
 					, IID_PPV_ARGS(m_TextureMultiSampleResolved.ReleaseAndGetAddressOf()));
@@ -355,7 +357,7 @@ namespace TruthEngine::API::DirectX12 {
 
 		}
 
-		if (event.GetIDX() == TE_IDX_TEXTURE::RT_BACKBUFFER)
+		if (event.GetIDX() == TE_IDX_GRESOURCES::Texture_RT_BackBuffer)
 		{
 			TE_INSTANCE_API_DX12_SWAPCHAIN.InitRTVs(&m_DescHeapRTV, &m_RTVBackBuffer);
 

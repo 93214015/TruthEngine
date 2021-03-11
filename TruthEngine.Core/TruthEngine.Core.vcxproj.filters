@@ -108,6 +108,9 @@
     <ClInclude Include="src\Core\Entity\Camera\Camera.h">
       <Filter>Core\Entity\Camera</Filter>
     </ClInclude>
+    <ClInclude Include="src\Core\Entity\Camera\CameraCascadedFrustum.h">
+      <Filter>Core\Entity\Camera</Filter>
+    </ClInclude>
     <ClInclude Include="src\Core\Entity\Camera\CameraController.h">
       <Filter>Core\Entity\Camera</Filter>
     </ClInclude>
@@ -130,6 +133,9 @@
       <Filter>Core\Entity\Components</Filter>
     </ClInclude>
     <ClInclude Include="src\Core\Entity\Components\CameraComponent.h">
+      <Filter>Core\Entity\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Entity\Components\EnvironmentComponent.h">
       <Filter>Core\Entity\Components</Filter>
     </ClInclude>
     <ClInclude Include="src\Core\Entity\Components\LightComponent.h">
@@ -186,6 +192,9 @@
     <ClInclude Include="src\Core\Entity\Model\ModelManager.h">
       <Filter>Core\Entity\Model</Filter>
     </ClInclude>
+    <ClInclude Include="src\Core\Entity\PickingEntity.h">
+      <Filter>Core\Entity</Filter>
+    </ClInclude>
     <ClInclude Include="src\Core\Entity\Scene.h">
       <Filter>Core\Entity</Filter>
     </ClInclude>
@@ -208,6 +217,9 @@
       <Filter>Core\Event</Filter>
     </ClInclude>
     <ClInclude Include="src\Core\Helper\HardwareInfo.h">
+      <Filter>Core\Helper</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Helper\Macros.h">
       <Filter>Core\Helper</Filter>
     </ClInclude>
     <ClInclude Include="src\Core\Helper\MathHelper.h">
@@ -327,6 +339,9 @@
     <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_GenerateShadowMap.h">
       <Filter>Core\Renderer\RenderPass</Filter>
     </ClInclude>
+    <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_RenderBoudingBoxes.h">
+      <Filter>Core\Renderer\RenderPass</Filter>
+    </ClInclude>
     <ClInclude Include="src\Core\Renderer\RenderPassStack.h">
       <Filter>Core\Renderer</Filter>
     </ClInclude>
@@ -352,6 +367,9 @@
       <Filter>Core\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="src\Core\Renderer\Texture.h">
+      <Filter>Core\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Renderer\TextureCubeMap.h">
       <Filter>Core\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="src\Core\Renderer\TextureDepthStencil.h">
@@ -405,12 +423,8 @@
     <ClInclude Include="src\TruthEngine.h" />
     <ClInclude Include="src\lib.h" />
     <ClInclude Include="src\pch.h" />
-    <ClInclude Include="src\Core\Entity\PickingEntity.h" />
-    <ClInclude Include="src\Core\Entity\Camera\CameraCascadedFrustum.h" />
-    <ClInclude Include="src\Core\Helper\Macros.h" />
-    <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_RenderBoudingBoxes.h" />
-    <ClInclude Include="src\Core\Renderer\TextureCubeMap.h" />
-    <ClInclude Include="src\Core\Entity\Components\EnvironmentComponent.h" />
+    <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_PostProcessing_HDR.h" />
+    <ClInclude Include="src\Core\Renderer\BufferStructured.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\API\DX12\DirectX12BufferManager.cpp">
@@ -461,6 +475,9 @@
     <ClCompile Include="src\Core\Entity\Camera\Camera.cpp">
       <Filter>Core\Entity\Camera</Filter>
     </ClCompile>
+    <ClCompile Include="src\Core\Entity\Camera\CameraCascadedFrustum.cpp">
+      <Filter>Core\Entity\Camera</Filter>
+    </ClCompile>
     <ClCompile Include="src\Core\Entity\Camera\CameraController.cpp">
       <Filter>Core\Entity\Camera</Filter>
     </ClCompile>
@@ -480,6 +497,9 @@
       <Filter>Core\Entity\Components</Filter>
     </ClCompile>
     <ClCompile Include="src\Core\Entity\Components\CameraComponent.cpp">
+      <Filter>Core\Entity\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Entity\Components\EnvironmentComponent.cpp">
       <Filter>Core\Entity\Components</Filter>
     </ClCompile>
     <ClCompile Include="src\Core\Entity\Components\LightComponent.cpp">
@@ -535,6 +555,9 @@
     </ClCompile>
     <ClCompile Include="src\Core\Entity\Model\ModelManager.cpp">
       <Filter>Core\Entity\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Entity\PickingEntity.cpp">
+      <Filter>Core\Entity</Filter>
     </ClCompile>
     <ClCompile Include="src\Core\Entity\Scene.cpp">
       <Filter>Core\Entity</Filter>
@@ -659,6 +682,9 @@
     <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_GenerateShadowMap.cpp">
       <Filter>Core\Renderer\RenderPass</Filter>
     </ClCompile>
+    <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_RenderBoudingBoxes.cpp">
+      <Filter>Core\Renderer\RenderPass</Filter>
+    </ClCompile>
     <ClCompile Include="src\Core\Renderer\RenderPassStack.cpp">
       <Filter>Core\Renderer</Filter>
     </ClCompile>
@@ -681,6 +707,9 @@
       <Filter>Core\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="src\Core\Renderer\Texture.cpp">
+      <Filter>Core\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Renderer\TextureCubeMap.cpp">
       <Filter>Core\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="src\Core\Renderer\TextureDepthStencil.cpp">
@@ -729,10 +758,7 @@
       <Filter>Platform\Windows</Filter>
     </ClCompile>
     <ClCompile Include="src\pch.cpp" />
-    <ClCompile Include="src\Core\Entity\PickingEntity.cpp" />
-    <ClCompile Include="src\Core\Entity\Camera\CameraCascadedFrustum.cpp" />
-    <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_RenderBoudingBoxes.cpp" />
-    <ClCompile Include="src\Core\Renderer\TextureCubeMap.cpp" />
-    <ClCompile Include="src\Core\Entity\Components\EnvironmentComponent.cpp" />
+    <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_PostProcessing_HDR.cpp" />
+    <ClCompile Include="src\Core\Renderer\BufferStructured.cpp" />
   </ItemGroup>
 </Project>

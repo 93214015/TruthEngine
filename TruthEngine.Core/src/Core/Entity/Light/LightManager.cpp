@@ -38,7 +38,7 @@ constexpr float4x4 m_ProjToUVCascaded3 = float4x4(
 
 namespace TruthEngine
 {
-	LightDirectional* LightManager::AddLightDirectional(const std::string_view name, const float4 diffusecolor, const float4 ambientColor, const float4 specularColor, const float3 direction, const float3 position, const float lightSize, const int castShadow, const float range)
+	LightDirectional* LightManager::AddLightDirectional(const std::string_view name, const float4 diffusecolor, const float4 ambientColor, const float4 specularColor, const float3 direction, const float3 position, const float lightSize, const int castShadow, const float range, const float4& CascadesCoveringDepth)
 	{
 		auto itr = m_Map_LightsName.find(name);
 		if (itr != m_Map_LightsName.end())
@@ -56,7 +56,11 @@ namespace TruthEngine
 
 		uint32_t _id = m_Map_Lights.size();
 
-		auto dlight = &m_LightsDirectional.emplace_back(_id, name, diffusecolor, ambientColor, specularColor, direction, position, lightSize, castShadow, range);
+		std::string _CameraName = "camera" + std::string(name);
+
+		auto _CascadedCamera = AddLightCameraCascaded<4>(_CameraName.c_str(), position, direction, CascadesCoveringDepth, TE_CAMERA_TYPE::Orthographic);
+
+		auto dlight = &m_LightsDirectional.emplace_back(_id, name, diffusecolor, ambientColor, specularColor, direction, position, lightSize, castShadow, range, CascadesCoveringDepth, _CascadedCamera);
 		m_Map_Lights[_id] = dlight;
 		m_Map_LightsName[name] = dlight;
 
@@ -115,17 +119,6 @@ namespace TruthEngine
 	}
 
 
-	TruthEngine::CameraCascadedFrustumBase* LightManager::GetLightCameraCascaded(const ILight* light)
-	{
-		auto itr = m_Map_LightsCameraCascaded.find(light->GetID());
-		if (itr != m_Map_LightsCameraCascaded.end())
-		{
-			return itr->second;
-		}
-
-		return nullptr;
-	}
-
 
 	TruthEngine::Camera* LightManager::AddLightCamera(const ILight* light, TE_CAMERA_TYPE cameraType)
 	{
@@ -160,22 +153,13 @@ namespace TruthEngine
 		}
 	}
 
-	void LightManager::GetCascadedShadowTransform(const ILight* light, float4x4 _outTransforms[4])
+	void LightManager::GetCascadedShadowTransform(const LightDirectional* light, float4x4 _outTransforms[4])
 	{
-
-		auto itr = m_Map_LightsCameraCascaded.find(light->GetID());
-		if (itr == m_Map_LightsCameraCascaded.end())
-		{
-			TE_ASSERT_CORE(false, "Cascaded Camera Not Found!");
-			throw;
-		}
-
-		auto camera = itr->second;
-
-		_outTransforms[0] = camera->GetViewProj(0) * m_ProjToUVCascaded0;
-		_outTransforms[1] = camera->GetViewProj(1) * m_ProjToUVCascaded1;
-		_outTransforms[2] = camera->GetViewProj(2) * m_ProjToUVCascaded2;
-		_outTransforms[3] = camera->GetViewProj(3) * m_ProjToUVCascaded3;
+		auto _Camera = light->GetCamera();
+		_outTransforms[0] = _Camera->GetViewProj(0) * m_ProjToUVCascaded0;
+		_outTransforms[1] = _Camera->GetViewProj(1) * m_ProjToUVCascaded1;
+		_outTransforms[2] = _Camera->GetViewProj(2) * m_ProjToUVCascaded2;
+		_outTransforms[3] = _Camera->GetViewProj(3) * m_ProjToUVCascaded3;
 		
 	}
 

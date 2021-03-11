@@ -13,6 +13,7 @@
 
 #include "Core/PhysicEngine/PhysicsEngine.h"
 #include "Core/Event/EventEntity.h"
+#include "Core/Entity/Light/LightDirectional.h"
 
 using namespace DirectX;
 
@@ -357,6 +358,7 @@ namespace TruthEngine
 
 				auto light = component.GetLight();
 
+
 				{
 					auto position = light->GetPosition();
 
@@ -406,6 +408,20 @@ namespace TruthEngine
 					if (ImGui::ColorEdit4("##lightspecularcolor", &specularColor.x, ImGuiColorEditFlags_Float))
 					{
 						light->SetSpecularColor(specularColor);
+					}
+				}
+
+				{
+					if (light->GetLightType() == TE_LIGHT_TYPE::Directional)
+					{
+						LightDirectional* _DLight = static_cast<LightDirectional*>(light);
+						float4 _Depths = _DLight->GetCascadesConveringDepth();
+						ImGui::Text("Directional Light Cascades Depth: ");
+						if (ImGui::DragFloat4("", &_Depths.x, 0.001f, 0.0f, 1.0f))
+						{
+							_DLight->SetCascadesDepth(_Depths);
+						}
+
 					}
 				}
 			});

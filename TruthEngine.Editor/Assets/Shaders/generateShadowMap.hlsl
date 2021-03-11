@@ -1,13 +1,13 @@
+cbuffer perMesh : register(b0)
+{
+    row_major matrix gWorld;
+}
 
-cbuffer perFrame : register(b0)
+cbuffer perFrame : register(b1)
 {
     row_major matrix gViewProj;
 }
 
-cbuffer perMesh : register(b1)
-{
-    row_major matrix gWorld;
-}
 
 
 float4 vs( float3 pos : POSITION ) : SV_POSITION

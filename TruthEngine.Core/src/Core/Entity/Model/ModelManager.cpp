@@ -41,7 +41,7 @@ namespace TruthEngine
 		m_BufferManager->CreateVertexBuffer(&m_VertexBuffer_PosNormTanTex);
 		m_BufferManager->CreateIndexBuffer(&m_IndexBuffer);
 
-		m_RendererCommand->Begin();
+		m_RendererCommand->BeginGraphics();
 
 		m_RendererCommand->UploadData(&m_VertexBuffer_PosNormTanTex);
 		m_RendererCommand->UploadData(&m_IndexBuffer);

@@ -35,6 +35,7 @@ namespace TruthEngine::API::DirectX12 {
 
 		static inline DirectX12GraphicDevice& GetPrimaryDeviceDX12() { return s_PrimaryDevice; }
 
+		COMPTR<ID3D12DebugCommandQueue> m_DebugCommandQueue;
 	private:
 		TE_RESULT CreateDevice(UINT adapterIndex);
 		TE_RESULT InitCommandQueues();
@@ -52,12 +53,14 @@ namespace TruthEngine::API::DirectX12 {
 		TE_RESULT CreateCommandList(COMPTR<ID3D12GraphicsCommandList>& cmdList, D3D12_COMMAND_LIST_TYPE type) const;
 
 		TE_RESULT CreateCommandAllocator(COMPTR<ID3D12CommandAllocator>& cmdAlloc, D3D12_COMMAND_LIST_TYPE type) const;
+
 	private:
 
 		Microsoft::WRL::ComPtr<ID3D12Device8> m_Device;
 
 		DirectX12CommandQueue_Direct m_CommandQueueDirect;
 		DirectX12CommandQueue_Copy m_CommandQueueCopy;
+
 
 		DirectX12Fence m_Fence;
 

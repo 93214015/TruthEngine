@@ -1,56 +1,55 @@
 #pragma once
 
 
-enum class TE_IDX_CONSTANTBUFFER : IDX
+enum class TE_IDX_GRESOURCES : IDX
 {
 	NONE,
 
-	ARRAYS_PER_MESH,
-	ARRAYS_MATERIALS,
-	ARRAYS,
+	CBuffer_PerFrame,
+	CBuffer_PerObject,
+	CBuffer_PerMesh,
+	CBuffer_LightData,
+	CBuffer_Materials,
+	CBuffer_UnFrequent,
+	CBuffer_HDR_DownScaling,
+	CBuffer_HDR_FinalPass,
 
-	PER_FRAME,
-	PER_OBJECT,
-	PER_MESH,
-	LIGHTDATA,
-	MATERIALS,
-	UNFREQUENT,
+	Buffer_HDRAverageLumFirstPass,
+	Buffer_HDRAverageLumSecondPass,
 
-	DIRECT_CONSTANTS,
-	DIRECT_PER_MESH,
-	DIRECT_SHADOWMAP_PER_MESH,
-	DIRECT_SHADOWMAP_PER_LIGHT,
+	Constant_DirectConstants,
+	Constant_PerMesh,
+	Constant_ShadowMapPerMesh,
+	Constant_ShadowMapPerLight,
+
+	Texture_MaterialTextures,
+	Texture_CubeMap_Environment,
+	Texture_RT_BackBuffer,
+	Texture_RT_GBuffer_Color,
+	Texture_RT_GBuffer_Normal,
+	Texture_RT_GBuffer_Specular,
+	Texture_RT_SceneBuffer,
+	Texture_RT_SceneBufferHDR,
+	Texture_DS_SceneBuffer,
+	Texture_DS_ShadowMap,
 };
 
 
-enum class TE_IDX_TEXTURE : IDX
+inline bool IsIDXTextureMaterialTexture(TE_IDX_GRESOURCES _IDX)
 {
-	MATERIALTEXTURES,
-	CUBEMAP_ENVIRONMENT,
-	RT_BACKBUFFER,
-	RT_GBUFFER_COLOR,
-	RT_GBUFFER_NORMAL,
-	RT_GBUFFER_SPECULAR,
-	RT_SCENEBUFFER,
-	DS_SCENEBUFFER,
-	DS_SHADOWMAP,
-};
-
-inline bool IsIDXTextureMaterialTexture(TE_IDX_TEXTURE _IDX)
-{
-	return _IDX == TE_IDX_TEXTURE::MATERIALTEXTURES;
+	return _IDX == TE_IDX_GRESOURCES::Texture_MaterialTextures;
 }
-inline bool IsIDXTextureCubeMap(TE_IDX_TEXTURE _IDX)
+inline bool IsIDXTextureCubeMap(TE_IDX_GRESOURCES _IDX)
 {
-	return _IDX == TE_IDX_TEXTURE::CUBEMAP_ENVIRONMENT;
+	return _IDX == TE_IDX_GRESOURCES::Texture_CubeMap_Environment;
 }
-inline bool IsIDXTextureRenderTarget(TE_IDX_TEXTURE _IDX)
+inline bool IsIDXTextureRenderTarget(TE_IDX_GRESOURCES _IDX)
 {
-	return (static_cast<uint32_t>(_IDX) >= static_cast<uint32_t>(TE_IDX_TEXTURE::RT_BACKBUFFER) && static_cast<uint32_t>(_IDX) <= static_cast<uint32_t>(TE_IDX_TEXTURE::RT_SCENEBUFFER));
+	return (static_cast<uint32_t>(_IDX) >= static_cast<uint32_t>(TE_IDX_GRESOURCES::Texture_RT_BackBuffer) && static_cast<uint32_t>(_IDX) <= static_cast<uint32_t>(TE_IDX_GRESOURCES::Texture_RT_SceneBuffer));
 }
-inline bool IsIDXTextureDepthStencil(TE_IDX_TEXTURE _IDX)
+inline bool IsIDXTextureDepthStencil(TE_IDX_GRESOURCES _IDX)
 {
-	return (static_cast<uint32_t>(_IDX) >= static_cast<uint32_t>(TE_IDX_TEXTURE::DS_SCENEBUFFER) && static_cast<uint32_t>(_IDX) <= static_cast<uint32_t>(TE_IDX_TEXTURE::DS_SHADOWMAP));
+	return (static_cast<uint32_t>(_IDX) >= static_cast<uint32_t>(TE_IDX_GRESOURCES::Texture_DS_SceneBuffer) && static_cast<uint32_t>(_IDX) <= static_cast<uint32_t>(TE_IDX_GRESOURCES::Texture_DS_ShadowMap));
 }
 
 enum class TE_IDX_SHADERCLASS : IDX
@@ -60,6 +59,9 @@ enum class TE_IDX_SHADERCLASS : IDX
 	GENERATEBASICSHADOWMAP,
 	RENDERBOUNDINGBOX,
 	RENDERENVIRONMENTMAP,
+	POSTPROCESSING_HDR_DOWNSACLING_FIRSTPASS,
+	POSTPROCESSING_HDR_DOWNSACLING_SECONDPASS,
+	POSTPROCESSING_HDR_FINALPASS,
 	TOTALNUM
 };
 
@@ -69,6 +71,7 @@ enum class TE_IDX_RENDERPASS : IDX
 	FORWARDRENDERING,
 	GENERATEBASICSHADOWMAP,
 	RENDERBOUNDINGBOX,
+	POSTPROCESSING_HDR
 };
 
 enum class TE_IDX_MESH_TYPE : IDX

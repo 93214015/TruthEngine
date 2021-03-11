@@ -32,23 +32,29 @@ namespace TruthEngine
 
 			inline ID3D12GraphicsCommandList* GetNativeObject() const
 			{
-				return m_D3D12CommandList.Get();
+				return mD3D12CommandList.Get();
 			}
 
 
 			inline DirectX12CommandAllocator* GetCommandAllocator()
 			{
-				return &m_CommandAllocator;
+				return &mCommandAllocator;
 			}
 
 
-			void Reset() override;
+			void ResetCompute() override;
 
 
-			void Reset(Pipeline* pipeline) override;
+			void ResetGraphics() override;
 
 
-			void SetPipeline(Pipeline* pipeline) override;
+			void ResetGraphics(PipelineGraphics* pipeline) override;
+
+
+			void SetPipelineGraphics(PipelineGraphics* pipeline) override;
+
+
+			void SetPipelineCompute(PipelineCompute* pipeline) override;
 
 
 			//			void SetRenderTarget(TextureRenderTarget* RenderTargets[], const uint32_t RenderTargetNum, const TextureDepthStencil* DepthStencil) override;
@@ -59,10 +65,10 @@ namespace TruthEngine
 			void SetDepthStencil(const DepthStencilView DSV);
 
 
-			void SetShaderResource(const ShaderResourceView srv, const uint32_t registerIndex) override;
+			/*void SetShaderResource(const ShaderResourceView srv, const uint32_t registerIndex) override;
 
 
-			void SetConstantBuffer(const ConstantBufferView cbv, const uint32_t registerIndex) override;
+			void SetConstantBuffer(const ConstantBufferView cbv, const uint32_t registerIndex) override;*/
 
 
 			void UpdateConstantBuffer(ConstantBufferUploadBase* cb) override;
@@ -71,7 +77,10 @@ namespace TruthEngine
 			void UploadData(Buffer* buffer, const void* data, size_t sizeInByte) override;
 
 
-			void UploadData(ConstantBufferDirectBase* cb) override;
+			void SetDirectConstantGraphics(ConstantBufferDirectBase* cb) override;
+
+
+			void SetDirectConstantCompute(ConstantBufferDirectBase* cb) override;
 
 
 			void SetVertexBuffer(VertexBufferBase* vertexBuffer) override;
@@ -84,6 +93,9 @@ namespace TruthEngine
 
 
 			void Draw(uint32_t vertexNum, uint32_t vertexOffset) override;
+
+
+			void Dispatch(uint32_t GroupNumX, uint32_t GroupNumY, uint32_t GroupNumZ) override;
 
 
 			void ClearRenderTarget(const RenderTargetView RTV);
@@ -111,12 +123,16 @@ namespace TruthEngine
 		protected:
 
 
-			void _BindResource();
+			void _SetRootArgumentsGraphics(bool _NewShaderClass);
+			void _SetRootSignatureGraphics(bool _NewShaderClass);
+
+			void _SetRootArgumentsCompute(bool _NewShaderClass);
+			void _SetRootSignatureCompute(bool _NewShaderClass);
 
 			void _ChangeResourceState(GraphicResource* resource, TE_RESOURCE_STATES newState);
 
 
-			inline void _QueueBarrier(ID3D12Resource* resource, D3D12_RESOURCE_STATES before, D3D12_RESOURCE_STATES after)
+			inline void _QueueBarrierTransition(ID3D12Resource* resource, D3D12_RESOURCE_STATES before, D3D12_RESOURCE_STATES after)
 			{
 				m_ResourceBarriers.emplace_back(
 					CD3DX12_RESOURCE_BARRIER::Transition(
@@ -126,6 +142,16 @@ namespace TruthEngine
 					)
 				);
 			}
+
+			inline void _QueueBarrierUAV(ID3D12Resource* resource)
+			{
+				m_ResourceBarriers.emplace_back(
+					CD3DX12_RESOURCE_BARRIER::UAV(
+						resource
+					)
+				);
+			}
+
 
 
 			void _UploadDefaultBuffers();
@@ -176,9 +202,9 @@ namespace TruthEngine
 			};
 
 
-			COMPTR<ID3D12GraphicsCommandList> m_D3D12CommandList;
+			COMPTR<ID3D12GraphicsCommandList> mD3D12CommandList;
 
-			DirectX12CommandAllocator m_CommandAllocator;
+			DirectX12CommandAllocator mCommandAllocator;
 
 			DirectX12BufferManager* m_BufferManager;
 
@@ -186,9 +212,9 @@ namespace TruthEngine
 
 			std::vector<D3D12_RESOURCE_BARRIER> m_ResourceBarriers;
 
-			std::map<uint32_t, D3D12_GPU_DESCRIPTOR_HANDLE> m_SRVHandles_CB;
+			/*std::map<uint32_t, D3D12_GPU_DESCRIPTOR_HANDLE> m_SRVHandles_CB;
 
-			std::map<uint32_t, D3D12_GPU_DESCRIPTOR_HANDLE> m_SRVHandles_Texture;
+			std::map<uint32_t, D3D12_GPU_DESCRIPTOR_HANDLE> m_SRVHandles_Texture;*/
 
 			std::vector<ClearingRenderTarget> m_QueueClearRT;
 
@@ -208,7 +234,8 @@ namespace TruthEngine
 
 			COMPTR<ID3D12Resource> m_IntermediateResource;
 
-			const DirectX12RootArguments* m_RootArguments = nullptr;
+			const DirectX12RootArguments* mRootArguments = nullptr;
+			ID3D12RootSignature* mRootSignature = nullptr;
 
 			//
 			// friend class

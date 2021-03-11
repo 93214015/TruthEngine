@@ -6,7 +6,7 @@ namespace TruthEngine
 	class TextureCubeMap : public Texture
 	{
 	public:
-		TextureCubeMap(uint32_t id, const char* name, const char* fileName, uint8_t* pdata, uint32_t width, uint32_t height, size_t dataSize, TE_RESOURCE_FORMAT format);
+		TextureCubeMap(TE_IDX_GRESOURCES _IDX, uint32_t id, const char* name, const char* fileName, uint8_t* pdata, uint32_t width, uint32_t height, size_t dataSize, TE_RESOURCE_FORMAT format);
 		virtual ~TextureCubeMap() = default;
 
 		inline uint8_t* GetData() const noexcept

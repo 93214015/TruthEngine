@@ -18,8 +18,8 @@ namespace TruthEngine
 			TE_RESULT AddShader(Shader** outShader, TE_IDX_SHADERCLASS shaderClassID, TE_IDX_MESH_TYPE meshType, RendererStateSet states, std::string_view filePath, std::string_view vsEntry, std::string_view psEntry, std::string_view csEntry, std::string_view dsEntry, std::string_view hsEntry, std::string_view gsEntry) override;
 
 
-		protected:
 			Shader::ShaderCode CompileShader_OLD(std::string_view shaderName, uint32_t shaderID, std::string_view filePath, std::string_view entry, std::string_view shaderStage);
+		protected:
 			Shader::ShaderCode CompileShader(std::string_view shaderName, uint32_t shaderID, std::string_view filePath, std::string_view entry, std::string_view shaderStage);
 
 

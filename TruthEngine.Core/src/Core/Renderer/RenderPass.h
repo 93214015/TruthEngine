@@ -15,7 +15,6 @@ namespace TruthEngine
 		virtual void EndScene() = 0;
 		virtual void Render() = 0;
 
-		virtual void OnSceneViewportResize(uint32_t width, uint32_t height) = 0;
 	protected:
 
 	protected:

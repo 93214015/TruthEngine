@@ -119,7 +119,7 @@ namespace TruthEngine::API::DirectX12
 	}*/
 
 
-	D3D12_GPU_DESCRIPTOR_HANDLE DirectX12TextureMaterialManager::GetGPUHandle() const
+	CD3DX12_GPU_DESCRIPTOR_HANDLE DirectX12TextureMaterialManager::GetGPUHandle() const
 	{
 		auto bufferManager = static_cast<DirectX12BufferManager*>(TE_INSTANCE_BUFFERMANAGER);
 		return bufferManager->m_DescHeapSRV.GetGPUHandle(m_DefaultOffset);

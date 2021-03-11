@@ -29,7 +29,8 @@ namespace TruthEngine
 		
 
 		TextureDepthStencil(
-			uint32_t width
+			TE_IDX_GRESOURCES _IDX
+			, uint32_t width
 			, uint32_t height
 			, TE_RESOURCE_FORMAT format
 			, const ClearValue_DepthStencil clearValue

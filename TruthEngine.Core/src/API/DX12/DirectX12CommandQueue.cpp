@@ -37,14 +37,14 @@ namespace TruthEngine::API::DirectX12 {
 
 	TE_RESULT DirectX12CommandQueue_Direct::ExecuteCommandList(DirectX12CommandList* cmdList)
 	{
-		auto c = cmdList->m_D3D12CommandList.Get();
+		auto c = cmdList->mD3D12CommandList.Get();
 		c->Close();
 
 		ID3D12CommandList* l[1] = { c };
 		m_CommandQueue->ExecuteCommandLists(1, l);
 
-		cmdList->m_CommandAllocator.m_FenceValue = TE_INSTANCE_API_DX12_GRAPHICDEVICE.GetFence().SetFence(m_CommandQueue.Get());
-		cmdList->m_CommandAllocator.m_RunningCommandQueue = this;
+		cmdList->mCommandAllocator.m_FenceValue = TE_INSTANCE_API_DX12_GRAPHICDEVICE.GetFence().SetFence(m_CommandQueue.Get());
+		cmdList->mCommandAllocator.m_RunningCommandQueue = this;
 
 		return TE_SUCCESSFUL;
 	}

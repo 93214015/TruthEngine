@@ -34,9 +34,6 @@ namespace TruthEngine
 		void Render() override;
 
 
-		void OnSceneViewportResize(uint32_t width, uint32_t height) override;
-
-
 	private:
 
 

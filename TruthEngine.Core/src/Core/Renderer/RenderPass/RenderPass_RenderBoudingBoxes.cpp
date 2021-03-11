@@ -16,8 +16,8 @@ void TruthEngine::RenderPass_RenderBoundingBoxes::OnAttach()
 {
 	m_RendererCommand.Init(TE_IDX_RENDERPASS::RENDERBOUNDINGBOX, TE_IDX_SHADERCLASS::RENDERBOUNDINGBOX, TE_INSTANCE_BUFFERMANAGER, TE_INSTANCE_SHADERMANAGER);
 
-	m_RendererCommand.CreateRenderTargetView(TE_IDX_TEXTURE::RT_SCENEBUFFER, &m_RenderTargetView);
-	m_RendererCommand.CreateDepthStencilView(TE_IDX_TEXTURE::DS_SCENEBUFFER, &m_DepthStencilView);
+	m_RendererCommand.CreateRenderTargetView(TE_IDX_GRESOURCES::Texture_RT_SceneBuffer, &m_RenderTargetView);
+	m_RendererCommand.CreateDepthStencilView(TE_IDX_GRESOURCES::Texture_DS_SceneBuffer, &m_DepthStencilView);
 }
 
 void TruthEngine::RenderPass_RenderBoundingBoxes::OnDetach()
@@ -33,7 +33,7 @@ void TruthEngine::RenderPass_RenderBoundingBoxes::OnImGuiRender()
 void TruthEngine::RenderPass_RenderBoundingBoxes::BeginScene()
 {
 
-	m_RendererCommand.Begin();
+	m_RendererCommand.BeginGraphics();
 
 	m_RendererCommand.SetViewPort(&m_Viewport, &m_ViewRect);
 	m_RendererCommand.SetRenderTarget(m_RenderTargetView);
@@ -56,10 +56,5 @@ void TruthEngine::RenderPass_RenderBoundingBoxes::Render()
 
 		//_AABB.GetCorners();
 	}
-}
-
-void TruthEngine::RenderPass_RenderBoundingBoxes::OnSceneViewportResize(uint32_t width, uint32_t height)
-{
-	
 }
 

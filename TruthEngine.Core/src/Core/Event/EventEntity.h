@@ -119,13 +119,13 @@ namespace TruthEngine
 		};
 
 
-		enum class ETransformType
+		enum class ETransformType : TE_FLAG_TYPE
 		{
 			Translate,
 			Scale,
 			Rotate
 		};
-		ENUM_BIT_OPERATIONS_DEFINITION(ETransformType);
+		TE_DEFINE_ENUM_FLAG_OPERATORS(ETransformType);
 
 
 		class EventEntityTransform : public Event

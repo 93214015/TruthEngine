@@ -12,18 +12,18 @@ namespace TruthEngine
 	class Material;
 	class Shader;
 
-	class Pipeline
+	class PipelineGraphics
 	{
 	public:
-		Pipeline(RendererStateSet states, Shader* shader, uint32_t renderTargetNum, TE_RESOURCE_FORMAT* rtvFormat, TE_RESOURCE_FORMAT dsvFormat, bool enableMSAA, float depthBias = 0.0f, float depthBiasClamp = 0.0f, float slopeScaledDepthBias = 0.0f);
+		
 
-		virtual ~Pipeline() = default;
+		virtual ~PipelineGraphics() = default;
 
-		Pipeline(const Pipeline&) = default;
-		Pipeline& operator=(const Pipeline&) = default;
+		PipelineGraphics(const PipelineGraphics&) = default;
+		PipelineGraphics& operator=(const PipelineGraphics&) = default;
 
-		Pipeline(Pipeline&&) noexcept = default;
-		Pipeline& operator=(Pipeline&&) noexcept = default;
+		PipelineGraphics(PipelineGraphics&&) noexcept = default;
+		PipelineGraphics& operator=(PipelineGraphics&&) noexcept = default;
 
 #pragma region StateGetterSetter
 
@@ -166,6 +166,11 @@ namespace TruthEngine
 			return m_Shader;
 		}
 
+		inline TE_IDX_SHADERCLASS GetShaderClassIDX()const noexcept
+		{
+			return m_ShaderClassIDX;
+		}
+
 		inline void SetShader(Shader* shader) noexcept
 		{
 			m_Shader = shader;
@@ -196,8 +201,10 @@ namespace TruthEngine
 			return m_RenderTargetNum;
 		}
 
-	private:
+		static void Factory(PipelineGraphics** _outPipeline, RendererStateSet states, Shader* shader, uint32_t renderTargetNum, TE_RESOURCE_FORMAT* rtvFormat, TE_RESOURCE_FORMAT dsvFormat, bool enableMSAA, float depthBias = 0.0f, float depthBiasClamp = 0.0f, float slopeScaledDepthBias = 0.0f);
 
+	private:
+		PipelineGraphics(uint32_t ID, RendererStateSet states, Shader* shader, uint32_t renderTargetNum, TE_RESOURCE_FORMAT* rtvFormat, TE_RESOURCE_FORMAT dsvFormat, bool enableMSAA, float depthBias = 0.0f, float depthBiasClamp = 0.0f, float slopeScaledDepthBias = 0.0f);
 
 	private:
 		uint32_t m_ID;
@@ -216,11 +223,52 @@ namespace TruthEngine
 		TE_RESOURCE_FORMAT m_DSVFormat = TE_RESOURCE_FORMAT::D32_FLOAT;
 
 		Shader* m_Shader;
+		TE_IDX_SHADERCLASS m_ShaderClassIDX = TE_IDX_SHADERCLASS::NONE;
 
 		std::string m_Name = "PSO_****";
 
 		friend class PiplineManager;
 		friend class API::DirectX12::DirectX12PiplineManager;
 
+	};
+
+	class PipelineCompute
+	{
+	public:
+		~PipelineCompute();
+
+		PipelineCompute(const PipelineCompute& _Pipeline);
+		PipelineCompute& operator=(const PipelineCompute& _Pipeline);
+
+		PipelineCompute(PipelineCompute&& _Pipeline) noexcept;
+		PipelineCompute& operator=(PipelineCompute&& _Pipeline) noexcept;
+
+		inline Shader* GetShader() const noexcept
+		{
+			return m_Shader;
+		}
+
+		inline TE_IDX_SHADERCLASS GetShaderClassIDX() const noexcept
+		{
+			return m_ShaderClassIDX;
+		}
+
+		static void Factory(PipelineCompute** _outPipeline, Shader* _Shader);
+
+	private:
+		PipelineCompute(uint32_t _ID, Shader* _Shader);
+
+
+	private:
+		uint32_t m_ID;
+
+		Shader* m_Shader;
+		TE_IDX_SHADERCLASS m_ShaderClassIDX;
+
+		std::string m_Name = "PSO_****";
+
+
+		friend class PiplineManager;
+		friend class API::DirectX12::DirectX12PiplineManager;
 	};
 }

@@ -94,8 +94,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalDependencies>PhysX_static_64.lib;PhysXCharacterKinematic_static_64.lib;PhysXCommon_static_64.lib;PhysXCooking_static_64.lib;PhysXExtensions_static_64.lib;PhysXFoundation_static_64.lib;PhysXPvdSDK_static_64.lib;PhysXVehicle_static_64.lib;assimp-vc142-mtd.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\Dependencies;..\Dependencies\DirectXShaderCompiler\lib\x64;..\Dependencies\assimp\lib;..\Dependencies\GeometryGenerator\lib\x64\Debug;..\Dependencies\Physx\lib\debug;..\Dependencies\assimp\lib\debug;..\Dependencies\DirectXTK12\Lib\x64\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>PhysX_static_64.lib;PhysXCharacterKinematic_static_64.lib;PhysXCommon_static_64.lib;PhysXCooking_static_64.lib;PhysXExtensions_static_64.lib;PhysXFoundation_static_64.lib;PhysXPvdSDK_static_64.lib;PhysXVehicle_static_64.lib;DirectXMesh.lib;assimp-vc142-mtd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\Dependencies;..\Dependencies\DirectXShaderCompiler\lib\x64;..\Dependencies\assimp\lib;..\Dependencies\GeometryGenerator\lib\x64\Debug;..\Dependencies\Physx\lib\debug;..\Dependencies\assimp\lib\debug;..\Dependencies\DirectXMesh\lib\X64-Debug;..\Dependencies\DirectXTK12\Lib\x64\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -121,8 +121,8 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <Lib>
-      <AdditionalDependencies>PhysX_static_64.lib;PhysXCharacterKinematic_static_64.lib;PhysXCommon_static_64.lib;PhysXCooking_static_64.lib;PhysXExtensions_static_64.lib;PhysXFoundation_static_64.lib;PhysXPvdSDK_static_64.lib;PhysXVehicle_static_64.lib;assimp-vc142-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\Dependencies;..\Dependencies\DirectXShaderCompiler\lib\x64;..\Dependencies\assimp\lib;..\Dependencies\GeometryGenerator\lib\x64\Release;..\Dependencies\Physx\lib\release;..\Dependencies\assimp\lib\release;..\Dependencies\DirectXTK12\Lib\x64\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>PhysX_static_64.lib;PhysXCharacterKinematic_static_64.lib;PhysXCommon_static_64.lib;PhysXCooking_static_64.lib;PhysXExtensions_static_64.lib;PhysXFoundation_static_64.lib;PhysXPvdSDK_static_64.lib;PhysXVehicle_static_64.lib;DirectXMesh.lib;assimp-vc142-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\Dependencies;..\Dependencies\DirectXShaderCompiler\lib\x64;..\Dependencies\assimp\lib;..\Dependencies\GeometryGenerator\lib\x64\Release;..\Dependencies\Physx\lib\release;..\Dependencies\assimp\lib\release;..\Dependencies\DirectXMesh\lib\X64-Release;..\Dependencies\DirectXTK12\Lib\x64\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Dist|x64'">
@@ -148,7 +148,7 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <Lib>
-      <AdditionalDependencies>PhysX_static_64.lib;PhysXCharacterKinematic_static_64.lib;PhysXCommon_static_64.lib;PhysXCooking_static_64.lib;PhysXExtensions_static_64.lib;PhysXFoundation_static_64.lib;PhysXPvdSDK_static_64.lib;PhysXVehicle_static_64.lib;assimp-vc142-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>PhysX_static_64.lib;PhysXCharacterKinematic_static_64.lib;PhysXCommon_static_64.lib;PhysXCooking_static_64.lib;PhysXExtensions_static_64.lib;PhysXFoundation_static_64.lib;PhysXPvdSDK_static_64.lib;PhysXVehicle_static_64.lib;DirectXMesh.lib;assimp-vc142-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\Dependencies;..\Dependencies\DirectXShaderCompiler\lib\x64;..\Dependencies\assimp\lib;..\Dependencies\GeometryGenerator\lib\x64\Release;..\Dependencies\Physx\lib\release;..\Dependencies\assimp\lib\release;..\Dependencies\DirectXTK12\Lib\x64\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
@@ -170,11 +170,11 @@
     <ClInclude Include="src\Core\Application.h" />
     <ClInclude Include="src\Core\Core.h" />
     <ClInclude Include="src\Core\Entity\Camera\Camera.h" />
+    <ClInclude Include="src\Core\Entity\Camera\CameraCascadedFrustum.h" />
     <ClInclude Include="src\Core\Entity\Camera\CameraController.h" />
     <ClInclude Include="src\Core\Entity\Camera\CameraManager.h" />
     <ClInclude Include="src\Core\Entity\Camera\CameraOrthographic.h" />
     <ClInclude Include="src\Core\Entity\Camera\CameraPerspective.h" />
-    <ClInclude Include="src\Core\Entity\Camera\CameraCascadedFrustum.h" />
     <ClInclude Include="src\Core\Entity\Camera\ICamera.h" />
     <ClInclude Include="src\Core\Entity\Components.h" />
     <ClInclude Include="src\Core\Entity\Components\BoundingBoxComponent.h" />
@@ -233,6 +233,7 @@
     <ClInclude Include="src\Core\PhysicEngine\PhysicsEngine.h" />
     <ClInclude Include="src\Core\Renderer\Buffer.h" />
     <ClInclude Include="src\Core\Renderer\BufferManager.h" />
+    <ClInclude Include="src\Core\Renderer\BufferStructured.h" />
     <ClInclude Include="src\Core\Renderer\CommandList.h" />
     <ClInclude Include="src\Core\Renderer\ConstantBuffer.h" />
     <ClInclude Include="src\Core\Renderer\ConstantBufferStructs.h" />
@@ -247,11 +248,12 @@
     <ClInclude Include="src\Core\Renderer\RenderPass.h" />
     <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_ForwardRendering.h" />
     <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_GenerateShadowMap.h" />
+    <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_PostProcessing_HDR.h" />
+    <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_RenderBoudingBoxes.h" />
     <ClInclude Include="src\Core\Renderer\RenderPassStack.h" />
     <ClInclude Include="src\Core\Renderer\RendererCommand.h" />
     <ClInclude Include="src\Core\Renderer\RendererIDX.h" />
     <ClInclude Include="src\Core\Renderer\RendererLayer.h" />
-    <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_RenderBoudingBoxes.h" />
     <ClInclude Include="src\Core\Renderer\Shader.h" />
     <ClInclude Include="src\Core\Renderer\ShaderInputLayout.h" />
     <ClInclude Include="src\Core\Renderer\ShaderManager.h" />
@@ -295,11 +297,11 @@
     <ClCompile Include="src\API\IDXGI.cpp" />
     <ClCompile Include="src\Core\Application.cpp" />
     <ClCompile Include="src\Core\Entity\Camera\Camera.cpp" />
+    <ClCompile Include="src\Core\Entity\Camera\CameraCascadedFrustum.cpp" />
     <ClCompile Include="src\Core\Entity\Camera\CameraController.cpp" />
     <ClCompile Include="src\Core\Entity\Camera\CameraManager.cpp" />
     <ClCompile Include="src\Core\Entity\Camera\CameraOrthographic.cpp" />
     <ClCompile Include="src\Core\Entity\Camera\CameraPerspective.cpp" />
-    <ClCompile Include="src\Core\Entity\Camera\CameraCascadedFrustum.cpp" />
     <ClCompile Include="src\Core\Entity\Camera\ICamera.cpp" />
     <ClCompile Include="src\Core\Entity\Components\BoundingBoxComponent.cpp" />
     <ClCompile Include="src\Core\Entity\Components\CameraComponent.cpp" />
@@ -353,6 +355,7 @@
     <ClCompile Include="src\Core\PhysicEngine\PhysicsEngine.cpp" />
     <ClCompile Include="src\Core\Renderer\Buffer.cpp" />
     <ClCompile Include="src\Core\Renderer\BufferManager.cpp" />
+    <ClCompile Include="src\Core\Renderer\BufferStructured.cpp" />
     <ClCompile Include="src\Core\Renderer\CommandList.cpp" />
     <ClCompile Include="src\Core\Renderer\ConstantBuffer.cpp" />
     <ClCompile Include="src\Core\Renderer\GraphicResource.cpp" />
@@ -364,10 +367,11 @@
     <ClCompile Include="src\Core\Renderer\RenderPass.cpp" />
     <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_ForwardRendering.cpp" />
     <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_GenerateShadowMap.cpp" />
+    <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_PostProcessing_HDR.cpp" />
+    <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_RenderBoudingBoxes.cpp" />
     <ClCompile Include="src\Core\Renderer\RenderPassStack.cpp" />
     <ClCompile Include="src\Core\Renderer\RendererCommand.cpp" />
     <ClCompile Include="src\Core\Renderer\RendererLayer.cpp" />
-    <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_RenderBoudingBoxes.cpp" />
     <ClCompile Include="src\Core\Renderer\Shader.cpp" />
     <ClCompile Include="src\Core\Renderer\ShaderInputLayout.cpp" />
     <ClCompile Include="src\Core\Renderer\ShaderManager.cpp" />

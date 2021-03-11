@@ -8,7 +8,9 @@ namespace TruthEngine
 	{
 	public:
 
-		Texture(uint32_t width
+		Texture(
+			TE_IDX_GRESOURCES _IDX
+			,uint32_t width
 			, uint32_t height
 			, TE_RESOURCE_FORMAT format
 			, TE_RESOURCE_USAGE usage

@@ -18,7 +18,7 @@ namespace TruthEngine
 	class Buffer : public GraphicResource
 	{
 	public:
-		Buffer(size_t sizeInByte, TE_RESOURCE_USAGE usage, TE_RESOURCE_STATES initState);
+		Buffer(TE_IDX_GRESOURCES _IDX, size_t sizeInByte, TE_RESOURCE_USAGE usage, TE_RESOURCE_STATES initState, uint32_t elementNum, uint32_t elementSizeInByte, bool isByteAddress, bool isUploadHeapBuffer);
 			/*Buffer(size_t sizeInByte, TE_RESOURCE_USAGE usage, TE_RESOURCE_STATES initState)
 			: GraphicResource(usage, TE_RESOURCE_TYPE::BUFFER, initState)
 			, m_SizeInByte(static_cast<uint64_t>(sizeInByte))*/
@@ -37,13 +37,38 @@ namespace TruthEngine
 			m_SizeInByte = size;
 		}
 
+		inline uint32_t GetElementNum() const noexcept
+		{
+			return m_ElementNum;
+		}
+
+		inline uint32_t GetElementSizeInByte() const noexcept
+		{
+			return m_ElementSizeInByte;
+		}
+
+		inline bool IsByteAddress() const noexcept
+		{
+			return m_IsByteAddress;
+		}
+
 		const void* GetDataPtr(uint8_t frameIndex) const noexcept;
 	
 
 	protected:
-		std::vector<uint8_t*> m_MappedData;
-		uint64_t m_SizeInByte = 0;
+		size_t m_SizeInByte = 0;
+		uint32_t m_ElementNum = 0;
+		uint32_t m_ElementSizeInByte = 0;
+		bool m_IsByteAddress = false;
+		bool m_IsUploadHeapBuffer = false;
 
+		std::vector<uint8_t*> m_MappedData;
+
+
+
+		//friend classes
+		friend class BufferManager;
+		friend class API::DirectX12::DirectX12BufferManager;
 	};
 
 
@@ -52,8 +77,8 @@ namespace TruthEngine
 	{
 	public:
 
-		BufferUpload(size_t sizeInByte , TE_RESOURCE_USAGE usage)
-			: Buffer(sizeInByte, usage, TE_RESOURCE_STATES::GENERIC_READ0)
+		BufferUpload(TE_IDX_GRESOURCES _IDX, size_t sizeInByte , TE_RESOURCE_USAGE usage)
+			: Buffer(_IDX, sizeInByte, usage, TE_RESOURCE_STATES::GENERIC_READ0, 0, 0, false, true)
 		{}
 
 		virtual ~BufferUpload() = default;
@@ -72,29 +97,6 @@ namespace TruthEngine
 		friend class BufferManager;
 		friend class API::DirectX12::DirectX12BufferManager;
 	};
-
-
-
-	class BufferUploadIntermediate : public BufferUpload
-	{
-	public:
-		BufferUploadIntermediate(size_t sizeInByte)
-			: BufferUpload(sizeInByte, TE_RESOURCE_USAGE_INTERMEDIATEUPLOADBBUFFER)
-		{}
-
-		virtual ~BufferUploadIntermediate() = default;
-
-		BufferUploadIntermediate(const BufferUploadIntermediate&) = default;
-		BufferUploadIntermediate& operator=(const BufferUploadIntermediate&) = default;
-
-		BufferUploadIntermediate(BufferUploadIntermediate&&) noexcept = default;
-		BufferUploadIntermediate& operator=(BufferUploadIntermediate&&) noexcept = default;
-
-
-	protected:
-
-	};
-
 
 
 	class BufferDefault : public Buffer

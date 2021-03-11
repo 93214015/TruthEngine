@@ -38,8 +38,6 @@ namespace TruthEngine
 		void Render() override;
 
 
-		void OnSceneViewportResize(uint32_t width, uint32_t height) override;
-
 	private:
 
 
@@ -56,7 +54,7 @@ namespace TruthEngine
 		Viewport m_Viewport;
 		ViewRect m_ViewRect;
 
-		std::unordered_map<TE_IDX_MESH_TYPE, std::shared_ptr<Pipeline>> m_Pipelines;
+		std::unordered_map<TE_IDX_MESH_TYPE, PipelineGraphics*> m_Pipelines;
 
 		ShaderManager* m_ShaderManager;
 		BufferManager* m_BufferManager;

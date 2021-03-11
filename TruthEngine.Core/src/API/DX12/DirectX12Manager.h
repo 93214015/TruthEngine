@@ -84,12 +84,15 @@ namespace TruthEngine
 		struct DirectX12RootArgumentTable
 		{
 			DirectX12RootArgumentTable() = default;
-			DirectX12RootArgumentTable(uint32_t parameterIndex, D3D12_GPU_DESCRIPTOR_HANDLE gpuDescriptorHandle)
-				: ParameterIndex(parameterIndex), GPUDescriptorHandle(gpuDescriptorHandle)
+			DirectX12RootArgumentTable(uint32_t parameterIndex, uint32_t heapStartOffset, D3D12_GPU_DESCRIPTOR_HANDLE gpuDescriptorHandle)
+				: ParameterIndex(parameterIndex), HeapStartOffset(heapStartOffset), GPUDescriptorHandle(gpuDescriptorHandle)
 			{}
 
-			uint32_t ParameterIndex;
+
+			uint32_t ParameterIndex = -1;
+			uint32_t HeapStartOffset = -1;
 			D3D12_GPU_DESCRIPTOR_HANDLE GPUDescriptorHandle;
+
 		};
 
 		struct DirectX12RootArgumentDirectConstant
@@ -105,19 +108,21 @@ namespace TruthEngine
 		struct DirectX12RootArgumentDescriptor
 		{
 			DirectX12RootArgumentDescriptor() = default;
-			DirectX12RootArgumentDescriptor(uint32_t parameterIndex)
-				: ParameterIndex(parameterIndex)
+			DirectX12RootArgumentDescriptor(uint32_t _ParameterIndex, const D3D12_GPU_VIRTUAL_ADDRESS _GPUVirtualAddress)
+				: mParameterIndex(_ParameterIndex), mGPUVirtualAddress(_GPUVirtualAddress)
 			{}
 
-			uint32_t ParameterIndex;
+			uint32_t mParameterIndex;
+			D3D12_GPU_VIRTUAL_ADDRESS mGPUVirtualAddress;
 		};
 
 		struct DirectX12RootArguments
 		{
 			std::vector<DirectX12RootArgumentTable> Tables;
-			std::unordered_map<TE_IDX_CONSTANTBUFFER, DirectX12RootArgumentDirectConstant> DircectConstants;
-			std::unordered_map<TE_IDX_CONSTANTBUFFER, DirectX12RootArgumentDescriptor> DescriptorCBV;
-			std::unordered_map<TE_IDX_TEXTURE, DirectX12RootArgumentDescriptor> DescriptorSRV;
+			std::unordered_map<TE_IDX_GRESOURCES, DirectX12RootArgumentDirectConstant> DircectConstants;
+			std::unordered_map<TE_IDX_GRESOURCES, DirectX12RootArgumentDescriptor> DescriptorCBV;
+			std::unordered_map<TE_IDX_GRESOURCES, DirectX12RootArgumentDescriptor> DescriptorSRV;
+			std::unordered_map<TE_IDX_GRESOURCES, DirectX12RootArgumentDescriptor> DescriptorUAV;
 		};
 
 

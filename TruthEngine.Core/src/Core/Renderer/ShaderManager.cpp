@@ -2,6 +2,7 @@
 #include "ShaderManager.h"
 
 #include "API/DX12/DirectX12ShaderManager.h"
+#include "BufferManager.h"
 
 namespace TruthEngine
 {
@@ -18,6 +19,19 @@ namespace TruthEngine
 		}
 
 		return _CreateShaderSignature(shaderClassIDX);
+	}
+
+
+	const TruthEngine::ShaderRequiredResources* ShaderManager::GetShaderRequiredResources(const TE_IDX_SHADERCLASS _ShaderClassIDX) const
+	{
+		if (_ShaderClassIDX == TE_IDX_SHADERCLASS::NONE)
+			return nullptr;
+
+		auto _Itr = m_Map_ShaderRequiedResources.find(_ShaderClassIDX);
+
+		TE_ASSERT_CORE(_Itr != m_Map_ShaderRequiedResources.end(), "ShaderManager::GetShaderRequiredResources : ShaderRequiredResource was not found!");
+
+		return &_Itr->second;
 	}
 
 
@@ -51,17 +65,181 @@ namespace TruthEngine
 		}
 	}
 
-
 	ShaderSignature* ShaderManager::_CreateShaderSignature(const TE_IDX_SHADERCLASS shaderClassIDX)
 	{
-		ShaderSignature* sg;
 
-		sg = &m_Map_ShaderSignatures[shaderClassIDX];
-		sg->ConstantBuffers = _CreateConstantBufferSlots(shaderClassIDX);
-		sg->Textures = _CreateTextureSlots(shaderClassIDX);
-		_CreateInputElements(sg->InputElements, shaderClassIDX);
+		ShaderSignature* _ShaderSignature = &m_Map_ShaderSignatures[shaderClassIDX];
 
-		return sg;
+		switch (shaderClassIDX)
+		{
+		case TE_IDX_SHADERCLASS::NONE:
+			break;
+		case TE_IDX_SHADERCLASS::FORWARDRENDERING:
+		case TE_IDX_SHADERCLASS::RENDERENVIRONMENTMAP:
+		{
+			_ShaderSignature->mShaderSignatureFlags = ShaderSignature::EShaderSignatureFlags_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT
+				| ShaderSignature::EShaderSignatureFlags_DENY_DOMAIN_SHADER_ROOT_ACCESS
+				| ShaderSignature::EShaderSignatureFlags_DENY_GEOMETRY_SHADER_ROOT_ACCESS
+				| ShaderSignature::EShaderSignatureFlags_DENY_HULL_SHADER_ROOT_ACCESS
+				| ShaderSignature::EShaderSignatureFlags_DENY_MESH_SHADER_ROOT_ACCESS;
+
+			auto _ShaderParam = &_ShaderSignature->AddParameter();
+			_ShaderParam->mParameter = ShaderSignature::ShaderConstant(TE_IDX_GRESOURCES::Constant_PerMesh, 0, 0, static_cast<ShaderSignature::EShaderVisibility>(ShaderSignature::EShaderVisibility_ALL));
+
+			_ShaderParam = &_ShaderSignature->AddParameter();
+			_ShaderParam->mParameter = ShaderSignature::ShaderTable
+			(
+				static_cast<ShaderSignature::EShaderVisibility>(ShaderSignature::EShaderVisibility_ALL)
+				, {
+						ShaderSignature::ShaderRange(1, 0, ShaderSignature::EShaderRangeType::CBV, ShaderSignature::EShaderRangeFlags::EShaderRangeFlags_NONE,
+						{
+							ShaderSignature::ShaderRangeView(TE_IDX_GRESOURCES::CBuffer_PerFrame, ShaderSignature::EShaderRangeType::CBV),
+							ShaderSignature::ShaderRangeView(TE_IDX_GRESOURCES::CBuffer_LightData, ShaderSignature::EShaderRangeType::CBV),
+							ShaderSignature::ShaderRangeView(TE_IDX_GRESOURCES::CBuffer_Materials, ShaderSignature::EShaderRangeType::CBV),
+							ShaderSignature::ShaderRangeView(TE_IDX_GRESOURCES::CBuffer_UnFrequent, ShaderSignature::EShaderRangeType::CBV),
+						}),
+						ShaderSignature::ShaderRange(0, 0, ShaderSignature::EShaderRangeType::SRV, ShaderSignature::EShaderRangeFlags::EShaderRangeFlags_NONE,
+						{
+							ShaderSignature::ShaderRangeView(TE_IDX_GRESOURCES::Texture_DS_ShadowMap, ShaderSignature::EShaderRangeType::SRV),
+							ShaderSignature::ShaderRangeView(TE_IDX_GRESOURCES::Texture_CubeMap_Environment, ShaderSignature::EShaderRangeType::SRV),
+						})
+				}
+			);
+
+			_ShaderParam = &_ShaderSignature->AddParameter();
+			_ShaderParam->mParameter = ShaderSignature::ShaderTable
+			(
+				static_cast<ShaderSignature::EShaderVisibility>(ShaderSignature::EShaderVisibility_ALL),
+				{
+						ShaderSignature::ShaderRange(2, 0, ShaderSignature::EShaderRangeType::SRV, ShaderSignature::EShaderRangeFlags::EShaderRangeFlags_NONE,
+						{
+							ShaderSignature::ShaderRangeView(TE_IDX_GRESOURCES::Texture_MaterialTextures, ShaderSignature::EShaderRangeType::SRV)
+						} , 500)
+				}
+			);
+
+			break;
+		}
+		case TE_IDX_SHADERCLASS::GENERATEBASICSHADOWMAP:
+		{
+			_ShaderSignature->mShaderSignatureFlags = ShaderSignature::EShaderSignatureFlags_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT
+				| ShaderSignature::EShaderSignatureFlags_DENY_DOMAIN_SHADER_ROOT_ACCESS
+				| ShaderSignature::EShaderSignatureFlags_DENY_GEOMETRY_SHADER_ROOT_ACCESS
+				| ShaderSignature::EShaderSignatureFlags_DENY_HULL_SHADER_ROOT_ACCESS
+				| ShaderSignature::EShaderSignatureFlags_DENY_MESH_SHADER_ROOT_ACCESS
+				| ShaderSignature::EShaderSignatureFlags_DENY_PIXEL_SHADER_ROOT_ACCESS;
+
+			ShaderSignature::ShaderParameter* _ShaderParam = &_ShaderSignature->AddParameter();
+			_ShaderParam->mParameter = ShaderSignature::ShaderConstant(TE_IDX_GRESOURCES::Constant_ShadowMapPerMesh, 0, 0, static_cast<ShaderSignature::EShaderVisibility>(ShaderSignature::EShaderVisibility_VERTEX));
+
+			_ShaderParam = &_ShaderSignature->AddParameter();
+			_ShaderParam->mParameter = ShaderSignature::ShaderConstant(TE_IDX_GRESOURCES::Constant_ShadowMapPerLight, 1, 0, static_cast<ShaderSignature::EShaderVisibility>(ShaderSignature::EShaderVisibility_VERTEX));
+			break;
+		}
+		case TE_IDX_SHADERCLASS::POSTPROCESSING_HDR_DOWNSACLING_FIRSTPASS:
+		{
+			_ShaderSignature->mShaderSignatureFlags = 
+				ShaderSignature::EShaderSignatureFlags_DENY_VERTEX_SHADER_ROOT_ACCESS
+				| ShaderSignature::EShaderSignatureFlags_DENY_DOMAIN_SHADER_ROOT_ACCESS
+				| ShaderSignature::EShaderSignatureFlags_DENY_GEOMETRY_SHADER_ROOT_ACCESS
+				| ShaderSignature::EShaderSignatureFlags_DENY_HULL_SHADER_ROOT_ACCESS
+				| ShaderSignature::EShaderSignatureFlags_DENY_MESH_SHADER_ROOT_ACCESS
+				| ShaderSignature::EShaderSignatureFlags_DENY_PIXEL_SHADER_ROOT_ACCESS;
+
+			ShaderSignature::ShaderParameter* _ShaderParam = &_ShaderSignature->AddParameter();
+			_ShaderParam->mParameter = ShaderSignature::ShaderTable
+			(
+				static_cast<ShaderSignature::EShaderVisibility>(ShaderSignature::EShaderVisibility_ALL)
+				, {
+						ShaderSignature::ShaderRange(0, 0, ShaderSignature::EShaderRangeType::CBV, ShaderSignature::EShaderRangeFlags::EShaderRangeFlags_NONE,
+						{
+							ShaderSignature::ShaderRangeView(TE_IDX_GRESOURCES::CBuffer_HDR_DownScaling, ShaderSignature::EShaderRangeType::CBV),
+						}),
+						ShaderSignature::ShaderRange(0, 0, ShaderSignature::EShaderRangeType::UAV, ShaderSignature::EShaderRangeFlags::EShaderRangeFlags_NONE,
+						{
+							ShaderSignature::ShaderRangeView(TE_IDX_GRESOURCES::Buffer_HDRAverageLumFirstPass, ShaderSignature::EShaderRangeType::UAV),
+						}),
+						ShaderSignature::ShaderRange(0, 0, ShaderSignature::EShaderRangeType::SRV, ShaderSignature::EShaderRangeFlags::EShaderRangeFlags_NONE,
+						{
+							ShaderSignature::ShaderRangeView(TE_IDX_GRESOURCES::Texture_RT_SceneBufferHDR, ShaderSignature::EShaderRangeType::SRV),
+						})
+				}
+			);
+
+
+			break;
+		}
+		case TE_IDX_SHADERCLASS::POSTPROCESSING_HDR_DOWNSACLING_SECONDPASS:
+		{
+			_ShaderSignature->mShaderSignatureFlags = 
+				ShaderSignature::EShaderSignatureFlags_DENY_VERTEX_SHADER_ROOT_ACCESS
+				| ShaderSignature::EShaderSignatureFlags_DENY_DOMAIN_SHADER_ROOT_ACCESS
+				| ShaderSignature::EShaderSignatureFlags_DENY_GEOMETRY_SHADER_ROOT_ACCESS
+				| ShaderSignature::EShaderSignatureFlags_DENY_HULL_SHADER_ROOT_ACCESS
+				| ShaderSignature::EShaderSignatureFlags_DENY_MESH_SHADER_ROOT_ACCESS
+				| ShaderSignature::EShaderSignatureFlags_DENY_PIXEL_SHADER_ROOT_ACCESS;
+
+			ShaderSignature::ShaderParameter* _ShaderParam = &_ShaderSignature->AddParameter();
+			_ShaderParam->mParameter = ShaderSignature::ShaderTable
+			(
+				static_cast<ShaderSignature::EShaderVisibility>(ShaderSignature::EShaderVisibility_ALL)
+				, {
+						ShaderSignature::ShaderRange(0, 0, ShaderSignature::EShaderRangeType::CBV, ShaderSignature::EShaderRangeFlags::EShaderRangeFlags_NONE,
+						{
+							ShaderSignature::ShaderRangeView(TE_IDX_GRESOURCES::CBuffer_HDR_DownScaling, ShaderSignature::EShaderRangeType::CBV),
+						}),
+						ShaderSignature::ShaderRange(0, 0, ShaderSignature::EShaderRangeType::UAV, ShaderSignature::EShaderRangeFlags::EShaderRangeFlags_NONE,
+						{
+							ShaderSignature::ShaderRangeView(TE_IDX_GRESOURCES::Buffer_HDRAverageLumSecondPass, ShaderSignature::EShaderRangeType::UAV),
+						}),
+						ShaderSignature::ShaderRange(0, 0, ShaderSignature::EShaderRangeType::SRV, ShaderSignature::EShaderRangeFlags::EShaderRangeFlags_NONE,
+						{
+							ShaderSignature::ShaderRangeView(TE_IDX_GRESOURCES::Buffer_HDRAverageLumFirstPass, ShaderSignature::EShaderRangeType::SRV),
+						})
+				}
+			);
+
+			break;
+		}
+		case TE_IDX_SHADERCLASS::POSTPROCESSING_HDR_FINALPASS:
+		{
+			_ShaderSignature->mShaderSignatureFlags =
+				ShaderSignature::EShaderSignatureFlags_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT
+				| ShaderSignature::EShaderSignatureFlags_DENY_DOMAIN_SHADER_ROOT_ACCESS
+				| ShaderSignature::EShaderSignatureFlags_DENY_GEOMETRY_SHADER_ROOT_ACCESS
+				| ShaderSignature::EShaderSignatureFlags_DENY_HULL_SHADER_ROOT_ACCESS
+				| ShaderSignature::EShaderSignatureFlags_DENY_MESH_SHADER_ROOT_ACCESS;
+
+			ShaderSignature::ShaderParameter* _ShaderParam = &_ShaderSignature->AddParameter();
+			_ShaderParam->mParameter = ShaderSignature::ShaderTable
+			(
+				static_cast<ShaderSignature::EShaderVisibility>(ShaderSignature::EShaderVisibility_ALL)
+				, {
+						ShaderSignature::ShaderRange(0, 0, ShaderSignature::EShaderRangeType::CBV, ShaderSignature::EShaderRangeFlags::EShaderRangeFlags_NONE,
+						{
+							ShaderSignature::ShaderRangeView(TE_IDX_GRESOURCES::CBuffer_HDR_FinalPass, ShaderSignature::EShaderRangeType::CBV),
+						}),						
+						ShaderSignature::ShaderRange(0, 0, ShaderSignature::EShaderRangeType::SRV, ShaderSignature::EShaderRangeFlags::EShaderRangeFlags_NONE,
+						{
+							ShaderSignature::ShaderRangeView(TE_IDX_GRESOURCES::Texture_RT_SceneBufferHDR, ShaderSignature::EShaderRangeType::SRV),
+							ShaderSignature::ShaderRangeView(TE_IDX_GRESOURCES::Buffer_HDRAverageLumSecondPass, ShaderSignature::EShaderRangeType::SRV),
+						})
+				}
+			);
+
+			break;
+		}
+		default:
+			throw;
+			break;
+		}
+
+		ShaderRequiredResources* _ShaderRequiredResources = &m_Map_ShaderRequiedResources[shaderClassIDX];
+		_ShaderRequiredResources->AddResource(_ShaderSignature);
+
+		_CreateInputElements(_ShaderSignature->InputElements, shaderClassIDX);
+
+		return _ShaderSignature;
 
 	}
 
@@ -92,16 +270,16 @@ namespace TruthEngine
 			break;
 		}
 		default:
-			throw;
 			break;
 		}
 
 	}
 
+	/*
 
-	std::vector<std::vector<ShaderSignature::ShaderConstantBufferSlot>> ShaderManager::_CreateConstantBufferSlots(TE_IDX_SHADERCLASS shaderClassIDX)
+	std::vector<std::vector<ShaderSignature::ShaderConstantBufferViewSlot>> ShaderManager::_CreateConstantBufferViewSlots(TE_IDX_SHADERCLASS shaderClassIDX)
 	{
-		std::vector<std::vector<ShaderSignature::ShaderConstantBufferSlot>> v;
+		std::vector<std::vector<ShaderSignature::ShaderConstantBufferViewSlot>> v;
 
 		switch (shaderClassIDX)
 		{
@@ -112,16 +290,16 @@ namespace TruthEngine
 		{
 			v =
 			{
-				{ ShaderSignature::ShaderConstantBufferSlot{0, 0, TE_IDX_CONSTANTBUFFER::PER_FRAME}, ShaderSignature::ShaderConstantBufferSlot{1, 0, TE_IDX_CONSTANTBUFFER::LIGHTDATA}, ShaderSignature::ShaderConstantBufferSlot{2, 0, TE_IDX_CONSTANTBUFFER::MATERIALS}, ShaderSignature::ShaderConstantBufferSlot{3, 0, TE_IDX_CONSTANTBUFFER::UNFREQUENT} },
-				{ ShaderSignature::ShaderConstantBufferSlot{4, 0, TE_IDX_CONSTANTBUFFER::DIRECT_PER_MESH} }
+				{ ShaderSignature::ShaderConstantBufferViewSlot{0, 0, TE_IDX_GRESOURCES::CBuffer_PerFrame}, ShaderSignature::ShaderConstantBufferViewSlot{1, 0, TE_IDX_GRESOURCES::CBuffer_LightData}, ShaderSignature::ShaderConstantBufferViewSlot{2, 0, TE_IDX_GRESOURCES::CBuffer_Materials}, ShaderSignature::ShaderConstantBufferViewSlot{3, 0, TE_IDX_GRESOURCES::CBuffer_UnFrequent} },
+				{ ShaderSignature::ShaderConstantBufferViewSlot{4, 0, TE_IDX_GRESOURCES::Constant_PerMesh} }
 			};
 			break;
 		}
 		case TE_IDX_SHADERCLASS::GENERATEBASICSHADOWMAP:
 			v =
 			{
-				{ ShaderSignature::ShaderConstantBufferSlot{0, 0, TE_IDX_CONSTANTBUFFER::DIRECT_SHADOWMAP_PER_LIGHT} },
-				{ ShaderSignature::ShaderConstantBufferSlot{1, 0, TE_IDX_CONSTANTBUFFER::DIRECT_SHADOWMAP_PER_MESH} }
+				{ ShaderSignature::ShaderConstantBufferViewSlot{0, 0, TE_IDX_GRESOURCES::Constant_ShadowMapPerLight} },
+				{ ShaderSignature::ShaderConstantBufferViewSlot{1, 0, TE_IDX_GRESOURCES::Constant_ShadowMapPerMesh} }
 			};
 			break;
 		default:
@@ -132,9 +310,9 @@ namespace TruthEngine
 	}
 
 
-	std::vector<std::vector<ShaderSignature::ShaderTextureSlot>> ShaderManager::_CreateTextureSlots(TE_IDX_SHADERCLASS shaderClassIDX)
+	std::vector<std::vector<ShaderSignature::ShaderShaderResourceViewSlot>> ShaderManager::_CreateShaderResourceViewSlots(TE_IDX_SHADERCLASS shaderClassIDX)
 	{
-		std::vector<std::vector<ShaderSignature::ShaderTextureSlot>> v;
+		std::vector<std::vector<ShaderSignature::ShaderShaderResourceViewSlot>> v;
 
 		switch (shaderClassIDX)
 		{
@@ -145,8 +323,8 @@ namespace TruthEngine
 		{
 			v =
 			{
-				{ ShaderSignature::ShaderTextureSlot{0, 0, TE_IDX_TEXTURE::DS_SHADOWMAP}, ShaderSignature::ShaderTextureSlot{1, 0, TE_IDX_TEXTURE::CUBEMAP_ENVIRONMENT} },
-				{ ShaderSignature::ShaderTextureSlot{2, 0, TE_IDX_TEXTURE::MATERIALTEXTURES} },
+				{ ShaderSignature::ShaderShaderResourceViewSlot(0, 0, TE_RESOURCE_TYPE::TEXTURE2D, (IDX)TE_IDX_GRESOURCES::Texture_DS_ShadowMap), ShaderSignature::ShaderShaderResourceViewSlot{1, 0, TE_RESOURCE_TYPE::TEXTURE2D, (IDX)TE_IDX_GRESOURCES::Texture_CubeMap_Environment} },
+				{ ShaderSignature::ShaderShaderResourceViewSlot{2, 0, TE_RESOURCE_TYPE::TEXTURE2D, (IDX)TE_IDX_GRESOURCES::Texture_MaterialTextures} },
 			};
 			break;
 		}
@@ -158,7 +336,7 @@ namespace TruthEngine
 		}
 
 		return v;
-	}
+	}*/
 
 
 	void ShaderManager::_GetShaderDefines(const RendererStateSet states)
@@ -177,4 +355,7 @@ namespace TruthEngine
 			m_Defines.emplace_back(L"ENABLE_MAP_DISPLACEMENT");
 		}
 	}
+
+
+
 }

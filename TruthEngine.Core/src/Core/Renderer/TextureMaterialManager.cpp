@@ -12,18 +12,16 @@ namespace TruthEngine
 	{
 		return m_Textures[textureID]->GetViewIndex();
 	}
-	std::shared_ptr<TextureMaterialManager> TextureMaterialManager::Factory()
-	{
 
+	TextureMaterialManager* TextureMaterialManager::Factory()
+	{
+		switch (Settings::RendererAPI)
 		{
-			switch (Settings::RendererAPI)
-			{
-			case TE_RENDERER_API::DirectX12:
-				return std::make_shared<API::DirectX12::DirectX12TextureMaterialManager>();
-				break;
-			default:
-				break;
-			}
+		case TE_RENDERER_API::DirectX12:
+			return API::DirectX12::DirectX12TextureMaterialManager::GetInstance();
+			break;
+		default:
+			break;
 		}
 
 	}

@@ -71,10 +71,13 @@ namespace TruthEngine
 			return m_ID == camera.m_ID;
 		}
 
-		virtual void UpdateFrustums(Scene* scene, Camera* referenceCamera) = 0;
+
+
+		virtual void UpdateFrustums(Scene* scene, Camera* referenceCamera, bool _UpdatePositinRegardingSceneAABB) = 0;
 		virtual const float4x4& GetViewProj(uint32_t splitIndex)const noexcept = 0;
 		virtual const float4x4& GetProjection(uint32_t splitIndex)const = 0;
 		virtual const BoundingFrustum& GetBoundingFrustum(uint32_t splitIndex)const = 0;
+		virtual void SetCascadesConveringDepth(const float* _CascadeCoveringDepths) = 0;
 
 		virtual uint32_t GetSplitNum() const noexcept = 0;
 
@@ -121,7 +124,7 @@ namespace TruthEngine
 		//
 		//Set Functions
 		//
-		void UpdateFrustums(Scene* scene, Camera* referenceCamera) override;
+		void UpdateFrustums(Scene* scene, Camera* referenceCamera, bool _UpdateViewRegardingSceneBB) override;
 
 		//
 		//Get Functions
@@ -146,10 +149,16 @@ namespace TruthEngine
 			return GetStaticSplitNum();
 		}
 
+		virtual void SetCascadesConveringDepth(const float* _CascadeCoveringDepths) override
+		{
+			memcpy(m_SplitFrustumCoveringPercentage, _CascadeCoveringDepths, sizeof(float) * TSplitNum);
+		}
+
 		constexpr uint32_t GetStaticSplitNum() const noexcept
 		{
 			return TSplitNum;
 		}
+
 
 	protected:
 
@@ -202,7 +211,7 @@ namespace TruthEngine
 
 
 	template<uint32_t TSplitNum>
-	void TruthEngine::CameraCascadedFrustum<TSplitNum>::UpdateFrustums(Scene* scene, Camera* referenceCamera)
+	void TruthEngine::CameraCascadedFrustum<TSplitNum>::UpdateFrustums(Scene* scene, Camera* referenceCamera, bool _UpdateViewRegardingSceneBB)
 	{
 		using namespace DirectX;
 
@@ -211,9 +220,24 @@ namespace TruthEngine
 		XMMatrix _xmView = XMLoadFloat4x4(&m_ViewMatrix);
 		_sceneAABB.Transform(_sceneAABBLightSpace, _xmView);
 
-		float rCameraViewRange = referenceCamera->GetZFarPlane() - referenceCamera->GetZNearPlane();
+		XMVector _sceneAABBCornersLightSpace[8];
+		float3 _tempsceneAABBCorners[8];
+		_sceneAABB.GetCorners(_tempsceneAABBCorners);
+
+		XMVector _sceneAABBLightSpaceMin = XMVectorFLTMax;
+		XMVector _sceneAABBLightSpaceMax = XMVectorFLTMin;
+
+		for (uint32_t cornerIndex = 0; cornerIndex < 8; ++cornerIndex)
+		{
+			_sceneAABBCornersLightSpace[cornerIndex] = XMVector3Transform(XMLoadFloat3(&_tempsceneAABBCorners[cornerIndex]), _xmView);
+			_sceneAABBLightSpaceMin = XMVectorMin(_sceneAABBLightSpaceMin, _sceneAABBCornersLightSpace[cornerIndex]);
+			_sceneAABBLightSpaceMax = XMVectorMax(_sceneAABBLightSpaceMax, _sceneAABBCornersLightSpace[cornerIndex]);
+		}
 
 		auto _lightViewInv = XMMatrixInverse(nullptr, _xmView);
+
+		float rCameraViewRange = referenceCamera->GetZFarPlane() - referenceCamera->GetZNearPlane();
+
 		auto _rCameraViewInv = DirectX::XMMatrixInverse(nullptr, DirectX::XMLoadFloat4x4(&referenceCamera->GetView()));
 
 		const BoundingFrustum& _rCameraBoundingFrustumViewSpace = referenceCamera->GetBoundingFrustumViewSpace();
@@ -272,34 +296,7 @@ namespace TruthEngine
 			/*FLOAT fWorldUnitsPerTexel = fCascadeBound / (float)m_CopyOfCascadeConfig.m_iBufferSize;
 			vWorldUnitsPerTexel = XMVectorSet(fWorldUnitsPerTexel, fWorldUnitsPerTexel, 0.0f, 0.0f);*/
 
-			XMVector _sceneAABBCornersLightSpace[8];
-			float3 _tempsceneAABBCorners[8];
-			_sceneAABB.GetCorners(_tempsceneAABBCorners);
-
-			XMVector _sceneAABBLightSpaceMin = XMVectorFLTMax;
-			XMVector _sceneAABBLightSpaceMax = XMVectorFLTMin;
-
-			for (uint32_t cornerIndex = 0; cornerIndex < 8; ++cornerIndex)
-			{
-				_sceneAABBCornersLightSpace[cornerIndex] = XMVector3Transform(XMLoadFloat3(&_tempsceneAABBCorners[cornerIndex]), _xmView);
-				_sceneAABBLightSpaceMin = XMVectorMin(_sceneAABBLightSpaceMin, _sceneAABBCornersLightSpace[cornerIndex]);
-				_sceneAABBLightSpaceMax = XMVectorMax(_sceneAABBLightSpaceMax, _sceneAABBCornersLightSpace[cornerIndex]);
-			}
-
-			/*XMVector _sceneAABBCornersLightSpace[8];
-			float3 _tempsceneAABBCornersViewSpace[8];
-			_sceneAABBLightSpace.GetCorners(_tempsceneAABBCornersViewSpace);
-
-
-			XMVector _sceneAABBLightSpaceMin = XMVectorFLTMax;
-			XMVector _sceneAABBLightSpaceMax = XMVectorFLTMin;
-
-			for (uint32_t cornerIndex = 0; cornerIndex < 8; ++cornerIndex)
-			{
-				_sceneAABBCornersLightSpace[cornerIndex] = XMLoadFloat3(&_tempsceneAABBCornersViewSpace[cornerIndex]);
-				_sceneAABBLightSpaceMin = XMVectorMin(_sceneAABBLightSpaceMin, _sceneAABBCornersLightSpace[cornerIndex]);
-				_sceneAABBLightSpaceMax = XMVectorMax(_sceneAABBLightSpaceMax, _sceneAABBCornersLightSpace[cornerIndex]);
-			}*/
+			
 
 			//we are using reverse depth so the near and far plane have reverse order
 			float _farPlane = XMVectorGetZ(_sceneAABBLightSpaceMin);
@@ -311,6 +308,7 @@ namespace TruthEngine
 
 			m_BoundingFrustums[splitIndex].Transform(m_BoundingFrustums[splitIndex], _lightViewInv);*/
 
+			
 			XMStoreFloat4x4(&m_ProjectionMatrix[splitIndex], _splitProjectionMatrix);
 
 			XMStoreFloat4x4(&m_ViewProjMatrix[splitIndex], XMMatrixMultiply(XMLoadFloat4x4(&m_ViewMatrix), _splitProjectionMatrix));

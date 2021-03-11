@@ -16,7 +16,7 @@ namespace TruthEngine {
 	{
 		switch (Settings::RendererAPI)
 		{
-		case TE_RENDERER_API::DirectX12 :
+		case TE_RENDERER_API::DirectX12:
 			return API::DirectX12::DirectX12BufferManager::GetInstance();
 			break;
 		default:
@@ -25,31 +25,103 @@ namespace TruthEngine {
 	}
 
 
-	TruthEngine::TextureRenderTarget* BufferManager::CreateRenderTarget(TE_IDX_TEXTURE idx, uint32_t width, uint32_t height, TE_RESOURCE_FORMAT format, const ClearValue_RenderTarget& clearValue, bool useAsShaderResource, bool enbaleMSAA)
+	BufferManager::BufferManager()
 	{
-		TextureRenderTarget& rt = m_TexturesRenderTarget.emplace_back(width, height, format, clearValue, useAsShaderResource, enbaleMSAA);
+		m_TexturesRenderTarget.reserve(20);
+		m_TexturesDepthStencil.reserve(20);
+		m_TexturesCubeMap.reserve(20);
+		m_Buffers.reserve(100);
 
-		m_Map_Textures[idx] = &rt;
+	}
 
-		CreateResource(&rt);
+	Buffer* BufferManager::CreateBufferStructuredRW(TE_IDX_GRESOURCES _IDX, uint32_t _ElementSizeInByte, uint32_t _ElementNum, bool _IsByteAddressBuffer)
+	{
+		auto _Itr = m_Map_GraphicResources.find(_IDX);
+		Buffer* _Buffer = nullptr;
 
-		return &rt;
+		if (_Itr == m_Map_GraphicResources.end())
+		{
+
+			_Buffer = &m_Buffers.emplace_back(_IDX, (_ElementSizeInByte * _ElementNum), TE_RESOURCE_USAGE_SHADERRESOURCE | TE_RESOURCE_USAGE_STRUCTUREDBUFFER | TE_RESOURCE_USAGE_UNORDEREDACCESS, TE_RESOURCE_STATES::UNORDERED_ACCESS, _ElementNum, _ElementSizeInByte, _IsByteAddressBuffer, false);
+
+			m_Map_Buffers[_IDX] = _Buffer;
+			m_Map_GraphicResources[_IDX] = _Buffer;
+		}
+		else
+		{
+			_Buffer = static_cast<Buffer*>(_Itr->second);
+			*_Buffer = Buffer(_IDX, (_ElementSizeInByte * _ElementNum), TE_RESOURCE_USAGE_SHADERRESOURCE | TE_RESOURCE_USAGE_STRUCTUREDBUFFER | TE_RESOURCE_USAGE_UNORDEREDACCESS, TE_RESOURCE_STATES::UNORDERED_ACCESS, _ElementNum, _ElementSizeInByte, _IsByteAddressBuffer, false);
+		}
+
+		CreateResource(_Buffer);
+
+		return _Buffer;
+	}
+
+	TruthEngine::TextureRenderTarget* BufferManager::CreateRenderTarget(TE_IDX_GRESOURCES _IDX, uint32_t width, uint32_t height, TE_RESOURCE_FORMAT format, const ClearValue_RenderTarget& clearValue, bool useAsShaderResource, bool enbaleMSAA)
+	{
+		auto _Itr = m_Map_GraphicResources.find(_IDX);
+
+		TextureRenderTarget* rt = nullptr;
+
+		if (_Itr == m_Map_GraphicResources.end())
+		{
+			rt = &m_TexturesRenderTarget.emplace_back(_IDX, width, height, format, clearValue, useAsShaderResource, enbaleMSAA);
+
+			m_Map_Textures[_IDX] = rt;
+			m_Map_GraphicResources[_IDX] = rt;
+		}
+		else
+		{
+			rt = static_cast<TextureRenderTarget*>(_Itr->second);
+			*rt = TextureRenderTarget(_IDX, width, height, format, clearValue, useAsShaderResource, enbaleMSAA);
+		}
+
+		CreateResource(rt);
+
+		return rt;
 	}
 
 
-	TruthEngine::TextureDepthStencil* BufferManager::CreateDepthStencil(TE_IDX_TEXTURE idx, uint32_t width, uint32_t height, TE_RESOURCE_FORMAT format, const ClearValue_DepthStencil& clearValue, bool useAsShaderResource, bool enbaleMSAA)
+	TruthEngine::TextureDepthStencil* BufferManager::CreateDepthStencil(TE_IDX_GRESOURCES _IDX, uint32_t width, uint32_t height, TE_RESOURCE_FORMAT format, const ClearValue_DepthStencil& clearValue, bool useAsShaderResource, bool enbaleMSAA)
 	{
 
-		TextureDepthStencil& ds = m_TexturesDepthStencil.emplace_back(width, height, format, clearValue, useAsShaderResource, enbaleMSAA);
+		auto _Itr = m_Map_GraphicResources.find(_IDX);
+		TextureDepthStencil* ds = nullptr;
 
-		m_Map_Textures[idx] = &ds;
+		if (_Itr == m_Map_GraphicResources.end())
+		{
+			ds = &m_TexturesDepthStencil.emplace_back(_IDX, width, height, format, clearValue, useAsShaderResource, enbaleMSAA);
 
-		CreateResource(&ds);
+			m_Map_Textures[_IDX] = ds;
+			m_Map_GraphicResources[_IDX] = ds;
+		}
+		else
+		{
+			ds = static_cast<TextureDepthStencil*>(_Itr->second);
+			*ds = TextureDepthStencil(_IDX, width, height, format, clearValue, useAsShaderResource, enbaleMSAA);
+		}
 
-		return &ds;
+		CreateResource(ds);
+
+		return ds;
 	}
 
-	TruthEngine::TextureRenderTarget* BufferManager::GetRenderTarget(TE_IDX_TEXTURE idx)
+
+	TruthEngine::GraphicResource* BufferManager::GetGraphicResource(TE_IDX_GRESOURCES _IDX) const
+	{
+		auto& _Itr = m_Map_GraphicResources.find(_IDX);
+
+		if (_Itr == m_Map_GraphicResources.end())
+		{
+			return nullptr;
+		}
+
+		return _Itr->second;
+	}
+
+
+	TruthEngine::TextureRenderTarget* BufferManager::GetRenderTarget(TE_IDX_GRESOURCES idx)
 	{
 		auto rt = m_Map_Textures.find(idx);
 
@@ -61,7 +133,7 @@ namespace TruthEngine {
 		return static_cast<TextureRenderTarget*>(rt->second);
 	}
 
-	TruthEngine::TextureDepthStencil* BufferManager::GetDepthStencil(TE_IDX_TEXTURE idx)
+	TruthEngine::TextureDepthStencil* BufferManager::GetDepthStencil(TE_IDX_GRESOURCES idx)
 	{
 		auto ds = m_Map_Textures.find(idx);
 
@@ -71,6 +143,19 @@ namespace TruthEngine {
 		}
 
 		return static_cast<TextureDepthStencil*>(ds->second);
+	}
+
+	Buffer* BufferManager::GetBuffer(TE_IDX_GRESOURCES _IDX)
+	{
+		auto _Itr = m_Map_Buffers.find(_IDX);
+		if (_Itr != m_Map_Buffers.end())
+		{
+			return _Itr->second;
+		}
+		else
+		{
+			return nullptr;
+		}
 	}
 
 	TruthEngine::TextureCubeMap* BufferManager::GetCubeMap(uint32_t index)
@@ -83,7 +168,7 @@ namespace TruthEngine {
 		return &m_TexturesCubeMap[m_SkyCubeMapIndex];
 	}
 
-	Texture* BufferManager::GetTexture(TE_IDX_TEXTURE idx)
+	Texture* BufferManager::GetTexture(TE_IDX_GRESOURCES idx)
 	{
 		auto itr = m_Map_Textures.find(idx);
 
@@ -95,7 +180,7 @@ namespace TruthEngine {
 		return itr->second;
 	}
 
-	ConstantBufferUploadBase* BufferManager::GetConstantBufferUpload(TE_IDX_CONSTANTBUFFER cbIDX)
+	ConstantBufferUploadBase* BufferManager::GetConstantBufferUpload(TE_IDX_GRESOURCES cbIDX)
 	{
 		auto cbItr = m_Map_ConstantBufferUpload.find(cbIDX);
 		if (cbItr != m_Map_ConstantBufferUpload.end())
@@ -106,7 +191,7 @@ namespace TruthEngine {
 		return nullptr;
 	}
 
-	ConstantBufferDirectBase* BufferManager::GetConstantBufferDirect(TE_IDX_CONSTANTBUFFER cbIDX)
+	ConstantBufferDirectBase* BufferManager::GetConstantBufferDirect(TE_IDX_GRESOURCES cbIDX)
 	{
 		auto cbItr = m_Map_ConstantBufferDirect.find(cbIDX);
 		if (cbItr != m_Map_ConstantBufferDirect.end())

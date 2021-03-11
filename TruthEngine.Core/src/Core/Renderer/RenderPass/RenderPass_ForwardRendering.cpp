@@ -13,6 +13,7 @@
 #include "Core/Renderer/SwapChain.h"
 
 #include "Core/Event/EventEntity.h"
+#include "Core/Event/EventApplication.h"
 #include "Core/Entity/Camera/CameraManager.h"
 
 
@@ -42,12 +43,12 @@ namespace TruthEngine
 
 		m_RendererCommand.Init(TE_IDX_RENDERPASS::FORWARDRENDERING, TE_IDX_SHADERCLASS::FORWARDRENDERING, m_BufferMgr, m_ShaderMgr);
 
-		m_TextureDepthStencil = m_RendererCommand.CreateDepthStencil(TE_IDX_TEXTURE::DS_SCENEBUFFER, TE_INSTANCE_APPLICATION->GetClientWidth(), TE_INSTANCE_APPLICATION->GetClientHeight(), TE_RESOURCE_FORMAT::R32_TYPELESS, ClearValue_DepthStencil{ 1.0f, 0 }, false, true);
+		m_TextureDepthStencil = m_RendererCommand.CreateDepthStencil(TE_IDX_GRESOURCES::Texture_DS_SceneBuffer, TE_INSTANCE_APPLICATION->GetClientWidth(), TE_INSTANCE_APPLICATION->GetClientHeight(), TE_RESOURCE_FORMAT::R32_TYPELESS, ClearValue_DepthStencil{ 1.0f, 0 }, false, true);
 
 		m_RendererCommand.CreateDepthStencilView(m_TextureDepthStencil, &m_DepthStencilView);
 
-		m_RendererCommand.CreateRenderTargetView(TE_IDX_TEXTURE::RT_SCENEBUFFER, &m_RenderTartgetView);
-		m_ConstantBufferDirect_PerMesh = m_RendererCommand.CreateConstantBufferDirect<ConstantBuffer_Data_Per_Mesh>(TE_IDX_CONSTANTBUFFER::DIRECT_PER_MESH);
+		m_RendererCommand.CreateRenderTargetView(TE_IDX_GRESOURCES::Texture_RT_SceneBufferHDR, &m_RenderTartgetView);
+		m_ConstantBufferDirect_PerMesh = m_RendererCommand.CreateConstantBufferDirect<ConstantBuffer_Data_Per_Mesh>(TE_IDX_GRESOURCES::Constant_PerMesh);
 
 
 		for (const auto* mat : TE_INSTANCE_MODELMANAGER->GetMaterials())
@@ -104,7 +105,7 @@ namespace TruthEngine
 	{
 		//m_TimerBegin.Start();
 
-		m_RendererCommand.Begin();
+		m_RendererCommand.BeginGraphics();
 
 		m_RendererCommand.SetViewPort(&m_Viewport, &m_ViewRect);
 		//m_RendererCommand.SetRenderTarget(TE_INSTANCE_SWAPCHAIN, m_RenderTartgetView);
@@ -163,8 +164,8 @@ namespace TruthEngine
 
 			*data = ConstantBuffer_Data_Per_Mesh(*_transform, Math::InverseTranspose(*_transform), material->GetID());
 
-			m_RendererCommand.UploadData(m_ConstantBufferDirect_PerMesh);
-			m_RendererCommand.SetPipeline(m_MaterialPipelines[material->GetID()].get());
+			m_RendererCommand.SetDirectConstantGraphics(m_ConstantBufferDirect_PerMesh);
+			m_RendererCommand.SetPipelineGraphics(m_MaterialPipelines[material->GetID()]);
 			m_RendererCommand.DrawIndexed(mesh);
 
 			m_TotalVertexNum += mesh->GetVertexNum();
@@ -178,7 +179,7 @@ namespace TruthEngine
 			for (auto& _EntityEnv : _EntityViewEnv)
 			{
 				Mesh* mesh = activeScene->GetComponent<EnvironmentComponent>(_EntityEnv).GetMesh();
-				m_RendererCommand.SetPipeline(m_PipelineEnvironmentCube.get());
+				m_RendererCommand.SetPipelineGraphics(m_PipelineEnvironmentCube);
 				m_RendererCommand.DrawIndexed(mesh);
 			}
 
@@ -263,17 +264,6 @@ namespace TruthEngine
 	}
 
 
-	void RenderPass_ForwardRendering::OnSceneViewportResize(uint32_t width, uint32_t height)
-	{
-		m_RendererCommand.ResizeDepthStencil(m_TextureDepthStencil, width, height, &m_DepthStencilView, nullptr);
-		m_RendererCommand.CreateRenderTargetView(TE_IDX_TEXTURE::RT_SCENEBUFFER, &m_RenderTartgetView);
-		m_RendererCommand.CreateDepthStencilView(m_TextureDepthStencil, &m_DepthStencilView);
-
-		m_Viewport.Resize(width, height);
-
-		m_ViewRect = ViewRect{ 0, 0, static_cast<long>(width), static_cast<long>(height) };
-	}
-
 	void RenderPass_ForwardRendering::PreparePiplineMaterial(const Material* material)
 	{
 		std::string shaderName = std::string("renderer3D_material") + std::to_string(material->GetID());
@@ -282,11 +272,9 @@ namespace TruthEngine
 
 		auto result = m_ShaderMgr->AddShader(&shader, TE_IDX_SHADERCLASS::FORWARDRENDERING, material->GetMeshType(), material->GetRendererStates(), "Assets/Shaders/renderer3D.hlsl", "vs", "ps");
 
-		static TE_RESOURCE_FORMAT rtvFormats[1] = { TE_RESOURCE_FORMAT::R8G8B8A8_UNORM };
+		static TE_RESOURCE_FORMAT rtvFormats[1] = { TE_RESOURCE_FORMAT::R16G16B16A16_FLOAT };
 
-		auto pipeline = std::make_shared<Pipeline>(material->GetRendererStates(), shader, 1, rtvFormats, TE_RESOURCE_FORMAT::D32_FLOAT, true);
-
-		m_MaterialPipelines[material->GetID()] = pipeline;
+		PipelineGraphics::Factory(&m_MaterialPipelines[material->GetID()], material->GetRendererStates(), shader, 1, rtvFormats, TE_RESOURCE_FORMAT::D32_FLOAT, true);
 	}
 
 	void RenderPass_ForwardRendering::PreparePiplineEnvironment()
@@ -300,9 +288,9 @@ namespace TruthEngine
 
 		auto result = m_ShaderMgr->AddShader(&shader, TE_IDX_SHADERCLASS::RENDERENVIRONMENTMAP, TE_IDX_MESH_TYPE::MESH_NTT, states, "Assets/Shaders/RenderEnvironmentCube.hlsl", "vs", "ps");
 
-		static TE_RESOURCE_FORMAT rtvFormats[1] = { TE_RESOURCE_FORMAT::R8G8B8A8_UNORM };
+		static TE_RESOURCE_FORMAT rtvFormats[1] = { TE_RESOURCE_FORMAT::R16G16B16A16_FLOAT };
 
-		m_PipelineEnvironmentCube = std::make_shared<Pipeline>(states, shader, 1, rtvFormats, TE_RESOURCE_FORMAT::D32_FLOAT, true);
+		PipelineGraphics::Factory(&m_PipelineEnvironmentCube, states, shader, 1, rtvFormats, TE_RESOURCE_FORMAT::D32_FLOAT, true);
 	}
 
 	void RenderPass_ForwardRendering::RegisterOnEvents()
@@ -317,6 +305,30 @@ namespace TruthEngine
 			this->OnUpdateMaterial(static_cast<const EventEntityUpdateMaterial&>(event));
 		};
 		TE_INSTANCE_APPLICATION->RegisterEventListener(EventType::EntityUpdatedMaterial, lambda_OnUpdateMaterial);
+
+		auto lambda_OnSceneViewportResize = [this](Event& event)
+		{
+			this->OnRenderTargetResize(static_cast<const EventTextureResize&>(event));
+		};
+		TE_INSTANCE_APPLICATION->RegisterEventListener(EventType::RenderTargetResize, lambda_OnSceneViewportResize);
+
+	}
+
+	void RenderPass_ForwardRendering::OnRenderTargetResize(const EventTextureResize& _Event)
+	{
+		if (_Event.GetIDX() != TE_IDX_GRESOURCES::Texture_RT_SceneBuffer)
+			return;
+
+		uint32_t width = _Event.GetWidth();
+		uint32_t height = _Event.GetHeight();
+
+		m_RendererCommand.ResizeDepthStencil(m_TextureDepthStencil, width, height, &m_DepthStencilView, nullptr);
+		m_RendererCommand.CreateRenderTargetView(TE_IDX_GRESOURCES::Texture_RT_SceneBufferHDR, &m_RenderTartgetView);
+		m_RendererCommand.CreateDepthStencilView(m_TextureDepthStencil, &m_DepthStencilView);
+
+		m_Viewport.Resize(width, height);
+
+		m_ViewRect = ViewRect{ 0, 0, static_cast<long>(width), static_cast<long>(height) };
 	}
 
 	void RenderPass_ForwardRendering::OnAddMaterial(EventEntityAddMaterial& event)

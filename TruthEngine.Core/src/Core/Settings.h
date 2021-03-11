@@ -24,7 +24,7 @@ namespace TruthEngine
 	{
 	public:
 
-		inline static bool IsMSAAEnabled()
+		static constexpr bool IsMSAAEnabled()
 		{
 			return static_cast<int>(MSAA) > 1;
 		}
