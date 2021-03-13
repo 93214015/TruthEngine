@@ -30,6 +30,7 @@ namespace TruthEngine
 			TextureDepthStencil* CreateDepthStencil(TE_IDX_GRESOURCES idx, uint32_t width, uint32_t height, TE_RESOURCE_FORMAT format, const ClearValue_DepthStencil& clearValue, bool useAsShaderResource, bool enbaleMSAA);
 			TextureCubeMap* CreateTextureCubeMap(TE_IDX_GRESOURCES idx, const char* filePath);
 			Buffer* CreateBufferStructuredRW(TE_IDX_GRESOURCES _IDX, uint32_t _ElementSizeInByte, uint32_t _ElementNum, bool _IsByteAddressBuffer);
+			Texture* CreateTextureRW(TE_IDX_GRESOURCES _IDX, uint32_t _Width, uint32_t _Height, TE_RESOURCE_FORMAT _Format, bool _UseAsShaderResource, bool _EnableMSAA);
 
 			template<class T> ConstantBufferUpload<T>* CreateConstantBufferUpload(TE_IDX_GRESOURCES idx)
 			{
@@ -70,6 +71,12 @@ namespace TruthEngine
 			void SetDepthStencil(const DepthStencilView DSV);
 			void SetDirectConstantGraphics(ConstantBufferDirectBase* cb);
 			void SetDirectConstantCompute(ConstantBufferDirectBase* cb);
+			void SetDirectShaderResourceViewGraphics(GraphicResource* _GraphicResource, uint32_t _ShaderRegisterSlot);
+			void SetDirectShaderResourceViewCompute(GraphicResource* _GraphicResource, uint32_t _ShaderRegisterSlot);
+			void SetDirectConstantBufferViewGraphics(GraphicResource* _GraphicResource, uint32_t _ShaderRegisterSlot);
+			void SetDirectConstantBufferViewCompute(GraphicResource* _GraphicResource, uint32_t _ShaderRegisterSlot);
+			void SetDirectUnorderedAccessViewGraphics(GraphicResource* _GraphicResource, uint32_t _ShaderRegisterSlot);
+			void SetDirectUnorderedAccessViewCompute(GraphicResource* _GraphicResource, uint32_t _ShaderRegisterSlot);
 			/*void SetShaderResource(const ShaderResourceView SRV, uint32_t registerIndex);
 			void SetConstantBuffer(const ConstantBufferView CBV, uint32_t registerIndex);*/
 
@@ -84,6 +91,7 @@ namespace TruthEngine
 			void SetViewPort(Viewport* viewport, ViewRect* rect);
 
 			void BeginCompute();
+			void BeginCompute(PipelineCompute* pipeline);
 			void BeginGraphics();
 			void BeginGraphics(PipelineGraphics* pipeline);
 			

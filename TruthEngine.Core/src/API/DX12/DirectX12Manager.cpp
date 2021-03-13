@@ -172,7 +172,7 @@ namespace TruthEngine::API::DirectX12
 
 				for (uint8_t frameIndex = 0; frameIndex < _FramesOnTheFlyNum; ++frameIndex)
 				{
-					_RootArgsPerFrame[frameIndex].DescriptorCBV[_ShaderResourceView.mIDX] = DirectX12RootArgumentDescriptor(_ParamNum, TE_INSTANCE_API_DX12_BUFFERMANAGER->GetResource(_ShaderResourceView.mGraphicResource)->GetGPUVirtualAddress());
+					_RootArgsPerFrame[frameIndex].DescriptorCBV[_ShaderResourceView.mBaseRegisterSlot] = DirectX12RootArgumentDescriptor(_ParamNum);
 				}
 
 				break;
@@ -189,7 +189,7 @@ namespace TruthEngine::API::DirectX12
 
 				for (uint8_t frameIndex = 0; frameIndex < _FramesOnTheFlyNum; ++frameIndex)
 				{
-					_RootArgsPerFrame[frameIndex].DescriptorSRV[_ShaderResourceView.mIDX] = DirectX12RootArgumentDescriptor(_ParamNum, TE_INSTANCE_API_DX12_BUFFERMANAGER->GetResource(_ShaderResourceView.mGraphicResource)->GetGPUVirtualAddress());
+					_RootArgsPerFrame[frameIndex].DescriptorSRV[_ShaderResourceView.mBaseRegisterSlot] = DirectX12RootArgumentDescriptor(_ParamNum);
 				}
 
 				break;
@@ -206,7 +206,7 @@ namespace TruthEngine::API::DirectX12
 
 				for (uint8_t frameIndex = 0; frameIndex < _FramesOnTheFlyNum; ++frameIndex)
 				{
-					_RootArgsPerFrame[frameIndex].DescriptorUAV[_ShaderResourceView.mIDX] = DirectX12RootArgumentDescriptor(_ParamNum, TE_INSTANCE_API_DX12_BUFFERMANAGER->GetResource(_ShaderResourceView.mGraphicResource)->GetGPUVirtualAddress());
+					_RootArgsPerFrame[frameIndex].DescriptorUAV[_ShaderResourceView.mBaseRegisterSlot] = DirectX12RootArgumentDescriptor(_ParamNum);
 				}
 
 				break;

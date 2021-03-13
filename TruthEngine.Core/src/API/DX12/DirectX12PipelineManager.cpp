@@ -263,7 +263,7 @@ namespace TruthEngine::API::DirectX12
 	TE_RESULT DirectX12PiplineManager::AddGraphicsPipeline(PipelineGraphics* pipeline, COMPTR<ID3D12PipelineState>& PSO, D3D12_GRAPHICS_PIPELINE_STATE_DESC& desc)
 	{
 		auto hr = TE_INSTANCE_API_DX12_GRAPHICDEVICE->CreateGraphicsPipelineState(&desc, IID_PPV_ARGS(PSO.GetAddressOf()));
-		TE_ASSERT_CORE(TE_SUCCEEDED(hr), "PipelineGraphics Creation failed!");
+		TE_ASSERT_CORE(SUCCEEDED(hr), "PipelineGraphics Creation failed!");
 
 		pipeline->m_Name = std::string("PSO_") + std::to_string(m_PipelineNum);
 		hr = m_PiplineLibrary->StorePipeline(to_wstring(pipeline->m_Name).c_str(), PSO.Get());
@@ -276,7 +276,7 @@ namespace TruthEngine::API::DirectX12
 	TE_RESULT DirectX12PiplineManager::AddComputePipeline(PipelineCompute* pipeline, COMPTR<ID3D12PipelineState>& PSO, D3D12_COMPUTE_PIPELINE_STATE_DESC& desc)
 	{
 		auto hr = TE_INSTANCE_API_DX12_GRAPHICDEVICE->CreateComputePipelineState(&desc, IID_PPV_ARGS(PSO.GetAddressOf()));
-		TE_ASSERT_CORE(TE_SUCCEEDED(hr), "PipelineCompute Creation failed!");
+		TE_ASSERT_CORE(SUCCEEDED(hr), "PipelineCompute Creation failed!");
 
 		pipeline->m_Name = std::string("PSO_") + std::to_string(m_PipelineNum);
 		hr = m_PiplineLibrary->StorePipeline(to_wstring(pipeline->m_Name).c_str(), PSO.Get());

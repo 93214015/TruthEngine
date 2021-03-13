@@ -69,6 +69,29 @@ namespace TruthEngine::API::DirectX12
 		}
 	}
 
+	void DirectX12CommandList::ResetCompute(PipelineCompute* pipeline)
+	{
+		_ResetContainers();
+
+		mCommandAllocator.Reset();
+		mD3D12CommandList->Reset(mCommandAllocator.GetNativeObject(), nullptr);
+
+		bool _NewShaderClass = false;
+
+		if (m_ShaderClassIDX != pipeline->GetShaderClassIDX())
+		{
+			_NewShaderClass = true;
+			m_ShaderClassIDX = pipeline->GetShaderClassIDX();
+		}
+
+		_SetDescriptorHeapSRV();
+		_SetRootSignatureCompute(_NewShaderClass);
+		_SetRootArgumentsCompute(_NewShaderClass);
+
+
+		SetPipelineCompute(pipeline);
+	}
+
 	void DirectX12CommandList::ResetGraphics()
 	{
 		_ResetContainers();
@@ -102,6 +125,8 @@ namespace TruthEngine::API::DirectX12
 		_SetDescriptorHeapSRV();
 		_SetRootSignatureGraphics(_NewShaderClass);
 		_SetRootArgumentsGraphics(_NewShaderClass);
+
+		SetPipelineGraphics(pipeline);
 	}
 
 	void DirectX12CommandList::SetPipelineGraphics(PipelineGraphics* pipeline)
@@ -234,7 +259,6 @@ namespace TruthEngine::API::DirectX12
 		{
 			m_ShaderRequiredResources = TE_INSTANCE_SHADERMANAGER->GetShaderRequiredResources(m_ShaderClassIDX);
 		}
-
 
 
 		for (GraphicResource* _CBVResource : m_ShaderRequiredResources->GetCBVResources())
@@ -406,7 +430,31 @@ namespace TruthEngine::API::DirectX12
 		}
 		m_QueueClearDS.clear();
 
+		for (auto& _BindResource : mBindPendingGraphicsSRVs)
+		{
+			mD3D12CommandList->SetGraphicsRootShaderResourceView(_BindResource.mRootParamterIndex, _BindResource.mResource->GetGPUVirtualAddress());
+		}
+		for (auto& _BindResource : mBindPendingGraphicsCBVs)
+		{
+			mD3D12CommandList->SetGraphicsRootConstantBufferView(_BindResource.mRootParamterIndex, _BindResource.mResource->GetGPUVirtualAddress());
+		}
+		for (auto& _BindResource : mBindPendingGraphicsUAVs)
+		{
+			mD3D12CommandList->SetGraphicsRootUnorderedAccessView(_BindResource.mRootParamterIndex, _BindResource.mResource->GetGPUVirtualAddress());
+		}
 
+		for (auto& _BindResource : mBindPendingComputeSRVs)
+		{
+			mD3D12CommandList->SetComputeRootShaderResourceView(_BindResource.mRootParamterIndex, _BindResource.mResource->GetGPUVirtualAddress());
+		}
+		for (auto& _BindResource : mBindPendingComputeCBVs)
+		{
+			mD3D12CommandList->SetComputeRootConstantBufferView(_BindResource.mRootParamterIndex, _BindResource.mResource->GetGPUVirtualAddress());
+		}
+		for (auto& _BindResource : mBindPendingComputeUAVs)
+		{
+			mD3D12CommandList->SetComputeRootUnorderedAccessView(_BindResource.mRootParamterIndex, _BindResource.mResource->GetGPUVirtualAddress());
+		}
 
 		// TODO: need to be implemented
 		/*if (!m_SRVHandles_Texture.empty())
@@ -520,6 +568,60 @@ namespace TruthEngine::API::DirectX12
 	{
 		auto& directConstant = mRootArguments->DircectConstants.find(cb->GetIDX())->second;
 		mD3D12CommandList->SetComputeRoot32BitConstants(directConstant.ParameterIndex, cb->Get32BitNum(), cb->GetDataPtr(), 0);
+	}
+
+	void DirectX12CommandList::SetDirectViewSRVGraphics(GraphicResource* _GraphicResource, uint32_t _ShaderRegisterSlot)
+	{
+		_ChangeResourceState(_GraphicResource, TE_RESOURCE_STATES::PIXEL_SHADER_RESOURCE);
+
+		auto _ParamterIndex = mRootArguments->DescriptorSRV.find(_ShaderRegisterSlot)->second.mParameterIndex;
+
+		mBindPendingGraphicsSRVs.emplace_back(TE_INSTANCE_API_DX12_BUFFERMANAGER->GetResource(_GraphicResource), _ParamterIndex);
+	}
+
+	void DirectX12CommandList::SetDirectViewCBVGraphics(GraphicResource* _GraphicResource, uint32_t _ShaderRegisterSlot)
+	{
+		_ChangeResourceState(_GraphicResource, TE_RESOURCE_STATES::VERTEX_AND_CONSTANT_BUFFER);
+
+		auto _ParamterIndex = mRootArguments->DescriptorCBV.find(_ShaderRegisterSlot)->second.mParameterIndex;
+
+		mBindPendingGraphicsCBVs.emplace_back(TE_INSTANCE_API_DX12_BUFFERMANAGER->GetResource(_GraphicResource), _ParamterIndex);
+	}
+
+	void DirectX12CommandList::SetDirectViewUAVGraphics(GraphicResource* _GraphicResource, uint32_t _ShaderRegisterSlot)
+	{
+		_ChangeResourceState(_GraphicResource, TE_RESOURCE_STATES::UNORDERED_ACCESS);
+
+		auto _ParamterIndex = mRootArguments->DescriptorUAV.find(_ShaderRegisterSlot)->second.mParameterIndex;
+
+		mBindPendingGraphicsUAVs.emplace_back(TE_INSTANCE_API_DX12_BUFFERMANAGER->GetResource(_GraphicResource), _ParamterIndex);
+	}
+
+	void DirectX12CommandList::SetDirectViewSRVCompute(GraphicResource* _GraphicResource, uint32_t _ShaderRegisterSlot)
+	{
+		_ChangeResourceState(_GraphicResource, TE_RESOURCE_STATES::NON_PIXEL_SHADER_RESOURCE);
+
+		auto _ParamterIndex = mRootArguments->DescriptorSRV.find(_ShaderRegisterSlot)->second.mParameterIndex;
+
+		mBindPendingComputeSRVs.emplace_back(TE_INSTANCE_API_DX12_BUFFERMANAGER->GetResource(_GraphicResource), _ParamterIndex);
+	}
+
+	void DirectX12CommandList::SetDirectViewCBVCompute(GraphicResource* _GraphicResource, uint32_t _ShaderRegisterSlot)
+	{
+		_ChangeResourceState(_GraphicResource, TE_RESOURCE_STATES::VERTEX_AND_CONSTANT_BUFFER);
+
+		auto _ParamterIndex = mRootArguments->DescriptorCBV.find(_ShaderRegisterSlot)->second.mParameterIndex;
+
+		mBindPendingComputeCBVs.emplace_back(TE_INSTANCE_API_DX12_BUFFERMANAGER->GetResource(_GraphicResource), _ParamterIndex);
+	}
+
+	void DirectX12CommandList::SetDirectViewUAVCompute(GraphicResource* _GraphicResource, uint32_t _ShaderRegisterSlot)
+	{
+		_ChangeResourceState(_GraphicResource, TE_RESOURCE_STATES::UNORDERED_ACCESS);
+
+		auto _ParamterIndex = mRootArguments->DescriptorUAV.find(_ShaderRegisterSlot)->second.mParameterIndex;
+
+		mBindPendingComputeUAVs.emplace_back(TE_INSTANCE_API_DX12_BUFFERMANAGER->GetResource(_GraphicResource), _ParamterIndex);
 	}
 
 	void DirectX12CommandList::_UploadDefaultBuffers()

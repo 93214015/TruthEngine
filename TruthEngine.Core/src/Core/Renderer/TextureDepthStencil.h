@@ -59,6 +59,7 @@ namespace TruthEngine
 		//
 		//friend classes
 		//
+		friend class BufferManager;
 		friend class TruthEngine::API::DirectX12::DirectX12BufferManager;
 
 	};

@@ -9,12 +9,17 @@ cbuffer CBDownScaleConstants : register(b0)
     uint2 gScreenQuarterSizeResolution : packoffset(c0.x); //Resolution of Quarter Size of HDR Source Texture
     uint gDomain : packoffset(c0.z); // Total Pixel in down-scaled image
     uint gGroupSize : packoffset(c0.w); // Groups number dispatched on first pass
+    
+    float gAdaptation : packoffset(c1.x);
+    float gBloomThreshold : packoffset(c1.y);
+    float2 gPadCBDownScaleConstants : packoffset(c1.z);
+
 }
 
 RWStructuredBuffer<float> AverageLum : register(u0);
+RWTexture2D<float4> uDownScaledHDRTex : register(u1);
 
 Texture2D tHDR : register(t0);
-
 
 
 groupshared float gSharedPosition[1024];
@@ -41,9 +46,9 @@ float DownScale4X4(uint2 _CurrPixel, uint _GroupThreadID)
         }
         
         _AvgValue *= 0.0625f; // 1/16
+        uDownScaledHDRTex[_CurrPixel] = _AvgValue;
 
         _AvgLum = dot(LUM_FACTOR, _AvgValue);
-
     }
     
     gSharedPosition[_GroupThreadID] = _AvgLum;
@@ -78,7 +83,7 @@ float DownScale1024To4(uint _DispatchThreadID, uint _GroupThreadID, float _AvgLu
 
 void DownScale4To1(uint _DispatchThreadID, uint _GroupThreadID, uint _GroupID, float _AvgLum)
 {
-    if(_GroupThreadID == 0)
+    if (_GroupThreadID == 0)
     {
         float _StepAvgLum = _AvgLum;
         _StepAvgLum += (_DispatchThreadID + 256) < gDomain ? gSharedPosition[256] : _AvgLum;
@@ -109,7 +114,8 @@ void HDRDownScalingFirstPass(uint3 _DispatchThreadID : SV_DispatchThreadID, uint
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #define MAX_GROUPS 64
 
-StructuredBuffer<float> AverageValues1D : register(t0);
+StructuredBuffer<float> PrevAvgLum : register(t0);
+StructuredBuffer<float> AverageValues1D : register(t1);
 
 groupshared float gSharedAvgFinal[MAX_GROUPS];
 
@@ -174,11 +180,46 @@ void HDRDownScalingSecondPass(uint3 _DispatchThreadID : SV_DispatchThreadID, uin
         
         
         _FinalAvgLum *= 0.015625; // _StepAvgLum / 64.0f
-        gSharedAvgFinal[_DispatchThreadID.x] = _FinalAvgLum;
         
+        
+        //Whithout Adaption
         //Store Final Value
-        AverageLum[0] = max(_FinalAvgLum, .0001f);
+        //AverageLum[0] = max(_FinalAvgLum, .0001f);
+        
+        //The Adaption Version
+        // Calculate the adaptive luminance
+        float fAdaptedAverageLum = lerp(PrevAvgLum[0], _FinalAvgLum, gAdaptation);
+        // Store the final value
+        AverageLum[0] = max(fAdaptedAverageLum, 0.0001f);
 
     }
     
+}
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////// Bloom pass
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+Texture2D<float4> tDownScaledHDRTex : register(t0);
+StructuredBuffer<float> bAverageLum : register(t1);
+
+RWTexture2D<float4> uBloom : register(u0);
+
+[numthreads(1024, 1, 1)]
+void BloomReveal(uint3 _DispatchThreadID : SV_DispatchThreadID)
+{
+    uint2 _CurrPixel = uint2(_DispatchThreadID.x % gScreenQuarterSizeResolution.x, _DispatchThreadID.x / gScreenQuarterSizeResolution.x);
+    
+    if (_CurrPixel.y < gScreenQuarterSizeResolution.y)
+    {
+        float4 _Color = tDownScaledHDRTex.Load(int3(_CurrPixel, 0));
+        float _Lum = dot(_Color, LUM_FACTOR);
+        float _AvgLum = bAverageLum[0];
+
+        //Find the color scale
+        float _ColorScale = (_Lum - _AvgLum * gBloomThreshold);
+        
+        uBloom[_CurrPixel] = _Color * _ColorScale;
+    }
+
 }

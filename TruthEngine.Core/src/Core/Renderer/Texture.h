@@ -37,5 +37,8 @@ namespace TruthEngine
 		uint32_t m_Width = 0, m_Height = 0, m_MipLevels = 1;
 		TE_RESOURCE_FORMAT m_Format = TE_RESOURCE_FORMAT::UNKNOWN;
 		bool m_EnableMSAA = false;
+
+		//friend class
+		friend class BufferManager;
 	};
 }

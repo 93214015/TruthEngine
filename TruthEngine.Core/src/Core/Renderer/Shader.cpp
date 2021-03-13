@@ -58,7 +58,7 @@ namespace TruthEngine
 					}
 				}
 			}
-			else if (const ShaderSignature::ShaderDirectView* _ShaderResourceView = std::get_if<ShaderSignature::ShaderDirectView>(&_ShaderParameter.mParameter); _ShaderResourceView)
+			/*else if (const ShaderSignature::ShaderDirectView* _ShaderResourceView = std::get_if<ShaderSignature::ShaderDirectView>(&_ShaderParameter.mParameter); _ShaderResourceView)
 			{
 				switch (_ShaderResourceView->mShaderResourceViewType)
 				{
@@ -76,7 +76,7 @@ namespace TruthEngine
 				default:
 					break;
 				}
-			}
+			}*/
 		}
 	}
 

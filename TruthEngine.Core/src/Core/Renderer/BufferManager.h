@@ -60,7 +60,7 @@ namespace TruthEngine
 
 		uint32_t ViewIndex = -1;
 		uint32_t ResourceIndex = -1;
-		Buffer* Resource = nullptr;
+		GraphicResource* Resource = nullptr;
 	};
 
 	struct DepthStencilView
@@ -141,6 +141,8 @@ namespace TruthEngine
 
 		Buffer* CreateBufferStructuredRW(TE_IDX_GRESOURCES _IDX, uint32_t _ElementSizeInByte, uint32_t _ElementNum, bool _IsByteAddressBuffer);
 
+		Texture* CreateTextureRW(TE_IDX_GRESOURCES _IDX, uint32_t _Width, uint32_t _Height, TE_RESOURCE_FORMAT _FORMAT, bool _UseAsShaderResource, bool _EnableMSAA);
+
 		TextureRenderTarget* CreateRenderTarget(TE_IDX_GRESOURCES idx, uint32_t width, uint32_t height, TE_RESOURCE_FORMAT format, const ClearValue_RenderTarget& clearValue, bool useAsShaderResource, bool enbaleMSAA);
 
 		TextureDepthStencil* CreateDepthStencil(TE_IDX_GRESOURCES idx, uint32_t width, uint32_t height, TE_RESOURCE_FORMAT format, const ClearValue_DepthStencil& clearValue, bool useAsShaderResource, bool enbaleMSAA);
@@ -175,7 +177,7 @@ namespace TruthEngine
 
 		virtual void CreateShaderResourceView(GraphicResource* _GraphicResource, ShaderResourceView* _SRV, uint32_t frameIndex) = 0;
 
-		virtual void CreateUnorderedAccessView(Buffer* _BufferRW, UnorderedAccessView* _UAV) = 0;
+		virtual void CreateUnorderedAccessView(GraphicResource* _GraphicResource, UnorderedAccessView* _outUAV) = 0;
 
 		virtual void CreateConstantBufferView(Buffer* constantBuffer, ConstantBufferView* cbv, uint32_t frameIndex) = 0;
 
@@ -195,6 +197,7 @@ namespace TruthEngine
 
 		virtual TE_RESULT CreateResource(BufferUpload* buffer) = 0;
 		virtual TE_RESULT CreateResource(Buffer* buffer) = 0;
+		virtual TE_RESULT CreateResource(Texture* _Texture) = 0;
 		virtual TE_RESULT CreateResource(TextureRenderTarget* tRT) = 0;
 		virtual TE_RESULT CreateResource(TextureDepthStencil* tDS) = 0;
 		virtual TE_RESULT CreateResource(VertexBufferStreamBase* vb) = 0;
@@ -219,6 +222,7 @@ namespace TruthEngine
 		std::vector<TextureRenderTarget> m_TexturesRenderTarget;
 		std::vector<TextureDepthStencil> m_TexturesDepthStencil;
 		std::vector<TextureCubeMap> m_TexturesCubeMap;
+		std::vector<Texture> m_Textures;
 		std::vector<Buffer> m_Buffers;
 
 		static std::shared_ptr<BufferManager> Factory();

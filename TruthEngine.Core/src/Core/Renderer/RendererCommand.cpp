@@ -86,6 +86,36 @@ namespace TruthEngine
 		m_CurrentCommandList->SetDirectConstantCompute(cb);
 	}
 
+	void RendererCommand::SetDirectShaderResourceViewGraphics(GraphicResource* _GraphicResource, uint32_t _ShaderRegisterSlot)
+	{
+		m_CurrentCommandList->SetDirectViewSRVGraphics(_GraphicResource, _ShaderRegisterSlot);
+	}
+
+	void RendererCommand::SetDirectShaderResourceViewCompute(GraphicResource* _GraphicResource, uint32_t _ShaderRegisterSlot)
+	{
+		m_CurrentCommandList->SetDirectViewSRVCompute(_GraphicResource, _ShaderRegisterSlot);
+	}
+
+	void RendererCommand::SetDirectConstantBufferViewGraphics(GraphicResource* _GraphicResource, uint32_t _ShaderRegisterSlot)
+	{
+		m_CurrentCommandList->SetDirectViewCBVGraphics(_GraphicResource, _ShaderRegisterSlot);
+	}
+
+	void RendererCommand::SetDirectConstantBufferViewCompute(GraphicResource* _GraphicResource, uint32_t _ShaderRegisterSlot)
+	{
+		m_CurrentCommandList->SetDirectViewCBVCompute(_GraphicResource, _ShaderRegisterSlot);
+	}
+
+	void RendererCommand::SetDirectUnorderedAccessViewGraphics(GraphicResource* _GraphicResource, uint32_t _ShaderRegisterSlot)
+	{
+		m_CurrentCommandList->SetDirectViewUAVGraphics(_GraphicResource, _ShaderRegisterSlot);
+	}
+
+	void RendererCommand::SetDirectUnorderedAccessViewCompute(GraphicResource* _GraphicResource, uint32_t _ShaderRegisterSlot)
+	{
+		m_CurrentCommandList->SetDirectViewUAVCompute(_GraphicResource, _ShaderRegisterSlot);
+	}
+
 	/*void RendererCommand::SetShaderResource(const ShaderResourceView SRV, uint32_t registerIndex)
 	{
 		m_CurrentCommandList->SetShaderResource(SRV, registerIndex);
@@ -251,6 +281,15 @@ namespace TruthEngine
 		m_CurrentCommandList->ExecuteUpdateTasks();
 	}
 
+	void RendererCommand::BeginCompute(PipelineCompute* pipeline)
+	{
+		m_CurrentCommandList = m_CommandLists[TE_INSTANCE_APPLICATION->GetCurrentFrameIndex()].get();
+
+		m_CurrentCommandList->ResetCompute(pipeline);
+
+		m_CurrentCommandList->ExecuteUpdateTasks();
+	}
+
 	void RendererCommand::BeginGraphics()
 	{
 		m_CurrentCommandList = m_CommandLists[TE_INSTANCE_APPLICATION->GetCurrentFrameIndex()].get();
@@ -296,6 +335,11 @@ namespace TruthEngine
 	Buffer* RendererCommand::CreateBufferStructuredRW(TE_IDX_GRESOURCES _IDX, uint32_t _ElementSizeInByte, uint32_t _ElementNum, bool _IsByteAddressBuffer)
 	{
 		return TE_INSTANCE_BUFFERMANAGER->CreateBufferStructuredRW(_IDX, _ElementSizeInByte, _ElementNum, _IsByteAddressBuffer);
+	}
+
+	Texture* RendererCommand::CreateTextureRW(TE_IDX_GRESOURCES _IDX, uint32_t _Width, uint32_t _Height, TE_RESOURCE_FORMAT _Format, bool _UseAsShaderResource, bool _EnableMSAA)
+	{
+		return m_BufferManager->CreateTextureRW(_IDX, _Width, _Height, _Format, _UseAsShaderResource, _EnableMSAA);
 	}
 
 	TE_RESULT RendererCommand::CreateResource(BufferUpload* cb)

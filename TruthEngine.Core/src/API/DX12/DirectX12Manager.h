@@ -108,21 +108,20 @@ namespace TruthEngine
 		struct DirectX12RootArgumentDescriptor
 		{
 			DirectX12RootArgumentDescriptor() = default;
-			DirectX12RootArgumentDescriptor(uint32_t _ParameterIndex, const D3D12_GPU_VIRTUAL_ADDRESS _GPUVirtualAddress)
-				: mParameterIndex(_ParameterIndex), mGPUVirtualAddress(_GPUVirtualAddress)
+			DirectX12RootArgumentDescriptor(uint32_t _ParameterIndex)
+				: mParameterIndex(_ParameterIndex)
 			{}
 
 			uint32_t mParameterIndex;
-			D3D12_GPU_VIRTUAL_ADDRESS mGPUVirtualAddress;
 		};
 
 		struct DirectX12RootArguments
 		{
 			std::vector<DirectX12RootArgumentTable> Tables;
 			std::unordered_map<TE_IDX_GRESOURCES, DirectX12RootArgumentDirectConstant> DircectConstants;
-			std::unordered_map<TE_IDX_GRESOURCES, DirectX12RootArgumentDescriptor> DescriptorCBV;
-			std::unordered_map<TE_IDX_GRESOURCES, DirectX12RootArgumentDescriptor> DescriptorSRV;
-			std::unordered_map<TE_IDX_GRESOURCES, DirectX12RootArgumentDescriptor> DescriptorUAV;
+			std::unordered_map<uint32_t, DirectX12RootArgumentDescriptor> DescriptorCBV;
+			std::unordered_map<uint32_t, DirectX12RootArgumentDescriptor> DescriptorSRV;
+			std::unordered_map<uint32_t, DirectX12RootArgumentDescriptor> DescriptorUAV;
 		};
 
 

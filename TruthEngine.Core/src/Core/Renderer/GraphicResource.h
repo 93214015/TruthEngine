@@ -36,6 +36,7 @@ namespace TruthEngine
 		inline TE_RESOURCE_STATES GetState() const noexcept { return m_State; }
 		inline TE_RESOURCE_USAGE GetUsage() const noexcept { return m_Usage; }
 		inline void SetState(TE_RESOURCE_STATES state) noexcept { m_State = state; }
+		inline TE_IDX_GRESOURCES GetIDX()const noexcept { return m_IDX; }
 
 		uint64_t GetRequiredSize() const;
 

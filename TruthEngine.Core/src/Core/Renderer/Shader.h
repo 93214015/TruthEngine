@@ -152,20 +152,15 @@ namespace TruthEngine
 		{
 
 			ShaderDirectView(
-				TE_IDX_GRESOURCES _IDX
-				, uint16_t _BaseRegisterSlot
+				 uint16_t _BaseRegisterSlot
 				, uint16_t _BaseRegisterSpace
 				, EShaderDirectViewFlags _Flags
 				, EShaderVisibility _ShaderVisibility
 				, EShaderResourceViewTypes _ShaderResourceFlags)
-				: mIDX(_IDX), mBaseRegisterSlot(_BaseRegisterSlot), mBaseRegisterSpace(_BaseRegisterSpace), mFlags(_Flags)
+				: mBaseRegisterSlot(_BaseRegisterSlot), mBaseRegisterSpace(_BaseRegisterSpace), mFlags(_Flags)
 				, mShaderVisibility(_ShaderVisibility), mShaderResourceViewType(_ShaderResourceFlags)
 			{
-				mGraphicResource = TE_INSTANCE_BUFFERMANAGER->GetGraphicResource(mIDX);
-				TE_ASSERT_CORE(mGraphicResource, "ShaderRangeView: Graphic Resource was not found!");
 			}
-
-			TE_IDX_GRESOURCES mIDX;
 
 			uint16_t mBaseRegisterSlot;
 			uint16_t mBaseRegisterSpace;
@@ -173,7 +168,6 @@ namespace TruthEngine
 			EShaderDirectViewFlags mFlags;
 			EShaderVisibility mShaderVisibility;
 			EShaderResourceViewTypes mShaderResourceViewType;
-			GraphicResource* mGraphicResource;
 		};
 
 		struct ShaderConstant

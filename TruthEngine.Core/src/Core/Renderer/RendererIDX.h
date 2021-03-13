@@ -13,9 +13,11 @@ enum class TE_IDX_GRESOURCES : IDX
 	CBuffer_UnFrequent,
 	CBuffer_HDR_DownScaling,
 	CBuffer_HDR_FinalPass,
+	CBuffer_GaussianBlur,
 
 	Buffer_HDRAverageLumFirstPass,
-	Buffer_HDRAverageLumSecondPass,
+	Buffer_HDRAverageLumSecondPass0,
+	Buffer_HDRAverageLumSecondPass1,
 
 	Constant_DirectConstants,
 	Constant_PerMesh,
@@ -32,6 +34,10 @@ enum class TE_IDX_GRESOURCES : IDX
 	Texture_RT_SceneBufferHDR,
 	Texture_DS_SceneBuffer,
 	Texture_DS_ShadowMap,
+	Texture_RW_DownScaledHDR,
+	Texture_RW_Bloom,
+	Texture_RW_BloomBlured,
+	Texture_RW_BloomBluredHorz,
 };
 
 
@@ -61,7 +67,10 @@ enum class TE_IDX_SHADERCLASS : IDX
 	RENDERENVIRONMENTMAP,
 	POSTPROCESSING_HDR_DOWNSACLING_FIRSTPASS,
 	POSTPROCESSING_HDR_DOWNSACLING_SECONDPASS,
+	POSTPROCESSING_HDR_BLOOMPASS,
 	POSTPROCESSING_HDR_FINALPASS,
+	POSTPROCESSING_GAUSSIANBLUR_HORZ,
+	POSTPROCESSING_GAUSSIANBLUR_VERT,
 	TOTALNUM
 };
 

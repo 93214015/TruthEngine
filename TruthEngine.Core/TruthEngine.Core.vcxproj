@@ -167,6 +167,8 @@
     <ClInclude Include="src\API\DX12\DirectX12SwapChain.h" />
     <ClInclude Include="src\API\DX12\DirectX12TextureMaterialManager.h" />
     <ClInclude Include="src\API\IDXGI.h" />
+    <ClInclude Include="src\Core\AnimationEngine\CBone.h" />
+    <ClInclude Include="src\Core\AnimationEngine\CSkinAnimation.h" />
     <ClInclude Include="src\Core\Application.h" />
     <ClInclude Include="src\Core\Core.h" />
     <ClInclude Include="src\Core\Entity\Camera\Camera.h" />
@@ -185,6 +187,7 @@
     <ClInclude Include="src\Core\Entity\Components\MeshComponent.h" />
     <ClInclude Include="src\Core\Entity\Components\ModelComponent.h" />
     <ClInclude Include="src\Core\Entity\Components\PhysicsComponent.h" />
+    <ClInclude Include="src\Core\Entity\Components\SkinnedAnimationComponent.h" />
     <ClInclude Include="src\Core\Entity\Components\TagComponent.h" />
     <ClInclude Include="src\Core\Entity\Components\TransformComponent.h" />
     <ClInclude Include="src\Core\Entity\Entity.h" />
@@ -295,6 +298,8 @@
     <ClCompile Include="src\API\DX12\DirectX12SwapChain.cpp" />
     <ClCompile Include="src\API\DX12\DirectX12TextureMaterialManager.cpp" />
     <ClCompile Include="src\API\IDXGI.cpp" />
+    <ClCompile Include="src\Core\AnimationEngine\CBone.cpp" />
+    <ClCompile Include="src\Core\AnimationEngine\CSkinAnimation.cpp" />
     <ClCompile Include="src\Core\Application.cpp" />
     <ClCompile Include="src\Core\Entity\Camera\Camera.cpp" />
     <ClCompile Include="src\Core\Entity\Camera\CameraCascadedFrustum.cpp" />
@@ -311,6 +316,7 @@
     <ClCompile Include="src\Core\Entity\Components\MeshComponent.cpp" />
     <ClCompile Include="src\Core\Entity\Components\ModelComponent.cpp" />
     <ClCompile Include="src\Core\Entity\Components\PhysicsComponent.cpp" />
+    <ClCompile Include="src\Core\Entity\Components\SkinnedAnimationComponent.cpp" />
     <ClCompile Include="src\Core\Entity\Components\TagComponent.cpp" />
     <ClCompile Include="src\Core\Entity\Components\TransformComponent.cpp" />
     <ClCompile Include="src\Core\Entity\Entity.cpp" />

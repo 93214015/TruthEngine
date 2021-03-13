@@ -45,6 +45,9 @@ namespace TruthEngine
 			void ResetCompute() override;
 
 
+			void ResetCompute(PipelineCompute* pipeline) override;
+
+
 			void ResetGraphics() override;
 
 
@@ -81,6 +84,15 @@ namespace TruthEngine
 
 
 			void SetDirectConstantCompute(ConstantBufferDirectBase* cb) override;
+
+
+			void SetDirectViewSRVGraphics(GraphicResource* _GraphicResource, uint32_t _ShaderRegisterSlot) override;
+			void SetDirectViewCBVGraphics(GraphicResource* _GraphicResource, uint32_t _ShaderRegisterSlot) override;
+			void SetDirectViewUAVGraphics(GraphicResource* _GraphicResource, uint32_t _ShaderRegisterSlot) override;
+
+			void SetDirectViewSRVCompute(GraphicResource* _GraphicResource, uint32_t _ShaderRegisterSlot) override;
+			void SetDirectViewCBVCompute(GraphicResource* _GraphicResource, uint32_t _ShaderRegisterSlot) override;
+			void SetDirectViewUAVCompute(GraphicResource* _GraphicResource, uint32_t _ShaderRegisterSlot) override;
 
 
 			void SetVertexBuffer(VertexBufferBase* vertexBuffer) override;
@@ -201,6 +213,16 @@ namespace TruthEngine
 				size_t Size;
 			};
 
+			struct BindPendingDescriptor
+			{
+				BindPendingDescriptor(ID3D12Resource* _Resource, uint32_t _RootParamterIndex)
+					: mResource(_Resource), mRootParamterIndex(_RootParamterIndex)
+				{}
+
+				ID3D12Resource* mResource;
+				uint32_t mRootParamterIndex;
+			};
+
 
 			COMPTR<ID3D12GraphicsCommandList> mD3D12CommandList;
 
@@ -221,6 +243,13 @@ namespace TruthEngine
 			std::vector<ClearingDepthStencil> m_QueueClearDS;
 
 			std::vector<CopyPending_DefaultResource> m_QueueCopyDefaultResource;
+
+			std::vector<BindPendingDescriptor> mBindPendingGraphicsSRVs;
+			std::vector<BindPendingDescriptor> mBindPendingGraphicsUAVs;
+			std::vector<BindPendingDescriptor> mBindPendingGraphicsCBVs;
+			std::vector<BindPendingDescriptor> mBindPendingComputeSRVs;
+			std::vector<BindPendingDescriptor> mBindPendingComputeUAVs;
+			std::vector<BindPendingDescriptor> mBindPendingComputeCBVs;
 
 			D3D12_CPU_DESCRIPTOR_HANDLE m_DSVHandle;
 

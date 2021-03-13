@@ -34,6 +34,7 @@ namespace TruthEngine
 		virtual ~CommandList() = default;
 
 		virtual void ResetCompute() = 0;
+		virtual void ResetCompute(PipelineCompute* pipeline) = 0;
 		virtual void ResetGraphics() = 0;
 		virtual void ResetGraphics(PipelineGraphics* pipeline) = 0;
 
@@ -53,6 +54,14 @@ namespace TruthEngine
 
 		virtual void SetDirectConstantGraphics(ConstantBufferDirectBase* cb) = 0;
 		virtual void SetDirectConstantCompute(ConstantBufferDirectBase* cb) = 0;
+
+		virtual void SetDirectViewSRVGraphics(GraphicResource* _GraphicResource, uint32_t _ShaderRegisterSlot) = 0;
+		virtual void SetDirectViewUAVGraphics(GraphicResource* _GraphicResource, uint32_t _ShaderRegisterSlot) = 0;
+		virtual void SetDirectViewCBVGraphics(GraphicResource* _GraphicResource, uint32_t _ShaderRegisterSlot) = 0;
+
+		virtual void SetDirectViewSRVCompute(GraphicResource* _GraphicResource, uint32_t _ShaderRegisterSlot) = 0;
+		virtual void SetDirectViewUAVCompute(GraphicResource* _GraphicResource, uint32_t _ShaderRegisterSlot) = 0;
+		virtual void SetDirectViewCBVCompute(GraphicResource* _GraphicResource, uint32_t _ShaderRegisterSlot) = 0;
 
 		virtual void SetVertexBuffer(VertexBufferBase* vertexBuffer) = 0;
 		virtual void SetIndexBuffer(IndexBuffer* indexBuffer) = 0;

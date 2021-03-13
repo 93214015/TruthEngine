@@ -55,7 +55,9 @@ namespace TruthEngine::API::DirectX12 {
 
 		void CreateShaderResourceView(GraphicResource* _GraphicResource, ShaderResourceView* _SRV, uint32_t frameIndex) override;
 
-		void CreateUnorderedAccessView(Buffer* _BufferRW, UnorderedAccessView* _outUAV) override;
+
+		void CreateUnorderedAccessView(GraphicResource* _GraphicResource, UnorderedAccessView* _outUAV) override;
+
 
 		void CreateConstantBufferView(Buffer* constantBuffer, ConstantBufferView* CBV, uint32_t frameIndex) override;
 
@@ -102,6 +104,8 @@ namespace TruthEngine::API::DirectX12 {
 		TE_RESULT CreateResource(BufferUpload* buffer) override;
 
 		TE_RESULT CreateResource(Buffer* buffer) override;
+
+		TE_RESULT CreateResource(Texture* _Texture) override;
 
 		TE_RESULT CreateResource(TextureRenderTarget* tRT) override;
 
