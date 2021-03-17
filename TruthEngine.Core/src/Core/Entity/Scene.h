@@ -7,6 +7,7 @@ namespace TruthEngine
 
 	class Material;
 	class Mesh;
+	class SA_Animation;
 
 	class Scene
 	{

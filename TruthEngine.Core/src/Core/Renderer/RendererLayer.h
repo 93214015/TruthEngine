@@ -101,6 +101,7 @@ namespace TruthEngine
 		ConstantBufferUpload<ConstantBuffer_Data_LightData>* m_CB_LightData;
 		ConstantBufferUpload<ConstantBuffer_Data_Materials>* m_CB_Materials;
 		ConstantBufferUpload<ConstantBuffer_Data_UnFrequent>* m_CB_UnFrequent;
+		ConstantBufferUpload<ConstantBuffer_Data_Bones>* m_CB_Bones;
 
 		std::map<int, int> m_Map_DLightToCBuffer;
 

@@ -275,6 +275,9 @@ namespace TruthEngine::API::DirectX12
 
 	TE_RESULT DirectX12BufferManager::CreateResource(VertexBufferStreamBase* vb)
 	{
+		if (vb->GetBufferSize() == 0)
+			return TE_RESULT::TE_RESULT_GRAHICRESOURCE_CREATION_ZEROSIZE;
+
 		const auto desc = GetBufferDesc(vb->GetBufferSize(), vb->m_Usage);
 
 		COMPTR<ID3D12Resource>* resource;
@@ -685,24 +688,34 @@ namespace TruthEngine::API::DirectX12
 		uint32_t vertexStreamsNum = vb->GetVertexStreamNum();
 		auto vertexStreams = vb->GetVertexBufferStreams();
 
-		//Assign the vertex buffer ID and then increase variable by 1
-		vb->m_ID = m_LastVertexBufferID++;
+		//Assign the vertex buffer ID and then increase variable by 1 ( if is not assigned before : != -1)
+		if (vb->m_ID == -1)
+			vb->m_ID = m_LastVertexBufferID++;
 
-		vb->m_ViewIndex = static_cast<uint32_t>(m_VertexBufferViews.size());
+		if (vb->m_ViewIndex == -1)
+			vb->m_ViewIndex = static_cast<uint32_t>(m_VertexBufferViews.size());
 
 		for (uint32_t i = 0; i < vertexStreamsNum; ++i)
 		{
 			auto vs = vertexStreams[i];
 			CreateResource(vs);
 
-			vs->m_ViewIndex = static_cast<uint32_t>(m_VertexBufferViews.size());
-			auto r = m_Resources[vs->m_ResourceIndex];
-			auto& view = m_VertexBufferViews.emplace_back();
-			view.BufferLocation = r->GetGPUVirtualAddress();
-			view.SizeInBytes = static_cast<UINT>(vs->GetBufferSize());
-			view.StrideInBytes = static_cast<UINT>(vs->GetVertexSize());
-		}
+			D3D12_VERTEX_BUFFER_VIEW* _View = nullptr;
+			if (vs->m_ViewIndex == -1)
+			{
+				vs->m_ViewIndex = static_cast<uint32_t>(m_VertexBufferViews.size());
+				_View = &m_VertexBufferViews.emplace_back();
+			}
+			else
+			{
+				_View = &m_VertexBufferViews[vs->m_ViewIndex];
+			}
 
+			auto r = m_Resources[vs->m_ResourceIndex];
+			_View->BufferLocation = r->GetGPUVirtualAddress();
+			_View->SizeInBytes = static_cast<UINT>(vs->GetBufferSize());
+			_View->StrideInBytes = static_cast<UINT>(vs->GetVertexSize());
+		}
 
 		return TE_SUCCESSFUL;
 	}
@@ -882,7 +895,7 @@ namespace TruthEngine::API::DirectX12
 		}
 		default:
 			break;
-		}	
+		}
 
 
 		ID3D12Resource* _D3DResource = m_Resources[_GraphicResource->m_ResourceIndex].Get();

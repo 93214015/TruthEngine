@@ -428,6 +428,7 @@
     <ClInclude Include="src\Core\AnimationEngine\CBone.h" />
     <ClInclude Include="src\Core\AnimationEngine\CSkinAnimation.h" />
     <ClInclude Include="src\Core\Entity\Components\SkinnedAnimationComponent.h" />
+    <ClInclude Include="src\Core\AnimationEngine\AnimationManager.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\API\DX12\DirectX12BufferManager.cpp">
@@ -766,5 +767,6 @@
     <ClCompile Include="src\Core\AnimationEngine\CBone.cpp" />
     <ClCompile Include="src\Core\AnimationEngine\CSkinAnimation.cpp" />
     <ClCompile Include="src\Core\Entity\Components\SkinnedAnimationComponent.cpp" />
+    <ClCompile Include="src\Core\AnimationEngine\AnimationManager.cpp" />
   </ItemGroup>
 </Project>

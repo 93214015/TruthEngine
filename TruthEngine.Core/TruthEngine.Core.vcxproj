@@ -167,6 +167,7 @@
     <ClInclude Include="src\API\DX12\DirectX12SwapChain.h" />
     <ClInclude Include="src\API\DX12\DirectX12TextureMaterialManager.h" />
     <ClInclude Include="src\API\IDXGI.h" />
+    <ClInclude Include="src\Core\AnimationEngine\AnimationManager.h" />
     <ClInclude Include="src\Core\AnimationEngine\CBone.h" />
     <ClInclude Include="src\Core\AnimationEngine\CSkinAnimation.h" />
     <ClInclude Include="src\Core\Application.h" />
@@ -298,6 +299,7 @@
     <ClCompile Include="src\API\DX12\DirectX12SwapChain.cpp" />
     <ClCompile Include="src\API\DX12\DirectX12TextureMaterialManager.cpp" />
     <ClCompile Include="src\API\IDXGI.cpp" />
+    <ClCompile Include="src\Core\AnimationEngine\AnimationManager.cpp" />
     <ClCompile Include="src\Core\AnimationEngine\CBone.cpp" />
     <ClCompile Include="src\Core\AnimationEngine\CSkinAnimation.cpp" />
     <ClCompile Include="src\Core\Application.cpp" />

@@ -15,6 +15,11 @@ namespace TruthEngine
 		TextureMaterial(uint32_t id, const char* name, const char* fileName, uint8_t* pdata, uint32_t width, uint32_t height, size_t dataSize, TE_RESOURCE_FORMAT format);
 		~TextureMaterial();
 
+		inline uint32_t GetID()const noexcept
+		{
+			return m_ID;
+		}
+
 		inline uint8_t* GetData() const noexcept
 		{
 			return m_Data;

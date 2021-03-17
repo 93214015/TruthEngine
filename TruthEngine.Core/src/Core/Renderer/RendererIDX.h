@@ -14,6 +14,7 @@ enum class TE_IDX_GRESOURCES : IDX
 	CBuffer_HDR_DownScaling,
 	CBuffer_HDR_FinalPass,
 	CBuffer_GaussianBlur,
+	CBuffer_Bones,
 
 	Buffer_HDRAverageLumFirstPass,
 	Buffer_HDRAverageLumSecondPass0,
@@ -88,5 +89,6 @@ enum class TE_IDX_MESH_TYPE : IDX
 	MESH_POINT,
 	MESH_SIMPLE,
 	MESH_NTT,
+	MESH_SKINNED,
 	TOTALNUM
 };

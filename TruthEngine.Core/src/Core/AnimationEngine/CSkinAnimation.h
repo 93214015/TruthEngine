@@ -74,11 +74,11 @@ namespace TruthEngine
 		std::vector<std::tuple<int, int, int>> mLastPositions;
 
 
-		void Evaluate(float dt, std::map<std::string, Bone*>& BonesByName);
+		void Evaluate(float dt, std::unordered_map<std::string, Bone*>& BonesByName);
 
-		std::vector<float4x4>* GetTransforms(float timePos);
+		const std::vector<float4x4>& GetTransforms(float timePos) const;
 
-		float GetDuration();
+		float GetDuration() const;
 
 
 	private:
@@ -86,7 +86,7 @@ namespace TruthEngine
 		std::vector<SA_AnimNode> mAnimNodes;
 
 
-		int GetFrameIndexAt(float dt);
+		int GetFrameIndexAt(float dt) const;
 
 	};
 
@@ -112,21 +112,21 @@ namespace TruthEngine
 		//Member Functions
 		int GetBoneIndex(const std::string& BoneName);
 
-		std::vector<float4x4>* GetTransform();
+		const std::vector<float4x4>* GetTransform();
 
 		bool AddAnimToQueue(int index);
 		bool AddAnimToQueue(const std::string& animName);
 		bool RemoveAnimToQueue(int index);
 		bool RemoveAnimToQueue(const std::string& animName);
-		bool UpdateTimePos(float dt);
+		bool UpdateTimePos(double dt);
 		/*bool SetAnimation(std::string& AnimName);
 		bool SetAnimation(int AnimIndex);*/
 		float GetDuration();
 
 	private:
 
-		std::map<std::string, Bone*> mBonesByName;
-		std::map<std::string, int> mBonesToIndex;
+		std::unordered_map<std::string, Bone*> mBonesByName;
+		std::unordered_map<std::string, int> mBonesToIndex;
 		std::vector<Bone*> mBones;
 
 
@@ -139,13 +139,13 @@ namespace TruthEngine
 		std::vector<SA_AnimEvaluator> mAnimations;
 
 
-		std::map<std::string, int> mAnimationsToIndex;
+		std::unordered_map<std::string, int> mAnimationsToIndex;
 
 
 		int mCurrentAnimationIndex;
 
 
-		std::map<int, float> mAnimTimeQueue;
+		std::unordered_map<int, float> mAnimTimeQueue;
 
 
 		Vector_Matrix mFinalTransforms;

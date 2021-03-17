@@ -1,5 +1,7 @@
 #pragma once
 
+#define AI_MAKE_EMBEDDED_TEXNAME "***"
+
 #include "lib.h"
 
 // C RunTime Header Files

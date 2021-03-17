@@ -55,6 +55,12 @@ namespace TruthEngine
 			float2 TexCoord;
 		};
 
+		struct Bone
+		{
+			float3 BoneWeights = float3{.0f, .0f, .0f};
+			byte     BoneIndex[4] = {0,0,0,0};
+		};
+
 		struct PosNormTex 
 		{
 			PosNormTex()

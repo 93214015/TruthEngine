@@ -204,7 +204,7 @@ namespace TruthEngine
 		static void Factory(PipelineGraphics** _outPipeline, RendererStateSet states, Shader* shader, uint32_t renderTargetNum, TE_RESOURCE_FORMAT* rtvFormat, TE_RESOURCE_FORMAT dsvFormat, bool enableMSAA, float depthBias = 0.0f, float depthBiasClamp = 0.0f, float slopeScaledDepthBias = 0.0f);
 
 	private:
-		PipelineGraphics(uint32_t ID, RendererStateSet states, Shader* shader, uint32_t renderTargetNum, TE_RESOURCE_FORMAT* rtvFormat, TE_RESOURCE_FORMAT dsvFormat, bool enableMSAA, float depthBias = 0.0f, float depthBiasClamp = 0.0f, float slopeScaledDepthBias = 0.0f);
+		PipelineGraphics(uint32_t ID, std::string_view _Name, RendererStateSet states, Shader* shader, uint32_t renderTargetNum, TE_RESOURCE_FORMAT* rtvFormat, TE_RESOURCE_FORMAT dsvFormat, bool enableMSAA, float depthBias = 0.0f, float depthBiasClamp = 0.0f, float slopeScaledDepthBias = 0.0f);
 
 	private:
 		uint32_t m_ID;
@@ -225,7 +225,7 @@ namespace TruthEngine
 		Shader* m_Shader;
 		TE_IDX_SHADERCLASS m_ShaderClassIDX = TE_IDX_SHADERCLASS::NONE;
 
-		std::string m_Name = "PSO_****";
+		std::string m_Name = "PSO_";
 
 		friend class PiplineManager;
 		friend class API::DirectX12::DirectX12PiplineManager;
@@ -256,7 +256,7 @@ namespace TruthEngine
 		static void Factory(PipelineCompute** _outPipeline, Shader* _Shader);
 
 	private:
-		PipelineCompute(uint32_t _ID, Shader* _Shader);
+		PipelineCompute(uint32_t _ID, std::string_view _Name, Shader* _Shader);
 
 
 	private:
@@ -265,7 +265,7 @@ namespace TruthEngine
 		Shader* m_Shader;
 		TE_IDX_SHADERCLASS m_ShaderClassIDX;
 
-		std::string m_Name = "PSO_****";
+		std::string m_Name = "";
 
 
 		friend class PiplineManager;

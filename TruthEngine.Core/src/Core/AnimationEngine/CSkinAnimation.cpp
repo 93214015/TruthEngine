@@ -173,23 +173,24 @@ namespace TruthEngine
 	}
 
 
-	std::vector<float4x4>* SA_Animation::GetTransform()
+	const std::vector<float4x4>* SA_Animation::GetTransform()
 	{
 		/*return mAnimations[mCurrentAnimationIndex].GetTransforms(timePos);*/
 
-		std::vector<std::vector<float4x4>*> transforms;
+		std::vector<const std::vector<float4x4>*> transforms;
 
 		if (mAnimTimeQueue.size() > 0)
 		{
 			auto it = mAnimTimeQueue.begin();
 
-			transforms.push_back(mAnimations[it->first].GetTransforms(it->second));
+
+			transforms.push_back(&mAnimations[it->first].GetTransforms(it->second));
 
 			it++;
 
 			for (auto e = it; e != mAnimTimeQueue.end(); e++)
 			{
-				transforms.push_back(mAnimations[e->first].GetTransforms(e->second));
+				transforms.push_back(&mAnimations[e->first].GetTransforms(e->second));
 			}
 		}
 
@@ -258,7 +259,7 @@ namespace TruthEngine
 		return true;
 	}
 
-	bool SA_Animation::UpdateTimePos(float dt)
+	bool SA_Animation::UpdateTimePos(double dt)
 	{
 		for (auto& it : mAnimTimeQueue)
 		{
@@ -390,8 +391,7 @@ namespace TruthEngine
 		{
 			auto channel = animation->mChannels[i];
 
-			mAnimNodes.emplace_back();
-			auto& animNode = mAnimNodes.back();
+			auto& animNode = mAnimNodes.emplace_back();
 
 			animNode.mName = channel->mNodeName.C_Str();
 
@@ -437,7 +437,7 @@ namespace TruthEngine
 	}
 
 
-	void SA_AnimEvaluator::Evaluate(float dt, std::map<std::string, Bone*>& BonesByName)
+	void SA_AnimEvaluator::Evaluate(float dt, std::unordered_map<std::string, Bone*>& BonesByName)
 	{
 
 		dt *= mTicksPerSecond;
@@ -608,20 +608,20 @@ namespace TruthEngine
 	}
 
 
-	std::vector<float4x4>* SA_AnimEvaluator::GetTransforms(float timePos)
+	const std::vector<float4x4>& SA_AnimEvaluator::GetTransforms(float timePos) const
 	{
-		return &mTransforms[GetFrameIndexAt(timePos)];
+		return mTransforms[GetFrameIndexAt(timePos)];
 	}
 
 
-	float SA_AnimEvaluator::GetDuration()
+	float SA_AnimEvaluator::GetDuration() const
 	{
 
 		return mDuration / mTicksPerSecond;
 
 	}
 
-	int SA_AnimEvaluator::GetFrameIndexAt(float dt)
+	int SA_AnimEvaluator::GetFrameIndexAt(float dt) const
 	{
 
 		dt *= mTicksPerSecond;

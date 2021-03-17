@@ -297,8 +297,11 @@ namespace TruthEngine
 
 		Shader* shader = nullptr;
 		auto result = m_ShaderManager->AddShader(&shader, TE_IDX_SHADERCLASS::GENERATEBASICSHADOWMAP, TE_IDX_MESH_TYPE::MESH_NTT, _rendererState, "Assets/Shaders/generateShadowMap.hlsl", "vs", "");
-
 		PipelineGraphics::Factory(&m_Pipelines[TE_IDX_MESH_TYPE::MESH_NTT], _rendererState, shader, 0, nullptr, TE_RESOURCE_FORMAT::D32_FLOAT, false, -30.0, 0.0f, -4.0f);
+
+
+		result = m_ShaderManager->AddShader(&shader, TE_IDX_SHADERCLASS::GENERATEBASICSHADOWMAP, TE_IDX_MESH_TYPE::MESH_SKINNED, _rendererState, "Assets/Shaders/generateShadowMap.hlsl", "vs", "");
+		PipelineGraphics::Factory(&m_Pipelines[TE_IDX_MESH_TYPE::MESH_SKINNED], _rendererState, shader, 0, nullptr, TE_RESOURCE_FORMAT::D32_FLOAT, false, -30.0, 0.0f, -4.0f);
 
 	}
 

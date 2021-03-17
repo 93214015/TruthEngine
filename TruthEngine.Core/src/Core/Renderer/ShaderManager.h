@@ -14,13 +14,12 @@ namespace TruthEngine
 		ShaderManager() = default;
 		virtual ~ShaderManager() = default;
 
-		virtual TE_RESULT AddShader(Shader** outShader, TE_IDX_SHADERCLASS shaderClassID, TE_IDX_MESH_TYPE meshType, std::string_view name, std::string_view filePath, std::string_view vsEntry, std::string_view psEntry, std::string_view csEntry = "", std::string_view dsEntry = "", std::string_view hsEntry = "", std::string_view gsEntry = "") = 0;
 		virtual TE_RESULT AddShader(Shader** outShader, TE_IDX_SHADERCLASS shaderClassID, TE_IDX_MESH_TYPE meshType, RendererStateSet states, std::string_view filePath, std::string_view vsEntry, std::string_view psEntry, std::string_view csEntry = "", std::string_view dsEntry = "", std::string_view hsEntry = "", std::string_view gsEntry = "") = 0;
 
 		ShaderSignature* GetShaderSignature(const TE_IDX_SHADERCLASS shaderClassIDX);
 		const ShaderRequiredResources* GetShaderRequiredResources(const TE_IDX_SHADERCLASS _ShaderClassIDX) const;
 
-		Shader* GetShader(TE_IDX_SHADERCLASS shaderClassID, RendererStateSet states);
+		Shader* GetShader(TE_IDX_SHADERCLASS shaderClassID, TE_IDX_MESH_TYPE _MeshType, RendererStateSet states);
 
 		inline Shader* GetShader(std::string_view shaderName)
 		{
@@ -29,11 +28,11 @@ namespace TruthEngine
 
 		static ShaderManager* GetInstance()
 		{
-			static std::shared_ptr<ShaderManager> s_Instance = Factory();
-			return s_Instance.get();
+			static ShaderManager* s_Instance = Factory();
+			return s_Instance;
 		}
 
-		static std::shared_ptr<ShaderManager> Factory();
+		static ShaderManager* Factory();
 
 	protected:
 
@@ -43,13 +42,13 @@ namespace TruthEngine
 		/*std::vector<std::vector<ShaderSignature::ShaderConstantBufferViewSlot>> _CreateConstantBufferViewSlots(TE_IDX_SHADERCLASS shaderClassIDX);
 		std::vector<std::vector<ShaderSignature::ShaderShaderResourceViewSlot>> _CreateShaderResourceViewSlots(TE_IDX_SHADERCLASS shaderClassIDX);*/
 
-		void _GetShaderDefines(const RendererStateSet states);
+		void _GetShaderDefines(const RendererStateSet states, TE_IDX_MESH_TYPE _MeshType);
 
 	protected:
 		RendererStateSet m_StateMask = BIT_MASK_TE_RENDERER_STATE_ENABLED_MAP_DIFFUSE | BIT_MASK_TE_RENDERER_STATE_ENABLED_MAP_DISPLACEMENT | BIT_MASK_TE_RENDERER_STATE_ENABLED_MAP_NORMAL;
 
 
-		std::unordered_map<RendererStateSet, std::shared_ptr<Shader>> m_ShadersStateMap[static_cast<uint32_t>(TE_IDX_SHADERCLASS::TOTALNUM)];
+		std::unordered_map<RendererStateSet, std::shared_ptr<Shader>> m_ShadersStateMap[static_cast<uint32_t>(TE_IDX_SHADERCLASS::TOTALNUM)][static_cast<uint32_t>(TE_IDX_MESH_TYPE::TOTALNUM)];
 
 		std::unordered_map<std::string_view, std::shared_ptr<Shader>> m_ShadersNameMap;
 

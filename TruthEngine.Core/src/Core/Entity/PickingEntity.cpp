@@ -66,7 +66,7 @@ void TruthEngine::PickingEntity::PickEntity(float2 mousePosition, Scene* scene, 
 		{
 			Mesh* mesh = scene->GetComponent<MeshComponent>(entity).GetMesh();
 
-			const auto& _verteciesData = mesh->GetVertexBuffer()->GetVertexData<VertexData::Pos>();
+			const auto& _verteciesData = mesh->GetVertexBuffer()->GetPosData();
 			const auto& _indeciesData = mesh->GetIndexBuffer()->GetIndecies();
 
 			const uint32_t _triNum = mesh->GetIndexNum() / 3;

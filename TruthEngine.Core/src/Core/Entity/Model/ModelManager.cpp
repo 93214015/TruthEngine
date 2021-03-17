@@ -16,7 +16,7 @@ namespace TruthEngine
 
 	ModelManager::ModelManager()
 	{
-		m_Meshes.reserve(10000);
+		m_Meshes.reserve(100000);
 		//m_Models3D.reserve(1000);
 	}
 
@@ -37,13 +37,18 @@ namespace TruthEngine
 
 		TE_INSTANCE_GRAPHICDEVICE->WaitForGPU();
 
+		auto _Lambda = [=](auto&& _VertexBuffer)
+		{
+			if (_VertexBuffer.GetVertexNum() > 0)
+				m_BufferManager->CreateVertexBuffer(&_VertexBuffer);
+		};
 
-		m_BufferManager->CreateVertexBuffer(&m_VertexBuffer_PosNormTanTex);
+		std::apply([=](auto&&... _VertexBuffer) { ((_Lambda(_VertexBuffer)), ...);  }, m_VertexBuffers);
 		m_BufferManager->CreateIndexBuffer(&m_IndexBuffer);
 
 		m_RendererCommand->BeginGraphics();
 
-		m_RendererCommand->UploadData(&m_VertexBuffer_PosNormTanTex);
+		std::apply([_RendererCommand = m_RendererCommand.get()](auto&&... _VertexBuffer) { ((_RendererCommand->UploadData(&_VertexBuffer)), ...);  }, m_VertexBuffers);
 		m_RendererCommand->UploadData(&m_IndexBuffer);
 
 		m_RendererCommand->End();
@@ -60,23 +65,41 @@ namespace TruthEngine
 	}
 
 
-	/*void ModelManager::AddMesh(std::shared_ptr<Mesh> mesh)
+	Mesh* ModelManager::AddMesh(TE_IDX_MESH_TYPE _MeshType, uint32_t IndexNum, size_t IndexOffset, size_t VertexOffset, size_t vertexNum)
 	{
-		mesh->m_IndexBuffer = &m_IndexBuffer;
-		mesh->m_VertexBuffer = &m_VertexBuffer_PosNormTanTex;
+		Mesh* _Mesh = nullptr;
 
-		m_Meshes.push_back(mesh);
-	}*/
+		switch (_MeshType)
+		{
+		case TE_IDX_MESH_TYPE::MESH_POINT:
+			throw;
+			break;
+		case TE_IDX_MESH_TYPE::MESH_SIMPLE:
+			throw;
+			break;
+		case TE_IDX_MESH_TYPE::MESH_NTT:
+		{
+			VertexBufferNTT& _VertexBuffer = _GetVertexBuffer<VertexBufferNTT>();
+			BoundingBox bb;
+			CreateBoundingBoxFromPoints(bb, vertexNum, &_VertexBuffer.GetPosData()[VertexOffset].Position, sizeof(VertexData::Pos));
+			_Mesh = &m_Meshes.emplace_back(GenerateMeshID(), IndexNum, IndexOffset, VertexOffset, vertexNum, bb, &_VertexBuffer, &m_IndexBuffer);
+			break;
+		}
+		case TE_IDX_MESH_TYPE::MESH_SKINNED:
+		{
+			VertexBufferSkinned& _VertexBuffer = _GetVertexBuffer<VertexBufferSkinned>();
+			BoundingBox bb;
+			CreateBoundingBoxFromPoints(bb, vertexNum, &_VertexBuffer.GetPosData()[VertexOffset].Position, sizeof(VertexData::Pos));
+			_Mesh = &m_Meshes.emplace_back(GenerateMeshID(), IndexNum, IndexOffset, VertexOffset, vertexNum, bb, &_VertexBuffer, &m_IndexBuffer);
+			break;
+		}
+		default:
+			throw;
+			break;
+		}
 
-	Mesh* ModelManager::AddMesh(uint32_t IndexNum, size_t IndexOffset, size_t VertexOffset, size_t vertexNum)
-	{
 
-		BoundingBox bb;
-		CreateBoundingBoxFromPoints(bb, vertexNum, &m_VertexBuffer_PosNormTanTex.GetVertexData<VertexData::Pos>()[VertexOffset].Position, sizeof(VertexData::Pos));
-
-
-		auto& mesh = m_Meshes.emplace_back(GenerateMeshID(), IndexNum, IndexOffset, VertexOffset, vertexNum, bb, &m_VertexBuffer_PosNormTanTex, &m_IndexBuffer);
-		return &mesh;
+		return _Mesh;
 	}
 
 	Entity ModelManager::GeneratePrimitiveMesh(TE_PRIMITIVE_TYPE type, float size, const float4x4& transform, Entity modelEntity)
@@ -153,15 +176,37 @@ namespace TruthEngine
 
 	TruthEngine::Mesh* ModelManager::CopyMesh(Mesh* mesh)
 	{
-		auto& _newMesh = m_Meshes.emplace_back(GenerateMeshID(), mesh->m_IndexNum, mesh->m_IndexOffset, mesh->m_VertexOffset, mesh->m_VertexNum, mesh->m_BoundingBox, &m_VertexBuffer_PosNormTanTex, &m_IndexBuffer);
+		auto& _newMesh = m_Meshes.emplace_back(GenerateMeshID(), mesh->m_IndexNum, mesh->m_IndexOffset, mesh->m_VertexOffset, mesh->m_VertexNum, mesh->m_BoundingBox, mesh->GetVertexBuffer(), &m_IndexBuffer);
 
 		return &_newMesh;
 	}
 
-	/*TruthEngine::Model3D* ModelManager::AddModel3D()
-	{
-		return &m_Models3D.emplace_back();
-	}*/
 
+	size_t ModelManager::GetVertexOffset(TE_IDX_MESH_TYPE _MeshType) const noexcept
+	{
+		switch (_MeshType)
+		{
+		case TE_IDX_MESH_TYPE::MESH_POINT:
+			throw;
+			break;
+		case TE_IDX_MESH_TYPE::MESH_SIMPLE:
+			throw;
+			break;
+		case TE_IDX_MESH_TYPE::MESH_NTT:
+			return std::get<0>(m_VertexBuffers).GetVertexOffset();
+		case TE_IDX_MESH_TYPE::MESH_SKINNED:
+			return std::get<1>(m_VertexBuffers).GetVertexOffset();
+		default:
+			throw;
+			break;
+		}
+	}
+
+	template<class T>
+	T& ModelManager::_GetVertexBuffer()
+	{
+		return std::get<T>(m_VertexBuffers);
+	}
 
 }
+

@@ -18,7 +18,7 @@ namespace TruthEngine {
 
 		if (m_Stopped) {
 
-			std::chrono::duration<double, std::milli> d = startTime - m_StoppedTimePoint;
+			std::chrono::duration<double, std::ratio<1>> d = startTime - m_StoppedTimePoint;
 
 			m_PausedTime += d.count();
 
@@ -57,7 +57,7 @@ namespace TruthEngine {
 
 		m_CurrentTimePoint = std::chrono::high_resolution_clock::now();
 
-		std::chrono::duration<double, std::milli> deltaDurtion = m_CurrentTimePoint - m_PrevTimePoint;
+		std::chrono::duration<double, std::ratio<1>> deltaDurtion = m_CurrentTimePoint - m_PrevTimePoint;
 
 		m_DeltaTime = deltaDurtion.count();
 
@@ -87,13 +87,13 @@ namespace TruthEngine {
 	{
 		if (m_Stopped)
 		{
-			auto d = std::chrono::duration<double, std::milli>(m_StoppedTimePoint - m_BaseTimePoint).count();
+			auto d = std::chrono::duration<double, std::ratio<1>>(m_StoppedTimePoint - m_BaseTimePoint).count();
 
 			return d - m_PausedTime;
 		}
 		else
 		{
-			auto d = std::chrono::duration<double, std::milli>(m_CurrentTimePoint - m_BaseTimePoint).count();
+			auto d = std::chrono::duration<double, std::ratio<1>>(m_CurrentTimePoint - m_BaseTimePoint).count();
 			return d - m_PausedTime;
 		}
 	}

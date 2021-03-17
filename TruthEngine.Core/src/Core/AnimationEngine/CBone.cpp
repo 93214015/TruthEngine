@@ -4,14 +4,9 @@
 namespace TruthEngine
 {
 	BoneWeight::BoneWeight(UINT BoneIndex, float BoneWeight) : mBoneIndex(BoneIndex), mBoneWeight(BoneWeight)
-	{
+	{}
 
-	}
-
-	Bone::Bone()
-	{
-
-	}
+	Bone::Bone() = default;
 
 	Bone::~Bone()
 	{

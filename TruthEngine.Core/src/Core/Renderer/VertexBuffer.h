@@ -27,10 +27,27 @@ namespace TruthEngine
 			return m_ID;
 		}
 
-	protected:
-		uint32_t m_ID = 0;
+		inline const std::vector<VertexData::Pos>& GetPosData() const noexcept
+		{
+			return mVertexBufferStreamPos.GetData();
+		}
 
-		uint32_t m_ViewIndex = 0;
+		inline size_t GetVertexNum() const noexcept
+		{
+			return mVertexBufferStreamPos.GetData().size();
+		}
+
+		inline std::vector<VertexData::Pos>& GetPosData() noexcept
+		{
+			return mVertexBufferStreamPos.GetData();
+		}
+
+	protected:
+		uint32_t m_ID = -1;
+
+		uint32_t m_ViewIndex = -1;
+
+		VertexBufferStream<VertexData::Pos> mVertexBufferStreamPos;
 
 
 		//friend classes
@@ -53,49 +70,43 @@ namespace TruthEngine
 		virtual ~VertexBuffer() = default;
 
 
-		void ReserveSpace(uint32_t vertexNum, uint32_t indexNum)
+		void ReserveSpace(uint32_t vertexNum)
 		{
-			m_Indecies.reserve(indexNum);
+			mVertexBufferStreamPos.ReserveSpace(vertexNum);
 
 			std::apply([vertexNum](auto&&... vertexStream) {((vertexStream.ReserveSpace(vertexNum)), ...); }, m_VertexStreams);
 		}
 
-		void AddSpace(uint32_t vertexNum, uint32_t indexNum)
+		void AddSpace(uint32_t vertexNum)
 		{
-			m_Indecies.reserve(m_Indecies.size() + indexNum);
+			mVertexBufferStreamPos.AddSpace(vertexNum);
 
 			std::apply([vertexNum](auto&&... vertexStream) {((vertexStream.AddSpace(vertexNum)), ...); }, m_VertexStreams);
 		}
 
-		inline void AddIndex(const uint32_t index) noexcept
-		{
-			m_Indecies.push_back(index);
-		}
 
 		inline size_t GetVertexOffset() const noexcept
 		{
-			return std::get<0>(m_VertexStreams).GetVertexNum();
+			return mVertexBufferStreamPos.GetVertexNum();
 		}
 
-		inline size_t GetIndexOffset() const noexcept
-		{
-			return m_Indecies.size();
-		}
 
-		void AddVertex(const Ts& ...vertex)
+		void AddVertex(const VertexData::Pos& _Position, const Ts& ...vertex)
 		{
+			mVertexBufferStreamPos.AddVertex(_Position);
 			((std::get<VertexBufferStream<Ts>>(m_VertexStreams).AddVertex(vertex)), ...);
 		}
 
-		inline uint32_t GetVertexStreamNum() const override
+		constexpr uint32_t GetVertexStreamNum() const override
 		{
 			return m_VertexStreamNum;
 		}
 
 		inline std::vector<VertexBufferStreamBase*> GetVertexBufferStreams() override
 		{
-			std::vector<VertexBufferStreamBase*> vs(sizeof...(Ts));
+			std::vector<VertexBufferStreamBase*> vs(m_VertexStreamNum);
 			uint32_t i = 0;
+			vs[i++] = &mVertexBufferStreamPos;
 			((vs[i++] = &std::get<VertexBufferStream<Ts>>(m_VertexStreams)), ...);
 			return vs;
 		}
@@ -118,13 +129,9 @@ namespace TruthEngine
 		uint32_t m_IndexBufferResourceIndex = 0;
 
 	protected:
-		static const uint32_t m_VertexStreamNum = static_cast<uint32_t>(sizeof...(Ts));
-
-		std::vector<uint32_t> m_Indecies;
+		static constexpr uint32_t m_VertexStreamNum = (static_cast<uint32_t>(sizeof...(Ts)) + 1);
 
 		std::tuple<VertexBufferStream<Ts>...> m_VertexStreams;
-
-
 
 
 		//

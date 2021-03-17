@@ -54,8 +54,65 @@ struct float4x4 : DirectX::XMFLOAT4X4
 {
 	using DirectX::XMFLOAT4X4::XMFLOAT4X4;
 
+	float4x4(const aiMatrix4x4& _aiMatrix4x4);
+
 	operator physx::PxMat44();
 	operator physx::PxMat44()const;
+};
+
+
+struct uint2
+{
+	union
+	{
+		struct
+		{
+			uint32_t x;
+			uint32_t y;
+		};		
+	};
+
+	uint32_t& operator[](uint32_t i)
+	{
+		return (&x)[i];
+	}
+};
+
+struct uint3
+{
+	union
+	{
+		struct
+		{
+			uint32_t x;
+			uint32_t y;
+			uint32_t z;
+		};
+	};
+
+	uint32_t& operator[](uint32_t i)
+	{
+		return (&x)[i];
+	}
+};
+
+struct uint4
+{
+	union
+	{
+		struct
+		{
+			uint32_t x;
+			uint32_t y;
+			uint32_t z;
+			uint32_t w;
+		};
+	};
+
+	uint32_t& operator[](uint32_t i)
+	{
+		return (&x)[i];
+	}
 };
 
 

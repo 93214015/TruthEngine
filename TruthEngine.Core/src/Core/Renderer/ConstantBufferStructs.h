@@ -89,4 +89,9 @@ namespace TruthEngine {
 		Material MaterialArray[100];
 	};
 
+	struct ConstantBuffer_Data_Bones
+	{
+		float4x4 mBones[256];
+	};
+
 }

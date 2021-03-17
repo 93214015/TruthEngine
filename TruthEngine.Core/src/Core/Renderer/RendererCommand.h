@@ -115,6 +115,7 @@ namespace TruthEngine
 			void ResizeSwapChain(SwapChain* swapChain, uint32_t width, uint32_t height, RenderTargetView* RTV, ShaderResourceView* SRV);
 
 			void AddUpdateTask(const std::function<void()>& task);
+			void AddUpdateTaskJustCurrentFrame(const std::function<void()>& task);
 
 			bool IsRunning();
 

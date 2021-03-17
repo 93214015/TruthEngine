@@ -18,6 +18,7 @@
 #include "Core/Event/Event.h"
 #include "Core/Entity/PickingEntity.h"
 #include "Core/Event/EventEntity.h"
+#include "Core/AnimationEngine/AnimationManager.h"
 
 std::future<void> gFeaturePickEntity;
 
@@ -92,12 +93,11 @@ namespace TruthEngine
 
 		TE_INSTANCE_PHYSICSENGINE->Simulate(m_Timer.DeltaTime());
 
+		TE_INSTANCE_ANIMATIONMANAGER->Update(m_Timer.DeltaTime());
 
 		InputManager::ProcessInput();
 
-
 		m_RendererLayer->BeginRendering();
-
 
 		m_TimerAvg_UpdateRenderPasses.Start();
 

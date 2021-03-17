@@ -11,7 +11,7 @@
 namespace TruthEngine::API::DirectX12
 {
 
-	D3D12_CULL_MODE DX12_GET_CULL_MODE(RendererStateSet states)
+	constexpr D3D12_CULL_MODE DX12_GET_CULL_MODE(RendererStateSet states)
 	{
 		TE_RENDERER_STATE_CULL_MODE cullMode = static_cast<TE_RENDERER_STATE_CULL_MODE>(GET_RENDERER_STATE(states, TE_RENDERER_STATE_CULL_MODE));
 
@@ -28,6 +28,13 @@ namespace TruthEngine::API::DirectX12
 		}
 
 		TE_ASSERT_CORE(false, "Wrong Cull Mode!");
+	}
+
+	constexpr D3D12_DEPTH_WRITE_MASK DX12_GET_DEPTH_WRITE_MASK(RendererStateSet states)
+	{
+		TE_RENDERER_STATE_DEPTH_WRITE_MASK _DepthWrite = static_cast<TE_RENDERER_STATE_DEPTH_WRITE_MASK>(GET_RENDERER_STATE(states, TE_RENDERER_STATE_DEPTH_WRITE_MASK));
+
+		return static_cast<D3D12_DEPTH_WRITE_MASK>(_DepthWrite);
 	}
 
 	D3D12_FILL_MODE DX12_GET_FILL_MODE(RendererStateSet states)
@@ -180,7 +187,7 @@ namespace TruthEngine::API::DirectX12
 		//Blend Desc
 		auto depthEnabled = DX12_GET_ENABLED_DEPTH(states);
 		desc.DepthStencilState.DepthEnable = depthEnabled;
-		desc.DepthStencilState.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
+		desc.DepthStencilState.DepthWriteMask = DX12_GET_DEPTH_WRITE_MASK(states);
 		desc.DepthStencilState.DepthFunc = depthEnabled ? DX12_GET_COMPARISON_FUNC(states) : D3D12_COMPARISON_FUNC_ALWAYS;
 		desc.DepthStencilState.StencilEnable = false;
 		desc.DepthStencilState.StencilReadMask = D3D12_DEFAULT_STENCIL_READ_MASK;
@@ -265,7 +272,6 @@ namespace TruthEngine::API::DirectX12
 		auto hr = TE_INSTANCE_API_DX12_GRAPHICDEVICE->CreateGraphicsPipelineState(&desc, IID_PPV_ARGS(PSO.GetAddressOf()));
 		TE_ASSERT_CORE(SUCCEEDED(hr), "PipelineGraphics Creation failed!");
 
-		pipeline->m_Name = std::string("PSO_") + std::to_string(m_PipelineNum);
 		hr = m_PiplineLibrary->StorePipeline(to_wstring(pipeline->m_Name).c_str(), PSO.Get());
 
 		m_PipelineNum++;
@@ -278,7 +284,6 @@ namespace TruthEngine::API::DirectX12
 		auto hr = TE_INSTANCE_API_DX12_GRAPHICDEVICE->CreateComputePipelineState(&desc, IID_PPV_ARGS(PSO.GetAddressOf()));
 		TE_ASSERT_CORE(SUCCEEDED(hr), "PipelineCompute Creation failed!");
 
-		pipeline->m_Name = std::string("PSO_") + std::to_string(m_PipelineNum);
 		hr = m_PiplineLibrary->StorePipeline(to_wstring(pipeline->m_Name).c_str(), PSO.Get());
 
 		m_PipelineNum++;

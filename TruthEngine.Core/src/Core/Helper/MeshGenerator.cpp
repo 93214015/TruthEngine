@@ -21,17 +21,17 @@ namespace TruthEngine
 	Mesh* MeshGenerator::GenerateBox(float size)
 	{
 		auto modelManager = ModelManager::GetInstance().get();
-		auto& vertexBuffer = modelManager->m_VertexBuffer_PosNormTanTex;
+		auto& vertexBuffer = std::get<0>(modelManager->m_VertexBuffers);
 
 		uint32_t indexOffset = modelManager->GetIndexOffset();
-		uint32_t vertexOffset = modelManager->GetVertexOffset();
+		uint32_t vertexOffset = modelManager->GetVertexOffset(TE_IDX_MESH_TYPE::MESH_NTT);
 
 		generator::BoxMesh box({ size, size, size }, { 1, 1, 1 });
 		auto vertecies = box.vertices();
 		auto triangles = box.triangles();
 		uint32_t vertexNum = static_cast<uint32_t>(count(vertecies));
 		uint32_t indexNum = count(triangles) * 3;
-		vertexBuffer.AddSpace(vertexNum, indexNum);
+		vertexBuffer.AddSpace(vertexNum);
 
 
 		while (!vertecies.done())
@@ -66,7 +66,7 @@ namespace TruthEngine
 			}
 		);	*/
 
-		auto mesh = modelManager->AddMesh(indexNum, indexOffset, vertexOffset, vertexNum);
+		auto mesh = modelManager->AddMesh(TE_IDX_MESH_TYPE::MESH_NTT, indexNum, indexOffset, vertexOffset, vertexNum);
 
 		return mesh;
 	}
@@ -75,17 +75,17 @@ namespace TruthEngine
 	{
 
 		auto modelManager = ModelManager::GetInstance();
-		auto& vertexBuffer = modelManager->m_VertexBuffer_PosNormTanTex;
+		auto& vertexBuffer = std::get<0>(modelManager->m_VertexBuffers);
 
 		uint32_t indexOffset = modelManager->GetIndexOffset();
-		uint32_t vertexOffset = modelManager->GetVertexOffset();
+		uint32_t vertexOffset = modelManager->GetVertexOffset(TE_IDX_MESH_TYPE::MESH_NTT);
 
 		generator::SphereMesh sphere(size);
 		auto vertecies = sphere.vertices();
 		auto triangles = sphere.triangles();
 		uint32_t vertexNum = static_cast<uint32_t>(count(vertecies));
 		uint32_t indexNum = static_cast<uint32_t>(count(triangles)) * 3;
-		vertexBuffer.AddSpace(vertexNum, indexNum);
+		vertexBuffer.AddSpace(vertexNum);
 
 
 		std::vector<DirectX::XMFLOAT3> _PositionData;
@@ -152,23 +152,23 @@ namespace TruthEngine
 		}
 
 
-		return modelManager->AddMesh(indexNum, indexOffset, vertexOffset, vertexNum);
+		return modelManager->AddMesh(TE_IDX_MESH_TYPE::MESH_NTT, indexNum, indexOffset, vertexOffset, vertexNum);
 	}
 
 	TruthEngine::Mesh* MeshGenerator::GenerateRoundedBoxMesh(float size)
 	{
 		auto modelManager = ModelManager::GetInstance();
-		auto& vertexBuffer = modelManager->m_VertexBuffer_PosNormTanTex;
+		auto& vertexBuffer = std::get<0>(modelManager->m_VertexBuffers);
 
 		uint32_t indexOffset = modelManager->GetIndexOffset();
-		uint32_t vertexOffset = modelManager->GetVertexOffset();
+		uint32_t vertexOffset = modelManager->GetVertexOffset(TE_IDX_MESH_TYPE::MESH_NTT);
 
 		generator::RoundedBoxMesh roundedBoxMesh(.25f, { size, size, size });
 		auto vertecies = roundedBoxMesh.vertices();
 		auto triangles = roundedBoxMesh.triangles();
 		uint32_t vertexNum = static_cast<uint32_t>(count(vertecies));
 		uint32_t indexNum = static_cast<uint32_t>(count(triangles)) * 3;
-		vertexBuffer.AddSpace(vertexNum, indexNum);
+		vertexBuffer.AddSpace(vertexNum);
 
 		while (!vertecies.done())
 		{
@@ -192,16 +192,16 @@ namespace TruthEngine
 			triangles.next();
 		}
 
-		return modelManager->AddMesh(indexNum, indexOffset, vertexOffset, vertexNum);
+		return modelManager->AddMesh(TE_IDX_MESH_TYPE::MESH_NTT, indexNum, indexOffset, vertexOffset, vertexNum);
 	}
 
 	TruthEngine::Mesh* MeshGenerator::GenerateCylinder(float size)
 	{
 		auto modelManager = ModelManager::GetInstance();
-		auto& vertexBuffer = modelManager->m_VertexBuffer_PosNormTanTex;
+		auto& vertexBuffer = std::get<0>(modelManager->m_VertexBuffers);
 
 		uint32_t indexOffset = modelManager->GetIndexOffset();
-		uint32_t vertexOffset = modelManager->GetVertexOffset();
+		uint32_t vertexOffset = modelManager->GetVertexOffset(TE_IDX_MESH_TYPE::MESH_NTT);
 
 
 		generator::CylinderMesh cylinder(size, size);
@@ -209,7 +209,7 @@ namespace TruthEngine
 		auto triangles = cylinder.triangles();
 		uint32_t vertexNum = static_cast<uint32_t>(count(vertecies));
 		uint32_t indexNum = static_cast<uint32_t>(count(triangles)) * 3;
-		vertexBuffer.AddSpace(vertexNum, indexNum);
+		vertexBuffer.AddSpace(vertexNum);
 
 		while (!vertecies.done())
 		{
@@ -233,23 +233,23 @@ namespace TruthEngine
 			triangles.next();
 		}
 
-		return modelManager->AddMesh(indexNum, indexOffset, vertexOffset, vertexNum);
+		return modelManager->AddMesh(TE_IDX_MESH_TYPE::MESH_NTT, indexNum, indexOffset, vertexOffset, vertexNum);
 	}
 
 	TruthEngine::Mesh* MeshGenerator::GenerateCappedCylinder(float size)
 	{
 		auto modelManager = ModelManager::GetInstance();
-		auto& vertexBuffer = modelManager->m_VertexBuffer_PosNormTanTex;
+		auto& vertexBuffer = std::get<0>(modelManager->m_VertexBuffers);
 
 		uint32_t indexOffset = modelManager->GetIndexOffset();
-		uint32_t vertexOffset = modelManager->GetVertexOffset();
+		uint32_t vertexOffset = modelManager->GetVertexOffset(TE_IDX_MESH_TYPE::MESH_NTT);
 
 		generator::CappedCylinderMesh cylinder(size, size);
 		auto vertecies = cylinder.vertices();
 		auto triangles = cylinder.triangles();
 		uint32_t vertexNum = static_cast<uint32_t>(count(vertecies));
 		uint32_t indexNum = static_cast<uint32_t>(count(triangles)) * 3;
-		vertexBuffer.AddSpace(vertexNum, indexNum);
+		vertexBuffer.AddSpace(vertexNum);
 
 		while (!vertecies.done())
 		{
@@ -273,23 +273,23 @@ namespace TruthEngine
 			triangles.next();
 		}
 
-		return modelManager->AddMesh(indexNum, indexOffset, vertexOffset, vertexNum);
+		return modelManager->AddMesh(TE_IDX_MESH_TYPE::MESH_NTT, indexNum, indexOffset, vertexOffset, vertexNum);
 	}
 
 	TruthEngine::Mesh* MeshGenerator::GeneratePlane(float size)
 	{
 		auto modelManager = ModelManager::GetInstance().get();
-		auto& vertexBuffer = modelManager->m_VertexBuffer_PosNormTanTex;
+		auto& vertexBuffer = std::get<0>(modelManager->m_VertexBuffers);
 
 		uint32_t indexOffset = modelManager->GetIndexOffset();
-		uint32_t vertexOffset = modelManager->GetVertexOffset();
+		uint32_t vertexOffset = modelManager->GetVertexOffset(TE_IDX_MESH_TYPE::MESH_NTT);
 
 		generator::BoxMesh plane({ size, 0.1f, size }, { 1, 1, 1 });
 		auto vertecies = plane.vertices();
 		auto triangles = plane.triangles();
 		uint32_t vertexNum = static_cast<uint32_t>(count(vertecies));
 		uint32_t indexNum = count(triangles) * 3;
-		vertexBuffer.AddSpace(vertexNum, indexNum);
+		vertexBuffer.AddSpace(vertexNum);
 
 
 		while (!vertecies.done())
@@ -315,7 +315,7 @@ namespace TruthEngine
 			triangles.next();
 		}
 
-		auto mesh = modelManager->AddMesh(indexNum, indexOffset, vertexOffset, vertexNum);
+		auto mesh = modelManager->AddMesh(TE_IDX_MESH_TYPE::MESH_NTT, indexNum, indexOffset, vertexOffset, vertexNum);
 
 		return mesh;
 	}

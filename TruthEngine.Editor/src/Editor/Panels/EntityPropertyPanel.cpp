@@ -708,7 +708,7 @@ namespace TruthEngine
 		{
 			auto mesh = m_Context.GetComponent<MeshComponent>().GetMesh();
 			auto rigidTriangleMeshDesc = TEPhysicsRigidTriangleMeshDesc(mesh->GetVertexNum()
-				, (void*)mesh->GetVertexBuffer()->GetVertexData<VertexData::Pos>().data()
+				, (void*)mesh->GetVertexBuffer()->GetPosData().data()
 				, sizeof(VertexData::Pos)
 				, mesh->GetIndexNum() / 3
 				, (void*)mesh->GetIndexBuffer()->GetIndecies().data()

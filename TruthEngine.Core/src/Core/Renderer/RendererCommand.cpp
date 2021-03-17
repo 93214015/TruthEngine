@@ -128,7 +128,7 @@ namespace TruthEngine
 
 	void RendererCommand::UploadData(ConstantBufferUploadBase* cb)
 	{
-		
+
 	}
 
 	void RendererCommand::UploadData(Buffer* buffer, void* data, size_t sizeInByte)
@@ -138,6 +138,9 @@ namespace TruthEngine
 
 	void RendererCommand::UploadData(VertexBufferBase* vertexBuffer)
 	{
+		if (vertexBuffer->GetVertexNum() == 0)
+			return;
+
 		auto cmdList = m_CurrentCommandList;
 
 		for (auto vbs : vertexBuffer->GetVertexBufferStreams())
@@ -426,6 +429,11 @@ namespace TruthEngine
 	{
 		for (auto commandList : m_CommandLists)
 			commandList->AddUpdateTask(task);
+	}
+
+	void RendererCommand::AddUpdateTaskJustCurrentFrame(const std::function<void()>& task)
+	{
+		m_CommandLists[TE_INSTANCE_APPLICATION->GetCurrentFrameIndex()]->AddUpdateTask(task);
 	}
 
 }

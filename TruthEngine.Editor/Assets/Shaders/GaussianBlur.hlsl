@@ -3,8 +3,8 @@ RWTexture2D<float4> tOutput : register(u0);
 
 cbuffer CB : register(b0)
 {
-    int2 gRes : packoffset(c0.x); // Resulotion of the input image: x - width, y - height
-    int2 gPad : packoffset(c0.z);
+    uint2 gRes : packoffset(c0.x); // Resulotion of the input image: x - width, y - height
+    uint2 gPad : packoffset(c0.z);
 }
 
 static const float SampleWeights[13] =

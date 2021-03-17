@@ -35,16 +35,16 @@ namespace TruthEngine
 	}
 
 
-	Shader* ShaderManager::GetShader(TE_IDX_SHADERCLASS shaderClassID, RendererStateSet states)
+	Shader* ShaderManager::GetShader(TE_IDX_SHADERCLASS shaderClassID, TE_IDX_MESH_TYPE _MeshType, RendererStateSet states)
 	{
 		{
 			states &= m_StateMask;
 
-			auto& map = m_ShadersStateMap[static_cast<uint32_t>(shaderClassID)];
+			auto& map = m_ShadersStateMap[static_cast<uint32_t>(shaderClassID)][static_cast<uint32_t>(_MeshType)];
 
 			auto itr = map.find(states);
 
-			if (itr != m_ShadersStateMap->end())
+			if (itr != map.end())
 			{
 				return itr->second.get();
 			}
@@ -54,12 +54,12 @@ namespace TruthEngine
 	}
 
 
-	std::shared_ptr<TruthEngine::ShaderManager> ShaderManager::Factory()
+	TruthEngine::ShaderManager* ShaderManager::Factory()
 	{
 		switch (Settings::RendererAPI)
 		{
 		case TE_RENDERER_API::DirectX12:
-			return std::make_shared<API::DirectX12::DirectX12ShaderManager>();
+			return API::DirectX12::DirectX12ShaderManager::GetInstance();
 		default:
 			return nullptr;
 		}
@@ -97,6 +97,7 @@ namespace TruthEngine
 							ShaderSignature::ShaderRangeView(TE_IDX_GRESOURCES::CBuffer_LightData, ShaderSignature::EShaderRangeType::CBV),
 							ShaderSignature::ShaderRangeView(TE_IDX_GRESOURCES::CBuffer_Materials, ShaderSignature::EShaderRangeType::CBV),
 							ShaderSignature::ShaderRangeView(TE_IDX_GRESOURCES::CBuffer_UnFrequent, ShaderSignature::EShaderRangeType::CBV),
+							ShaderSignature::ShaderRangeView(TE_IDX_GRESOURCES::CBuffer_Bones, ShaderSignature::EShaderRangeType::CBV),
 						}),
 						ShaderSignature::ShaderRange(0, 0, ShaderSignature::EShaderRangeType::SRV, ShaderSignature::EShaderRangeFlags::EShaderRangeFlags_NONE,
 						{
@@ -134,6 +135,18 @@ namespace TruthEngine
 
 			_ShaderParam = &_ShaderSignature->AddParameter();
 			_ShaderParam->mParameter = ShaderSignature::ShaderConstant(TE_IDX_GRESOURCES::Constant_ShadowMapPerLight, 1, 0, static_cast<ShaderSignature::EShaderVisibility>(ShaderSignature::EShaderVisibility_VERTEX));
+
+			_ShaderParam = &_ShaderSignature->AddParameter();
+			_ShaderParam->mParameter = ShaderSignature::ShaderTable
+			(
+				static_cast<ShaderSignature::EShaderVisibility>(ShaderSignature::EShaderVisibility_VERTEX)
+				, {
+						ShaderSignature::ShaderRange(2, 0, ShaderSignature::EShaderRangeType::CBV, ShaderSignature::EShaderRangeFlags::EShaderRangeFlags_NONE,
+						{
+							ShaderSignature::ShaderRangeView(TE_IDX_GRESOURCES::CBuffer_Bones, ShaderSignature::EShaderRangeType::CBV),
+						})						
+				}
+			);
 			break;
 		}
 		case TE_IDX_SHADERCLASS::POSTPROCESSING_HDR_DOWNSACLING_FIRSTPASS:
@@ -395,6 +408,15 @@ namespace TruthEngine
 			ie.emplace_back("NORMAL", 0, TE_RESOURCE_FORMAT::R32G32B32_FLOAT, 1, 0, TE_RENDERER_SHADER_INPUT_CLASSIFICATION::PER_VERTEX, 0);
 			ie.emplace_back("TANGENT", 0, TE_RESOURCE_FORMAT::R32G32B32_FLOAT, 1, 12, TE_RENDERER_SHADER_INPUT_CLASSIFICATION::PER_VERTEX, 0);
 			ie.emplace_back("TEXCOORD", 0, TE_RESOURCE_FORMAT::R32G32_FLOAT, 1, 24, TE_RENDERER_SHADER_INPUT_CLASSIFICATION::PER_VERTEX, 0);
+
+			auto& ie2 = shaderInputs[(uint32_t)TE_IDX_MESH_TYPE::MESH_SKINNED];
+			ie2.emplace_back("POSITION", 0, TE_RESOURCE_FORMAT::R32G32B32_FLOAT, 0, 0, TE_RENDERER_SHADER_INPUT_CLASSIFICATION::PER_VERTEX, 0);
+			ie2.emplace_back("NORMAL", 0, TE_RESOURCE_FORMAT::R32G32B32_FLOAT, 1, 0, TE_RENDERER_SHADER_INPUT_CLASSIFICATION::PER_VERTEX, 0);
+			ie2.emplace_back("TANGENT", 0, TE_RESOURCE_FORMAT::R32G32B32_FLOAT, 1, 12, TE_RENDERER_SHADER_INPUT_CLASSIFICATION::PER_VERTEX, 0);
+			ie2.emplace_back("TEXCOORD", 0, TE_RESOURCE_FORMAT::R32G32_FLOAT, 1, 24, TE_RENDERER_SHADER_INPUT_CLASSIFICATION::PER_VERTEX, 0);
+			ie2.emplace_back("BONEWEIGHT", 0, TE_RESOURCE_FORMAT::R32G32B32_FLOAT, 2, 0, TE_RENDERER_SHADER_INPUT_CLASSIFICATION::PER_VERTEX, 0);
+			ie2.emplace_back("BONEINDEX", 0, TE_RESOURCE_FORMAT::R8G8B8A8_UINT, 2, 12, TE_RENDERER_SHADER_INPUT_CLASSIFICATION::PER_VERTEX, 0);
+
 			break;
 		}
 		case TE_IDX_SHADERCLASS::GENERATEBASICSHADOWMAP:
@@ -402,6 +424,11 @@ namespace TruthEngine
 		{
 			auto& ie = shaderInputs[(uint32_t)TE_IDX_MESH_TYPE::MESH_NTT];
 			ie.emplace_back("POSITION", 0, TE_RESOURCE_FORMAT::R32G32B32_FLOAT, 0, 0, TE_RENDERER_SHADER_INPUT_CLASSIFICATION::PER_VERTEX, 0);
+
+			auto& ie2 = shaderInputs[(uint32_t)TE_IDX_MESH_TYPE::MESH_SKINNED];
+			ie2.emplace_back("POSITION", 0, TE_RESOURCE_FORMAT::R32G32B32_FLOAT, 0, 0, TE_RENDERER_SHADER_INPUT_CLASSIFICATION::PER_VERTEX, 0);
+			ie2.emplace_back("BONEWEIGHT", 0, TE_RESOURCE_FORMAT::R32G32B32_FLOAT, 2, 0, TE_RENDERER_SHADER_INPUT_CLASSIFICATION::PER_VERTEX, 0);
+			ie2.emplace_back("BONEINDEX", 0, TE_RESOURCE_FORMAT::R8G8B8A8_UINT, 2, 12, TE_RENDERER_SHADER_INPUT_CLASSIFICATION::PER_VERTEX, 0);
 			break;
 		}
 		default:
@@ -474,7 +501,7 @@ namespace TruthEngine
 	}*/
 
 
-	void ShaderManager::_GetShaderDefines(const RendererStateSet states)
+	void ShaderManager::_GetShaderDefines(const RendererStateSet states, TE_IDX_MESH_TYPE _MeshType)
 	{
 		m_Defines.clear();
 		if (GET_RENDERER_STATE(states, TE_RENDERER_STATE_ENABLED_MAP_DIFFUSE) == TE_RENDERER_STATE_ENABLED_MAP_DIFFUSE_TRUE)
@@ -488,6 +515,24 @@ namespace TruthEngine
 		if (GET_RENDERER_STATE(states, TE_RENDERER_STATE_ENABLED_MAP_DISPLACEMENT) == TE_RENDERER_STATE_ENABLED_MAP_DISPLACEMENT_TRUE)
 		{
 			m_Defines.emplace_back(L"ENABLE_MAP_DISPLACEMENT");
+		}
+
+		switch (_MeshType)
+		{
+		case TE_IDX_MESH_TYPE::MESH_POINT:
+			m_Defines.emplace_back(L"MESH_TYPE_POINT");
+			break;
+		case TE_IDX_MESH_TYPE::MESH_SIMPLE:
+			m_Defines.emplace_back(L"MESH_TYPE_SIMPLE");
+			break;
+		case TE_IDX_MESH_TYPE::MESH_NTT:
+			m_Defines.emplace_back(L"MESH_TYPE_NTT");
+			break;
+		case TE_IDX_MESH_TYPE::MESH_SKINNED:
+			m_Defines.emplace_back(L"MESH_TYPE_SKINNED");
+			break;
+		default:
+			break;
 		}
 	}
 

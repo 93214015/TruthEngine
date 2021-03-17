@@ -11,9 +11,9 @@ namespace TruthEngine
 		{
 		public:
 			Mesh();
-			Mesh(uint32_t ID, uint32_t IndexNum, size_t IndexOffset, size_t VertexOffset, size_t vertexNum, const BoundingBox& boundingBox, VertexBuffer<VertexData::Pos, VertexData::NormTanTex>* VertexBufferPtr, IndexBuffer* IndexBufferPtr);
+			Mesh(uint32_t ID, uint32_t IndexNum, size_t IndexOffset, size_t VertexOffset, size_t vertexNum, const BoundingBox& boundingBox, VertexBufferBase* VertexBufferPtr, IndexBuffer* IndexBufferPtr);
 
-			VertexBuffer<VertexData::Pos, VertexData::NormTanTex>* GetVertexBuffer() const noexcept
+			VertexBufferBase* GetVertexBuffer() const noexcept
 			{
 				return m_VertexBuffer;
 			}
@@ -64,7 +64,8 @@ namespace TruthEngine
 		protected:
 			uint32_t m_ID = -1;
 
-			VertexBuffer<VertexData::Pos, VertexData::NormTanTex>* m_VertexBuffer = nullptr;
+			//VertexBuffer<VertexData::Pos, VertexData::NormTanTex>* m_VertexBuffer = nullptr;
+			VertexBufferBase* m_VertexBuffer = nullptr;
 			IndexBuffer* m_IndexBuffer = nullptr;
 
 			uint32_t m_VertexOffset = 0;

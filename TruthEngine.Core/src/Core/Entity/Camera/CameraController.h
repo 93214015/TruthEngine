@@ -47,7 +47,7 @@ namespace TruthEngine
 		protected:
 			Camera* m_Camera = nullptr;
 
-			float m_Speed = 0.1f;
+			float m_Speed = 10.0f;
 
 		};
 }

@@ -11,6 +11,7 @@
 #include "Core/Event/EventEntity.h"
 #include "Core/Renderer/GraphicDevice.h"
 
+#include "Core/AnimationEngine/AnimationManager.h"
 
 #include "Core/Entity/Camera/CameraManager.h"
 #include "Core/Entity/Camera/CameraPerspective.h"
@@ -90,6 +91,7 @@ namespace TruthEngine
 
 		auto data_perFrame = m_CB_PerFrame->GetData();
 
+
 		auto activeCamera = CameraManager::GetInstance()->GetActiveCamera();
 
 		auto _lightManager = LightManager::GetInstace();
@@ -160,6 +162,19 @@ namespace TruthEngine
 
 	void RendererLayer::BeginRendering()
 	{
+
+		if (SA_Animation* _DefaultAnimation = TE_INSTANCE_ANIMATIONMANAGER->GetAnimation(0); _DefaultAnimation)
+		{
+			
+			m_RendererCommand.AddUpdateTaskJustCurrentFrame([_DefaultAnimation, this]() 
+				{
+					auto _Dest = m_CB_Bones->GetData()->mBones;
+					auto _Src = _DefaultAnimation->GetTransform()->data();
+					auto _Size = sizeof(float4x4) * _DefaultAnimation->GetTransform()->size();
+					memcpy(_Dest, _Src, _Size); 
+				});
+		}
+
 		auto swapchain = TE_INSTANCE_SWAPCHAIN;
 		m_RendererCommand.BeginGraphics();
 		m_RendererCommand.SetRenderTarget(swapchain, m_RTVBackBuffer);
@@ -368,6 +383,7 @@ namespace TruthEngine
 		m_CB_LightData = m_RendererCommand.CreateConstantBufferUpload<ConstantBuffer_Data_LightData>(TE_IDX_GRESOURCES::CBuffer_LightData);
 		m_CB_Materials = m_RendererCommand.CreateConstantBufferUpload<ConstantBuffer_Data_Materials>(TE_IDX_GRESOURCES::CBuffer_Materials);
 		m_CB_UnFrequent = m_RendererCommand.CreateConstantBufferUpload<ConstantBuffer_Data_UnFrequent>(TE_IDX_GRESOURCES::CBuffer_UnFrequent);
+		m_CB_Bones = m_RendererCommand.CreateConstantBufferUpload<ConstantBuffer_Data_Bones>(TE_IDX_GRESOURCES::CBuffer_Bones);
 	}
 
 }

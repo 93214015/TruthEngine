@@ -83,7 +83,8 @@ float3 ToneMapping(float3 HDRColor)
 {
 	// Find the luminance scale for the current pixel
     float LScale = dot(HDRColor, LUM_FACTOR);
-    LScale *= MiddleGrey / AvgLum[0];
+    float _AverageLuminance = AvgLum[0];
+    LScale *= MiddleGrey / _AverageLuminance;
     LScale = (LScale + LScale * LScale / LumWhiteSqr) / (1.0 + LScale);
 	
 	// Apply the luminance scale to the pixels color
@@ -97,7 +98,7 @@ float4 FinalPassPS(VS_OUTPUT In) : SV_TARGET
     
     float _Depth = tDepthTex.Sample(sampler_point_borderWhite, In.UV.xy).x;
     
-    if(_Depth < 1.0f)
+    if(_Depth <= 1.0f)
     {
         _Depth = ConvertZToLinearDepth(_Depth);
         float3 _ColorBlurred = tHDRBlurred.Sample(sampler_linear, In.UV.xy).xyz;

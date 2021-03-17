@@ -59,7 +59,7 @@ void TruthEngine::RenderPass_PostProcessing_HDR::OnImGuiRender()
 		{
 			mRendererCommand_FinalPass.AddUpdateTask([this]() { mConstantBufferFinalPass->GetData()->mLumWhiteSqr = _WhiteSquare; });
 		}
-		if (ImGui::DragFloat("Per Second Adaptation Percentage:", &mAdaptation, 0.01, 0.0f, 1.f, "%.2f"))
+		if (ImGui::DragFloat("Per Second Adaptation Percentage:", &mAdaptationPercentage, 0.01, 0.0f, 10.f, "%.2f"))
 		{}
 		if (ImGui::DragFloat("Bloom Threshold:", &mBloomThreshold, 0.01, 0.0f, 10.f, "%2.2f"))
 		{
@@ -122,7 +122,7 @@ void TruthEngine::RenderPass_PostProcessing_HDR::EndScene()
 
 void TruthEngine::RenderPass_PostProcessing_HDR::Render()
 {
-	double _dt = TE_INSTANCE_APPLICATION->FrameTime() * 0.001;
+	double _dt = TE_INSTANCE_APPLICATION->FrameTime();
 	mAdaptation = mAdaptationPercentage < 0.0001f ? 1.0f : _dt * mAdaptationPercentage;
 	mAdaptation = mAdaptation < 0.9999f ? mAdaptation : 0.9999f;
 	mRendererCommand_DownScaling_SecondPass.AddUpdateTask([this]() {mConstantBufferDownScaling->GetData()->gAdaption = mAdaptation; });

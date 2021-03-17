@@ -72,6 +72,7 @@ namespace TruthEngine
 		return entity_mesh;
 	}
 
+
 	TruthEngine::Entity Scene::AddEnvironmentEntity()
 	{
 		auto entity_environment = AddEntity("EnvironmentSphere", Entity());

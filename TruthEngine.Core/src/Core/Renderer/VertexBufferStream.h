@@ -33,7 +33,7 @@ namespace TruthEngine
 		}
 
 	protected:
-		uint32_t m_ViewIndex;
+		uint32_t m_ViewIndex = -1;
 
 
 		//
