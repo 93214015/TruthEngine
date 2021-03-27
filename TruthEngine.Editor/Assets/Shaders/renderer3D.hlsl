@@ -3,32 +3,32 @@
 //
 struct Material
 {
-    float4 Diffuse;
+	float4 Diffuse;
     
-    float3 FresnelR0;
-    float Shininess;
+	float3 FresnelR0;
+	float Shininess;
     
-    float2 UVScale;
-    float2 UVTranslate;
+	float2 UVScale;
+	float2 UVTranslate;
     
-    uint MapIndexDiffuse;
-    uint MapIndexNormal;
-    uint MapIndexDisplacement;
-    uint pad;
+	uint MapIndexDiffuse;
+	uint MapIndexNormal;
+	uint MapIndexDisplacement;
+	uint pad;
 };
 
 
 struct CLightDirectionalData
 {
-    float4 Diffuse;
-    float4 Ambient;
-    float4 Specular;
+	float4 Diffuse;
+	float4 Ambient;
+	float4 Specular;
 
-    float3 Direction;
-    float LightSize;
+	float3 Direction;
+	float LightSize;
     
-    bool CastShadow;
-    float3 padDLight;
+	bool CastShadow;
+	float3 padDLight;
     
     //float3 Position;
     
@@ -38,45 +38,106 @@ struct CLightDirectionalData
     //row_major matrix shadowTransform;
 };
 
+struct CLightSpotData
+{
+	float4 Strength;
+
+	float3 Direction;
+	float FalloffStart;
+
+	float3 Position;
+	float FalloffEnd;
+
+	float SpotOuterConeCos;
+	float SpotOuterConeAngleRangeCosRcp;
+	float2 pad;
+
+};
+
 
 //
 //Helper Funcitions
 //
 float ClacAttenuation(float d, float fallOffStart, float fallOffEnd)
 {
-    return saturate((fallOffEnd - d) / (fallOffEnd - fallOffStart));
+	return saturate((fallOffEnd - d) / (fallOffEnd - fallOffStart));
 }
 
 //Schlik gives an approximation to fresnel reflectance
 float3 SchlikFresnel(float3 r0, float3 normal, float3 lightVector)
 {
-    float cosIncidentAngle = saturate(dot(normal, lightVector));
+	float cosIncidentAngle = saturate(dot(normal, lightVector));
     
-    float f0 = 1.0f - cosIncidentAngle;
-    float3 reflectPercent = r0 + (1.0f - r0) * (f0 * f0 * f0 * f0 * f0);
-    return reflectPercent;
+	float f0 = 1.0f - cosIncidentAngle;
+	float3 reflectPercent = r0 + (1.0f - r0) * (f0 * f0 * f0 * f0 * f0);
+	return reflectPercent;
 }
 
-float3 BlinnPhong(float3 lightStrength, float3 lightVec, float3 normal, float3 toEye, Material mat, float3 materialAlbedoColor)
+float3 BlinnPhong(float3 lightStrength, float3 lightVec, float3 normal, float3 toEye, Material mat)
 {
 
     //Derive m from shininess which is derived from roughness.    
-    const float m = mat.Shininess * 256.0f;
+	const float m = mat.Shininess * 256.0f;
     //const float m = mat.Shininess;
-    float3 halfVec = normalize(toEye + lightVec);
+	float3 halfVec = normalize(toEye + lightVec);
     
-    float roughnessFactor = (m + 8.0f) * pow(max(dot(halfVec, normal), 0.0f), m) / 8.0f;
-    roughnessFactor = max(roughnessFactor, 0.0f);
+	float roughnessFactor = (m + 8.0f) * pow(max(dot(halfVec, normal), 0.0f), m) / 8.0f;
+	roughnessFactor = max(roughnessFactor, 0.0f);
     
-    float3 fresnelFactor = SchlikFresnel(mat.FresnelR0, normal, lightVec);
+	float3 fresnelFactor = SchlikFresnel(mat.FresnelR0, normal, lightVec);
     
     //our Specular formula goes outside [0,1] but we are doing LDR rendering. so scale it down a bit
-    float3 specAlbedo = fresnelFactor * roughnessFactor;
+	float3 specAlbedo = fresnelFactor * roughnessFactor;
     
-    specAlbedo = specAlbedo / (specAlbedo + 1.0f);
+	specAlbedo = specAlbedo / (specAlbedo + 1.0f);
     
-    return (materialAlbedoColor + specAlbedo) * lightStrength;
+	return (mat.Diffuse.xyz + specAlbedo) * lightStrength;
 
+}
+
+float CalculateAttenuation(float _Distance, float _FalloffStart, float _FalloffEnd)
+{
+    //Linear Falloff
+	return saturate((_FalloffEnd - _Distance) / (_FalloffEnd - _FalloffStart));
+}
+
+float3 ComputeDirectLight(CLightDirectionalData _Light, Material _Material, float3 _Position, float3 _Normal, float3 _ToEye)
+{
+	float3 _LightVector = -1.0 * normalize(_Light.Direction);
+	float _LightFactor = dot(_LightVector, _Normal);
+	_LightFactor = max(_LightFactor, 0.0f);
+    
+	float3 _LightStrength = _LightFactor * _Light.Diffuse.xyz;
+    
+	return BlinnPhong(_LightStrength, _LightVector, _Normal, _ToEye, _Material);
+}
+
+float3 ComputeSpotLight(CLightSpotData _Light, Material _Material, float3 _Position, float3 _Normal, float3 _ToEye)
+{
+    //Distance from surface to light
+	float3 _LightVector = _Light.Position - _Position;
+	float _Distance = length(_LightVector);
+    
+	if (_Distance > _Light.FalloffEnd)
+		return 0.0f;
+	
+	_LightVector /= _Distance;
+	
+	float _LightFactor = dot(_LightVector, _Normal);
+	_LightFactor = max(_LightFactor, 0.0f);
+	
+	float3 _LightStrength = _LightFactor * _Light.Strength.xyz;	    
+	
+	float _DistanceAttenuation = CalculateAttenuation(_Distance, _Light.FalloffStart, _Light.FalloffEnd);
+	_LightStrength *= _DistanceAttenuation;
+	
+	float _CosAngle = dot(_LightVector, _Light.Direction * -1.0f);
+	float _CosAttenuration = saturate((_CosAngle - _Light.SpotOuterConeCos) * (_Light.SpotOuterConeAngleRangeCosRcp));
+	_CosAttenuration *= _CosAttenuration;
+	
+	_LightStrength *= _CosAttenuration;
+
+	return BlinnPhong(_LightStrength, _LightVector, _Normal, _ToEye, _Material);
 }
 
 
@@ -86,43 +147,45 @@ float3 BlinnPhong(float3 lightStrength, float3 lightVec, float3 normal, float3 t
 
 cbuffer per_mesh : register(b0)
 {
-    row_major matrix gWorld;
-    row_major matrix gWorldInverseTranspose;
+	row_major matrix gWorld;
+	row_major matrix gWorldInverseTranspose;
     
-    uint materialIndex;
-    float3 padPerMesh;
+	uint materialIndex;
+	float3 padPerMesh;
 }
 
 cbuffer CBPerFrame : register(b1)
 {
-    row_major matrix viewProj;
+	row_major matrix viewProj;
     
-    float3 EyePos;
-    float pad;
+	float3 EyePos;
+	float pad;
 
-    row_major matrix gCascadedShadowTransform[4];
+	row_major matrix gCascadedShadowTransform[4];
 }
 
 cbuffer CBLightData : register(b2)
 {
-    CLightDirectionalData gDLights[1];
+	CLightDirectionalData gDLights[1];
+	CLightSpotData gSpotLights[1];
 }
 
 cbuffer CBMaterials : register(b3)
 {
-    Material MaterialArray[200];
+	Material MaterialArray[200];
 }
 
 cbuffer CBUnfrequent : register(b4)
 {
-    uint gDLightCount;
-    bool gEnabledEnvironmentMap;
-    uint2 padCBunfrequent;
+	uint gDLightCount;
+	uint gSLightCount;
+	bool gEnabledEnvironmentMap;
+	uint2 padCBunfrequent;
 }
 
 cbuffer cb_boneTransforms : register(b5)
 {
-    row_major matrix gBoneTransformations[256];
+	row_major matrix gBoneTransformations[256];
 };
 
 ///////////////////////////////////////////////////
@@ -158,27 +221,27 @@ struct vertexInput
 
 struct vertexInput
 {
-    float3 position : POSITION;
-    float3 normal : NORMAL;
-    float3 tangent : TANGENT;
-    float2 texCoord : TEXCOORD;
+	float3 position : POSITION;
+	float3 normal : NORMAL;
+	float3 tangent : TANGENT;
+	float2 texCoord : TEXCOORD;
 };
 
 #endif
 
 struct vertexOut
 {
-    float4 pos : SV_Position;
-    float3 posW : POSITION0;
+	float4 pos : SV_Position;
+	float3 posW : POSITION0;
     //float4 posLight : POSITION1;
-    float3 normalW : NORMAL;
-    float3 tangentW : TANGENT;
-    float2 texCoord : TEXCOORD;
+	float3 normalW : NORMAL;
+	float3 tangentW : TANGENT;
+	float2 texCoord : TEXCOORD;
 };
 
 vertexOut vs(vertexInput vin)
 {
-    vertexOut vout;
+	vertexOut vout;
     
 #ifdef MESH_TYPE_SKINNED
 
@@ -194,29 +257,29 @@ vertexOut vs(vertexInput vin)
     
 #else
 
-    float4 pos = float4(vin.position, 1.0f);
+	float4 pos = float4(vin.position, 1.0f);
     
 #endif
     
-    float4 posW = mul(pos, gWorld);
-    vout.pos = mul(posW, viewProj);
-    vout.posW = posW.xyz;
+	float4 posW = mul(pos, gWorld);
+	vout.pos = mul(posW, viewProj);
+	vout.posW = posW.xyz;
     //vout.posLight = mul(posW, shadowTransform);
-    vout.normalW = mul(vin.normal, (float3x3) gWorldInverseTranspose);
-    vout.tangentW = mul(vin.tangent, (float3x3) gWorld);
-    vout.texCoord = vin.texCoord;
+	vout.normalW = mul(vin.normal, (float3x3) gWorldInverseTranspose);
+	vout.tangentW = mul(vin.tangent, (float3x3) gWorld);
+	vout.texCoord = vin.texCoord;
     
     
-    return vout;
+	return vout;
 }
 
 float4 ps(vertexOut pin) : SV_Target
 {
 
-    float3 normal = normalize(pin.normalW);
+	float3 normal = normalize(pin.normalW);
 
-    Material _material = MaterialArray[materialIndex];
-    float2 _texUV = (pin.texCoord * _material.UVScale) + _material.UVTranslate;
+	Material _material = MaterialArray[materialIndex];
+	float2 _texUV = (pin.texCoord * _material.UVScale) + _material.UVTranslate;
     
 #ifdef ENABLE_MAP_NORMAL
         float3 tangent = normalize(pin.tangentW);
@@ -233,101 +296,101 @@ float4 ps(vertexOut pin) : SV_Target
     
     //normal = mul(normal, (float3x3)gWorldInverseTranspose);
     
-    float3 illumination_albedo = _material.Diffuse.xyz;
+	float3 illumination_albedo = _material.Diffuse.xyz;
     
 #ifdef ENABLE_MAP_DIFFUSE
         illumination_albedo = MaterialTextures[_material.MapIndexDiffuse].Sample(sampler_linear, _texUV).xyz;
 #endif
     
-    float3 toEye = normalize(EyePos.xyz - pin.posW);
+	float3 toEye = normalize(EyePos.xyz - pin.posW);
 
-    float3 litColor = float3(.0f, .0f, .0f);
+	float3 litColor = float3(.0f, .0f, .0f);
     
-    for (uint i = 0; i < gDLightCount; ++i)
-    {
-        float3 lightVector = -1.0 * normalize(gDLights[0].Direction);
-        float lightFactor = dot(lightVector, normal);
-        lightFactor = max(lightFactor, 0.0f);
-    
-        float3 lightStrength = lightFactor * gDLights[0].Diffuse.xyz;
-    
-        float3 lit = BlinnPhong(lightStrength, lightVector, normal, toEye, _material, illumination_albedo);
-    
+	for (uint i = 0; i < gDLightCount; ++i)
+	{
         
+		float3 lit = ComputeDirectLight(gDLights[i], _material, pin.posW, normal, toEye);
+		
         //float3 shadowMapCoords = pin.posLight.xyz / pin.posLight.w;
 
         //code for cascaded shadow map; finding corrsponding shadow map cascade and coords
-        bool found = false;
-        float3 shadowMapCoords = float3(0.0f, 0.0f, 0.0f);
+		bool found = false;
+		float3 shadowMapCoords = float3(0.0f, 0.0f, 0.0f);
     
-        shadowMapCoords = mul(float4(pin.posW, 1.0f), gCascadedShadowTransform[0]).xyz;
+		shadowMapCoords = mul(float4(pin.posW, 1.0f), gCascadedShadowTransform[0]).xyz;
 
-        if (shadowMapCoords.x > 0.0f && shadowMapCoords.y > 0.0f && shadowMapCoords.x < 0.5f && shadowMapCoords.y < 0.5f)
-        {
-            found = true;
-        }
+		if (shadowMapCoords.x > 0.0f && shadowMapCoords.y > 0.0f && shadowMapCoords.x < 0.5f && shadowMapCoords.y < 0.5f)
+		{
+			found = true;
+		}
     
-        if (!found)
-        {
-            shadowMapCoords = mul(float4(pin.posW, 1.0f), gCascadedShadowTransform[1]).xyz;
+		if (!found)
+		{
+			shadowMapCoords = mul(float4(pin.posW, 1.0f), gCascadedShadowTransform[1]).xyz;
 
-            if (shadowMapCoords.x > 0.5f && shadowMapCoords.y > 0.0f && shadowMapCoords.x < 1.0f && shadowMapCoords.y < 0.5f)
-            {
-                found = true;
-            }
-        }
-        if (!found)
-        {
-            shadowMapCoords = mul(float4(pin.posW, 1.0f), gCascadedShadowTransform[2]).xyz;
+			if (shadowMapCoords.x > 0.5f && shadowMapCoords.y > 0.0f && shadowMapCoords.x < 1.0f && shadowMapCoords.y < 0.5f)
+			{
+				found = true;
+			}
+		}
+		if (!found)
+		{
+			shadowMapCoords = mul(float4(pin.posW, 1.0f), gCascadedShadowTransform[2]).xyz;
 
-            if (shadowMapCoords.x > 0.0f && shadowMapCoords.y > 0.5f && shadowMapCoords.x < 0.5f && shadowMapCoords.y < 1.0f)
-            {
-                found = true;
-            }
-        }
-        if (!found)
-        {
-            shadowMapCoords = mul(float4(pin.posW, 1.0f), gCascadedShadowTransform[3]).xyz;
+			if (shadowMapCoords.x > 0.0f && shadowMapCoords.y > 0.5f && shadowMapCoords.x < 0.5f && shadowMapCoords.y < 1.0f)
+			{
+				found = true;
+			}
+		}
+		if (!found)
+		{
+			shadowMapCoords = mul(float4(pin.posW, 1.0f), gCascadedShadowTransform[3]).xyz;
 
-            if (shadowMapCoords.x > 0.5f && shadowMapCoords.y > 0.5f && shadowMapCoords.x < 1.0f && shadowMapCoords.y < 1.0f)
-            {
-                found = true;
-            }
-        }
+			if (shadowMapCoords.x > 0.5f && shadowMapCoords.y > 0.5f && shadowMapCoords.x < 1.0f && shadowMapCoords.y < 1.0f)
+			{
+				found = true;
+			}
+		}
 
-        float shadowMapSample = tShadowMap.Sample(sampler_point_borderWhite, shadowMapCoords.xy);
-        float shadowFactor = (float) (shadowMapSample < shadowMapCoords.z);
+		float shadowMapSample = tShadowMap.Sample(sampler_point_borderWhite, shadowMapCoords.xy);
+		float shadowFactor = (float) (shadowMapSample < shadowMapCoords.z);
     
-        shadowMapSample = tShadowMap.Sample(sampler_point_borderWhite, shadowMapCoords.xy, int2(0, 1));
-        shadowFactor += (float) (shadowMapSample < shadowMapCoords.z);
+		shadowMapSample = tShadowMap.Sample(sampler_point_borderWhite, shadowMapCoords.xy, int2(0, 1));
+		shadowFactor += (float) (shadowMapSample < shadowMapCoords.z);
     
-        shadowMapSample = tShadowMap.Sample(sampler_point_borderWhite, shadowMapCoords.xy, int2(1, 0));
-        shadowFactor += (float) (shadowMapSample < shadowMapCoords.z);
+		shadowMapSample = tShadowMap.Sample(sampler_point_borderWhite, shadowMapCoords.xy, int2(1, 0));
+		shadowFactor += (float) (shadowMapSample < shadowMapCoords.z);
     
-        shadowMapSample = tShadowMap.Sample(sampler_point_borderWhite, shadowMapCoords.xy, int2(1, 1));
-        shadowFactor += (float) (shadowMapSample < shadowMapCoords.z);
+		shadowMapSample = tShadowMap.Sample(sampler_point_borderWhite, shadowMapCoords.xy, int2(1, 1));
+		shadowFactor += (float) (shadowMapSample < shadowMapCoords.z);
     
-        shadowFactor *= 0.25;
+		shadowFactor *= 0.25;
         //float shadowFactor = tShadowMap.SampleCmp(samplerComparison_great_point_borderWhite, shadowMapCoords.xy, shadowMapCoords.z);
     
     
         //illumination_albedo = lightFactor * (illumination_albedo * Diffuse.xyz).xyz;
-        float3 illumination_ambient = gDLights[0].Ambient.xyz * illumination_albedo;
+		float3 illumination_ambient = gDLights[i].Ambient.xyz * illumination_albedo;
         
-        litColor += (lit * shadowFactor.xxx) + illumination_ambient;
+		litColor += (lit * shadowFactor.xxx) + illumination_ambient;
         
-        
-        
-    }
+	}
+
+
+	for (uint i = 0; i < gSLightCount; ++i)
+	{
+		float3 lit = ComputeSpotLight(gSpotLights[i], _material, pin.posW, normal, toEye);
+		
+		litColor += lit;
+	}
     
-    if (gEnabledEnvironmentMap)
-    {
-        float3 reflectVector = reflect(-toEye, pin.normalW);
-        float3 evironmentReflectColor = tEnvironmentMap.Sample(sampler_linear, reflectVector).xyz;
-        float3 frenselFactor = SchlikFresnel(_material.FresnelR0, pin.normalW, reflectVector);
+	if (gEnabledEnvironmentMap)
+	{
+		float3 reflectVector = reflect(-toEye, pin.normalW);
+		float3 evironmentReflectColor = tEnvironmentMap.Sample(sampler_linear, reflectVector).xyz;
+		float3 frenselFactor = SchlikFresnel(_material.FresnelR0, pin.normalW, reflectVector);
     
-        litColor.rgb += _material.Shininess * frenselFactor * evironmentReflectColor;
-    }
+		litColor.rgb += _material.Shininess * frenselFactor * evironmentReflectColor;
+	}
     
-    return float4(litColor, 1.0f);
+	return float4(litColor, 1.0f);
 }
