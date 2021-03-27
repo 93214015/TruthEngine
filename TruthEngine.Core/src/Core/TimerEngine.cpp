@@ -71,10 +71,10 @@ namespace TruthEngine {
 		m_FrameCount++;
 		m_OneSecondTimer += m_DeltaTime;
 
-		if (m_OneSecondTimer > 1000.0f)
+		if (m_OneSecondTimer > 1.0f)
 		{
 			m_avgCPUFrameTime = m_OneSecondTimer / m_FrameCount;
-			m_FPS = static_cast<uint32_t>((1000.0 / m_avgCPUFrameTime)) + 1;
+			m_FPS = static_cast<uint32_t>((1.0 / m_avgCPUFrameTime)) + 1;
 			m_FrameCount = 0;
 			m_OneSecondTimer = 0.0;
 

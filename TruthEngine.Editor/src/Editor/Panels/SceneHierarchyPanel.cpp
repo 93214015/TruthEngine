@@ -49,7 +49,7 @@ namespace TruthEngine
 	void SceneHierarchyPanel::DrawModelEntities() const
 	{
 
-		auto isHeaderOpen = ImGui::CollapsingHeader("Meshes", ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_AllowItemOverlap | ImGuiTreeNodeFlags_FramePadding);
+		auto isHeaderOpen = ImGui::CollapsingHeader("Models", ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_AllowItemOverlap | ImGuiTreeNodeFlags_FramePadding);
 
 		ImVec2 contentRegionAvailable = ImGui::GetContentRegionAvail();
 		float lineHeight = GImGui->Font->FontSize + (GImGui->Style.FramePadding.y * 2.0f);
@@ -64,6 +64,14 @@ namespace TruthEngine
 		if (ImGui::BeginPopupModal("AddMeshPopup"))
 		{
 			auto modelManager = ModelManager::GetInstance();
+
+			static uint16_t _ModelNamePostfix = 0;
+			static char _ModelNameBuffer[50];
+
+			if (!m_Context->GetSelectedEntity())
+			{
+				ImGui::InputText("Model Name", _ModelNameBuffer, sizeof(_ModelNameBuffer));
+			}
 
 			ImGui::Text("Primitves");
 			static float primitiveSize = 1.0f;
@@ -94,11 +102,31 @@ namespace TruthEngine
 				primitiveType = TE_PRIMITIVE_TYPE::ROUNDEDBOX;
 			}
 
+
+
 			if (ImGui::Button("Add"))
 			{
-				auto entityMesh = modelManager->GeneratePrimitiveMesh(primitiveType, primitiveSize);
 
-				m_Context->SelectEntity(entityMesh);
+				std::string _MeshName = "Primitive_" + std::to_string(_ModelNamePostfix);
+				_ModelNamePostfix++;
+
+
+				Mesh* _Mesh = modelManager->GeneratePrimitiveMesh(primitiveType, primitiveSize);
+
+				Entity _ModelEntity;
+				if (m_Context->GetSelectedEntity())
+				{
+					_ModelEntity = m_Context->GetSelectedEntity();
+				}
+				else
+				{
+					_ModelEntity = m_Context->AddModelEntity(_ModelNameBuffer, IdentityMatrix);
+				}
+
+				static MaterialManager* s_MaterialManager = MaterialManager::GetInstance();
+				Entity _MeshEntity = m_Context->AddMeshEntity(_MeshName.c_str(), IdentityMatrix, _Mesh, s_MaterialManager->AddDefaultMaterial(TE_IDX_MESH_TYPE::MESH_NTT), _ModelEntity);
+
+				m_Context->SelectEntity(_MeshEntity);
 
 				ImGui::CloseCurrentPopup();
 			}
@@ -116,9 +144,10 @@ namespace TruthEngine
 			return;
 		}
 
-		auto g = m_Context->ViewEntities<MeshComponent>();
+		//auto g = m_Context->ViewEntities<MeshComponent>();
+		auto _ModelEntityCollection = m_Context->ViewEntities<ModelComponent>();
 
-		if (g.size() < 1)
+		if (_ModelEntityCollection.size() < 1)
 			return;
 
 		ImGui::PushStyleColor(ImGuiCol_Header, ImVec4{ 0.36f, 1.0f, .57f, .31f });
@@ -127,14 +156,11 @@ namespace TruthEngine
 		int _buttomID = 1;
 
 
-
 		ImGui::Indent();
 
-		for (auto entity : g)
+		for (auto entity : _ModelEntityCollection)
 		{
-
 			auto& tag = m_Context->GetComponent<TagComponent>(entity);
-
 
 			auto is_open = ImGui::TreeNodeEx(tag.GetTag().c_str(), flags | (entity == m_Context->GetSelectedEntity() ? ImGuiTreeNodeFlags_Selected : 0));
 
@@ -143,14 +169,36 @@ namespace TruthEngine
 				m_Context->SelectEntity(Entity{ m_Context, entity });
 			}
 
-
-
 			if (is_open)
 			{
+				std::vector<Entity>& _MeshEntityCollection = m_Context->GetComponent<ModelComponent>(entity).GetMeshEntities();
+
+				if (_MeshEntityCollection.size() > 0)
+				{
+
+					ImGui::Indent();
+
+					for (Entity& _MeshEntity : _MeshEntityCollection)
+					{
+						auto& _MeshTag = m_Context->GetComponent<TagComponent>(_MeshEntity);
+
+						if (ImGui::TreeNodeEx(_MeshTag.GetTag().c_str(), flags | (_MeshEntity == m_Context->GetSelectedEntity() ? ImGuiTreeNodeFlags_Selected : 0)))
+						{
+							ImGui::TreePop();
+						}
+
+
+						if (ImGui::IsItemClicked())
+						{
+							m_Context->SelectEntity(_MeshEntity);
+						}
+					}
+
+					ImGui::Unindent();
+				}
 
 				ImGui::TreePop();
 			}
-
 		}
 
 		ImGui::Unindent();
@@ -250,7 +298,10 @@ namespace TruthEngine
 
 				if (ImGui::Button("Add"))
 				{
+
 					auto entityMesh = modelManager->GeneratePrimitiveMesh(primitiveType, primitiveSize, IdentityMatrix, m_Context->GetSelectedEntity());
+
+
 
 					m_Context->SelectEntity(entityMesh);
 

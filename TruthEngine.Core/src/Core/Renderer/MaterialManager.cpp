@@ -3,45 +3,18 @@
 
 
 #include "Core/Application.h"
+
 #include "Core/Event/EventEntity.h"
+
+#include "Core/Renderer/BufferManager.h"
 
 
 namespace TruthEngine
 {
 
-
 	MaterialManager::MaterialManager()
-	{
-	}
-
-	void MaterialManager::Init(BufferManager* bufferManager)
-	{
-		m_BufferManager = bufferManager;
-
-		/*AddMaterial(InitRenderStates()
-			, float4{ 0.5f, 0.4f, 0.7f, 1.0f }
-			, float3{ 0.3f, .3f, .3f }
-			, 1.0f
-			, -1
-			, -1
-			, -1
-			, 0
-			, .0f
-			, .0f
-			, TE_IDX_MESH_TYPE::MESH_NTT);
-
-		AddMaterial(InitRenderStates_CCW()
-			, float4{ 0.7f, 0.7f, 0.7f, 1.0f }
-			, float3{ 0.0f, .0f, .0f }
-			, 0.0f
-			, -1
-			, -1
-			, -1
-			, 0
-			, .0f
-			, .0f
-			, TE_IDX_MESH_TYPE::MESH_NTT);*/
-	}
+		: m_BufferManager(BufferManager::GetInstance())
+	{}
 
 	Material* MaterialManager::AddMaterial(
 		RendererStateSet states
@@ -98,8 +71,8 @@ namespace TruthEngine
 			, float4{ static_cast<float>((float)rand() / (float)RAND_MAX), static_cast<float>((float)rand() / (float)RAND_MAX), static_cast<float>((float)rand() / (float)RAND_MAX), 1.0f }
 			, float3{ 0.3f, .3f, .3f }
 			, 0.0f
-			, float2{1.0f, 1.0f}
-			, float2{.0f,.0f}
+			, float2{ 1.0f, 1.0f }
+			, float2{ .0f,.0f }
 			, -1
 			, -1
 			, -1

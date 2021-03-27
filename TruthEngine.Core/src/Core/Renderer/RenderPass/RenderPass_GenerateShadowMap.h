@@ -90,5 +90,7 @@ namespace TruthEngine
 		TimerProfile_OneSecond m_TimerBegin;
 		TimerProfile_OneSecond m_TimerEnd;
 		TimerProfile_OneSecond m_TimerRender;
+		TimerProfile_OneSecond m_TimerRender_PrepareMeshList;
+		TimerProfile_OneSecond m_TimerRender_PrepareRenderCommand;
 	};
 }

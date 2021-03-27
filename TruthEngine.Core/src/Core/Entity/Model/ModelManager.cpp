@@ -24,13 +24,13 @@ namespace TruthEngine
 	{
 	}
 
-	void ModelManager::ImportModel(Scene* scene, const char* filePath)
+	/*void ModelManager::ImportModel(Scene* scene, const char* filePath, std::string _ModelName)
 	{
 
-		AssimpLib::GetInstance()->ImportModel(scene, filePath);
+		AssimpLib::GetInstance()->ImportModel(scene, filePath, _ModelName.c_str());
 
 		InitVertexAndIndexBuffer();
-	}
+	}*/
 
 	void ModelManager::InitVertexAndIndexBuffer()
 	{
@@ -54,16 +54,13 @@ namespace TruthEngine
 		m_RendererCommand->End();
 	}
 
-
-	void ModelManager::Init(BufferManager* bufferManager/*, RendererCommand* rendererCommand*/)
+	void ModelManager::Init(BufferManager* bufferManager)
 	{
 		m_RendererCommand = std::make_shared<RendererCommand>();
 		m_RendererCommand->Init(TE_IDX_RENDERPASS::NONE, TE_IDX_SHADERCLASS::NONE);
 
 		m_BufferManager = bufferManager;
-		m_MaterialManager.Init(m_BufferManager);
 	}
-
 
 	Mesh* ModelManager::AddMesh(TE_IDX_MESH_TYPE _MeshType, uint32_t IndexNum, size_t IndexOffset, size_t VertexOffset, size_t vertexNum)
 	{
@@ -102,42 +99,29 @@ namespace TruthEngine
 		return _Mesh;
 	}
 
-	Entity ModelManager::GeneratePrimitiveMesh(TE_PRIMITIVE_TYPE type, float size, const float4x4& transform, Entity modelEntity)
+	Mesh* ModelManager::GeneratePrimitiveMesh(TE_PRIMITIVE_TYPE type, float size)
 	{
 		Mesh* mesh = nullptr;
-		std::string _modelName, _meshName;
 
 		switch (type)
 		{
 		case TruthEngine::TE_PRIMITIVE_TYPE::BOX:
 			mesh = MeshGenerator::GetInstance()->GenerateBox(size);
-			_modelName = "Model Box";
-			_meshName = "Box";
 			break;
 		case TruthEngine::TE_PRIMITIVE_TYPE::ROUNDEDBOX:
 			mesh = MeshGenerator::GetInstance()->GenerateRoundedBoxMesh(size);
-			_modelName = "Model RoundedBox";
-			_meshName = "RoundedBox";
 			break;
 		case TruthEngine::TE_PRIMITIVE_TYPE::SPHERE:
 			mesh = MeshGenerator::GetInstance()->GenerateSphere(size);
-			_modelName = "Model Sphere";
-			_meshName = "Sphere";
 			break;
 		case TruthEngine::TE_PRIMITIVE_TYPE::CYLINDER:
 			mesh = MeshGenerator::GetInstance()->GenerateCylinder(size);
-			_modelName = "Model Cylinder";
-			_meshName = "Cylinder";
 			break;
 		case TruthEngine::TE_PRIMITIVE_TYPE::CAPPEDCYLINDER:
 			mesh = MeshGenerator::GetInstance()->GenerateCappedCylinder(size);
-			_modelName = "Model Cylinder";
-			_meshName = "Cylinder";
 			break;
 		case TE_PRIMITIVE_TYPE::PLANE:
 			mesh = MeshGenerator::GetInstance()->GeneratePlane(size);
-			_modelName = "Model Plane";
-			_meshName = "Plane";
 			break;
 		default:
 			break;
@@ -146,19 +130,12 @@ namespace TruthEngine
 		InitVertexAndIndexBuffer();
 
 
-		auto scene = TE_INSTANCE_APPLICATION->GetActiveScene();
-
+		/*auto scene = TE_INSTANCE_APPLICATION->GetActiveScene();
+		Entity _ModelEntity = scene->AddModelEntity(_ModelName, IdentityMatrix);
 		auto material = m_MaterialManager.AddDefaultMaterial(TE_IDX_MESH_TYPE::MESH_NTT);
+		Entity _MeshEntity =  scene->AddMeshEntity(_meshName.c_str(), transform, mesh, material, _ModelEntity);*/
 
-		return scene->AddMeshEntity(_meshName.c_str(), transform, mesh, material);
-
-		/*auto meshEntity = scene->AddEntity(_meshName.c_str(), modelEntity, transform);
-		meshEntity.AddComponent<MeshComponent>(mesh);
-		meshEntity.AddComponent<MaterialComponent>(material);
-		meshEntity.AddComponent<BoundingBoxComponent>(mesh->GetBoundingBox());
-		return meshEntity;*/
-
-
+		return mesh;
 	}
 
 	void ModelManager::GenerateEnvironmentMesh(Mesh** outMesh)
@@ -180,7 +157,6 @@ namespace TruthEngine
 
 		return &_newMesh;
 	}
-
 
 	size_t ModelManager::GetVertexOffset(TE_IDX_MESH_TYPE _MeshType) const noexcept
 	{

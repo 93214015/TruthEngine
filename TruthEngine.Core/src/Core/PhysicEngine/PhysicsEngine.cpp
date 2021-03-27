@@ -80,7 +80,7 @@ namespace TruthEngine
 
 		auto material = m_pxPhysics->createMaterial(.1f, .1f, 0.6f);
 
-		/*auto modelmanager = ModelManager::GetInstance().get();
+		/*auto modelmanager = ModelManager::GetInstance();
 		m_planeEntity = modelmanager->GeneratePrimitiveMesh(TE_PRIMITIVE_TYPE::PLANE, 20.0, IdentityMatrix);
 
 		PxPlane pxPlane(0.0, 1.0, 0.0, 0);
@@ -196,7 +196,7 @@ namespace TruthEngine
 		auto view_dynamic = activeScene->ViewEntities<PhysicsDynamicComponent>();
 		for (auto entity : view_dynamic)
 		{
-			auto transform = activeScene->CalcTransformsToRoot(entity);
+			auto transform = activeScene->GetTransformHierarchy(entity);
 
 			DirectX::XMMatrixDecompose(&xmScale, &xmQuat, &xmTranslate, Math::ToXM(transform));
 
@@ -227,7 +227,7 @@ namespace TruthEngine
 
 		for (auto entity : view_staic)
 		{
-			auto transform = activeScene->CalcTransformsToRoot(entity);
+			auto transform = activeScene->GetTransformHierarchy(entity);
 
 			DirectX::XMMatrixDecompose(&xmScale, &xmQuat, &xmTranslate, Math::ToXM(transform));
 
@@ -410,7 +410,7 @@ namespace TruthEngine
 		{
 			auto& physicsComponent = scene->GetComponent<PhysicsDynamicComponent>(entity);
 			auto& boundingBox = scene->GetComponent<BoundingBoxComponent>(entity).GetBoundingBox();
-			auto staticTransform = scene->CalcTransformsToRoot(entity);
+			auto staticTransform = scene->GetTransformHierarchy(entity);
 			staticTransform._41 += boundingBox.Center.x;
 			staticTransform._42 += boundingBox.Center.y;
 			staticTransform._43 += boundingBox.Center.z;

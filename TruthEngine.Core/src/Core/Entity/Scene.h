@@ -2,11 +2,17 @@
 
 #include "EntityTree.h"
 
+#include "Core/Entity/Model/ModelManager.h"
+#include "Core/Renderer/MaterialManager.h"
+
 namespace TruthEngine
 {
 
 	class Material;
 	class Mesh;
+
+	class ModelComponent;
+
 	class SA_Animation;
 
 	class Scene
@@ -14,13 +20,18 @@ namespace TruthEngine
 	public:
 		Scene();
 
-		Entity AddEntity(const char* entityTag, Entity parent, const float4x4& transform = IdentityMatrix);
-		Entity AddEntity(const char* entityTag, const float4x4& transform = IdentityMatrix);
+		Entity AddEntity(const char* entityTag, Entity parent, const float4x4& transform = IdentityMatrix, const float3& _WorldCenterOffset = float3{ .0f, .0f,.0f });
+		Entity AddEntity(const char* entityTag, const float4x4& transform = IdentityMatrix, const float3& _WorldCenterOffset = float3{ .0f, .0f,.0f });
 
-		Entity AddMeshEntity(const char* meshName, const float4x4& transform, Mesh* mesh, Material* material, Entity parentEntity = Entity());
+		Entity AddMeshEntity(const char* _MeshName, const float4x4& _Transform, Mesh* _Mesh, Material* _Material, Entity _ModelEntity, const float3& _TranslationFromWorldCenter = float3{ .0f,.0f,.0f });
+		Entity AddPrimitiveMesh(const char* _MeshName, TE_PRIMITIVE_TYPE _PrimitiveType, size_t _PrimitiveSize, Entity _ModelEntity);
 		Entity AddEnvironmentEntity();
 
+		Entity AddModelEntity(const char* modelName, const float4x4& transform);
+
 		Entity CopyMeshEntity(Entity meshsEntity);
+
+		void ImportModel(const char* filePath, std::string _ModelName);
 
 		template<class... Ts>
 		auto GroupEntities()
@@ -75,6 +86,7 @@ namespace TruthEngine
 			m_SelectedEntity = {};
 		}
 
+		Entity GetParent(const Entity _Entity) const;
 		std::vector<Entity> GetChildrenEntity(Entity entity);
 		std::vector<Entity> GetChildrenEntity(entt::entity entityHandler);
 
@@ -87,10 +99,10 @@ namespace TruthEngine
 			return m_EntityTree.m_Tree.find(static_cast<uint32_t>(entityHandler))->second.mChildren;
 		}
 
-		std::vector<Entity> GetAncestor(const Entity& entity);
-		float4x4 CalcTransformsToRoot(Entity& entity);
+		std::vector<Entity> GetAncestor(const Entity entity);
+		float4x4 GetTransformHierarchy(Entity entity);
 		std::vector<Entity> GetAncestor(entt::entity entityHandler);
-		float4x4 CalcTransformsToRoot(entt::entity entityHandler);
+		float4x4 GetTransformHierarchy(entt::entity entityHandler);
 
 		const BoundingBox& GetBoundingBox() const noexcept;
 		void UpdateBoundingBox(const BoundingBox& _boundingBox);

@@ -49,8 +49,10 @@ namespace TruthEngine
 		if (ImGui::Begin("RenderPass GenerateShadowMap"))
 		{
 
-			ImGui::Text("Begin Time : %0.3f", m_TimerBegin.GetAverageTime());
-			ImGui::Text("Render Time : %0.3f", m_TimerRender.GetAverageTime());
+			ImGui::Text("Begin Time : %0.3f ms", m_TimerBegin.GetAverageTime());
+			ImGui::Text("Render Time : %0.3f ms", m_TimerRender.GetAverageTime());
+			ImGui::Text("Render Time - Prepare Mesh List : %0.3f ms", m_TimerRender_PrepareMeshList.GetAverageTime());
+			ImGui::Text("Render Time - Prepare Command List : %0.3f ms", m_TimerRender_PrepareRenderCommand.GetAverageTime());
 
 		}
 		ImGui::End();
@@ -88,11 +90,10 @@ namespace TruthEngine
 		auto data_perMesh = m_ConstantBufferDirect_PerMesh->GetData();
 		auto data_perLight = m_ConstantBufferDirect_PerLight->GetData();
 
-
-
 		//auto& dynamicEntityGroup = reg.group<MeshComponent, PhysicsDynamicComponent>();
 		//auto& staticEntityGroup = reg.view<MeshComponent>(entt::exclude<PhysicsDynamicComponent>);
-		auto& EntityMeshView = scene->ViewEntities<MeshComponent>();
+		//auto& EntityMeshView = scene->ViewEntities<MeshComponent>();
+		auto& EntityModelView = scene->ViewEntities<ModelComponent>();
 
 
 		m_Viewport.Width = 1024.0f;
@@ -100,57 +101,77 @@ namespace TruthEngine
 
 		struct MeshMaterialTransform
 		{
-			MeshMaterialTransform(const Mesh* _mesh, const float4x4* _transform, const Material* _material)
+			MeshMaterialTransform(const Mesh* _mesh, const float4x4& _transform, const Material* _material)
 				: mMesh(_mesh), mTransform(_transform), mMaterial(_material)
 			{}
 
 			const Mesh* mMesh;
-			const float4x4* mTransform;
 			const Material* mMaterial;
+			float4x4 mTransform;
 		};
 
-		static std::vector<std::vector<MeshMaterialTransform>> _EntityLists(cameraCascaded->GetSplitNum());
+		m_TimerRender_PrepareMeshList.Start();
+
+		static std::vector<MeshMaterialTransform> _MeshList;
+		_MeshList.clear();
+		_MeshList.reserve(10000);
+
+		uint32_t _CascadeNum = cameraCascaded->GetSplitNum();
+
+		static std::vector<std::vector<MeshMaterialTransform*>> _EntityLists(_CascadeNum);
 		for (auto& v : _EntityLists)
 		{
 			v.reserve(1000);
 			v.clear();
 		}
 
-		std::vector<BoundingFrustum> _CascadedBoundingFrustums;
-		_CascadedBoundingFrustums.reserve(cameraCascaded->GetSplitNum());
-
+		
 		auto pj = DirectX::XMMatrixOrthographicLH(10.0, 10.0f, 1.0f, 100.0f);
 		BoundingFrustum bf;
 		BoundingFrustum::CreateFromMatrix(bf, pj);
 
-		for (uint32_t cascadeIndex = 0; cascadeIndex < cameraCascaded->GetSplitNum(); ++cascadeIndex)
+
+		for (auto _EntityModel : EntityModelView)
 		{
-			BoundingFrustum& _bf = _CascadedBoundingFrustums.emplace_back(cameraCascaded->GetBoundingFrustum(cascadeIndex));
-			auto temp = _bf.Near;
-			_bf.Near = _bf.Far;
-			_bf.Far = temp;
-		}
 
+			//float4x4 _transform = scene->GetComponent<TransformComponent>(_EntityModel).GetTransform();
 
-		for (auto entity_mesh : EntityMeshView)
-		{
-			const float4x4* transform = nullptr;
-			if (scene->HasComponent<PhysicsDynamicComponent>(entity_mesh))
+			for (auto& entity_mesh : scene->GetComponent<ModelComponent>(_EntityModel).GetMeshEntities())
 			{
-				transform = &scene->GetComponent<PhysicsDynamicComponent>(entity_mesh).GetTranform();
-			}
-			else
-			{
-				transform = &scene->GetComponent<TransformComponent>(entity_mesh).GetTransform();
-			}
+				/*if (scene->HasComponent<PhysicsDynamicComponent>(entity_mesh))
+				{
+					_transform = _transform * scene->GetComponent<PhysicsDynamicComponent>(entity_mesh).GetTranform();
+				}
+				else
+				{
+					_transform = _transform * scene->GetComponent<TransformComponent>(entity_mesh).GetTransform();
+				}*/
+
+				const float4x4 _transform = scene->GetTransformHierarchy(entity_mesh);
 
 
-			const Mesh* mesh = scene->GetComponent<MeshComponent>(entity_mesh).GetMesh();
-			const Material* material = scene->GetComponent<MaterialComponent>(entity_mesh).GetMaterial();
+				const Mesh* mesh = scene->GetComponent<MeshComponent>(entity_mesh).GetMesh();
+				const Material* material = scene->GetComponent<MaterialComponent>(entity_mesh).GetMaterial();
 
-			for (auto& _v : _EntityLists)
-			{
-				_v.emplace_back(mesh, transform, material);
+				MeshMaterialTransform& _MMT = _MeshList.emplace_back(mesh, _transform, material);
+
+				/*for (auto& _v : _EntityLists)
+				{
+					_v.emplace_back(&_MMT);
+				}*/
+
+				BoundingBox _AABB = Math::TransformBoundingBox(scene->GetComponent<BoundingBoxComponent>(entity_mesh).GetBoundingBox(), _transform);
+				for (size_t i = 0; i < _CascadeNum; ++i)
+				{
+					auto _containment = cameraCascaded->GetBoundingFrustum(i).Contains(_AABB);
+					if (_containment != DirectX::ContainmentType::DISJOINT)
+					{
+						_EntityLists[i].emplace_back(&_MMT);
+
+						if (_containment == DirectX::ContainmentType::CONTAINS)
+							break;
+					}
+				}
 			}
 
 			//
@@ -176,6 +197,11 @@ namespace TruthEngine
 
 		}
 
+		m_TimerRender_PrepareMeshList.End();
+
+
+		m_TimerRender_PrepareRenderCommand.Start();
+
 		uint32_t _CascadeIndex = 0;
 		for (auto& _VMeshMaterialTransform : _EntityLists)
 		{
@@ -196,17 +222,19 @@ namespace TruthEngine
 
 			m_RendererCommand.SetViewPort(&m_Viewport, &m_ViewRect);
 
-			for (auto& _mmt : _VMeshMaterialTransform)
+			for (auto _mmt : _VMeshMaterialTransform)
 			{
-				*data_perMesh = ConstantBuffer_Data_Per_Mesh(*_mmt.mTransform);
+				*data_perMesh = ConstantBuffer_Data_Per_Mesh(_mmt->mTransform);
 
 				m_RendererCommand.SetDirectConstantGraphics(m_ConstantBufferDirect_PerMesh);
-				m_RendererCommand.SetPipelineGraphics(m_Pipelines[_mmt.mMaterial->GetMeshType()]);
-				m_RendererCommand.DrawIndexed(_mmt.mMesh);
+				m_RendererCommand.SetPipelineGraphics(m_Pipelines[_mmt->mMaterial->GetMeshType()]);
+				m_RendererCommand.DrawIndexed(_mmt->mMesh);
 			}
 
 			_CascadeIndex++;
 		}
+
+		m_TimerRender_PrepareRenderCommand.End();
 
 		/*for (uint32_t cascadeIndex = 0; cascadeIndex < cameraCascaded->GetSplitNum(); ++cascadeIndex)
 		{

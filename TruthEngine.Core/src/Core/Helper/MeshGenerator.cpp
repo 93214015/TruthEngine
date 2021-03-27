@@ -20,7 +20,7 @@ namespace TruthEngine
 
 	Mesh* MeshGenerator::GenerateBox(float size)
 	{
-		auto modelManager = ModelManager::GetInstance().get();
+		auto modelManager = ModelManager::GetInstance();
 		auto& vertexBuffer = std::get<0>(modelManager->m_VertexBuffers);
 
 		uint32_t indexOffset = modelManager->GetIndexOffset();
@@ -278,7 +278,7 @@ namespace TruthEngine
 
 	TruthEngine::Mesh* MeshGenerator::GeneratePlane(float size)
 	{
-		auto modelManager = ModelManager::GetInstance().get();
+		auto modelManager = ModelManager::GetInstance();
 		auto& vertexBuffer = std::get<0>(modelManager->m_VertexBuffers);
 
 		uint32_t indexOffset = modelManager->GetIndexOffset();

@@ -204,6 +204,7 @@ namespace TruthEngine
 		{
 			auto XMProj = XMLoadFloat4x4(&m_ProjectionMatrix[i]);
 			BoundingFrustum::CreateFromMatrix(m_BoundingFrustums[i], XMProj);
+
 			m_BoundingFrustums[i].Transform(m_BoundingFrustums[i], InvView);
 		}
 
@@ -296,26 +297,31 @@ namespace TruthEngine
 			/*FLOAT fWorldUnitsPerTexel = fCascadeBound / (float)m_CopyOfCascadeConfig.m_iBufferSize;
 			vWorldUnitsPerTexel = XMVectorSet(fWorldUnitsPerTexel, fWorldUnitsPerTexel, 0.0f, 0.0f);*/
 
-			
+
 
 			//we are using reverse depth so the near and far plane have reverse order
 			float _farPlane = XMVectorGetZ(_sceneAABBLightSpaceMin);
 			float _nearPlane = XMVectorGetZ(_sceneAABBLightSpaceMax);
 
-			auto _splitProjectionMatrix = XMMatrixOrthographicOffCenterLH(XMVectorGetX(_vFrustumPointMin), XMVectorGetX(_vFrustumPointMax), XMVectorGetY(_vFrustumPointMin), XMVectorGetY(_vFrustumPointMax), _nearPlane, _farPlane);
+
+			{
+				auto _splitProjectionMatrixDirectDepthPlanes = XMMatrixOrthographicOffCenterLH(XMVectorGetX(_vFrustumPointMin), XMVectorGetX(_vFrustumPointMax), XMVectorGetY(_vFrustumPointMin), XMVectorGetY(_vFrustumPointMax), _farPlane, _nearPlane);
+				BoundingFrustum::CreateFromMatrix(m_BoundingFrustums[splitIndex], _splitProjectionMatrixDirectDepthPlanes);
+				m_BoundingFrustums[splitIndex].Transform(m_BoundingFrustums[splitIndex], _lightViewInv);
+			}
 
 			/*BoundingFrustum::CreateFromMatrix(m_BoundingFrustums[splitIndex], _splitProjectionMatrix);
 
 			m_BoundingFrustums[splitIndex].Transform(m_BoundingFrustums[splitIndex], _lightViewInv);*/
 
-			
+
+			auto _splitProjectionMatrix = XMMatrixOrthographicOffCenterLH(XMVectorGetX(_vFrustumPointMin), XMVectorGetX(_vFrustumPointMax), XMVectorGetY(_vFrustumPointMin), XMVectorGetY(_vFrustumPointMax), _nearPlane, _farPlane);
 			XMStoreFloat4x4(&m_ProjectionMatrix[splitIndex], _splitProjectionMatrix);
 
 			XMStoreFloat4x4(&m_ViewProjMatrix[splitIndex], XMMatrixMultiply(XMLoadFloat4x4(&m_ViewMatrix), _splitProjectionMatrix));
 
 		}
 
-		CreateBoundingFrustum();
 
 	}
 

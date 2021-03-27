@@ -34,6 +34,11 @@ struct float3 : DirectX::XMFLOAT3
 
 	operator physx::PxVec3();
 	operator physx::PxVec3()const;
+
+	bool operator==(const float3& _in)
+	{
+		return x == _in.x && y == _in.y && z == _in.z;
+	}
 };
 
 struct float4 : DirectX::XMFLOAT4
@@ -43,6 +48,11 @@ struct float4 : DirectX::XMFLOAT4
 	operator physx::PxQuat();
 	operator physx::PxVec4();
 	operator physx::PxVec3();
+
+	bool operator==(const float4& _in)
+	{
+		return x == _in.x && y == _in.y && z == _in.z && w == _in.w;
+	}
 };
 
 struct float3x3 : DirectX::XMFLOAT3X3
@@ -59,7 +69,6 @@ struct float4x4 : DirectX::XMFLOAT4X4
 	operator physx::PxMat44();
 	operator physx::PxMat44()const;
 };
-
 
 struct uint2
 {
@@ -115,6 +124,16 @@ struct uint4
 	}
 };
 
+
+inline bool operator==(const DirectX::XMFLOAT3& _in1, const float3& _in2)
+{
+	return _in1.x == _in2.x && _in1.y == _in2.y && _in1.z == _in2.z;
+}
+
+inline bool operator==(const DirectX::XMFLOAT4& _in1, const float4& _in2)
+{
+	return _in1.x == _in2.x && _in1.y == _in2.y && _in1.z == _in2.z && _in1.w == _in2.w;
+}
 
 namespace TruthEngine
 {

@@ -59,8 +59,8 @@ float3 SchlikFresnel(float3 r0, float3 normal, float3 lightVector)
 
 float3 BlinnPhong(float3 lightStrength, float3 lightVec, float3 normal, float3 toEye, Material mat, float3 materialAlbedoColor)
 {
-    //Derive m from shininess which is derived from roughness.
-    
+
+    //Derive m from shininess which is derived from roughness.    
     const float m = mat.Shininess * 256.0f;
     //const float m = mat.Shininess;
     float3 halfVec = normalize(toEye + lightVec);

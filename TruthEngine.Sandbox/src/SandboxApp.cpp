@@ -15,7 +15,7 @@ namespace TruthEngine::Sandbox {
 		m_LayerStack.PushLayer(m_RendererLayer.get());
 
 		//must put ModelManager initiation after RendererLayer attachment so that the bufferManager has been initiated 
-		auto modelManager = Core::ModelManager::GetInstance().get();
+		auto modelManager = Core::ModelManager::GetInstance();
 		modelManager->Init(TE_INSTANCE_BUFFERMANAGER);
 		modelManager->AddSampleModel();
 	}
