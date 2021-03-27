@@ -64,6 +64,8 @@ namespace TruthEngine
 
 		BufferManager* m_BufferMgr;
 
+		MaterialManager* m_MaterialManager;
+
 		std::unordered_map<uint32_t, PipelineGraphics*> m_MaterialPipelines;
 		PipelineGraphics* m_PipelineEnvironmentCube = nullptr;
 

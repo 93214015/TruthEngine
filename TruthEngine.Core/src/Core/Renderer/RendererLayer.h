@@ -89,7 +89,7 @@ namespace TruthEngine
 		std::shared_ptr<RenderPass_GenerateShadowMap> m_RenderPass_GenerateShadowMap;
 		std::shared_ptr<RenderPass_PostProcessing_HDR> m_RenderPass_PostProcessing_HDR;
 
-		std::shared_ptr<ModelManager> m_ModelManagers;
+		ModelManager* m_ModelManagers;
 
 		BufferManager* m_BufferManager;
 

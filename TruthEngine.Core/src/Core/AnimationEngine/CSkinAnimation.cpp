@@ -59,7 +59,7 @@ namespace TruthEngine
 
 			auto& animEval = mAnimations[i];
 
-			for (float ticks = 0.0f; ticks < animEval.mDuration; ticks += (animEval.mTicksPerSecond / 30.0f))
+			for (float ticks = 0.0f; ticks < animEval.mDurationInTicks; ticks += (animEval.mTicksPerSecond / 30.0f))
 			{
 				dt += timestep;
 
@@ -175,14 +175,11 @@ namespace TruthEngine
 
 	const std::vector<float4x4>* SA_Animation::GetTransform()
 	{
-		/*return mAnimations[mCurrentAnimationIndex].GetTransforms(timePos);*/
-
 		std::vector<const std::vector<float4x4>*> transforms;
 
 		if (mAnimTimeQueue.size() > 0)
 		{
 			auto it = mAnimTimeQueue.begin();
-
 
 			transforms.push_back(&mAnimations[it->first].GetTransforms(it->second));
 
@@ -205,11 +202,9 @@ namespace TruthEngine
 			{
 				XMStoreFloat4x4(&mFinalTransforms[i], XMLoadFloat4x4(&mFinalTransforms[i]) * XMLoadFloat4x4(&(*t)[i]));
 			}
-
 		}
 
 		return &mFinalTransforms;
-
 	}
 
 
@@ -299,7 +294,7 @@ namespace TruthEngine
 
 	float SA_Animation::GetDuration()
 	{
-		return (mAnimations[mCurrentAnimationIndex].mDuration / mAnimations[mCurrentAnimationIndex].mTicksPerSecond);
+		return (mAnimations[mCurrentAnimationIndex].mDurationInSecond);
 	}
 
 	Bone* SA_Animation::MakeSkeleton(aiNode* node, Bone* parent)
@@ -372,20 +367,17 @@ namespace TruthEngine
 
 		mName = animation->mName.C_Str();
 		mTicksPerSecond = (float)animation->mTicksPerSecond > 0.0f ? (float)animation->mTicksPerSecond : 920.0f;
-		mDuration = (float)animation->mDuration;
+		mDurationInTicks = (float)animation->mDuration;
+		mDurationInSecond = mDurationInTicks / mTicksPerSecond;
 		mLastTime = 0.0f;
-
 
 		mAnimNodes.clear();
 		mAnimNodes.reserve(animation->mNumChannels);
 
-
 		mLastPositions.clear();
 		mLastPositions.resize(animation->mNumChannels);
 
-
 		mPlayForward = true;
-
 
 		for (int i = 0; i < animation->mNumChannels; ++i)
 		{
@@ -444,9 +436,9 @@ namespace TruthEngine
 
 		auto time = 0.0f;
 
-		if (mDuration > 0.0f)
+		if (mDurationInTicks > 0.0f)
 		{
-			time = std::fmod(dt, mDuration);
+			time = std::fmod(dt, mDurationInTicks);
 		}
 
 		for (size_t i = 0; i < mAnimNodes.size(); ++i)
@@ -486,7 +478,7 @@ namespace TruthEngine
 
 				if (diffTime < 0.0f)
 				{
-					diffTime += mDuration;
+					diffTime += mDurationInTicks;
 				}
 
 				if (diffTime > 0.0)
@@ -544,7 +536,7 @@ namespace TruthEngine
 				auto diffTime = nextKey.mTime - key.mTime;
 
 				if (diffTime < 0)
-					diffTime += mDuration;
+					diffTime += mDurationInTicks;
 
 				if (diffTime > 0)
 				{
@@ -617,7 +609,7 @@ namespace TruthEngine
 	float SA_AnimEvaluator::GetDuration() const
 	{
 
-		return mDuration / mTicksPerSecond;
+		return mDurationInSecond;
 
 	}
 
@@ -628,12 +620,12 @@ namespace TruthEngine
 
 		float time = 0.0f;
 
-		if (mDuration > 0.0f)
+		if (mDurationInTicks > 0.0f)
 		{
-			time = std::fmod(dt, mDuration);
+			time = std::fmod(dt, mDurationInTicks);
 		}
 
-		auto percent = time / mDuration;
+		auto percent = time / mDurationInTicks;
 
 		if (!mPlayForward)
 			percent = (1.0f - percent);

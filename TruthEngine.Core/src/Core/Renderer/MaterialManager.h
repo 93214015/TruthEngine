@@ -11,11 +11,14 @@ namespace TruthEngine
 	public:
 		MaterialManager();
 
-		void Init(BufferManager* bufferManager);
-
 		inline Material* GetMaterial(const uint32_t materialID)
 		{
 			return m_Map_Materials[materialID].get();
+		}
+
+		inline const std::vector<Material*>& GetMaterials() const
+		{
+			return m_Materials;
 		}
 
 		inline Material* GetDefaultMaterial(uint32_t index)
@@ -47,6 +50,11 @@ namespace TruthEngine
 
 		Material* AddMaterial(Material* material);
 
+		static MaterialManager* GetInstance()
+		{
+			static MaterialManager s_Instance;
+			return &s_Instance;
+		}
 
 	protected:
 
@@ -63,3 +71,6 @@ namespace TruthEngine
 	};
 
 }
+
+
+#define TE_INSTANCE_MATERIALMANAGER TruthEngine::MaterialManager::GetInstance()

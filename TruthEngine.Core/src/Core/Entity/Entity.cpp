@@ -27,7 +27,7 @@ namespace TruthEngine
 
 	/*float3 Entity::GetPosition() noexcept
 	{
-		const auto& _transform = m_Scene->CalcTransformsToRoot(m_EntityHandle);
+		const auto& _transform = m_Scene->GetTransformHierarchy(m_EntityHandle);
 		float3 _worldPostition = { 0.0f, 0.0f, 0.0f };
 		if (HasComponent<BoundingBoxComponent>())
 		{

@@ -26,6 +26,7 @@ namespace TruthEngine
 		, m_Viewport{ 0.0f, 0.0f, static_cast<float>(TE_INSTANCE_APPLICATION->GetClientWidth()), static_cast<float>(TE_INSTANCE_APPLICATION->GetClientHeight()), 0.0f, 1.0f }
 		, m_ViewRect{ static_cast<long>(0.0), static_cast<long>(0.0), static_cast<long>(TE_INSTANCE_APPLICATION->GetClientWidth()), static_cast<long>(TE_INSTANCE_APPLICATION->GetClientHeight()) }
 		, m_ConstantBufferDirect_PerMesh(nullptr)
+		, m_MaterialManager(MaterialManager::GetInstance())
 	{};
 
 	RenderPass_ForwardRendering::~RenderPass_ForwardRendering() = default;
@@ -51,7 +52,7 @@ namespace TruthEngine
 		m_ConstantBufferDirect_PerMesh = m_RendererCommand.CreateConstantBufferDirect<ConstantBuffer_Data_Per_Mesh>(TE_IDX_GRESOURCES::Constant_PerMesh);
 
 
-		for (const auto* mat : TE_INSTANCE_MODELMANAGER->GetMaterials())
+		for (const auto* mat : m_MaterialManager->GetMaterials())
 		{
 			PreparePiplineMaterial(mat);
 		}
@@ -139,37 +140,48 @@ namespace TruthEngine
 		auto activeCamera = CameraManager::GetInstance()->GetActiveCamera();
 		const BoundingFrustum& _CameraBoundingFrustum = activeCamera->GetBoundingFrustumWorldSpace();
 
-		auto& EntityMeshView = activeScene->ViewEntities<MeshComponent>();
 
-		for (auto entity_mesh : EntityMeshView)
+		auto& EntityModelView = activeScene->ViewEntities<ModelComponent>();
+
+
+		for (auto _EntityModel : EntityModelView)
 		{
-			const float4x4* _transform = nullptr;
-			if (activeScene->HasComponent<PhysicsDynamicComponent>(entity_mesh))
+			/*float4x4 _transform = activeScene->GetComponent<TransformComponent>(_EntityModel);*/
+
+
+			for (auto& entity_mesh : activeScene->GetComponent<ModelComponent>(_EntityModel).GetMeshEntities())
 			{
-				_transform = &activeScene->GetComponent<PhysicsDynamicComponent>(entity_mesh).GetTranform();
+
+				/*if (activeScene->HasComponent<PhysicsDynamicComponent>(entity_mesh))
+				{
+					_transform = _transform * activeScene->GetComponent<PhysicsDynamicComponent>(entity_mesh).GetTranform();
+				}
+				else
+				{
+					_transform = _transform * activeScene->GetComponent<TransformComponent>(entity_mesh).GetTransform();
+				}*/
+
+				const float4x4 _transform = activeScene->GetTransformHierarchy(entity_mesh);
+
+				const BoundingBox& _AABB = activeScene->GetComponent<BoundingBoxComponent>(entity_mesh).GetBoundingBox();
+				const BoundingBox _TransformedAABB = Math::TransformBoundingBox(_AABB, _transform);
+
+				if (_CameraBoundingFrustum.Contains(_TransformedAABB) == DirectX::DISJOINT)
+					continue;
+
+				Mesh* mesh = activeScene->GetComponent<MeshComponent>(entity_mesh).GetMesh();
+				Material* material = activeScene->GetComponent<MaterialComponent>(entity_mesh).GetMaterial();
+
+				*data = ConstantBuffer_Data_Per_Mesh(_transform, Math::InverseTranspose(_transform), material->GetID());
+
+				m_RendererCommand.SetDirectConstantGraphics(m_ConstantBufferDirect_PerMesh);
+				m_RendererCommand.SetPipelineGraphics(m_MaterialPipelines[material->GetID()]);
+				m_RendererCommand.DrawIndexed(mesh);
+
+				m_TotalVertexNum += mesh->GetVertexNum();
+				m_TotalMeshNum++;
 			}
-			else
-			{
-				_transform = &activeScene->GetComponent<TransformComponent>(entity_mesh).GetTransform();
-			}
 
-			const BoundingBox& _AABB = activeScene->GetComponent<BoundingBoxComponent>(entity_mesh).GetBoundingBox();
-			const BoundingBox _TransformedAABB = Math::TransformBoundingBox(_AABB, *_transform);
-
-			if (_CameraBoundingFrustum.Contains(_TransformedAABB) == DirectX::DISJOINT)
-				continue;
-
-			Mesh* mesh = activeScene->GetComponent<MeshComponent>(entity_mesh).GetMesh();
-			Material* material = activeScene->GetComponent<MaterialComponent>(entity_mesh).GetMaterial();
-
-			*data = ConstantBuffer_Data_Per_Mesh(*_transform, Math::InverseTranspose(*_transform), material->GetID());
-
-			m_RendererCommand.SetDirectConstantGraphics(m_ConstantBufferDirect_PerMesh);
-			m_RendererCommand.SetPipelineGraphics(m_MaterialPipelines[material->GetID()]);
-			m_RendererCommand.DrawIndexed(mesh);
-
-			m_TotalVertexNum += mesh->GetVertexNum();
-			m_TotalMeshNum++;
 		}
 
 		if (true)
@@ -189,7 +201,7 @@ namespace TruthEngine
 
 		for (auto entity_mesh : dynamicEntityGroup)
 		{
-			//float4x4 meshTransform = activeScene->CalcTransformsToRoot(entity_mesh);
+			//float4x4 meshTransform = activeScene->GetTransformHierarchy(entity_mesh);
 			//const float4x4& meshTransform = activeScene->GetComponent<TransformComponent>(entity_mesh).GetTransform();
 			const auto& phComponent = activeScene->GetComponent<PhysicsDynamicComponent>(entity_mesh);
 			const float4x4& physicsTransform = phComponent.GetTranform();
@@ -216,7 +228,7 @@ namespace TruthEngine
 
 		for (auto entity_mesh : staticEntityGroup)
 		{
-			//float4x4 meshTransform = activeScene->CalcTransformsToRoot(entity_mesh);
+			//float4x4 meshTransform = activeScene->GetTransformHierarchy(entity_mesh);
 			const float4x4& meshTransform = activeScene->GetComponent<TransformComponent>(entity_mesh).GetTransform();
 			const BoundingBox& _AABB = activeScene->GetComponent<BoundingBoxComponent>(entity_mesh).GetBoundingBox();
 			const BoundingBox _TransformedAABB = Math::TransformBoundingBox(_AABB, meshTransform);
@@ -242,7 +254,7 @@ namespace TruthEngine
 
 		//for (auto entity_mesh : entityGroup)
 		//{
-		//	//float4x4 meshTransform = activeScene->CalcTransformsToRoot(entity_mesh);
+		//	//float4x4 meshTransform = activeScene->GetTransformHierarchy(entity_mesh);
 		//	float4x4 meshTransform = activeScene->GetComponent<TransformComponent>(entity_mesh).GetTransform();
 
 

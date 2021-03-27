@@ -17,25 +17,24 @@
 namespace TruthEngine
 {
 	AssimpLib::AssimpLib()
-	{
-		m_ModelManager = ModelManager::GetInstance().get();
-	}
+		: m_ModelManager(ModelManager::GetInstance()), m_MaterialManager(MaterialManager::GetInstance())
+	{}
 
-	AssimpLib::~AssimpLib()
-	{
-	}
+	AssimpLib::~AssimpLib() = default;
 
-	TE_RESULT AssimpLib::ImportModel(Scene* scene, const char* filePath)
+	std::vector<ImportedMeshMaterials> AssimpLib::ImportModel(const char* filePath, const char* _ModelName)
 	{
 		TE_TIMER_SCOPE_FUNC;
 
-		TE_ASSERT_CORE(scene && filePath != NULL, "");
+		TE_ASSERT_CORE(filePath != NULL, "");
 		//if (!(scene)) 
 		//{ 
 		//	//TE_LOG_CORE_ERROR("TE_Error: {0}", __VA_ARGS__); 
 		//	::TruthEngine::Log::GetCoreLogger()->error("");
 		//	__debugbreak(); 
 		//}
+
+		std::vector<ImportedMeshMaterials> _MeshCollection;
 
 		m_ModelFilePath = filePath;
 		m_IsLoadingAnimatedModel = false;
@@ -48,14 +47,14 @@ namespace TruthEngine
 		TimerProfile assimpTimer;
 		assimpTimer.Start();
 		auto aiscene = importer.ReadFile(filePath, aiProcessPreset_TargetRealtime_MaxQuality | aiProcess_ConvertToLeftHanded);
-		//auto aiscene = importer.ReadFile(filePath, aiProcess_Triangulate | aiProcess_ConvertToLeftHanded);
 		auto totalTime = assimpTimer.GetTotalTime();
 		TE_LOG_CORE_INFO("Assimp Library: The ReadFile() time was : {0} ms", totalTime);
 
+		TE_ASSERT_CORE(aiscene, "Assimp: Importer::ReadFile is failed!. aiscene = nullptr");
 		if (aiscene == nullptr)
-			return TE_FAIL;
+			throw;
 
-		auto meshOffset = ModelManager::GetInstance().get()->m_Meshes.size();
+		auto meshOffset = m_ModelManager->m_Meshes.size();
 
 		TE_IDX_MESH_TYPE _MeshType = TE_IDX_MESH_TYPE::MESH_NTT;
 		if (aiscene->HasAnimations())
@@ -65,10 +64,14 @@ namespace TruthEngine
 			m_LoadedAnimation = AnimationManager::GetInstance()->AddAnimation(aiscene);
 		}
 
-		m_ModelManager->GetOffsets(m_BaseVertexOffset, m_BaseIndexOffset, m_MeshOffset, m_MaterialOffset, _MeshType);
+		m_ModelManager->GetOffsets(m_BaseVertexOffset, m_BaseIndexOffset, m_MeshOffset, _MeshType);
+		m_MaterialOffset = m_MaterialManager->GetMatrialOffset();
+		
 		m_TextureMaterialOffset = TextureMaterialManager::GetInstance()->GetOffset();
 
 		AddSpace(aiscene, _MeshType);
+
+		_MeshCollection.reserve(aiscene->mNumMeshes);
 
 		{
 			assimpTimer.Start();
@@ -78,7 +81,7 @@ namespace TruthEngine
 		}
 		{
 			assimpTimer.Start();
-			ProcessMaterials(scene, aiscene, _MeshType);
+			ProcessMaterials(aiscene, _MeshType);
 			auto t = assimpTimer.GetTotalTime();
 			TE_LOG_CORE_INFO("Import Model: Process Materials toke {0} ms", t);
 		}
@@ -88,10 +91,10 @@ namespace TruthEngine
 			switch (_MeshType)
 			{
 			case TE_IDX_MESH_TYPE::MESH_NTT:
-				ProcessMeshes(scene, aiscene);
+				ProcessMeshes(aiscene, _MeshCollection);
 				break;
 			case TE_IDX_MESH_TYPE::MESH_SKINNED:
-				ProcessMeshesSkinned(scene, aiscene);
+				ProcessMeshesSkinned(aiscene, _MeshCollection);
 				break;
 			default:
 				throw;
@@ -101,22 +104,15 @@ namespace TruthEngine
 			TE_LOG_CORE_INFO("Import Model: Process Meshes toke {0} ms", t);
 		}
 
-		{
-			assimpTimer.Start();
 
-			float4x4 _matrix(
-				.02f, .0f, .0f, .0f,
-				.0f, .02f, .0f, .0f,
-				.0f, .0f, .02f, 0.f,
-				.0f, .0f, .0f, 1.0f
-			);
+		//scene->AddModelEntity(_ModelName, IdentityMatrix, _MeshEntities);
 
-			ProcessNodes(scene, aiscene->mRootNode, aiscene, meshOffset, _matrix);
-			auto t = assimpTimer.GetTotalTime();
-			TE_LOG_CORE_INFO("Import Model: Process Nodes toke {0} ms", t);
-		}
+		/*assimpTimer.Start();
+		ProcessNodes(scene, aiscene->mRootNode, aiscene, meshOffset, IdentityMatrix);
+		auto t = assimpTimer.GetTotalTime();
+		TE_LOG_CORE_INFO("Import Model: Process Nodes toke {0} ms", t);*/
 
-		return TE_SUCCESSFUL;
+		return _MeshCollection;
 	}
 
 
@@ -144,12 +140,12 @@ namespace TruthEngine
 	}
 
 
-	void AssimpLib::ProcessMaterials(Scene* scene, const aiScene* aiscene, TE_IDX_MESH_TYPE _MeshType)
+	void AssimpLib::ProcessMaterials(const aiScene* aiscene, TE_IDX_MESH_TYPE _MeshType)
 	{
 		if (!aiscene->HasMaterials())
 			return;
 
-		ModelManager* modelManager = ModelManager::GetInstance().get();
+		ModelManager* modelManager = ModelManager::GetInstance();
 
 		for (uint32_t i = 0; i < aiscene->mNumMaterials; ++i)
 		{
@@ -162,8 +158,12 @@ namespace TruthEngine
 			aiMaterial->Get(AI_MATKEY_COLOR_AMBIENT, aiColorAmbient);
 			aiColor3D aiColorSpecular;
 			aiMaterial->Get(AI_MATKEY_COLOR_SPECULAR, aiColorSpecular);
+
 			float aiShininess;
 			aiMaterial->Get(AI_MATKEY_SHININESS, aiShininess);
+			aiShininess = aiShininess < 256.0f ? aiShininess : 256.0f;
+			aiShininess /= 256.0f; //normalize Shininess Value
+
 
 			aiString ais;
 
@@ -291,7 +291,7 @@ namespace TruthEngine
 				}
 			}
 
-			modelManager->m_MaterialManager.AddMaterial(
+			m_MaterialManager->AddMaterial(
 				states
 				, float4{ aiColorDiffuse.r, aiColorDiffuse.g, aiColorDiffuse.b, 1.0f }
 				, float3{ aiColorSpecular.r, aiColorSpecular.g, aiColorSpecular.b }
@@ -305,53 +305,60 @@ namespace TruthEngine
 		}
 	}
 
-	void AssimpLib::CenteralizeMeshVerteciesAddMeshEntity(const char* meshName, Mesh* mesh, Material* material, Scene* scene, const float4x4& transform)
-	{
-		auto& _aabb = mesh->GetBoundingBox();
-		float4x4 _Transform(transform);
-		/*if (_aabb.Center.x == 0 && _aabb.Center.y == 0 && _aabb.Center.z == 0)
-		{
-			return;
-		}
-		else
-		{
+	//Entity AssimpLib::AddMeshEntity(const char* meshName, Mesh* mesh, Material* material, Scene* scene, const float4x4& transform)
+	//{
+	//	auto& _aabb = mesh->GetBoundingBox();
+	//	float3 _WorldCenterOffset = _aabb.Center;
 
-			auto _xmMatrixTranslate = DirectX::XMMatrixTranslation(_aabb.Center.x, _aabb.Center.y, _aabb.Center.z);
-			auto _xmMatrixTranslateInv = DirectX::XMMatrixInverse(nullptr, _xmMatrixTranslate);
+	//	/*if (_aabb.Center.x == 0 && _aabb.Center.y == 0 && _aabb.Center.z == 0)
+	//	{
+	//		return;
+	//	}
+	//	else
+	//	{
 
-			auto& _vertexPosData = mesh->GetVertexBuffer()->GetPosData();
 
-			auto _vertexOffset = mesh->GetVertexOffset();
-			for (uint32_t _vertexIndex = 0; _vertexIndex < mesh->GetVertexNum(); ++_vertexIndex)
-			{
-				auto& pos = _vertexPosData[_vertexOffset + _vertexIndex].Position;
-				auto _xmVertex = XMLoadFloat3(&pos);
-				_xmVertex = XMVector3TransformCoord(_xmVertex, _xmMatrixTranslateInv);
-				XMStoreFloat3(&pos, _xmVertex);
-			}
+	//		auto _xmMatrixTranslate = DirectX::XMMatrixTranslation(_aabb.Center.x, _aabb.Center.y, _aabb.Center.z);
+	//		auto _xmMatrixTranslateInv = DirectX::XMMatrixInverse(nullptr, _xmMatrixTranslate);
 
-			auto _XMTransform = DirectX::XMMatrixMultiply(_xmMatrixTranslate, DirectX::XMLoadFloat4x4(&_Transform));
-			XMStoreFloat4x4(&_Transform, _XMTransform);
+	//		auto& _vertexPosData = mesh->GetVertexBuffer()->GetPosData();
 
-			_aabb.Center = float3{ .0f, .0f, .0f };
-		}*/
+	//		auto _vertexOffset = mesh->GetVertexOffset();
+	//		for (uint32_t _vertexIndex = 0; _vertexIndex < mesh->GetVertexNum(); ++_vertexIndex)
+	//		{
+	//			auto& pos = _vertexPosData[_vertexOffset + _vertexIndex].Position;
+	//			auto _xmVertex = XMLoadFloat3(&pos);
+	//			_xmVertex = XMVector3TransformCoord(_xmVertex, _xmMatrixTranslateInv);
+	//			XMStoreFloat3(&pos, _xmVertex);
+	//		}
 
-		Entity _MeshEntity = scene->AddMeshEntity(meshName, _Transform, mesh, material);
+	//		auto _XMTransform = DirectX::XMMatrixMultiply(_xmMatrixTranslate, DirectX::XMLoadFloat4x4(&_Transform));
+	//		XMStoreFloat4x4(&_Transform, _XMTransform);
 
-		if (m_IsLoadingAnimatedModel)
-		{
-			_MeshEntity.AddComponent<SkinnedAnimationComponent>(m_LoadedAnimation);
-		}
+	//		_aabb.Center = float3{ .0f, .0f, .0f };
+	//	}*/
 
-	}
+	//	Entity _MeshEntity = scene->AddMeshEntity(meshName, transform, mesh, material, _WorldCenterOffset);
 
-	void AssimpLib::ProcessNodes(Scene* scene, const aiNode* node, const aiScene* aiscene, const size_t meshOffset, const float4x4& _ParentTransform)
+	//	if (m_IsLoadingAnimatedModel)
+	//	{
+	//		_MeshEntity.AddComponent<SkinnedAnimationComponent>(m_LoadedAnimation);
+	//	}
+
+	//	return _MeshEntity;
+
+	//}
+
+	void AssimpLib::ProcessNodes(const aiNode* node, const aiScene* aiscene, const size_t meshOffset, const float4x4& _ParentTransform)
 	{
 		auto nodeMeshNum = node->mNumMeshes;
 
 		float4x4 _NodeTransform(node->mTransformation);
 
 		_NodeTransform = _ParentTransform * _NodeTransform;
+
+		std::vector<Entity> _MeshEntities;
+		_MeshEntities.reserve(aiscene->mNumMeshes);
 
 		if (nodeMeshNum > 0)
 		{
@@ -363,17 +370,17 @@ namespace TruthEngine
 			{
 				auto aimesh = aiscene->mMeshes[node->mMeshes[i]];
 
-				auto material = m_ModelManager->m_MaterialManager.GetMaterial(aimesh->mMaterialIndex + m_MaterialOffset);
+				auto material = m_MaterialManager->GetMaterial(aimesh->mMaterialIndex + m_MaterialOffset);
 				//auto entity_mesh = scene->AddEntity(aimesh->mName.C_Str(), entity_model);
 				auto mesh = &m_ModelManager->m_Meshes[node->mMeshes[i] + meshOffset];
 				auto meshName = aimesh->mName.C_Str();
 
 
-				CenteralizeMeshVerteciesAddMeshEntity(meshName, mesh, material, scene, _NodeTransform);
+				//_MeshEntities.emplace_back(AddMeshEntity(meshName, mesh, material, scene, _NodeTransform));
 
 				/*std::function<void()> func([this, mesh, material, meshName, scene]()
 					{
-						CenteralizeMeshVerteciesAddMeshEntity(meshName, mesh, material, scene);
+						AddMeshEntity(meshName, mesh, material, scene);
 					});
 
 				m_Futures.emplace_back(TE_INSTANCE_THREADPOOL.Queue(func));*/
@@ -394,11 +401,11 @@ namespace TruthEngine
 
 		for (uint32_t childIndex = 0; childIndex < node->mNumChildren; ++childIndex)
 		{
-			ProcessNodes(scene, node->mChildren[childIndex], aiscene, meshOffset, _NodeTransform);
+			ProcessNodes(node->mChildren[childIndex], aiscene, meshOffset, _NodeTransform);
 		}
 	}
 
-	void AssimpLib::ProcessMeshes(Scene* scene, const aiScene* aiscene)
+	void AssimpLib::ProcessMeshes(const aiScene* aiscene, std::vector<ImportedMeshMaterials>& _MeshCollection)
 	{
 
 		VertexBufferNTT& _VertexBuffer = m_ModelManager->GetVertexBuffer<VertexBufferNTT>();
@@ -455,9 +462,13 @@ namespace TruthEngine
 				}
 			}
 
-			auto mesh = m_ModelManager->AddMesh(TE_IDX_MESH_TYPE::MESH_NTT, indexNum, indexOffset, vertexOffset, aimesh->mNumVertices);
+			Mesh* _Mesh = m_ModelManager->AddMesh(TE_IDX_MESH_TYPE::MESH_NTT, indexNum, indexOffset, vertexOffset, aimesh->mNumVertices);
+			Material* _Material = m_MaterialManager->GetMaterial(aimesh->mMaterialIndex + m_MaterialOffset);
+			const char* _MeshName = aimesh->mName.C_Str();
 
-			auto material = m_ModelManager->m_MaterialManager.GetMaterial(aimesh->mMaterialIndex + m_MaterialOffset);
+			_MeshCollection.emplace_back(_MeshName, _Mesh, _Material, nullptr);
+
+			//_MeshEntities.emplace_back(AddMeshEntity(meshName, mesh, material, scene, IdentityMatrix));
 
 		}
 	}
@@ -483,7 +494,7 @@ namespace TruthEngine
 		}
 	}
 
-	void AssimpLib::ProcessMeshesSkinned(Scene* scene, const aiScene* aiscene)
+	void AssimpLib::ProcessMeshesSkinned(const aiScene* aiscene, std::vector<ImportedMeshMaterials>& _MeshCollection)
 	{
 		VertexBufferSkinned& _VertexBuffer = m_ModelManager->GetVertexBuffer<VertexBufferSkinned>();
 
@@ -571,8 +582,12 @@ namespace TruthEngine
 			}
 
 			auto mesh = m_ModelManager->AddMesh(TE_IDX_MESH_TYPE::MESH_SKINNED, indexNum, indexOffset, vertexOffset, aimesh->mNumVertices);
+			auto material = m_MaterialManager->GetMaterial(aimesh->mMaterialIndex + m_MaterialOffset);
+			const char* meshName = aimesh->mName.C_Str();
 
-			auto material = m_ModelManager->m_MaterialManager.GetMaterial(aimesh->mMaterialIndex + m_MaterialOffset);
+			_MeshCollection.emplace_back(meshName, mesh, material, m_LoadedAnimation);
+
+			//_MeshEntities.emplace_back(AddMeshEntity(meshName, mesh, material, scene, IdentityMatrix));
 
 		}
 	}

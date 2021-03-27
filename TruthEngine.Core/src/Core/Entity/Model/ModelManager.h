@@ -35,10 +35,10 @@ namespace TruthEngine
 		ModelManager();
 		~ModelManager();
 
-		static std::shared_ptr<ModelManager> GetInstance()
+		static ModelManager* GetInstance()
 		{
-			static auto s_ModelManager = std::make_shared<ModelManager>();
-			return s_ModelManager;
+			static ModelManager s_ModelManager;
+			return &s_ModelManager;
 		}
 
 		void Init(BufferManager* bufferManager/*, RendererCommand* rendererCommand*/);
@@ -48,15 +48,6 @@ namespace TruthEngine
 		// 				return m_Models3D;
 		// 			}
 
-		inline const std::vector<Material*>& GetMaterials()
-		{
-			return m_MaterialManager.m_Materials;
-		}
-
-		inline MaterialManager* GetMaterialManager()
-		{
-			return &m_MaterialManager;
-		}
 
 		inline void AddSpace(/*size_t Model3DNum, */size_t MeshNum)
 		{
@@ -68,13 +59,12 @@ namespace TruthEngine
 		}
 
 
-		inline void GetOffsets(size_t& outVertexOffset, size_t& outIndexOffset, /*size_t& outModelOffset,*/ size_t& outMeshOffset, size_t& outMaterialOffset, TE_IDX_MESH_TYPE _MeshType)
+		inline void GetOffsets(size_t& outVertexOffset, size_t& outIndexOffset, /*size_t& outModelOffset,*/ size_t& outMeshOffset, TE_IDX_MESH_TYPE _MeshType)
 		{
 			outVertexOffset = GetVertexOffset(_MeshType);
 			outIndexOffset = m_IndexBuffer.GetIndexOffset();
 			//outModelOffset = m_Models3D.size();
 			outMeshOffset = m_Meshes.size();
-			outMaterialOffset = m_MaterialManager.GetMatrialOffset();
 		}
 
 		size_t GetVertexOffset(TE_IDX_MESH_TYPE _MeshType)const noexcept;
@@ -95,10 +85,10 @@ namespace TruthEngine
 			return m_Meshes.size();
 		}
 
-		inline size_t GetMaterialOffset()const noexcept
+		/*inline size_t GetMaterialOffset()const noexcept
 		{
 			return m_MaterialManager.GetMatrialOffset();
-		}
+		}*/
 
 
 		//Model3D* AddModel3D();
@@ -113,14 +103,14 @@ namespace TruthEngine
 			return std::get<T>(m_VertexBuffers);
 		}
 
-		void ImportModel(Scene* scene, const char* filePath);
+		/*void ImportModel(Scene* scene, const char* filePath, std::string _ModelName);*/
 
 
-		Entity GeneratePrimitiveMesh(TE_PRIMITIVE_TYPE type, float size = 1.0f, const float4x4& transform = IdentityMatrix, Entity modelEntity = Entity());
+		Mesh* GeneratePrimitiveMesh(TE_PRIMITIVE_TYPE type, float size = 1.0f);
 		void GenerateEnvironmentMesh(Mesh** outMesh);
 
-	protected:
 		void InitVertexAndIndexBuffer();
+	protected:
 
 		inline uint32_t GenerateMeshID()
 		{
@@ -143,7 +133,7 @@ namespace TruthEngine
 
 		IndexBuffer m_IndexBuffer;
 
-		MaterialManager m_MaterialManager;
+		//MaterialManager m_MaterialManager;
 
 		BufferManager* m_BufferManager;
 

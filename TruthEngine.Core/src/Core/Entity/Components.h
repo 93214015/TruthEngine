@@ -10,3 +10,4 @@
 #include "Core/Entity/Components/CameraComponent.h"
 #include "Core/Entity/Components/LightComponent.h"
 #include "Core/Entity/Components/PhysicsComponent.h"
+#include "Core/Entity/Components/SkinnedAnimationComponent.h"

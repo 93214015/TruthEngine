@@ -17,6 +17,11 @@ namespace TruthEngine
 			return m_BoundingBox;
 		}
 
+		BoundingBox& GetBoundingBox() noexcept
+		{
+			return m_BoundingBox;
+		}
+
 	private:
 
 	private:

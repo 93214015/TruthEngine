@@ -61,7 +61,7 @@ namespace TruthEngine
 		m_LayerStack.PushLayer(m_RendererLayer.get());
 
 		auto lightManager = LightManager::GetInstace();
-		const float4 _cascadeCoveringPercentage = { .07f, .21f, .4f, 1.0f };
+		const float4 _cascadeCoveringPercentage = float4{ .07f, .21f, .4f, 1.0f };
 		auto dirLight0 = lightManager->AddLightDirectional("dlight_0", float4{ 0.8f, 0.8f, 0.8f, 0.8f }, float4{ 0.3f, 0.3f, 0.3f, 0.3f }, float4{ 0.0f, 0.0f, 0.0f, 0.0f }, float3{ .38f, -.60f, .71f }, float3{ -42.0f, 66.0f, -80.0f }, 0.05f, true, 200.0f, _cascadeCoveringPercentage);
 		//lightManager->AddLightCamera(dirLight0, TE_CAMERA_TYPE::Perspective);
 		
@@ -71,7 +71,7 @@ namespace TruthEngine
 
 
 		//must put ModelManager initiation after RendererLayer attachment so that the bufferManager has been initiated 
-		auto modelManager = ModelManager::GetInstance().get();
+		auto modelManager = ModelManager::GetInstance();
 		modelManager->Init(TE_INSTANCE_BUFFERMANAGER);
 		//modelManager->AddSampleModel();
 
@@ -188,14 +188,15 @@ namespace TruthEngine
 					{
 						if (ImGui::MenuItem("Model3D"))
 						{
-							static const std::vector<const char*> fileExtensions = { ".obj", ".fbx" };
+							static const std::vector<const char*> fileExtensions = { ".obj", ".fbx", ".3ds", ".dae", ".blend" };
 							imguiLayer->OpenFileDialog(&fileBrowserImportModel, "Open Model", fileExtensions);
 						}
 						ImGui::EndMenu();
 					}
 					ImGui::EndMenu();
 				}
-				if (ImGui::BeginMenu("Test"))
+
+				/*if (ImGui::BeginMenu("Test"))
 				{
 					if (ImGui::MenuItem("Show ImGui Demo Window"))
 					{
@@ -210,30 +211,30 @@ namespace TruthEngine
 					}
 					if (ImGui::MenuItem("Generate Plane"))
 					{
-						ModelManager::GetInstance()->GeneratePrimitiveMesh(TE_PRIMITIVE_TYPE::PLANE);
+						ModelManager::GetInstance()->GeneratePrimitiveMesh(TE_PRIMITIVE_TYPE::PLANE, "DefaultModel");
 					}
 					if (ImGui::MenuItem("Generate Box"))
 					{
-						ModelManager::GetInstance()->GeneratePrimitiveMesh(TE_PRIMITIVE_TYPE::BOX);
+						ModelManager::GetInstance()->GeneratePrimitiveMesh(TE_PRIMITIVE_TYPE::BOX, "DefaultModel");
 					}
 					if (ImGui::MenuItem("Generate RoundedBox"))
 					{
-						ModelManager::GetInstance()->GeneratePrimitiveMesh(TE_PRIMITIVE_TYPE::ROUNDEDBOX);
+						ModelManager::GetInstance()->GeneratePrimitiveMesh(TE_PRIMITIVE_TYPE::ROUNDEDBOX, "DefaultModel");
 					}
 					if (ImGui::MenuItem("Generate Sphere"))
 					{
-						ModelManager::GetInstance()->GeneratePrimitiveMesh(TE_PRIMITIVE_TYPE::SPHERE);
+						ModelManager::GetInstance()->GeneratePrimitiveMesh(TE_PRIMITIVE_TYPE::SPHERE, "DefaultModel");
 					}
 					if (ImGui::MenuItem("Generate Cylinder"))
 					{
-						ModelManager::GetInstance()->GeneratePrimitiveMesh(TE_PRIMITIVE_TYPE::CYLINDER);
+						ModelManager::GetInstance()->GeneratePrimitiveMesh(TE_PRIMITIVE_TYPE::CYLINDER, "DefaultModel");
 					}
 					if (ImGui::MenuItem("Generate Capped Cylinder"))
 					{
-						ModelManager::GetInstance()->GeneratePrimitiveMesh(TE_PRIMITIVE_TYPE::CAPPEDCYLINDER);
+						ModelManager::GetInstance()->GeneratePrimitiveMesh(TE_PRIMITIVE_TYPE::CAPPEDCYLINDER, "DefaultModel");
 					}
 					ImGui::EndMenu();
-				}
+				}*/
 
 				if (ImGui::BeginMenu("Physics"))
 				{
@@ -420,10 +421,10 @@ namespace TruthEngine
 
 						ImGui::TextColored(ImVec4{ 0.529, 0.952, 0.486 ,1.0f }, "CPU Frame Time: ");
 						ImGui::TableNextColumn();
-						ImGui::TextColored(ImVec4{ 0.529, 0.952, 0.486 ,1.0f }, "%.3f", m_Timer.GetAverageCpuTime());
-						ImGui::Text("RenderPass Time: %0.3f", m_TimerAvg_UpdateRenderPasses.GetAverageTime());
-						ImGui::Text("ImGUiPass Time: %0.3f", m_TimerAvg_ImGuiPass.GetAverageTime());
-						ImGui::Text("AppUpdate Time: %0.3f", m_TimerAvg_Update.GetAverageTime());
+						ImGui::TextColored(ImVec4{ 0.529, 0.952, 0.486 ,1.0f }, "%.3f ms", m_Timer.GetAverageCpuTime() * 1000);
+						ImGui::Text("RenderPass Time: %0.3f ms", m_TimerAvg_UpdateRenderPasses.GetAverageTime());
+						ImGui::Text("ImGUiPass Time: %0.3f ms", m_TimerAvg_ImGuiPass.GetAverageTime());
+						ImGui::Text("AppUpdate Time: %0.3f ms", m_TimerAvg_Update.GetAverageTime());
 
 						ImGui::EndTable();
 					}
@@ -522,11 +523,40 @@ namespace TruthEngine
 		//Ckeck on selected file for importing 3d model
 		//
 		static std::string importFilePath;
+		static bool _SelectedModel = false;
+		static bool _ImportModel = false;
+		static char _ModelName[50] = "Model_";
+
 		if (imguiLayer->CheckFileDialog(&fileBrowserImportModel, importFilePath))
 		{
-			GraphicDevice::GetPrimaryDevice()->WaitForGPU();
-			ModelManager::GetInstance()->ImportModel(&m_ActiveScene, importFilePath.c_str());
+			_SelectedModel = true;
+			
 		}
+		if (_SelectedModel)
+		{
+			ImGui::OpenPopup("AskModelNamePopUp");
+		}
+
+		if (ImGui::BeginPopup("AskModelNamePopUp"))
+		{
+			ImGui::Text("Model Name:");
+			ImGui::InputText("", _ModelName, sizeof(_ModelName));
+			if (ImGui::Button("OK"))
+			{
+				_ImportModel = true;
+				ImGui::CloseCurrentPopup();
+			}
+			ImGui::EndPopup();
+		}
+
+		if (_ImportModel)
+		{
+			m_ActiveScene.ImportModel(importFilePath.c_str(), _ModelName);
+			strcpy(_ModelName, "Model_");
+			_SelectedModel = false;
+			_ImportModel = false;
+		}
+
 		if (imguiLayer->CheckFileDialog(&fileBrowserImportTexture, importFilePath))
 		{
 			auto tex = TextureMaterialManager::GetInstance()->CreateTexture(importFilePath.c_str(), "");

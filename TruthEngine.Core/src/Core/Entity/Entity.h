@@ -24,6 +24,12 @@ namespace TruthEngine
 			}
 
 			template<class T>
+			const T& GetComponent() const
+			{
+				return m_Registery->get<T>(m_EntityHandle);
+			}
+
+			template<class T>
 			bool HasComponent()
 			{
 				return m_Registery->has<T>(m_EntityHandle);
@@ -83,8 +89,9 @@ namespace TruthEngine
 
 
 		private:
+			entt::entity m_EntityHandle = entt::null;
+
 			Scene* m_Scene = nullptr;
 			entt::registry* m_Registery = nullptr;
-			entt::entity m_EntityHandle = entt::null;
 		};
 }

@@ -471,7 +471,9 @@ namespace TruthEngine
 
 			auto activeCamera = CameraManager::GetInstance()->GetActiveCamera();
 
-			auto& _transform = m_Context.GetComponent<TransformComponent>().GetTransform();
+			TransformComponent& _TransformComponent = m_Context.GetComponent<TransformComponent>();
+			float4x4 _transform = _TransformComponent.GetTransformFromWorldCenter();
+			
 
 			static auto s_CopyingMesh = false;
 
@@ -480,9 +482,22 @@ namespace TruthEngine
 			{
 				if (InputManager::IsKeyPressed(VK_SHIFT) && !s_CopyingMesh)
 				{
-					m_Context.GetScene()->CopyMeshEntity(m_Context);
-					s_CopyingMesh = true;
+					if (!m_Context.HasComponent<ModelComponent>() && m_Context.HasComponent<MeshComponent>())
+					{
+						m_Context.GetScene()->CopyMeshEntity(m_Context);
+						s_CopyingMesh = true;
+					}
 				}
+
+				const float3& _WorldCenterOffset = _TransformComponent.GetWorldCenterOffset();
+				_transform._41 -= _WorldCenterOffset.x;
+				_transform._42 -= _WorldCenterOffset.y;
+				_transform._43 -= _WorldCenterOffset.z;
+
+
+				float4x4& _OriginalTransform = _TransformComponent.GetTransform();
+				_OriginalTransform = _transform;
+
 
 				EventEntityTransform _eventEntityTransform{ m_Context, ETransformType::Scale & ETransformType::Translate };
 				TE_INSTANCE_APPLICATION->OnEvent(_eventEntityTransform);
@@ -492,7 +507,6 @@ namespace TruthEngine
 			{
 				s_CopyingMesh = false;
 			}
-
 
 		}
 	}

@@ -41,7 +41,7 @@ void TruthEngine::PickingEntity::PickEntity(float2 mousePosition, Scene* scene, 
 	{
 		auto tag = scene->GetComponent<TagComponent>(entity).GetTag().c_str();
 
-		float4x4 _world = scene->CalcTransformsToRoot(entity);
+		float4x4 _world = scene->GetTransformHierarchy(entity);
 		auto _scaleVector = XMVectorSet(_world._11, _world._22, _world._33, 0.0f);
 		_world._11 = 1.0f;
 		_world._22 = 1.0f;

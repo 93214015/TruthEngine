@@ -65,7 +65,8 @@ namespace TruthEngine
 		bool mPlayForward;
 		float mLastTime;
 		float mTicksPerSecond;
-		float mDuration;
+		float mDurationInTicks;
+		float mDurationInSecond;
 
 
 		std::vector<Vector_Matrix> mTransforms;

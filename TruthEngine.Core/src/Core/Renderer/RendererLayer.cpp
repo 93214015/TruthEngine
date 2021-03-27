@@ -166,11 +166,13 @@ namespace TruthEngine
 		if (SA_Animation* _DefaultAnimation = TE_INSTANCE_ANIMATIONMANAGER->GetAnimation(0); _DefaultAnimation)
 		{
 			
-			m_RendererCommand.AddUpdateTaskJustCurrentFrame([_DefaultAnimation, this]() 
+			auto _AnimationTransforms = _DefaultAnimation->GetTransform();
+
+			m_RendererCommand.AddUpdateTaskJustCurrentFrame([_AnimationTransforms, this]() 
 				{
 					auto _Dest = m_CB_Bones->GetData()->mBones;
-					auto _Src = _DefaultAnimation->GetTransform()->data();
-					auto _Size = sizeof(float4x4) * _DefaultAnimation->GetTransform()->size();
+					auto _Src = _AnimationTransforms->data();
+					auto _Size = sizeof(float4x4) * _AnimationTransforms->size();
 					memcpy(_Dest, _Src, _Size); 
 				});
 		}
@@ -197,7 +199,7 @@ namespace TruthEngine
 
 		if (ImGui::Begin("RendererLayer"))
 		{
-			ImGui::Text("RendererLayer Update Time: %0.3f", m_TimerRenderLayerUpdate.GetAverageTime());
+			ImGui::Text("RendererLayer Update Time: %0.3f ms", m_TimerRenderLayerUpdate.GetAverageTime());
 		}
 		ImGui::End();
 	}
