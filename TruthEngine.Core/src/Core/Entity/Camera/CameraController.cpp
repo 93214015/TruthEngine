@@ -6,10 +6,11 @@
 #include "Core/Event/EventKey.h"
 #include "Core/Application.h"
 #include "Core/Input/InputManager.h"
+#include "Core/Entity/Components/TransformComponent.h"
 
 using namespace DirectX;
 
-namespace TruthEngine::Core
+namespace TruthEngine
 {
 	CameraController::CameraController()
 	{
@@ -38,8 +39,8 @@ namespace TruthEngine::Core
 
 	void CameraController::Panning(float right, float up)
 	{
-		right *= m_Speed * .05f;
-		up *= -m_Speed * .05f;
+		right *= m_Speed;
+		up *= -m_Speed;
 		// mPosition += d*mRight
 		XMVECTOR s = XMVectorReplicate(right);
 		XMVECTOR r = XMLoadFloat3(&m_Camera->m_Right);
@@ -78,6 +79,8 @@ namespace TruthEngine::Core
 
 		XMMATRIX R = XMMatrixRotationAxis(XMLoadFloat3(&m_Camera->m_Right), angle);
 
+		
+
 		XMStoreFloat3(&m_Camera->m_Up, XMVector3TransformNormal(XMLoadFloat3(&m_Camera->m_Up), R));
 		XMStoreFloat3(&m_Camera->m_Look, XMVector3TransformNormal(XMLoadFloat3(&m_Camera->m_Look), R));
 
@@ -99,19 +102,6 @@ namespace TruthEngine::Core
 	}
 
 
-	void CameraController::RotateCamera(float d)
-	{
-		auto angle = XMConvertToRadians(20 * d);
-		auto R = XMMatrixRotationY(angle);
-
-		XMStoreFloat3(&m_Camera->m_Position, XMVector3Transform(XMLoadFloat3(&m_Camera->m_Position), R));
-
-		RotateY(angle);
-
-		m_Camera->UpdateViewMatrix();
-	}
-
-
 	void CameraController::OnMouseMove(EventMouseMoved& event)
 	{
 		if (!TE_INSTANCE_APPLICATION->IsHoveredSceneViewPort())
@@ -119,22 +109,46 @@ namespace TruthEngine::Core
 
 		if (InputManager::IsMouseRightDown())
 		{
-			float dx_angle = XMConvertToRadians(0.25f * static_cast<float>(InputManager::GetDX()));
-			float dy_angle = XMConvertToRadians(0.25f * static_cast<float>(InputManager::GetDY()));
+			float dx_angle = XMConvertToRadians(0.25f * static_cast<float>(InputManager::GetDX())) * 0.2;
+			float dy_angle = XMConvertToRadians(0.25f * static_cast<float>(InputManager::GetDY())) * 0.2;
 
-			Pitch(dy_angle / 10);
-			RotateY(dx_angle / 10);
+			Pitch(dy_angle);
+			RotateY(dx_angle);
 
+			if (InputManager::IsKeyPressed(Key::LeftAlt))
+			{
+				float3 _RotationOrigin = float3{ .0f, .0f, .0f };
+
+				Scene* _Scene = TE_INSTANCE_APPLICATION->GetActiveScene();
+
+				if (Entity _SelectedEntity = _Scene->GetSelectedEntity(); _SelectedEntity)
+				{
+					_RotationOrigin = _RotationOrigin + _SelectedEntity.GetComponent<TransformComponent>().GetWorldCenterOffset();
+					_RotationOrigin = _RotationOrigin + _Scene->GetTranslateHierarchy(_SelectedEntity);
+				}
+
+				float4x4 _Transform = Math::TransformMatrixRotation(dx_angle, float3{ .0f, 1.0f, .0f }, _RotationOrigin);
+				_Transform = _Transform * Math::TransformMatrixRotation(dy_angle, m_Camera->m_Right, _RotationOrigin);
+
+				m_Camera->m_Position = Math::TransformPoint(m_Camera->m_Position, _Transform);
+
+				m_Camera->UpdateViewMatrix();
+			}
+
+
+			return;
 		}
 
 		if (InputManager::IsMouseMiddleDown())
 		{
 			const auto dt = TE_INSTANCE_APPLICATION->FrameTime();
 
-			float dx = -InputManager::GetDX() * dt;
-			float dy = -InputManager::GetDY() * dt;
+			float dx = -InputManager::GetDX() * dt * 0.5;
+			float dy = -InputManager::GetDY() * dt * 0.5;
 
 			Panning(dx, dy);
+
+			return;
 		}
 	}
 
@@ -158,9 +172,6 @@ namespace TruthEngine::Core
 			break;
 		case'D':
 			Panning(dt, 0.0);
-			break;
-		case 'Q':
-			RotateCamera(dt);
 			break;
 		default:
 			break;

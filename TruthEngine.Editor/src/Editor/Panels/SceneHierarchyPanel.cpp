@@ -9,11 +9,11 @@
 #include "Core/Application.h"
 #include "Core/Entity/Model/ModelManager.h"
 
-using namespace TruthEngine::Core;
+using namespace TruthEngine;
 
 namespace TruthEngine
 {
-	SceneHierarchyPanel::SceneHierarchyPanel(Core::Scene* context)
+	SceneHierarchyPanel::SceneHierarchyPanel(Scene* context)
 		: m_Context(context)
 	{
 	}
@@ -49,7 +49,7 @@ namespace TruthEngine
 	void SceneHierarchyPanel::DrawModelEntities() const
 	{
 
-		auto isHeaderOpen = ImGui::CollapsingHeader("Meshes", ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_AllowItemOverlap | ImGuiTreeNodeFlags_FramePadding);
+		auto isHeaderOpen = ImGui::CollapsingHeader("Models", ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_AllowItemOverlap | ImGuiTreeNodeFlags_FramePadding);
 
 		ImVec2 contentRegionAvailable = ImGui::GetContentRegionAvail();
 		float lineHeight = GImGui->Font->FontSize + (GImGui->Style.FramePadding.y * 2.0f);
@@ -65,10 +65,21 @@ namespace TruthEngine
 		{
 			auto modelManager = ModelManager::GetInstance();
 
+			static uint16_t _ModelNamePostfix = 0;
+			static char _ModelNameBuffer[50];
+		
+
+			if (!m_Context->GetSelectedEntity())
+			{
+				ImGui::InputText("Model Name", _ModelNameBuffer, sizeof(_ModelNameBuffer));
+			}
+
 			ImGui::Text("Primitves");
-			static float primitiveSize = 1.0f;
+
+			static float3 _Size = {1.0f, 1.0f, 1.0f};
 			static auto primitiveType = TE_PRIMITIVE_TYPE::BOX;
-			ImGui::InputFloat("Primitive Size/Radius", &primitiveSize);
+			ImGui::InputFloat3("Primitive Size.X/Radius Size.Y Size.Z", &_Size.x);
+
 			if (ImGui::RadioButton("Box", primitiveType == TE_PRIMITIVE_TYPE::BOX))
 			{
 				primitiveType = TE_PRIMITIVE_TYPE::BOX;
@@ -94,14 +105,42 @@ namespace TruthEngine
 				primitiveType = TE_PRIMITIVE_TYPE::ROUNDEDBOX;
 			}
 
+
+
 			if (ImGui::Button("Add"))
 			{
-				auto entityMesh = modelManager->GeneratePrimitiveMesh(primitiveType, primitiveSize);
 
-				m_Context->SelectEntity(entityMesh);
+				std::string _MeshName = "Primitive_" + std::to_string(_ModelNamePostfix);
+				_ModelNamePostfix++;
+
+				//Mesh* _Mesh = modelManager->GeneratePrimitiveMesh(primitiveType, _Size.x, _Size.y, _Size.z);
+
+				Entity _ModelEntity;
+				Entity _SelectedEntity = m_Context->GetSelectedEntity();
+				if ( _SelectedEntity)
+				{
+					_ModelEntity = m_Context->GetModelEntity(_SelectedEntity);
+				}
+				else
+				{
+					if (strcmp(_ModelNameBuffer, "") == 0)
+					{
+						std::string _ModelName = "Model_" + std::to_string(_ModelNamePostfix);
+						strcpy_s(_ModelNameBuffer, _ModelName.c_str());
+					}
+					_ModelEntity = m_Context->AddModelEntity(_ModelNameBuffer, IdentityMatrix);
+				}
+
+				/*static MaterialManager* s_MaterialManager = MaterialManager::GetInstance();
+				Entity _MeshEntity = m_Context->AddMeshEntity(_MeshName.c_str(), IdentityMatrix, _Mesh, s_MaterialManager->AddDefaultMaterial(TE_IDX_MESH_TYPE::MESH_NTT), _ModelEntity);*/
+
+				Entity _MeshEntity = m_Context->AddPrimitiveMesh(_MeshName.c_str(), primitiveType, _Size, _ModelEntity);
+
+				m_Context->SelectEntity(_MeshEntity);
 
 				ImGui::CloseCurrentPopup();
 			}
+
 			ImGui::SameLine();
 			if (ImGui::Button("Cancel"))
 			{
@@ -116,9 +155,10 @@ namespace TruthEngine
 			return;
 		}
 
-		auto g = m_Context->ViewEntities<Core::MeshComponent>();
+		//auto g = m_Context->ViewEntities<MeshComponent>();
+		auto _ModelEntityCollection = m_Context->ViewEntities<ModelComponent>();
 
-		if (g.size() < 1)
+		if (_ModelEntityCollection.size() < 1)
 			return;
 
 		ImGui::PushStyleColor(ImGuiCol_Header, ImVec4{ 0.36f, 1.0f, .57f, .31f });
@@ -127,14 +167,11 @@ namespace TruthEngine
 		int _buttomID = 1;
 
 
-
 		ImGui::Indent();
 
-		for (auto entity : g)
+		for (auto entity : _ModelEntityCollection)
 		{
-
-			auto& tag = m_Context->GetComponent<Core::TagComponent>(entity);
-
+			auto& tag = m_Context->GetComponent<TagComponent>(entity);
 
 			auto is_open = ImGui::TreeNodeEx(tag.GetTag().c_str(), flags | (entity == m_Context->GetSelectedEntity() ? ImGuiTreeNodeFlags_Selected : 0));
 
@@ -143,14 +180,36 @@ namespace TruthEngine
 				m_Context->SelectEntity(Entity{ m_Context, entity });
 			}
 
-
-
 			if (is_open)
 			{
+				std::vector<Entity>& _MeshEntityCollection = m_Context->GetComponent<ModelComponent>(entity).GetMeshEntities();
+
+				if (_MeshEntityCollection.size() > 0)
+				{
+
+					ImGui::Indent();
+
+					for (Entity& _MeshEntity : _MeshEntityCollection)
+					{
+						auto& _MeshTag = m_Context->GetComponent<TagComponent>(_MeshEntity);
+
+						if (ImGui::TreeNodeEx(_MeshTag.GetTag().c_str(), flags | (_MeshEntity == m_Context->GetSelectedEntity() ? ImGuiTreeNodeFlags_Selected : 0)))
+						{
+							ImGui::TreePop();
+						}
+
+
+						if (ImGui::IsItemClicked())
+						{
+							m_Context->SelectEntity(_MeshEntity);
+						}
+					}
+
+					ImGui::Unindent();
+				}
 
 				ImGui::TreePop();
 			}
-
 		}
 
 		ImGui::Unindent();
@@ -181,7 +240,7 @@ namespace TruthEngine
 			return;
 		}
 
-		auto g = m_Context->ViewEntities<Core::ModelComponent>();
+		auto g = m_Context->ViewEntities<ModelComponent>();
 
 		if (g.size() < 1)
 			return;
@@ -196,7 +255,7 @@ namespace TruthEngine
 		for (auto entity : g)
 		{
 
-			auto& tag = m_Context->GetComponent<Core::TagComponent>(entity);
+			auto& tag = m_Context->GetComponent<TagComponent>(entity);
 
 
 			auto is_open = ImGui::TreeNodeEx(tag.GetTag().c_str(), flags | (entity == m_Context->GetSelectedEntity() ? ImGuiTreeNodeFlags_Selected : 0));
@@ -250,7 +309,10 @@ namespace TruthEngine
 
 				if (ImGui::Button("Add"))
 				{
+
 					auto entityMesh = modelManager->GeneratePrimitiveMesh(primitiveType, primitiveSize, IdentityMatrix, m_Context->GetSelectedEntity());
+
+
 
 					m_Context->SelectEntity(entityMesh);
 
@@ -324,10 +386,10 @@ namespace TruthEngine
 				Camera* camera;
 				switch (cameraType)
 				{
-				case TruthEngine::Core::TE_CAMERA_TYPE::Perspective:
-					camera = cameraManager->CreatePerspectiveFOV("", float3{ .0f, .10f, -10.0f }, float3{ .0f, .0f, .0f }, float3{ .0f, 1.0f, .0f }, DirectX::XM_PIDIV4, TE_INSTANCE_APPLICATION->GetSceneViewportAspectRatio(), 1.0f, 100.0f);
+				case TruthEngine::TE_CAMERA_TYPE::Perspective:
+					camera = cameraManager->CreatePerspectiveFOV("", float3{ .0f, .10f, -10.0f }, float3{ .0f, .0f, .0f }, float3{ .0f, 1.0f, .0f }, DirectX::XM_PIDIV4, TE_INSTANCE_APPLICATION->GetSceneViewportAspectRatio(), 1.0f, 100.0f, false);
 					break;
-				case TruthEngine::Core::TE_CAMERA_TYPE::Orthographic:
+				case TruthEngine::TE_CAMERA_TYPE::Orthographic:
 					camera = cameraManager->CreateOrthographicCenterOff("", float3{ .0f, 20.0f, -20.0f }, float3{ .0f, .0f, .0f }, float3{ .0f, 1.0f, .0f }, -20.0f, 20.0f, 20.0f, -20.0f, 1.0, 100.0f);
 					break;
 				default:
@@ -352,7 +414,7 @@ namespace TruthEngine
 			return;
 		}
 
-		auto g = m_Context->ViewEntities<Core::CameraComponent>();
+		auto g = m_Context->ViewEntities<CameraComponent>();
 
 		if (g.size() < 1)
 			return;
@@ -365,7 +427,7 @@ namespace TruthEngine
 
 		for (auto entity : g)
 		{
-			auto& tag = m_Context->GetComponent<Core::TagComponent>(entity);
+			auto& tag = m_Context->GetComponent<TagComponent>(entity);
 
 			auto is_open = ImGui::TreeNodeEx(tag.GetTag().c_str(), flags | (entity == m_Context->GetSelectedEntity() ? ImGuiTreeNodeFlags_Selected : 0));
 
@@ -423,7 +485,7 @@ namespace TruthEngine
 
 		for (auto lightEntity : g)
 		{
-			auto& tag = m_Context->GetComponent<Core::TagComponent>(lightEntity);
+			auto& tag = m_Context->GetComponent<TagComponent>(lightEntity);
 
 			auto is_open = ImGui::TreeNodeEx(tag.GetTag().c_str(), flags | (lightEntity == m_Context->GetSelectedEntity() ? ImGuiTreeNodeFlags_Selected : 0));
 
@@ -468,5 +530,6 @@ namespace TruthEngine
 			}
 		}
 	}
+
 
 }

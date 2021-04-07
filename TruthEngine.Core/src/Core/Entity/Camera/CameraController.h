@@ -2,8 +2,7 @@
 
 namespace TruthEngine
 {
-	namespace Core
-	{
+	
 		class Camera;
 		class EventMouseMoved;
 		class EventKeyPressed;
@@ -31,7 +30,6 @@ namespace TruthEngine
 			// Rotate the camera.
 			void Pitch(float angle);
 			void RotateY(float angle);
-			void RotateCamera(float d);
 
 			inline float GetSpeed()const
 			{
@@ -48,8 +46,7 @@ namespace TruthEngine
 		protected:
 			Camera* m_Camera = nullptr;
 
-			float m_Speed = 0.1f;
+			float m_Speed = 50.0f;
 
 		};
-	}
 }

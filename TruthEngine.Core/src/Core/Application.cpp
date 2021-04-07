@@ -15,15 +15,17 @@
 
 #include "Core/Input/InputManager.h"
 
-namespace TruthEngine::Core {
+namespace TruthEngine {
 
-	Application::Application(const char* title, uint32_t clientWidth, uint32_t clientHeight, uint8_t framesInFlightNum) : m_Title(title), m_ClientWidth(clientWidth), m_ClientHeight(clientHeight), m_FramesOnTheFlyNum(framesInFlightNum)
+	Application::Application(const char* title, uint32_t clientWidth, uint32_t clientHeight, uint8_t framesInFlightNum)
+		: m_Title(title), m_ClientWidth(clientWidth), m_ClientHeight(clientHeight), m_FramesOnTheFlyNum(framesInFlightNum),
+		m_ActiveScene(Scene())
 	{
 
 		TE_ASSERT_CORE(!s_Instance, "Aplication already exists!");
 		s_Instance = this;
 
-		m_Window = TruthEngine::Core::TECreateWindow(title, clientWidth, clientHeight);
+		m_Window = TruthEngine::TECreateWindow(title, clientWidth, clientHeight);
 
 		auto windowEventCallback = [this]
 		(Event& event)
@@ -40,7 +42,7 @@ namespace TruthEngine::Core {
 		RegisterEventListener(EventType::WindowResize, listener_OnWindowResize);
 
 		m_RendererLayer = std::make_shared<RendererLayer>();
-		
+
 	}
 
 	Application::~Application() = default;
@@ -50,7 +52,7 @@ namespace TruthEngine::Core {
 		m_SceneViewportWidth = width;
 		m_SceneViewportHeight = height;
 
-		EventSceneViewportResize event{width, height};
+		EventSceneViewportResize event{ width, height };
 
 		OnEvent(event);
 	}
@@ -58,7 +60,7 @@ namespace TruthEngine::Core {
 	void Application::Run()
 	{
 
-		TE_INSTANCE_THREADPOOL.Start(std::thread::hardware_concurrency());
+		TE_INSTANCE_THREADPOOL->Start(std::thread::hardware_concurrency());
 
 		TE_RUN_TASK([]() { TE_LOG_CORE_INFO("This message is snet by threadID = {0}", std::this_thread::get_id()); });
 
@@ -92,13 +94,16 @@ namespace TruthEngine::Core {
 
 	void Application::OnWindowResize(EventWindowResize& event)
 	{
+		if (event.GetWidth() == 0 || event.GetHeight() == 0)
+			return;
+
 		m_ClientWidth = event.GetWidth();
 		m_ClientHeight = event.GetHeight();
 	}
 
 	uint8_t Application::GetCurrentFrameIndex() const noexcept
 	{
-		return TE_INSTANCE_SWAPCHAIN->GetCurrentFrameIndex(); 
+		return TE_INSTANCE_SWAPCHAIN->GetCurrentFrameIndex();
 	}
 
 	Application* Application::s_Instance = nullptr;

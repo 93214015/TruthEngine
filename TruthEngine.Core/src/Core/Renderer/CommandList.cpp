@@ -5,11 +5,11 @@
 
 #include "ShaderManager.h"
 
-namespace TruthEngine::Core {
+namespace TruthEngine {
 
 
 
-	std::shared_ptr<TruthEngine::Core::CommandList> CommandList::Factory(GraphicDevice* graphicDevice, TE_RENDERER_COMMANDLIST_TYPE type, BufferManager* bufferManager, ShaderManager* shaderManager, TE_IDX_RENDERPASS renderPassIDX, TE_IDX_SHADERCLASS shaderClassIDX, uint8_t frameIndex)
+	std::shared_ptr<TruthEngine::CommandList> CommandList::Factory(GraphicDevice* graphicDevice, TE_RENDERER_COMMANDLIST_TYPE type, BufferManager* bufferManager, ShaderManager* shaderManager, TE_IDX_RENDERPASS renderPassIDX, TE_IDX_SHADERCLASS shaderClassIDX, uint8_t frameIndex)
 	{
 		switch (Settings::RendererAPI)
 		{
@@ -21,7 +21,7 @@ namespace TruthEngine::Core {
 	}
 
 	CommandList::CommandList(TE_IDX_RENDERPASS renderPassIDX, TE_IDX_SHADERCLASS shaderClassIDX, uint8_t frameIndex)
-		:  m_RenderPassIDX(renderPassIDX), m_ShaderClassIDX(shaderClassIDX), m_ShaderSignature(ShaderManager::GetInstance()->GetShaderSignature(shaderClassIDX)), m_FrameIndex(frameIndex)
+		:  m_RenderPassIDX(renderPassIDX), m_ShaderClassIDX(shaderClassIDX), m_FrameIndex(frameIndex)
 	{
 	}
 

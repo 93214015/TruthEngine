@@ -11,7 +11,7 @@ using namespace physx;
 using namespace DirectX;
 
 
-namespace TruthEngine::Core
+namespace TruthEngine
 {
 
 	PhysicsEngine::PhysicsEngine()
@@ -43,7 +43,7 @@ namespace TruthEngine::Core
 		}
 
 		PxSceneDesc sceneDesc(m_pxPhysics->getTolerancesScale());
-		sceneDesc.gravity = PxVec3(.0f, -9.81f, .0f);
+		sceneDesc.gravity = PxVec3(.0f, -90.81f, .0f);
 		m_pxCpuDispatcher = PxDefaultCpuDispatcherCreate(6);
 		sceneDesc.cpuDispatcher = m_pxCpuDispatcher;
 		sceneDesc.filterShader = PxDefaultSimulationFilterShader;
@@ -55,6 +55,7 @@ namespace TruthEngine::Core
 			TE_LOG_CORE_ERROR("Create Physx::pxScene Failed!");
 			throw;
 		}
+
 
 		PxCookingParams cookingParams(m_pxPhysics->getTolerancesScale());
 		// disable mesh cleaning - perform mesh validation on development configurations
@@ -80,7 +81,7 @@ namespace TruthEngine::Core
 
 		auto material = m_pxPhysics->createMaterial(.1f, .1f, 0.6f);
 
-		/*auto modelmanager = ModelManager::GetInstance().get();
+		/*auto modelmanager = ModelManager::GetInstance();
 		m_planeEntity = modelmanager->GeneratePrimitiveMesh(TE_PRIMITIVE_TYPE::PLANE, 20.0, IdentityMatrix);
 
 		PxPlane pxPlane(0.0, 1.0, 0.0, 0);
@@ -134,16 +135,16 @@ namespace TruthEngine::Core
 		if (m_Stopped)
 			return false;
 
-		static auto mAccumulator = 0.0;
-		static auto  mStepSize = 1.0f / 60.0f;
+		static double mAccumulator = 0.0;
+		static double _TimeStep = 1.0 / 60.0;
 
 		mAccumulator += dt;
-		if (mAccumulator < mStepSize)
+		if (mAccumulator < _TimeStep)
 			return false;
 
-		mAccumulator -= mStepSize;
+		mAccumulator = 0.0;
 
-		m_pxScene->simulate(mStepSize);
+		m_pxScene->simulate(_TimeStep);
 
 		m_pxScene->fetchResults(true);
 
@@ -196,7 +197,7 @@ namespace TruthEngine::Core
 		auto view_dynamic = activeScene->ViewEntities<PhysicsDynamicComponent>();
 		for (auto entity : view_dynamic)
 		{
-			auto transform = activeScene->CalcTransformsToRoot(entity);
+			auto transform = activeScene->GetTransformHierarchy(entity);
 
 			DirectX::XMMatrixDecompose(&xmScale, &xmQuat, &xmTranslate, Math::ToXM(transform));
 
@@ -227,7 +228,7 @@ namespace TruthEngine::Core
 
 		for (auto entity : view_staic)
 		{
-			auto transform = activeScene->CalcTransformsToRoot(entity);
+			auto transform = activeScene->GetTransformHierarchy(entity);
 
 			DirectX::XMMatrixDecompose(&xmScale, &xmQuat, &xmTranslate, Math::ToXM(transform));
 
@@ -322,11 +323,15 @@ namespace TruthEngine::Core
 	{
 		float4 _translate, _quaternion, _scale;
 		Math::DecomposeMatrix(rigidBoxDesc.mTransform, _scale, _translate, _quaternion);
-		auto actorDynamic = m_pxPhysics->createRigidDynamic(PxTransform(_translate, _quaternion));
-		auto shapeBox = CreateBoxShape(rigidBoxDesc, _scale);
+		PxRigidDynamic* actorDynamic = m_pxPhysics->createRigidDynamic(PxTransform(_translate, _quaternion));
+		PxShape* shapeBox = CreateBoxShape(rigidBoxDesc, _scale);
 		actorDynamic->attachShape(*shapeBox);
+
+		//PxRigidBodyExt::updateMassAndInertia(*actorDynamic, 1000.0f);		
+
+		auto _MassProperty = PxRigidBodyExt::computeMassPropertiesFromShapes(&shapeBox, 1);
+
 		shapeBox->release();
-		PxRigidBodyExt::updateMassAndInertia(*actorDynamic, 10.0f);
 
 		auto physicsComponent = &entity.AddComponent<PhysicsDynamicComponent>(actorDynamic, reinterpret_cast<const float3&>(_scale));
 		actorDynamic->userData = (void*)static_cast<uint32_t>(entity);
@@ -335,15 +340,25 @@ namespace TruthEngine::Core
 
 		return actorDynamic;
 	}
-	physx::PxRigidDynamic* PhysicsEngine::AddRigidDynamicSphere(const TEPhysicsRigidSphereDesc& rigidSphereDesc, Entity entity)
+	physx::PxRigidDynamic* PhysicsEngine::AddRigidDynamicSphere(const TEPhysicsRigidSphereDesc& rigidSphereDesc, Entity entity, std::optional<float3> _LinearVelocity, std::optional<float3> _AngularVelocity)
 	{
 		float4 _translate, _quaternion, _scale;
 		Math::DecomposeMatrix(rigidSphereDesc.mTransform, _scale, _translate, _quaternion);
-		auto actorDynamic = m_pxPhysics->createRigidDynamic(PxTransform(_translate, _quaternion));
-		auto shapeSphere = CreateSphereShape(rigidSphereDesc, _scale);
+		PxRigidDynamic* actorDynamic = m_pxPhysics->createRigidDynamic(PxTransform(_translate, _quaternion));
+		PxShape* shapeSphere = CreateSphereShape(rigidSphereDesc, _scale);
 		actorDynamic->attachShape(*shapeSphere);
 		shapeSphere->release();
-		PxRigidBodyExt::updateMassAndInertia(*actorDynamic, 10.0f);
+
+		if (_LinearVelocity.has_value())
+		{
+			actorDynamic->setLinearVelocity(_LinearVelocity.value());
+		}
+		if (_AngularVelocity.has_value())
+		{
+			actorDynamic->setAngularVelocity(_AngularVelocity.value());
+		}
+		//PxRigidBodyExt::updateMassAndInertia(*actorDynamic, 1000.0f);
+
 
 		auto physicsComponent = &entity.AddComponent<PhysicsDynamicComponent>(actorDynamic, reinterpret_cast<const float3&>(_scale));
 		actorDynamic->userData = (void*)static_cast<uint32_t>(entity);
@@ -409,11 +424,11 @@ namespace TruthEngine::Core
 		for (auto& entity : groups)
 		{
 			auto& physicsComponent = scene->GetComponent<PhysicsDynamicComponent>(entity);
-			auto& boundingBox = scene->GetComponent<BoundingBoxComponent>(entity).GetBoundingBox();
-			auto staticTransform = scene->CalcTransformsToRoot(entity);
-			staticTransform._41 += boundingBox.Center.x;
-			staticTransform._42 += boundingBox.Center.y;
-			staticTransform._43 += boundingBox.Center.z;
+			const float3& _WorldOffset = scene->GetComponent<TransformComponent>(entity).GetWorldCenterOffset();
+			float4x4 staticTransform = scene->GetStaticTransformHierarchy(entity);
+			staticTransform._41 += _WorldOffset.x;
+			staticTransform._42 += _WorldOffset.y;
+			staticTransform._43 += _WorldOffset.z;
 
 			auto actor = physicsComponent.GetActor();
 
@@ -423,6 +438,8 @@ namespace TruthEngine::Core
 			const PxTransform pxTrans = PxTransform(_translate, _quaternion);
 
 			actor->setGlobalPose(pxTrans);
+			actor->setLinearVelocity(PxVec3(0.0f, 0.0f, 0.0f), false);
+			actor->setAngularVelocity(PxVec3(0.0f, 0.0f, 0.0f), false);
 
 			physicsComponent.UpdatePxTransform(pxTrans);
 		}

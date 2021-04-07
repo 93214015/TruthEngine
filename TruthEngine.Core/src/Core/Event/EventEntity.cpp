@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "EventEntity.h"
 
-namespace TruthEngine::Core
+namespace TruthEngine
 {
 	EventEntityAddMesh::EventEntityAddMesh(Mesh* mesh)
 		: m_Mesh(mesh)
@@ -19,4 +19,9 @@ namespace TruthEngine::Core
 	{}
 
 	EventEntityUpdateMaterial::~EventEntityUpdateMaterial() = default;
+
+	EventEntityTransform::EventEntityTransform(Entity _entity, ETransformType _type)
+		: mEntity(_entity), mTransformType(_type)
+	{}
+
 }

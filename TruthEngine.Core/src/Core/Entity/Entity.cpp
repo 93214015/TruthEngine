@@ -7,7 +7,7 @@
 
 using namespace DirectX;
 
-namespace TruthEngine::Core
+namespace TruthEngine
 {
 	Entity::Entity()
 		: m_Scene(nullptr), m_Registery(nullptr), m_EntityHandle(entt::null)
@@ -24,9 +24,15 @@ namespace TruthEngine::Core
 		: m_Scene(scene), m_Registery(&scene->m_Registery), m_EntityHandle(entityHandle)
 	{}
 
-	float3 Entity::GetPosition() noexcept
+	float4x4 Entity::GetTransformHierarchy()
 	{
-		const auto& _transform = m_Scene->CalcTransformsToRoot(m_EntityHandle);
+		return m_Scene->GetTransformHierarchy(*this);
+	}
+
+
+	/*float3 Entity::GetPosition() noexcept
+	{
+		const auto& _transform = m_Scene->GetTransformHierarchy(m_EntityHandle);
 		float3 _worldPostition = { 0.0f, 0.0f, 0.0f };
 		if (HasComponent<BoundingBoxComponent>())
 		{
@@ -41,6 +47,6 @@ namespace TruthEngine::Core
 		XMStoreFloat3(&_worldPostition, xmPos);
 
 		return  _worldPostition;
-	}
+	}*/
 
 }

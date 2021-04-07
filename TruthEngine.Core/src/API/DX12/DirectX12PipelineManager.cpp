@@ -11,7 +11,9 @@
 namespace TruthEngine::API::DirectX12
 {
 
-	D3D12_CULL_MODE DX12_GET_CULL_MODE(RendererStateSet states)
+	static std::mutex g_MutexPipelineManager;
+
+	constexpr D3D12_CULL_MODE DX12_GET_CULL_MODE(RendererStateSet states)
 	{
 		TE_RENDERER_STATE_CULL_MODE cullMode = static_cast<TE_RENDERER_STATE_CULL_MODE>(GET_RENDERER_STATE(states, TE_RENDERER_STATE_CULL_MODE));
 
@@ -28,6 +30,13 @@ namespace TruthEngine::API::DirectX12
 		}
 
 		TE_ASSERT_CORE(false, "Wrong Cull Mode!");
+	}
+
+	constexpr D3D12_DEPTH_WRITE_MASK DX12_GET_DEPTH_WRITE_MASK(RendererStateSet states)
+	{
+		TE_RENDERER_STATE_DEPTH_WRITE_MASK _DepthWrite = static_cast<TE_RENDERER_STATE_DEPTH_WRITE_MASK>(GET_RENDERER_STATE(states, TE_RENDERER_STATE_DEPTH_WRITE_MASK));
+
+		return static_cast<D3D12_DEPTH_WRITE_MASK>(_DepthWrite);
 	}
 
 	D3D12_FILL_MODE DX12_GET_FILL_MODE(RendererStateSet states)
@@ -100,7 +109,7 @@ namespace TruthEngine::API::DirectX12
 		return static_cast<D3D12_INPUT_CLASSIFICATION>(inputClass);
 	}
 
-	void DX12_GET_INPUT_ELEMENTS(const std::vector<Core::ShaderInputElement>& elements, std::vector<D3D12_INPUT_ELEMENT_DESC>& outElements)
+	void DX12_GET_INPUT_ELEMENTS(const std::vector<ShaderInputElement>& elements, std::vector<D3D12_INPUT_ELEMENT_DESC>& outElements)
 	{
 		outElements.reserve(elements.size());
 
@@ -137,7 +146,7 @@ namespace TruthEngine::API::DirectX12
 
 
 
-	COMPTR<ID3D12PipelineState> DirectX12PiplineManager::GetPipeline(Core::Pipeline* pipeline)
+	COMPTR<ID3D12PipelineState> DirectX12PiplineManager::GetGraphicsPipeline(PipelineGraphics* pipeline)
 	{
 		COMPTR<ID3D12PipelineState> PSO;
 
@@ -146,6 +155,8 @@ namespace TruthEngine::API::DirectX12
 		//
 
 		D3D12_GRAPHICS_PIPELINE_STATE_DESC desc = { 0 };
+
+
 
 		const auto shader = pipeline->GetShader();
 		const auto states = pipeline->GetStates();
@@ -170,7 +181,7 @@ namespace TruthEngine::API::DirectX12
 		desc.RasterizerState.DepthBiasClamp = pipeline->m_DepthBiasClamp;
 		desc.RasterizerState.SlopeScaledDepthBias = pipeline->m_SlopeScaledDepthBias;
 		desc.RasterizerState.DepthClipEnable = true;
-		desc.RasterizerState.MultisampleEnable = false;
+		desc.RasterizerState.MultisampleEnable = true;
 		desc.RasterizerState.AntialiasedLineEnable = false;
 		desc.RasterizerState.ForcedSampleCount = 0;
 		desc.RasterizerState.ConservativeRaster = D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF;
@@ -178,7 +189,7 @@ namespace TruthEngine::API::DirectX12
 		//Blend Desc
 		auto depthEnabled = DX12_GET_ENABLED_DEPTH(states);
 		desc.DepthStencilState.DepthEnable = depthEnabled;
-		desc.DepthStencilState.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
+		desc.DepthStencilState.DepthWriteMask = DX12_GET_DEPTH_WRITE_MASK(states);
 		desc.DepthStencilState.DepthFunc = depthEnabled ? DX12_GET_COMPARISON_FUNC(states) : D3D12_COMPARISON_FUNC_ALWAYS;
 		desc.DepthStencilState.StencilEnable = false;
 		desc.DepthStencilState.StencilReadMask = D3D12_DEFAULT_STENCIL_READ_MASK;
@@ -205,7 +216,7 @@ namespace TruthEngine::API::DirectX12
 		desc.DSVFormat = DX12_GET_FORMAT(pipeline->GetDSVFormat());
 
 		//Sample desc
-		desc.SampleDesc.Count = 1;
+		desc.SampleDesc.Count = pipeline->m_EnableMSAA ? static_cast<uint32_t>(Settings::MSAA) : 1;
 		desc.SampleDesc.Quality = 0;
 
 		desc.pRootSignature = DirectX12Manager::GetInstance()->GetD3D12RootSignature(shader->GetShaderClassIDX());
@@ -213,28 +224,75 @@ namespace TruthEngine::API::DirectX12
 		desc.NodeMask = 0;
 		desc.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
 
-
 		auto hr = m_PiplineLibrary->LoadGraphicsPipeline(to_wstring(pipeline->m_Name).c_str(), &desc, IID_PPV_ARGS(PSO.GetAddressOf()));
-
 
 		if (FAILED(hr))
 		{
-			AddPipeline(pipeline, PSO, desc);
+			std::scoped_lock<std::mutex> _ScopedLock(g_MutexPipelineManager);
+			hr = m_PiplineLibrary->LoadGraphicsPipeline(to_wstring(pipeline->m_Name).c_str(), &desc, IID_PPV_ARGS(PSO.GetAddressOf()));
+
+			if (FAILED(hr))
+			{
+				AddGraphicsPipeline(pipeline, PSO, desc);
+			}
+		}
+
+		return PSO;
+	}
+
+	COMPTR<ID3D12PipelineState> DirectX12PiplineManager::GetComputePipeline(PipelineCompute* pipeline)
+	{
+		COMPTR<ID3D12PipelineState> PSO;
+
+		Shader* _Shader = pipeline->GetShader();
+
+		/*DirectX12ShaderManager _ShaderManager;
+		auto _ShaderCode = _ShaderManager.CompileShader_OLD("shaderTest.hlsl", 200, "Assets/Shaders/HDR_DownScaling.hlsl", "HDRDownScalingFirstPass", "cs");*/
+
+		//
+		////CreatePipline Desc
+		//
+
+
+		D3D12_COMPUTE_PIPELINE_STATE_DESC desc = { 0 };
+		desc.CS = CD3DX12_SHADER_BYTECODE(_Shader->GetCS().BufferPointer, _Shader->GetCS().BufferSize);
+		//desc.CS = CD3DX12_SHADER_BYTECODE(_ShaderCode.BufferPointer, _ShaderCode.BufferSize);
+		desc.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
+		desc.NodeMask = 0;
+
+		desc.pRootSignature = DirectX12Manager::GetInstance()->GetD3D12RootSignature(_Shader->GetShaderClassIDX());
+
+		auto _HR = m_PiplineLibrary->LoadComputePipeline(to_wstring(pipeline->m_Name).c_str(), &desc, IID_PPV_ARGS(PSO.GetAddressOf()));
+
+		if (FAILED(_HR))
+		{
+			AddComputePipeline(pipeline, PSO, desc);
 		}
 
 		return PSO;
 	}
 
 
-	TE_RESULT DirectX12PiplineManager::AddPipeline(Core::Pipeline* pipeline, COMPTR<ID3D12PipelineState>& PSO, D3D12_GRAPHICS_PIPELINE_STATE_DESC& desc)
+	TE_RESULT DirectX12PiplineManager::AddGraphicsPipeline(PipelineGraphics* pipeline, COMPTR<ID3D12PipelineState>& PSO, D3D12_GRAPHICS_PIPELINE_STATE_DESC& desc)
 	{
 		auto hr = TE_INSTANCE_API_DX12_GRAPHICDEVICE->CreateGraphicsPipelineState(&desc, IID_PPV_ARGS(PSO.GetAddressOf()));
-		TE_ASSERT_CORE(TE_SUCCEEDED(hr), "Pipeline Creation failed!");
+		TE_ASSERT_CORE(SUCCEEDED(hr), "PipelineGraphics Creation failed!");
 
-		pipeline->m_Name = std::string("PSO_") + std::to_string(m_PipelineNum);
 		hr = m_PiplineLibrary->StorePipeline(to_wstring(pipeline->m_Name).c_str(), PSO.Get());
 
-		pipeline->m_ID = m_PipelineNum++;
+		m_PipelineNum++;
+
+		return SUCCEEDED(hr) ? TE_SUCCESSFUL : TE_FAIL;
+	}
+
+	TE_RESULT DirectX12PiplineManager::AddComputePipeline(PipelineCompute* pipeline, COMPTR<ID3D12PipelineState>& PSO, D3D12_COMPUTE_PIPELINE_STATE_DESC& desc)
+	{
+		auto hr = TE_INSTANCE_API_DX12_GRAPHICDEVICE->CreateComputePipelineState(&desc, IID_PPV_ARGS(PSO.GetAddressOf()));
+		TE_ASSERT_CORE(SUCCEEDED(hr), "PipelineCompute Creation failed!");
+
+		hr = m_PiplineLibrary->StorePipeline(to_wstring(pipeline->m_Name).c_str(), PSO.Get());
+
+		m_PipelineNum++;
 
 		return SUCCEEDED(hr) ? TE_SUCCESSFUL : TE_FAIL;
 	}

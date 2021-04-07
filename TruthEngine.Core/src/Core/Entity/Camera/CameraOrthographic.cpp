@@ -4,7 +4,7 @@
 /*
 using namespace DirectX;
 
-namespace TruthEngine::Core {
+namespace TruthEngine {
 
 
 

@@ -3,7 +3,7 @@
 
 #include "Scene.h"
 
-namespace TruthEngine::Core
+namespace TruthEngine
 {
 	EntityTree::EntityTree(Scene* scene)
 		: m_Scene(scene), m_Root(EntityNode{ Entity(scene, scene->AddEntity("rootNode", Entity())), Entity() })
@@ -11,10 +11,6 @@ namespace TruthEngine::Core
 
 	void EntityTree::AddNode(Entity entity, Entity parent)
 	{
-		UINT io = 0;
-		if (parent)
-			io = 1;
-
 		EntityNode node(entity, parent);
 
 		//auto& result = m_Tree.emplace( std::pair(entity, node) );

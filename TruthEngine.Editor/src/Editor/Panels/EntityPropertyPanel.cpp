@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "EntityPropertyPanel.h"
 
+#include "Core/Application.h"
 #include "Core/ImGui/ImGuiLayer.h"
 
 #include "Core/Entity/Components.h"
@@ -12,17 +13,17 @@
 #include "Core/Entity/Camera/CameraManager.h"
 
 #include "Core/PhysicEngine/PhysicsEngine.h"
+#include "Core/Event/EventEntity.h"
+#include "Core/Entity/Light/LightDirectional.h"
+#include "Core/Entity/Light/LightSpot.h"
 
 using namespace DirectX;
 
 namespace TruthEngine
 {
 
-	using namespace Core;
-
-
 	template<class T, typename UIFunction>
-	static void DrawComponent(const char* name, Core::Entity entity, UIFunction uiFunction)
+	static void DrawComponent(const char* name, Entity entity, UIFunction uiFunction)
 	{
 		const ImGuiTreeNodeFlags treeNodeFlags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_AllowItemOverlap | ImGuiTreeNodeFlags_FramePadding;
 		if (entity.HasComponent<T>())
@@ -64,6 +65,16 @@ namespace TruthEngine
 	}
 
 
+	EntityPropertyPanel::EntityPropertyPanel()
+		: m_App(TE_INSTANCE_APPLICATION)
+	{
+	}
+
+	void EntityPropertyPanel::SetContext(Entity context) noexcept
+	{
+		m_Context = context;
+	}
+
 	void EntityPropertyPanel::OnImGuiRender()
 	{
 		if (!m_Context)
@@ -88,18 +99,18 @@ namespace TruthEngine
 		{
 			DrawLightComponent(m_Context.GetComponent<LightComponent>());
 		}
-		if (m_Context.HasComponent<MeshComponent>())
+		if (m_Context.HasComponent<MeshComponent>() || m_Context.HasComponent<ModelComponent>())
 		{
 			DrawPhysicComponent();
 		}
 	}
 
 
-	void EntityPropertyPanel::DrawTagComponent(Core::TagComponent& component)
+	void EntityPropertyPanel::DrawTagComponent(TagComponent& component)
 	{
 		char tag[50];
 		memset(tag, 0, sizeof(tag));
-		std::strcpy(tag, component.GetTag().c_str());
+		strcpy_s(tag, component.GetTag().c_str());
 		ImGui::PushItemWidth(-FLT_MIN);
 		ImGui::PushStyleColor(ImGuiCol_::ImGuiCol_FrameBg, ImVec4{ 0.5, .5, .8, .8 });
 		if (ImGui::InputText("##tagcomponent", tag, sizeof(tag)))
@@ -111,7 +122,7 @@ namespace TruthEngine
 	}
 
 
-	inline void EntityPropertyPanel::DrawTransformComponent(Core::TransformComponent& component)
+	inline void EntityPropertyPanel::DrawTransformComponent(TransformComponent& component)
 	{
 		ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_FramePadding | ImGuiTreeNodeFlags_SpanAvailWidth;
 		if (ImGui::TreeNodeEx("Transform"))
@@ -119,7 +130,7 @@ namespace TruthEngine
 			auto& transform = component.GetTransform();
 
 			//ImGui::DragFloat3("Transform", &transform._41, 1.0f, -1000.0f, 1000.0f, nullptr, 1.0f);
-			Core::ImGuiLayer::DrawFloat3Control("Transform", &transform._41);
+			ImGuiLayer::DrawFloat3Control("Transform", &transform._41);
 
 			ImGui::TreePop();
 		}
@@ -127,7 +138,7 @@ namespace TruthEngine
 	}
 
 
-	inline void EntityPropertyPanel::DrawMaterialComponent(Core::MaterialComponent& component)
+	inline void EntityPropertyPanel::DrawMaterialComponent(MaterialComponent& component)
 	{
 
 		DrawComponent<MaterialComponent>("Material", m_Context, [](MaterialComponent& component)
@@ -158,7 +169,7 @@ namespace TruthEngine
 				{
 					auto shininess = material->GetShininess();
 
-					if (ImGui::DragFloat("Shininess", &shininess, 0.1f, 0.0f, 100.0f, nullptr, 1.0f))
+					if (ImGui::DragFloat("Shininess", &shininess, 0.01f, 0.0f, 1.0f, nullptr, 1.0f))
 					{
 						material->SetShininess(shininess);
 					}
@@ -183,7 +194,7 @@ namespace TruthEngine
 						material->SetUVTranslate(uvTranslate);
 					}
 					ImGui::SameLine();
-					ImGui::Checkbox("Chained##uvScale", &s_chainedUVTranslate);
+					ImGui::Checkbox("Chained##uvTranslate", &s_chainedUVTranslate);
 				}
 
 				{
@@ -282,8 +293,9 @@ namespace TruthEngine
 	}
 
 
-	inline void EntityPropertyPanel::DrawCameraComponent(Core::CameraComponent& component)
+	inline void EntityPropertyPanel::DrawCameraComponent(CameraComponent& component)
 	{
+
 		DrawComponent<CameraComponent>("Camera", m_Context, [](CameraComponent& component)
 			{
 
@@ -299,7 +311,7 @@ namespace TruthEngine
 					auto position = camera->GetPosition();
 
 					//if (ImGui::DragFloat4("Diffuse Color", &diffuseColor.x, 0.01f, 0.0f, 1.0f, nullptr, 1.0f))
-					if (Core::ImGuiLayer::DrawFloat3Control("Camera Position", &position.x))
+					if (ImGuiLayer::DrawFloat3Control("Camera Position", &position.x))
 					{
 						camera->SetPosition(position);
 					}
@@ -308,7 +320,7 @@ namespace TruthEngine
 				{
 					auto look = camera->GetLook();
 
-					if (Core::ImGuiLayer::DrawFloat3Control("Camera Direction", &look.x, -1.0f, 1.0f, 0.01f))
+					if (ImGuiLayer::DrawFloat3Control("Camera Direction", &look.x, -1.0f, 1.0f, 0.01f))
 					{
 						camera->SetLook(look);
 					}
@@ -328,7 +340,7 @@ namespace TruthEngine
 					auto zFarPlane = camera->GetZFarPlane();
 
 					ImGui::Text("Frustum Far Plane Distance: ");
-					if (ImGui::DragFloat("##camerazfarplane", &zFarPlane, 0.1f, 1.0f, camera->GetZFarPlane(), "%.3f", 1.0f))
+					if (ImGui::DragFloat("##camerazfarplane", &zFarPlane, 0.1f, camera->GetZNearPlane(), 10000.0f, "%.3f", 1.0f))
 					{
 						camera->SetZFarPlane(zFarPlane);
 					}
@@ -350,7 +362,7 @@ namespace TruthEngine
 	}
 
 
-	inline void EntityPropertyPanel::DrawLightComponent(Core::LightComponent& component)
+	inline void EntityPropertyPanel::DrawLightComponent(LightComponent& component)
 	{
 		DrawComponent<LightComponent>("Light", m_Context, [](LightComponent& component)
 			{
@@ -358,56 +370,101 @@ namespace TruthEngine
 
 				auto light = component.GetLight();
 
-				{
-					auto position = light->GetPosition();
 
+				{
+
+					auto position = light->GetPosition();
 					//ImGui::Text("Light Position: ");
 					//if (ImGui::DragFloat3("##lightpostition", &position.x))
 					if (ImGuiLayer::DrawFloat3Control("Light Position", &position.x))
 					{
 						light->SetPosition(position);
 					}
+
+					static bool s_MoveWithCamera = false;
+					ImGui::Checkbox("Move With Camera: ", &s_MoveWithCamera);
+
+					if (s_MoveWithCamera)
+					{
+						Camera* _Camera = CameraManager::GetInstance()->GetActiveCamera();
+
+						light->SetView(_Camera->GetPosition(), _Camera->GetLook(), _Camera->GetUp(), _Camera->GetRight());
+					}
+
 				}
 
 				{
-					auto direction = light->GetDirection();
+					//auto direction = light->GetDirection();
 
 					//ImGui::Text("Light Direction: ");
 					//if (ImGui::DragFloat3("##lightdirection", &direction.x, 0.01, -1.0f, 1.0f, "%.3f", 1.0f))
-					if (ImGuiLayer::DrawFloat3Control("Light Direction", &direction.x, -1.0f, 1.0f, 0.01f))
+					/*if (ImGuiLayer::DrawFloat3Control("Light Direction", &direction.x, -1.0f, 1.0f, 0.01f))
 					{
 						light->SetDirection(direction);
-					}
+					}*/
 				}
 
 				{
-					auto diffuseColor = light->GetDiffuseColor();
+					auto _Strength = light->GetStrength();
 
 					ImGui::Text("Light Diffuse Color: ");
-					if (ImGui::ColorEdit4("##lightdiffusecolor", &diffuseColor.x, ImGuiColorEditFlags_Float))
+					if (ImGui::ColorEdit3("##lightdiffusecolor", &_Strength.x, ImGuiColorEditFlags_Float))
 					{
-						light->SetDiffuseColor(diffuseColor);
+						light->SetStrength(_Strength);
 					}
 				}
 
 				{
-					auto ambientColor = light->GetAmbientColor();
+					TE_LIGHT_TYPE _LightType = light->GetLightType();
 
-					ImGui::Text("Light Ambient Color: ");
-					if (ImGui::ColorEdit4("##lightambientcolor", &ambientColor.x, ImGuiColorEditFlags_Float))
+					if (_LightType == TE_LIGHT_TYPE::Directional)
 					{
-						light->SetAmbientColor(ambientColor);
+
+						LightDirectional* _DLight = static_cast<LightDirectional*>(light);
+						float4 _Depths = _DLight->GetCascadesConveringDepth();
+						ImGui::Text("Directional Light Cascades Depth: ");
+						if (ImGui::DragFloat4("", &_Depths.x, 0.1f, 0.0f, 0.0f))
+						{
+							_DLight->SetCascadesDepth(_Depths);
+						}
+
 					}
-				}
 
-				{
-					auto specularColor = light->GetSpecularColor();
-
-					ImGui::Text("Light Specular Color: ");
-					if (ImGui::ColorEdit4("##lightspecularcolor", &specularColor.x, ImGuiColorEditFlags_Float))
+					if (_LightType == TE_LIGHT_TYPE::Spot)
 					{
-						light->SetSpecularColor(specularColor);
+
+						LightSpot* _SLight = static_cast<LightSpot*>(light);
+
+						ImGui::Text("Spot Light Start Falloff Distance: ");
+						float _FalloffStart = _SLight->GetFalloffStart();
+						if (ImGui::DragFloat("##SpotLightStartFalloff", &_FalloffStart))
+						{
+							_SLight->SetFalloffStart(_FalloffStart);
+						}
+
+						ImGui::Text("Spot Light End Falloff Distance: ");
+						float _FalloffEnd = _SLight->GetFalloffEnd();
+						if (ImGui::DragFloat("##SpotLightEndFalloff", &_FalloffEnd))
+						{
+							_SLight->SetFalloffEnd(_FalloffEnd);
+						}
+
+						ImGui::Text("Spot Light Inner Cone Angle: ");
+						float _InnerConeAngle = Math::RadianToDegree(_SLight->GetInnerConeAngle());
+						if (ImGui::DragFloat("##SpotLightInnerConeAngle", &_InnerConeAngle))
+						{
+							_SLight->SetInnerConeAngle(_InnerConeAngle);
+						}
+
+						ImGui::Text("Spot Light Outer Cone Angle: ");
+						float _OuterConeAngle = Math::RadianToDegree(_SLight->GetOuterConeAngle());
+						if (ImGui::DragFloat("##SpotLightOuterConeAngle", &_OuterConeAngle))
+						{
+							_SLight->SetOuterConeAngle(_OuterConeAngle);
+						}
+
 					}
+
 				}
 			});
 	}
@@ -419,7 +476,7 @@ namespace TruthEngine
 		//
 		////ImGuizmo Rendering
 		//
-		if (m_Context.HasComponent<TransformComponent>())
+		if (m_Context.HasComponent<TransformComponent>() && (m_Context.HasComponent<ModelComponent>() || m_Context.HasComponent<MeshComponent>()))
 		{
 			static ImGuizmo::OPERATION _operationMode(ImGuizmo::TRANSLATE);
 			static ImGuizmo::MODE _currentGizmoMode(ImGuizmo::LOCAL);
@@ -441,22 +498,24 @@ namespace TruthEngine
 			}
 
 
-			if (InputManager::IsKeyPressed('E'))
+			if (InputManager::IsKeyPressed('E') && m_App->IsHoveredSceneViewPort())
 			{
 				_operationMode = ImGuizmo::SCALE;
 			}
-			if (InputManager::IsKeyPressed('R'))
+			if (InputManager::IsKeyPressed('R') && m_App->IsHoveredSceneViewPort())
 			{
 				_operationMode = ImGuizmo::ROTATE;
 			}
-			if (InputManager::IsKeyPressed('T'))
+			if (InputManager::IsKeyPressed('T') && m_App->IsHoveredSceneViewPort())
 			{
 				_operationMode = ImGuizmo::TRANSLATE;
 			}
 
-			auto activeCamera = Core::CameraManager::GetInstance()->GetActiveCamera();
+			auto activeCamera = CameraManager::GetInstance()->GetActiveCamera();
 
-			auto& _transform = m_Context.GetComponent<TransformComponent>().GetTransform();
+			TransformComponent& _TransformComponent = m_Context.GetComponent<TransformComponent>();
+			float4x4 _transform = _TransformComponent.GetTransformFromWorldCenter();
+
 
 			static auto s_CopyingMesh = false;
 
@@ -465,16 +524,31 @@ namespace TruthEngine
 			{
 				if (InputManager::IsKeyPressed(VK_SHIFT) && !s_CopyingMesh)
 				{
-					m_Context.GetScene()->CopyMeshEntity(m_Context);
-					s_CopyingMesh = true;
+					if (!m_Context.HasComponent<ModelComponent>() && m_Context.HasComponent<MeshComponent>())
+					{
+						m_Context.GetScene()->CopyMeshEntity(m_Context);
+						s_CopyingMesh = true;
+					}
 				}
+
+				const float3& _WorldCenterOffset = _TransformComponent.GetWorldCenterOffset();
+				_transform._41 -= _WorldCenterOffset.x;
+				_transform._42 -= _WorldCenterOffset.y;
+				_transform._43 -= _WorldCenterOffset.z;
+
+
+				float4x4& _OriginalTransform = _TransformComponent.GetTransform();
+				_OriginalTransform = _transform;
+
+
+				EventEntityTransform _eventEntityTransform{ m_Context, ETransformType::Scale & ETransformType::Translate };
+				TE_INSTANCE_APPLICATION->OnEvent(_eventEntityTransform);
 			}
 
 			if (!ImGui::IsMouseDragging(0) && !InputManager::IsKeyPressed(VK_SHIFT))
 			{
 				s_CopyingMesh = false;
 			}
-
 
 		}
 	}
@@ -526,63 +600,63 @@ namespace TruthEngine
 
 		if (ImGui::BeginPopupModal("Setup Physic Component"))
 		{
-			static TE_PHYSICS_RIGID_TYPE rigidType = Core::TE_PHYSICS_RIGID_TYPE::STATIC;
-			static TE_PHYSICS_RIGID_SHAPE rigidshape = Core::TE_PHYSICS_RIGID_SHAPE::BOX;
+			static TE_PHYSICS_RIGID_TYPE rigidType = TE_PHYSICS_RIGID_TYPE::STATIC;
+			static TE_PHYSICS_RIGID_SHAPE rigidshape = TE_PHYSICS_RIGID_SHAPE::BOX;
 
 			ImGui::Text("Static Rigids");
-			if (ImGui::RadioButton("Plane", rigidshape == Core::TE_PHYSICS_RIGID_SHAPE::PLANE && rigidType == Core::TE_PHYSICS_RIGID_TYPE::STATIC))
+			if (ImGui::RadioButton("Plane", rigidshape == TE_PHYSICS_RIGID_SHAPE::PLANE && rigidType == TE_PHYSICS_RIGID_TYPE::STATIC))
 			{
-				rigidType = Core::TE_PHYSICS_RIGID_TYPE::STATIC;
-				rigidshape = Core::TE_PHYSICS_RIGID_SHAPE::PLANE;
+				rigidType = TE_PHYSICS_RIGID_TYPE::STATIC;
+				rigidshape = TE_PHYSICS_RIGID_SHAPE::PLANE;
 			}
 			ImGui::SameLine();
-			if (ImGui::RadioButton("Box##0", rigidshape == Core::TE_PHYSICS_RIGID_SHAPE::BOX && rigidType == Core::TE_PHYSICS_RIGID_TYPE::STATIC))
+			if (ImGui::RadioButton("Box##0", rigidshape == TE_PHYSICS_RIGID_SHAPE::BOX && rigidType == TE_PHYSICS_RIGID_TYPE::STATIC))
 			{
-				rigidType = Core::TE_PHYSICS_RIGID_TYPE::STATIC;
-				rigidshape = Core::TE_PHYSICS_RIGID_SHAPE::BOX;
+				rigidType = TE_PHYSICS_RIGID_TYPE::STATIC;
+				rigidshape = TE_PHYSICS_RIGID_SHAPE::BOX;
 			}
 			ImGui::SameLine();
-			if (ImGui::RadioButton("Sphere##0", rigidshape == Core::TE_PHYSICS_RIGID_SHAPE::SPHERE && rigidType == Core::TE_PHYSICS_RIGID_TYPE::STATIC))
+			if (ImGui::RadioButton("Sphere##0", rigidshape == TE_PHYSICS_RIGID_SHAPE::SPHERE && rigidType == TE_PHYSICS_RIGID_TYPE::STATIC))
 			{
-				rigidType = Core::TE_PHYSICS_RIGID_TYPE::STATIC;
-				rigidshape = Core::TE_PHYSICS_RIGID_SHAPE::SPHERE;
+				rigidType = TE_PHYSICS_RIGID_TYPE::STATIC;
+				rigidshape = TE_PHYSICS_RIGID_SHAPE::SPHERE;
 			}
 			ImGui::SameLine();
-			if (ImGui::RadioButton("Convex##0", rigidshape == Core::TE_PHYSICS_RIGID_SHAPE::CONVEX && rigidType == Core::TE_PHYSICS_RIGID_TYPE::STATIC))
+			if (ImGui::RadioButton("Convex##0", rigidshape == TE_PHYSICS_RIGID_SHAPE::CONVEX && rigidType == TE_PHYSICS_RIGID_TYPE::STATIC))
 			{
-				rigidType = Core::TE_PHYSICS_RIGID_TYPE::STATIC;
-				rigidshape = Core::TE_PHYSICS_RIGID_SHAPE::CONVEX;
+				rigidType = TE_PHYSICS_RIGID_TYPE::STATIC;
+				rigidshape = TE_PHYSICS_RIGID_SHAPE::CONVEX;
 			}
 			ImGui::SameLine();
-			if (ImGui::RadioButton("TriangledMesh##0", rigidshape == Core::TE_PHYSICS_RIGID_SHAPE::TRIANGLED && rigidType == Core::TE_PHYSICS_RIGID_TYPE::STATIC))
+			if (ImGui::RadioButton("TriangledMesh##0", rigidshape == TE_PHYSICS_RIGID_SHAPE::TRIANGLED && rigidType == TE_PHYSICS_RIGID_TYPE::STATIC))
 			{
-				rigidType = Core::TE_PHYSICS_RIGID_TYPE::STATIC;
-				rigidshape = Core::TE_PHYSICS_RIGID_SHAPE::TRIANGLED;
+				rigidType = TE_PHYSICS_RIGID_TYPE::STATIC;
+				rigidshape = TE_PHYSICS_RIGID_SHAPE::TRIANGLED;
 			}
 
 			ImGui::Text("Dynamic Rigids");
-			if (ImGui::RadioButton("Box##1", rigidshape == Core::TE_PHYSICS_RIGID_SHAPE::BOX && rigidType == Core::TE_PHYSICS_RIGID_TYPE::DYNAMIC))
+			if (ImGui::RadioButton("Box##1", rigidshape == TE_PHYSICS_RIGID_SHAPE::BOX && rigidType == TE_PHYSICS_RIGID_TYPE::DYNAMIC))
 			{
-				rigidType = Core::TE_PHYSICS_RIGID_TYPE::DYNAMIC;
-				rigidshape = Core::TE_PHYSICS_RIGID_SHAPE::BOX;
+				rigidType = TE_PHYSICS_RIGID_TYPE::DYNAMIC;
+				rigidshape = TE_PHYSICS_RIGID_SHAPE::BOX;
 			}
 			ImGui::SameLine();
-			if (ImGui::RadioButton("Sphere##1", rigidshape == Core::TE_PHYSICS_RIGID_SHAPE::SPHERE && rigidType == Core::TE_PHYSICS_RIGID_TYPE::DYNAMIC))
+			if (ImGui::RadioButton("Sphere##1", rigidshape == TE_PHYSICS_RIGID_SHAPE::SPHERE && rigidType == TE_PHYSICS_RIGID_TYPE::DYNAMIC))
 			{
-				rigidType = Core::TE_PHYSICS_RIGID_TYPE::DYNAMIC;
-				rigidshape = Core::TE_PHYSICS_RIGID_SHAPE::SPHERE;
+				rigidType = TE_PHYSICS_RIGID_TYPE::DYNAMIC;
+				rigidshape = TE_PHYSICS_RIGID_SHAPE::SPHERE;
 			}
 			ImGui::SameLine();
-			if (ImGui::RadioButton("Convex##1", rigidshape == Core::TE_PHYSICS_RIGID_SHAPE::CONVEX && rigidType == Core::TE_PHYSICS_RIGID_TYPE::DYNAMIC))
+			if (ImGui::RadioButton("Convex##1", rigidshape == TE_PHYSICS_RIGID_SHAPE::CONVEX && rigidType == TE_PHYSICS_RIGID_TYPE::DYNAMIC))
 			{
-				rigidType = Core::TE_PHYSICS_RIGID_TYPE::DYNAMIC;
-				rigidshape = Core::TE_PHYSICS_RIGID_SHAPE::CONVEX;
+				rigidType = TE_PHYSICS_RIGID_TYPE::DYNAMIC;
+				rigidshape = TE_PHYSICS_RIGID_SHAPE::CONVEX;
 			}
 			ImGui::SameLine();
-			if (ImGui::RadioButton("TriangledMesh##1", rigidshape == Core::TE_PHYSICS_RIGID_SHAPE::TRIANGLED && rigidType == Core::TE_PHYSICS_RIGID_TYPE::DYNAMIC))
+			if (ImGui::RadioButton("TriangledMesh##1", rigidshape == TE_PHYSICS_RIGID_SHAPE::TRIANGLED && rigidType == TE_PHYSICS_RIGID_TYPE::DYNAMIC))
 			{
-				rigidType = Core::TE_PHYSICS_RIGID_TYPE::DYNAMIC;
-				rigidshape = Core::TE_PHYSICS_RIGID_SHAPE::TRIANGLED;
+				rigidType = TE_PHYSICS_RIGID_TYPE::DYNAMIC;
+				rigidshape = TE_PHYSICS_RIGID_SHAPE::TRIANGLED;
 			}
 
 			static TEPhysicsRigidDesc _rigidDesc(0.5f, 0.5f, 0.5f, IdentityMatrix);
@@ -619,7 +693,7 @@ namespace TruthEngine
 			{
 
 			}
-			
+
 
 
 			ImGui::TreePop();
@@ -635,76 +709,196 @@ namespace TruthEngine
 		auto physicsEngine = TE_INSTANCE_PHYSICSENGINE;
 
 
-		rigidDesc.mTransform = m_Context.GetComponent<TransformComponent>().GetTransform();
-
 		switch (rigidshape)
 		{
-		case TruthEngine::Core::TE_PHYSICS_RIGID_SHAPE::PLANE:
+		case TruthEngine::TE_PHYSICS_RIGID_SHAPE::PLANE:
 		{
 			TEPhysicsRigidPlaneDesc desc(.0f, 1.0f, .0f, 0.0, rigidDesc);
 			switch (rigidType)
 			{
-			case TruthEngine::Core::TE_PHYSICS_RIGID_TYPE::STATIC:
+			case TruthEngine::TE_PHYSICS_RIGID_TYPE::STATIC:
 				physicsEngine->AddRigidStaticPlane(desc, m_Context);
 				break;
-			case TruthEngine::Core::TE_PHYSICS_RIGID_TYPE::DYNAMIC:
+			case TruthEngine::TE_PHYSICS_RIGID_TYPE::DYNAMIC:
 				break;
 			}
 			break;
 		}
-		case TruthEngine::Core::TE_PHYSICS_RIGID_SHAPE::BOX:
+		case TruthEngine::TE_PHYSICS_RIGID_SHAPE::BOX:
 		{
-			const auto& aabb = m_Context.GetComponent<BoundingBoxComponent>().GetBoundingBox();
+
+			if (m_Context.HasComponent<ModelComponent>())
+			{
+				std::vector<Entity> _MeshEntities = m_Context.GetComponent<ModelComponent>().GetMeshEntities();
+
+				for (Entity _Entity : _MeshEntities)
+				{
+					rigidDesc.mTransform = _Entity.GetTransformHierarchy();
+
+					const auto& aabb = _Entity.GetComponent<BoundingBoxComponent>().GetBoundingBox();
+					auto halfExtents = aabb.Extents;
+					TEPhysicsRigidBoxDesc desc(halfExtents, rigidDesc);
+					switch (rigidType)
+					{
+					case TruthEngine::TE_PHYSICS_RIGID_TYPE::STATIC:
+						physicsEngine->AddRigidStaticBox(desc, _Entity);
+						break;
+					case TruthEngine::TE_PHYSICS_RIGID_TYPE::DYNAMIC:
+						physicsEngine->AddRigidDynamicBox(desc, _Entity);
+						break;
+					}
+				}
+			}
+			if (m_Context.HasComponent<MeshComponent>())
+			{
+
+				rigidDesc.mTransform = m_Context.GetTransformHierarchy();
+
+				const auto& aabb = m_Context.GetComponent<BoundingBoxComponent>().GetBoundingBox();
+				auto halfExtents = aabb.Extents;
+				TEPhysicsRigidBoxDesc desc(halfExtents, rigidDesc);
+				switch (rigidType)
+				{
+				case TruthEngine::TE_PHYSICS_RIGID_TYPE::STATIC:
+					physicsEngine->AddRigidStaticBox(desc, m_Context);
+					break;
+				case TruthEngine::TE_PHYSICS_RIGID_TYPE::DYNAMIC:
+					physicsEngine->AddRigidDynamicBox(desc, m_Context);
+					break;
+				}
+			}
+
+			/*const auto& aabb = m_Context.GetComponent<BoundingBoxComponent>().GetBoundingBox();
 			auto halfExtents = aabb.Extents;
 			TEPhysicsRigidBoxDesc desc(halfExtents, rigidDesc);
 			switch (rigidType)
 			{
-			case TruthEngine::Core::TE_PHYSICS_RIGID_TYPE::STATIC:
+			case TruthEngine::TE_PHYSICS_RIGID_TYPE::STATIC:
 				physicsEngine->AddRigidStaticBox(desc, m_Context);
 				break;
-			case TruthEngine::Core::TE_PHYSICS_RIGID_TYPE::DYNAMIC:
+			case TruthEngine::TE_PHYSICS_RIGID_TYPE::DYNAMIC:
 				physicsEngine->AddRigidDynamicBox(desc, m_Context);
 				break;
 			}
+			break;*/
+
 			break;
 		}
-		case TruthEngine::Core::TE_PHYSICS_RIGID_SHAPE::SPHERE:
+		case TruthEngine::TE_PHYSICS_RIGID_SHAPE::SPHERE:
 		{
-			const auto& aabb = m_Context.GetComponent<BoundingBoxComponent>().GetBoundingBox();
+
+			if (m_Context.HasComponent<ModelComponent>())
+			{
+				std::vector<Entity> _MeshEntities = m_Context.GetComponent<ModelComponent>().GetMeshEntities();
+
+				for (Entity _Entity : _MeshEntities)
+				{
+
+					rigidDesc.mTransform = _Entity.GetTransformHierarchy();
+
+					const auto& aabb = _Entity.GetComponent<BoundingBoxComponent>().GetBoundingBox();
+					auto halfExtents = aabb.Extents;
+					TEPhysicsRigidSphereDesc desc(halfExtents.x, rigidDesc);
+					switch (rigidType)
+					{
+					case TruthEngine::TE_PHYSICS_RIGID_TYPE::STATIC:
+						physicsEngine->AddRigidStaticSphere(desc, _Entity);
+						break;
+					case TruthEngine::TE_PHYSICS_RIGID_TYPE::DYNAMIC:
+						physicsEngine->AddRigidDynamicSphere(desc, _Entity);
+						break;
+					}
+				}
+			}
+			if (m_Context.HasComponent<MeshComponent>())
+			{
+
+				rigidDesc.mTransform = m_Context.GetTransformHierarchy();
+
+				const auto& aabb = m_Context.GetComponent<BoundingBoxComponent>().GetBoundingBox();
+				auto halfExtents = aabb.Extents;
+				TEPhysicsRigidSphereDesc desc(halfExtents.x, rigidDesc);
+				switch (rigidType)
+				{
+				case TruthEngine::TE_PHYSICS_RIGID_TYPE::STATIC:
+					physicsEngine->AddRigidStaticSphere(desc, m_Context);
+					break;
+				case TruthEngine::TE_PHYSICS_RIGID_TYPE::DYNAMIC:
+					physicsEngine->AddRigidDynamicSphere(desc, m_Context);
+					break;
+				}
+			}
+
+
+			/*const auto& aabb = m_Context.GetComponent<BoundingBoxComponent>().GetBoundingBox();
 			auto halfExtents = aabb.Extents;
 			TEPhysicsRigidSphereDesc desc(halfExtents.x, rigidDesc);
 			switch (rigidType)
 			{
-			case TruthEngine::Core::TE_PHYSICS_RIGID_TYPE::STATIC:
+			case TruthEngine::TE_PHYSICS_RIGID_TYPE::STATIC:
 				physicsEngine->AddRigidStaticSphere(desc, m_Context);
 				break;
-			case TruthEngine::Core::TE_PHYSICS_RIGID_TYPE::DYNAMIC:
+			case TruthEngine::TE_PHYSICS_RIGID_TYPE::DYNAMIC:
 				physicsEngine->AddRigidDynamicSphere(desc, m_Context);
 				break;
-			}
+			}*/
+
 			break;
 		}
-		case TruthEngine::Core::TE_PHYSICS_RIGID_SHAPE::CONVEX:
+		case TruthEngine::TE_PHYSICS_RIGID_SHAPE::CONVEX:
 			break;
-		case TruthEngine::Core::TE_PHYSICS_RIGID_SHAPE::TRIANGLED:
+		case TruthEngine::TE_PHYSICS_RIGID_SHAPE::TRIANGLED:
 		{
-			auto mesh = m_Context.GetComponent<MeshComponent>().GetMesh();
-			auto rigidTriangleMeshDesc = TEPhysicsRigidTriangleMeshDesc(mesh->GetVertexNum()
-				, (void*)mesh->GetVertexBuffer()->GetVertexData<VertexData::Pos>().data()
-				, sizeof(VertexData::Pos)
-				, mesh->GetIndexNum() / 3
-				, (void*)mesh->GetIndexBuffer()->GetIndecies().data()
-				, rigidDesc);
-			rigidDesc.mTransform = m_Context.GetComponent<TransformComponent>().GetTransform();
-			switch (rigidType)
+
+			if (m_Context.HasComponent<ModelComponent>())
 			{
-			case TruthEngine::Core::TE_PHYSICS_RIGID_TYPE::STATIC:
-				physicsEngine->AddRigidStaticTriangleMesh(rigidTriangleMeshDesc, m_Context);
-				break;
-			case TruthEngine::Core::TE_PHYSICS_RIGID_TYPE::DYNAMIC:
-				physicsEngine->AddRigidDynamicTriangleMesh(rigidTriangleMeshDesc, m_Context);
-				break;
+				std::vector<Entity> _MeshEntities = m_Context.GetComponent<ModelComponent>().GetMeshEntities();
+
+				for (Entity _Entity : _MeshEntities)
+				{
+					rigidDesc.mTransform = _Entity.GetTransformHierarchy();
+
+					auto mesh = _Entity.GetComponent<MeshComponent>().GetMesh();
+					auto rigidTriangleMeshDesc = TEPhysicsRigidTriangleMeshDesc(mesh->GetVertexNum()
+						, (void*)mesh->GetVertexBuffer()->GetPosData().data()
+						, sizeof(VertexData::Pos)
+						, mesh->GetIndexNum() / 3
+						, (void*)mesh->GetIndexBuffer()->GetIndecies().data()
+						, rigidDesc);
+					switch (rigidType)
+					{
+					case TruthEngine::TE_PHYSICS_RIGID_TYPE::STATIC:
+						physicsEngine->AddRigidStaticTriangleMesh(rigidTriangleMeshDesc, _Entity);
+						break;
+					case TruthEngine::TE_PHYSICS_RIGID_TYPE::DYNAMIC:
+						physicsEngine->AddRigidDynamicTriangleMesh(rigidTriangleMeshDesc, _Entity);
+						break;
+					}
+				}
 			}
+			if (m_Context.HasComponent<MeshComponent>())
+			{
+
+				rigidDesc.mTransform = m_Context.GetTransformHierarchy();
+
+				auto mesh = m_Context.GetComponent<MeshComponent>().GetMesh();
+				auto rigidTriangleMeshDesc = TEPhysicsRigidTriangleMeshDesc(mesh->GetVertexNum()
+					, (void*)mesh->GetVertexBuffer()->GetPosData().data()
+					, sizeof(VertexData::Pos)
+					, mesh->GetIndexNum() / 3
+					, (void*)mesh->GetIndexBuffer()->GetIndecies().data()
+					, rigidDesc);
+				switch (rigidType)
+				{
+				case TruthEngine::TE_PHYSICS_RIGID_TYPE::STATIC:
+					physicsEngine->AddRigidStaticTriangleMesh(rigidTriangleMeshDesc, m_Context);
+					break;
+				case TruthEngine::TE_PHYSICS_RIGID_TYPE::DYNAMIC:
+					physicsEngine->AddRigidDynamicTriangleMesh(rigidTriangleMeshDesc, m_Context);
+					break;
+				}
+			}
+
 			break;
 		}
 		default:

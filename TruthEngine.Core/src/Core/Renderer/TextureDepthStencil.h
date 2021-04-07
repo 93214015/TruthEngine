@@ -12,7 +12,7 @@ namespace TruthEngine
 	}
 }
 
-namespace TruthEngine::Core
+namespace TruthEngine
 {
 
 	struct ClearValue_DepthStencil
@@ -29,11 +29,13 @@ namespace TruthEngine::Core
 		
 
 		TextureDepthStencil(
-			uint32_t width
+			TE_IDX_GRESOURCES _IDX
+			, uint32_t width
 			, uint32_t height
 			, TE_RESOURCE_FORMAT format
 			, const ClearValue_DepthStencil clearValue
 			, bool useAsShaderResource
+			, bool enableMSAA
 		);
 
 		virtual ~TextureDepthStencil() = default;
@@ -57,6 +59,7 @@ namespace TruthEngine::Core
 		//
 		//friend classes
 		//
+		friend class BufferManager;
 		friend class TruthEngine::API::DirectX12::DirectX12BufferManager;
 
 	};

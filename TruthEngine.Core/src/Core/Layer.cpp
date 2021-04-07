@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "Layer.h"
 
-namespace TruthEngine::Core {
+namespace TruthEngine {
 
 
 

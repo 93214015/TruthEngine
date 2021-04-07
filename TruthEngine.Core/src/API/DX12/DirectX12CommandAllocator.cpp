@@ -32,6 +32,24 @@ namespace TruthEngine::API::DirectX12 {
 		return gDevice.CreateCommandAllocator(m_CommandAllocator, commandListType);
 	}
 
+	void DirectX12CommandAllocator::Release()
+	{
+
+		if (IsRunning())
+		{
+			auto& fence = TE_INSTANCE_API_DX12_GRAPHICDEVICE.GetFence();
+
+			HANDLE e = CreateEventA(nullptr, false, false, NULL);
+
+			fence.SetEvent(m_FenceValue, e);
+
+			WaitForSingleObject(e, INFINITE);
+
+		}
+
+		m_CommandAllocator.Reset();
+	}
+
 	bool DirectX12CommandAllocator::IsRunning()
 	{
 		return !(TE_INSTANCE_API_DX12_GRAPHICDEVICE.GetFence().Completed(m_FenceValue));

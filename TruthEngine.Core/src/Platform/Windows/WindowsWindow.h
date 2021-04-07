@@ -3,7 +3,7 @@
 
 namespace TruthEngine::Platforms::Windows {
 
-	class WindowsWindow : public TruthEngine::Core::Window
+	class WindowsWindow : public TruthEngine::Window
 	{
 	public:
 		WindowsWindow(const char* title, uint16_t width, uint16_t height);

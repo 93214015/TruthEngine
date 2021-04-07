@@ -2,139 +2,182 @@
 
 namespace TruthEngine
 {
-	namespace Core
+
+	enum class TE_CAMERA_TYPE
 	{
-		enum class TE_CAMERA_TYPE
+		Perspective,
+		Orthographic
+	};
+
+
+	class Camera
+	{
+	public:
+		Camera(uint32_t id, TE_CAMERA_TYPE cameraType, const float3& position, const float3& look, const float3& up
+			, const float3& right, const float zNear, const float zFar, const float aspectRatio
+			, const float fovY, const float fovX, const float nearWindowHeight, const float farWindowHeight
+			, const float4x4& projMatrix, const BoundingFrustum& _BoundingFrustumView, bool _IsReveresedDepth, const std::function<void(Camera*)>& _FuncEditFrustum
+		);
+		Camera() = default;
+		virtual ~Camera() = default;
+
+
+		//
+		//Set Functions
+		//
+
+		void SetViewMatrix(const float3& _Position, const float3& _Look, const float3& _Up, const float3& _Right)
 		{
-			Perspective,
-			Orthographic
-		};
+			m_Position = _Position;
+			m_Look = _Look;
+			m_Right = _Right;
+			m_Up = _Up;
 
+			UpdateViewMatrix();
+		}
 
-		class Camera
+		inline void SetViewMatrix(const float4x4& viewMatrix)
 		{
-		public:
-			Camera(uint32_t id, TE_CAMERA_TYPE cameraType, const float3& position, const float3& look, const float3& up
-				, const float3& right, const float zNear, const float zFar, const float aspectRatio
-				, const float fovY, const float fovX, const float nearWindowHeight, const float farWindowHeight
-				, const float4x4& projMatrix);
-			Camera() = default;
-			virtual ~Camera() = default;
+			m_ViewMatrix = viewMatrix;
+			m_ViewProjMatrix = m_ViewMatrix * m_ProjectionMatrix;
+			UpdateBoundingFrustumWorld();
+		}
+
+		inline void SetPosition(const float3& position)
+		{
+			m_Position = position;
+			UpdateViewMatrix();
+		}
 
 
-			//
-			//Set Functions
-			//
-			inline void SetPorjectionMatrix(const float4x4& projMatrix)
-			{
-				m_ProjectionMatrix = projMatrix;
-				m_ViewProjMatrix = m_ViewMatrix * m_ProjectionMatrix;
+		inline void SetLook(const float3& look)
+		{
+			m_Look = look;
+			UpdateViewMatrix();
+		}
 
-				CreateBoundingFrustum();
-			}
-			inline void SetViewMatrix(const float4x4& viewMatrix)
-			{
-				m_ViewMatrix = viewMatrix;
-				m_ViewProjMatrix = m_ViewMatrix * m_ProjectionMatrix;
+		void SetLook(const float3& _Look, const float3& _Up, const float3& _Right);
 
-				CreateBoundingFrustum();
-			}
-			inline void SetPosition(const float3& position)
-			{
-				m_Position = position;
-				UpdateViewMatrix();
-			}
-			inline void SetLook(const float3& look)
-			{
-				m_Look = look;
-				UpdateViewMatrix();
-			}
+		void SetZNearPlane(const float zNearPlane);
+		void SetZFarPlane(const float zFarPlane);
+		void SetAspectRatio(const float aspectRatio);
+		void SetFOVY(const float _FOVY);
 
-			void SetZNearPlane(const float zNearPlane);
-			void SetZFarPlane(const float zFarPlane);
-			void SetAspectRatio(const float aspectRatio);
+		void SetFrustum(float width, float height, float zNearPlane, float zFarPlane);
 
-			void SetFrustum(float width, float height, float zNearPlane, float zFarPlane);
+		//
+		//Get Functions
+		//
+		inline const float3& GetPosition()const noexcept
+		{
+			return m_Position;
+		}
 
-			//
-			//Get Functions
-			//
-			inline const float3& GetPosition()const noexcept
-			{
-				return m_Position;
-			}
+		inline const float3& GetLook()const noexcept
+		{
+			return m_Look;
+		}
 
-			inline const float3& GetLook()const noexcept
-			{
-				return m_Look;
-			}
+		inline const float3& GetUp()const noexcept
+		{
+			return m_Up;
+		}
 
-			inline const float4x4& GetViewProj()const noexcept
-			{
-				return m_ViewProjMatrix;
-			}
+		inline const float3& GetRight()const noexcept
+		{
+			return m_Right;
+		}
 
-			inline const float4x4& GetView()const
-			{
-				return m_ViewMatrix;
-			}
+		inline const float4x4& GetViewProj()const noexcept
+		{
+			return m_ViewProjMatrix;
+		}
 
-			inline const float4x4& GetProjection()const
-			{
-				return m_ProjectionMatrix;
-			}
+		inline const float4x4& GetView()const
+		{
+			return m_ViewMatrix;
+		}
 
-			inline float GetZNearPlane()const noexcept 
-			{
-				return m_ZNear;
-			}
+		inline const float4x4& GetProjection()const
+		{
+			return m_ProjectionMatrix;
+		}
 
-			inline float GetZFarPlane()const noexcept
-			{
-				return m_ZFar;
-			}
-			
-			inline bool operator==(const Camera& camera)
-			{
-				return m_ID == camera.m_ID;
-			}
+		inline float GetZNearPlane()const noexcept
+		{
+			return m_ZNear;
+		}
 
-		protected:
+		inline float GetZFarPlane()const noexcept
+		{
+			return m_ZFar;
+		}
 
-			void UpdateViewMatrix();
-			void CreateBoundingFrustum();
+		inline BoundingFrustum& GetBoundingFrustumWorldSpace() noexcept
+		{
+			return m_BoundingFrustumWorldSpace;
+		}
+		inline const BoundingFrustum& GetBoundingFrustumWorldSpace() const noexcept
+		{
+			return m_BoundingFrustumWorldSpace;
+		}
+		inline BoundingFrustum& GetBoundingFrustumViewSpace() noexcept
+		{
+			return m_BoundingFrustumViewSpace;
+		}
+		inline const BoundingFrustum& GetBoundingFrustumViewSpace() const noexcept
+		{
+			return m_BoundingFrustumViewSpace;
+		}
+		inline bool IsReversedDepth()const noexcept
+		{
+			return m_IsReversedDepth;
+		}
 
-		protected:
-			uint32_t m_ID = 0;
+		inline bool operator==(const Camera& camera)
+		{
+			return m_ID == camera.m_ID;
+		}
 
-			float4x4 m_ViewMatrix;
-			float4x4 m_ProjectionMatrix;
-			float4x4 m_ViewProjMatrix;
+	protected:
 
-			float3 m_Position;
-			float3 m_Look;
-			float3 m_Up;
-			float3 m_Right;
+		void UpdateViewMatrix();
+		void UpdateBoundingFrustumWorld();
 
-			float m_ZNear;
-			float m_ZFar;
-			float m_AspectRatio;
-			float m_FovY;
-			float m_FovX;
-			float m_NearWindowHeight;
-			float m_FarWindowHeight;
+	protected:
+		uint32_t m_ID = 0;
 
-			TE_CAMERA_TYPE m_CameraType;
+		bool m_IsReversedDepth = false;
 
-			DirectX::BoundingFrustum m_BoundingFrustum;
+		float4x4 m_ViewMatrix;
+		float4x4 m_ProjectionMatrix;
+		float4x4 m_ViewProjMatrix;
 
-			//
-			// Friend Class
-			//
-			friend class CameraManager;
-			friend class CameraController;
-		};
+		float3 m_Position;
+		float3 m_Look;
+		float3 m_Up;
+		float3 m_Right;
 
+		float m_ZNear;
+		float m_ZFar;
+		float m_AspectRatio;
+		float m_FovY;
+		float m_FovX;
+		float m_NearWindowHeight;
+		float m_FarWindowHeight;
 
-	}
+		TE_CAMERA_TYPE m_CameraType;
+
+		BoundingFrustum m_BoundingFrustumViewSpace;
+		BoundingFrustum m_BoundingFrustumWorldSpace;
+
+		std::function<void(Camera*)> m_FuncEditFrustum;
+
+		//
+		// Friend Class
+		//
+		friend class CameraManager;
+		friend class CameraController;
+	};
+
 }

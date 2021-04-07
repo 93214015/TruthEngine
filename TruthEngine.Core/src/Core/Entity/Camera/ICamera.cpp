@@ -12,7 +12,7 @@
 using namespace DirectX;
 
 
-namespace TruthEngine::Core {
+namespace TruthEngine {
 
 
 	ICamera::ICamera(std::string_view name)

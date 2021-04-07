@@ -4,7 +4,7 @@
 #include "Application.h"
 
 
-namespace TruthEngine::Core {
+namespace TruthEngine {
 
 
 	TimerEngine::TimerEngine()
@@ -18,7 +18,7 @@ namespace TruthEngine::Core {
 
 		if (m_Stopped) {
 
-			std::chrono::duration<double, std::milli> d = startTime - m_StoppedTimePoint;
+			std::chrono::duration<double, std::ratio<1>> d = startTime - m_StoppedTimePoint;
 
 			m_PausedTime += d.count();
 
@@ -57,7 +57,7 @@ namespace TruthEngine::Core {
 
 		m_CurrentTimePoint = std::chrono::high_resolution_clock::now();
 
-		std::chrono::duration<double, std::milli> deltaDurtion = m_CurrentTimePoint - m_PrevTimePoint;
+		std::chrono::duration<double, std::ratio<1>> deltaDurtion = m_CurrentTimePoint - m_PrevTimePoint;
 
 		m_DeltaTime = deltaDurtion.count();
 
@@ -71,10 +71,10 @@ namespace TruthEngine::Core {
 		m_FrameCount++;
 		m_OneSecondTimer += m_DeltaTime;
 
-		if (m_OneSecondTimer > 1000.0f)
+		if (m_OneSecondTimer > 1.0f)
 		{
 			m_avgCPUFrameTime = m_OneSecondTimer / m_FrameCount;
-			m_FPS = static_cast<uint32_t>((1000.0 / m_avgCPUFrameTime)) + 1;
+			m_FPS = static_cast<uint32_t>((1.0 / m_avgCPUFrameTime)) + 1;
 			m_FrameCount = 0;
 			m_OneSecondTimer = 0.0;
 
@@ -87,13 +87,13 @@ namespace TruthEngine::Core {
 	{
 		if (m_Stopped)
 		{
-			auto d = std::chrono::duration<double, std::milli>(m_StoppedTimePoint - m_BaseTimePoint).count();
+			auto d = std::chrono::duration<double, std::ratio<1>>(m_StoppedTimePoint - m_BaseTimePoint).count();
 
 			return d - m_PausedTime;
 		}
 		else
 		{
-			auto d = std::chrono::duration<double, std::milli>(m_CurrentTimePoint - m_BaseTimePoint).count();
+			auto d = std::chrono::duration<double, std::ratio<1>>(m_CurrentTimePoint - m_BaseTimePoint).count();
 			return d - m_PausedTime;
 		}
 	}

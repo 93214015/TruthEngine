@@ -6,7 +6,7 @@ enum class TE_RENDERER_SHADER_INPUT_CLASSIFICATION
 	PER_INSTANCE = 1
 };
 
-namespace TruthEngine::Core
+namespace TruthEngine
 {
 
 

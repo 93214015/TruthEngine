@@ -1,5 +1,7 @@
 #pragma once
 
+#define AI_MAKE_EMBEDDED_TEXNAME "***"
+
 #include "lib.h"
 
 // C RunTime Header Files
@@ -18,11 +20,13 @@
 #include <unordered_map> //std::unordered_Map
 #include <map>	   //std::map
 #include <variant> //std::varinat
+#include <optional> //std::optional
 
 #include "DirectXMath/Inc/DirectXMath.h"
 #include "DirectXMath/Inc/DirectXColors.h"
 #include "DirectXMath/Inc/DirectXPackedVector.h"
 #include "DirectXMath/Inc/DirectXCollision.h"
+
 
 
 //////////////////////////////////////////////////////////////////////////

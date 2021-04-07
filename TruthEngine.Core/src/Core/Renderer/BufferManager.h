@@ -1,8 +1,11 @@
 #pragma once
 
 #include "ConstantBuffer.h"
+#include "TextureCubeMap.h"
+#include "TextureRenderTarget.h"
+#include "TextureDepthStencil.h"
 
-namespace TruthEngine::Core
+namespace TruthEngine
 {
 
 	class CommandList;
@@ -11,6 +14,7 @@ namespace TruthEngine::Core
 	class TextureMaterial;
 	class TextureRenderTarget;
 	class TextureDepthStencil;
+	class TextureCubeMap;
 	class VertexBufferBase;
 	class VertexBufferStreamBase;
 	class Buffer;
@@ -38,13 +42,25 @@ namespace TruthEngine::Core
 	struct ShaderResourceView
 	{
 		ShaderResourceView() = default;
-		ShaderResourceView(uint32_t viewIndex, uint32_t resourceIndex, Texture* resource)
+		ShaderResourceView(uint32_t viewIndex, uint32_t resourceIndex, GraphicResource* resource)
 			: ViewIndex(viewIndex), ResourceIndex(resourceIndex), Resource(resource)
 		{}
 
 		uint32_t ViewIndex = -1;
 		uint32_t ResourceIndex = -1;
-		Texture* Resource = nullptr;
+		GraphicResource* Resource = nullptr;
+	};
+
+	struct UnorderedAccessView
+	{
+		UnorderedAccessView() = default;
+		UnorderedAccessView(uint32_t viewIndex, uint32_t resourceIndex, Buffer* resource)
+			: ViewIndex(viewIndex), ResourceIndex(resourceIndex), Resource(resource)
+		{}
+
+		uint32_t ViewIndex = -1;
+		uint32_t ResourceIndex = -1;
+		GraphicResource* Resource = nullptr;
 	};
 
 	struct DepthStencilView
@@ -74,12 +90,12 @@ namespace TruthEngine::Core
 	class BufferManager
 	{
 	public:
-		BufferManager() = default;
+		BufferManager();
 		~BufferManager() = default;
 
-		static std::shared_ptr<BufferManager> GetInstance() {
+		static BufferManager* GetInstance() {
 			static auto s_BufferManager = Factory();
-			return s_BufferManager;
+			return s_BufferManager.get();
 		}
 
 		virtual void Init(uint32_t resourceNum, uint32_t shaderResourceViewNum, uint32_t renderTargetViewNum, uint32_t depthBufferViewNum) = 0;
@@ -87,7 +103,7 @@ namespace TruthEngine::Core
 		virtual void Release() = 0;
 
 		template<class T>
-		ConstantBufferUpload<T>* CreateConstantBufferUpload(TE_IDX_CONSTANTBUFFER cbIDX)
+		ConstantBufferUpload<T>* CreateConstantBufferUpload(TE_IDX_GRESOURCES cbIDX)
 		{
 			auto cbItr = m_Map_ConstantBufferUpload.find(cbIDX);
 			if (cbItr != m_Map_ConstantBufferUpload.end())
@@ -98,31 +114,16 @@ namespace TruthEngine::Core
 			auto cb = std::make_shared<ConstantBufferUpload<T>>(cbIDX);
 
 			m_Map_ConstantBufferUpload[cbIDX] = cb;
+			m_Map_GraphicResources[cbIDX] = cb.get();
 
 			CreateResource(cb.get());
 
 			return cb.get();
 		}
 
-		template<class T>
-		ConstantBufferUploadArray<T>* CreateConstantBufferUploadArray(TE_IDX_CONSTANTBUFFER idx, uint32_t arraySize)
-		{
-			auto itr = m_Map_ConstantBufferUpload.find(idx);
-			if (itr != m_Map_ConstantBufferUpload.end())
-			{
-				return static_cast<ConstantBufferUploadArray<T>*>(itr->second.get());
-			}
-
-			auto cb = std::make_shared<ConstantBufferUploadArray<T>>(idx, arraySize);
-			m_Map_ConstantBufferUpload[idx] = cb;
-
-			CreateResource(cb.get());
-
-			return (cb.get());
-		}
 				
 		template<class T>
-		ConstantBufferDirect<T>* CreateConstantBufferDirect(TE_IDX_CONSTANTBUFFER cbIDX)
+		ConstantBufferDirect<T>* CreateConstantBufferDirect(TE_IDX_GRESOURCES cbIDX)
 		{
 			auto itr = m_Map_ConstantBufferDirect.find(cbIDX);
 			if(itr != m_Map_ConstantBufferDirect.end())
@@ -133,23 +134,38 @@ namespace TruthEngine::Core
 			auto cb = std::make_shared<ConstantBufferDirect<T>>(cbIDX);
 
 			m_Map_ConstantBufferDirect[cbIDX] = cb;
+			m_Map_GraphicResources[cbIDX] = nullptr;
 
 			return cb.get();
 		}
 
-		TextureRenderTarget* CreateRenderTarget(TE_IDX_TEXTURE idx, uint32_t width, uint32_t height, TE_RESOURCE_FORMAT format, const ClearValue_RenderTarget& clearValue, bool useAsShaderResource);
+		Buffer* CreateBufferStructuredRW(TE_IDX_GRESOURCES _IDX, uint32_t _ElementSizeInByte, uint32_t _ElementNum, bool _IsByteAddressBuffer);
 
-		TextureDepthStencil* CreateDepthStencil(TE_IDX_TEXTURE idx, uint32_t width, uint32_t height, TE_RESOURCE_FORMAT format, const ClearValue_DepthStencil& clearValue, bool useAsShaderResource);
+		Texture* CreateTextureRW(TE_IDX_GRESOURCES _IDX, uint32_t _Width, uint32_t _Height, TE_RESOURCE_FORMAT _FORMAT, bool _UseAsShaderResource, bool _EnableMSAA);
 
-		TextureRenderTarget* GetRenderTarget(TE_IDX_TEXTURE idx);
+		TextureRenderTarget* CreateRenderTarget(TE_IDX_GRESOURCES idx, uint32_t width, uint32_t height, TE_RESOURCE_FORMAT format, const ClearValue_RenderTarget& clearValue, bool useAsShaderResource, bool enbaleMSAA);
 
-		TextureDepthStencil* GetDepthStencil(TE_IDX_TEXTURE idx);
+		TextureDepthStencil* CreateDepthStencil(TE_IDX_GRESOURCES idx, uint32_t width, uint32_t height, TE_RESOURCE_FORMAT format, const ClearValue_DepthStencil& clearValue, bool useAsShaderResource, bool enbaleMSAA);
 
-		Texture* GetTexture(TE_IDX_TEXTURE idx);
+		GraphicResource* GetGraphicResource(TE_IDX_GRESOURCES _IDX) const;
 
-		ConstantBufferUploadBase* GetConstantBufferUpload(TE_IDX_CONSTANTBUFFER cbIDX);
+		TextureRenderTarget* GetRenderTarget(TE_IDX_GRESOURCES idx);
 
-		ConstantBufferDirectBase* GetConstantBufferDirect(TE_IDX_CONSTANTBUFFER cbIDX);
+		TextureDepthStencil* GetDepthStencil(TE_IDX_GRESOURCES idx);
+
+		Buffer* GetBuffer(TE_IDX_GRESOURCES _IDX);
+
+		TextureCubeMap* GetCubeMap(uint32_t index);
+
+		TextureCubeMap* GetSkyCubeMap();
+
+		Texture* GetTexture(TE_IDX_GRESOURCES idx);
+
+		ConstantBufferUploadBase* GetConstantBufferUpload(TE_IDX_GRESOURCES cbIDX);
+
+		ConstantBufferDirectBase* GetConstantBufferDirect(TE_IDX_GRESOURCES cbIDX);
+
+		virtual TextureCubeMap* CreateTextureCube(TE_IDX_GRESOURCES idx, const char* filePath) = 0;
 
 		virtual void CreateRenderTargetView(TextureRenderTarget* RT, RenderTargetView* rtv) = 0;
 
@@ -157,11 +173,13 @@ namespace TruthEngine::Core
 
 		virtual void CreateDepthStencilView(TextureDepthStencil* DS, DepthStencilView* dsv) = 0;
 
-		virtual void CreateShaderResourceView(Texture* textures[], uint32_t textureNum, ShaderResourceView* srv) = 0;
+		/*virtual void CreateShaderResourceView(Texture* textures[], uint32_t textureNum, ShaderResourceView* srv) = 0;*/
 
-		virtual void CreateShaderResourceView(Texture* texture, ShaderResourceView* srv) = 0;
+		virtual void CreateShaderResourceView(GraphicResource* _GraphicResource, ShaderResourceView* _SRV, uint32_t frameIndex) = 0;
 
-		virtual void CreateConstantBufferView(ConstantBufferUploadBase* constantBuffer, ConstantBufferView* cbv, uint8_t frameIndex) = 0;
+		virtual void CreateUnorderedAccessView(GraphicResource* _GraphicResource, UnorderedAccessView* _outUAV) = 0;
+
+		virtual void CreateConstantBufferView(Buffer* constantBuffer, ConstantBufferView* cbv, uint32_t frameIndex) = 0;
 
 		virtual TE_RESULT CreateVertexBuffer(VertexBufferBase* vb) = 0;
 
@@ -173,20 +191,39 @@ namespace TruthEngine::Core
 
 
 	protected:
+
+		virtual void CreateShaderResourceView(Texture* texture, ShaderResourceView* srv) = 0;
+		virtual void CreateShaderResourceView(Buffer* _Buffer, ShaderResourceView* SRV, uint32_t frameIndex) = 0;
+
 		virtual TE_RESULT CreateResource(BufferUpload* buffer) = 0;
+		virtual TE_RESULT CreateResource(Buffer* buffer) = 0;
+		virtual TE_RESULT CreateResource(Texture* _Texture) = 0;
 		virtual TE_RESULT CreateResource(TextureRenderTarget* tRT) = 0;
 		virtual TE_RESULT CreateResource(TextureDepthStencil* tDS) = 0;
 		virtual TE_RESULT CreateResource(VertexBufferStreamBase* vb) = 0;
 		virtual TE_RESULT CreateResource(IndexBuffer* ib) = 0;
 		virtual TE_RESULT CreateResource(TextureMaterial* texture) = 0;
 
+		virtual void OnReCreateResource(TE_IDX_GRESOURCES _IDX, uint32_t _ResourceIndexOffset) = 0;
+		virtual void OnReCreateResource(GraphicResource* _GResource, uint32_t _ResourceIndexOffset) = 0;
+
 	protected:
 		uint32_t m_LastVertexBufferID;
 		uint32_t m_LastIndexBufferID;
 
-		std::unordered_map<TE_IDX_CONSTANTBUFFER, std::shared_ptr<ConstantBufferUploadBase>> m_Map_ConstantBufferUpload;
-		std::unordered_map<TE_IDX_CONSTANTBUFFER, std::shared_ptr<ConstantBufferDirectBase>> m_Map_ConstantBufferDirect;
-		std::unordered_map<TE_IDX_TEXTURE, std::shared_ptr<Texture>> m_Map_Textures;
+		uint32_t m_SkyCubeMapIndex = 0;
+
+		std::unordered_map<TE_IDX_GRESOURCES, GraphicResource*> m_Map_GraphicResources;
+		std::unordered_map<TE_IDX_GRESOURCES, std::shared_ptr<ConstantBufferUploadBase>> m_Map_ConstantBufferUpload;
+		std::unordered_map<TE_IDX_GRESOURCES, std::shared_ptr<ConstantBufferDirectBase>> m_Map_ConstantBufferDirect;
+		std::unordered_map<TE_IDX_GRESOURCES, Buffer*> m_Map_Buffers;
+		std::unordered_map<TE_IDX_GRESOURCES, Texture*> m_Map_Textures;
+
+		std::vector<TextureRenderTarget> m_TexturesRenderTarget;
+		std::vector<TextureDepthStencil> m_TexturesDepthStencil;
+		std::vector<TextureCubeMap> m_TexturesCubeMap;
+		std::vector<Texture> m_Textures;
+		std::vector<Buffer> m_Buffers;
 
 		static std::shared_ptr<BufferManager> Factory();
 
@@ -196,4 +233,4 @@ namespace TruthEngine::Core
 	};
 }
 
-#define TE_INSTANCE_BUFFERMANAGER TruthEngine::Core::BufferManager::GetInstance()
+#define TE_INSTANCE_BUFFERMANAGER TruthEngine::BufferManager::GetInstance()

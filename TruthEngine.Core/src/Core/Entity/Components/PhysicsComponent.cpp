@@ -3,7 +3,7 @@
 
 using namespace DirectX;
 
-namespace TruthEngine::Core
+namespace TruthEngine
 {
 
 	PhysicsStaticComponent::PhysicsStaticComponent(physx::PxRigidStatic* actor)

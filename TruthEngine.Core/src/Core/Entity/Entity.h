@@ -2,8 +2,6 @@
 
 namespace TruthEngine
 {
-	namespace Core
-	{
 		class Scene;
 
 		class Entity
@@ -13,6 +11,9 @@ namespace TruthEngine
 			Entity(Scene* scene);
 			Entity(Scene* scene, entt::entity entityHandle);
 
+			float4x4 GetTransformHierarchy();
+
+
 			template<class T, class... Args>
 			T& AddComponent(Args&&... args)
 			{
@@ -21,6 +22,12 @@ namespace TruthEngine
 
 			template<class T>
 			T& GetComponent()
+			{
+				return m_Registery->get<T>(m_EntityHandle);
+			}
+
+			template<class T>
+			const T& GetComponent() const
 			{
 				return m_Registery->get<T>(m_EntityHandle);
 			}
@@ -77,7 +84,7 @@ namespace TruthEngine
 				return m_Scene;
 			}
 
-			float3 GetPosition() noexcept;
+			/*float3 GetPosition() noexcept;*/
 
 
 		private:
@@ -85,10 +92,9 @@ namespace TruthEngine
 
 
 		private:
+			entt::entity m_EntityHandle = entt::null;
+
 			Scene* m_Scene = nullptr;
 			entt::registry* m_Registery = nullptr;
-			entt::entity m_EntityHandle = entt::null;
 		};
-
-	}
 }

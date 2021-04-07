@@ -16,7 +16,7 @@ public:
 
 };
 
-namespace TruthEngine::Core
+namespace TruthEngine
 {
 
 
@@ -126,7 +126,7 @@ namespace TruthEngine::Core
 		physx::PxRigidStatic* AddRigidStaticTriangleMesh(const TEPhysicsRigidTriangleMeshDesc& rigidTriangleMeshDesc, Entity entity);
 
 		physx::PxRigidDynamic* AddRigidDynamicBox(const TEPhysicsRigidBoxDesc& rigidBoxDesc, Entity entity);
-		physx::PxRigidDynamic* AddRigidDynamicSphere(const TEPhysicsRigidSphereDesc& rigidSphereDesc, Entity entity);
+		physx::PxRigidDynamic* AddRigidDynamicSphere(const TEPhysicsRigidSphereDesc& rigidSphereDesc, Entity entity, std::optional<float3> _LinearVelocity = std::nullopt, std::optional<float3> _AngularVelocity = std::nullopt);
 		physx::PxRigidDynamic* AddRigidDynamicConvex(Entity entity);
 		physx::PxRigidDynamic* AddRigidDynamicTriangleMesh(const TEPhysicsRigidTriangleMeshDesc& rigidTriangleMeshDesc, Entity entity);
 
@@ -168,4 +168,4 @@ namespace TruthEngine::Core
 	};
 }
 
-#define TE_INSTANCE_PHYSICSENGINE TruthEngine::Core::PhysicsEngine::GetInstance()
+#define TE_INSTANCE_PHYSICSENGINE TruthEngine::PhysicsEngine::GetInstance()

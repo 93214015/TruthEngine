@@ -17,16 +17,21 @@
 #include "Core/Event/EventKey.h"
 #include "Core/Event/Event.h"
 #include "Core/Entity/PickingEntity.h"
+#include "Core/Event/EventEntity.h"
+#include "Core/AnimationEngine/AnimationManager.h"
 
 std::future<void> gFeaturePickEntity;
+
+
+TruthEngine::Application* TruthEngine::CreateApplication() {
+	return new TruthEngine::ApplicationEditor(1920, 1000, 3);
+}
 
 namespace TruthEngine
 {
 
-	using namespace Core;
-
 	ApplicationEditor::ApplicationEditor(uint16_t clientWidth, uint16_t clientHeight, uint8_t framesInFlightNum)
-		: Core::Application("TruthEngine.Editor", clientWidth, clientHeight, framesInFlightNum)
+		: Application("TruthEngine.Editor", clientWidth, clientHeight, framesInFlightNum)
 	{
 	}
 
@@ -34,52 +39,60 @@ namespace TruthEngine
 	void ApplicationEditor::OnInit()
 	{
 
-		Core::InputManager::RegisterKey('A');
-		Core::InputManager::RegisterKey('W');
-		Core::InputManager::RegisterKey('S');
-		Core::InputManager::RegisterKey('D');
-		Core::InputManager::RegisterKey(Key::Space);
+		InputManager::RegisterKey('A');
+		InputManager::RegisterKey('W');
+		InputManager::RegisterKey('S');
+		InputManager::RegisterKey('D');
+		InputManager::RegisterKey(Key::Space);
 
 
-		auto mainCamera = Core::CameraManager::GetInstance()->CreatePerspectiveFOV("mainCamera"
+		auto mainCamera = CameraManager::GetInstance()->CreatePerspectiveFOV("mainCamera"
 			, float3{ -12.0f, 17.0f, -30.0f }
 			, float3{ 0.48f, -.5f, 0.72f }
 			, float3{ 0.0f, 1.0f, 0.0f }
 			, DirectX::XM_PIDIV4
-			, static_cast<float>(m_ClientWidth) / m_ClientHeight
+			, static_cast<float>(m_ClientWidth) / static_cast<float>(m_ClientHeight)
 			, 1.0f
 			, 1000.0f
+			, false
 		);
 
 
-		Core::CameraManager::GetInstance()->SetActiveCamera(mainCamera);
+		CameraManager::GetInstance()->SetActiveCamera(mainCamera);
 
+		m_ActiveScene.Init();
 
+		//
+		//Add Main Camera
+		//
 		auto entity = m_ActiveScene.AddEntity("MainCamera");
-		entity.AddComponent<Core::CameraComponent>(mainCamera, Core::CameraManager::GetInstance()->GetCameraController());
-
-
-		auto lightManager = Core::LightManager::GetInstace();
-		auto dirLight0 = lightManager->AddLightDirectional("dlight_0", float4{ 0.8f, 0.8f, 0.8f, 0.8f }, float4{ 0.3f, 0.3f, 0.3f, 0.3f }, float4{ 0.0f, 0.0f, 0.0f, 0.0f }, float3{ .38f, -.60f, .71f }, float3{ -42.0f, 66.0f, -80.0f }, 0.05f, true, 200.0f);
-		lightManager->AddLightCamera(dirLight0, Core::TE_CAMERA_TYPE::Perspective);
-
-		auto entityLight = m_ActiveScene.AddEntity("Directional Light 0");
-		entityLight.AddComponent<LightComponent>(dirLight0);
-
+		entity.AddComponent<CameraComponent>(mainCamera, CameraManager::GetInstance()->GetCameraController());
 
 		m_LayerStack.PushLayer(m_RendererLayer.get());
 
+		//
+		//Adding Lights
+		//
+		/*const float4 _cascadeCoveringPercentage = float4{ 10.0f, 50.0f, 100.f, 200.0f };
+		m_ActiveScene.AddLightEntity_Directional("SunLight", float3{ 0.0f, 0.0f, 0.0f }, float3{ .38f, -.60f, .71f }, float3{ -42.0f, 66.0f, -80.0f }, 0.05f, true, _cascadeCoveringPercentage);*/
+		m_ActiveScene.AddLightEntity_Spot("SpotLight0", float3{ .8f, .8f, .8f }, float3{ .01f, -.71f, .7f }, float3{ -0.3f, 28.0f, -42.0f }, 0.05f, true, 90.0f, 200.0f, 20.0f, 60.0f);
+
+		//auto lightManager = LightManager::GetInstace();
+		//auto dirLight0 = lightManager->AddLightDirectional("dlight_0", float3{ 0.8f, 0.8f, 0.8f }, float3{ .38f, -.60f, .71f }, float3{ -42.0f, 66.0f, -80.0f }, 0.05f, true, _cascadeCoveringPercentage);
+		////lightManager->AddLightCamera(dirLight0, TE_CAMERA_TYPE::Perspective);
+		//auto entityLight = m_ActiveScene.AddEntity("Directional Light 0");
+		//entityLight.AddComponent<LightComponent>(dirLight0);
 
 		//must put ModelManager initiation after RendererLayer attachment so that the bufferManager has been initiated 
-		auto modelManager = Core::ModelManager::GetInstance().get();
-		modelManager->Init(TE_INSTANCE_BUFFERMANAGER.get());
+		auto modelManager = ModelManager::GetInstance();
+		modelManager->Init(TE_INSTANCE_BUFFERMANAGER);
 		//modelManager->AddSampleModel();
-
 
 		m_SceneHierarchyPanel.SetContext(&m_ActiveScene);
 
-
 		TE_INSTANCE_PHYSICSENGINE->Init();
+
+		m_ActiveScene.AddEnvironmentEntity();
 
 		RegisterOnEvents();
 	}
@@ -88,16 +101,13 @@ namespace TruthEngine
 	void ApplicationEditor::OnUpdate()
 	{
 
-
 		TE_INSTANCE_PHYSICSENGINE->Simulate(m_Timer.DeltaTime());
 
-		m_TimerAvg_ImGuiPass.Start();
+		TE_INSTANCE_ANIMATIONMANAGER->Update(m_Timer.DeltaTime());
 
-		Core::InputManager::ProcessInput();
-
+		InputManager::ProcessInput();
 
 		m_RendererLayer->BeginRendering();
-
 
 		m_TimerAvg_UpdateRenderPasses.Start();
 
@@ -108,7 +118,7 @@ namespace TruthEngine
 
 		m_TimerAvg_UpdateRenderPasses.End();
 
-
+		m_TimerAvg_ImGuiPass.Start();
 
 		if (m_RendererLayer->BeginImGuiLayer())
 		{
@@ -187,14 +197,45 @@ namespace TruthEngine
 					{
 						if (ImGui::MenuItem("Model3D"))
 						{
-							static const std::vector<const char*> fileExtensions = { ".obj", ".fbx" };
+							static const std::vector<const char*> fileExtensions = { ".obj", ".fbx", ".3ds", ".dae", ".blend", ".gltf" };
 							imguiLayer->OpenFileDialog(&fileBrowserImportModel, "Open Model", fileExtensions);
 						}
 						ImGui::EndMenu();
 					}
+					if (ImGui::BeginMenu("Test"))
+					{
+						static bool _Checked = false;
+						ImGui::Checkbox("Rotation", &_Checked);
+
+						if (_Checked)
+						{
+							Entity _SelectedEntity = m_ActiveScene.GetSelectedEntity();
+							if (_SelectedEntity)
+							{
+								float angle = DirectX::XMConvertToRadians(0.25f * static_cast<float>(InputManager::GetDX()));
+								angle /= 10.0f;
+
+								float4x4& _Transform = _SelectedEntity.GetComponent<TransformComponent>().GetTransform();
+
+								//float3 _RotationOrigin = float3{ _Transform._41, _Transform._42, _Transform._43 };
+								float3 _RotationOrigin = float3{ 0, 0, 0 };
+
+								float4x4 _RotationTransform = Math::TransformMatrixRotation(angle, float3{ .0f, 1.0f, .0f }, _RotationOrigin);
+
+								_Transform = _Transform * _RotationTransform;
+							}
+						}
+
+						ImGui::EndMenu();
+					}
+					if (ImGui::MenuItem("Exit"))
+					{
+						exit(0);
+					}
 					ImGui::EndMenu();
 				}
-				if (ImGui::BeginMenu("Test"))
+
+				/*if (ImGui::BeginMenu("Test"))
 				{
 					if (ImGui::MenuItem("Show ImGui Demo Window"))
 					{
@@ -209,30 +250,30 @@ namespace TruthEngine
 					}
 					if (ImGui::MenuItem("Generate Plane"))
 					{
-						ModelManager::GetInstance()->GeneratePrimitiveMesh(TE_PRIMITIVE_TYPE::PLANE);
+						ModelManager::GetInstance()->GeneratePrimitiveMesh(TE_PRIMITIVE_TYPE::PLANE, "DefaultModel");
 					}
 					if (ImGui::MenuItem("Generate Box"))
 					{
-						ModelManager::GetInstance()->GeneratePrimitiveMesh(TE_PRIMITIVE_TYPE::BOX);
+						ModelManager::GetInstance()->GeneratePrimitiveMesh(TE_PRIMITIVE_TYPE::BOX, "DefaultModel");
 					}
 					if (ImGui::MenuItem("Generate RoundedBox"))
 					{
-						ModelManager::GetInstance()->GeneratePrimitiveMesh(TE_PRIMITIVE_TYPE::ROUNDEDBOX);
+						ModelManager::GetInstance()->GeneratePrimitiveMesh(TE_PRIMITIVE_TYPE::ROUNDEDBOX, "DefaultModel");
 					}
 					if (ImGui::MenuItem("Generate Sphere"))
 					{
-						ModelManager::GetInstance()->GeneratePrimitiveMesh(TE_PRIMITIVE_TYPE::SPHERE);
+						ModelManager::GetInstance()->GeneratePrimitiveMesh(TE_PRIMITIVE_TYPE::SPHERE, "DefaultModel");
 					}
 					if (ImGui::MenuItem("Generate Cylinder"))
 					{
-						ModelManager::GetInstance()->GeneratePrimitiveMesh(TE_PRIMITIVE_TYPE::CYLINDER);
+						ModelManager::GetInstance()->GeneratePrimitiveMesh(TE_PRIMITIVE_TYPE::CYLINDER, "DefaultModel");
 					}
 					if (ImGui::MenuItem("Generate Capped Cylinder"))
 					{
-						ModelManager::GetInstance()->GeneratePrimitiveMesh(TE_PRIMITIVE_TYPE::CAPPEDCYLINDER);
+						ModelManager::GetInstance()->GeneratePrimitiveMesh(TE_PRIMITIVE_TYPE::CAPPEDCYLINDER, "DefaultModel");
 					}
 					ImGui::EndMenu();
-				}
+				}*/
 
 				if (ImGui::BeginMenu("Physics"))
 				{
@@ -312,6 +353,45 @@ namespace TruthEngine
 				ImGui::End();
 			}//End of Render Scene Viewport
 
+
+			//Render Scene Property Panel
+			{
+				ImGui::Begin("Scene Properties");
+
+
+				bool _IsEnvironmentMapEnabled = m_RendererLayer->IsEnvironmentMapEnabled();
+
+
+				if (ImGui::Checkbox("Environment Map", &_IsEnvironmentMapEnabled))
+				{
+					m_RendererLayer->SetEnabledEnvironmentMap(_IsEnvironmentMapEnabled);
+				}
+
+
+				static bool _IsEnabledHDR = m_RendererLayer->IsEnabledHDR();
+
+				if (ImGui::Checkbox("HDR", &_IsEnabledHDR))
+				{
+					m_RendererLayer->SetHDR(_IsEnabledHDR);
+				}
+				
+
+				static float3 _EnvironmentMapMultiplier = m_RendererLayer->GetEnvironmentMapMultiplier();
+				if (ImGui::ColorEdit3("Environment Map Multiplier", &_EnvironmentMapMultiplier.x, ImGuiColorEditFlags_Float))
+				{
+					m_RendererLayer->SetEnvironmentMapMultiplier(_EnvironmentMapMultiplier);
+				}
+
+
+				static float3 s_AmbientLightStrength = m_RendererLayer->GetAmbientLightStrength();
+				if (ImGui::ColorEdit3("Global Ambient Light", &s_AmbientLightStrength.x, ImGuiColorEditFlags_Float))
+				{
+					m_RendererLayer->SetAmbientLightStrength(s_AmbientLightStrength);
+				}
+
+
+				ImGui::End();
+			}
 
 			//Render scene Hierarchy Panel
 			{
@@ -405,10 +485,10 @@ namespace TruthEngine
 
 						ImGui::TextColored(ImVec4{ 0.529, 0.952, 0.486 ,1.0f }, "CPU Frame Time: ");
 						ImGui::TableNextColumn();
-						ImGui::TextColored(ImVec4{ 0.529, 0.952, 0.486 ,1.0f }, "%.3f", m_Timer.GetAverageCpuTime());
-						ImGui::Text("RenderPass Time: %0.3f", m_TimerAvg_UpdateRenderPasses.GetAverageTime());
-						ImGui::Text("ImGUiPass Time: %0.3f", m_TimerAvg_ImGuiPass.GetAverageTime());
-						ImGui::Text("AppUpdate Time: %0.3f", m_TimerAvg_Update.GetAverageTime());
+						ImGui::TextColored(ImVec4{ 0.529, 0.952, 0.486 ,1.0f }, "%.3f ms", m_Timer.GetAverageCpuTime() * 1000);
+						ImGui::Text("RenderPass Time: %0.3f ms", m_TimerAvg_UpdateRenderPasses.GetAverageTime());
+						ImGui::Text("ImGUiPass Time: %0.3f ms", m_TimerAvg_ImGuiPass.GetAverageTime());
+						ImGui::Text("AppUpdate Time: %0.3f ms", m_TimerAvg_Update.GetAverageTime());
 
 						ImGui::EndTable();
 					}
@@ -507,11 +587,40 @@ namespace TruthEngine
 		//Ckeck on selected file for importing 3d model
 		//
 		static std::string importFilePath;
+		static bool _SelectedModel = false;
+		static bool _ImportModel = false;
+		static char _ModelName[50] = "Model_";
+
 		if (imguiLayer->CheckFileDialog(&fileBrowserImportModel, importFilePath))
 		{
-			Core::GraphicDevice::GetPrimaryDevice()->WaitForGPU();
-			Core::ModelManager::GetInstance()->ImportModel(&m_ActiveScene, importFilePath.c_str());
+			_SelectedModel = true;
+			
 		}
+		if (_SelectedModel)
+		{
+			ImGui::OpenPopup("AskModelNamePopUp");
+		}
+
+		if (ImGui::BeginPopup("AskModelNamePopUp"))
+		{
+			ImGui::Text("Model Name:");
+			ImGui::InputText("", _ModelName, sizeof(_ModelName));
+			if (ImGui::Button("OK"))
+			{
+				_ImportModel = true;
+				ImGui::CloseCurrentPopup();
+			}
+			ImGui::EndPopup();
+		}
+
+		if (_ImportModel)
+		{
+			m_ActiveScene.ImportModel(importFilePath.c_str(), _ModelName);
+			strcpy_s(_ModelName, "Model_");
+			_SelectedModel = false;
+			_ImportModel = false;
+		}
+
 		if (imguiLayer->CheckFileDialog(&fileBrowserImportTexture, importFilePath))
 		{
 			auto tex = TextureMaterialManager::GetInstance()->CreateTexture(importFilePath.c_str(), "");
@@ -529,11 +638,19 @@ namespace TruthEngine
 
 		RegisterEventListener(EventType::KeyReleased, onKeyReleased);
 
+		auto onEntityTransform = [this](Event& event)
+		{
+			EventEntityTransform& _e = static_cast<EventEntityTransform&>(event);
+
+			Entity _entity = _e.GetEntity();
+			const BoundingBox& _BoundingBox = _entity.GetComponent<BoundingBoxComponent>().GetBoundingBox();
+			BoundingBox _TransformedBoundingBox = Math::TransformBoundingBox(_BoundingBox, _entity.GetComponent<TransformComponent>().GetTransform());
+
+			m_ActiveScene.UpdateBoundingBox(_TransformedBoundingBox);
+		};
+
+		RegisterEventListener(EventType::EntityTransform, onEntityTransform);
 		
 	}
 
-}
-
-TruthEngine::Core::Application* TruthEngine::Core::CreateApplication() {
-	return new TruthEngine::ApplicationEditor(1366, 1000, 3);
 }

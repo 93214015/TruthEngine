@@ -8,12 +8,10 @@ namespace TruthEngine
 		class DirectX12BufferManager;
 	}
 
-	namespace Core
-	{
 		class IndexBuffer : public Buffer
 		{
 		public:
-			IndexBuffer() : Buffer(0, TE_RESOURCE_USAGE_INDEXBUFFER, TE_RESOURCE_STATES::COPY_DEST)
+			IndexBuffer() : Buffer(TE_IDX_GRESOURCES::NONE, 0, TE_RESOURCE_USAGE_INDEXBUFFER, TE_RESOURCE_STATES::COPY_DEST, 0, 0, false, false)
 			{}
 
 			inline size_t GetBufferSize() const noexcept
@@ -72,5 +70,4 @@ namespace TruthEngine
 			friend class BufferManager;
 			friend class API::DirectX12 ::DirectX12BufferManager;
 		};
-	}
 }

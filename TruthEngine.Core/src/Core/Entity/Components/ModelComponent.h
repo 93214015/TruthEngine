@@ -4,18 +4,37 @@
 
 namespace TruthEngine
 {
-	namespace Core
-	{
 		class ModelComponent
 		{
 		public:
-			ModelComponent() = default;
+			ModelComponent();
+			ModelComponent(const std::vector<Entity>& _MeshEntities);
 			
 
-		private:
+			inline void ReserveMesh(size_t _MeshNum)
+			{
+				m_EnitiesMesh.reserve(_MeshNum);
+			}
+
+			inline std::vector<Entity>& GetMeshEntities()
+			{
+				return m_EnitiesMesh;
+			}
 
 		private:
-			uint32_t m_ID;
+			inline void AddMeshEntity(Entity _MeshEntity)
+			{
+				m_EnitiesMesh.emplace_back(_MeshEntity);
+			}
+
+
+		private:
+			uint32_t m_ID = -1;
+
+			std::vector<Entity> m_EnitiesMesh;
+
+
+			//friend class
+			friend class Scene;
 		};
-	}
 }

@@ -9,7 +9,7 @@
 #include "Core/Renderer/TextureMaterial.h"
 
 
-namespace TruthEngine::Core
+namespace TruthEngine
 {
 
 	std::function<void(uint32_t)> g_MaterialTextureWindowCallBack;
@@ -55,7 +55,7 @@ namespace TruthEngine::Core
 	}
 
 
-	std::shared_ptr<TruthEngine::Core::ImGuiLayer> ImGuiLayer::Factory()
+	std::shared_ptr<TruthEngine::ImGuiLayer> ImGuiLayer::Factory()
 	{
 		switch (Settings::RendererAPI)
 		{
@@ -141,8 +141,8 @@ namespace TruthEngine::Core
 			{
 				if (ImGui::BeginMenu("Import Texture"))
 				{
-					static const std::vector<const char*> s_textureFileExtensions = { "*.*", ".jpg", ".jpeg", "*.png" };
-					OpenFileDialog(&s_fileDialogImportMaterialTextures, "Import Material Textures", s_textureFileExtensions);
+					static const std::vector<const char*> s_textureFileExtensions = { ".jpg", ".jpeg", ".png" };
+					OpenFileDialog_MultipleSelection(&s_fileDialogImportMaterialTextures, "Import Material Textures", s_textureFileExtensions);
 
 					ImGui::EndMenu();
 				}

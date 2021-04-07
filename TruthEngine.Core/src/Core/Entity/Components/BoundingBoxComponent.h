@@ -1,6 +1,6 @@
 #pragma once
 
-namespace TruthEngine::Core
+namespace TruthEngine
 {
 
 	class BoundingBoxComponent
@@ -13,6 +13,11 @@ namespace TruthEngine::Core
 		void Init(size_t vertexNum, const float3* vertecies, size_t strideSize);
 
 		const BoundingBox& GetBoundingBox()const noexcept
+		{
+			return m_BoundingBox;
+		}
+
+		BoundingBox& GetBoundingBox() noexcept
 		{
 			return m_BoundingBox;
 		}

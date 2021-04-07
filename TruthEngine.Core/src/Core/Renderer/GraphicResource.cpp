@@ -2,9 +2,9 @@
 #include "GraphicResource.h"
 #include "BufferManager.h"
 
-namespace TruthEngine::Core {
-	GraphicResource::GraphicResource(TE_RESOURCE_USAGE usage, TE_RESOURCE_TYPE type, TE_RESOURCE_STATES initState)
-		: m_Usage(usage), m_Type(type), m_State(initState)
+namespace TruthEngine {
+	GraphicResource::GraphicResource(TE_IDX_GRESOURCES _IDX, TE_RESOURCE_USAGE usage, TE_RESOURCE_TYPE type, TE_RESOURCE_STATES initState)
+		: m_IDX(_IDX), m_Usage(usage), m_Type(type), m_State(initState)
 	{
 
 	}

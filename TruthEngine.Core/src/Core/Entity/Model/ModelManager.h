@@ -7,142 +7,145 @@
 #include "Core/Renderer/IndexBuffer.h"
 #include "Core/Renderer/MaterialManager.h"
 #include "Core/Entity/Entity.h"
+#include "Core/AnimationEngine/CBone.h"
+
 
 namespace TruthEngine
 {
+	using VertexBufferNTT = VertexBuffer<VertexData::NormTanTex>;
+	using VertexBufferSkinned = VertexBuffer<VertexData::NormTanTex, VertexData::Bone>;
 
-	namespace Core
+	enum class TE_PRIMITIVE_TYPE
 	{
+		BOX,
+		ROUNDEDBOX,
+		SPHERE,
+		CYLINDER,
+		CAPPEDCYLINDER,
+		PLANE,
+	};
 
-		enum class TE_PRIMITIVE_TYPE
+	class BufferManager;
+	class RendererCommand;
+	class Scene;
+
+	class ModelManager
+	{
+	public:
+		ModelManager();
+		~ModelManager();
+
+		static ModelManager* GetInstance()
 		{
-			BOX,
-			ROUNDEDBOX,
-			SPHERE,
-			CYLINDER,
-			CAPPEDCYLINDER,
-			PLANE,
-		};
+			static ModelManager s_ModelManager;
+			return &s_ModelManager;
+		}
 
-		class BufferManager;
-		class RendererCommand;
-		class Scene;
+		void Init(BufferManager* bufferManager/*, RendererCommand* rendererCommand*/);
 
-		class ModelManager
+		// 			inline const std::vector<Model3D>& GetModel3D() const noexcept
+		// 			{
+		// 				return m_Models3D;
+		// 			}
+
+
+		inline void AddSpace(/*size_t Model3DNum, */size_t MeshNum)
 		{
-		public:
-			ModelManager();
-			~ModelManager();
-
-			static std::shared_ptr<ModelManager> GetInstance()
+			if (auto freeSpace = m_Meshes.capacity() - m_Meshes.size(); freeSpace < MeshNum)
 			{
-				static auto s_ModelManager = std::make_shared<ModelManager>();
-				return s_ModelManager;
+				auto currentSpace = m_Meshes.size();
+				m_Meshes.reserve(currentSpace + MeshNum);
 			}
-
-			void Init(BufferManager* bufferManager/*, RendererCommand* rendererCommand*/);
-
-// 			inline const std::vector<Model3D>& GetModel3D() const noexcept
-// 			{
-// 				return m_Models3D;
-// 			}
-
-			inline const std::vector<Material*>& GetMaterials()
-			{
-				return m_MaterialManager.m_Materials;
-			}
-
-			inline MaterialManager* GetMaterialManager()
-			{
-				return &m_MaterialManager;
-			}
-
-			inline void AddSpace(/*size_t Model3DNum, */size_t MeshNum)
-			{
-				/*if (auto freeSpace = m_Models3D.capacity() - m_Models3D.size(); freeSpace < Model3DNum)
-				{
-					auto currentSpace = m_Models3D.size();
-					m_Models3D.reserve(currentSpace + Model3DNum);
-				}*/
-
-				if (auto freeSpace = m_Meshes.capacity() - m_Meshes.size(); freeSpace < MeshNum)
-				{
-					auto currentSpace = m_Meshes.size();
-					m_Meshes.reserve(currentSpace + MeshNum);
-				}
-			}
-
-			inline void GetOffsets(size_t& outVertexOffset, size_t& outIndexOffset, /*size_t& outModelOffset,*/ size_t& outMeshOffset, size_t& outMaterialOffset)
-			{
-				outVertexOffset = m_VertexBuffer_PosNormTanTex.GetVertexOffset();
-				outIndexOffset = m_IndexBuffer.GetIndexOffset();
-				//outModelOffset = m_Models3D.size();
-				outMeshOffset = m_Meshes.size();
-				outMaterialOffset = m_MaterialManager.GetMatrialOffset();
-			}
-
-			inline size_t GetVertexOffset()const noexcept
-			{
-				return m_VertexBuffer_PosNormTanTex.GetVertexOffset();
-			}
-
-			inline size_t GetIndexOffset()const noexcept
-			{
-				return m_IndexBuffer.GetIndexOffset();
-			}
-
-			/*inline size_t GetModelOffset()const noexcept
-			{
-				return m_Models3D.size();
-			}*/
-
-			inline size_t GetMeshOffset()const noexcept
-			{
-				return m_Meshes.size();
-			}
-
-			inline size_t GetMaterialOffset()const noexcept
-			{
-				return m_MaterialManager.GetMatrialOffset();
-			}
-
-			//Model3D* AddModel3D();
-
-			//void AddMesh(std::shared_ptr<Mesh> mesh);
-			Mesh* AddMesh(uint32_t IndexNum, size_t IndexOffset, size_t VertexOffset, size_t vertexNum);
-			Mesh* CopyMesh(Mesh* mesh);
-
-			void ImportModel(Scene* scene, const char* filePath);
-
-			void AddSampleModel();
-
-			Entity GeneratePrimitiveMesh(TE_PRIMITIVE_TYPE type, float size = 1.0f, const float4x4& transform = IdentityMatrix, Entity modelEntity = Entity());
+		}
 
 
-		protected:
-			void InitVertexAndIndexBuffer();
+		inline void GetOffsets(size_t& outVertexOffset, size_t& outIndexOffset, /*size_t& outModelOffset,*/ size_t& outMeshOffset, TE_IDX_MESH_TYPE _MeshType)
+		{
+			outVertexOffset = GetVertexOffset(_MeshType);
+			outIndexOffset = m_IndexBuffer.GetIndexOffset();
+			//outModelOffset = m_Models3D.size();
+			outMeshOffset = m_Meshes.size();
+		}
 
-		protected:
-			//std::vector<Model3D> m_Models3D;
-			std::vector<Mesh> m_Meshes;
+		size_t GetVertexOffset(TE_IDX_MESH_TYPE _MeshType)const noexcept;
 
-			VertexBuffer<VertexData::Pos, VertexData::NormTanTex> m_VertexBuffer_PosNormTanTex;
-			IndexBuffer m_IndexBuffer;
 
-			MaterialManager m_MaterialManager;
+		inline size_t GetIndexOffset()const noexcept
+		{
+			return m_IndexBuffer.GetIndexOffset();
+		}
 
-			BufferManager* m_BufferManager;
+		/*inline size_t GetModelOffset()const noexcept
+		{
+			return m_Models3D.size();
+		}*/
 
-			std::shared_ptr<RendererCommand> m_RendererCommand;
+		inline size_t GetMeshOffset()const noexcept
+		{
+			return m_Meshes.size();
+		}
 
-			//
-			// Friend Classes
-			//
-			friend class AssimpLib;
-			friend class MeshGenerator;
+		/*inline size_t GetMaterialOffset()const noexcept
+		{
+			return m_MaterialManager.GetMatrialOffset();
+		}*/
 
-		};
-	}
+
+		//Model3D* AddModel3D();
+
+		//void AddMesh(std::shared_ptr<Mesh> mesh);
+		Mesh* AddMesh(TE_IDX_MESH_TYPE _MeshType, uint32_t IndexNum, size_t IndexOffset, size_t VertexOffset, size_t vertexNum);
+		Mesh* CopyMesh(Mesh* mesh);
+
+		template<typename T>
+		T& GetVertexBuffer()
+		{
+			return std::get<T>(m_VertexBuffers);
+		}
+
+		/*void ImportModel(Scene* scene, const char* filePath, std::string _ModelName);*/
+
+
+		Mesh* GeneratePrimitiveMesh(TE_PRIMITIVE_TYPE type, float size_x, float size_y, float size_z);
+		void GenerateEnvironmentMesh(Mesh** outMesh);
+
+		void InitVertexAndIndexBuffer();
+	protected:
+
+		inline uint32_t GenerateMeshID()
+		{
+			static uint32_t s_ID = 0;
+			return s_ID++;
+		}
+
+		template<class T>
+		T& _GetVertexBuffer();
+
+	protected:
+		//std::vector<Model3D> m_Models3D;
+		std::vector<Mesh> m_Meshes;
+
+		std::tuple<VertexBufferNTT, VertexBufferSkinned> m_VertexBuffers;
+
+
+		/*VertexBuffer<VertexData::Pos, VertexData::NormTanTex> m_VertexBuffer_PosNormTanTex;
+		VertexBuffer<VertexData::Pos, VertexData::NormTanTex, VertexData::SAnimationData> m_VertexBuffer_PosNormTanTexSkinned;*/
+
+		IndexBuffer m_IndexBuffer;
+
+		//MaterialManager m_MaterialManager;
+
+		BufferManager* m_BufferManager;
+
+		std::shared_ptr<RendererCommand> m_RendererCommand;
+
+		//
+		// Friend Classes
+		//
+		friend class AssimpLib;
+		friend class MeshGenerator;
+
+	};
 }
 
-#define TE_INSTANCE_MODELMANAGER TruthEngine::Core::ModelManager::GetInstance()
+#define TE_INSTANCE_MODELMANAGER TruthEngine::ModelManager::GetInstance()

@@ -3,8 +3,6 @@
 
 namespace TruthEngine
 {
-	namespace Core 
-	{
 
 		//class Material;
 		//class Mesh;
@@ -41,5 +39,4 @@ namespace TruthEngine
 		//	friend class ModelManager;
 
 		//};
-	}
 }

@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "Log.h"
 
-namespace TruthEngine::Core {
+namespace TruthEngine {
 
 	std::shared_ptr<spdlog::logger> Log::m_CoreLogger;
 	std::shared_ptr<spdlog::logger> Log::m_ClientLogger;

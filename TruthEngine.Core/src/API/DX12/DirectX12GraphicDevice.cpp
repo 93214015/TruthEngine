@@ -39,7 +39,10 @@ namespace TruthEngine::API::DirectX12
 #if defined(TE_DEBUG)
 		{
 			Microsoft::WRL::ComPtr<ID3D12Debug> debuglayer;
+			Microsoft::WRL::ComPtr<ID3D12Debug1> debuglayer1;
 			auto result = D3D12GetDebugInterface(IID_PPV_ARGS(debuglayer.GetAddressOf()));
+			/*debuglayer->QueryInterface(IID_PPV_ARGS(&debuglayer1));
+			debuglayer1->SetEnableGPUBasedValidation(true);*/
 
 			TE_ASSERT_CORE(TE_SUCCEEDED(result), "API::DirectX12  Enabling DX12 Debug Layer is failed!");
 
@@ -74,6 +77,7 @@ namespace TruthEngine::API::DirectX12
 		result = m_CommandQueueDirect.Init(this);
 		TE_ASSERT_CORE(TE_SUCCEEDED(result), "API::DirectX12  PrimaryDirectCommandQueue Creation was failed!");
 
+		//HRESULT _hr = m_CommandQueueDirect.GetNativeObject()->QueryInterface(IID_PPV_ARGS(m_DebugCommandQueue.ReleaseAndGetAddressOf()));
 
 		return TE_SUCCESSFUL;
 	}
@@ -125,10 +129,28 @@ namespace TruthEngine::API::DirectX12
 
 	void DirectX12GraphicDevice::CheckFeatures()
 	{
+
+		// Check Feature Support :  Root Signature Version		
 		if (FAILED(m_Device->CheckFeatureSupport(D3D12_FEATURE_ROOT_SIGNATURE, &m_FeatureData_RootSignature, sizeof(m_FeatureData_RootSignature))))
 		{
 			m_FeatureData_RootSignature.HighestVersion = D3D_ROOT_SIGNATURE_VERSION_1_0;
 		}
+
+
+		//Check Feature Support : MultiSampling
+		D3D12_FEATURE_DATA_MULTISAMPLE_QUALITY_LEVELS _FeatureData_MSAA = {};
+		_FeatureData_MSAA.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+		_FeatureData_MSAA.SampleCount = 4;
+		_FeatureData_MSAA.Flags = D3D12_MULTISAMPLE_QUALITY_LEVELS_FLAG_NONE;
+
+		m_Device->CheckFeatureSupport(D3D12_FEATURE_MULTISAMPLE_QUALITY_LEVELS, &_FeatureData_MSAA, sizeof(D3D12_FEATURE_DATA_MULTISAMPLE_QUALITY_LEVELS));
+		m_MSAA_QualityLevels_4X = _FeatureData_MSAA.NumQualityLevels;
+
+		_FeatureData_MSAA.SampleCount = 8;
+
+		m_Device->CheckFeatureSupport(D3D12_FEATURE_MULTISAMPLE_QUALITY_LEVELS, &_FeatureData_MSAA, sizeof(D3D12_FEATURE_DATA_MULTISAMPLE_QUALITY_LEVELS));
+		m_MSAA_QualityLevels_8X = _FeatureData_MSAA.NumQualityLevels;
+
 	}
 
 	TruthEngine::API::DirectX12::DirectX12GraphicDevice DirectX12GraphicDevice::s_PrimaryDevice;
@@ -137,11 +159,11 @@ namespace TruthEngine::API::DirectX12
 
 #ifdef TE_API_DX12
 
-TE_RESULT TruthEngine::Core::CreateGDevice(uint32_t adapterIndex)
+TE_RESULT TruthEngine::CreateGDevice(uint32_t adapterIndex)
 {
 	return TruthEngine::API::DirectX12::DirectX12GraphicDevice::GetPrimaryDeviceDX12().Init(adapterIndex);
 }
 
-TruthEngine::Core::GraphicDevice* TruthEngine::Core::GraphicDevice::s_GDevice = &TruthEngine::API::DirectX12::DirectX12GraphicDevice::GetPrimaryDeviceDX12();
+TruthEngine::GraphicDevice* TruthEngine::GraphicDevice::s_GDevice = &TruthEngine::API::DirectX12::DirectX12GraphicDevice::GetPrimaryDeviceDX12();
 
 #endif

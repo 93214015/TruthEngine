@@ -3,9 +3,6 @@
 
 namespace TruthEngine
 {
-	namespace Core
-	{
-
 		class MaterialTexture;
 
 		class Material
@@ -142,7 +139,7 @@ namespace TruthEngine
 
 			float4 m_ColorDiffuse;
 			float3 m_FresnelR0;
-			float m_Shininess;
+			float m_Shininess = 0.0f;
 
 			float2 m_UVScale = { 1.0f, 1.0f };
 			float2 m_UVTranslate = { .0f, .0f };
@@ -161,5 +158,4 @@ namespace TruthEngine
 			friend class MaterialManager;
 
 		};
-	}
 }

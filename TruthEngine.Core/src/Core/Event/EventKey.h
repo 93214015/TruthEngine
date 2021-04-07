@@ -3,7 +3,7 @@
 #include "Event.h"
 #include "Core/Input/KeyCodes.h"
 
-namespace TruthEngine::Core {
+namespace TruthEngine {
 
 	class EventKey : public Event {
 

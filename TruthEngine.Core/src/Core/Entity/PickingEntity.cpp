@@ -12,11 +12,11 @@
 
 using namespace DirectX;
 
-void TruthEngine::Core::PickingEntity::PickEntity(float3 rayOrigin, float3 rayDirection, Scene* scene, Camera* camera)
+void TruthEngine::PickingEntity::PickEntity(float3 rayOrigin, float3 rayDirection, Scene* scene, Camera* camera)
 {
 }
 
-void TruthEngine::Core::PickingEntity::PickEntity(float2 mousePosition, Scene* scene, Camera* camera)
+void TruthEngine::PickingEntity::PickEntity(float2 mousePosition, Scene* scene, Camera* camera)
 {
 	const auto& _proj = camera->GetProjection();
 
@@ -41,7 +41,7 @@ void TruthEngine::Core::PickingEntity::PickEntity(float2 mousePosition, Scene* s
 	{
 		auto tag = scene->GetComponent<TagComponent>(entity).GetTag().c_str();
 
-		float4x4 _world = scene->CalcTransformsToRoot(entity);
+		float4x4 _world = scene->GetTransformHierarchy(entity);
 		auto _scaleVector = XMVectorSet(_world._11, _world._22, _world._33, 0.0f);
 		_world._11 = 1.0f;
 		_world._22 = 1.0f;
@@ -66,7 +66,7 @@ void TruthEngine::Core::PickingEntity::PickEntity(float2 mousePosition, Scene* s
 		{
 			Mesh* mesh = scene->GetComponent<MeshComponent>(entity).GetMesh();
 
-			const auto& _verteciesData = mesh->GetVertexBuffer()->GetVertexData<VertexData::Pos>();
+			const auto& _verteciesData = mesh->GetVertexBuffer()->GetPosData();
 			const auto& _indeciesData = mesh->GetIndexBuffer()->GetIndecies();
 
 			const uint32_t _triNum = mesh->GetIndexNum() / 3;

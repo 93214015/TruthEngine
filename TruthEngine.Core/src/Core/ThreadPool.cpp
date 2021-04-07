@@ -63,6 +63,5 @@ namespace TruthEngine {
 		}
 	}
 
-	TruthEngine::ThreadPool ThreadPool::s_ThreadPool;
 
 }

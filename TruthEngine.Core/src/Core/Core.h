@@ -35,6 +35,7 @@ enum TE_RESULT : int {
 	TE_RESULT_NOT_FOUND,
 	TE_RESULT_RENDERER_RESOURCECHANGESTATE_NOTNEEDED,
 	TE_RESULT_RENDERER_SHADER_HAS_EXIST,
+	TE_RESULT_GRAHICRESOURCE_CREATION_ZEROSIZE
 };
 
 #define TE_SUCCEEDED(te_result) (((TE_RESULT)te_result) >= 0)
@@ -47,3 +48,4 @@ enum TE_RESULT : int {
 #include "Core/Settings.h"
 #include "Core/StaticInstances.h"
 #include "Core/Helper/MathHelper.h"
+#include "Core/Helper/Macros.h"

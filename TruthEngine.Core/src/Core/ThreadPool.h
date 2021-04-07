@@ -27,7 +27,11 @@ namespace TruthEngine {
 			return future;
 		}
 
-		static ThreadPool& Get() { return s_ThreadPool; }
+		static ThreadPool* GetInstance() 
+		{
+			static ThreadPool s_ThreadPool;
+			return &s_ThreadPool; 
+		}
 
 	private:
 		void CancelPendings();
@@ -42,13 +46,12 @@ namespace TruthEngine {
 
 		bool m_Done = false;
 
-		static ThreadPool s_ThreadPool;
 
 	};
 
 }
 
-#define TE_INSTANCE_THREADPOOL ::TruthEngine::ThreadPool::Get()
+#define TE_INSTANCE_THREADPOOL ::TruthEngine::ThreadPool::GetInstance()
 
-#define TE_RUN_TASK(x) TE_INSTANCE_THREADPOOL.Queue(x)
+#define TE_RUN_TASK(x) TE_INSTANCE_THREADPOOL->Queue(x)
 #define TE_RUN_THREAD(x, ...)  std::async(std::launch::async, x, __VA_ARGS__)

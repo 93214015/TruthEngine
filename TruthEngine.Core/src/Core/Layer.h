@@ -1,7 +1,7 @@
 #pragma once
 #include "Event/Event.h"
 
-namespace TruthEngine::Core {
+namespace TruthEngine {
 
 	class Layer
 	{
@@ -13,7 +13,7 @@ namespace TruthEngine::Core {
 		virtual void OnDetach() = 0;
 		virtual void OnUpdate(double deltaFrameTime) {};
 		virtual void OnImGuiRender() {};
-		virtual void OnEvent(TruthEngine::Core::Event& event) {};
+		virtual void OnEvent(TruthEngine::Event& event) {};
 
 		inline const std::string& GetName() const { return m_DebugName; }
 	protected:
