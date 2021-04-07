@@ -21,6 +21,27 @@
 namespace TruthEngine::API::DirectX12
 {
 
+	inline DXGI_FORMAT GetDepthStencilSRVFormat(const TE_RESOURCE_FORMAT format)
+	{
+		switch (format)
+		{
+		case TE_RESOURCE_FORMAT::R32_TYPELESS:
+			return DXGI_FORMAT_R32_FLOAT;
+		case TE_RESOURCE_FORMAT::R24_UNORM_X8_TYPELESS:
+			return DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
+		case TE_RESOURCE_FORMAT::R24G8_TYPELESS:
+			return DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
+		case TE_RESOURCE_FORMAT::R32_FLOAT_X8X24_TYPELESS:
+			return DXGI_FORMAT_R32_FLOAT_X8X24_TYPELESS;
+		default:
+			TE_ASSERT_CORE(false, "wrong depth stecil format");
+			throw;
+			return DXGI_FORMAT_UNKNOWN;
+		}
+
+	}
+
+
 	struct RootParameterVisitor
 	{
 		ID3D12GraphicsCommandList* m_D3D12CommandList;
@@ -189,6 +210,24 @@ namespace TruthEngine::API::DirectX12
 		m_DSVHandle = m_BufferManager->m_DescHeapDSV.GetCPUHandle(DSV.ViewIndex);
 
 		m_DSVHandleNum = 1;
+	}
+
+	void DirectX12CommandList::ResolveMultiSampledTexture(Texture* _SourceTexture, Texture* _DestTexture)
+	{
+		_ChangeResourceState(_SourceTexture, TE_RESOURCE_STATES::RESOLVE_SOURCE);
+		_ChangeResourceState(_DestTexture, TE_RESOURCE_STATES::RESOLVE_DEST);
+
+		ID3D12Resource* _SourceResource = m_BufferManager->GetResource(_SourceTexture);
+		ID3D12Resource* _DestResource =  m_BufferManager->GetResource(_DestTexture);
+
+		DXGI_FORMAT _Format = static_cast<DXGI_FORMAT>(_SourceTexture->GetFormat());
+
+		if (_SourceTexture->GetUsage() == TE_RESOURCE_USAGE_DEPTHSTENCIL)
+		{
+			_Format = GetDepthStencilSRVFormat(_SourceTexture->GetFormat());
+		}
+
+		m_QueueResolveResource.emplace_back(_SourceResource, _DestResource, _Format);
 	}
 
 	/*void DirectX12CommandList::SetShaderResource(const ShaderResourceView srv, const uint32_t registerIndex)
@@ -434,27 +473,43 @@ namespace TruthEngine::API::DirectX12
 		{
 			mD3D12CommandList->SetGraphicsRootShaderResourceView(_BindResource.mRootParamterIndex, _BindResource.mResource->GetGPUVirtualAddress());
 		}
+		mBindPendingGraphicsSRVs.clear();
+
 		for (auto& _BindResource : mBindPendingGraphicsCBVs)
 		{
 			mD3D12CommandList->SetGraphicsRootConstantBufferView(_BindResource.mRootParamterIndex, _BindResource.mResource->GetGPUVirtualAddress());
 		}
+		mBindPendingGraphicsCBVs.clear();
+
 		for (auto& _BindResource : mBindPendingGraphicsUAVs)
 		{
 			mD3D12CommandList->SetGraphicsRootUnorderedAccessView(_BindResource.mRootParamterIndex, _BindResource.mResource->GetGPUVirtualAddress());
 		}
+		mBindPendingGraphicsUAVs.clear();
 
 		for (auto& _BindResource : mBindPendingComputeSRVs)
 		{
 			mD3D12CommandList->SetComputeRootShaderResourceView(_BindResource.mRootParamterIndex, _BindResource.mResource->GetGPUVirtualAddress());
 		}
+		mBindPendingComputeSRVs.clear();
+
 		for (auto& _BindResource : mBindPendingComputeCBVs)
 		{
 			mD3D12CommandList->SetComputeRootConstantBufferView(_BindResource.mRootParamterIndex, _BindResource.mResource->GetGPUVirtualAddress());
 		}
+		mBindPendingComputeCBVs.clear();
+
 		for (auto& _BindResource : mBindPendingComputeUAVs)
 		{
 			mD3D12CommandList->SetComputeRootUnorderedAccessView(_BindResource.mRootParamterIndex, _BindResource.mResource->GetGPUVirtualAddress());
 		}
+		mBindPendingComputeUAVs.clear();
+
+		for (auto& _ResolvePendings : m_QueueResolveResource)
+		{
+			mD3D12CommandList->ResolveSubresource(_ResolvePendings.mDestinationResource, 0, _ResolvePendings.mSourceResource, 0, static_cast<DXGI_FORMAT>(_ResolvePendings.mFormat));
+		}
+		m_QueueResolveResource.clear();
 
 		// TODO: need to be implemented
 		/*if (!m_SRVHandles_Texture.empty())

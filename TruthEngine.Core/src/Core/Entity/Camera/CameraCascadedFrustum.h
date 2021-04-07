@@ -31,6 +31,16 @@ namespace TruthEngine
 		//Set Functions
 		//
 
+		void SetViewMatrix(const float3& _Position, const float3& _Look, const float3& _Up, const float3& _Right)
+		{
+			m_Position = _Position;
+			m_Look = _Look;
+			m_Right = _Right;
+			m_Up = _Up;
+
+			UpdateViewMatrix();
+		}
+
 		inline void SetViewMatrix(const float4x4& viewMatrix)
 		{
 			m_ViewMatrix = viewMatrix;
@@ -42,9 +52,11 @@ namespace TruthEngine
 			UpdateViewMatrix();
 		}
 
-		inline void SetLook(const float3& look)
+		inline void SetLook(const float3& _Look, const float3& _Up, const float3& _Right)
 		{
-			m_Look = look;
+			m_Look = _Look;
+			m_Up = _Up;
+			m_Right = _Right;
 			UpdateViewMatrix();
 		}
 
@@ -59,6 +71,16 @@ namespace TruthEngine
 		inline const float3& GetLook()const noexcept
 		{
 			return m_Look;
+		}
+
+		inline const float3& GetUp()const noexcept
+		{
+			return m_Up;
+		}
+
+		inline const float3& GetRight()const noexcept
+		{
+			return m_Right;
 		}
 
 		inline const float4x4& GetView()const
@@ -76,7 +98,7 @@ namespace TruthEngine
 		virtual void UpdateFrustums(Scene* scene, Camera* referenceCamera, bool _UpdatePositinRegardingSceneAABB) = 0;
 		virtual const float4x4& GetViewProj(uint32_t splitIndex)const noexcept = 0;
 		virtual const float4x4& GetProjection(uint32_t splitIndex)const = 0;
-		virtual const BoundingFrustum& GetBoundingFrustum(uint32_t splitIndex)const = 0;
+		virtual const BoundingBox& GetBoundingBox(uint32_t splitIndex)const = 0;
 		virtual void SetCascadesConveringDepth(const float* _CascadeCoveringDepths) = 0;
 
 		virtual uint32_t GetSplitNum() const noexcept = 0;
@@ -139,10 +161,11 @@ namespace TruthEngine
 			return m_ProjectionMatrix[splitIndex];
 		}
 
-		const BoundingFrustum& GetBoundingFrustum(uint32_t splitIndex)const override
+		const BoundingBox& GetBoundingBox(uint32_t splitIndex)const override
 		{
 			return m_BoundingFrustums[splitIndex];
 		}
+
 
 		uint32_t GetSplitNum() const noexcept override
 		{
@@ -162,7 +185,7 @@ namespace TruthEngine
 
 	protected:
 
-		void CreateBoundingFrustum();
+		//void CreateBoundingFrustum();
 
 	protected:
 		static constexpr uint32_t m_SplitNum = TSplitNum;
@@ -172,7 +195,7 @@ namespace TruthEngine
 
 		float m_SplitFrustumCoveringPercentage[TSplitNum];
 
-		BoundingFrustum m_BoundingFrustums[TSplitNum];
+		BoundingBox m_BoundingFrustums[TSplitNum];
 
 		//
 		// Friend Class
@@ -194,7 +217,7 @@ namespace TruthEngine
 		memcpy(m_SplitFrustumCoveringPercentage, frustumSplitCoveringPercentage, TSplitNum * sizeof(float));
 	}
 
-	template<uint32_t TSplitNum>
+	/*template<uint32_t TSplitNum>
 	void TruthEngine::CameraCascadedFrustum<TSplitNum>::CreateBoundingFrustum()
 	{
 		auto XMView = XMLoadFloat4x4(&m_ViewMatrix);
@@ -208,7 +231,7 @@ namespace TruthEngine
 			m_BoundingFrustums[i].Transform(m_BoundingFrustums[i], InvView);
 		}
 
-	}
+	}*/
 
 
 	template<uint32_t TSplitNum>
@@ -237,7 +260,7 @@ namespace TruthEngine
 
 		auto _lightViewInv = XMMatrixInverse(nullptr, _xmView);
 
-		float rCameraViewRange = referenceCamera->GetZFarPlane() - referenceCamera->GetZNearPlane();
+		//float rCameraViewRange = referenceCamera->GetZFarPlane() - referenceCamera->GetZNearPlane();
 
 		auto _rCameraViewInv = DirectX::XMMatrixInverse(nullptr, DirectX::XMLoadFloat4x4(&referenceCamera->GetView()));
 
@@ -246,7 +269,7 @@ namespace TruthEngine
 		for (uint32_t splitIndex = 0; splitIndex < TSplitNum; ++splitIndex)
 		{
 			float _splitIntervalBegin = 1;
-			float _splitIntervalEnd = m_SplitFrustumCoveringPercentage[splitIndex] * rCameraViewRange;
+			float _splitIntervalEnd = m_SplitFrustumCoveringPercentage[splitIndex] /* * rCameraViewRange*/;
 
 			/*XMVector _rCameraFrustumCorners_0[8];
 			CreateFrustumPointsFromCascadeIntervalFromProjectionMatrix(_splitIntervalBegin, _splitIntervalEnd, referenceCamera->GetProjection(), _rCameraFrustumCorners_0);*/
@@ -300,25 +323,30 @@ namespace TruthEngine
 
 
 			//we are using reverse depth so the near and far plane have reverse order
-			float _farPlane = XMVectorGetZ(_sceneAABBLightSpaceMin);
-			float _nearPlane = XMVectorGetZ(_sceneAABBLightSpaceMax);
-
-
-			{
-				auto _splitProjectionMatrixDirectDepthPlanes = XMMatrixOrthographicOffCenterLH(XMVectorGetX(_vFrustumPointMin), XMVectorGetX(_vFrustumPointMax), XMVectorGetY(_vFrustumPointMin), XMVectorGetY(_vFrustumPointMax), _farPlane, _nearPlane);
-				BoundingFrustum::CreateFromMatrix(m_BoundingFrustums[splitIndex], _splitProjectionMatrixDirectDepthPlanes);
-				m_BoundingFrustums[splitIndex].Transform(m_BoundingFrustums[splitIndex], _lightViewInv);
-			}
-
-			/*BoundingFrustum::CreateFromMatrix(m_BoundingFrustums[splitIndex], _splitProjectionMatrix);
-
-			m_BoundingFrustums[splitIndex].Transform(m_BoundingFrustums[splitIndex], _lightViewInv);*/
-
+			float _nearPlane = XMVectorGetZ(_sceneAABBLightSpaceMin);
+			float _farPlane = XMVectorGetZ(_sceneAABBLightSpaceMax);
 
 			auto _splitProjectionMatrix = XMMatrixOrthographicOffCenterLH(XMVectorGetX(_vFrustumPointMin), XMVectorGetX(_vFrustumPointMax), XMVectorGetY(_vFrustumPointMin), XMVectorGetY(_vFrustumPointMax), _nearPlane, _farPlane);
 			XMStoreFloat4x4(&m_ProjectionMatrix[splitIndex], _splitProjectionMatrix);
 
 			XMStoreFloat4x4(&m_ViewProjMatrix[splitIndex], XMMatrixMultiply(XMLoadFloat4x4(&m_ViewMatrix), _splitProjectionMatrix));
+
+			//
+			// Create Bounding Box
+			//
+			static const XMVECTORU32 _vGrabZ = { 0x00000000,0x00000000,0xFFFFFFFF,0x00000000 };
+
+			XMVector _AABBMin = XMVectorSelect(_vFrustumPointMin, _sceneAABBLightSpaceMin, _vGrabZ);
+			XMVector _AABBMax = XMVectorSelect(_vFrustumPointMax, _sceneAABBLightSpaceMax, _vGrabZ);
+
+			BoundingBox& _AABB = m_BoundingFrustums[splitIndex];
+
+			BoundingBox::CreateFromPoints(_AABB, _AABBMin, _AABBMax);
+
+			_AABB.Transform(_AABB, _lightViewInv);
+
+
+
 
 		}
 

@@ -12,11 +12,15 @@ namespace TruthEngine
 		, const float3& up, const float3& right, const float zNear
 		, const float zFar, const float aspectRatio, const float fovY, const float fovX
 		, const float nearWindowHeight, const float farWindowHeight
-		, const float4x4& projMatrix)
+		, const float4x4& projMatrix, const BoundingFrustum& _BoundingFrustumView, bool _IsReveresedDepth, const std::function<void(Camera*)>& _FuncEditFrustum)
 		: m_ID(id), m_CameraType(cameraType), m_Position(position), m_Look(look), m_Up(up), m_Right(right)
 		, m_ZNear(zNear), m_ZFar(zFar), m_AspectRatio(aspectRatio), m_FovY(fovY), m_FovX(fovX)
 		, m_NearWindowHeight(nearWindowHeight), m_FarWindowHeight(farWindowHeight)
 		, m_ProjectionMatrix(projMatrix)
+		, m_BoundingFrustumViewSpace(_BoundingFrustumView)
+		, m_FuncEditFrustum(_FuncEditFrustum)
+		, m_IsReversedDepth(_IsReveresedDepth)
+
 	{
 		UpdateViewMatrix();
 	}
@@ -68,16 +72,12 @@ namespace TruthEngine
 
 		m_ViewProjMatrix = m_ViewMatrix * m_ProjectionMatrix;
 
-		CreateBoundingFrustum();
+		UpdateBoundingFrustumWorld();
 	}
 
 
-	void Camera::CreateBoundingFrustum()
+	void Camera::UpdateBoundingFrustumWorld()
 	{
-
-		auto XMProj = XMLoadFloat4x4(&m_ProjectionMatrix);
-		BoundingFrustum::CreateFromMatrix(m_BoundingFrustumViewSpace, XMProj);
-
 		auto XMView = XMLoadFloat4x4(&m_ViewMatrix);
 		const auto InvView = XMMatrixInverse(nullptr, XMView);
 		m_BoundingFrustumViewSpace.Transform(m_BoundingFrustumWorldSpace, InvView);
@@ -89,21 +89,32 @@ namespace TruthEngine
 		m_ZFar = zFarPlane;
 		m_NearWindowHeight = height;
 		m_AspectRatio = width / height;
-		
-		m_FovY = 2.0f * atan(height / (2.0f *zNearPlane));
-		m_FovX = 2.0f * atan(width  / (2.0f * zNearPlane));
+
+		m_FovY = 2.0f * atan(height / (2.0f * zNearPlane));
+		m_FovX = 2.0f * atan(width / (2.0f * zNearPlane));
 
 		m_FarWindowHeight = 2.0f * tan(m_FovY * 0.5f) * zFarPlane;
 
-		CameraManager::GetInstance()->EditCameraFrustum(this);
+		m_FuncEditFrustum(this);
 
 		m_ViewProjMatrix = m_ViewMatrix * m_ProjectionMatrix;
+
+
+	}
+
+	void Camera::SetLook(const float3& _Look, const float3& _Up, const float3& _Right)
+	{
+		m_Look = _Look;
+		m_Up = _Up;
+		m_Right = _Right;
+		UpdateViewMatrix();
 	}
 
 	void Camera::SetZNearPlane(const float zNearPlane)
 	{
 		m_ZNear = zNearPlane;
-		CameraManager::GetInstance()->EditCameraFrustum(this);
+
+		m_FuncEditFrustum(this);
 
 		m_ViewProjMatrix = m_ViewMatrix * m_ProjectionMatrix;
 	}
@@ -111,7 +122,8 @@ namespace TruthEngine
 	void Camera::SetZFarPlane(const float zFarPlane)
 	{
 		m_ZFar = zFarPlane;
-		CameraManager::GetInstance()->EditCameraFrustum(this);
+
+		m_FuncEditFrustum(this);
 
 		m_ViewProjMatrix = m_ViewMatrix * m_ProjectionMatrix;
 	}
@@ -119,7 +131,17 @@ namespace TruthEngine
 	void Camera::SetAspectRatio(const float aspectRatio)
 	{
 		m_AspectRatio = aspectRatio;
-		CameraManager::GetInstance()->EditCameraFrustum(this);
+
+		m_FuncEditFrustum(this);
+
+		m_ViewProjMatrix = m_ViewMatrix * m_ProjectionMatrix;
+	}
+
+	void Camera::SetFOVY(const float _FOVY)
+	{
+		m_FovY = _FOVY;
+
+		m_FuncEditFrustum(this);
 
 		m_ViewProjMatrix = m_ViewMatrix * m_ProjectionMatrix;
 	}

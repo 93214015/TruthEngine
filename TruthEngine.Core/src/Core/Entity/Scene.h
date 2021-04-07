@@ -8,6 +8,12 @@
 namespace TruthEngine
 {
 
+	class EventKeyReleased;
+
+	class LightManager;
+	class CameraManager;
+	class Camera;
+
 	class Material;
 	class Mesh;
 
@@ -20,12 +26,37 @@ namespace TruthEngine
 	public:
 		Scene();
 
+		void Init();
+
 		Entity AddEntity(const char* entityTag, Entity parent, const float4x4& transform = IdentityMatrix, const float3& _WorldCenterOffset = float3{ .0f, .0f,.0f });
 		Entity AddEntity(const char* entityTag, const float4x4& transform = IdentityMatrix, const float3& _WorldCenterOffset = float3{ .0f, .0f,.0f });
 
 		Entity AddMeshEntity(const char* _MeshName, const float4x4& _Transform, Mesh* _Mesh, Material* _Material, Entity _ModelEntity, const float3& _TranslationFromWorldCenter = float3{ .0f,.0f,.0f });
-		Entity AddPrimitiveMesh(const char* _MeshName, TE_PRIMITIVE_TYPE _PrimitiveType, size_t _PrimitiveSize, Entity _ModelEntity);
+		Entity AddPrimitiveMesh(const char* _MeshName, TE_PRIMITIVE_TYPE _PrimitiveType, const float3& _PrimitiveSize, Entity _ModelEntity);
 		Entity AddEnvironmentEntity();
+
+		Entity AddLightEntity_Directional(
+			const std::string_view _Name
+			, const float3& _Strength
+			, const float3& _Direction
+			, const float3& _Position
+			, const float _LightSize
+			, const uint32_t _CastShadow
+			, const float4& _CascadesCoveringDepth
+		);
+
+		Entity AddLightEntity_Spot(
+			const std::string_view _Name,
+			const float3& _Strength,
+			const float3& _Direction,
+			const float3& _Position,
+			const float _LightSize,
+			const bool _IsCastShadow,
+			const float _FalloffStart,
+			const float _FalloffEnd,
+			const float _InnerConeAngle,
+			const float _OuterConeAngle
+		);
 
 		Entity AddModelEntity(const char* modelName, const float4x4& transform);
 
@@ -86,6 +117,7 @@ namespace TruthEngine
 			m_SelectedEntity = {};
 		}
 
+		Entity GetModelEntity(Entity _Entity);
 		Entity GetParent(const Entity _Entity) const;
 		std::vector<Entity> GetChildrenEntity(Entity entity);
 		std::vector<Entity> GetChildrenEntity(entt::entity entityHandler);
@@ -100,9 +132,16 @@ namespace TruthEngine
 		}
 
 		std::vector<Entity> GetAncestor(const Entity entity);
-		float4x4 GetTransformHierarchy(Entity entity);
 		std::vector<Entity> GetAncestor(entt::entity entityHandler);
+
+		float4x4 GetTransformHierarchy(Entity entity);
 		float4x4 GetTransformHierarchy(entt::entity entityHandler);
+
+		float3 GetTranslateHierarchy(Entity entity);
+		float3 GetTranslateHierarchy(entt::entity entityHandler);
+
+		float4x4 GetStaticTransformHierarchy(Entity entity);
+		float4x4 GetStaticTransformHierarchy(entt::entity entityHandler);
 
 		const BoundingBox& GetBoundingBox() const noexcept;
 		void UpdateBoundingBox(const BoundingBox& _boundingBox);
@@ -117,20 +156,33 @@ namespace TruthEngine
 		float3 GetPosition(Entity entity);
 		float3 GetPosition(entt::entity entityHandle);
 
+		Camera* GetActiveCamera() const;
+
+		void ShootTheBall();
+
+		void RegisterEventListener();
+		void OnEventKeyPressed(EventKeyReleased& _event);
+		
+
 	private:
 		float4x4 GetParentTransforms(Entity parent);
 		float4x4 GetParentTransforms(entt::entity parentHandler);
+
 	private:
 		entt::registry m_Registery;
 
 		EntityTree m_EntityTree;
 		Entity m_SelectedEntity;
 
+		Entity m_ModelShootedBall;
+
 		std::unordered_map<const char*, Entity> m_Entites;
 
 		BoundingBox m_BoundingBox;
 
 		std::mutex m_Mutex;
+
+		LightManager* m_LightManager;
 
 		//
 		//Friend Classes

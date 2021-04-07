@@ -126,7 +126,7 @@ namespace TruthEngine
 		physx::PxRigidStatic* AddRigidStaticTriangleMesh(const TEPhysicsRigidTriangleMeshDesc& rigidTriangleMeshDesc, Entity entity);
 
 		physx::PxRigidDynamic* AddRigidDynamicBox(const TEPhysicsRigidBoxDesc& rigidBoxDesc, Entity entity);
-		physx::PxRigidDynamic* AddRigidDynamicSphere(const TEPhysicsRigidSphereDesc& rigidSphereDesc, Entity entity);
+		physx::PxRigidDynamic* AddRigidDynamicSphere(const TEPhysicsRigidSphereDesc& rigidSphereDesc, Entity entity, std::optional<float3> _LinearVelocity = std::nullopt, std::optional<float3> _AngularVelocity = std::nullopt);
 		physx::PxRigidDynamic* AddRigidDynamicConvex(Entity entity);
 		physx::PxRigidDynamic* AddRigidDynamicTriangleMesh(const TEPhysicsRigidTriangleMeshDesc& rigidTriangleMeshDesc, Entity entity);
 

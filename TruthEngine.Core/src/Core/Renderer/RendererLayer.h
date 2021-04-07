@@ -58,10 +58,26 @@ namespace TruthEngine
 
 		void SetEnabledEnvironmentMap(bool _EnabledEnvironmentMap);
 
+		const float3& GetAmbientLightStrength() const;
+		void SetAmbientLightStrength(const float3& _AmbientLightStrength);
+
+
+		const float3& GetEnvironmentMapMultiplier()const;
+		const void SetEnvironmentMapMultiplier(const float3& _EnvironmentMapMultiplier);
+		
+
+
 		bool IsEnvironmentMapEnabled()const noexcept
 		{
 			return m_EnabledEnvironmentMap;
 		}
+
+		inline bool IsEnabledHDR()const noexcept
+		{
+			return m_IsEnabledHDR;
+		}
+
+		void SetHDR(bool _EnableHDR);
 
 	private:
 		void RegisterEvents();
@@ -73,8 +89,10 @@ namespace TruthEngine
 		void OnUpdateLight(const EventEntityUpdateLight& event);
 		void OnAddLight(const EventEntityAddLight& event);
 
-		void _ChangeUnfrequentBuffer_LightDirectionalLight(uint32_t _LightDirectionalCount);
+		void _ChangeUnfrequentBuffer_LightDirectionalCount(uint32_t _LightDirectionalCount);
+		void _ChangeUnfrequentBuffer_LightSpotCount(uint32_t _LightSpotCount);
 
+		void InitRenderPasses();
 		void InitTextures();
 		void InitBuffers();
 
@@ -103,10 +121,14 @@ namespace TruthEngine
 		ConstantBufferUpload<ConstantBuffer_Data_UnFrequent>* m_CB_UnFrequent;
 		ConstantBufferUpload<ConstantBuffer_Data_Bones>* m_CB_Bones;
 
+		ConstantBufferDirect<ConstantBuffer_Data_EnvironmentMap>* m_CB_EnvironmentMap;
+
 		std::map<int, int> m_Map_DLightToCBuffer;
+		std::map<int, int> m_Map_SLightToCBuffer;
 
 		bool m_EnabledImGuiLayer = true;
 		bool m_EnabledEnvironmentMap = false;
+		bool m_IsEnabledHDR = false;
 
 		TimerProfile_OneSecond m_TimerRenderLayerUpdate;
 

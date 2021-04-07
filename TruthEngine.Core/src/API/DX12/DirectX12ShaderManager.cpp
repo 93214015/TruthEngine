@@ -148,12 +148,15 @@ namespace TruthEngine
 					name.c_str(),
 					L"-E", entryL.c_str(),
 					L"-T", target.c_str(),
-					L"-Zi",
-					L"-Qembed_debug",
-					L"-Od",
 					/*L"-Fo",binaryOutput.c_str(),
 					/*L"-Fd", debugOutput.c_str(),
 					L"-Qstrip_reflect"*/};
+
+#ifdef TE_DEBUG
+				vargs.emplace_back(L"-Od");
+				vargs.emplace_back(L"-Qembed_debug");
+				vargs.emplace_back(L"-Zi");
+#endif
 
 				for (auto& d : m_Defines)
 				{

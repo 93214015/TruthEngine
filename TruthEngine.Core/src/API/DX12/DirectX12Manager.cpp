@@ -249,7 +249,7 @@ namespace TruthEngine::API::DirectX12
 		//
 		//Define Static Samplers
 		//
-		D3D12_STATIC_SAMPLER_DESC sampler_desc[4];
+		D3D12_STATIC_SAMPLER_DESC sampler_desc[6];
 
 		sampler_desc[0].AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
 		sampler_desc[0].AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
@@ -263,6 +263,7 @@ namespace TruthEngine::API::DirectX12
 		sampler_desc[0].MinLOD = 0;
 		sampler_desc[0].MaxLOD = D3D12_FLOAT32_MAX;
 		sampler_desc[0].MipLODBias = 0;
+
 
 		sampler_desc[1].AddressU = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
 		sampler_desc[1].AddressV = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
@@ -295,9 +296,9 @@ namespace TruthEngine::API::DirectX12
 		sampler_desc[3].AddressU = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
 		sampler_desc[3].AddressV = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
 		sampler_desc[3].AddressW = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
-		sampler_desc[3].BorderColor = D3D12_STATIC_BORDER_COLOR_OPAQUE_WHITE;
+		sampler_desc[3].BorderColor = D3D12_STATIC_BORDER_COLOR_OPAQUE_BLACK;
 		sampler_desc[3].ComparisonFunc = D3D12_COMPARISON_FUNC_GREATER;
-		sampler_desc[3].Filter = D3D12_FILTER_MIN_MAG_MIP_POINT;
+		sampler_desc[3].Filter = D3D12_FILTER_COMPARISON_MIN_MAG_MIP_POINT;
 		sampler_desc[3].RegisterSpace = 0;
 		sampler_desc[3].ShaderRegister = 3;
 		sampler_desc[3].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
@@ -305,6 +306,33 @@ namespace TruthEngine::API::DirectX12
 		sampler_desc[3].MinLOD = 0;
 		sampler_desc[3].MaxLOD = D3D12_FLOAT32_MAX;
 		sampler_desc[3].MipLODBias = 0;
+
+		sampler_desc[4].AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+		sampler_desc[4].AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+		sampler_desc[4].AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+		sampler_desc[4].ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER;
+		sampler_desc[4].Filter = D3D12_FILTER_MIN_MAG_MIP_POINT;
+		sampler_desc[4].RegisterSpace = 0;
+		sampler_desc[4].ShaderRegister = 4;
+		sampler_desc[4].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+		sampler_desc[4].MaxAnisotropy = 1;
+		sampler_desc[4].MinLOD = 0;
+		sampler_desc[4].MaxLOD = D3D12_FLOAT32_MAX;
+		sampler_desc[4].MipLODBias = 0;
+
+		sampler_desc[5].AddressU = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+		sampler_desc[5].AddressV = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+		sampler_desc[5].AddressW = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+		sampler_desc[5].BorderColor = D3D12_STATIC_BORDER_COLOR_OPAQUE_WHITE;
+		sampler_desc[5].ComparisonFunc = D3D12_COMPARISON_FUNC_LESS;
+		sampler_desc[5].Filter = D3D12_FILTER_COMPARISON_MIN_MAG_MIP_POINT;
+		sampler_desc[5].RegisterSpace = 0;
+		sampler_desc[5].ShaderRegister = 5;
+		sampler_desc[5].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+		sampler_desc[5].MaxAnisotropy = 1;
+		sampler_desc[5].MinLOD = 0;
+		sampler_desc[5].MaxLOD = D3D12_FLOAT32_MAX;
+		sampler_desc[5].MipLODBias = 0;
 
 
 		COMPTR<ID3DBlob> errorBlob;

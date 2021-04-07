@@ -50,8 +50,8 @@ namespace TruthEngine
 		else
 		{
 			**_outPipeline = PipelineGraphics(
-				(*_outPipeline)->m_ID,
-				(*_outPipeline)->m_Name,
+				gPipelineID++,
+				_Name,
 				states,
 				shader,
 				renderTargetNum,

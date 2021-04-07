@@ -60,13 +60,14 @@ namespace TruthEngine
 			void SetPipelineCompute(PipelineCompute* pipeline) override;
 
 
-			//			void SetRenderTarget(TextureRenderTarget* RenderTargets[], const uint32_t RenderTargetNum, const TextureDepthStencil* DepthStencil) override;
+			//void SetRenderTarget(TextureRenderTarget* RenderTargets[], const uint32_t RenderTargetNum, const TextureDepthStencil* DepthStencil) override;
 			void SetRenderTarget(const RenderTargetView RTV) override;
 			void SetRenderTarget(SwapChain* swapChain, const RenderTargetView RTV) override;
 
 
-			void SetDepthStencil(const DepthStencilView DSV);
+			void SetDepthStencil(const DepthStencilView DSV) override;
 
+			void ResolveMultiSampledTexture(Texture* _SourceTexture, Texture* _DestTexture) override;
 
 			/*void SetShaderResource(const ShaderResourceView srv, const uint32_t registerIndex) override;
 
@@ -223,6 +224,17 @@ namespace TruthEngine
 				uint32_t mRootParamterIndex;
 			};
 
+			struct ResolveResourcePending
+			{
+				ResolveResourcePending(ID3D12Resource* _SourceResource, ID3D12Resource* _DestinationResource, DXGI_FORMAT _Format)
+					: mSourceResource(_SourceResource), mDestinationResource(_DestinationResource), mFormat(_Format)
+				{}
+
+				ID3D12Resource* mSourceResource;
+				ID3D12Resource* mDestinationResource;
+				DXGI_FORMAT mFormat;
+			};
+
 
 			COMPTR<ID3D12GraphicsCommandList> mD3D12CommandList;
 
@@ -243,6 +255,8 @@ namespace TruthEngine
 			std::vector<ClearingDepthStencil> m_QueueClearDS;
 
 			std::vector<CopyPending_DefaultResource> m_QueueCopyDefaultResource;
+
+			std::vector<ResolveResourcePending> m_QueueResolveResource;
 
 			std::vector<BindPendingDescriptor> mBindPendingGraphicsSRVs;
 			std::vector<BindPendingDescriptor> mBindPendingGraphicsUAVs;

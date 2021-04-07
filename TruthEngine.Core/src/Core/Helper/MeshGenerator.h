@@ -9,12 +9,12 @@ namespace TruthEngine
 		public:
 			MeshGenerator();
 
-			Mesh* GenerateBox(float size);
-			Mesh* GenerateRoundedBoxMesh(float size);
+			Mesh* GenerateBox(float size_x, float size_y, float size_z);
+			Mesh* GenerateRoundedBoxMesh(float size_x, float size_y, float size_z);
 			Mesh* GenerateSphere(float size);
 			Mesh* GenerateCylinder(float size);
 			Mesh* GenerateCappedCylinder(float size);
-			Mesh* GeneratePlane(float size);
+			Mesh* GeneratePlane(float size_x, float size_z);
 
 
 			static MeshGenerator* GetInstance()

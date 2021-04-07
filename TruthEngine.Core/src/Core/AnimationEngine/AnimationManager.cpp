@@ -3,7 +3,7 @@
 
 namespace TruthEngine
 {
-	AnimationManager::AnimationManager()
+	AnimationManager::AnimationManager() : m_Stopped(false)
 	{
 		mSAAnimations.reserve(100);
 	}
@@ -12,6 +12,9 @@ namespace TruthEngine
 
 	void AnimationManager::Update(double _dt)
 	{
+		if (m_Stopped)
+			return;
+
 		for (SA_Animation& _Animation : mSAAnimations)
 		{
 			_Animation.UpdateTimePos(_dt);

@@ -10,178 +10,133 @@ enum class TE_LIGHT_TYPE
 namespace TruthEngine
 {
 
+
+	struct DirectionalLightData
+	{
+		DirectionalLightData(const float3& _Strength, float _LightSize, const float3& _Direction, bool _CastShadow, const float3& _Position)
+			: Strength(_Strength), LightSize(_LightSize), Direction(_Direction), CastShadow(static_cast<uint32_t>(_CastShadow)), Position(_Position)
+		{
+			Math::Normalize(Direction);
+		}
+
+		float3 Strength;
+		float LightSize;
+
+		float3 Direction;
+		uint32_t CastShadow;
+
+		float3 Position;
+		float Pad0;
+	};
+
+
+	struct SpotLightData
+	{
+		SpotLightData( const float3& _Strength, float _LightSize, const float3& _Direction, bool _CastShadow
+			, const float3& _Position, float _FalloffStart, float _FalloffEnd, float _SpotOuterConeCos,
+			float _SpotOuterConeAngleRangeCosRcp)
+			: Strength(_Strength), LightSize(_LightSize), Direction(_Direction), CastShadow(static_cast<uint32_t>(_CastShadow))
+			, Position(_Position), FalloffStart(_FalloffStart), FalloffEnd(_FalloffEnd), SpotOuterConeCos(_SpotOuterConeCos), SpotOuterConeAngleRangeCosRcp(_SpotOuterConeAngleRangeCosRcp)
+		{
+			Math::Normalize(Direction);
+		}
+
+		float4x4 ShadowTransform = IdentityMatrix;
+
+		float3 Strength;
+		float LightSize;
+
+		float3 Direction;
+		uint32_t CastShadow;
+
+		float3 Position;
+		float FalloffStart;
+
+
+		float FalloffEnd;
+		float SpotOuterConeCos;
+		float SpotOuterConeAngleRangeCosRcp;
+		float pad;
+	};
+
+
+	class ILight
+	{
+
+	public:
+
+		ILight(
+			uint32_t id
+			, std::string_view name
+			, TE_LIGHT_TYPE lightType);
+
+		virtual ~ILight();
+
+
+		ILight(ILight&&) noexcept;
+		ILight& operator=(ILight&&) noexcept;
+
+
+
 		//
-	//Light Data
-	//
-		struct LightData
+		//Set Methods
+		//
+		virtual void SetStrength(const float3& _Strength) noexcept = 0;
+
+		virtual void SetCastShadow(const bool _castshadow) noexcept = 0;
+
+		virtual void SetView(const float3& _Position, const float3& _NDirection, const float3& _NUp, const float3& _NRight) noexcept = 0;
+
+		virtual void SetDirection(const float3& _NDirection, const float3& _NUp, const float3& _NRight) noexcept = 0;
+
+		virtual void SetPosition(const float3& _Position) noexcept = 0;
+
+		virtual void SetPosition(const float x, const float y, const float z) noexcept = 0;
+
+		//
+		//Get Methods
+		//
+
+		inline uint32_t GetID() const noexcept
 		{
-			LightData() : 
-				Diffuse(float4{ 1.0f, 1.0f, 1.0f, 1.0f })
-				, Ambient(0.2f, 0.2f, 0.2f, 1.0f )
-				, Specular(0.4f, 0.4f, 0.4f, 1.0f)
-				, Direction(1.0f, -1.0f, 1.0f)
-				, LightSize(0.01f)
-				, Position(0.0f, 30.0f, 0.0f)
-				, CastShadow(false)
-				, Range(100.0f)
-			{
-				Math::Normalize(Direction);
-				//ZeroMemory(this, sizeof(LightData));
-			}
-
-			LightData(float4 diffuseColor, float4 ambientColor, float4 specularColor, float3 direction, float lightSize, float3 position, uint32_t castShadow, float range)
-				: Diffuse(diffuseColor), Ambient(ambientColor), Specular(specularColor), Direction(direction), LightSize(lightSize), Position(position), CastShadow(castShadow), Range(range)
-			{
-				Math::Normalize(Direction);
-			}
-
-			float4 Diffuse;
-			float4 Ambient;
-			float4 Specular;
-
-			float3 Direction;
-			float	 LightSize;
-
-			float3 Position;
-			uint32_t      CastShadow;
-
-			float Range;
-			float3 pad;
-		};
-
-
-		struct DirectionalLightData : public LightData
+			return m_ID;
+		}
+		inline const std::string& GetName()const noexcept
 		{
-			using LightData::LightData;
-		};
+			return m_Name;
+		}
 
-
-		struct SpotLightData : public LightData
+		inline TE_LIGHT_TYPE GetLightType()const noexcept
 		{
-
-			float3 Attenuation;
-			float Spot;
-
-		};
+			return m_LightType;
+		}
 
 
-		class ILight
-		{
+		virtual const float3& GetPosition() const noexcept = 0;
 
-		public:
+		virtual const float3& GetDirection() const noexcept = 0;
 
-			ILight(
-				uint32_t id
-				,std::string_view name
-				, LightData* lightData
-				, TE_LIGHT_TYPE lightType);
+		virtual const float3& GetStrength() const noexcept = 0;
 
-			virtual ~ILight();
+		virtual bool GetCastShadow()const noexcept = 0;
 
 
-			ILight(ILight&&) noexcept;
-			ILight& operator=(ILight&&) noexcept;
+	protected:
 
 
+	protected:
 
-			//
-			//Set Methods
-			//
-			void SetDiffuseColor(const float4& _diffuseColor) noexcept;
+		std::string m_Name;
 
-			void SetAmbientColor(const float4& _ambientColor) noexcept;
+		uint32_t m_ID;
 
-			void SetSpecularColor(const float4& _specularColor)noexcept;
+		bool m_Disabled = false;
 
+		bool m_ShadowDynamicObjects = false;
 
-			void SetCastShadow(const bool _castshadow) noexcept;
+		TE_LIGHT_TYPE m_LightType;
 
-			void SetRange(const float _range) noexcept;
-
-			virtual void SetDirection(const float3& _direction) noexcept;
-
-			virtual void SetDirection(const float x, const float y, const float z) noexcept;
-
-			virtual void SetPosition(const float3& _position) noexcept;
-
-			virtual void SetPosition(const float x, const float y, const float z) noexcept;
-
-			//
-			//Get Methods
-			//
-
-			inline uint32_t GetID() const noexcept
-			{
-				return m_ID;
-			}
-			inline const std::string& GetName()const noexcept
-			{
-				return m_Name;
-			}
-			inline float3 GetPosition()const
-			{
-				return m_LightData->Position;
-			}
-
-			inline float3 GetDirection()const
-			{
-				return m_LightData->Direction;
-			}
-
-			inline float4 GetDiffuseColor()const
-			{
-				return m_LightData->Diffuse;
-			}
-
-			inline float4 GetAmbientColor() const 
-			{
-				return m_LightData->Ambient;
-			}
-
-			inline float4 GetSpecularColor() const 
-			{
-				return m_LightData->Specular;
-			}
-
-			virtual LightData& GetLightData() const;
-
-			inline bool GetCastShadow()const noexcept
-			{
-				return static_cast<bool>(m_LightData->CastShadow);;
-			}
-
-			inline TE_LIGHT_TYPE GetLightType()const noexcept
-			{
-				return m_LightType;
-			}
-
-			inline float GetRange()const noexcept
-			{
-				return m_LightData->Range;
-			}
-
-			//
-			//abstract functions
-			//
-
-		protected:
-
-
-		protected:
-
-			std::string m_Name;
-
-			uint32_t m_ID;
-
-			LightData* m_LightData = nullptr;
-
-			bool m_Disabled = false;
-
-			bool m_ShadowDynamicObjects = false;
-
-			TE_LIGHT_TYPE m_LightType;
-
-			std::function<void(const float&)> m_Func_Update = [](const float& dt) {return; };
-		};
+		std::function<void(const float&)> m_Func_Update = [](const float& dt) {return; };
+	};
 }
 

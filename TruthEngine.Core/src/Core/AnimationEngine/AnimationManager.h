@@ -32,6 +32,8 @@ namespace TruthEngine
 
 	private:
 
+		bool m_Stopped;
+
 		std::vector<SA_Animation> mSAAnimations;
 
 	};

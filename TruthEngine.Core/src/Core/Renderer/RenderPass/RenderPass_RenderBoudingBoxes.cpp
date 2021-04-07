@@ -5,8 +5,8 @@
 #include "Core/Entity/Components/BoundingBoxComponent.h"
 
 
-TruthEngine::RenderPass_RenderBoundingBoxes::RenderPass_RenderBoundingBoxes()
-	: RenderPass(TE_IDX_RENDERPASS::RENDERBOUNDINGBOX)
+TruthEngine::RenderPass_RenderBoundingBoxes::RenderPass_RenderBoundingBoxes(RendererLayer* _RendererLayer)
+	: RenderPass(TE_IDX_RENDERPASS::RENDERBOUNDINGBOX, _RendererLayer)
 	, m_Viewport{ 0.0f, 0.0f, static_cast<float>(TE_INSTANCE_APPLICATION->GetClientWidth()), static_cast<float>(TE_INSTANCE_APPLICATION->GetClientHeight()), 0.0f, 1.0f }
 	, m_ViewRect{ static_cast<long>(0.0), static_cast<long>(0.0), static_cast<long>(TE_INSTANCE_APPLICATION->GetClientWidth()), static_cast<long>(TE_INSTANCE_APPLICATION->GetClientHeight()) }
 {

@@ -43,11 +43,6 @@ namespace TruthEngine
 
 	void RendererCommand::Release()
 	{
-		for (auto cm : m_CommandLists)
-		{
-			cm->Release();
-		}
-
 		m_CommandLists.clear();
 	}
 
@@ -263,10 +258,25 @@ namespace TruthEngine
 		}
 	}
 
+	void RendererCommand::ResolveMultiSampledTexture(Texture* _SourceTexture, Texture* _DestTexture)
+	{
+		m_CurrentCommandList->ResolveMultiSampledTexture(_SourceTexture, _DestTexture);
+	}
+
+	void RendererCommand::ResolveMultiSampledTexture(Texture* _SourceTexture, TE_IDX_GRESOURCES _TextureIDX)
+	{
+		m_CurrentCommandList->ResolveMultiSampledTexture(_SourceTexture, m_BufferManager->GetTexture(_TextureIDX));
+	}
+
 
 	void RendererCommand::EndAndPresent()
 	{
 		m_CurrentCommandList->Present();
+	}
+
+	void RendererCommand::ExecutePendingCommands()
+	{
+		m_CurrentCommandList->Commit();
 	}
 
 	void RendererCommand::End()
@@ -352,6 +362,9 @@ namespace TruthEngine
 
 	void RendererCommand::ReleaseResource(GraphicResource* graphicResource)
 	{
+		if (!graphicResource)
+			return;
+
 		WaitForGPU();
 
 		m_BufferManager->ReleaseResource(graphicResource);

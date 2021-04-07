@@ -18,7 +18,8 @@ namespace TruthEngine
 	{
 
 	public:
-		RenderPass_GenerateShadowMap();
+		RenderPass_GenerateShadowMap(RendererLayer* _RendererLayer, uint32_t ShadowMapSize);
+
 
 		void OnAttach() override;
 
@@ -40,21 +41,27 @@ namespace TruthEngine
 
 	private:
 
-
 		void InitPipeline();
+
+		void RenderSpotLightShadowMap();
 
 	private:
 
-		uint32_t m_ShadoWMapSize = 2048;
+		uint32_t m_ShadoWMapSize;
 
 		RendererCommand m_RendererCommand;
-		TextureDepthStencil* m_TextureDepthStencil;
-		DepthStencilView m_DepthStencilView;
+		RendererCommand m_RendererCommand_SpotLights;
+
+		TextureDepthStencil* m_TextureDepthStencil_SunLight;
+		TextureDepthStencil* m_TextureDepthStencil_SpotLight;
+		DepthStencilView m_DepthStencilView_SunLight;
+		DepthStencilView m_DepthStencilView_SpotLight;
 
 		Viewport m_Viewport;
 		ViewRect m_ViewRect;
 
-		std::unordered_map<TE_IDX_MESH_TYPE, PipelineGraphics*> m_Pipelines;
+		std::unordered_map<TE_IDX_MESH_TYPE, PipelineGraphics*> m_PipelinesForwardDepth;
+		std::unordered_map<TE_IDX_MESH_TYPE, PipelineGraphics*> m_PipelinesReveresedDepth;
 
 		ShaderManager* m_ShaderManager;
 		BufferManager* m_BufferManager;

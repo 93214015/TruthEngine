@@ -95,6 +95,7 @@ namespace TruthEngine
 			void BeginGraphics();
 			void BeginGraphics(PipelineGraphics* pipeline);
 			
+			void ExecutePendingCommands();
 			void End();
 			void EndAndPresent();
 
@@ -113,6 +114,9 @@ namespace TruthEngine
 			void ResizeDepthStencil(TextureDepthStencil* texture, uint32_t width, uint32_t height, DepthStencilView* DSV, ShaderResourceView* SRV);
 			void ResizeDepthStencil(TE_IDX_GRESOURCES idx, uint32_t width, uint32_t height, DepthStencilView* DSV, ShaderResourceView* SRV);
 			void ResizeSwapChain(SwapChain* swapChain, uint32_t width, uint32_t height, RenderTargetView* RTV, ShaderResourceView* SRV);
+
+			void ResolveMultiSampledTexture(Texture* _SourceTexture, Texture* _DestTexture);
+			void ResolveMultiSampledTexture(Texture* _SourceTexture, TE_IDX_GRESOURCES _TextureIDX);
 
 			void AddUpdateTask(const std::function<void()>& task);
 			void AddUpdateTaskJustCurrentFrame(const std::function<void()>& task);

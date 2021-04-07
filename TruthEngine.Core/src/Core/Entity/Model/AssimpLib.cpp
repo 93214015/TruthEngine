@@ -253,43 +253,42 @@ namespace TruthEngine
 				}
 			}
 
+			//{
+			//	const auto heightTextureCount = aiMaterial->GetTextureCount(aiTextureType_HEIGHT);
 
-			{
-				const auto heightTextureCount = aiMaterial->GetTextureCount(aiTextureType_HEIGHT);
+			//	if (heightTextureCount > 0)
+			//	{
+			//		SET_RENDERER_STATE(states, TE_RENDERER_STATE_ENABLED_MAP_NORMAL, TE_RENDERER_STATE_ENABLED_MAP_NORMAL_TRUE);
+			//	}
 
-				if (heightTextureCount > 0)
-				{
-					SET_RENDERER_STATE(states, TE_RENDERER_STATE_ENABLED_MAP_NORMAL, TE_RENDERER_STATE_ENABLED_MAP_NORMAL_TRUE);
-				}
+			//	for (UINT j = 0; j < heightTextureCount; ++j)
+			//	{
+			//		if (aiMaterial->GetTexture(aiTextureType_HEIGHT, j, &ais) == AI_SUCCESS)
+			//		{
 
-				for (UINT j = 0; j < heightTextureCount; ++j)
-				{
-					if (aiMaterial->GetTexture(aiTextureType_HEIGHT, j, &ais) == AI_SUCCESS)
-					{
+			//			if (auto aitex = aiscene->GetEmbeddedTexture(ais.C_Str()); aitex)
+			//			{
+			//				std::string_view name = aitex->mFilename.C_Str();
+			//				auto index = name.find_last_of('/');
+			//				name = name.substr(index);
+			//				//auto index = std::atoi(&ais.C_Str()[1]);
 
-						if (auto aitex = aiscene->GetEmbeddedTexture(ais.C_Str()); aitex)
-						{
-							std::string_view name = aitex->mFilename.C_Str();
-							auto index = name.find_last_of('/');
-							name = name.substr(index);
-							//auto index = std::atoi(&ais.C_Str()[1]);
+			//				auto& _Itr = mMapTexFileName.find(name);
+			//				if (_Itr == mMapTexFileName.end())
+			//				{
+			//					throw;
+			//				}
 
-							auto& _Itr = mMapTexFileName.find(name);
-							if (_Itr == mMapTexFileName.end())
-							{
-								throw;
-							}
+			//				normalMapViewIndex = _Itr->second;
+			//			}
+			//			else
+			//			{
+			//				normalMapViewIndex = texManager->CreateTexture(ais.C_Str(), m_ModelFilePath)->GetViewIndex();
+			//			}
 
-							normalMapViewIndex = _Itr->second;
-						}
-						else
-						{
-							normalMapViewIndex = texManager->CreateTexture(ais.C_Str(), m_ModelFilePath)->GetViewIndex();
-						}
-
-					}
-				}
-			}
+			//		}
+			//	}
+			//}
 
 			m_MaterialManager->AddMaterial(
 				states

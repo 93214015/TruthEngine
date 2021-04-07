@@ -83,7 +83,8 @@ namespace TruthEngine::API::DirectX12
 
 		if (!(usage & TE_RESOURCE_USAGE_SHADERRESOURCE))
 		{
-			resourceFlags |= D3D12_RESOURCE_FLAG_DENY_SHADER_RESOURCE;
+			if (usage & TE_RESOURCE_USAGE_DEPTHSTENCIL)
+				resourceFlags |= D3D12_RESOURCE_FLAG_DENY_SHADER_RESOURCE;
 		}
 
 		if (usage & TE_RESOURCE_USAGE_DEPTHSTENCIL)
@@ -197,12 +198,12 @@ namespace TruthEngine::API::DirectX12
 		{
 			tDS->m_ResourceIndex = static_cast<uint32_t>(m_Resources.size());
 
-			resource = &m_Resources.emplace_back();
+			resource = std::addressof(m_Resources.emplace_back());
 		}
 		else
 		{
 			_ReCreation = true;
-			resource = &m_Resources[tDS->m_ResourceIndex];
+			resource = std::addressof(m_Resources[tDS->m_ResourceIndex]);
 		}
 
 		D3D12_CLEAR_VALUE v{ GetDSVFormat(tDS->m_Format), { tDS->m_ClearValue.depthValue, tDS->m_ClearValue.stencilValue } };
@@ -779,7 +780,7 @@ namespace TruthEngine::API::DirectX12
 			return;
 		}
 
-		m_Resources[resourceIndex]->Release();
+		m_Resources[resourceIndex].Reset();
 	}
 
 

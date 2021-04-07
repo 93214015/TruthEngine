@@ -67,6 +67,7 @@ namespace TruthEngine
 
 			static uint16_t _ModelNamePostfix = 0;
 			static char _ModelNameBuffer[50];
+		
 
 			if (!m_Context->GetSelectedEntity())
 			{
@@ -74,9 +75,11 @@ namespace TruthEngine
 			}
 
 			ImGui::Text("Primitves");
-			static float primitiveSize = 1.0f;
+
+			static float3 _Size = {1.0f, 1.0f, 1.0f};
 			static auto primitiveType = TE_PRIMITIVE_TYPE::BOX;
-			ImGui::InputFloat("Primitive Size/Radius", &primitiveSize);
+			ImGui::InputFloat3("Primitive Size.X/Radius Size.Y Size.Z", &_Size.x);
+
 			if (ImGui::RadioButton("Box", primitiveType == TE_PRIMITIVE_TYPE::BOX))
 			{
 				primitiveType = TE_PRIMITIVE_TYPE::BOX;
@@ -110,26 +113,34 @@ namespace TruthEngine
 				std::string _MeshName = "Primitive_" + std::to_string(_ModelNamePostfix);
 				_ModelNamePostfix++;
 
-
-				Mesh* _Mesh = modelManager->GeneratePrimitiveMesh(primitiveType, primitiveSize);
+				//Mesh* _Mesh = modelManager->GeneratePrimitiveMesh(primitiveType, _Size.x, _Size.y, _Size.z);
 
 				Entity _ModelEntity;
-				if (m_Context->GetSelectedEntity())
+				Entity _SelectedEntity = m_Context->GetSelectedEntity();
+				if ( _SelectedEntity)
 				{
-					_ModelEntity = m_Context->GetSelectedEntity();
+					_ModelEntity = m_Context->GetModelEntity(_SelectedEntity);
 				}
 				else
 				{
+					if (strcmp(_ModelNameBuffer, "") == 0)
+					{
+						std::string _ModelName = "Model_" + std::to_string(_ModelNamePostfix);
+						strcpy_s(_ModelNameBuffer, _ModelName.c_str());
+					}
 					_ModelEntity = m_Context->AddModelEntity(_ModelNameBuffer, IdentityMatrix);
 				}
 
-				static MaterialManager* s_MaterialManager = MaterialManager::GetInstance();
-				Entity _MeshEntity = m_Context->AddMeshEntity(_MeshName.c_str(), IdentityMatrix, _Mesh, s_MaterialManager->AddDefaultMaterial(TE_IDX_MESH_TYPE::MESH_NTT), _ModelEntity);
+				/*static MaterialManager* s_MaterialManager = MaterialManager::GetInstance();
+				Entity _MeshEntity = m_Context->AddMeshEntity(_MeshName.c_str(), IdentityMatrix, _Mesh, s_MaterialManager->AddDefaultMaterial(TE_IDX_MESH_TYPE::MESH_NTT), _ModelEntity);*/
+
+				Entity _MeshEntity = m_Context->AddPrimitiveMesh(_MeshName.c_str(), primitiveType, _Size, _ModelEntity);
 
 				m_Context->SelectEntity(_MeshEntity);
 
 				ImGui::CloseCurrentPopup();
 			}
+
 			ImGui::SameLine();
 			if (ImGui::Button("Cancel"))
 			{
@@ -376,7 +387,7 @@ namespace TruthEngine
 				switch (cameraType)
 				{
 				case TruthEngine::TE_CAMERA_TYPE::Perspective:
-					camera = cameraManager->CreatePerspectiveFOV("", float3{ .0f, .10f, -10.0f }, float3{ .0f, .0f, .0f }, float3{ .0f, 1.0f, .0f }, DirectX::XM_PIDIV4, TE_INSTANCE_APPLICATION->GetSceneViewportAspectRatio(), 1.0f, 100.0f);
+					camera = cameraManager->CreatePerspectiveFOV("", float3{ .0f, .10f, -10.0f }, float3{ .0f, .0f, .0f }, float3{ .0f, 1.0f, .0f }, DirectX::XM_PIDIV4, TE_INSTANCE_APPLICATION->GetSceneViewportAspectRatio(), 1.0f, 100.0f, false);
 					break;
 				case TruthEngine::TE_CAMERA_TYPE::Orthographic:
 					camera = cameraManager->CreateOrthographicCenterOff("", float3{ .0f, 20.0f, -20.0f }, float3{ .0f, .0f, .0f }, float3{ .0f, 1.0f, .0f }, -20.0f, 20.0f, 20.0f, -20.0f, 1.0, 100.0f);

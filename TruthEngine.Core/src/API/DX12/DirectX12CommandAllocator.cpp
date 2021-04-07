@@ -47,7 +47,6 @@ namespace TruthEngine::API::DirectX12 {
 
 		}
 
-		m_CommandAllocator->Release();
 		m_CommandAllocator.Reset();
 	}
 

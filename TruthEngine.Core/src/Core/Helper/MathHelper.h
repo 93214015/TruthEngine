@@ -1,142 +1,164 @@
 #pragma once
 
-using BoundingBox = DirectX::BoundingBox;
-using BoundingFrustum = DirectX::BoundingFrustum;
-using XMMatrix = DirectX::XMMATRIX;
-using XMVector = DirectX::XMVECTOR;
-#define TE_PIDIV4 DirectX::XM_PIDIV4
-#define TE_PI  DirectX::XM_PI
 
-constexpr DirectX::XMVECTORF32 XMVectorOne = {1.0f, 1.0f, 1.0f, 1.0f };
-constexpr DirectX::XMVECTORF32 XMVectorZero = {.0f, .0f, .0f, .0f };
-constexpr DirectX::XMVECTORF32 XMVectorFLTMin = { -1.0f * FLT_MAX, -1.0f * FLT_MAX, -1.0f * FLT_MAX, -1.0f * FLT_MAX };
-constexpr DirectX::XMVECTORF32 XMVectorFLTMax = { FLT_MAX, FLT_MAX, FLT_MAX, FLT_MAX };
-constexpr DirectX::XMVECTORF32 XMVectorHalf   = { .5f, .5f , .5f , .5f };
-
-struct float2 : DirectX::XMFLOAT2
-{
-	using DirectX::XMFLOAT2::XMFLOAT2;
-
-	float2(const ImVec2& imVec2)
-	{
-		x = imVec2.x;
-		y = imVec2.y;
-	}
-
-	operator ImVec2();
-	operator ImVec2()const;
-};
-
-struct float3 : DirectX::XMFLOAT3
-{
-	using  DirectX::XMFLOAT3::XMFLOAT3;
-	float3(const DirectX::XMFLOAT3&);
-
-	operator physx::PxVec3();
-	operator physx::PxVec3()const;
-
-	bool operator==(const float3& _in)
-	{
-		return x == _in.x && y == _in.y && z == _in.z;
-	}
-};
-
-struct float4 : DirectX::XMFLOAT4
-{
-	using DirectX::XMFLOAT4::XMFLOAT4;
-
-	operator physx::PxQuat();
-	operator physx::PxVec4();
-	operator physx::PxVec3();
-
-	bool operator==(const float4& _in)
-	{
-		return x == _in.x && y == _in.y && z == _in.z && w == _in.w;
-	}
-};
-
-struct float3x3 : DirectX::XMFLOAT3X3
-{
-	using DirectX::XMFLOAT3X3::XMFLOAT3X3;
-};
-
-struct float4x4 : DirectX::XMFLOAT4X4
-{
-	using DirectX::XMFLOAT4X4::XMFLOAT4X4;
-
-	float4x4(const aiMatrix4x4& _aiMatrix4x4);
-
-	operator physx::PxMat44();
-	operator physx::PxMat44()const;
-};
-
-struct uint2
-{
-	union
-	{
-		struct
-		{
-			uint32_t x;
-			uint32_t y;
-		};		
-	};
-
-	uint32_t& operator[](uint32_t i)
-	{
-		return (&x)[i];
-	}
-};
-
-struct uint3
-{
-	union
-	{
-		struct
-		{
-			uint32_t x;
-			uint32_t y;
-			uint32_t z;
-		};
-	};
-
-	uint32_t& operator[](uint32_t i)
-	{
-		return (&x)[i];
-	}
-};
-
-struct uint4
-{
-	union
-	{
-		struct
-		{
-			uint32_t x;
-			uint32_t y;
-			uint32_t z;
-			uint32_t w;
-		};
-	};
-
-	uint32_t& operator[](uint32_t i)
-	{
-		return (&x)[i];
-	}
-};
-
-
-inline bool operator==(const DirectX::XMFLOAT3& _in1, const float3& _in2)
-{
-	return _in1.x == _in2.x && _in1.y == _in2.y && _in1.z == _in2.z;
-}
-
-inline bool operator==(const DirectX::XMFLOAT4& _in1, const float4& _in2)
-{
-	return _in1.x == _in2.x && _in1.y == _in2.y && _in1.z == _in2.z && _in1.w == _in2.w;
-}
 
 namespace TruthEngine
 {
+
+	using BoundingBox = DirectX::BoundingBox;
+	using BoundingFrustum = DirectX::BoundingFrustum;
+	using XMMatrix = DirectX::XMMATRIX;
+	using XMVector = DirectX::XMVECTOR;
+
+
+	constexpr DirectX::XMVECTORF32 XMVectorOne = { 1.0f, 1.0f, 1.0f, 1.0f };
+	constexpr DirectX::XMVECTORF32 XMVectorZero = { .0f, .0f, .0f, .0f };
+	constexpr DirectX::XMVECTORF32 XMVectorFLTMin = { -1.0f * FLT_MAX, -1.0f * FLT_MAX, -1.0f * FLT_MAX, -1.0f * FLT_MAX };
+	constexpr DirectX::XMVECTORF32 XMVectorFLTMax = { FLT_MAX, FLT_MAX, FLT_MAX, FLT_MAX };
+	constexpr DirectX::XMVECTORF32 XMVectorHalf = { .5f, .5f , .5f , .5f };
+
+	struct float2 : DirectX::XMFLOAT2
+	{
+		using DirectX::XMFLOAT2::XMFLOAT2;
+
+		float2(const ImVec2& imVec2)
+		{
+			x = imVec2.x;
+			y = imVec2.y;
+		}
+
+		operator ImVec2();
+		operator ImVec2()const;
+	};
+
+	struct float3 : DirectX::XMFLOAT3
+	{
+		using  DirectX::XMFLOAT3::XMFLOAT3;
+		float3(const DirectX::XMFLOAT3&);
+
+		operator physx::PxVec3();
+		operator physx::PxVec3()const;
+
+		bool operator==(const float3& _in)
+		{
+			return x == _in.x && y == _in.y && z == _in.z;
+		}
+
+		float3& operator*=(const float3& _f1)
+		{
+			x *= _f1.x;
+			y *= _f1.y;
+			z *= _f1.z;
+
+			return *this;
+		}
+	};
+
+	struct float4 : DirectX::XMFLOAT4
+	{
+		using DirectX::XMFLOAT4::XMFLOAT4;
+
+		operator physx::PxQuat();
+		operator physx::PxVec4();
+		operator physx::PxVec3();
+
+		bool operator==(const float4& _in)
+		{
+			return x == _in.x && y == _in.y && z == _in.z && w == _in.w;
+		}
+
+		float4& operator*=(const float4& _f1)
+		{
+			x *= _f1.x;
+			y *= _f1.y;
+			z *= _f1.z;
+			w *= _f1.w;
+
+			return *this;
+		}
+		
+	};
+
+	struct float3x3 : DirectX::XMFLOAT3X3
+	{
+		using DirectX::XMFLOAT3X3::XMFLOAT3X3;
+	};
+
+	struct float4x4 : DirectX::XMFLOAT4X4
+	{
+		using DirectX::XMFLOAT4X4::XMFLOAT4X4;
+
+		float4x4(const aiMatrix4x4& _aiMatrix4x4);
+
+		operator physx::PxMat44();
+		operator physx::PxMat44()const;
+	};
+
+	struct uint2
+	{
+		union
+		{
+			struct
+			{
+				uint32_t x;
+				uint32_t y;
+			};
+		};
+
+		uint32_t& operator[](uint32_t i)
+		{
+			return (&x)[i];
+		}
+	};
+
+	struct uint3
+	{
+		union
+		{
+			struct
+			{
+				uint32_t x;
+				uint32_t y;
+				uint32_t z;
+			};
+		};
+
+		uint32_t& operator[](uint32_t i)
+		{
+			return (&x)[i];
+		}
+	};
+
+	struct uint4
+	{
+		union
+		{
+			struct
+			{
+				uint32_t x;
+				uint32_t y;
+				uint32_t z;
+				uint32_t w;
+			};
+		};
+
+		uint32_t& operator[](uint32_t i)
+		{
+			return (&x)[i];
+		}
+	};
+
+
+	inline bool operator==(const DirectX::XMFLOAT3& _in1, const float3& _in2)
+	{
+		return _in1.x == _in2.x && _in1.y == _in2.y && _in1.z == _in2.z;
+	}
+
+	inline bool operator==(const DirectX::XMFLOAT4& _in1, const float4& _in2)
+	{
+		return _in1.x == _in2.x && _in1.y == _in2.y && _in1.z == _in2.z && _in1.w == _in2.w;
+	}
+
 	constexpr float4x4 IdentityMatrix = float4x4(
 		1.0f, 0.0f, 0.0f, 0.0f,
 		0.0f, 1.0f, 0.0f, 0.0f,
@@ -145,6 +167,22 @@ namespace TruthEngine
 
 	namespace Math
 	{
+
+		constexpr float PI = DirectX::XM_PI;
+		constexpr float PI_RCP = 1.0f / PI;
+		constexpr float PIDIV4 = PI / 4.0f;
+		constexpr float _1DIV180 = 1 / 180.0f;
+
+		constexpr float DegreeToRadian(float _DegreeAngle)
+		{
+			return _DegreeAngle * PI * _1DIV180;
+		}
+
+		constexpr float RadianToDegree(float _RadianAngle)
+		{
+			return _RadianAngle * PI_RCP * 180.0f;
+		}
+
 		inline DirectX::XMMATRIX ToXM(const DirectX::XMFLOAT4X4& source)
 		{
 			return DirectX::XMLoadFloat4x4(&source);
@@ -364,6 +402,10 @@ namespace TruthEngine
 			return _Result;
 		}
 
+
+		float4x4 TransformMatrixRotation(float _RotationAngle, const float3& _RotationNormal, const float3& _RotationOrigin);
+
+
 		inline void Translate(float4x4& _OutTransform, const float3& _Translation)
 		{
 			_OutTransform._14 += _Translation.x;
@@ -381,10 +423,9 @@ namespace TruthEngine
 		inline void Rotate(float4x4& _OutTransform, const float4& _RotationQuaternion)
 		{
 			XMMatrix _Matrix = DirectX::XMMatrixRotationQuaternion(XMLoadFloat4(&_RotationQuaternion));
-			XMMatrix _Result =  DirectX::XMMatrixMultiply(XMLoadFloat4x4(&_OutTransform), _Matrix);
+			XMMatrix _Result = DirectX::XMMatrixMultiply(XMLoadFloat4x4(&_OutTransform), _Matrix);
 			XMStoreFloat4x4(&_OutTransform, _Result);
 		}
-
 
 	}
 
@@ -396,6 +437,16 @@ namespace TruthEngine
 	inline float3 operator+(const float3& v1, const float3& v2)
 	{
 		return float3{ v1.x + v2.x, v1.y + v2.y, v1.z + v2.z };
+	}
+
+	inline float3 operator*(const float3& _f1, const float3& _f2)
+	{
+		return float3{ _f1.x * _f2.x, _f1.y * _f2.y, _f1.z * _f2.z };
+	}
+
+	inline float4 operator*(const float4& _f1, const float4& _f2)
+	{
+		return float4{ _f1.x * _f2.x, _f1.y * _f2.y, _f1.z * _f2.z, _f1.w*_f2.w };
 	}
 
 	inline float4x4 operator*(const float4x4& m1, const float4x4& m2)

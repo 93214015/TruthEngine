@@ -88,10 +88,10 @@ namespace TruthEngine {
 
 		Scene m_ActiveScene;
 
-		uint32_t m_ClientWidth = 0;
-		uint32_t m_ClientHeight = 0;
-		uint32_t m_SceneViewportWidth = 0;
-		uint32_t m_SceneViewportHeight = 0;
+		uint32_t m_ClientWidth;
+		uint32_t m_ClientHeight;
+		uint32_t m_SceneViewportWidth = 1280;
+		uint32_t m_SceneViewportHeight = 720;
 
 		uint8_t m_CurrentFrameOnTheFly = 0;
 		uint8_t m_FramesOnTheFlyNum = 2;

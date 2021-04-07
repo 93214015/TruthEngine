@@ -142,7 +142,7 @@ namespace TruthEngine
 				if (ImGui::BeginMenu("Import Texture"))
 				{
 					static const std::vector<const char*> s_textureFileExtensions = { ".jpg", ".jpeg", ".png" };
-					OpenFileDialog(&s_fileDialogImportMaterialTextures, "Import Material Textures", s_textureFileExtensions);
+					OpenFileDialog_MultipleSelection(&s_fileDialogImportMaterialTextures, "Import Material Textures", s_textureFileExtensions);
 
 					ImGui::EndMenu();
 				}

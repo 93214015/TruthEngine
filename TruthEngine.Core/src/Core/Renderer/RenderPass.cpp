@@ -3,8 +3,8 @@
 
 namespace TruthEngine
 {
-    RenderPass::RenderPass(TE_IDX_RENDERPASS idx)
-        : m_RenderPassIDX(idx)
+    RenderPass::RenderPass(TE_IDX_RENDERPASS idx, RendererLayer* _RendererLayer)
+        : m_RenderPassIDX(idx), m_RendererLayer(_RendererLayer)
     {
     }
 }

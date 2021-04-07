@@ -7,21 +7,19 @@
 #include <Core/Entity/Camera/Camera.h>
 #include <Core/Entity/Camera/CameraManager.h>
 
-TruthEngine::RenderPass_PostProcessing_HDR::RenderPass_PostProcessing_HDR()
-	: RenderPass(TE_IDX_RENDERPASS::POSTPROCESSING_HDR)
+TruthEngine::RenderPass_PostProcessing_HDR::RenderPass_PostProcessing_HDR(RendererLayer* _RendererLayer)
+	: RenderPass(TE_IDX_RENDERPASS::POSTPROCESSING_HDR, _RendererLayer)
 	, mViewPort(0, 0, static_cast<float>(TE_INSTANCE_APPLICATION->GetClientWidth()), static_cast<float>(TE_INSTANCE_APPLICATION->GetClientHeight()), .0f, 1.0f)
 	, mViewRect(static_cast<long>(0), static_cast<long>(0), static_cast<long>(TE_INSTANCE_APPLICATION->GetClientWidth()), static_cast<long>(TE_INSTANCE_APPLICATION->GetClientHeight()))
 	, mAdaptationPercentage(1.0)
 {
-	mSceneViewQuarterSize[0] = TE_INSTANCE_APPLICATION->GetClientWidth();
-	mSceneViewQuarterSize[1] = TE_INSTANCE_APPLICATION->GetClientHeight();
 }
 
 TruthEngine::RenderPass_PostProcessing_HDR::~RenderPass_PostProcessing_HDR() = default;
 
 void TruthEngine::RenderPass_PostProcessing_HDR::OnAttach()
 {
-	mGroupNum = static_cast<uint32_t>(std::ceilf(static_cast<float>(TE_INSTANCE_APPLICATION->GetClientWidth() * TE_INSTANCE_APPLICATION->GetClientHeight()) / (1024.0f * 16.0f)));
+	Application* _App = TE_INSTANCE_APPLICATION;
 
 	mRendererCommand_DownScaling_FirstPass.Init(TE_IDX_RENDERPASS::POSTPROCESSING_HDR, TE_IDX_SHADERCLASS::POSTPROCESSING_HDR_DOWNSACLING_FIRSTPASS);
 	mRendererCommand_DownScaling_SecondPass.Init(TE_IDX_RENDERPASS::POSTPROCESSING_HDR, TE_IDX_SHADERCLASS::POSTPROCESSING_HDR_DOWNSACLING_SECONDPASS);
@@ -34,6 +32,9 @@ void TruthEngine::RenderPass_PostProcessing_HDR::OnAttach()
 	InitTexture();
 	InitPipeline();
 	RegisterOnEvents();
+
+
+	ResizedViewport(_App->GetSceneViewportWidth(), _App->GetSceneViewportHeight());
 }
 
 void TruthEngine::RenderPass_PostProcessing_HDR::OnDetach()
@@ -57,10 +58,11 @@ void TruthEngine::RenderPass_PostProcessing_HDR::OnImGuiRender()
 		}
 		if (ImGui::DragFloat("Luminance White Square:", &_WhiteSquare, 0.01, 0.0f, 10.f, "%2.2f"))
 		{
-			mRendererCommand_FinalPass.AddUpdateTask([this]() { mConstantBufferFinalPass->GetData()->mLumWhiteSqr = _WhiteSquare; });
+			mRendererCommand_FinalPass.AddUpdateTask([this]() { mConstantBufferFinalPass->GetData()->SetLumWhiteSqr(_WhiteSquare); });
 		}
 		if (ImGui::DragFloat("Per Second Adaptation Percentage:", &mAdaptationPercentage, 0.01, 0.0f, 10.f, "%.2f"))
-		{}
+		{
+		}
 		if (ImGui::DragFloat("Bloom Threshold:", &mBloomThreshold, 0.01, 0.0f, 10.f, "%2.2f"))
 		{
 			mRendererCommand_FinalPass.AddUpdateTask([this]() { mConstantBufferDownScaling->GetData()->gBloomThreshold = mBloomThreshold; });
@@ -69,11 +71,11 @@ void TruthEngine::RenderPass_PostProcessing_HDR::OnImGuiRender()
 		{
 			mRendererCommand_FinalPass.AddUpdateTask([this]() { mConstantBufferFinalPass->GetData()->mBloomScale = mBloomScale; });
 		}
-		if (ImGui::DragFloat("DOF Far Start:", &mDOFFarStart, 1.0, 1.0f, 100.f, "%2.2f"))
+		if (ImGui::DragFloat("DOF Far Start:", &mDOFFarStart, 1.0, 1.0f, 0.0f, "%2.2f"))
 		{
 			mRendererCommand_FinalPass.AddUpdateTask([this]() { mConstantBufferFinalPass->GetData()->mDOFFarValues.x = mDOFFarStart; });
 		}
-		if (ImGui::DragFloat("DOF Far Range:", &mDOFFarRange, 0.01, 0.0001f, 150.f, "%2.2f"))
+		if (ImGui::DragFloat("DOF Far Range:", &mDOFFarRange, 0.01, 0.0001f, 0.0f, "%2.2f"))
 		{
 			mRendererCommand_FinalPass.AddUpdateTask([this]() { mConstantBufferFinalPass->GetData()->mDOFFarValues.y = (1.0f / mDOFFarRange); });
 		}
@@ -148,8 +150,8 @@ void TruthEngine::RenderPass_PostProcessing_HDR::Render()
 	uint32_t horz = static_cast<uint32_t>(ceil(mSceneViewQuarterSize[0] / (128.0f - 12.0f)));
 	uint32_t vert = static_cast<uint32_t>(ceil(mSceneViewQuarterSize[1] / (128.0f - 12.0f)));
 	//Horz Pipeline is set in BeginScene() Stage
-	mRendererCommand_BlurPassHorz.Dispatch( horz , mSceneViewQuarterSize[1] , 1 );
-	mRendererCommand_BlurPassVert.Dispatch( mSceneViewQuarterSize[0], vert, 1);
+	mRendererCommand_BlurPassHorz.Dispatch(horz, mSceneViewQuarterSize[1], 1);
+	mRendererCommand_BlurPassVert.Dispatch(mSceneViewQuarterSize[0], vert, 1);
 
 
 	mRendererCommand_FinalPass.SetDirectShaderResourceViewGraphics(_CurrentBuffer, 4);
@@ -162,9 +164,8 @@ void TruthEngine::RenderPass_PostProcessing_HDR::Render()
 
 void TruthEngine::RenderPass_PostProcessing_HDR::InitBuffers()
 {
-	TE_ASSERT_CORE(mGroupNum != 0, "RenderPass_PostProcessingHDR : The GroupSize is 0");
+	mBufferRWAverageLumFirstPass = mRendererCommand_DownScaling_FirstPass.CreateBufferStructuredRW(TE_IDX_GRESOURCES::Buffer_HDRAverageLumFirstPass, 4, (mGroupNum != 0 ? mGroupNum : 1), false);
 
-	mBufferRWAverageLumFirstPass = mRendererCommand_DownScaling_FirstPass.CreateBufferStructuredRW(TE_IDX_GRESOURCES::Buffer_HDRAverageLumFirstPass, 4, mGroupNum, false);
 	mBufferRWAverageLumSecondPass0 = mRendererCommand_DownScaling_FirstPass.CreateBufferStructuredRW(TE_IDX_GRESOURCES::Buffer_HDRAverageLumSecondPass0, 4, 1, false);
 	mBufferRWAverageLumSecondPass1 = mRendererCommand_DownScaling_FirstPass.CreateBufferStructuredRW(TE_IDX_GRESOURCES::Buffer_HDRAverageLumSecondPass1, 4, 1, false);
 
@@ -176,16 +177,20 @@ void TruthEngine::RenderPass_PostProcessing_HDR::InitBuffers()
 	float fQ = _Camera->GetZFarPlane() / (_Camera->GetZFarPlane() - _Camera->GetZNearPlane());
 	float2 _ProjectionValues = float2{ -1 * _Camera->GetZNearPlane() * fQ, -fQ };
 
-	mRendererCommand_FinalPass.AddUpdateTask([=]() {*mConstantBufferFinalPass->GetData() = ConstantBuffer_Data_FinalPass(0.0025f, 1.5f, 1.0f, _ProjectionValues, float2{mDOFFarStart, 1/mDOFFarRange}); });
+	//mRendererCommand_FinalPass.AddUpdateTask([=]() {*mConstantBufferFinalPass->GetData() = ConstantBuffer_Data_FinalPass(0.0025f, 1.5f, 1.0f, _ProjectionValues, float2{mDOFFarStart, 1/mDOFFarRange}); });
+	mRendererCommand_FinalPass.AddUpdateTask([=]() {*mConstantBufferFinalPass->GetData() = ConstantBuffer_Data_FinalPass(0.003f, 1.5f, 0.0f, _ProjectionValues, float2{ 1000.0f, 1 / mDOFFarRange }); });
 }
 
 void TruthEngine::RenderPass_PostProcessing_HDR::InitTexture()
 {
 	mRendererCommand_DownScaling_FirstPass.CreateRenderTargetView(TE_IDX_GRESOURCES::Texture_RT_SceneBuffer, &mRenderTargetView_SceneBuffer);
 
+	uint32_t _ViewportWidth = TE_INSTANCE_APPLICATION->GetSceneViewportWidth();
+	uint32_t _ViewportHeight = TE_INSTANCE_APPLICATION->GetSceneViewportHeight();
+
 	{
-		uint32_t _Width = ceil( static_cast<float>(TE_INSTANCE_APPLICATION->GetClientWidth()) / 4.0f);
-		uint32_t _Height = ceil( static_cast<float>(TE_INSTANCE_APPLICATION->GetClientHeight()) / 4.0f);
+		uint32_t _Width = ceil(static_cast<float>(_ViewportWidth) / 4.0f);
+		uint32_t _Height = ceil(static_cast<float>(_ViewportHeight) / 4.0f);
 		mRWTextureDownScaledHDR = mRendererCommand_DownScaling_FirstPass.CreateTextureRW(TE_IDX_GRESOURCES::Texture_RW_DownScaledHDR, _Width, _Height, TE_RESOURCE_FORMAT::R16G16B16A16_FLOAT, true, false);
 		mRWTextureBloom = mRendererCommand_DownScaling_FirstPass.CreateTextureRW(TE_IDX_GRESOURCES::Texture_RW_Bloom, _Width, _Height, TE_RESOURCE_FORMAT::R16G16B16A16_FLOAT, true, false);
 		mRWTextureBluredBloom = mRendererCommand_DownScaling_FirstPass.CreateTextureRW(TE_IDX_GRESOURCES::Texture_RW_BloomBlured, _Width, _Height, TE_RESOURCE_FORMAT::R16G16B16A16_FLOAT, true, false);
@@ -261,12 +266,43 @@ void TruthEngine::RenderPass_PostProcessing_HDR::ReleaseResources()
 	mRendererCommand_DownScaling_FirstPass.ReleaseResource(mBufferRWAverageLumSecondPass1);
 }
 
+void TruthEngine::RenderPass_PostProcessing_HDR::ResizedViewport(uint32_t _Width, uint32_t Height)
+{
+	mViewPort.Resize(_Width, Height);
+	mViewRect = ViewRect{ 0, 0, static_cast<long>(_Width), static_cast<long>(Height) };
+
+	mGroupNum = static_cast<uint32_t>(std::ceilf(static_cast<float>(_Width * Height) / (1024.0f * 16.0f)));
+	mBufferRWAverageLumFirstPass = mRendererCommand_DownScaling_FirstPass.CreateBufferStructuredRW(TE_IDX_GRESOURCES::Buffer_HDRAverageLumFirstPass, 4, mGroupNum, false);
+
+	mSceneViewQuarterSize[0] = static_cast<uint32_t>(ceil(static_cast<float>(_Width) / 4.0f));
+	mSceneViewQuarterSize[1] = static_cast<uint32_t>(ceil(static_cast<float>(Height) / 4.0f));
+
+	mRendererCommand_DownScaling_FirstPass.AddUpdateTask([=]()
+		{
+			*mConstantBufferDownScaling->GetData() = ConstantBuffer_Data_DownScaling(mSceneViewQuarterSize[0], mSceneViewQuarterSize[1], mSceneViewQuarterSize[0] * mSceneViewQuarterSize[1], mGroupNum, mAdaptation, mBloomThreshold);
+		});
+
+	mRendererCommand_DownScaling_FirstPass.AddUpdateTask([=]()
+		{
+			*mConstantBufferBlurPass->GetData() = ConstantBuffer_Data_BlurPass(mSceneViewQuarterSize[0], mSceneViewQuarterSize[1]);
+		});
+
+	mRendererCommand_DownScaling_FirstPass.CreateRenderTargetView(TE_IDX_GRESOURCES::Texture_RT_SceneBuffer, &mRenderTargetView_SceneBuffer);
+
+	mRWTextureDownScaledHDR = mRendererCommand_DownScaling_FirstPass.CreateTextureRW(TE_IDX_GRESOURCES::Texture_RW_DownScaledHDR, mSceneViewQuarterSize[0], mSceneViewQuarterSize[1], TE_RESOURCE_FORMAT::R16G16B16A16_FLOAT, true, false);
+	mRWTextureBloom = mRendererCommand_DownScaling_FirstPass.CreateTextureRW(TE_IDX_GRESOURCES::Texture_RW_Bloom, mSceneViewQuarterSize[0], mSceneViewQuarterSize[1], TE_RESOURCE_FORMAT::R16G16B16A16_FLOAT, true, false);
+	mRWTextureBluredBloom = mRendererCommand_DownScaling_FirstPass.CreateTextureRW(TE_IDX_GRESOURCES::Texture_RW_BloomBlured, mSceneViewQuarterSize[0], mSceneViewQuarterSize[1], TE_RESOURCE_FORMAT::R16G16B16A16_FLOAT, true, false);
+	mRWTextureBluredBloomHorz = mRendererCommand_DownScaling_FirstPass.CreateTextureRW(TE_IDX_GRESOURCES::Texture_RW_BloomBluredHorz, mSceneViewQuarterSize[0], mSceneViewQuarterSize[1], TE_RESOURCE_FORMAT::R16G16B16A16_FLOAT, true, false);
+}
+
 void TruthEngine::RenderPass_PostProcessing_HDR::OnRenderTargetResize(const EventTextureResize & _Event)
 {
 	if (_Event.GetIDX() != TE_IDX_GRESOURCES::Texture_RT_SceneBuffer)
 		return;
 
-	uint32_t width = _Event.GetWidth();
+	ResizedViewport(_Event.GetWidth(), _Event.GetHeight());
+
+	/*uint32_t width = _Event.GetWidth();
 	uint32_t height = _Event.GetHeight();
 
 	mViewPort.Resize(width, height);
@@ -293,7 +329,7 @@ void TruthEngine::RenderPass_PostProcessing_HDR::OnRenderTargetResize(const Even
 	mRWTextureDownScaledHDR = mRendererCommand_DownScaling_FirstPass.CreateTextureRW(TE_IDX_GRESOURCES::Texture_RW_DownScaledHDR, mSceneViewQuarterSize[0], mSceneViewQuarterSize[1], TE_RESOURCE_FORMAT::R16G16B16A16_FLOAT, true, false);
 	mRWTextureBloom = mRendererCommand_DownScaling_FirstPass.CreateTextureRW(TE_IDX_GRESOURCES::Texture_RW_Bloom, mSceneViewQuarterSize[0], mSceneViewQuarterSize[1], TE_RESOURCE_FORMAT::R16G16B16A16_FLOAT, true, false);
 	mRWTextureBluredBloom = mRendererCommand_DownScaling_FirstPass.CreateTextureRW(TE_IDX_GRESOURCES::Texture_RW_BloomBlured, mSceneViewQuarterSize[0], mSceneViewQuarterSize[1], TE_RESOURCE_FORMAT::R16G16B16A16_FLOAT, true, false);
-	mRWTextureBluredBloomHorz = mRendererCommand_DownScaling_FirstPass.CreateTextureRW(TE_IDX_GRESOURCES::Texture_RW_BloomBluredHorz, mSceneViewQuarterSize[0], mSceneViewQuarterSize[1], TE_RESOURCE_FORMAT::R16G16B16A16_FLOAT, true, false);
+	mRWTextureBluredBloomHorz = mRendererCommand_DownScaling_FirstPass.CreateTextureRW(TE_IDX_GRESOURCES::Texture_RW_BloomBluredHorz, mSceneViewQuarterSize[0], mSceneViewQuarterSize[1], TE_RESOURCE_FORMAT::R16G16B16A16_FLOAT, true, false);*/
 
 }
 

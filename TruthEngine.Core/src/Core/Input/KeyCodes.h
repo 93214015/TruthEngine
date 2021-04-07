@@ -131,7 +131,8 @@ namespace TruthEngine
 
 			LeftShift = 340,
 			LeftControl = 341,
-			LeftAlt = 342,
+			LeftAlt = 18, //Windows
+			//LeftAlt = 342,
 			LeftSuper = 343,
 			RightShift = 344,
 			RightControl = 345,

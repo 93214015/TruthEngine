@@ -11,6 +11,8 @@
 namespace TruthEngine::API::DirectX12
 {
 
+	static std::mutex g_MutexPipelineManager;
+
 	constexpr D3D12_CULL_MODE DX12_GET_CULL_MODE(RendererStateSet states)
 	{
 		TE_RENDERER_STATE_CULL_MODE cullMode = static_cast<TE_RENDERER_STATE_CULL_MODE>(GET_RENDERER_STATE(states, TE_RENDERER_STATE_CULL_MODE));
@@ -153,7 +155,7 @@ namespace TruthEngine::API::DirectX12
 		//
 
 		D3D12_GRAPHICS_PIPELINE_STATE_DESC desc = { 0 };
-		
+
 
 
 		const auto shader = pipeline->GetShader();
@@ -222,13 +224,17 @@ namespace TruthEngine::API::DirectX12
 		desc.NodeMask = 0;
 		desc.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
 
-
 		auto hr = m_PiplineLibrary->LoadGraphicsPipeline(to_wstring(pipeline->m_Name).c_str(), &desc, IID_PPV_ARGS(PSO.GetAddressOf()));
-
 
 		if (FAILED(hr))
 		{
-			AddGraphicsPipeline(pipeline, PSO, desc);
+			std::scoped_lock<std::mutex> _ScopedLock(g_MutexPipelineManager);
+			hr = m_PiplineLibrary->LoadGraphicsPipeline(to_wstring(pipeline->m_Name).c_str(), &desc, IID_PPV_ARGS(PSO.GetAddressOf()));
+
+			if (FAILED(hr))
+			{
+				AddGraphicsPipeline(pipeline, PSO, desc);
+			}
 		}
 
 		return PSO;

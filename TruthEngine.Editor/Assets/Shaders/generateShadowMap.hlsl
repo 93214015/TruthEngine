@@ -53,5 +53,6 @@ float4 vs(VertexInput vin) : SV_POSITION
 #endif
     
     float4 posW = mul(pos, gWorld);
-    return mul(posW, gViewProj);
+    posW = mul(posW, gViewProj);
+    return posW;
 }

@@ -82,7 +82,7 @@ namespace TruthEngine::API::DirectX12 {
 
 		m_D3D12Resource_ScreenBuffer = dx12bufferManager->GetResource(m_RenderTargetScreenBuffer);
 
-		if (Settings::IsMSAAEnabled())
+		if ( false /*Settings::IsMSAAEnabled()*/)
 		{
 			if (m_SRVIndexScreenBuffer == -1)
 			{
@@ -228,7 +228,7 @@ namespace TruthEngine::API::DirectX12 {
 				barrierNum++;
 			}*/
 
-			if (Settings::IsMSAAEnabled())
+			if (false /*Settings::IsMSAAEnabled()*/)
 			{
 				if (m_RenderTargetScreenBuffer->GetState() != TE_RESOURCE_STATES::RESOLVE_SOURCE)
 				{
@@ -258,7 +258,7 @@ namespace TruthEngine::API::DirectX12 {
 			}
 
 			CD3DX12_RESOURCE_BARRIER _barriers[1];
-			if (Settings::IsMSAAEnabled())
+			if (false /*Settings::IsMSAAEnabled()*/)
 			{
 				dx12CmdList->ResolveSubresource(m_TextureMultiSampleResolved.Get(), 0, m_D3D12Resource_ScreenBuffer, 0, DXGI_FORMAT_R8G8B8A8_UNORM);
 
@@ -316,7 +316,7 @@ namespace TruthEngine::API::DirectX12 {
 	{
 		if (event.GetIDX() == TE_IDX_GRESOURCES::Texture_RT_SceneBuffer)
 		{
-			if (Settings::IsMSAAEnabled())
+			if (false /*Settings::IsMSAAEnabled()*/)
 			{
 
 				//D3D12_CLEAR_VALUE clearValue{ DXGI_FORMAT_R8G8B8A8_UNORM , { 0.0f, .0f, .0f, 1.0f } };

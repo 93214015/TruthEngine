@@ -1,18 +1,32 @@
 #include "pch.h"
 #include "Scene.h"
 
-#include "Core/Entity/Components.h"
+#include "Core/Application.h"
 
+#include "Core/Event/EventKey.h"
+
+#include "Core/Entity/Components.h"
 #include "Core/Entity/Model/ModelManager.h" // Mesh and Material Included
 #include "Core/Entity/Model/AssimpLib.h"
+#include "Core/Entity/Light/LightManager.h"
+#include "Core/Entity/Camera/Camera.h"
+#include "Core/Entity/Camera/CameraManager.h"
 
+#include "Core/PhysicEngine/PhysicsEngine.h"
 
 namespace TruthEngine
 {
 
 	Scene::Scene()
-		: m_EntityTree(this)
-	{}
+		: m_EntityTree(this), m_LightManager(LightManager::GetInstace())
+	{
+	}
+
+	void Scene::Init()
+	{
+		m_ModelShootedBall = AddModelEntity("ShootedBallModel", IdentityMatrix);
+		RegisterEventListener();
+	}
 
 	Entity Scene::AddEntity(const char* entityTag, Entity parent, const float4x4& tranform, const float3& _WorldCenterOffset)
 	{
@@ -64,15 +78,12 @@ namespace TruthEngine
 			BoundingBox::CreateMerged(m_BoundingBox, m_BoundingBox, _transformedAABB);
 		}
 
-
-
-
 		return entity_mesh;
 	}
 
-	Entity Scene::AddPrimitiveMesh(const char* _MeshName, TE_PRIMITIVE_TYPE _PrimitiveType, size_t _PrimitiveSize, Entity _ModelEntity)
+	Entity Scene::AddPrimitiveMesh(const char* _MeshName, TE_PRIMITIVE_TYPE _PrimitiveType, const float3& _PrimitiveSize, Entity _ModelEntity)
 	{
-		Mesh* _Mesh = TE_INSTANCE_MODELMANAGER->GeneratePrimitiveMesh(_PrimitiveType, _PrimitiveSize);
+		Mesh* _Mesh = TE_INSTANCE_MODELMANAGER->GeneratePrimitiveMesh(_PrimitiveType, _PrimitiveSize.x, _PrimitiveSize.y, _PrimitiveSize.z);
 		Material* _Material = TE_INSTANCE_MATERIALMANAGER->AddDefaultMaterial(TE_IDX_MESH_TYPE::MESH_NTT);
 		return AddMeshEntity(_MeshName, IdentityMatrix, _Mesh, _Material, _ModelEntity);
 	}
@@ -85,14 +96,38 @@ namespace TruthEngine
 		Mesh* _Mesh = nullptr;
 
 		TE_INSTANCE_MODELMANAGER->GenerateEnvironmentMesh(&_Mesh);
+
 		entity_environment.AddComponent<EnvironmentComponent>(_Mesh);
 
 		return entity_environment;
 	}
 
+	Entity Scene::AddLightEntity_Directional(const std::string_view _Name, const float3& _Strength, const float3& _Direction, const float3& _Position, const float _LightSize, const uint32_t _CastShadow, const float4& _CascadesCoveringDepth)
+	{
+		LightDirectional* _Light = m_LightManager->AddLightDirectional(
+			_Name, _Strength, _Direction, _Position, _LightSize, _CastShadow, _CascadesCoveringDepth
+		);
+
+		auto entityLight = AddEntity(_Name.data());
+		entityLight.AddComponent<LightComponent>(_Light);
+
+		return entityLight;
+	}
+
+	Entity Scene::AddLightEntity_Spot(const std::string_view _Name, const float3& _Strength, const float3& _Direction, const float3& _Position, const float _LightSize, const bool _IsCastShadow, const float _FalloffStart, const float _FalloffEnd, const float _InnerConeAngle, const float _OuterConeAngle)
+	{
+		LightSpot* _Light = m_LightManager->AddLightSpot(
+			_Name, _Strength, _Direction, _Position, _LightSize, _IsCastShadow, _FalloffStart, _FalloffEnd, _InnerConeAngle, _OuterConeAngle
+		);
+
+		auto entityLight = AddEntity(_Name.data());
+		entityLight.AddComponent<LightComponent>(_Light);
+
+		return entityLight;
+	}
+
 	Entity Scene::AddModelEntity(const char* modelName, const float4x4& _Transform)
 	{
-
 		//
 		///Here we are trying to place new Mesh near the selected entity
 		//
@@ -121,12 +156,13 @@ namespace TruthEngine
 		Entity _ModelEntity = AddEntity(modelName, _Trans);
 		_ModelEntity.AddComponent<ModelComponent>();
 
+
 		BoundingBox _AABB{};
-
-
 		_ModelEntity.AddComponent<BoundingBoxComponent>(_AABB);
 
+
 		return _ModelEntity;
+
 	}
 
 	std::vector<TruthEngine::Entity> Scene::GetAncestor(const Entity entity)
@@ -206,6 +242,81 @@ namespace TruthEngine
 		return  (*_Transform) * GetTransformHierarchy(itr->second.mParent);
 	}
 
+	float3 Scene::GetTranslateHierarchy(Entity entity)
+	{
+		float3 _Result = { .0f, .0f, .0f };
+
+		if (!entity)
+			return _Result;
+
+		const float4x4* _Transform = nullptr;
+
+		if (HasComponent<PhysicsDynamicComponent>(entity))
+		{
+			_Transform = &GetComponent<PhysicsDynamicComponent>(entity).GetTranform();
+		}
+		else
+		{
+			_Transform = &GetComponent<TransformComponent>(entity).GetTransform();
+		}
+
+		_Result = _Result + float3{ _Transform->_41, _Transform->_42, _Transform->_43 };
+
+		auto itr = m_EntityTree.m_Tree.find(entity);
+		return  _Result + GetTranslateHierarchy(itr->second.mParent);
+	}
+
+	float3 Scene::GetTranslateHierarchy(entt::entity entityHandler)
+	{
+		float3 _Result = { .0f, .0f, .0f };
+
+		if (entityHandler == entt::null)
+			return _Result;
+
+		const float4x4* _Transform = nullptr;
+
+		if (m_Registery.has<PhysicsDynamicComponent>(entityHandler))
+		{
+			_Transform = &m_Registery.get<PhysicsDynamicComponent>(entityHandler).GetTranform();
+		}
+		else
+		{
+			_Transform = &m_Registery.get<TransformComponent>(entityHandler).GetTransform();
+		}
+
+		_Result = _Result + float3{ _Transform->_41, _Transform->_42, _Transform->_43 };
+
+		auto itr = m_EntityTree.m_Tree.find(static_cast<uint32_t>(entityHandler));
+		return  _Result + GetTranslateHierarchy(itr->second.mParent);
+	}
+
+	float4x4 Scene::GetStaticTransformHierarchy(Entity entity)
+	{
+		if (!entity)
+			return IdentityMatrix;
+
+		const float4x4* _Transform = nullptr;
+
+		_Transform = &entity.GetComponent<TransformComponent>().GetTransform();
+
+		const auto itr = m_EntityTree.m_Tree.find(entity);
+		return (*_Transform) * GetTransformHierarchy(itr->second.mParent);
+	}
+
+	float4x4 Scene::GetStaticTransformHierarchy(entt::entity entityHandler)
+	{
+		if (entityHandler == entt::null)
+			return IdentityMatrix;
+
+		const float4x4* _Transform = nullptr;
+
+		_Transform = &m_Registery.get<TransformComponent>(entityHandler).GetTransform();
+
+
+		auto itr = m_EntityTree.m_Tree.find(static_cast<uint32_t>(entityHandler));
+		return  (*_Transform) * GetTransformHierarchy(itr->second.mParent);
+	}
+
 	const BoundingBox& Scene::GetBoundingBox() const noexcept
 	{
 
@@ -214,9 +325,8 @@ namespace TruthEngine
 
 	void Scene::UpdateBoundingBox(const BoundingBox& _boundingBox)
 	{
-		if (m_BoundingBox.Contains(_boundingBox) == DirectX::CONTAINS)
-			return;
-
+		/*if (m_BoundingBox.Contains(_boundingBox) == DirectX::CONTAINS)
+			return;*/
 		BoundingBox::CreateMerged(m_BoundingBox, m_BoundingBox, _boundingBox);
 	}
 
@@ -238,6 +348,18 @@ namespace TruthEngine
 		auto& t = m_Registery.get<TransformComponent>(parentHandler).GetTransform();
 
 		return GetParentTransforms(m_EntityTree.m_Tree.find(static_cast<uint32_t>(parentHandler))->second.mParent) * t;
+	}
+
+	Entity Scene::GetModelEntity(Entity _Entity)
+	{
+		if (HasComponent<ModelComponent>(_Entity))
+		{
+			return _Entity;
+		}
+		else
+		{
+			return GetParent(_Entity);
+		}
 	}
 
 	Entity Scene::GetParent(const Entity _Entity) const
@@ -302,7 +424,7 @@ namespace TruthEngine
 
 		Entity _ModelEntity = GetParent(meshEntity);
 
-		auto _newMeshEntity = AddMeshEntity(name.c_str(), transform, mesh, material, _ModelEntity, _worldCenterOffset);
+		auto _newMeshEntity = AddMeshEntity(name.c_str(), transform, mesh, newMaterial, _ModelEntity, _worldCenterOffset);
 
 		SelectEntity(_newMeshEntity);
 
@@ -340,14 +462,11 @@ namespace TruthEngine
 			{
 				BoundingBox::CreateMerged(_ModelAABB, _ModelAABB, _MeshAABB);
 			}
-
-			_ModelComponent.AddMeshEntity(_MeshEntity);
 		}
 	}
 
 	float3 Scene::GetPosition(Entity entity)
 	{
-		const auto& _transform = GetTransformHierarchy(entity);
 		float3 _worldPostition = { 0.0f, 0.0f, 0.0f };
 		if (HasComponent<BoundingBoxComponent>(entity))
 		{
@@ -358,6 +477,7 @@ namespace TruthEngine
 			_worldPostition.z += _aabb.Center.z;
 		}
 
+		const auto& _transform = GetTransformHierarchy(entity);
 		auto xmPos = XMVector3TransformCoord(XMLoadFloat3(&_worldPostition), XMLoadFloat4x4(&_transform));
 		XMStoreFloat3(&_worldPostition, xmPos);
 
@@ -381,6 +501,47 @@ namespace TruthEngine
 		XMStoreFloat3(&_worldPostition, xmPos);
 
 		return  _worldPostition;
+	}
+
+	Camera* Scene::GetActiveCamera() const
+	{
+		return CameraManager::GetInstance()->GetActiveCamera();
+	}
+
+	void Scene::ShootTheBall()
+	{
+		static uint32_t _BallIndex = 0;
+		std::string _BallName = "Ball" + std::to_string(_BallIndex);
+		Entity _BallEntity = AddPrimitiveMesh(_BallName.c_str(), TE_PRIMITIVE_TYPE::SPHERE, float3{1.0f, 0.0f, 0.0f}, m_ModelShootedBall);
+
+		Camera* _ActiveCamera = GetActiveCamera();
+		float3 _LinearVelocity = _ActiveCamera->GetLook() * float3{ 120.0f, 120.0f, 120.0f };
+		
+		float4x4 _Transform = Math::TransformMatrixTranslate(_ActiveCamera->GetPosition());
+
+		TEPhysicsRigidDesc _RigidDesc{0.5f, 0.5f, 0.5f, _Transform};
+		TEPhysicsRigidSphereDesc _SphereRigidDesc{1.0f, _RigidDesc};
+
+		TE_INSTANCE_PHYSICSENGINE->AddRigidDynamicSphere(_SphereRigidDesc, _BallEntity, _LinearVelocity);
+		TE_INSTANCE_PHYSICSENGINE->Play();
+	}
+
+	void Scene::RegisterEventListener()
+	{
+		auto _LambdaOnKeyReleased = [this](Event& _Event) 
+		{  
+			OnEventKeyPressed(static_cast<EventKeyReleased&>(_Event));
+		};
+
+		TE_INSTANCE_APPLICATION->RegisterEventListener(EventType::KeyReleased, _LambdaOnKeyReleased);
+	}
+
+	void Scene::OnEventKeyPressed(EventKeyReleased& _event)
+	{
+		if (_event.GetKeyCode() == Key::K)
+		{
+			ShootTheBall();
+		}
 	}
 
 }

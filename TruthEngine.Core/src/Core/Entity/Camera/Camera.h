@@ -16,7 +16,8 @@ namespace TruthEngine
 		Camera(uint32_t id, TE_CAMERA_TYPE cameraType, const float3& position, const float3& look, const float3& up
 			, const float3& right, const float zNear, const float zFar, const float aspectRatio
 			, const float fovY, const float fovX, const float nearWindowHeight, const float farWindowHeight
-			, const float4x4& projMatrix);
+			, const float4x4& projMatrix, const BoundingFrustum& _BoundingFrustumView, bool _IsReveresedDepth, const std::function<void(Camera*)>& _FuncEditFrustum
+		);
 		Camera() = default;
 		virtual ~Camera() = default;
 
@@ -24,34 +25,43 @@ namespace TruthEngine
 		//
 		//Set Functions
 		//
-		inline void SetPorjectionMatrix(const float4x4& projMatrix)
-		{
-			m_ProjectionMatrix = projMatrix;
-			m_ViewProjMatrix = m_ViewMatrix * m_ProjectionMatrix;
 
-			CreateBoundingFrustum();
+		void SetViewMatrix(const float3& _Position, const float3& _Look, const float3& _Up, const float3& _Right)
+		{
+			m_Position = _Position;
+			m_Look = _Look;
+			m_Right = _Right;
+			m_Up = _Up;
+
+			UpdateViewMatrix();
 		}
+
 		inline void SetViewMatrix(const float4x4& viewMatrix)
 		{
 			m_ViewMatrix = viewMatrix;
 			m_ViewProjMatrix = m_ViewMatrix * m_ProjectionMatrix;
-
-			CreateBoundingFrustum();
+			UpdateBoundingFrustumWorld();
 		}
+
 		inline void SetPosition(const float3& position)
 		{
 			m_Position = position;
 			UpdateViewMatrix();
 		}
+
+
 		inline void SetLook(const float3& look)
 		{
 			m_Look = look;
 			UpdateViewMatrix();
 		}
 
+		void SetLook(const float3& _Look, const float3& _Up, const float3& _Right);
+
 		void SetZNearPlane(const float zNearPlane);
 		void SetZFarPlane(const float zFarPlane);
 		void SetAspectRatio(const float aspectRatio);
+		void SetFOVY(const float _FOVY);
 
 		void SetFrustum(float width, float height, float zNearPlane, float zFarPlane);
 
@@ -66,6 +76,16 @@ namespace TruthEngine
 		inline const float3& GetLook()const noexcept
 		{
 			return m_Look;
+		}
+
+		inline const float3& GetUp()const noexcept
+		{
+			return m_Up;
+		}
+
+		inline const float3& GetRight()const noexcept
+		{
+			return m_Right;
 		}
 
 		inline const float4x4& GetViewProj()const noexcept
@@ -109,6 +129,10 @@ namespace TruthEngine
 		{
 			return m_BoundingFrustumViewSpace;
 		}
+		inline bool IsReversedDepth()const noexcept
+		{
+			return m_IsReversedDepth;
+		}
 
 		inline bool operator==(const Camera& camera)
 		{
@@ -118,10 +142,12 @@ namespace TruthEngine
 	protected:
 
 		void UpdateViewMatrix();
-		void CreateBoundingFrustum();
+		void UpdateBoundingFrustumWorld();
 
 	protected:
 		uint32_t m_ID = 0;
+
+		bool m_IsReversedDepth = false;
 
 		float4x4 m_ViewMatrix;
 		float4x4 m_ProjectionMatrix;
@@ -142,8 +168,10 @@ namespace TruthEngine
 
 		TE_CAMERA_TYPE m_CameraType;
 
-		DirectX::BoundingFrustum m_BoundingFrustumViewSpace;
-		DirectX::BoundingFrustum m_BoundingFrustumWorldSpace;
+		BoundingFrustum m_BoundingFrustumViewSpace;
+		BoundingFrustum m_BoundingFrustumWorldSpace;
+
+		std::function<void(Camera*)> m_FuncEditFrustum;
 
 		//
 		// Friend Class

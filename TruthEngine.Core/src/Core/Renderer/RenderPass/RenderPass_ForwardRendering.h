@@ -23,7 +23,7 @@ namespace TruthEngine
 
 	public:
 
-		RenderPass_ForwardRendering();
+		RenderPass_ForwardRendering(RendererLayer* _RendererLayer);
 		~RenderPass_ForwardRendering();
 
 		RenderPass_ForwardRendering(const RenderPass_ForwardRendering& renderer3D);
@@ -49,13 +49,22 @@ namespace TruthEngine
 		void OnRenderTargetResize(const EventTextureResize& _Event);
 		void OnAddMaterial(EventEntityAddMaterial& event);
 		void OnUpdateMaterial(const EventEntityUpdateMaterial& event);
+
+		void InitTextures();
+		void InitBuffers();
 	private:
 
 		RendererCommand m_RendererCommand;
-		TextureDepthStencil* m_TextureDepthStencil;
+		RendererCommand m_RendererCommand_ResolveTextures;
 
 		RenderTargetView m_RenderTartgetView;
 		DepthStencilView m_DepthStencilView;
+
+		TextureDepthStencil* m_TextureDepthStencil = nullptr;
+		TextureDepthStencil* m_TextureDepthStencilMS = nullptr;
+		TextureRenderTarget* m_TextureRenderTargetHDRMS = nullptr;
+		TextureRenderTarget* m_TextureRenderTargetMS = nullptr;
+
 
 		Viewport m_Viewport;
 		ViewRect m_ViewRect;
@@ -82,9 +91,10 @@ namespace TruthEngine
 			float4x4 WorldInverseTransposeMatrix;
 			uint32_t MaterialIndex;
 			float3   Pad;
-		};
+		};		
 
 		ConstantBufferDirect<ConstantBuffer_Data_Per_Mesh>* m_ConstantBufferDirect_PerMesh;
+		ConstantBufferDirect<ConstantBuffer_Data_EnvironmentMap>* m_ConstantBufferDirect_EnvironmentMap;
 
 		uint32_t m_TotalMeshNum = 0;
 		uint32_t m_TotalVertexNum = 0;

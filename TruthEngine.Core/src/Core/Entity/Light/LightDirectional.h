@@ -13,18 +13,15 @@ namespace TruthEngine
 		LightDirectional(
 			uint32_t id
 			, std::string_view name
-			, const float4 diffusecolor
-			, const float4 ambientColor
-			, const float4 specularColor
-			, const float3 direction
-			, const float3 position
+			, const float3& strength
+			, const float3& direction
+			, const float3& position
 			, const float lightSize
 			, const int castShadow
-			, const float range
 			, const float4& cascadesDepth
 			, CameraCascadedFrustumBase* cascadedCamera);
 
-		inline DirectionalLightData& GetDirectionalLightData() noexcept {
+		inline const DirectionalLightData& GetDirectionalLightData() const noexcept {
 			return m_DLightData;
 		}
 
@@ -46,14 +43,33 @@ namespace TruthEngine
 				m_Camera->SetCascadesConveringDepth(_depths);
 		}
 
-		virtual void SetDirection(const float3& _direction) noexcept override;
+		//
+		//Set Methods
+		//
 
-		virtual void SetDirection(const float x, const float y, const float z) noexcept override;
+		virtual void SetStrength(const float3& _Strength) noexcept override;
+
+		virtual void SetCastShadow(const bool _castshadow) noexcept override;
+
+		virtual void SetView(const float3& _Position, const float3& _Direction, const float3& _Up, const float3& _Right) noexcept;
+
+		virtual void SetDirection(const float3& _Direction, const float3& _Up, const float3& _Right) noexcept override;
 
 		virtual void SetPosition(const float3& _position) noexcept override;
 
 		virtual void SetPosition(const float x, const float y, const float z) noexcept override;
 
+		//
+		//Get Methods
+		//
+
+		virtual const float3& GetPosition() const noexcept;
+
+		virtual const float3& GetDirection() const noexcept;
+
+		virtual const float3& GetStrength() const noexcept;
+
+		virtual bool GetCastShadow()const noexcept;
 		
 
 	protected:

@@ -24,6 +24,7 @@ enum class TE_IDX_GRESOURCES : IDX
 	Constant_PerMesh,
 	Constant_ShadowMapPerMesh,
 	Constant_ShadowMapPerLight,
+	Constant_EnvironmentMap,
 
 	Texture_MaterialTextures,
 	Texture_CubeMap_Environment,
@@ -32,9 +33,13 @@ enum class TE_IDX_GRESOURCES : IDX
 	Texture_RT_GBuffer_Normal,
 	Texture_RT_GBuffer_Specular,
 	Texture_RT_SceneBuffer,
+	Texture_RT_SceneBufferMS,
 	Texture_RT_SceneBufferHDR,
+	Texture_RT_SceneBufferHDRMS,
 	Texture_DS_SceneBuffer,
-	Texture_DS_ShadowMap,
+	Texture_DS_SceneBufferMS,
+	Texture_DS_ShadowMap_SunLight,
+	Texture_DS_ShadowMap_SpotLight,
 	Texture_RW_DownScaledHDR,
 	Texture_RW_Bloom,
 	Texture_RW_BloomBlured,
@@ -56,7 +61,7 @@ inline bool IsIDXTextureRenderTarget(TE_IDX_GRESOURCES _IDX)
 }
 inline bool IsIDXTextureDepthStencil(TE_IDX_GRESOURCES _IDX)
 {
-	return (static_cast<uint32_t>(_IDX) >= static_cast<uint32_t>(TE_IDX_GRESOURCES::Texture_DS_SceneBuffer) && static_cast<uint32_t>(_IDX) <= static_cast<uint32_t>(TE_IDX_GRESOURCES::Texture_DS_ShadowMap));
+	return (static_cast<uint32_t>(_IDX) >= static_cast<uint32_t>(TE_IDX_GRESOURCES::Texture_DS_SceneBuffer) && static_cast<uint32_t>(_IDX) <= static_cast<uint32_t>(TE_IDX_GRESOURCES::Texture_DS_ShadowMap_SunLight));
 }
 
 enum class TE_IDX_SHADERCLASS : IDX

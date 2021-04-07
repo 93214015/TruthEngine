@@ -21,7 +21,7 @@ namespace TruthEngine
 	class RenderPass_PostProcessing_HDR: public RenderPass
 	{
 	public:
-		RenderPass_PostProcessing_HDR();
+		RenderPass_PostProcessing_HDR(RendererLayer* _RendererLayer);
 		~RenderPass_PostProcessing_HDR();
 
 
@@ -49,6 +49,8 @@ namespace TruthEngine
 		void InitTexture();
 		void InitPipeline();
 		void ReleaseResources();
+
+		void ResizedViewport(uint32_t _Width, uint32_t Height);
 
 		void OnRenderTargetResize(const EventTextureResize& _Event);
 		void RegisterOnEvents();
@@ -94,6 +96,13 @@ namespace TruthEngine
 				mLumWhiteSqr *= mMiddleGrey;
 				mLumWhiteSqr *= mLumWhiteSqr;
 			}
+
+			void SetLumWhiteSqr(float _Value)
+			{
+				mLumWhiteSqr = _Value * mMiddleGrey;
+				mLumWhiteSqr *= mLumWhiteSqr;
+			}
+
 			// Tone mapping
 			float mMiddleGrey;
 			float mLumWhiteSqr;

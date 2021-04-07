@@ -2,10 +2,13 @@
 
 namespace TruthEngine
 {
+
+	class RendererLayer;
+
 	class RenderPass
 	{
 	public:
-		RenderPass(TE_IDX_RENDERPASS idx);
+		RenderPass(TE_IDX_RENDERPASS idx, RendererLayer* _RendererLayer);
 
 		virtual void OnAttach() = 0;
 		virtual void OnDetach() = 0;
@@ -19,5 +22,6 @@ namespace TruthEngine
 
 	protected:
 		TE_IDX_RENDERPASS m_RenderPassIDX = TE_IDX_RENDERPASS::NONE;
+		RendererLayer* m_RendererLayer = nullptr;
 	};
 }

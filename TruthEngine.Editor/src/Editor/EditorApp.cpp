@@ -22,6 +22,11 @@
 
 std::future<void> gFeaturePickEntity;
 
+
+TruthEngine::Application* TruthEngine::CreateApplication() {
+	return new TruthEngine::ApplicationEditor(1920, 1000, 3);
+}
+
 namespace TruthEngine
 {
 
@@ -46,38 +51,44 @@ namespace TruthEngine
 			, float3{ 0.48f, -.5f, 0.72f }
 			, float3{ 0.0f, 1.0f, 0.0f }
 			, DirectX::XM_PIDIV4
-			, static_cast<float>(m_ClientWidth) / m_ClientHeight
+			, static_cast<float>(m_ClientWidth) / static_cast<float>(m_ClientHeight)
 			, 1.0f
-			, 200.0f
+			, 1000.0f
+			, false
 		);
 
 
 		CameraManager::GetInstance()->SetActiveCamera(mainCamera);
 
+		m_ActiveScene.Init();
 
+		//
+		//Add Main Camera
+		//
 		auto entity = m_ActiveScene.AddEntity("MainCamera");
 		entity.AddComponent<CameraComponent>(mainCamera, CameraManager::GetInstance()->GetCameraController());
 
 		m_LayerStack.PushLayer(m_RendererLayer.get());
 
-		auto lightManager = LightManager::GetInstace();
-		const float4 _cascadeCoveringPercentage = float4{ .07f, .21f, .4f, 1.0f };
-		auto dirLight0 = lightManager->AddLightDirectional("dlight_0", float4{ 0.8f, 0.8f, 0.8f, 0.8f }, float4{ 0.3f, 0.3f, 0.3f, 0.3f }, float4{ 0.0f, 0.0f, 0.0f, 0.0f }, float3{ .38f, -.60f, .71f }, float3{ -42.0f, 66.0f, -80.0f }, 0.05f, true, 200.0f, _cascadeCoveringPercentage);
-		//lightManager->AddLightCamera(dirLight0, TE_CAMERA_TYPE::Perspective);
-		
+		//
+		//Adding Lights
+		//
+		/*const float4 _cascadeCoveringPercentage = float4{ 10.0f, 50.0f, 100.f, 200.0f };
+		m_ActiveScene.AddLightEntity_Directional("SunLight", float3{ 0.0f, 0.0f, 0.0f }, float3{ .38f, -.60f, .71f }, float3{ -42.0f, 66.0f, -80.0f }, 0.05f, true, _cascadeCoveringPercentage);*/
+		m_ActiveScene.AddLightEntity_Spot("SpotLight0", float3{ .8f, .8f, .8f }, float3{ .01f, -.71f, .7f }, float3{ -0.3f, 28.0f, -42.0f }, 0.05f, true, 90.0f, 200.0f, 20.0f, 60.0f);
 
-		auto entityLight = m_ActiveScene.AddEntity("Directional Light 0");
-		entityLight.AddComponent<LightComponent>(dirLight0);
-
+		//auto lightManager = LightManager::GetInstace();
+		//auto dirLight0 = lightManager->AddLightDirectional("dlight_0", float3{ 0.8f, 0.8f, 0.8f }, float3{ .38f, -.60f, .71f }, float3{ -42.0f, 66.0f, -80.0f }, 0.05f, true, _cascadeCoveringPercentage);
+		////lightManager->AddLightCamera(dirLight0, TE_CAMERA_TYPE::Perspective);
+		//auto entityLight = m_ActiveScene.AddEntity("Directional Light 0");
+		//entityLight.AddComponent<LightComponent>(dirLight0);
 
 		//must put ModelManager initiation after RendererLayer attachment so that the bufferManager has been initiated 
 		auto modelManager = ModelManager::GetInstance();
 		modelManager->Init(TE_INSTANCE_BUFFERMANAGER);
 		//modelManager->AddSampleModel();
 
-
 		m_SceneHierarchyPanel.SetContext(&m_ActiveScene);
-
 
 		TE_INSTANCE_PHYSICSENGINE->Init();
 
@@ -89,7 +100,6 @@ namespace TruthEngine
 
 	void ApplicationEditor::OnUpdate()
 	{
-
 
 		TE_INSTANCE_PHYSICSENGINE->Simulate(m_Timer.DeltaTime());
 
@@ -107,7 +117,6 @@ namespace TruthEngine
 		}
 
 		m_TimerAvg_UpdateRenderPasses.End();
-
 
 		m_TimerAvg_ImGuiPass.Start();
 
@@ -188,10 +197,40 @@ namespace TruthEngine
 					{
 						if (ImGui::MenuItem("Model3D"))
 						{
-							static const std::vector<const char*> fileExtensions = { ".obj", ".fbx", ".3ds", ".dae", ".blend" };
+							static const std::vector<const char*> fileExtensions = { ".obj", ".fbx", ".3ds", ".dae", ".blend", ".gltf" };
 							imguiLayer->OpenFileDialog(&fileBrowserImportModel, "Open Model", fileExtensions);
 						}
 						ImGui::EndMenu();
+					}
+					if (ImGui::BeginMenu("Test"))
+					{
+						static bool _Checked = false;
+						ImGui::Checkbox("Rotation", &_Checked);
+
+						if (_Checked)
+						{
+							Entity _SelectedEntity = m_ActiveScene.GetSelectedEntity();
+							if (_SelectedEntity)
+							{
+								float angle = DirectX::XMConvertToRadians(0.25f * static_cast<float>(InputManager::GetDX()));
+								angle /= 10.0f;
+
+								float4x4& _Transform = _SelectedEntity.GetComponent<TransformComponent>().GetTransform();
+
+								//float3 _RotationOrigin = float3{ _Transform._41, _Transform._42, _Transform._43 };
+								float3 _RotationOrigin = float3{ 0, 0, 0 };
+
+								float4x4 _RotationTransform = Math::TransformMatrixRotation(angle, float3{ .0f, 1.0f, .0f }, _RotationOrigin);
+
+								_Transform = _Transform * _RotationTransform;
+							}
+						}
+
+						ImGui::EndMenu();
+					}
+					if (ImGui::MenuItem("Exit"))
+					{
+						exit(0);
 					}
 					ImGui::EndMenu();
 				}
@@ -319,12 +358,37 @@ namespace TruthEngine
 			{
 				ImGui::Begin("Scene Properties");
 
+
 				bool _IsEnvironmentMapEnabled = m_RendererLayer->IsEnvironmentMapEnabled();
+
 
 				if (ImGui::Checkbox("Environment Map", &_IsEnvironmentMapEnabled))
 				{
 					m_RendererLayer->SetEnabledEnvironmentMap(_IsEnvironmentMapEnabled);
 				}
+
+
+				static bool _IsEnabledHDR = m_RendererLayer->IsEnabledHDR();
+
+				if (ImGui::Checkbox("HDR", &_IsEnabledHDR))
+				{
+					m_RendererLayer->SetHDR(_IsEnabledHDR);
+				}
+				
+
+				static float3 _EnvironmentMapMultiplier = m_RendererLayer->GetEnvironmentMapMultiplier();
+				if (ImGui::ColorEdit3("Environment Map Multiplier", &_EnvironmentMapMultiplier.x, ImGuiColorEditFlags_Float))
+				{
+					m_RendererLayer->SetEnvironmentMapMultiplier(_EnvironmentMapMultiplier);
+				}
+
+
+				static float3 s_AmbientLightStrength = m_RendererLayer->GetAmbientLightStrength();
+				if (ImGui::ColorEdit3("Global Ambient Light", &s_AmbientLightStrength.x, ImGuiColorEditFlags_Float))
+				{
+					m_RendererLayer->SetAmbientLightStrength(s_AmbientLightStrength);
+				}
+
 
 				ImGui::End();
 			}
@@ -552,7 +616,7 @@ namespace TruthEngine
 		if (_ImportModel)
 		{
 			m_ActiveScene.ImportModel(importFilePath.c_str(), _ModelName);
-			strcpy(_ModelName, "Model_");
+			strcpy_s(_ModelName, "Model_");
 			_SelectedModel = false;
 			_ImportModel = false;
 		}
@@ -589,8 +653,4 @@ namespace TruthEngine
 		
 	}
 
-}
-
-TruthEngine::Application* TruthEngine::CreateApplication() {
-	return new TruthEngine::ApplicationEditor(1366, 1000, 3);
 }

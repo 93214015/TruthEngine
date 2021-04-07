@@ -45,6 +45,8 @@ namespace TruthEngine
 		virtual void SetRenderTarget(SwapChain* swapChain, const RenderTargetView RTV) = 0;
 		virtual void SetDepthStencil(const DepthStencilView DSV) = 0;
 
+		virtual void ResolveMultiSampledTexture(Texture* _SourceTexture, Texture* _DestTexture) = 0;
+
 		/*virtual void SetShaderResource(ShaderResourceView srv, const uint32_t registerIndex) = 0;
 		virtual void SetConstantBuffer(ConstantBufferView cbv, const uint32_t registerIndex) = 0;*/
 

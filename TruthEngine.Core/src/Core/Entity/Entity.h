@@ -11,6 +11,9 @@ namespace TruthEngine
 			Entity(Scene* scene);
 			Entity(Scene* scene, entt::entity entityHandle);
 
+			float4x4 GetTransformHierarchy();
+
+
 			template<class T, class... Args>
 			T& AddComponent(Args&&... args)
 			{

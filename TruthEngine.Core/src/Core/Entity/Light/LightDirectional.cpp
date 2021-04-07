@@ -10,43 +10,54 @@ namespace TruthEngine
 	LightDirectional::LightDirectional(
 		uint32_t id
 		, std::string_view name
-		, const float4 diffusecolor
-		, const float4 ambientColor
-		, const float4 specularColor
-		, const float3 direction
-		, const float3 position
+		, const float3& strength
+		, const float3& direction
+		, const float3& position
 		, const float lightSize
 		, const int castShadow
-		, const float range
 		, const float4& cascadesCoveringDepth
 		, CameraCascadedFrustumBase* cascadedCamera)
-		: ILight(id, name, &m_DLightData, TE_LIGHT_TYPE::Directional)
-		, m_DLightData(diffusecolor, ambientColor, specularColor, direction, lightSize, position, castShadow, range)
+		: ILight(id, name, TE_LIGHT_TYPE::Directional)
+		, m_DLightData(strength, lightSize, direction, castShadow, position)
 		, m_Camera(cascadedCamera), m_CascadesDepth(cascadesCoveringDepth)
 	{
 	}
 
-	void LightDirectional::SetDirection(const float3& _direction) noexcept
+	void LightDirectional::SetStrength(const float3& _Strength) noexcept
 	{
-		m_DLightData.Direction = _direction;
-
-		Math::NormalizeEst(m_DLightData.Direction);
-
-		if (m_Camera)
-			m_Camera->SetLook(m_DLightData.Direction);
+		m_DLightData.Strength = _Strength;
 
 		EventEntityUpdateLight event(this);
 		TE_INSTANCE_APPLICATION->OnEvent(event);
 	}
 
-	void LightDirectional::SetDirection(const float x, const float y, const float z) noexcept
+	void LightDirectional::SetCastShadow(const bool _castshadow) noexcept
 	{
-		m_DLightData.Direction = float3{ x, y, z };
+		m_DLightData.CastShadow = static_cast<uint32_t>(_castshadow);
 
-		Math::NormalizeEst(m_DLightData.Direction);
+		EventEntityUpdateLight event(this);
+		TE_INSTANCE_APPLICATION->OnEvent(event);
+	}
+
+	void LightDirectional::SetView(const float3& _Position, const float3& _Direction, const float3& _Up, const float3& _Right) noexcept
+	{
+		m_DLightData.Direction = _Direction;
+
+		m_DLightData.Position = _Position;
 
 		if (m_Camera)
-			m_Camera->SetLook(m_DLightData.Direction);
+			m_Camera->SetViewMatrix(_Position, _Direction, _Up, _Right);
+
+		EventEntityUpdateLight event(this);
+		TE_INSTANCE_APPLICATION->OnEvent(event);
+	}
+
+	void LightDirectional::SetDirection(const float3& _Direction, const float3& _Up, const float3& _Right) noexcept
+	{
+		m_DLightData.Direction = _Direction;
+
+		if (m_Camera)
+			m_Camera->SetLook(_Direction, _Up, _Right);
 
 		EventEntityUpdateLight event(this);
 		TE_INSTANCE_APPLICATION->OnEvent(event);
@@ -72,6 +83,26 @@ namespace TruthEngine
 
 		EventEntityUpdateLight event(this);
 		TE_INSTANCE_APPLICATION->OnEvent(event);
+	}
+
+	const float3& LightDirectional::GetPosition() const noexcept
+	{
+		return m_DLightData.Position;
+	}
+
+	const float3& LightDirectional::GetDirection() const noexcept
+	{
+		return m_DLightData.Direction;
+	}
+
+	const float3& LightDirectional::GetStrength() const noexcept
+	{
+		return m_DLightData.Strength;
+	}
+
+	bool LightDirectional::GetCastShadow() const noexcept
+	{
+		return static_cast<bool>(m_DLightData.CastShadow);
 	}
 
 }

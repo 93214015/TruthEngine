@@ -73,7 +73,14 @@ namespace TruthEngine::API::DirectX12
 		uploadBatch.Begin(D3D12_COMMAND_LIST_TYPE_COPY);
 		auto resourceIndex = static_cast<uint32_t>(bufferManager->m_Resources.size());
 		auto resource = std::addressof(bufferManager->m_Resources.emplace_back());
-		DirectX::CreateWICTextureFromFileEx(d3d12device, uploadBatch, to_wstring(std::string_view(fullPath)).c_str(), 0, D3D12_RESOURCE_FLAG_NONE, DirectX::WIC_LOADER_DEFAULT, resource->ReleaseAndGetAddressOf());
+		HRESULT hr = DirectX::CreateWICTextureFromFileEx(d3d12device, uploadBatch, to_wstring(std::string_view(fullPath)).c_str(), 0, D3D12_RESOURCE_FLAG_NONE, DirectX::WIC_LOADER_DEFAULT, resource->ReleaseAndGetAddressOf());
+
+		if (FAILED(hr))
+		{
+			auto _erCode = GetLastError();
+			throw;
+		}
+
 		uploadBatch.End(TE_INSTANCE_API_DX12_COMMANDQUEUECOPY->GetNativeObject());
 
 		auto desc = (*resource)->GetDesc();

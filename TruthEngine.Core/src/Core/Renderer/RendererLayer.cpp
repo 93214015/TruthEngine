@@ -26,9 +26,9 @@ namespace TruthEngine
 {
 
 	RendererLayer::RendererLayer() : m_ImGuiLayer(ImGuiLayer::Factory())
-		, m_RenderPass_ForwardRendering(std::make_shared<RenderPass_ForwardRendering>())
-		, m_RenderPass_GenerateShadowMap(std::make_shared<RenderPass_GenerateShadowMap>())
-		, m_RenderPass_PostProcessing_HDR(std::make_shared<RenderPass_PostProcessing_HDR>())
+		, m_RenderPass_ForwardRendering(std::make_shared<RenderPass_ForwardRendering>(this))
+		, m_RenderPass_GenerateShadowMap(std::make_shared<RenderPass_GenerateShadowMap>(this, 4096))
+		, m_RenderPass_PostProcessing_HDR(std::make_shared<RenderPass_PostProcessing_HDR>(this))
 	{
 	}
 	RendererLayer::~RendererLayer() = default;
@@ -40,7 +40,7 @@ namespace TruthEngine
 	void RendererLayer::OnAttach()
 	{
 
-		Settings::MSAA = TE_SETTING_MSAA::X1;
+		Settings::MSAA = TE_SETTING_MSAA::X4;
 
 		m_BufferManager = TE_INSTANCE_BUFFERMANAGER;
 
@@ -62,13 +62,11 @@ namespace TruthEngine
 				auto _light0 = _lightManager->GetDirectionalLight("dlight_0");
 				const auto& lightdata = _light0->GetDirectionalLightData();
 				*(CB_LightData->GetData()) = ConstantBuffer_Data_LightData(lightdata.Diffuse, lightdata.Ambient, lightdata.Specular, lightdata.Direction, lightdata.LightSize, lightdata.Position, static_cast<uint32_t>(lightdata.CastShadow), lightdata.Range, _lightManager->GetShadowTransform(_light0));
-			});*/
+		});*/
 
 		m_ImGuiLayer->OnAttach();
 
-		m_RenderPassStack.PushRenderPass(m_RenderPass_GenerateShadowMap.get());
-		m_RenderPassStack.PushRenderPass(m_RenderPass_ForwardRendering.get());
-		m_RenderPassStack.PushRenderPass(m_RenderPass_PostProcessing_HDR.get());
+		InitRenderPasses();
 
 		RegisterEvents();
 	}
@@ -91,18 +89,21 @@ namespace TruthEngine
 
 		auto data_perFrame = m_CB_PerFrame->GetData();
 
-
 		auto activeCamera = CameraManager::GetInstance()->GetActiveCamera();
 
-		auto _lightManager = LightManager::GetInstace();
-		static auto _dirLight0 = _lightManager->GetDirectionalLight("dlight_0");
-		auto cameraCascaded = _dirLight0->GetCamera();
-		cameraCascaded->UpdateFrustums(TE_INSTANCE_APPLICATION->GetActiveScene(), activeCamera, true);
 		float4x4 _cascadedShadowTransforms[4];
-		_lightManager->GetCascadedShadowTransform(cameraCascaded, _cascadedShadowTransforms);
+
+		auto _lightManager = LightManager::GetInstace();
+		static auto _dirLight0 = _lightManager->GetDirectionalLight("SunLight");
+		if (_dirLight0)
+		{
+			auto cameraCascaded = _dirLight0->GetCamera();
+			cameraCascaded->UpdateFrustums(TE_INSTANCE_APPLICATION->GetActiveScene(), activeCamera, true);
+			_lightManager->GetCascadedShadowTransform(cameraCascaded, _cascadedShadowTransforms);
+		}
+
 
 		*data_perFrame = ConstantBuffer_Data_Per_Frame(activeCamera->GetViewProj(), activeCamera->GetPosition(), _cascadedShadowTransforms);
-
 
 		//
 		////Use MultiThreaded Rendering
@@ -165,15 +166,15 @@ namespace TruthEngine
 
 		if (SA_Animation* _DefaultAnimation = TE_INSTANCE_ANIMATIONMANAGER->GetAnimation(0); _DefaultAnimation)
 		{
-			
+
 			auto _AnimationTransforms = _DefaultAnimation->GetTransform();
 
-			m_RendererCommand.AddUpdateTaskJustCurrentFrame([_AnimationTransforms, this]() 
+			m_RendererCommand.AddUpdateTaskJustCurrentFrame([_AnimationTransforms, this]()
 				{
 					auto _Dest = m_CB_Bones->GetData()->mBones;
 					auto _Src = _AnimationTransforms->data();
 					auto _Size = sizeof(float4x4) * _AnimationTransforms->size();
-					memcpy(_Dest, _Src, _Size); 
+					memcpy(_Dest, _Src, _Size);
 				});
 		}
 
@@ -202,6 +203,13 @@ namespace TruthEngine
 			ImGui::Text("RendererLayer Update Time: %0.3f ms", m_TimerRenderLayerUpdate.GetAverageTime());
 		}
 		ImGui::End();
+	}
+
+	void RendererLayer::SetHDR(bool _EnableHDR)
+	{
+		m_IsEnabledHDR = _EnableHDR;
+
+		InitRenderPasses();
 	}
 
 	void RendererLayer::RegisterEvents()
@@ -288,11 +296,16 @@ namespace TruthEngine
 		auto _LightType = _Light->GetLightType();
 		auto _LightID = _Light->GetID();
 
-		if (_LightType == TE_LIGHT_TYPE::Directional)
+		switch (_LightType)
+		{
+		case TE_LIGHT_TYPE::Directional:
 		{
 			auto _Itr = m_Map_DLightToCBuffer.find(_LightID);
 			if (_Itr == m_Map_DLightToCBuffer.end())
+			{
+				throw;
 				return;
+			}
 
 			int _BufferIndex = _Itr->second;
 
@@ -302,16 +315,58 @@ namespace TruthEngine
 
 				CB_Lights->GetData()->mDLights[_BufferIndex] = ConstantBuffer_Struct_DLight
 				(
-					_LightData.Diffuse
-					, _LightData.Ambient
-					, _LightData.Specular
-					, _LightData.Direction
+					_LightData.Strength
 					, _LightData.LightSize
+					, _LightData.Direction
 					, static_cast<uint32_t>(_LightData.CastShadow)
+					, _LightData.Position
 				);
 
 			});
+
+			break;
 		}
+		case TE_LIGHT_TYPE::Spot:
+		{
+
+			auto _Itr = m_Map_SLightToCBuffer.find(_LightID);
+			if (_Itr == m_Map_SLightToCBuffer.end())
+			{
+				throw;
+				return;
+			}
+
+			int _BufferIndex = _Itr->second;
+
+			m_RendererCommand.AddUpdateTask([_BufferIndex, _Light = static_cast<LightSpot*>(event.GetLight()), CB_Lights = m_CB_LightData]()
+			{
+				const auto& _LightData = _Light->GetLightData();
+
+				CB_Lights->GetData()->mSLights[_BufferIndex] = ConstantBuffer_Struct_SLight
+				(
+					_LightData.ShadowTransform
+					, _LightData.Strength
+					, _LightData.LightSize
+					, _LightData.Direction
+					, static_cast<uint32_t>(_LightData.CastShadow)
+					, _LightData.Position
+					, _LightData.FalloffStart
+					, _LightData.FalloffEnd
+					, _LightData.SpotOuterConeCos
+					, _LightData.SpotOuterConeAngleRangeCosRcp
+				);
+
+			});
+
+			break;
+		}
+		case TE_LIGHT_TYPE::Point:
+			break;
+		default:
+			break;
+		}
+
+
 	}
 
 	void RendererLayer::OnAddLight(const EventEntityAddLight& event)
@@ -320,7 +375,9 @@ namespace TruthEngine
 		TE_LIGHT_TYPE _LightType = _Light->GetLightType();
 		uint32_t _LightID = _Light->GetID();
 
-		if (_LightType == TE_LIGHT_TYPE::Directional)
+		switch (_LightType)
+		{
+		case TE_LIGHT_TYPE::Directional:
 		{
 			size_t _BufferIndex = m_Map_DLightToCBuffer.size();
 
@@ -332,21 +389,61 @@ namespace TruthEngine
 
 				CB_Lights->GetData()->mDLights[_BufferIndex] = ConstantBuffer_Struct_DLight
 				(
-					_LightData.Diffuse
-					, _LightData.Ambient
-					, _LightData.Specular
-					, _LightData.Direction
+					_LightData.Strength
 					, _LightData.LightSize
+					, _LightData.Direction
 					, static_cast<uint32_t>(_LightData.CastShadow)
+					, _LightData.Position
 				);
 
 			});
 
 			auto _DLightCount = TE_INSTANCE_LIGHTMANAGER->GetLightDirectionalCount();
 
-			_ChangeUnfrequentBuffer_LightDirectionalLight(_DLightCount);
+			_ChangeUnfrequentBuffer_LightDirectionalCount(_DLightCount);
 
+			break;
 		}
+		case TE_LIGHT_TYPE::Spot:
+		{
+			size_t _BufferIndex = m_Map_SLightToCBuffer.size();
+
+			m_Map_SLightToCBuffer[_LightID] = _BufferIndex;
+
+			m_RendererCommand.AddUpdateTask([_BufferIndex, _Light = static_cast<LightSpot*>(event.GetLight()), CB_Lights = m_CB_LightData]()
+			{
+				const auto& _LightData = _Light->GetLightData();
+
+				CB_Lights->GetData()->mSLights[_BufferIndex] = ConstantBuffer_Struct_SLight
+				(
+					_LightData.ShadowTransform
+					, _LightData.Strength
+					, _LightData.LightSize
+					, _LightData.Direction
+					, static_cast<uint32_t>(_LightData.CastShadow)
+					, _LightData.Position
+					, _LightData.FalloffStart
+					, _LightData.FalloffEnd
+					, _LightData.SpotOuterConeCos
+					, _LightData.SpotOuterConeAngleRangeCosRcp
+				);
+
+			});
+
+			auto _SLightCount = TE_INSTANCE_LIGHTMANAGER->GetLightSpotCount();
+
+			_ChangeUnfrequentBuffer_LightSpotCount(_SLightCount);
+
+			break;
+		}
+		case TE_LIGHT_TYPE::Point:
+			throw;
+			break;
+		default:
+			throw;
+			break;
+		}
+
 	}
 
 	void RendererLayer::SetEnabledEnvironmentMap(bool _EnabledEnvironmentMap)
@@ -359,7 +456,33 @@ namespace TruthEngine
 			});
 	}
 
-	void RendererLayer::_ChangeUnfrequentBuffer_LightDirectionalLight(uint32_t _LightDirectionalCount)
+	const float3& RendererLayer::GetAmbientLightStrength() const
+	{
+		return m_CB_UnFrequent->GetData()->mAmbientLightStrength;
+	}
+
+	void RendererLayer::SetAmbientLightStrength(const float3& _AmbientLightStrength)
+	{
+		m_RendererCommand.AddUpdateTask([_AmbientLightStrength, CB_UnFrequent = m_CB_UnFrequent]()
+			{
+				CB_UnFrequent->GetData()->mAmbientLightStrength = _AmbientLightStrength;
+			});
+	}
+
+	const float3& RendererLayer::GetEnvironmentMapMultiplier() const
+	{
+		return m_CB_EnvironmentMap->GetData()->mEnvironmentMapMultiplier;
+	}
+
+	const void RendererLayer::SetEnvironmentMapMultiplier(const float3& _EnvironmentMapMultiplier)
+	{
+		m_RendererCommand.AddUpdateTask([_EnvironmentMapMultiplier, CB_EnvironmentMap = m_CB_EnvironmentMap]()
+			{
+				CB_EnvironmentMap->GetData()->mEnvironmentMapMultiplier = _EnvironmentMapMultiplier;
+			});
+	}
+
+	void RendererLayer::_ChangeUnfrequentBuffer_LightDirectionalCount(uint32_t _LightDirectionalCount)
 	{
 		m_RendererCommand.AddUpdateTask([_LightDirectionalCount, CB_UnFrequent = m_CB_UnFrequent]()
 			{
@@ -367,10 +490,29 @@ namespace TruthEngine
 			});
 	}
 
+	void RendererLayer::_ChangeUnfrequentBuffer_LightSpotCount(uint32_t _LightSpotCount)
+	{
+		m_RendererCommand.AddUpdateTask([_LightSpotCount, CB_UnFrequent = m_CB_UnFrequent]()
+			{
+				CB_UnFrequent->GetData()->mSLightCount = _LightSpotCount;
+			});
+	}
+
+	void RendererLayer::InitRenderPasses()
+	{
+		m_RenderPassStack.PopAll();
+
+		m_RenderPassStack.PushRenderPass(m_RenderPass_GenerateShadowMap.get());
+		m_RenderPassStack.PushRenderPass(m_RenderPass_ForwardRendering.get());
+
+		if (m_IsEnabledHDR)
+			m_RenderPassStack.PushRenderPass(m_RenderPass_PostProcessing_HDR.get());
+	}
+
 	void RendererLayer::InitTextures()
 	{
-		m_RendererCommand.CreateRenderTarget(TE_IDX_GRESOURCES::Texture_RT_SceneBuffer, TE_INSTANCE_APPLICATION->GetClientWidth(), TE_INSTANCE_APPLICATION->GetClientHeight(), TE_RESOURCE_FORMAT::R8G8B8A8_UNORM, ClearValue_RenderTarget{ 1.0f, 1.0f, 1.0f, 1.0f }, true, true);
-		m_RendererCommand.CreateRenderTarget(TE_IDX_GRESOURCES::Texture_RT_SceneBufferHDR, TE_INSTANCE_APPLICATION->GetClientWidth(), TE_INSTANCE_APPLICATION->GetClientHeight(), TE_RESOURCE_FORMAT::R16G16B16A16_FLOAT, ClearValue_RenderTarget{ 0.0f, 0.0f, 0.0f, 1.0f }, true, true);
+		m_RendererCommand.CreateRenderTarget(TE_IDX_GRESOURCES::Texture_RT_SceneBuffer, TE_INSTANCE_APPLICATION->GetClientWidth(), TE_INSTANCE_APPLICATION->GetClientHeight(), TE_RESOURCE_FORMAT::R8G8B8A8_UNORM, ClearValue_RenderTarget{ 1.0f, 1.0f, 1.0f, 1.0f }, true, false);
+		m_RendererCommand.CreateRenderTarget(TE_IDX_GRESOURCES::Texture_RT_SceneBufferHDR, TE_INSTANCE_APPLICATION->GetClientWidth(), TE_INSTANCE_APPLICATION->GetClientHeight(), TE_RESOURCE_FORMAT::R16G16B16A16_FLOAT, ClearValue_RenderTarget{ 0.0f, 0.0f, 0.0f, 1.0f }, true, false);
 
 		m_RendererCommand.CreateRenderTargetView(TE_INSTANCE_SWAPCHAIN, &m_RTVBackBuffer);
 
@@ -386,6 +528,7 @@ namespace TruthEngine
 		m_CB_Materials = m_RendererCommand.CreateConstantBufferUpload<ConstantBuffer_Data_Materials>(TE_IDX_GRESOURCES::CBuffer_Materials);
 		m_CB_UnFrequent = m_RendererCommand.CreateConstantBufferUpload<ConstantBuffer_Data_UnFrequent>(TE_IDX_GRESOURCES::CBuffer_UnFrequent);
 		m_CB_Bones = m_RendererCommand.CreateConstantBufferUpload<ConstantBuffer_Data_Bones>(TE_IDX_GRESOURCES::CBuffer_Bones);
+		m_CB_EnvironmentMap = m_RendererCommand.CreateConstantBufferDirect<ConstantBuffer_Data_EnvironmentMap>(TE_IDX_GRESOURCES::Constant_EnvironmentMap);
 	}
 
 }

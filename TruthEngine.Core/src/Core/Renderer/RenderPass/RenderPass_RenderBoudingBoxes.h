@@ -13,7 +13,7 @@ namespace TruthEngine
 	{
 
 	public:
-		RenderPass_RenderBoundingBoxes();
+		RenderPass_RenderBoundingBoxes(RendererLayer* _RendererLayer);
 
 
 		void OnAttach() override;

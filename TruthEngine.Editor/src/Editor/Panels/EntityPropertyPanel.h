@@ -7,27 +7,29 @@
 namespace TruthEngine
 {
 	//Forward Declaration
-	
-		class Entity;
-		
-		class TransformComponent;
-		class MaterialComponent;
-		class CameraComponent;
-		class LightComponent;
-		class TagComponent;
 
-		enum class TE_PHYSICS_RIGID_TYPE;
-		enum class TE_PHYSICS_RIGID_SHAPE;
+	class Application;
 
-		class TEPhysicsRigidDesc;
+	class Entity;
+
+	class TransformComponent;
+	class MaterialComponent;
+	class CameraComponent;
+	class LightComponent;
+	class TagComponent;
+
+	enum class TE_PHYSICS_RIGID_TYPE;
+	enum class TE_PHYSICS_RIGID_SHAPE;
+
+	class TEPhysicsRigidDesc;
 
 	class EntityPropertyPanel
 	{
 	public:
-		EntityPropertyPanel() = default;
+		EntityPropertyPanel();
 
-		inline void SetContext(Entity context) { m_Context = context; }
-		
+		void SetContext(Entity context) noexcept;
+
 		void OnImGuiRender();
 
 	private:
@@ -40,6 +42,9 @@ namespace TruthEngine
 		void AddPhysicsComponent(TE_PHYSICS_RIGID_TYPE rigidType, TE_PHYSICS_RIGID_SHAPE rigidshape, TEPhysicsRigidDesc& rigidDesc);
 	private:
 		Entity m_Context;
+
+		Application* m_App = nullptr;
+
 
 		void DrawImGuizmo();
 		void DrawPhysicComponent();

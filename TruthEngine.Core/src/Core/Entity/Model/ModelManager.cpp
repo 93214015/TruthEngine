@@ -99,29 +99,29 @@ namespace TruthEngine
 		return _Mesh;
 	}
 
-	Mesh* ModelManager::GeneratePrimitiveMesh(TE_PRIMITIVE_TYPE type, float size)
+	Mesh* ModelManager::GeneratePrimitiveMesh(TE_PRIMITIVE_TYPE type, float size_x, float size_y, float size_z)
 	{
 		Mesh* mesh = nullptr;
 
 		switch (type)
 		{
 		case TruthEngine::TE_PRIMITIVE_TYPE::BOX:
-			mesh = MeshGenerator::GetInstance()->GenerateBox(size);
+			mesh = MeshGenerator::GetInstance()->GenerateBox(size_x, size_y, size_z);
 			break;
 		case TruthEngine::TE_PRIMITIVE_TYPE::ROUNDEDBOX:
-			mesh = MeshGenerator::GetInstance()->GenerateRoundedBoxMesh(size);
+			mesh = MeshGenerator::GetInstance()->GenerateRoundedBoxMesh(size_x, size_y, size_z);
 			break;
 		case TruthEngine::TE_PRIMITIVE_TYPE::SPHERE:
-			mesh = MeshGenerator::GetInstance()->GenerateSphere(size);
+			mesh = MeshGenerator::GetInstance()->GenerateSphere(size_x);
 			break;
 		case TruthEngine::TE_PRIMITIVE_TYPE::CYLINDER:
-			mesh = MeshGenerator::GetInstance()->GenerateCylinder(size);
+			mesh = MeshGenerator::GetInstance()->GenerateCylinder(size_x);
 			break;
 		case TruthEngine::TE_PRIMITIVE_TYPE::CAPPEDCYLINDER:
-			mesh = MeshGenerator::GetInstance()->GenerateCappedCylinder(size);
+			mesh = MeshGenerator::GetInstance()->GenerateCappedCylinder(size_x);
 			break;
 		case TE_PRIMITIVE_TYPE::PLANE:
-			mesh = MeshGenerator::GetInstance()->GeneratePlane(size);
+			mesh = MeshGenerator::GetInstance()->GeneratePlane(size_x, size_z);
 			break;
 		default:
 			break;
@@ -150,6 +150,7 @@ namespace TruthEngine
 		InitVertexAndIndexBuffer();
 
 	}
+
 
 	TruthEngine::Mesh* ModelManager::CopyMesh(Mesh* mesh)
 	{

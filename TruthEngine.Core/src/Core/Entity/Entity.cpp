@@ -24,6 +24,11 @@ namespace TruthEngine
 		: m_Scene(scene), m_Registery(&scene->m_Registery), m_EntityHandle(entityHandle)
 	{}
 
+	float4x4 Entity::GetTransformHierarchy()
+	{
+		return m_Scene->GetTransformHierarchy(*this);
+	}
+
 
 	/*float3 Entity::GetPosition() noexcept
 	{

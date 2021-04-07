@@ -9,6 +9,8 @@
 #include "Core/Renderer/Material.h"
 #include "Core/Renderer/Pipeline.h"
 
+#include "Core/Renderer/RendererLayer.h"
+
 #include "Core/Application.h"
 #include "Core/Renderer/SwapChain.h"
 
@@ -20,8 +22,8 @@
 namespace TruthEngine
 {
 
-	RenderPass_ForwardRendering::RenderPass_ForwardRendering()
-		: RenderPass(TE_IDX_RENDERPASS::FORWARDRENDERING)
+	RenderPass_ForwardRendering::RenderPass_ForwardRendering(RendererLayer* _RendererLayer)
+		: RenderPass(TE_IDX_RENDERPASS::FORWARDRENDERING, _RendererLayer)
 		, m_TextureDepthStencil(nullptr)
 		, m_Viewport{ 0.0f, 0.0f, static_cast<float>(TE_INSTANCE_APPLICATION->GetClientWidth()), static_cast<float>(TE_INSTANCE_APPLICATION->GetClientHeight()), 0.0f, 1.0f }
 		, m_ViewRect{ static_cast<long>(0.0), static_cast<long>(0.0), static_cast<long>(TE_INSTANCE_APPLICATION->GetClientWidth()), static_cast<long>(TE_INSTANCE_APPLICATION->GetClientHeight()) }
@@ -43,13 +45,10 @@ namespace TruthEngine
 		m_ShaderMgr = TE_INSTANCE_SHADERMANAGER;
 
 		m_RendererCommand.Init(TE_IDX_RENDERPASS::FORWARDRENDERING, TE_IDX_SHADERCLASS::FORWARDRENDERING, m_BufferMgr, m_ShaderMgr);
+		m_RendererCommand_ResolveTextures.Init(TE_IDX_RENDERPASS::FORWARDRENDERING, TE_IDX_SHADERCLASS::NONE, m_BufferMgr, m_ShaderMgr);
 
-		m_TextureDepthStencil = m_RendererCommand.CreateDepthStencil(TE_IDX_GRESOURCES::Texture_DS_SceneBuffer, TE_INSTANCE_APPLICATION->GetClientWidth(), TE_INSTANCE_APPLICATION->GetClientHeight(), TE_RESOURCE_FORMAT::R32_TYPELESS, ClearValue_DepthStencil{ 1.0f, 0 }, true, true);
-
-		m_RendererCommand.CreateDepthStencilView(m_TextureDepthStencil, &m_DepthStencilView);
-
-		m_RendererCommand.CreateRenderTargetView(TE_IDX_GRESOURCES::Texture_RT_SceneBufferHDR, &m_RenderTartgetView);
-		m_ConstantBufferDirect_PerMesh = m_RendererCommand.CreateConstantBufferDirect<ConstantBuffer_Data_Per_Mesh>(TE_IDX_GRESOURCES::Constant_PerMesh);
+		InitTextures();
+		InitBuffers();
 
 
 		for (const auto* mat : m_MaterialManager->GetMaterials())
@@ -64,8 +63,8 @@ namespace TruthEngine
 
 	void RenderPass_ForwardRendering::OnDetach()
 	{
-		m_RendererCommand.Release();
 		m_RendererCommand.ReleaseResource(m_TextureDepthStencil);
+		m_RendererCommand.Release();
 		m_MaterialPipelines.clear();
 	}
 
@@ -107,6 +106,7 @@ namespace TruthEngine
 		//m_TimerBegin.Start();
 
 		m_RendererCommand.BeginGraphics();
+		m_RendererCommand_ResolveTextures.BeginGraphics();
 
 		m_RendererCommand.SetViewPort(&m_Viewport, &m_ViewRect);
 		//m_RendererCommand.SetRenderTarget(TE_INSTANCE_SWAPCHAIN, m_RenderTartgetView);
@@ -115,6 +115,21 @@ namespace TruthEngine
 		m_RendererCommand.ClearRenderTarget(m_RenderTartgetView);
 		m_RendererCommand.ClearDepthStencil(m_DepthStencilView);
 
+		if (Settings::IsMSAAEnabled())
+		{
+			if (m_RendererLayer->IsEnabledHDR())
+			{
+				m_RendererCommand_ResolveTextures.ResolveMultiSampledTexture(m_TextureRenderTargetHDRMS, TE_IDX_GRESOURCES::Texture_RT_SceneBufferHDR);
+			}
+			else
+			{
+				m_RendererCommand_ResolveTextures.ResolveMultiSampledTexture(m_TextureRenderTargetMS, TE_IDX_GRESOURCES::Texture_RT_SceneBuffer);
+			}
+
+			m_RendererCommand_ResolveTextures.ResolveMultiSampledTexture(m_TextureDepthStencilMS, m_TextureDepthStencil);
+		}
+
+
 		//m_TimerBegin.End();
 	}
 
@@ -122,6 +137,7 @@ namespace TruthEngine
 	void RenderPass_ForwardRendering::EndScene()
 	{
 		m_RendererCommand.End();
+		m_RendererCommand_ResolveTextures.End();
 	}
 
 
@@ -146,21 +162,8 @@ namespace TruthEngine
 
 		for (auto _EntityModel : EntityModelView)
 		{
-			/*float4x4 _transform = activeScene->GetComponent<TransformComponent>(_EntityModel);*/
-
-
 			for (auto& entity_mesh : activeScene->GetComponent<ModelComponent>(_EntityModel).GetMeshEntities())
 			{
-
-				/*if (activeScene->HasComponent<PhysicsDynamicComponent>(entity_mesh))
-				{
-					_transform = _transform * activeScene->GetComponent<PhysicsDynamicComponent>(entity_mesh).GetTranform();
-				}
-				else
-				{
-					_transform = _transform * activeScene->GetComponent<TransformComponent>(entity_mesh).GetTransform();
-				}*/
-
 				const float4x4 _transform = activeScene->GetTransformHierarchy(entity_mesh);
 
 				const BoundingBox& _AABB = activeScene->GetComponent<BoundingBoxComponent>(entity_mesh).GetBoundingBox();
@@ -174,8 +177,8 @@ namespace TruthEngine
 
 				*data = ConstantBuffer_Data_Per_Mesh(_transform, Math::InverseTranspose(_transform), material->GetID());
 
-				m_RendererCommand.SetDirectConstantGraphics(m_ConstantBufferDirect_PerMesh);
 				m_RendererCommand.SetPipelineGraphics(m_MaterialPipelines[material->GetID()]);
+				m_RendererCommand.SetDirectConstantGraphics(m_ConstantBufferDirect_PerMesh);
 				m_RendererCommand.DrawIndexed(mesh);
 
 				m_TotalVertexNum += mesh->GetVertexNum();
@@ -184,92 +187,20 @@ namespace TruthEngine
 
 		}
 
-		if (true)
+		if (m_RendererLayer->IsEnvironmentMapEnabled())
 		{
 			auto _EntityViewEnv = activeScene->ViewEntities<EnvironmentComponent>();
+
+			m_RendererCommand.SetPipelineGraphics(m_PipelineEnvironmentCube);
+			m_RendererCommand.SetDirectConstantGraphics(m_ConstantBufferDirect_EnvironmentMap);
 
 			for (auto& _EntityEnv : _EntityViewEnv)
 			{
 				Mesh* mesh = activeScene->GetComponent<EnvironmentComponent>(_EntityEnv).GetMesh();
-				m_RendererCommand.SetPipelineGraphics(m_PipelineEnvironmentCube);
 				m_RendererCommand.DrawIndexed(mesh);
 			}
 
 		}
-
-		/*auto& dynamicEntityGroup = reg.view<MeshComponent, PhysicsDynamicComponent>();
-
-		for (auto entity_mesh : dynamicEntityGroup)
-		{
-			//float4x4 meshTransform = activeScene->GetTransformHierarchy(entity_mesh);
-			//const float4x4& meshTransform = activeScene->GetComponent<TransformComponent>(entity_mesh).GetTransform();
-			const auto& phComponent = activeScene->GetComponent<PhysicsDynamicComponent>(entity_mesh);
-			const float4x4& physicsTransform = phComponent.GetTranform();
-			const BoundingBox& _AABB = activeScene->GetComponent<BoundingBoxComponent>(entity_mesh).GetBoundingBox();
-			const BoundingBox _TransformedAABB = Math::TransformBoundingBox(_AABB, physicsTransform);
-
-			if (_CameraBoundingFrustum.Contains(_TransformedAABB) == DirectX::DISJOINT)
-				continue;
-
-			Mesh* mesh = activeScene->GetComponent<MeshComponent>(entity_mesh).GetMesh();
-			Material* material = activeScene->GetComponent<MaterialComponent>(entity_mesh).GetMaterial();
-
-			*data = ConstantBuffer_Data_Per_Mesh(physicsTransform, Math::InverseTranspose(physicsTransform), material->GetID());
-
-			m_RendererCommand.UploadData(m_ConstantBufferDirect_PerMesh);
-			m_RendererCommand.SetPipeline(m_MaterialPipelines[material->GetID()].get());
-			m_RendererCommand.DrawIndexed(mesh);
-
-			m_TotalVertexNum += mesh->GetVertexNum();
-			m_TotalMeshNum++;
-		}
-
-		auto& staticEntityGroup = reg.view<MeshComponent>(entt::exclude<PhysicsDynamicComponent>);
-
-		for (auto entity_mesh : staticEntityGroup)
-		{
-			//float4x4 meshTransform = activeScene->GetTransformHierarchy(entity_mesh);
-			const float4x4& meshTransform = activeScene->GetComponent<TransformComponent>(entity_mesh).GetTransform();
-			const BoundingBox& _AABB = activeScene->GetComponent<BoundingBoxComponent>(entity_mesh).GetBoundingBox();
-			const BoundingBox _TransformedAABB = Math::TransformBoundingBox(_AABB, meshTransform);
-
-			if (_CameraBoundingFrustum.Contains(_TransformedAABB) == DirectX::DISJOINT)
-				continue;
-
-			Mesh* mesh = activeScene->GetComponent<MeshComponent>(entity_mesh).GetMesh();
-			Material* material = activeScene->GetComponent<MaterialComponent>(entity_mesh).GetMaterial();
-
-			*data = ConstantBuffer_Data_Per_Mesh(meshTransform, Math::InverseTranspose(meshTransform), material->GetID());
-
-			m_RendererCommand.UploadData(m_ConstantBufferDirect_PerMesh);
-			m_RendererCommand.SetPipeline(m_MaterialPipelines[material->GetID()].get());
-			m_RendererCommand.DrawIndexed(mesh);
-
-			m_TotalVertexNum += mesh->GetVertexNum();
-			m_TotalMeshNum++;
-		}*/
-
-		//auto& entityGroup = reg.view<MeshComponent>();
-
-
-		//for (auto entity_mesh : entityGroup)
-		//{
-		//	//float4x4 meshTransform = activeScene->GetTransformHierarchy(entity_mesh);
-		//	float4x4 meshTransform = activeScene->GetComponent<TransformComponent>(entity_mesh).GetTransform();
-
-
-		//	Mesh* mesh = activeScene->GetComponent<MeshComponent>(entity_mesh).GetMesh();
-		//	Material* material = activeScene->GetComponent<MaterialComponent>(entity_mesh).GetMaterial();
-
-		//	*data = ConstantBuffer_Data_Per_Mesh(meshTransform, Math::InverseTranspose(meshTransform), material->GetID());
-
-		//	m_RendererCommand.UploadData(m_ConstantBufferDirect_PerMesh);
-		//	m_RendererCommand.SetPipeline(m_MaterialPipelines[material->GetID()].get());
-		//	m_RendererCommand.DrawIndexed(mesh);
-
-		//	m_TotalVertexNum += mesh->GetVertexNum();
-		//	m_TotalMeshNum++;
-		//}
 
 
 		m_TimerRender.End();
@@ -282,9 +213,18 @@ namespace TruthEngine
 
 		Shader* shader = nullptr;
 
-		auto result = m_ShaderMgr->AddShader(&shader, TE_IDX_SHADERCLASS::FORWARDRENDERING, material->GetMeshType(), material->GetRendererStates(), "Assets/Shaders/renderer3D.hlsl", "vs", "ps");
+		auto result = m_ShaderMgr->AddShader(&shader, TE_IDX_SHADERCLASS::FORWARDRENDERING, material->GetMeshType(), material->GetRendererStates(), "Assets/Shaders/ForwardRendering.hlsl", "vs", "ps");
 
-		static TE_RESOURCE_FORMAT rtvFormats[1] = { TE_RESOURCE_FORMAT::R16G16B16A16_FLOAT };
+		TE_RESOURCE_FORMAT rtvFormats[1];
+
+		if (m_RendererLayer->IsEnabledHDR())
+		{
+			rtvFormats[0] = TE_RESOURCE_FORMAT::R16G16B16A16_FLOAT;
+		}
+		else
+		{
+			rtvFormats[0] = TE_RESOURCE_FORMAT::R8G8B8A8_UNORM;
+		}
 
 		PipelineGraphics::Factory(&m_MaterialPipelines[material->GetID()], material->GetRendererStates(), shader, 1, rtvFormats, TE_RESOURCE_FORMAT::D32_FLOAT, true);
 	}
@@ -301,7 +241,16 @@ namespace TruthEngine
 
 		auto result = m_ShaderMgr->AddShader(&shader, TE_IDX_SHADERCLASS::RENDERENVIRONMENTMAP, TE_IDX_MESH_TYPE::MESH_NTT, states, "Assets/Shaders/RenderEnvironmentCube.hlsl", "vs", "ps");
 
-		static TE_RESOURCE_FORMAT rtvFormats[1] = { TE_RESOURCE_FORMAT::R16G16B16A16_FLOAT };
+		TE_RESOURCE_FORMAT rtvFormats[1];
+
+		if (m_RendererLayer->IsEnabledHDR())
+		{
+			rtvFormats[0] = TE_RESOURCE_FORMAT::R16G16B16A16_FLOAT;
+		}
+		else
+		{
+			rtvFormats[0] = TE_RESOURCE_FORMAT::R8G8B8A8_UNORM;
+		}
 
 		PipelineGraphics::Factory(&m_PipelineEnvironmentCube, states, shader, 1, rtvFormats, TE_RESOURCE_FORMAT::D32_FLOAT, true);
 	}
@@ -335,9 +284,36 @@ namespace TruthEngine
 		uint32_t width = _Event.GetWidth();
 		uint32_t height = _Event.GetHeight();
 
-		m_RendererCommand.ResizeDepthStencil(m_TextureDepthStencil, width, height, &m_DepthStencilView, nullptr);
-		m_RendererCommand.CreateRenderTargetView(TE_IDX_GRESOURCES::Texture_RT_SceneBufferHDR, &m_RenderTartgetView);
-		m_RendererCommand.CreateDepthStencilView(m_TextureDepthStencil, &m_DepthStencilView);
+		m_RendererCommand.ResizeDepthStencil(m_TextureDepthStencil, width, height, nullptr, nullptr);
+
+		if (Settings::IsMSAAEnabled())
+		{
+			m_RendererCommand.ResizeDepthStencil(m_TextureDepthStencilMS, width, height, nullptr, nullptr);
+			m_RendererCommand.CreateDepthStencilView(m_TextureDepthStencilMS, &m_DepthStencilView);
+
+			if (m_RendererLayer->IsEnabledHDR())
+			{
+				m_RendererCommand.ResizeRenderTarget(m_TextureRenderTargetHDRMS, width, height, &m_RenderTartgetView, nullptr);
+			}
+			else
+			{
+				m_RendererCommand.ResizeRenderTarget(m_TextureRenderTargetMS, width, height, &m_RenderTartgetView, nullptr);
+
+			}
+		}
+		else
+		{
+			if (m_RendererLayer->IsEnabledHDR())
+			{
+				m_RendererCommand.CreateRenderTargetView(TE_IDX_GRESOURCES::Texture_RT_SceneBufferHDR, &m_RenderTartgetView);
+			}
+			else
+			{
+				m_RendererCommand.CreateRenderTargetView(TE_IDX_GRESOURCES::Texture_RT_SceneBuffer, &m_RenderTartgetView);
+			}
+			m_RendererCommand.CreateDepthStencilView(m_TextureDepthStencil, &m_DepthStencilView);
+		}
+
 
 		m_Viewport.Resize(width, height);
 
@@ -361,6 +337,66 @@ namespace TruthEngine
 		}
 
 		PreparePiplineMaterial(event.GetMaterial());
+	}
+
+	void RenderPass_ForwardRendering::InitTextures()
+	{
+		Application* _App = TE_INSTANCE_APPLICATION;
+
+		ClearValue_RenderTarget _ClearValue{ 0.0f, 0.0f, 0.0f, 1.0f };
+
+		uint32_t _ViewportWidth = TE_INSTANCE_APPLICATION->GetSceneViewportWidth();
+		uint32_t _ViewportHeight = TE_INSTANCE_APPLICATION->GetSceneViewportHeight();
+
+		_ViewportWidth = _ViewportWidth != 0 ? _ViewportWidth : 1;
+		_ViewportHeight = _ViewportHeight != 0 ? _ViewportHeight : 1;
+
+		m_TextureDepthStencil = m_RendererCommand.CreateDepthStencil(TE_IDX_GRESOURCES::Texture_DS_SceneBuffer, _ViewportWidth, _ViewportHeight, TE_RESOURCE_FORMAT::R32_TYPELESS, ClearValue_DepthStencil{ 1.0f, 0 }, true, false);
+
+		if (Settings::IsMSAAEnabled())
+		{
+			if (m_RendererLayer->IsEnabledHDR())
+			{
+				m_TextureRenderTargetHDRMS = m_RendererCommand.CreateRenderTarget(TE_IDX_GRESOURCES::Texture_RT_SceneBufferHDRMS, _ViewportWidth, _ViewportHeight, TE_RESOURCE_FORMAT::R16G16B16A16_FLOAT, _ClearValue, false, true);
+				m_RendererCommand.CreateRenderTargetView(m_TextureRenderTargetHDRMS, &m_RenderTartgetView);
+			}
+			else
+			{
+				m_TextureRenderTargetMS = m_RendererCommand.CreateRenderTarget(TE_IDX_GRESOURCES::Texture_RT_SceneBufferMS, _ViewportWidth, _ViewportHeight, TE_RESOURCE_FORMAT::R8G8B8A8_UNORM, _ClearValue, false, true);
+				m_RendererCommand.CreateRenderTargetView(m_TextureRenderTargetMS, &m_RenderTartgetView);
+			}
+
+			m_TextureDepthStencilMS = m_RendererCommand.CreateDepthStencil(TE_IDX_GRESOURCES::Texture_DS_SceneBufferMS, _ViewportWidth, _ViewportHeight, TE_RESOURCE_FORMAT::R32_TYPELESS, ClearValue_DepthStencil{ 1.0f, 0 }, false, true);
+			m_RendererCommand.CreateDepthStencilView(m_TextureDepthStencilMS, &m_DepthStencilView);
+
+		}
+		else
+		{
+			m_RendererCommand.ReleaseResource(m_TextureRenderTargetMS);
+			m_RendererCommand.ReleaseResource(m_TextureRenderTargetHDRMS);
+			m_RendererCommand.ReleaseResource(m_TextureDepthStencilMS);
+
+			if (m_RendererLayer->IsEnabledHDR())
+			{
+				m_RendererCommand.CreateRenderTargetView(TE_IDX_GRESOURCES::Texture_RT_SceneBufferHDR, &m_RenderTartgetView);
+			}
+			else
+			{
+				m_RendererCommand.CreateRenderTargetView(TE_IDX_GRESOURCES::Texture_RT_SceneBuffer, &m_RenderTartgetView);
+			}
+
+			m_RendererCommand.CreateDepthStencilView(m_TextureDepthStencil, &m_DepthStencilView);
+		}
+
+
+	}
+
+	void RenderPass_ForwardRendering::InitBuffers()
+	{
+		m_ConstantBufferDirect_PerMesh = m_RendererCommand.CreateConstantBufferDirect<ConstantBuffer_Data_Per_Mesh>(TE_IDX_GRESOURCES::Constant_PerMesh);
+
+		//this constant buffer is created by RendererLayer
+		m_ConstantBufferDirect_EnvironmentMap = static_cast<ConstantBufferDirect<ConstantBuffer_Data_EnvironmentMap>*>(m_BufferMgr->GetConstantBufferDirect(TE_IDX_GRESOURCES::Constant_EnvironmentMap));
 	}
 
 

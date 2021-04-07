@@ -42,7 +42,7 @@ namespace TruthEngine {
 		RegisterEventListener(EventType::WindowResize, listener_OnWindowResize);
 
 		m_RendererLayer = std::make_shared<RendererLayer>();
-		
+
 	}
 
 	Application::~Application() = default;
@@ -52,7 +52,7 @@ namespace TruthEngine {
 		m_SceneViewportWidth = width;
 		m_SceneViewportHeight = height;
 
-		EventSceneViewportResize event{width, height};
+		EventSceneViewportResize event{ width, height };
 
 		OnEvent(event);
 	}
@@ -94,13 +94,16 @@ namespace TruthEngine {
 
 	void Application::OnWindowResize(EventWindowResize& event)
 	{
+		if (event.GetWidth() == 0 || event.GetHeight() == 0)
+			return;
+
 		m_ClientWidth = event.GetWidth();
 		m_ClientHeight = event.GetHeight();
 	}
 
 	uint8_t Application::GetCurrentFrameIndex() const noexcept
 	{
-		return TE_INSTANCE_SWAPCHAIN->GetCurrentFrameIndex(); 
+		return TE_INSTANCE_SWAPCHAIN->GetCurrentFrameIndex();
 	}
 
 	Application* Application::s_Instance = nullptr;

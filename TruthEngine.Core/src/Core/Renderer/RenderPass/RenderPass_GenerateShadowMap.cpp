@@ -14,10 +14,11 @@ namespace TruthEngine
 {
 
 
-	RenderPass_GenerateShadowMap::RenderPass_GenerateShadowMap()
-		: RenderPass(TE_IDX_RENDERPASS::GENERATEBASICSHADOWMAP)
+	RenderPass_GenerateShadowMap::RenderPass_GenerateShadowMap(RendererLayer* _RendererLayer, uint32_t _ShadowMapSize)
+		: RenderPass(TE_IDX_RENDERPASS::GENERATEBASICSHADOWMAP, _RendererLayer)
+		, m_ShadoWMapSize(_ShadowMapSize)
 		, m_Viewport(Viewport(.0f, .0f, m_ShadoWMapSize, m_ShadoWMapSize, 0.0f, 1.0f))
-		, m_ViewRect(ViewRect(0, 0, 2048, 2048))
+		, m_ViewRect(ViewRect(0, 0, m_ShadoWMapSize, m_ShadoWMapSize))
 	{}
 
 
@@ -28,9 +29,13 @@ namespace TruthEngine
 		m_LightManager = LightManager::GetInstace();
 
 		m_RendererCommand.Init(TE_IDX_RENDERPASS::GENERATEBASICSHADOWMAP, TE_IDX_SHADERCLASS::GENERATEBASICSHADOWMAP, m_BufferManager, m_ShaderManager);
+		m_RendererCommand_SpotLights.Init(TE_IDX_RENDERPASS::GENERATEBASICSHADOWMAP, TE_IDX_SHADERCLASS::GENERATEBASICSHADOWMAP, m_BufferManager, m_ShaderManager);
 
-		m_TextureDepthStencil = m_RendererCommand.CreateDepthStencil(TE_IDX_GRESOURCES::Texture_DS_ShadowMap, m_ShadoWMapSize, m_ShadoWMapSize, TE_RESOURCE_FORMAT::R32_TYPELESS, ClearValue_DepthStencil{ 0.0f, 0 }, true, false);
-		m_RendererCommand.CreateDepthStencilView(m_TextureDepthStencil, &m_DepthStencilView);
+		m_TextureDepthStencil_SunLight = m_RendererCommand.CreateDepthStencil(TE_IDX_GRESOURCES::Texture_DS_ShadowMap_SunLight, m_ShadoWMapSize, m_ShadoWMapSize, TE_RESOURCE_FORMAT::R32_TYPELESS, ClearValue_DepthStencil{ 1.0f, 0 }, true, false);
+		m_TextureDepthStencil_SpotLight = m_RendererCommand_SpotLights.CreateDepthStencil(TE_IDX_GRESOURCES::Texture_DS_ShadowMap_SpotLight, m_ShadoWMapSize, m_ShadoWMapSize, TE_RESOURCE_FORMAT::R32_TYPELESS, ClearValue_DepthStencil{ 1.0f, 0 }, true, false);
+
+		m_RendererCommand.CreateDepthStencilView(m_TextureDepthStencil_SunLight, &m_DepthStencilView_SunLight);
+		m_RendererCommand_SpotLights.CreateDepthStencilView(m_TextureDepthStencil_SpotLight, &m_DepthStencilView_SpotLight);
 
 		m_ConstantBufferDirect_PerLight = m_RendererCommand.CreateConstantBufferDirect<ConstantBuffer_Data_Per_Light>(TE_IDX_GRESOURCES::Constant_ShadowMapPerLight);
 		m_ConstantBufferDirect_PerMesh = m_RendererCommand.CreateConstantBufferDirect<ConstantBuffer_Data_Per_Mesh>(TE_IDX_GRESOURCES::Constant_ShadowMapPerMesh);
@@ -63,11 +68,14 @@ namespace TruthEngine
 		m_TimerBegin.Start();
 
 		m_RendererCommand.BeginGraphics();
-
 		//m_RendererCommand.SetViewPort(&m_Viewport, &m_ViewRect);
 		//m_RendererCommand.SetRenderTarget(TE_INSTANCE_SWAPCHAIN, m_RenderTartgetView);
-		m_RendererCommand.SetDepthStencil(m_DepthStencilView);
-		m_RendererCommand.ClearDepthStencil(m_DepthStencilView);
+		m_RendererCommand.SetDepthStencil(m_DepthStencilView_SunLight);
+		m_RendererCommand.ClearDepthStencil(m_DepthStencilView_SunLight);
+
+		m_RendererCommand_SpotLights.BeginGraphics();
+		m_RendererCommand_SpotLights.SetDepthStencil(m_DepthStencilView_SpotLight);
+		m_RendererCommand_SpotLights.ClearDepthStencil(m_DepthStencilView_SpotLight);
 
 		m_TimerBegin.End();
 	}
@@ -75,166 +83,135 @@ namespace TruthEngine
 	void RenderPass_GenerateShadowMap::EndScene()
 	{
 		m_RendererCommand.End();
+		m_RendererCommand_SpotLights.End();
 	}
+
+
 
 	void RenderPass_GenerateShadowMap::Render()
 	{
 		m_TimerRender.Start();
 
-		auto light = m_LightManager->GetDirectionalLight("dlight_0");
-		auto cameraCascaded = light->GetCamera();
-		auto scene = TE_INSTANCE_APPLICATION->GetActiveScene();
-		auto camera = CameraManager::GetInstance()->GetActiveCamera();
+		RenderSpotLightShadowMap();
 
 
-		auto data_perMesh = m_ConstantBufferDirect_PerMesh->GetData();
-		auto data_perLight = m_ConstantBufferDirect_PerLight->GetData();
-
-		//auto& dynamicEntityGroup = reg.group<MeshComponent, PhysicsDynamicComponent>();
-		//auto& staticEntityGroup = reg.view<MeshComponent>(entt::exclude<PhysicsDynamicComponent>);
-		//auto& EntityMeshView = scene->ViewEntities<MeshComponent>();
-		auto& EntityModelView = scene->ViewEntities<ModelComponent>();
-
-
-		m_Viewport.Width = 1024.0f;
-		m_Viewport.Height = 1024.0f;
-
-		struct MeshMaterialTransform
+		auto _SunLight = m_LightManager->GetDirectionalLight("SunLight");
+		if (_SunLight)
 		{
-			MeshMaterialTransform(const Mesh* _mesh, const float4x4& _transform, const Material* _material)
-				: mMesh(_mesh), mTransform(_transform), mMaterial(_material)
-			{}
-
-			const Mesh* mMesh;
-			const Material* mMaterial;
-			float4x4 mTransform;
-		};
-
-		m_TimerRender_PrepareMeshList.Start();
-
-		static std::vector<MeshMaterialTransform> _MeshList;
-		_MeshList.clear();
-		_MeshList.reserve(10000);
-
-		uint32_t _CascadeNum = cameraCascaded->GetSplitNum();
-
-		static std::vector<std::vector<MeshMaterialTransform*>> _EntityLists(_CascadeNum);
-		for (auto& v : _EntityLists)
-		{
-			v.reserve(1000);
-			v.clear();
-		}
-
-		
-		auto pj = DirectX::XMMatrixOrthographicLH(10.0, 10.0f, 1.0f, 100.0f);
-		BoundingFrustum bf;
-		BoundingFrustum::CreateFromMatrix(bf, pj);
+			auto cameraCascaded = _SunLight->GetCamera();
+			auto scene = TE_INSTANCE_APPLICATION->GetActiveScene();
+			auto camera = scene->GetActiveCamera();
 
 
-		for (auto _EntityModel : EntityModelView)
-		{
+			auto data_perMesh = m_ConstantBufferDirect_PerMesh->GetData();
+			auto data_perLight = m_ConstantBufferDirect_PerLight->GetData();
 
-			//float4x4 _transform = scene->GetComponent<TransformComponent>(_EntityModel).GetTransform();
+			//auto& dynamicEntityGroup = reg.group<MeshComponent, PhysicsDynamicComponent>();
+			//auto& staticEntityGroup = reg.view<MeshComponent>(entt::exclude<PhysicsDynamicComponent>);
+			//auto& EntityMeshView = scene->ViewEntities<MeshComponent>();
+			auto& EntityModelView = scene->ViewEntities<ModelComponent>();
 
-			for (auto& entity_mesh : scene->GetComponent<ModelComponent>(_EntityModel).GetMeshEntities())
+
+			m_Viewport.Width = m_ShadoWMapSize * .5f;
+			m_Viewport.Height = m_ShadoWMapSize * .5f;
+
+			struct MeshMaterialTransform
 			{
-				/*if (scene->HasComponent<PhysicsDynamicComponent>(entity_mesh))
+				MeshMaterialTransform(const Mesh* _mesh, const float4x4& _transform, const Material* _material)
+					: mMesh(_mesh), mTransform(_transform), mMaterial(_material)
+				{}
+
+				const Mesh* mMesh;
+				const Material* mMaterial;
+				float4x4 mTransform;
+			};
+
+			m_TimerRender_PrepareMeshList.Start();
+
+			static std::vector<MeshMaterialTransform> _MeshList;
+			_MeshList.clear();
+			_MeshList.reserve(10000);
+
+			uint32_t _CascadeNum = cameraCascaded->GetSplitNum();
+
+			static std::vector<std::vector<MeshMaterialTransform*>> _EntityLists(_CascadeNum);
+			for (auto& v : _EntityLists)
+			{
+				v.reserve(1000);
+				v.clear();
+			}
+
+
+			for (auto _EntityModel : EntityModelView)
+			{
+
+				for (auto& entity_mesh : scene->GetComponent<ModelComponent>(_EntityModel).GetMeshEntities())
 				{
-					_transform = _transform * scene->GetComponent<PhysicsDynamicComponent>(entity_mesh).GetTranform();
-				}
-				else
-				{
-					_transform = _transform * scene->GetComponent<TransformComponent>(entity_mesh).GetTransform();
-				}*/
-
-				const float4x4 _transform = scene->GetTransformHierarchy(entity_mesh);
+					const float4x4 _transform = scene->GetTransformHierarchy(entity_mesh);
 
 
-				const Mesh* mesh = scene->GetComponent<MeshComponent>(entity_mesh).GetMesh();
-				const Material* material = scene->GetComponent<MaterialComponent>(entity_mesh).GetMaterial();
+					const Mesh* mesh = scene->GetComponent<MeshComponent>(entity_mesh).GetMesh();
+					const Material* material = scene->GetComponent<MaterialComponent>(entity_mesh).GetMaterial();
 
-				MeshMaterialTransform& _MMT = _MeshList.emplace_back(mesh, _transform, material);
+					MeshMaterialTransform& _MMT = _MeshList.emplace_back(mesh, _transform, material);
 
-				/*for (auto& _v : _EntityLists)
-				{
-					_v.emplace_back(&_MMT);
-				}*/
-
-				BoundingBox _AABB = Math::TransformBoundingBox(scene->GetComponent<BoundingBoxComponent>(entity_mesh).GetBoundingBox(), _transform);
-				for (size_t i = 0; i < _CascadeNum; ++i)
-				{
-					auto _containment = cameraCascaded->GetBoundingFrustum(i).Contains(_AABB);
-					if (_containment != DirectX::ContainmentType::DISJOINT)
+					BoundingBox _AABB = Math::TransformBoundingBox(scene->GetComponent<BoundingBoxComponent>(entity_mesh).GetBoundingBox(), _transform);
+					for (size_t i = 0; i < _CascadeNum; ++i)
 					{
-						_EntityLists[i].emplace_back(&_MMT);
+						auto _CameraAABB = cameraCascaded->GetBoundingBox(i);
 
-						if (_containment == DirectX::ContainmentType::CONTAINS)
-							break;
+						auto _containment = _CameraAABB.Contains(_AABB);
+						if (_containment != DirectX::ContainmentType::DISJOINT)
+						{
+							_EntityLists[i].emplace_back(&_MMT);
+						}
 					}
 				}
+
 			}
 
-			//
-			//const auto& _aabb = scene->GetComponent<BoundingBoxComponent>(entity_mesh).GetBoundingBox();
-			//BoundingBox _transformedAABB = Math::TransformBoundingBox(_aabb, *transform);
-			//uint32_t i = 0;
-			//for (auto& _BoundingFrustum : _CascadedBoundingFrustums)
-			//{
-			//	auto _ContainmentResult = _BoundingFrustum.Contains(_transformedAABB);
-			//	if (_ContainmentResult != DirectX::DISJOINT)
-			//	{
-			//		
-			//		_EntityLists[i].emplace_back(mesh, transform, material);
-			//		//If this frustum contain the mesh fully then don't need to go further and check on next frustums
-			//		/*if (_ContainmentResult == DirectX::CONTAINS)
-			//		{
-			//			break;
-			//		}*/
-			//	}
-			//	//Check the next frustum of cascaded camera
-			//	++i;
-			//}
-
-		}
-
-		m_TimerRender_PrepareMeshList.End();
+			m_TimerRender_PrepareMeshList.End();
 
 
-		m_TimerRender_PrepareRenderCommand.Start();
+			m_TimerRender_PrepareRenderCommand.Start();
 
-		uint32_t _CascadeIndex = 0;
-		for (auto& _VMeshMaterialTransform : _EntityLists)
-		{
-			if (_VMeshMaterialTransform.size() == 0)
+			uint32_t _CascadeIndex = 0;
+			for (auto& _VMeshMaterialTransform : _EntityLists)
 			{
+				if (_VMeshMaterialTransform.size() == 0)
+				{
+					_CascadeIndex++;
+					continue;
+				}
+
+				*data_perLight = ConstantBuffer_Data_Per_Light(cameraCascaded->GetViewProj(_CascadeIndex));
+				m_RendererCommand.SetDirectConstantGraphics(m_ConstantBufferDirect_PerLight);
+
+				auto rowIndex = _CascadeIndex % 2;
+				auto columnIndex = _CascadeIndex / 2;
+
+				m_Viewport.TopLeftX = static_cast<float>(rowIndex) * (m_ShadoWMapSize * .5f);
+				m_Viewport.TopLeftY = static_cast<float>(columnIndex) * (m_ShadoWMapSize * .5f);
+
+				m_RendererCommand.SetViewPort(&m_Viewport, &m_ViewRect);
+
+				for (auto _mmt : _VMeshMaterialTransform)
+				{
+					*data_perMesh = ConstantBuffer_Data_Per_Mesh(_mmt->mTransform);
+
+					m_RendererCommand.SetDirectConstantGraphics(m_ConstantBufferDirect_PerMesh);
+					m_RendererCommand.SetPipelineGraphics(m_PipelinesForwardDepth[_mmt->mMaterial->GetMeshType()]);
+					m_RendererCommand.DrawIndexed(_mmt->mMesh);
+				}
+
 				_CascadeIndex++;
-				continue;
 			}
 
-			*data_perLight = ConstantBuffer_Data_Per_Light(cameraCascaded->GetViewProj(_CascadeIndex));
-			m_RendererCommand.SetDirectConstantGraphics(m_ConstantBufferDirect_PerLight);
-
-			auto rowIndex = _CascadeIndex % 2;
-			auto columnIndex = _CascadeIndex / 2;
-
-			m_Viewport.TopLeftX = static_cast<float>(rowIndex) * 1024.0f;
-			m_Viewport.TopLeftY = static_cast<float>(columnIndex) * 1024.0f;
-
-			m_RendererCommand.SetViewPort(&m_Viewport, &m_ViewRect);
-
-			for (auto _mmt : _VMeshMaterialTransform)
-			{
-				*data_perMesh = ConstantBuffer_Data_Per_Mesh(_mmt->mTransform);
-
-				m_RendererCommand.SetDirectConstantGraphics(m_ConstantBufferDirect_PerMesh);
-				m_RendererCommand.SetPipelineGraphics(m_Pipelines[_mmt->mMaterial->GetMeshType()]);
-				m_RendererCommand.DrawIndexed(_mmt->mMesh);
-			}
-
-			_CascadeIndex++;
 		}
 
 		m_TimerRender_PrepareRenderCommand.End();
+
+
 
 		/*for (uint32_t cascadeIndex = 0; cascadeIndex < cameraCascaded->GetSplitNum(); ++cascadeIndex)
 		{
@@ -300,6 +277,7 @@ namespace TruthEngine
 
 		}*/
 
+
 		m_TimerRender.End();
 
 	}
@@ -307,7 +285,7 @@ namespace TruthEngine
 
 	void RenderPass_GenerateShadowMap::InitPipeline()
 	{
-		static RendererStateSet _rendererState = InitRenderStates(
+		static RendererStateSet _rendererStateReversedDepth = InitRenderStates(
 			TE_RENDERER_STATE_ENABLED_SHADER_HS_FALSE,
 			TE_RENDERER_STATE_ENABLED_SHADER_DS_FALSE,
 			TE_RENDERER_STATE_ENABLED_SHADER_GS_FALSE,
@@ -323,14 +301,91 @@ namespace TruthEngine
 			TE_RENDERER_STATE_COMPARISSON_FUNC_GREATER
 		);
 
+		static RendererStateSet _rendererStateForwardDepth = InitRenderStates(
+			TE_RENDERER_STATE_ENABLED_SHADER_HS_FALSE,
+			TE_RENDERER_STATE_ENABLED_SHADER_DS_FALSE,
+			TE_RENDERER_STATE_ENABLED_SHADER_GS_FALSE,
+			TE_RENDERER_STATE_ENABLED_MAP_DIFFUSE_FALSE,
+			TE_RENDERER_STATE_ENABLED_MAP_NORMAL_FALSE,
+			TE_RENDERER_STATE_ENABLED_MAP_DISPLACEMENT_FALSE,
+			TE_RENDERER_STATE_FRONTCOUNTERCLOCKWISE_FALSE,
+			TE_RENDERER_STATE_ENABLED_DEPTH_TRUE,
+			TE_RENDERER_STATE_ENABLED_STENCIL_FALSE,
+			TE_RENDERER_STATE_FILL_MODE_SOLID,
+			TE_RENDERER_STATE_CULL_MODE_BACK,
+			TE_RENDERER_STATE_PRIMITIVE_TOPOLOGY_TRIANGLELIST,
+			TE_RENDERER_STATE_COMPARISSON_FUNC_LESS
+		);
+
 		Shader* shader = nullptr;
-		auto result = m_ShaderManager->AddShader(&shader, TE_IDX_SHADERCLASS::GENERATEBASICSHADOWMAP, TE_IDX_MESH_TYPE::MESH_NTT, _rendererState, "Assets/Shaders/generateShadowMap.hlsl", "vs", "");
-		PipelineGraphics::Factory(&m_Pipelines[TE_IDX_MESH_TYPE::MESH_NTT], _rendererState, shader, 0, nullptr, TE_RESOURCE_FORMAT::D32_FLOAT, false, -30.0, 0.0f, -4.0f);
+		auto result = m_ShaderManager->AddShader(&shader, TE_IDX_SHADERCLASS::GENERATEBASICSHADOWMAP, TE_IDX_MESH_TYPE::MESH_NTT, _rendererStateReversedDepth, "Assets/Shaders/generateShadowMap.hlsl", "vs", "");
+		PipelineGraphics::Factory(&m_PipelinesReveresedDepth[TE_IDX_MESH_TYPE::MESH_NTT], _rendererStateReversedDepth, shader, 0, nullptr, TE_RESOURCE_FORMAT::D32_FLOAT, false, -30.0, 0.0f, -4.0f);
+
+		result = m_ShaderManager->AddShader(&shader, TE_IDX_SHADERCLASS::GENERATEBASICSHADOWMAP, TE_IDX_MESH_TYPE::MESH_NTT, _rendererStateForwardDepth, "Assets/Shaders/generateShadowMap.hlsl", "vs", "");
+		PipelineGraphics::Factory(&m_PipelinesForwardDepth[TE_IDX_MESH_TYPE::MESH_NTT], _rendererStateForwardDepth, shader, 0, nullptr, TE_RESOURCE_FORMAT::D32_FLOAT, false, 30.0, 0.0f, 4.0f);
+
+		result = m_ShaderManager->AddShader(&shader, TE_IDX_SHADERCLASS::GENERATEBASICSHADOWMAP, TE_IDX_MESH_TYPE::MESH_SKINNED, _rendererStateReversedDepth, "Assets/Shaders/generateShadowMap.hlsl", "vs", "");
+		PipelineGraphics::Factory(&m_PipelinesReveresedDepth[TE_IDX_MESH_TYPE::MESH_SKINNED], _rendererStateReversedDepth, shader, 0, nullptr, TE_RESOURCE_FORMAT::D32_FLOAT, false, -30.0, 0.0f, -4.0f);
+
+		result = m_ShaderManager->AddShader(&shader, TE_IDX_SHADERCLASS::GENERATEBASICSHADOWMAP, TE_IDX_MESH_TYPE::MESH_SKINNED, _rendererStateForwardDepth, "Assets/Shaders/generateShadowMap.hlsl", "vs", "");
+		PipelineGraphics::Factory(&m_PipelinesForwardDepth[TE_IDX_MESH_TYPE::MESH_SKINNED], _rendererStateForwardDepth, shader, 0, nullptr, TE_RESOURCE_FORMAT::D32_FLOAT, false, 30.0, 0.0f, 4.0f);
+	}
+
+	void RenderPass_GenerateShadowMap::RenderSpotLightShadowMap()
+	{
+		const LightSpot* _SpotLight = m_LightManager->GetSpotLight("SpotLight0");
+
+		if (_SpotLight)
+		{
+			const Camera* _Camera = m_LightManager->GetLightCamera(_SpotLight);
+			Scene* scene = TE_INSTANCE_APPLICATION->GetActiveScene();
+
+			bool _IsReveresedDepth = _Camera->IsReversedDepth();
+
+			auto data_perMesh = m_ConstantBufferDirect_PerMesh->GetData();
+			auto data_perLight = m_ConstantBufferDirect_PerLight->GetData();
 
 
-		result = m_ShaderManager->AddShader(&shader, TE_IDX_SHADERCLASS::GENERATEBASICSHADOWMAP, TE_IDX_MESH_TYPE::MESH_SKINNED, _rendererState, "Assets/Shaders/generateShadowMap.hlsl", "vs", "");
-		PipelineGraphics::Factory(&m_Pipelines[TE_IDX_MESH_TYPE::MESH_SKINNED], _rendererState, shader, 0, nullptr, TE_RESOURCE_FORMAT::D32_FLOAT, false, -30.0, 0.0f, -4.0f);
+			Viewport _Viewport(.0f, .0f, m_ShadoWMapSize, m_ShadoWMapSize, 0.0f, 1.0f);
+			ViewRect _ViewRect(0L, 0L, (long)m_ShadoWMapSize, (long)m_ShadoWMapSize);
+			m_RendererCommand_SpotLights.SetViewPort(&_Viewport, &_ViewRect);
 
+
+			*data_perLight = ConstantBuffer_Data_Per_Light(_Camera->GetViewProj());
+			m_RendererCommand_SpotLights.SetDirectConstantGraphics(m_ConstantBufferDirect_PerLight);
+
+			auto& EntityModelView = scene->ViewEntities<ModelComponent>();
+			for (auto _EntityModel : EntityModelView)
+			{
+
+				for (auto& entity_mesh : scene->GetComponent<ModelComponent>(_EntityModel).GetMeshEntities())
+				{
+
+					const float4x4 _transform = scene->GetTransformHierarchy(entity_mesh);
+
+					const Mesh* mesh = scene->GetComponent<MeshComponent>(entity_mesh).GetMesh();
+					const Material* material = scene->GetComponent<MaterialComponent>(entity_mesh).GetMaterial();
+					
+					BoundingBox _AABB = Math::TransformBoundingBox(scene->GetComponent<BoundingBoxComponent>(entity_mesh).GetBoundingBox(), _transform);
+
+					auto _containment = _Camera->GetBoundingFrustumWorldSpace().Contains(_AABB);
+					if (_containment != DirectX::ContainmentType::DISJOINT)
+					{
+						*data_perMesh = ConstantBuffer_Data_Per_Mesh(_transform);
+
+						PipelineGraphics* _Pipeline = nullptr;
+						if (_IsReveresedDepth)
+							_Pipeline = m_PipelinesReveresedDepth[material->GetMeshType()];
+						else
+							_Pipeline = m_PipelinesForwardDepth[material->GetMeshType()];
+
+						m_RendererCommand_SpotLights.SetDirectConstantGraphics(m_ConstantBufferDirect_PerMesh);
+						m_RendererCommand_SpotLights.SetPipelineGraphics(_Pipeline);
+						m_RendererCommand_SpotLights.DrawIndexed(mesh);
+					}
+				}
+			}
+		}
 	}
 
 

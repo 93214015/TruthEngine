@@ -2,54 +2,18 @@
 //
 //Data Structs
 //
-struct Material
-{
-    float4 Diffuse;
-    
-    float3 FresnelR0;
-    float Shininess;
-    
-    float2 UVScale;
-    float2 UVTranslate;
-    
-    uint MapIndexDiffuse;
-    uint MapIndexNormal;
-    uint MapIndexDisplacement;
-    uint pad;
-};
 
-
-struct CLightDirectionalData
-{
-    float4 Diffuse;
-    float4 Ambient;
-    float4 Specular;
-
-    float3 Direction;
-    float LightSize;
-    
-    bool CastShadow;
-    float3 padDLight;
-    
-    //float3 Position;
-    
-    //float Range;
-    //float3 padLight;
-    
-    //row_major matrix shadowTransform;
-};
 
 ///////////////////////////////////////////////////
 //////////////// Constant Buffers
 ///////////////////////////////////////////////////
 
-cbuffer per_mesh : register(b0)
+
+cbuffer CBEnvironment : register(b0)
 {
-    row_major matrix gWorld;
-    row_major matrix gWorldInverseTranspose;
-    
-    uint materialIndex;
-    float3 padPerMesh;
+    float3 gEnvironmentMapMultiplier;
+    float _CBEnvironmentPad;
+
 }
 
 cbuffer CBPerFrame : register(b1)
@@ -62,30 +26,10 @@ cbuffer CBPerFrame : register(b1)
     row_major matrix gCascadedShadowTransform[4];
 }
 
-cbuffer CBLightData : register(b2)
-{
-    CLightDirectionalData gDLights[1];
-}
-
-cbuffer CBMaterials : register(b3)
-{
-    Material MaterialArray[200];
-}
-
-cbuffer CBUnfrequent : register(b4)
-{
-    uint gDLightCount;
-    bool gEnabledEnvironmentMap;
-    uint2 padCBunfrequent;
-}
-
 ///////////////////////////////////////////////////
 //////////////// Textures
 ///////////////////////////////////////////////////
-Texture2D<float> tShadowMap : register(t0, space0);
-TextureCube tEnvironmentCubeMap : register(t1, space0);
-
-Texture2D<float4> MaterialTextures[500] : register(t2, space0);
+TextureCube tEnvironmentCubeMap : register(t0, space0);
 
 
 ///////////////////////////////////////////////////
@@ -122,7 +66,7 @@ VertexOutput vs(VertexInput vin)
 }
 
 float4 ps(VertexOutput pin) : SV_Target
-{
-    return tEnvironmentCubeMap.Sample(sampler_linear, pin.PosL);
+{    
+    return tEnvironmentCubeMap.Sample(sampler_linear, pin.PosL) * float4(gEnvironmentMapMultiplier, 1.0f);
 
 }
