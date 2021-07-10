@@ -23,6 +23,16 @@ premake.override(premake.vstudio.vc2010.elements, "globals", function(base, prj)
     return calls
 end)
 
+newoption {
+	trigger = "BoostIncPath",
+	description = "The Path will be used to refer for boost include files"
+}
+
+newoption {
+	trigger = "BoostLibPath",
+	description = "The path of the boost library files"
+}
+
 workspace "TruthEngine"
 	architecture "x64"
 	startproject "TruthEngine.Editor"
@@ -42,20 +52,20 @@ outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
 IncludeDir = {}
 IncludeDir["TruthEngine.Core"] 		= 	"%{wks.location}/TruthEngine.Core/src"
-IncludeDir["TruthEngine.Sandbox"] 	= 	"%{wks.location}/TruthEngine.Sandbox/src"
 IncludeDir["TruthEngine.Editor"] 	= 	"%{wks.location}/TruthEngine.Editor/src"
 IncludeDir["Dependencies"] 			= 	"%{wks.location}/Dependencies"
 IncludeDir["spdlog"] 				= 	"%{wks.location}/Dependencies/spdlog/include"
 IncludeDir["imgui"] 				= 	"%{wks.location}/Dependencies/imgui"
 IncludeDir["d3dx12"] 				= 	"%{wks.location}/Dependencies/DirectXGraphicsSamples/Libraries/D3DX12"
 IncludeDir["physx"] 				= 	"%{wks.location}/Dependencies/Physx"
+IncludeDir["boostIncPath"]          =   _OPTIONS["BoostIncPath"]
+IncludeDir["boostLibPath"]          =   _OPTIONS["BoostLibPath"]
 
 
 libdirs 
 { 
-	"%{wks.location}/Dependencies",
-	"%{wks.location}/Dependencies/DirectXShaderCompiler/lib/x64",
-	"%{wks.location}/Dependencies/assimp/lib/",
+	"%{wks.location}/Dependencies/Lib",
+	IncludeDir["boostLibPath"]
 }
 
 links
@@ -75,10 +85,7 @@ links
 filter "configurations:Debug"
 		libdirs
 		{
-			"%{wks.location}/Dependencies/GeometryGenerator/lib/x64/Debug",
-			"%{wks.location}/Dependencies/Physx/lib/debug",
-			"%{wks.location}/Dependencies/assimp/lib/debug",
-			"%{wks.location}/Dependencies/DirectXMesh/lib/X64-Debug",
+			"%{wks.location}/Dependencies/Lib/Debug"
 		}
 		links
 		{
@@ -93,10 +100,7 @@ filter "configurations:Debug"
 filter "configurations:Release"
 	libdirs
 		{
-			"%{wks.location}/Dependencies/GeometryGenerator/lib/x64/Release",
-			"%{wks.location}/Dependencies/Physx/lib/release",
-			"%{wks.location}/Dependencies/assimp/lib/release",
-			"%{wks.location}/Dependencies/DirectXMesh/lib/X64-Release",
+			"%{wks.location}/Dependencies/Lib/Release"
 		}		
 		links
 		{
@@ -110,9 +114,7 @@ filter "configurations:Release"
 filter "configurations:Dist"
 	libdirs
 		{
-			"%{wks.location}/Dependencies/GeometryGenerator/lib/x64/Release",
-			"%{wks.location}/Dependencies/Physx/lib/release",
-			"%{wks.location}/Dependencies/assimp/lib/release",
+			"%{wks.location}/Dependencies/Lib/Release"
 		}	
 		links
 		{
@@ -125,7 +127,6 @@ filter{}
 
 
 include "TruthEngine.Core"
-include "TruthEngine.Sandbox"
 include "TruthEngine.Editor"
 include "Dependencies"
 

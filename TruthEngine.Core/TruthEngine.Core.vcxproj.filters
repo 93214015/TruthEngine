@@ -10,6 +10,9 @@
     <Filter Include="Core">
       <UniqueIdentifier>{2EB4837C-1AEB-840D-C3D7-6A10AFED000F}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Core\AnimationEngine">
+      <UniqueIdentifier>{7383A497-5F12-2E61-0831-425CF49E3E07}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Core\Entity">
       <UniqueIdentifier>{BA809273-2636-0B69-AF2A-05401BDF016D}</UniqueIdentifier>
     </Filter>
@@ -99,6 +102,15 @@
     <ClInclude Include="src\API\IDXGI.h">
       <Filter>API</Filter>
     </ClInclude>
+    <ClInclude Include="src\Core\AnimationEngine\AnimationManager.h">
+      <Filter>Core\AnimationEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\AnimationEngine\CBone.h">
+      <Filter>Core\AnimationEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\AnimationEngine\CSkinAnimation.h">
+      <Filter>Core\AnimationEngine</Filter>
+    </ClInclude>
     <ClInclude Include="src\Core\Application.h">
       <Filter>Core</Filter>
     </ClInclude>
@@ -153,6 +165,9 @@
     <ClInclude Include="src\Core\Entity\Components\PhysicsComponent.h">
       <Filter>Core\Entity\Components</Filter>
     </ClInclude>
+    <ClInclude Include="src\Core\Entity\Components\SkinnedAnimationComponent.h">
+      <Filter>Core\Entity\Components</Filter>
+    </ClInclude>
     <ClInclude Include="src\Core\Entity\Components\TagComponent.h">
       <Filter>Core\Entity\Components</Filter>
     </ClInclude>
@@ -172,6 +187,9 @@
       <Filter>Core\Entity\Light</Filter>
     </ClInclude>
     <ClInclude Include="src\Core\Entity\Light\LightManager.h">
+      <Filter>Core\Entity\Light</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Entity\Light\LightSpot.h">
       <Filter>Core\Entity\Light</Filter>
     </ClInclude>
     <ClInclude Include="src\Core\Entity\Model\AssimpLib.h">
@@ -297,6 +315,9 @@
     <ClInclude Include="src\Core\Renderer\BufferManager.h">
       <Filter>Core\Renderer</Filter>
     </ClInclude>
+    <ClInclude Include="src\Core\Renderer\BufferStructured.h">
+      <Filter>Core\Renderer</Filter>
+    </ClInclude>
     <ClInclude Include="src\Core\Renderer\CommandList.h">
       <Filter>Core\Renderer</Filter>
     </ClInclude>
@@ -337,6 +358,9 @@
       <Filter>Core\Renderer\RenderPass</Filter>
     </ClInclude>
     <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_GenerateShadowMap.h">
+      <Filter>Core\Renderer\RenderPass</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_PostProcessing_HDR.h">
       <Filter>Core\Renderer\RenderPass</Filter>
     </ClInclude>
     <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_RenderBoudingBoxes.h">
@@ -423,13 +447,6 @@
     <ClInclude Include="src\TruthEngine.h" />
     <ClInclude Include="src\lib.h" />
     <ClInclude Include="src\pch.h" />
-    <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_PostProcessing_HDR.h" />
-    <ClInclude Include="src\Core\Renderer\BufferStructured.h" />
-    <ClInclude Include="src\Core\AnimationEngine\CBone.h" />
-    <ClInclude Include="src\Core\AnimationEngine\CSkinAnimation.h" />
-    <ClInclude Include="src\Core\Entity\Components\SkinnedAnimationComponent.h" />
-    <ClInclude Include="src\Core\AnimationEngine\AnimationManager.h" />
-    <ClInclude Include="src\Core\Entity\Light\LightSpot.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\API\DX12\DirectX12BufferManager.cpp">
@@ -473,6 +490,15 @@
     </ClCompile>
     <ClCompile Include="src\API\IDXGI.cpp">
       <Filter>API</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\AnimationEngine\AnimationManager.cpp">
+      <Filter>Core\AnimationEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\AnimationEngine\CBone.cpp">
+      <Filter>Core\AnimationEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\AnimationEngine\CSkinAnimation.cpp">
+      <Filter>Core\AnimationEngine</Filter>
     </ClCompile>
     <ClCompile Include="src\Core\Application.cpp">
       <Filter>Core</Filter>
@@ -522,6 +548,9 @@
     <ClCompile Include="src\Core\Entity\Components\PhysicsComponent.cpp">
       <Filter>Core\Entity\Components</Filter>
     </ClCompile>
+    <ClCompile Include="src\Core\Entity\Components\SkinnedAnimationComponent.cpp">
+      <Filter>Core\Entity\Components</Filter>
+    </ClCompile>
     <ClCompile Include="src\Core\Entity\Components\TagComponent.cpp">
       <Filter>Core\Entity\Components</Filter>
     </ClCompile>
@@ -541,6 +570,9 @@
       <Filter>Core\Entity\Light</Filter>
     </ClCompile>
     <ClCompile Include="src\Core\Entity\Light\LightManager.cpp">
+      <Filter>Core\Entity\Light</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Entity\Light\LightSpot.cpp">
       <Filter>Core\Entity\Light</Filter>
     </ClCompile>
     <ClCompile Include="src\Core\Entity\Model\AssimpLib.cpp">
@@ -654,6 +686,9 @@
     <ClCompile Include="src\Core\Renderer\BufferManager.cpp">
       <Filter>Core\Renderer</Filter>
     </ClCompile>
+    <ClCompile Include="src\Core\Renderer\BufferStructured.cpp">
+      <Filter>Core\Renderer</Filter>
+    </ClCompile>
     <ClCompile Include="src\Core\Renderer\CommandList.cpp">
       <Filter>Core\Renderer</Filter>
     </ClCompile>
@@ -685,6 +720,9 @@
       <Filter>Core\Renderer\RenderPass</Filter>
     </ClCompile>
     <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_GenerateShadowMap.cpp">
+      <Filter>Core\Renderer\RenderPass</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_PostProcessing_HDR.cpp">
       <Filter>Core\Renderer\RenderPass</Filter>
     </ClCompile>
     <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_RenderBoudingBoxes.cpp">
@@ -763,12 +801,5 @@
       <Filter>Platform\Windows</Filter>
     </ClCompile>
     <ClCompile Include="src\pch.cpp" />
-    <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_PostProcessing_HDR.cpp" />
-    <ClCompile Include="src\Core\Renderer\BufferStructured.cpp" />
-    <ClCompile Include="src\Core\AnimationEngine\CBone.cpp" />
-    <ClCompile Include="src\Core\AnimationEngine\CSkinAnimation.cpp" />
-    <ClCompile Include="src\Core\Entity\Components\SkinnedAnimationComponent.cpp" />
-    <ClCompile Include="src\Core\AnimationEngine\AnimationManager.cpp" />
-    <ClCompile Include="src\Core\Entity\Light\LightSpot.cpp" />
   </ItemGroup>
 </Project>

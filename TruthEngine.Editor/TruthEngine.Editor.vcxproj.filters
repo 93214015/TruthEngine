@@ -31,9 +31,4 @@
     </ClCompile>
     <ClCompile Include="src\pch.cpp" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="Assets\Shaders\HDR_DownScaling.hlsl" />
-    <None Include="Assets\Shaders\HDR_PostProcessing.hlsl" />
-    <None Include="Assets\Shaders\GaussianBlur.hlsl" />
-  </ItemGroup>
 </Project>
