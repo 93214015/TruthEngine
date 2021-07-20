@@ -37,7 +37,7 @@ void TruthEngine::CreateFrustumPointsFromCascadeInterval(float frustumIntervalBe
 	outCornerPointsView[7] = XMVectorSelect(_vRightTopFar, _vLeftBottomFar, vGrabY);
 }
 
-void TruthEngine::CreateFrustumPointsFromCascadeIntervalFromProjectionMatrix(float frustumIntervalBegin, float frustumIntervalEnd, const float4x4& projectionMatrix, XMVector outCornerPointsView[8])
+void TruthEngine::CreateFrustumPointsFromCascadeIntervalFromProjectionMatrix(float frustumIntervalBegin, float frustumIntervalEnd, const float4x4A& projectionMatrix, XMVector outCornerPointsView[8])
 {
 	XMMatrix _projection = XMLoadFloat4x4(&projectionMatrix);
 	XMVector _clipSpaceZNear = XMVector4Transform(XMVectorSet(0.0, .0f, frustumIntervalBegin, 1.0f), _projection);
@@ -76,7 +76,7 @@ void TruthEngine::CreateFrustumPointsFromCascadeIntervalFromProjectionMatrix(flo
 }
 
 
-TruthEngine::CameraCascadedFrustumBase::CameraCascadedFrustumBase(uint32_t id, TE_CAMERA_TYPE cameraType, const float3& position, const float3& look, const float3& up, const float3& right)
+TruthEngine::CameraCascadedFrustumBase::CameraCascadedFrustumBase(uint32_t id, TE_CAMERA_TYPE cameraType, const float3A& position, const float3A& look, const float3A& up, const float3A& right)
 	: m_ID(id), m_CameraType(cameraType), m_Position(position), m_Look(look), m_Up(up), m_Right(right)
 {
 	UpdateViewMatrix();
@@ -92,37 +92,19 @@ void TruthEngine::CameraCascadedFrustumBase::UpdateViewMatrix()
 
 	// Keep camera's axes orthogonal to each other and of unit length.
 	L = XMVector3Normalize(L);
+	XMStoreFloat3(&m_Look, L);
+
 	U = XMVector3Normalize(XMVector3Cross(L, R));
+	XMStoreFloat3(&m_Up, U);
 
 	// U, L already ortho-normal, so no need to normalize cross product.
 	R = XMVector3Cross(U, L);
-
-	// Fill in the view matrix entries.
-	float x = -XMVectorGetX(XMVector3Dot(P, R));
-	float y = -XMVectorGetX(XMVector3Dot(P, U));
-	float z = -XMVectorGetX(XMVector3Dot(P, L));
-
 	XMStoreFloat3(&m_Right, R);
-	XMStoreFloat3(&m_Up, U);
-	XMStoreFloat3(&m_Look, L);
 
-	m_ViewMatrix(0, 0) = m_Right.x;
-	m_ViewMatrix(1, 0) = m_Right.y;
-	m_ViewMatrix(2, 0) = m_Right.z;
-	m_ViewMatrix(3, 0) = x;
+	
+	XMMatrix _XMView = Math::XMMatrixView(P, L, U);
+	m_ViewMatrix = Math::FromXMA(_XMView);
 
-	m_ViewMatrix(0, 1) = m_Up.x;
-	m_ViewMatrix(1, 1) = m_Up.y;
-	m_ViewMatrix(2, 1) = m_Up.z;
-	m_ViewMatrix(3, 1) = y;
-
-	m_ViewMatrix(0, 2) = m_Look.x;
-	m_ViewMatrix(1, 2) = m_Look.y;
-	m_ViewMatrix(2, 2) = m_Look.z;
-	m_ViewMatrix(3, 2) = z;
-
-	m_ViewMatrix(0, 3) = 0.0f;
-	m_ViewMatrix(1, 3) = 0.0f;
-	m_ViewMatrix(2, 3) = 0.0f;
-	m_ViewMatrix(3, 3) = 1.0f;
+	/*XMMatrix _XMViewInv = Math::XMMatrixInv(_XMView);
+	m_ViewInvMatrix = Math::FromXMA(_XMViewInv);*/
 }

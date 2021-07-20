@@ -108,14 +108,17 @@ namespace TruthEngine
 
 	void EntityPropertyPanel::DrawTagComponent(TagComponent& component)
 	{
-		char tag[50];
+		/*char tag[50];
 		memset(tag, 0, sizeof(tag));
-		strcpy_s(tag, component.GetTag().c_str());
+		strcpy_s(tag, component.GetTag());*/
+
+		char* tag = component.GetTag();
+
 		ImGui::PushItemWidth(-FLT_MIN);
 		ImGui::PushStyleColor(ImGuiCol_::ImGuiCol_FrameBg, ImVec4{ 0.5, .5, .8, .8 });
-		if (ImGui::InputText("##tagcomponent", tag, sizeof(tag)))
+		if (ImGui::InputText("##tagcomponent", tag, component.GetTagMaxLength()))
 		{
-			component.SetTag(tag);
+			/*component.SetTag(tag);*/
 		}
 		ImGui::PopStyleColor();
 		ImGui::PopItemWidth();
@@ -514,7 +517,8 @@ namespace TruthEngine
 			auto activeCamera = CameraManager::GetInstance()->GetActiveCamera();
 
 			TransformComponent& _TransformComponent = m_Context.GetComponent<TransformComponent>();
-			float4x4 _transform = _TransformComponent.GetTransformFromWorldCenter();
+			//float4x4A _transform = _TransformComponent.GetTransformFromWorldCenter();
+			float4x4A _transform = _TransformComponent.GetTransform();
 
 
 			static auto s_CopyingMesh = false;
@@ -531,14 +535,14 @@ namespace TruthEngine
 					}
 				}
 
-				const float3& _WorldCenterOffset = _TransformComponent.GetWorldCenterOffset();
+				/*const float3& _WorldCenterOffset = _TransformComponent.GetWorldCenterOffset();
 				_transform._41 -= _WorldCenterOffset.x;
 				_transform._42 -= _WorldCenterOffset.y;
-				_transform._43 -= _WorldCenterOffset.z;
+				_transform._43 -= _WorldCenterOffset.z;*/
 
 
-				float4x4& _OriginalTransform = _TransformComponent.GetTransform();
-				_OriginalTransform = _transform;
+				/*float4x4& _OriginalTransform = _TransformComponent.GetTransform();
+				_OriginalTransform = _transform;*/
 
 
 				EventEntityTransform _eventEntityTransform{ m_Context, ETransformType::Scale & ETransformType::Translate };

@@ -11,8 +11,8 @@
 namespace TruthEngine
 {
 
-	constexpr float4x4 m_ProjToUV = 
-		float4x4(
+	constexpr float4x4A m_ProjToUV = 
+		float4x4A(
 		0.5f, 0.0f, 0.0f, 0.0f,
 		0.0f, -0.5, 0.0f, 0.0f,
 		0.0f, 0.0f, 1.0f, 0.0f,
@@ -46,7 +46,7 @@ namespace TruthEngine
 
 		if (m_Camera)
 		{
-			m_Camera->SetViewMatrix(_Position, _Direction, _Up, _Right);
+			m_Camera->SetView(_Position, _Direction, _Up, _Right);
 
 			m_Data.ShadowTransform = m_Camera->GetViewProj() * m_ProjToUV;
 		}
@@ -61,7 +61,7 @@ namespace TruthEngine
 
 		if (m_Camera)
 		{
-			m_Camera->SetLook(_Direction, _Up, _Right);
+			m_Camera->SetView(_Direction, _Up, _Right);
 
 			m_Data.ShadowTransform = m_Camera->GetViewProj() * m_ProjToUV;
 		}

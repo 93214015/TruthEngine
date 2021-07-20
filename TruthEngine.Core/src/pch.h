@@ -21,6 +21,7 @@
 #include <map>	   //std::map
 #include <variant> //std::varinat
 #include <optional> //std::optional
+#include <string_view> //std::string_view
 
 #include "DirectXMath/Inc/DirectXMath.h"
 #include "DirectXMath/Inc/DirectXColors.h"

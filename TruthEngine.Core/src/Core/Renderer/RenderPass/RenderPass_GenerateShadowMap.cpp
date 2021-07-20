@@ -117,13 +117,13 @@ namespace TruthEngine
 
 			struct MeshMaterialTransform
 			{
-				MeshMaterialTransform(const Mesh* _mesh, const float4x4& _transform, const Material* _material)
+				MeshMaterialTransform(const Mesh* _mesh, const float4x4A& _transform, const Material* _material)
 					: mMesh(_mesh), mTransform(_transform), mMaterial(_material)
 				{}
 
 				const Mesh* mMesh;
 				const Material* mMaterial;
-				float4x4 mTransform;
+				float4x4A mTransform;
 			};
 
 			m_TimerRender_PrepareMeshList.Start();
@@ -147,7 +147,7 @@ namespace TruthEngine
 
 				for (auto& entity_mesh : scene->GetComponent<ModelComponent>(_EntityModel).GetMeshEntities())
 				{
-					const float4x4 _transform = scene->GetTransformHierarchy(entity_mesh);
+					const float4x4A _transform = scene->GetTransformHierarchy(entity_mesh);
 
 
 					const Mesh* mesh = scene->GetComponent<MeshComponent>(entity_mesh).GetMesh();
@@ -155,7 +155,7 @@ namespace TruthEngine
 
 					MeshMaterialTransform& _MMT = _MeshList.emplace_back(mesh, _transform, material);
 
-					BoundingBox _AABB = Math::TransformBoundingBox(scene->GetComponent<BoundingBoxComponent>(entity_mesh).GetBoundingBox(), _transform);
+					BoundingAABox _AABB = Math::TransformBoundingBox(scene->GetComponent<BoundingBoxComponent>(entity_mesh).GetBoundingBox(), _transform);
 					for (size_t i = 0; i < _CascadeNum; ++i)
 					{
 						auto _CameraAABB = cameraCascaded->GetBoundingBox(i);
@@ -237,7 +237,7 @@ namespace TruthEngine
 			{
 				const float4x4& physicsTransform = scene->GetComponent<PhysicsDynamicComponent>(entity_mesh).GetTranform();
 				const auto& _aabb = scene->GetComponent<BoundingBoxComponent>(entity_mesh).GetBoundingBox();
-				BoundingBox _transformedAABB = Math::TransformBoundingBox(_aabb, physicsTransform);
+				AABoundingBox _transformedAABB = Math::TransformBoundingBox(_aabb, physicsTransform);
 
 				if (_boundingFrustum.Contains(_transformedAABB) == DirectX::DISJOINT)
 					continue;
@@ -257,7 +257,7 @@ namespace TruthEngine
 			{
 				const float4x4& meshTransform = scene->GetComponent<TransformComponent>(entity_mesh).GetTransform();
 				const auto& _aabb = scene->GetComponent<BoundingBoxComponent>(entity_mesh).GetBoundingBox();
-				BoundingBox _transformedAABB = Math::TransformBoundingBox(_aabb, meshTransform);
+				AABoundingBox _transformedAABB = Math::TransformBoundingBox(_aabb, meshTransform);
 
 				const auto c = _boundingFrustum.Contains(_transformedAABB);
 
@@ -361,12 +361,12 @@ namespace TruthEngine
 				for (auto& entity_mesh : scene->GetComponent<ModelComponent>(_EntityModel).GetMeshEntities())
 				{
 
-					const float4x4 _transform = scene->GetTransformHierarchy(entity_mesh);
+					const float4x4A _transform = scene->GetTransformHierarchy(entity_mesh);
 
 					const Mesh* mesh = scene->GetComponent<MeshComponent>(entity_mesh).GetMesh();
 					const Material* material = scene->GetComponent<MaterialComponent>(entity_mesh).GetMaterial();
 					
-					BoundingBox _AABB = Math::TransformBoundingBox(scene->GetComponent<BoundingBoxComponent>(entity_mesh).GetBoundingBox(), _transform);
+					BoundingAABox _AABB = Math::TransformBoundingBox(scene->GetComponent<BoundingBoxComponent>(entity_mesh).GetBoundingBox(), _transform);
 
 					auto _containment = _Camera->GetBoundingFrustumWorldSpace().Contains(_AABB);
 					if (_containment != DirectX::ContainmentType::DISJOINT)

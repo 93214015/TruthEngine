@@ -13,11 +13,6 @@ namespace TruthEngine
 		_41 = _aiMatrix4x4.d1; _42 = _aiMatrix4x4.d2; _43 = _aiMatrix4x4.d3; _44 = _aiMatrix4x4.d4;
 	}
 
-	float4x4::operator physx::PxMat44()
-	{
-		return physx::PxMat44({ _11, _12, _13, _14 }, { _21, _22, _23, _24 }, { _31, _32, _33, _34 }, { _41, _42, _43, _44 });
-	}
-
 	float4x4::operator physx::PxMat44() const
 	{
 		return physx::PxMat44({ _11, _12, _13, _14 }, { _21, _22, _23, _24 }, { _31, _32, _33, _34 }, { _41, _42, _43, _44 });
@@ -53,21 +48,11 @@ namespace TruthEngine
 		return physx::PxVec3(x, y, z);
 	}
 
-	float2::operator ImVec2()
-	{
-		return ImVec2{ x, y };
-	}
-
-	float2::operator ImVec2() const
-	{
-		return ImVec2{ x, y };
-	}
-
 	namespace Math
 	{
-		void DecomposeMatrix(const float4x4& inMatrix, float4& scale, float4& translate, float4& quaternion)
+		void DecomposeMatrix(const float4x4A& inMatrix, float4& scale, float4& translate, float4& quaternion)
 		{
-			auto xmMatrix = XMLoadFloat4x4(&inMatrix);
+			auto xmMatrix = XMLoadFloat4x4A(&inMatrix);
 
 			XMVECTOR _scale, _translate, _quaternion;
 
@@ -79,17 +64,9 @@ namespace TruthEngine
 			XMStoreFloat4(&translate, _translate);
 			XMStoreFloat4(&quaternion, _quaternion);
 		}
-		float4x4 TransformMatrixRotation(float _RotationAngle, const float3& _RotationNormal, const float3& _RotationOrigin)
-		{
-			float4x4 _Result;
 
-			XMVECTOR _RotationQuaternion = XMQuaternionRotationNormal(XMLoadFloat3(&_RotationNormal), _RotationAngle);
-
-			XMMatrix _Matrix = XMMatrixTransformation(XMVectorZero, XMQuaternionIdentity(), XMVectorOne, XMLoadFloat3(&_RotationOrigin), _RotationQuaternion, XMVectorZero);
-			DirectX::XMStoreFloat4x4(&_Result, _Matrix);
-			return _Result;
-		}
 	}
+	
 }
 
 

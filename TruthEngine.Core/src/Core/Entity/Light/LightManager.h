@@ -44,23 +44,23 @@ namespace TruthEngine
 		LightSpot* GetSpotLight(const std::string_view name)const;
 		LightSpot* GetSpotLight(uint32_t _LightID)const;
 
-		inline uint32_t GetLightDirectionalCount() const noexcept
+		inline size_t GetLightDirectionalCount() const noexcept
 		{
-			return static_cast<uint32_t>(m_LightsDirectional.size());
+			return m_LightsDirectional.size();
 		}
 
-		inline uint32_t GetLightSpotCount() const noexcept
+		inline size_t GetLightSpotCount() const noexcept
 		{
-			return static_cast<uint32_t>(m_LightsSpot.size());
+			return m_LightsSpot.size();
 		}
 
 		Camera* GetLightCamera(const ILight* light);
-		float4x4 GetShadowTransform(const ILight* light);
-		void GetCascadedShadowTransform(const LightDirectional* light, float4x4 _outTransforms[4]);
-		void GetCascadedShadowTransform(const CameraCascadedFrustumBase* _cameraCascaded, float4x4 _outTransforms[4]);
+		float4x4A GetShadowTransform(const ILight* light);
+		void GetCascadedShadowTransform(const LightDirectional* light, float4x4A _outTransforms[4]);
+		void GetCascadedShadowTransform(const CameraCascadedFrustumBase* _cameraCascaded, float4x4A _outTransforms[4]);
 		Camera* AddLightCamera(const ILight* light, float _CameraViewRange, TE_CAMERA_TYPE cameraType);
 
-		template<uint32_t cascadeNum>
+		template<size_t cascadeNum>
 		CameraCascadedFrustum<cascadeNum>* AddLightCameraCascaded(const char* name, const float3& position, const float3& direction, const float4& cascadeCoveringDepth, TE_CAMERA_TYPE cameraType);
 
 		static LightManager* GetInstace()
@@ -82,7 +82,7 @@ namespace TruthEngine
 	};
 
 
-	template<uint32_t cascadeNum>
+	template<size_t cascadeNum>
 	CameraCascadedFrustum<cascadeNum>* TruthEngine::LightManager::AddLightCameraCascaded(const char* name, const float3& position, const float3& direction, const float4& cascadeCoveringDepth, TE_CAMERA_TYPE cameraType)
 	{
 		auto cameraManager = CameraManager::GetInstance();

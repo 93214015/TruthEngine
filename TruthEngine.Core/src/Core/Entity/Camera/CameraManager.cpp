@@ -106,8 +106,6 @@ namespace TruthEngine
 		return &s_Instance;
 	}
 
-
-
 	void CameraManager::OnResizeViewport(const EventSceneViewportResize& event)
 	{
 		m_ActiveCamera->SetAspectRatio(static_cast<float>(event.GetWidth()) / static_cast<float>(event.GetHeight()));
@@ -129,49 +127,30 @@ namespace TruthEngine
 		}
 	}
 
-	void CameraManager::EditCameraFrustumPerspective(Camera* camera, float aspectRatio, float zNearPlane, float zFarPlane)
+	void CameraManager::EditCameraFrustumPerspective(Camera* _Camera, float aspectRatio, float zNearPlane, float zFarPlane)
 	{
-		camera->m_ZNear = zNearPlane != -1.0f ? zNearPlane : camera->m_ZNear;
-		camera->m_ZFar = zFarPlane != -1.0f ? zFarPlane : camera->m_ZFar;
-		camera->m_AspectRatio = aspectRatio;
+		_Camera->m_ZNear = zNearPlane != -1.0f ? zNearPlane : _Camera->m_ZNear;
+		_Camera->m_ZFar = zFarPlane != -1.0f ? zFarPlane : _Camera->m_ZFar;
+		_Camera->m_AspectRatio = aspectRatio;
 
-		camera->m_NearWindowHeight = 2.0f * tanf(camera->m_FovY * 0.5f) * camera->m_ZNear;
-		camera->m_FarWindowHeight = 2.0f * tanf(camera->m_FovY * 0.5f) * camera->m_ZFar;
-
-		XMMATRIX P = XMMatrixPerspectiveFovLH(camera->m_FovY, camera->m_AspectRatio, camera->m_ZNear, camera->m_ZFar);
-
-		BoundingFrustum _BoundingFrustum;
-		BoundingFrustum::CreateFromMatrix(_BoundingFrustum, P);
-
-		if (camera->m_IsReversedDepth)
-		{
-			P = P * _MatReversingDepth;
-		}
-		XMStoreFloat4x4(&camera->m_ProjectionMatrix, P);
-
-		camera->m_BoundingFrustumViewSpace = _BoundingFrustum;
-		camera->UpdateBoundingFrustumWorld();
+		EditCameraFrustumPerspective(_Camera);
 	}
 
-	void CameraManager::EditCameraFrustumPerspective(Camera* camera)
+	void CameraManager::EditCameraFrustumPerspective(Camera* _Camera)
 	{
-		camera->m_NearWindowHeight = 2.0f * tanf(camera->m_FovY * 0.5f) * camera->m_ZNear;
-		camera->m_FarWindowHeight = 2.0f * tanf(camera->m_FovY * 0.5f) * camera->m_ZFar;
+		XMMATRIX P = XMMatrixPerspectiveFovLH(_Camera->m_FovY, _Camera->m_AspectRatio, _Camera->m_ZNear, _Camera->m_ZFar);
 
-		XMMATRIX P = XMMatrixPerspectiveFovLH(camera->m_FovY, camera->m_AspectRatio, camera->m_ZNear, camera->m_ZFar);
+		BoundingFrustum::CreateFromMatrix(_Camera->m_BoundingFrustumViewSpace, P);
 
-		BoundingFrustum _BoundingFrustum;
-		BoundingFrustum::CreateFromMatrix(_BoundingFrustum, P);
-
-		if (camera->m_IsReversedDepth)
+		if (_Camera->m_IsReversedDepth)
 		{
 			P = P * _MatReversingDepth;
 		}
-		XMStoreFloat4x4(&camera->m_ProjectionMatrix, P);
+		XMStoreFloat4x4A(&_Camera->m_ProjectionMatrix, P);
 
+		XMMatrix _ViewInv = Math::ToXM(_Camera->m_ViewInvMatrix);
+		_Camera->m_BoundingFrustumViewSpace.Transform(_Camera->m_BoundingFrustumWorldSpace, _ViewInv);
 
-		camera->m_BoundingFrustumViewSpace = _BoundingFrustum;
-		camera->UpdateBoundingFrustumWorld();
 	}
 
 	void CameraManager::EditCameraFrustumOrthographic(Camera* camera, float aspectRatio, float zNearPlane, float zFarPlane)
@@ -211,14 +190,6 @@ namespace TruthEngine
 		XMStoreFloat3(&right, R);
 		XMStoreFloat3(&up, U);
 
-
-		auto nearWindowHeight = 2.0f * zNearPlane * tanf(0.5f * fovY);
-		auto farWindowHeight = 2.0f * zFarPlane * tanf(0.5f * fovY);
-
-		const auto nearWindowWidth = aspectRatio * nearWindowHeight;
-		auto fovX = 2.0f * atanf(nearWindowWidth / 2.0f / zNearPlane);
-
-
 		XMMATRIX P = XMMatrixPerspectiveFovLH(fovY, aspectRatio, zNearPlane, zFarPlane);
 
 		BoundingFrustum _BoundingFrustum;
@@ -228,34 +199,34 @@ namespace TruthEngine
 		{
 			P = P * _MatReversingDepth;
 		}
-		float4x4 projMatrix;
-		XMStoreFloat4x4(&projMatrix, P);
+		float4x4A projMatrix;
+		XMStoreFloat4x4A(&projMatrix, P);
 
-		Camera* camera = GetCamera(name);
-		if (camera) // if camera with the same name was existed then we recreate that in the place
+
+		Camera* _Camera = GetCamera(name);
+		if (_Camera) // if camera with the same name was existed then we recreate that in the place
 		{
-			*camera = Camera(camera->m_ID, TE_CAMERA_TYPE::Perspective, position, look, up, right, zNearPlane, zFarPlane, aspectRatio, fovY, fovX, nearWindowHeight, farWindowHeight, projMatrix, _BoundingFrustum, _IsReversedDepth, [this](Camera* _Camera) { EditCameraFrustumPerspective(_Camera); });
+			*_Camera = Camera(_Camera->m_ID, TE_CAMERA_TYPE::Perspective, position, look, up, right, zNearPlane, zFarPlane, aspectRatio, fovY, projMatrix, _BoundingFrustum, _IsReversedDepth, &CameraManager::EditCameraFrustumPerspective);
 		}
 		else
 		{
-			uint32_t cameraID = m_Map_Cameras.size();
-			m_Map_Cameras[cameraID] = Camera(cameraID, TE_CAMERA_TYPE::Perspective, position, look, up, right, zNearPlane, zFarPlane, aspectRatio, fovY, fovX, nearWindowHeight, farWindowHeight, projMatrix, _BoundingFrustum, _IsReversedDepth, [this](Camera* _Camera) { EditCameraFrustumPerspective(_Camera); });
-			camera = &m_Map_Cameras[cameraID];
+			uint32_t _CameraID = static_cast<uint32_t>(m_Cameras.size());
+			_Camera = &m_Cameras.emplace_back(Camera(_CameraID, TE_CAMERA_TYPE::Perspective, position, look, up, right, zNearPlane, zFarPlane, aspectRatio, fovY, projMatrix, _BoundingFrustum, _IsReversedDepth, &CameraManager::EditCameraFrustumPerspective));
+			
 			if (name == "")
 			{
-				auto prefix = "CameraPerspective";
-				auto id = std::to_string(cameraID);
-				std::string n = prefix + id;
-				m_Map_CamerasName[n] = camera;
+				std::string prefix = "CameraPerspective";
+				std::string id = std::to_string(_CameraID);
+				prefix += id;
+				m_Map_CamerasName[prefix] = _Camera;
 			}
 			else
 			{
-				m_Map_CamerasName[name] = camera;
+				m_Map_CamerasName[name] = _Camera;
 			}
 		}
-		return camera;
+		return _Camera;
 	}
-
 
 	Camera* CameraManager::CreatePerspectiveTarget(const char* name, const float3& position, const float3& target, const float3& worldUpVector, float viewWidth, float viewHeight, float zNearPlane, float zFarPlane, bool _IsReversedDepth)
 	{
@@ -275,10 +246,6 @@ namespace TruthEngine
 		float aspectRatio = viewWidth / viewHeight;
 		float fovY = 2.0f * atanf(viewHeight / (2.0f * zNearPlane));
 
-		auto farWindowHeight = 2.0f * zFarPlane * tanf(0.5f * fovY);
-
-		auto fovX = 2.0f * atanf(viewWidth / 2.0f / zNearPlane);
-
 		XMMATRIX P = XMMatrixPerspectiveFovLH(fovY, aspectRatio, zNearPlane, zFarPlane);
 
 		BoundingFrustum _BoundingFrustum;
@@ -288,38 +255,36 @@ namespace TruthEngine
 		{
 			P = P * _MatReversingDepth;
 		}
-		float4x4 projMatrix;
-		XMStoreFloat4x4(&projMatrix, P);
+		float4x4A projMatrix;
+		XMStoreFloat4x4A(&projMatrix, P);
 
 
-		Camera* camera = GetCamera(name);
-		if (camera) // if camera with the same name was existed then we recreate that in the place
+		Camera* _Camera = GetCamera(name);
+		if (_Camera) // if camera with the same name was existed then we recreate that in the place
 		{
-			*camera = Camera(camera->m_ID, TE_CAMERA_TYPE::Perspective, position, look, up, right, zNearPlane, zFarPlane, aspectRatio, fovY, fovX, viewWidth, farWindowHeight, projMatrix, _BoundingFrustum, _IsReversedDepth, [this](Camera* _Camera) { EditCameraFrustumPerspective(_Camera); });
+			*_Camera = Camera(_Camera->m_ID, TE_CAMERA_TYPE::Perspective, position, look, up, right, zNearPlane, zFarPlane, aspectRatio, fovY, projMatrix, _BoundingFrustum, _IsReversedDepth, &CameraManager::EditCameraFrustumPerspective);
 		}
 		else
 		{
-			uint32_t cameraID = m_Map_Cameras.size();
-			m_Map_Cameras[cameraID] = Camera(cameraID, TE_CAMERA_TYPE::Perspective, position, look, up, right, zNearPlane, zFarPlane, aspectRatio, fovY, fovX, viewWidth, farWindowHeight, projMatrix, _BoundingFrustum, _IsReversedDepth, [this](Camera* _Camera) { EditCameraFrustumPerspective(_Camera); });
+			uint32_t cameraID = static_cast<uint32_t>(m_Cameras.size());
+			_Camera = &m_Cameras.emplace_back(Camera(cameraID, TE_CAMERA_TYPE::Perspective, position, look, up, right, zNearPlane, zFarPlane, aspectRatio, fovY, projMatrix, _BoundingFrustum, _IsReversedDepth, &CameraManager::EditCameraFrustumPerspective));
 
-			camera = &m_Map_Cameras[cameraID];
 			if (name == "")
 			{
 				auto prefix = "CameraPerspective";
 				auto id = std::to_string(cameraID);
 				std::string n = prefix + id;
-				m_Map_CamerasName[n] = camera;
+				m_Map_CamerasName[n] = _Camera;
 			}
 			else
 			{
-				m_Map_CamerasName[name] = camera;
+				m_Map_CamerasName[name] = _Camera;
 			}
 		}
-		return camera;
+		return _Camera;
 	}
 
-
-	TruthEngine::Camera* CameraManager::CreatePerspectiveDirection(const char* name, const float3& position, const float3& look, const float3& worldUpVector, float fovY, float aspectRatio, float zNearPlane, float zFarPlane, bool _IsReversedDepth)
+	Camera* CameraManager::CreatePerspectiveDirection(const char* name, const float3& position, const float3& look, const float3& worldUpVector, float fovY, float aspectRatio, float zNearPlane, float zFarPlane, bool _IsReversedDepth)
 	{
 		auto vPosition = XMLoadFloat3(&position);
 		auto vWorldUp = XMLoadFloat3(&worldUpVector);
@@ -332,13 +297,6 @@ namespace TruthEngine
 		XMStoreFloat3(&right, R);
 		XMStoreFloat3(&up, U);
 
-
-		auto nearWindowHeight = 2.0f * zNearPlane * tanf(0.5f * fovY);
-		auto farWindowHeight = 2.0f * zFarPlane * tanf(0.5f * fovY);
-
-		const auto nearWindowWidth = aspectRatio * nearWindowHeight;
-		auto fovX = 2.0f * atanf(nearWindowWidth / 2.0f / zNearPlane);
-
 		XMMATRIX P = XMMatrixPerspectiveFovLH(fovY, aspectRatio, zNearPlane, zFarPlane);
 
 		BoundingFrustum _BoundingFrustum;
@@ -349,35 +307,34 @@ namespace TruthEngine
 			P = P * _MatReversingDepth;
 		}
 
-		float4x4 projMatrix;
-		XMStoreFloat4x4(&projMatrix, P);
+		float4x4A projMatrix;
+		XMStoreFloat4x4A(&projMatrix, P);
 
-		Camera* camera = GetCamera(name);
-		if (camera) // if camera with the same name was existed then we recreate that in the place
+		Camera* _Camera = GetCamera(name);
+		if (_Camera) // if camera with the same name was existed then we recreate that in the place
 		{
-			*camera = Camera(camera->m_ID, TE_CAMERA_TYPE::Perspective, position, look, up, right, zNearPlane, zFarPlane, aspectRatio, fovY, fovX, nearWindowHeight, farWindowHeight, projMatrix, _BoundingFrustum, _IsReversedDepth, [this](Camera* _Camera) { EditCameraFrustumPerspective(_Camera); });
+			*_Camera = Camera(_Camera->m_ID, TE_CAMERA_TYPE::Perspective, position, look, up, right, zNearPlane, zFarPlane, aspectRatio, fovY, projMatrix, _BoundingFrustum, _IsReversedDepth, &CameraManager::EditCameraFrustumPerspective);
 		}
 		else
 		{
-			uint32_t cameraID = m_Map_Cameras.size();
-			m_Map_Cameras[cameraID] = Camera(cameraID, TE_CAMERA_TYPE::Perspective, position, look, up, right, zNearPlane, zFarPlane, aspectRatio, fovY, fovX, nearWindowHeight, farWindowHeight, projMatrix, _BoundingFrustum, _IsReversedDepth, [this](Camera* _Camera) { EditCameraFrustumPerspective(_Camera); });
-			camera = &m_Map_Cameras[cameraID];
+			uint32_t cameraID = static_cast<uint32_t>(m_Cameras.size());
+			_Camera = &m_Cameras.emplace_back(Camera(cameraID, TE_CAMERA_TYPE::Perspective, position, look, up, right, zNearPlane, zFarPlane, aspectRatio, fovY, projMatrix, _BoundingFrustum, _IsReversedDepth, &CameraManager::EditCameraFrustumPerspective));
+			
 			if (name == "")
 			{
 				auto prefix = "CameraPerspective";
 				auto id = std::to_string(cameraID);
 				std::string n = prefix + id;
-				m_Map_CamerasName[n] = camera;
+				m_Map_CamerasName[n] = _Camera;
 			}
 			else
 			{
-				m_Map_CamerasName[name] = camera;
+				m_Map_CamerasName[name] = _Camera;
 			}
 		}
 
-		return camera;
+		return _Camera;
 	}
-
 
 	Camera* CameraManager::CreatePerspectiveCenterOff(const char* name, const float3& position, const float3& target, const float3& worldUpVector, float viewLeft, float viewTop, float viewRight, float viewBottom, float zNearPlane, float zFarPlane, bool _IsReversedDepth)
 	{
@@ -400,10 +357,6 @@ namespace TruthEngine
 		float aspectRatio = viewWidth / viewHeight;
 		float fovY = 2.0f * atanf(viewHeight / (2.0f * zNearPlane));
 
-		auto farWindowHeight = 2.0f * zFarPlane * tanf(0.5f * fovY);
-
-		auto fovX = 2.0f * atanf(viewWidth / 2.0f / zNearPlane);
-
 		XMMATRIX P = XMMatrixPerspectiveFovLH(fovY, aspectRatio, zNearPlane, zFarPlane);
 
 		BoundingFrustum _BoundingFrustum;
@@ -413,36 +366,34 @@ namespace TruthEngine
 		{
 			P = P * _MatReversingDepth;
 		}
-		float4x4 projMatrix;
-		XMStoreFloat4x4(&projMatrix, P);
+		float4x4A projMatrix;
+		XMStoreFloat4x4A(&projMatrix, P);
 
-		Camera* camera = GetCamera(name);
-		if (camera) // if camera with the same name was existed then we recreate that in the place
+		Camera* _Camera = GetCamera(name);
+		if (_Camera) // if camera with the same name was existed then we recreate that in the place
 		{
-			*camera = Camera(camera->m_ID, TE_CAMERA_TYPE::Perspective, position, look, up, right, zNearPlane, zFarPlane, aspectRatio, fovY, fovX, viewWidth, farWindowHeight, projMatrix, _BoundingFrustum, _IsReversedDepth, [this](Camera* _Camera) { EditCameraFrustumPerspective(_Camera); });
+			*_Camera = Camera(_Camera->m_ID, TE_CAMERA_TYPE::Perspective, position, look, up, right, zNearPlane, zFarPlane, aspectRatio, fovY, projMatrix, _BoundingFrustum, _IsReversedDepth, &CameraManager::EditCameraFrustumPerspective);
 		}
 		else
 		{
 
-			uint32_t cameraID = m_Map_Cameras.size();
-			m_Map_Cameras[cameraID] = Camera(cameraID, TE_CAMERA_TYPE::Perspective, position, look, up, right, zNearPlane, zFarPlane, aspectRatio, fovY, fovX, viewWidth, farWindowHeight, projMatrix, _BoundingFrustum, _IsReversedDepth, [this](Camera* _Camera) { EditCameraFrustumPerspective(_Camera); });
+			uint32_t cameraID = static_cast<uint32_t>(m_Cameras.size());
+			_Camera = &m_Cameras.emplace_back(Camera(cameraID, TE_CAMERA_TYPE::Perspective, position, look, up, right, zNearPlane, zFarPlane, aspectRatio, fovY, projMatrix, _BoundingFrustum, _IsReversedDepth, &CameraManager::EditCameraFrustumPerspective));
 
-			camera = &m_Map_Cameras[cameraID];
 			if (name == "")
 			{
 				auto prefix = "CameraPerspective";
 				auto id = std::to_string(cameraID);
 				std::string n = prefix + id;
-				m_Map_CamerasName[n] = camera;
+				m_Map_CamerasName[n] = _Camera;
 			}
 			else
 			{
-				m_Map_CamerasName[name] = camera;
+				m_Map_CamerasName[name] = _Camera;
 			}
 		}
-		return camera;
+		return _Camera;
 	}
-
 
 	Camera* CameraManager::CreateOrthographicCenterOff(const char* name, const float3& position, const float3& target, const float3& worldUpVector, float viewLeft, float viewTop, float viewRight, float viewBottom, float zNearPlane, float zFarPlane)
 	{
@@ -465,8 +416,8 @@ namespace TruthEngine
 
 
 		const XMMatrix P = XMMatrixOrthographicLH(frustumWidth, frustumHeight, zNearPlane, zFarPlane);
-		float4x4 projMatrix;
-		XMStoreFloat4x4(&projMatrix, P);
+		float4x4A projMatrix;
+		XMStoreFloat4x4A(&projMatrix, P);
 
 		BoundingFrustum _BoundingFrustum;
 
@@ -485,34 +436,31 @@ namespace TruthEngine
 
 		float fovY = 2.0f * atanf(frustumHeight / (2.0f * zNearPlane));
 
-		float fovX = 2.0f * atanf(frustumWidth / (2.0f * zNearPlane));
-
-		Camera* camera = GetCamera(name);
-		if (camera) // if camera with the same name was existed then we recreate that in the place
+		Camera* _Camera = GetCamera(name);
+		if (_Camera) // if camera with the same name was existed then we recreate that in the place
 		{
-			*camera = Camera(camera->m_ID, TE_CAMERA_TYPE::Orthographic, position, look, up, right, zNearPlane, zFarPlane, aspectRatio, fovY, fovX, frustumWidth, frustumHeight, projMatrix, _BoundingFrustum, false, [this](Camera* _Camera) { EditCameraFrustumOrthographic(_Camera); });
+			*_Camera = Camera(_Camera->m_ID, TE_CAMERA_TYPE::Orthographic, position, look, up, right, zNearPlane, zFarPlane, aspectRatio, fovY, projMatrix, _BoundingFrustum, false, &CameraManager::EditCameraFrustumOrthographic);
 		}
 		else
 		{
-			uint32_t cameraID = m_Map_Cameras.size();
-			m_Map_Cameras[cameraID] = Camera(cameraID, TE_CAMERA_TYPE::Orthographic, position, look, up, right, zNearPlane, zFarPlane, aspectRatio, fovY, fovX, frustumWidth, frustumHeight, projMatrix, _BoundingFrustum, false, [this](Camera* _Camera) { EditCameraFrustumOrthographic(_Camera); });
+			uint32_t cameraID = static_cast<uint32_t>(m_Cameras.size());
+			_Camera = &m_Cameras.emplace_back(Camera(cameraID, TE_CAMERA_TYPE::Orthographic, position, look, up, right, zNearPlane, zFarPlane, aspectRatio, fovY, projMatrix, _BoundingFrustum, false, &CameraManager::EditCameraFrustumOrthographic));
 
-			camera = &m_Map_Cameras[cameraID];
+
 			if (name == "")
 			{
 				auto prefix = "CameraOrthographic";
 				auto id = std::to_string(cameraID);
 				std::string n = prefix + id;
-				m_Map_CamerasName[n] = camera;
+				m_Map_CamerasName[n] = _Camera;
 			}
 			else
 			{
-				m_Map_CamerasName[name] = camera;
+				m_Map_CamerasName[name] = _Camera;
 			}
 		}
-		return camera;
+		return _Camera;
 	}
-
 
 	Camera* CameraManager::CreateOrthographicTarget(const char* name, const float3& position, const float3& target, const float3& worldUpVector, float viewWidth, float viewHeight, float zNearPlane, float zFarPlane)
 	{
@@ -530,8 +478,8 @@ namespace TruthEngine
 		XMStoreFloat3(&up, U);
 
 		const XMMatrix P = XMMatrixOrthographicLH(viewWidth, viewHeight, zNearPlane, zFarPlane);
-		float4x4 projMatrix;
-		XMStoreFloat4x4(&projMatrix, P);
+		float4x4A projMatrix;
+		XMStoreFloat4x4A(&projMatrix, P);
 
 		BoundingFrustum _BoundingFrustum;
 		if (zNearPlane < zFarPlane)
@@ -549,36 +497,32 @@ namespace TruthEngine
 
 		float fovY = 2.0f * atanf(viewHeight / (2.0f * zNearPlane));
 
-		float fovX = 2.0f * atanf(viewWidth / (2.0f * zNearPlane));
-
-		Camera* camera = GetCamera(name);
-		if (camera) // if camera with the same name was existed then we recreate that in the place
+		Camera* _Camera = GetCamera(name);
+		if (_Camera) // if camera with the same name was existed then we recreate that in the place
 		{
-			*camera = Camera(camera->m_ID, TE_CAMERA_TYPE::Orthographic, position, look, up, right, zNearPlane, zFarPlane, aspectRatio, fovY, fovX, viewWidth, viewHeight, projMatrix, _BoundingFrustum, false, [this](Camera* _Camera) { EditCameraFrustumOrthographic(_Camera); });
+			*_Camera = Camera(_Camera->m_ID, TE_CAMERA_TYPE::Orthographic, position, look, up, right, zNearPlane, zFarPlane, aspectRatio, fovY, projMatrix, _BoundingFrustum, false, &CameraManager::EditCameraFrustumOrthographic);
 		}
 		else
 		{
-			uint32_t cameraID = m_Map_Cameras.size();
-			m_Map_Cameras[cameraID] = Camera(cameraID, TE_CAMERA_TYPE::Orthographic, position, look, up, right, zNearPlane, zFarPlane, aspectRatio, fovY, fovX, viewWidth, viewHeight, projMatrix, _BoundingFrustum, false, [this](Camera* _Camera) { EditCameraFrustumOrthographic(_Camera); });
+			uint32_t cameraID = static_cast<uint32_t>(m_Cameras.size());
+			_Camera = &m_Cameras.emplace_back(Camera(cameraID, TE_CAMERA_TYPE::Orthographic, position, look, up, right, zNearPlane, zFarPlane, aspectRatio, fovY, projMatrix, _BoundingFrustum, false, &CameraManager::EditCameraFrustumOrthographic));
 
-			camera = &m_Map_Cameras[cameraID];
 			if (name == "")
 			{
 				auto prefix = "CameraOrthographic";
 				auto id = std::to_string(cameraID);
 				std::string n = prefix + id;
-				m_Map_CamerasName[n] = camera;
+				m_Map_CamerasName[n] = _Camera;
 			}
 			else
 			{
-				m_Map_CamerasName[name] = camera;
+				m_Map_CamerasName[name] = _Camera;
 			}
 		}
-		return camera;
+		return _Camera;
 	}
 
-
-	TruthEngine::Camera* CameraManager::CreateOrthographicDirection(const char* name, const float3& position, const float3& direction, const float3& worldUpVector, float viewLeft, float viewTop, float viewRight, float viewBottom, float zNearPlane, float zFarPlane)
+	Camera* CameraManager::CreateOrthographicDirection(const char* name, const float3& position, const float3& direction, const float3& worldUpVector, float viewLeft, float viewTop, float viewRight, float viewBottom, float zNearPlane, float zFarPlane)
 	{
 		auto vPosition = XMLoadFloat3(&position);
 		auto vWorldUp = XMLoadFloat3(&worldUpVector);
@@ -595,14 +539,12 @@ namespace TruthEngine
 		auto frustumHeight = abs(viewTop - viewBottom);
 
 		const XMMatrix P = XMMatrixOrthographicLH(frustumWidth, frustumHeight, zNearPlane, zFarPlane);
-		float4x4 projMatrix;
-		XMStoreFloat4x4(&projMatrix, P);
+		float4x4A projMatrix;
+		XMStoreFloat4x4A(&projMatrix, P);
 
 		float aspectRatio = frustumWidth / frustumHeight;
 
 		float fovY = 2.0f * atanf(frustumHeight / (2.0f * zNearPlane));
-
-		float fovX = 2.0f * atanf(frustumWidth / (2.0f * zNearPlane));
 
 		BoundingFrustum _BoundingFrustum;
 		if (zNearPlane < zFarPlane)
@@ -615,30 +557,29 @@ namespace TruthEngine
 			BoundingFrustum::CreateFromMatrix(_BoundingFrustum, _PTemp);
 		}
 
-		Camera* camera = GetCamera(name);
-		if (camera) // if camera with the same name was existed then we recreate that in the place
+		Camera* _Camera = GetCamera(name);
+		if (_Camera) // if camera with the same name was existed then we recreate that in the place
 		{
-			*camera = Camera(camera->m_ID, TE_CAMERA_TYPE::Orthographic, position, direction, up, right, zNearPlane, zFarPlane, aspectRatio, fovY, fovX, frustumWidth, frustumHeight, projMatrix, _BoundingFrustum, false, [this](Camera* _Camera) { EditCameraFrustumOrthographic(_Camera); });
+			*_Camera = Camera(_Camera->m_ID, TE_CAMERA_TYPE::Orthographic, position, direction, up, right, zNearPlane, zFarPlane, aspectRatio, fovY, projMatrix, _BoundingFrustum, false, &CameraManager::EditCameraFrustumOrthographic);
 		}
 		else
 		{
-			uint32_t cameraID = m_Map_Cameras.size();
-			m_Map_Cameras[cameraID] = Camera(cameraID, TE_CAMERA_TYPE::Orthographic, position, direction, up, right, zNearPlane, zFarPlane, aspectRatio, fovY, fovX, frustumWidth, frustumHeight, projMatrix, _BoundingFrustum, false, [this](Camera* _Camera) { EditCameraFrustumOrthographic(_Camera); });
+			uint32_t cameraID = static_cast<uint32_t>(m_Cameras.size());
+			_Camera = &m_Cameras.emplace_back(Camera(cameraID, TE_CAMERA_TYPE::Orthographic, position, direction, up, right, zNearPlane, zFarPlane, aspectRatio, fovY, projMatrix, _BoundingFrustum, false, &CameraManager::EditCameraFrustumOrthographic));
 
-			camera = &m_Map_Cameras[cameraID];
 			if (name == "")
 			{
 				auto prefix = "CameraOrthographic";
 				auto id = std::to_string(cameraID);
 				std::string n = prefix + id;
-				m_Map_CamerasName[n] = camera;
+				m_Map_CamerasName[n] = _Camera;
 			}
 			else
 			{
-				m_Map_CamerasName[name] = camera;
+				m_Map_CamerasName[name] = _Camera;
 			}
 		}
-		return camera;
+		return _Camera;
 	}
 
 

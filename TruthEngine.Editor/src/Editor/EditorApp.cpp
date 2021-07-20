@@ -46,7 +46,7 @@ namespace TruthEngine
 		InputManager::RegisterKey(Key::Space);
 
 
-		auto mainCamera = CameraManager::GetInstance()->CreatePerspectiveFOV("mainCamera"
+		auto mainCamera = TE_INSTANCE_CAMERAMANAGER->CreatePerspectiveFOV("mainCamera"
 			, float3{ -12.0f, 17.0f, -30.0f }
 			, float3{ 0.48f, -.5f, 0.72f }
 			, float3{ 0.0f, 1.0f, 0.0f }
@@ -57,8 +57,7 @@ namespace TruthEngine
 			, false
 		);
 
-
-		CameraManager::GetInstance()->SetActiveCamera(mainCamera);
+		TE_INSTANCE_CAMERAMANAGER->SetActiveCamera(mainCamera);
 
 		m_ActiveScene.Init();
 
@@ -66,7 +65,7 @@ namespace TruthEngine
 		//Add Main Camera
 		//
 		auto entity = m_ActiveScene.AddEntity("MainCamera");
-		entity.AddComponent<CameraComponent>(mainCamera, CameraManager::GetInstance()->GetCameraController());
+		entity.AddComponent<CameraComponent>(mainCamera, TE_INSTANCE_CAMERAMANAGER->GetCameraController());
 
 		m_LayerStack.PushLayer(m_RendererLayer.get());
 
@@ -215,12 +214,12 @@ namespace TruthEngine
 								float angle = DirectX::XMConvertToRadians(0.25f * static_cast<float>(InputManager::GetDX()));
 								angle /= 10.0f;
 
-								float4x4& _Transform = _SelectedEntity.GetComponent<TransformComponent>().GetTransform();
+								float4x4A& _Transform = _SelectedEntity.GetComponent<TransformComponent>().GetTransform();
 
 								//float3 _RotationOrigin = float3{ _Transform._41, _Transform._42, _Transform._43 };
 								float3 _RotationOrigin = float3{ 0, 0, 0 };
 
-								float4x4 _RotationTransform = Math::TransformMatrixRotation(angle, float3{ .0f, 1.0f, .0f }, _RotationOrigin);
+								float4x4A _RotationTransform = Math::TransformMatrixRotation(angle, float3{ .0f, 1.0f, .0f }, _RotationOrigin);
 
 								_Transform = _Transform * _RotationTransform;
 							}
@@ -327,7 +326,7 @@ namespace TruthEngine
 
 							gFeaturePickEntity = TE_INSTANCE_THREADPOOL.Queue(lambda);*/
 
-							PickingEntity::PickEntity(_windowMousePos, &m_ActiveScene, CameraManager::GetInstance()->GetActiveCamera());
+							PickingEntity::PickEntity(_windowMousePos, &m_ActiveScene, TE_INSTANCE_CAMERAMANAGER->GetActiveCamera());
 						}
 					}
 				}
@@ -337,17 +336,17 @@ namespace TruthEngine
 				auto windowPos = ImGui::GetWindowPos();
 				ImGuizmo::SetRect(windowPos.x, windowPos.y, ImGui::GetWindowWidth(), ImGui::GetWindowHeight());
 
-				auto viewportSize = ImGui::GetContentRegionAvail();
+				auto _ContentRegionAvailable = ImGui::GetContentRegionAvail();
+				uint2 viewportSize{ static_cast<uint32_t>(_ContentRegionAvailable.x), static_cast<uint32_t>(_ContentRegionAvailable.y) };
 				if (viewportSize.x != GetSceneViewportWidth() || viewportSize.y != GetSceneViewportHeight())
 				{
 					if (viewportSize.x > 1 && viewportSize.y > 1)
 					{
-						ResizeSceneViewport(static_cast<uint32_t>(viewportSize.x), static_cast<uint32_t>(viewportSize.y));
+						ResizeSceneViewport(viewportSize.x, viewportSize.y);
 					}
 				}
 
-				imguiLayer->RenderSceneViewport(viewportSize);
-
+				imguiLayer->RenderSceneViewport(_ContentRegionAvailable);
 
 
 				ImGui::End();
@@ -359,9 +358,9 @@ namespace TruthEngine
 				ImGui::Begin("Scene Properties");
 
 
-				bool _IsEnvironmentMapEnabled = m_RendererLayer->IsEnvironmentMapEnabled();
 
 
+				static bool _IsEnvironmentMapEnabled = m_RendererLayer->IsEnvironmentMapEnabled();
 				if (ImGui::Checkbox("Environment Map", &_IsEnvironmentMapEnabled))
 				{
 					m_RendererLayer->SetEnabledEnvironmentMap(_IsEnvironmentMapEnabled);
@@ -369,7 +368,6 @@ namespace TruthEngine
 
 
 				static bool _IsEnabledHDR = m_RendererLayer->IsEnabledHDR();
-
 				if (ImGui::Checkbox("HDR", &_IsEnabledHDR))
 				{
 					m_RendererLayer->SetHDR(_IsEnabledHDR);
@@ -643,8 +641,8 @@ namespace TruthEngine
 			EventEntityTransform& _e = static_cast<EventEntityTransform&>(event);
 
 			Entity _entity = _e.GetEntity();
-			const BoundingBox& _BoundingBox = _entity.GetComponent<BoundingBoxComponent>().GetBoundingBox();
-			BoundingBox _TransformedBoundingBox = Math::TransformBoundingBox(_BoundingBox, _entity.GetComponent<TransformComponent>().GetTransform());
+			const BoundingAABox& _BoundingBox = _entity.GetComponent<BoundingBoxComponent>().GetBoundingBox();
+			BoundingAABox _TransformedBoundingBox = Math::TransformBoundingBox(_BoundingBox, _entity.GetComponent<TransformComponent>().GetTransform());
 
 			m_ActiveScene.UpdateBoundingBox(_TransformedBoundingBox);
 		};

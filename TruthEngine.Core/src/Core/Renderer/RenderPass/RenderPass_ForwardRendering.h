@@ -83,15 +83,15 @@ namespace TruthEngine
 			ConstantBuffer_Data_Per_Mesh()
 				: WorldMatrix(IdentityMatrix), WorldInverseTransposeMatrix(IdentityMatrix), MaterialIndex(-1)
 			{}
-			ConstantBuffer_Data_Per_Mesh(float4x4 world, float4x4 worldIT, uint32_t materialIndex)
+			ConstantBuffer_Data_Per_Mesh(const float4x4A& world, const float4x4A& worldIT, uint32_t materialIndex)
 				: WorldMatrix(world), WorldInverseTransposeMatrix(worldIT), MaterialIndex(materialIndex)
 			{}
 
-			float4x4 WorldMatrix;
-			float4x4 WorldInverseTransposeMatrix;
+			float4x4A WorldMatrix;
+			float4x4A WorldInverseTransposeMatrix;
 			uint32_t MaterialIndex;
 			float3   Pad;
-		};		
+		};
 
 		ConstantBufferDirect<ConstantBuffer_Data_Per_Mesh>* m_ConstantBufferDirect_PerMesh;
 		ConstantBufferDirect<ConstantBuffer_Data_EnvironmentMap>* m_ConstantBufferDirect_EnvironmentMap;

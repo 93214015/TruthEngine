@@ -316,7 +316,7 @@ namespace TruthEngine {
 	}
 
 
-	ContainmentType ICamera::BoundingBoxContainment(const BoundingBox& _boundingBox) const
+	ContainmentType ICamera::BoundingBoxContainment(const AABoundingBox& _boundingBox) const
 	{
 		return m_BoundingFrustum.Contains(_boundingBox);
 	}

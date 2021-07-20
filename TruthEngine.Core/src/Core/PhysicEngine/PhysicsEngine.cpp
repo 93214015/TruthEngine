@@ -424,11 +424,11 @@ namespace TruthEngine
 		for (auto& entity : groups)
 		{
 			auto& physicsComponent = scene->GetComponent<PhysicsDynamicComponent>(entity);
-			const float3& _WorldOffset = scene->GetComponent<TransformComponent>(entity).GetWorldCenterOffset();
-			float4x4 staticTransform = scene->GetStaticTransformHierarchy(entity);
-			staticTransform._41 += _WorldOffset.x;
+			//const float3& _WorldOffset = scene->GetComponent<TransformComponent>(entity).GetWorldCenterOffset();
+			float4x4A staticTransform = scene->GetStaticTransformHierarchy(entity);
+			/*staticTransform._41 += _WorldOffset.x;
 			staticTransform._42 += _WorldOffset.y;
-			staticTransform._43 += _WorldOffset.z;
+			staticTransform._43 += _WorldOffset.z;*/
 
 			auto actor = physicsComponent.GetActor();
 

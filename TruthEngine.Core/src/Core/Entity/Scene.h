@@ -28,10 +28,10 @@ namespace TruthEngine
 
 		void Init();
 
-		Entity AddEntity(const char* entityTag, Entity parent, const float4x4& transform = IdentityMatrix, const float3& _WorldCenterOffset = float3{ .0f, .0f,.0f });
-		Entity AddEntity(const char* entityTag, const float4x4& transform = IdentityMatrix, const float3& _WorldCenterOffset = float3{ .0f, .0f,.0f });
+		Entity AddEntity(const char* entityTag, Entity parent, const float4x4A& transform = IdentityMatrix /*, const float3& _WorldCenterOffset = float3{ .0f, .0f,.0f }*/);
+		Entity AddEntity(const char* entityTag, const float4x4A& transform = IdentityMatrix /*, const float3& _WorldCenterOffset = float3{ .0f, .0f,.0f }*/);
 
-		Entity AddMeshEntity(const char* _MeshName, const float4x4& _Transform, Mesh* _Mesh, Material* _Material, Entity _ModelEntity, const float3& _TranslationFromWorldCenter = float3{ .0f,.0f,.0f });
+		Entity AddMeshEntity(const char* _MeshName, const float4x4A& _Transform, const Mesh& _Mesh, Material* _Material, Entity _ModelEntity);
 		Entity AddPrimitiveMesh(const char* _MeshName, TE_PRIMITIVE_TYPE _PrimitiveType, const float3& _PrimitiveSize, Entity _ModelEntity);
 		Entity AddEnvironmentEntity();
 
@@ -58,7 +58,7 @@ namespace TruthEngine
 			const float _OuterConeAngle
 		);
 
-		Entity AddModelEntity(const char* modelName, const float4x4& transform);
+		Entity AddModelEntity(const char* modelName, const float4x4A& transform);
 
 		Entity CopyMeshEntity(Entity meshsEntity);
 
@@ -134,17 +134,17 @@ namespace TruthEngine
 		std::vector<Entity> GetAncestor(const Entity entity);
 		std::vector<Entity> GetAncestor(entt::entity entityHandler);
 
-		float4x4 GetTransformHierarchy(Entity entity);
-		float4x4 GetTransformHierarchy(entt::entity entityHandler);
+		float4x4A GetTransformHierarchy(Entity entity);
+		float4x4A GetTransformHierarchy(entt::entity entityHandler);
 
 		float3 GetTranslateHierarchy(Entity entity);
 		float3 GetTranslateHierarchy(entt::entity entityHandler);
 
-		float4x4 GetStaticTransformHierarchy(Entity entity);
-		float4x4 GetStaticTransformHierarchy(entt::entity entityHandler);
+		float4x4A GetStaticTransformHierarchy(Entity entity);
+		float4x4A GetStaticTransformHierarchy(entt::entity entityHandler);
 
-		const BoundingBox& GetBoundingBox() const noexcept;
-		void UpdateBoundingBox(const BoundingBox& _boundingBox);
+		const BoundingAABox& GetBoundingBox() const noexcept;
+		void UpdateBoundingBox(const BoundingAABox& _boundingBox);
 
 		inline bool HasParent(const Entity& entity)
 		{
@@ -165,8 +165,8 @@ namespace TruthEngine
 		
 
 	private:
-		float4x4 GetParentTransforms(Entity parent);
-		float4x4 GetParentTransforms(entt::entity parentHandler);
+		float4x4A GetParentTransforms(Entity parent);
+		float4x4A GetParentTransforms(entt::entity parentHandler);
 
 	private:
 		entt::registry m_Registery;
@@ -178,7 +178,7 @@ namespace TruthEngine
 
 		std::unordered_map<const char*, Entity> m_Entites;
 
-		BoundingBox m_BoundingBox;
+		BoundingAABox m_BoundingBox;
 
 		std::mutex m_Mutex;
 

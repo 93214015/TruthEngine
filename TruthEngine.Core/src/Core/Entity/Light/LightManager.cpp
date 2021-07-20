@@ -13,30 +13,30 @@
 namespace TruthEngine
 {
 
-	constexpr float4x4 m_ProjToUV = float4x4(0.5f, 0.0f, 0.0f, 0.0f,
+	constexpr float4x4A m_ProjToUV = float4x4A(0.5f, 0.0f, 0.0f, 0.0f,
 		0.0f, -0.5, 0.0f, 0.0f,
 		0.0f, 0.0f, 1.0f, 0.0f,
 		0.5f, 0.5f, 0.0f, 1.0f);
 
-	constexpr float4x4 m_ProjToUVCascaded0 = float4x4(
+	constexpr float4x4A m_ProjToUVCascaded0 = float4x4A(
 		0.25f, 0.0f, 0.0f, 0.0f,
 		0.0f, -0.25, 0.0f, 0.0f,
 		0.0f, 0.0f, 1.0f, 0.0f,
 		0.25f, 0.25f, 0.0f, 1.0f);
 
-	constexpr float4x4 m_ProjToUVCascaded1 = float4x4(
+	constexpr float4x4A m_ProjToUVCascaded1 = float4x4A(
 		0.25f, 0.0f, 0.0f, 0.0f,
 		0.0f, -0.25, 0.0f, 0.0f,
 		0.0f, 0.0f, 1.0f, 0.0f,
 		0.75f, 0.25f, 0.0f, 1.0f);
 
-	constexpr float4x4 m_ProjToUVCascaded2 = float4x4(
+	constexpr float4x4A m_ProjToUVCascaded2 = float4x4A(
 		0.25f, 0.0f, 0.0f, 0.0f,
 		0.0f, -0.25, 0.0f, 0.0f,
 		0.0f, 0.0f, 1.0f, 0.0f,
 		0.25f, 0.75f, 0.0f, 1.0f);
 
-	constexpr float4x4 m_ProjToUVCascaded3 = float4x4(
+	constexpr float4x4A m_ProjToUVCascaded3 = float4x4A(
 		0.25f, 0.0f, 0.0f, 0.0f,
 		0.0f, -0.25, 0.0f, 0.0f,
 		0.0f, 0.0f, 1.0f, 0.0f,
@@ -228,7 +228,7 @@ namespace TruthEngine
 		return camera;
 	}
 
-	float4x4 LightManager::GetShadowTransform(const ILight* light)
+	float4x4A LightManager::GetShadowTransform(const ILight* light)
 	{
 		if (auto camera = GetLightCamera(light); camera)
 		{
@@ -240,7 +240,7 @@ namespace TruthEngine
 		}
 	}
 
-	void LightManager::GetCascadedShadowTransform(const LightDirectional* light, float4x4 _outTransforms[4])
+	void LightManager::GetCascadedShadowTransform(const LightDirectional* light, float4x4A _outTransforms[4])
 	{
 		auto _Camera = light->GetCamera();
 		_outTransforms[0] = _Camera->GetViewProj(0) * m_ProjToUVCascaded0;
@@ -250,7 +250,7 @@ namespace TruthEngine
 		
 	}
 
-	void LightManager::GetCascadedShadowTransform(const CameraCascadedFrustumBase* _cameraCascaded, float4x4 _outTransforms[4])
+	void LightManager::GetCascadedShadowTransform(const CameraCascadedFrustumBase* _cameraCascaded, float4x4A _outTransforms[4])
 	{
 		_outTransforms[0] = _cameraCascaded->GetViewProj(0) * m_ProjToUVCascaded0;
 		_outTransforms[1] = _cameraCascaded->GetViewProj(1) * m_ProjToUVCascaded1;

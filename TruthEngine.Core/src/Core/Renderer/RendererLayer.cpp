@@ -91,7 +91,7 @@ namespace TruthEngine
 
 		auto activeCamera = CameraManager::GetInstance()->GetActiveCamera();
 
-		float4x4 _cascadedShadowTransforms[4];
+		float4x4A _cascadedShadowTransforms[4];
 
 		auto _lightManager = LightManager::GetInstace();
 		static auto _dirLight0 = _lightManager->GetDirectionalLight("SunLight");
@@ -469,7 +469,7 @@ namespace TruthEngine
 			});
 	}
 
-	const float3& RendererLayer::GetEnvironmentMapMultiplier() const
+	inline const float3& RendererLayer::GetEnvironmentMapMultiplier() const
 	{
 		return m_CB_EnvironmentMap->GetData()->mEnvironmentMapMultiplier;
 	}

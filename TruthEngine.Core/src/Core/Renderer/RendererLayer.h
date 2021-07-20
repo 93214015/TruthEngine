@@ -67,7 +67,7 @@ namespace TruthEngine
 		
 
 
-		bool IsEnvironmentMapEnabled()const noexcept
+		inline bool IsEnvironmentMapEnabled()const noexcept
 		{
 			return m_EnabledEnvironmentMap;
 		}

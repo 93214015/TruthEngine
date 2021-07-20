@@ -62,7 +62,7 @@ namespace TruthEngine
 
 	public:
 		VertexBuffer() = default;
-		VertexBuffer(uint32_t vertexNum, uint32_t indexNum)
+		VertexBuffer(size_t vertexNum, size_t indexNum)
 		{
 			ReserveSpace(vertexNum, indexNum);
 		}
@@ -70,14 +70,14 @@ namespace TruthEngine
 		virtual ~VertexBuffer() = default;
 
 
-		void ReserveSpace(uint32_t vertexNum)
+		void ReserveSpace(size_t vertexNum)
 		{
 			mVertexBufferStreamPos.ReserveSpace(vertexNum);
 
 			std::apply([vertexNum](auto&&... vertexStream) {((vertexStream.ReserveSpace(vertexNum)), ...); }, m_VertexStreams);
 		}
 
-		void AddSpace(uint32_t vertexNum)
+		void AddSpace(size_t vertexNum)
 		{
 			mVertexBufferStreamPos.AddSpace(vertexNum);
 
@@ -105,7 +105,7 @@ namespace TruthEngine
 		inline std::vector<VertexBufferStreamBase*> GetVertexBufferStreams() override
 		{
 			std::vector<VertexBufferStreamBase*> vs(m_VertexStreamNum);
-			uint32_t i = 0;
+			size_t i = 0;
 			vs[i++] = &mVertexBufferStreamPos;
 			((vs[i++] = &std::get<VertexBufferStream<Ts>>(m_VertexStreams)), ...);
 			return vs;
@@ -125,11 +125,11 @@ namespace TruthEngine
 
 
 	protected:
-		uint32_t m_VertexBufferResourceIndex = 0;
-		uint32_t m_IndexBufferResourceIndex = 0;
+		size_t m_VertexBufferResourceIndex = 0;
+		size_t m_IndexBufferResourceIndex = 0;
 
 	protected:
-		static constexpr uint32_t m_VertexStreamNum = (static_cast<uint32_t>(sizeof...(Ts)) + 1);
+		static constexpr uint32_t m_VertexStreamNum = static_cast<uint32_t>(sizeof...(Ts) + 1);
 
 		std::tuple<VertexBufferStream<Ts>...> m_VertexStreams;
 
@@ -138,7 +138,7 @@ namespace TruthEngine
 		// friend Classes
 		//
 		friend class BufferManager;
-		friend class API::DirectX12 ::DirectX12BufferManager;
+		friend class API::DirectX12::DirectX12BufferManager;
 
 	};
 

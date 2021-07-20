@@ -43,13 +43,8 @@ namespace TruthEngine
 
 		void Init(BufferManager* bufferManager/*, RendererCommand* rendererCommand*/);
 
-		// 			inline const std::vector<Model3D>& GetModel3D() const noexcept
-		// 			{
-		// 				return m_Models3D;
-		// 			}
 
-
-		inline void AddSpace(/*size_t Model3DNum, */size_t MeshNum)
+		inline void AddSpace(size_t MeshNum)
 		{
 			if (auto freeSpace = m_Meshes.capacity() - m_Meshes.size(); freeSpace < MeshNum)
 			{
@@ -59,13 +54,13 @@ namespace TruthEngine
 		}
 
 
-		inline void GetOffsets(size_t& outVertexOffset, size_t& outIndexOffset, /*size_t& outModelOffset,*/ size_t& outMeshOffset, TE_IDX_MESH_TYPE _MeshType)
+		inline void GetOffsets(size_t& outVertexOffset, size_t& outIndexOffset, size_t& outMeshOffset, TE_IDX_MESH_TYPE _MeshType)
 		{
 			outVertexOffset = GetVertexOffset(_MeshType);
 			outIndexOffset = m_IndexBuffer.GetIndexOffset();
-			//outModelOffset = m_Models3D.size();
 			outMeshOffset = m_Meshes.size();
 		}
+
 
 		size_t GetVertexOffset(TE_IDX_MESH_TYPE _MeshType)const noexcept;
 
@@ -75,27 +70,14 @@ namespace TruthEngine
 			return m_IndexBuffer.GetIndexOffset();
 		}
 
-		/*inline size_t GetModelOffset()const noexcept
-		{
-			return m_Models3D.size();
-		}*/
-
 		inline size_t GetMeshOffset()const noexcept
 		{
 			return m_Meshes.size();
 		}
+		
 
-		/*inline size_t GetMaterialOffset()const noexcept
-		{
-			return m_MaterialManager.GetMatrialOffset();
-		}*/
-
-
-		//Model3D* AddModel3D();
-
-		//void AddMesh(std::shared_ptr<Mesh> mesh);
-		Mesh* AddMesh(TE_IDX_MESH_TYPE _MeshType, uint32_t IndexNum, size_t IndexOffset, size_t VertexOffset, size_t vertexNum);
-		Mesh* CopyMesh(Mesh* mesh);
+		Mesh& AddMesh(TE_IDX_MESH_TYPE _MeshType, uint32_t IndexNum, size_t IndexOffset, size_t VertexOffset, size_t vertexNum);
+		Mesh& CopyMesh(const Mesh& mesh);
 
 		template<typename T>
 		T& GetVertexBuffer()
@@ -106,10 +88,14 @@ namespace TruthEngine
 		/*void ImportModel(Scene* scene, const char* filePath, std::string _ModelName);*/
 
 
-		Mesh* GeneratePrimitiveMesh(TE_PRIMITIVE_TYPE type, float size_x, float size_y, float size_z);
+		Mesh& GeneratePrimitiveMesh(TE_PRIMITIVE_TYPE type, float size_x, float size_y, float size_z);
 		void GenerateEnvironmentMesh(Mesh** outMesh);
 
 		void InitVertexAndIndexBuffer();
+
+
+		BoundingAABox GenerateBoundingAABox(Mesh* _Mesh) const;
+
 	protected:
 
 		inline uint32_t GenerateMeshID()

@@ -36,7 +36,7 @@ namespace TruthEngine
 			return m_physicsActor;
 		}
 
-		const float4x4& GetTranform() const
+		const float4x4A& GetTranform() const
 		{
 			return m_Transform;
 		}
@@ -47,10 +47,10 @@ namespace TruthEngine
 	private:
 
 	private:
+		float4x4A m_Transform = IdentityMatrix;
+		float4x4A m_Scale = IdentityMatrix;
 		physx::PxRigidDynamic* m_physicsActor = nullptr;
 		physx::PxTransform m_PxTransform;
-		float4x4 m_Transform = IdentityMatrix;
-		float4x4 m_Scale = IdentityMatrix;
 	};
 
 }

@@ -41,7 +41,7 @@ namespace TruthEngine
 			Math::Normalize(Direction);
 		}
 
-		float4x4 ShadowTransform = IdentityMatrix;
+		float4x4A ShadowTransform = IdentityMatrix;
 
 		float3 Strength;
 		float LightSize;

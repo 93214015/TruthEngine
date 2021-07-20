@@ -64,7 +64,7 @@ namespace TruthEngine
 		RendererCommand mRendererCommand_BlurPassVert;
 		RendererCommand mRendererCommand_FinalPass;
 
-		struct ConstantBuffer_Data_DownScaling
+		struct alignas(16) ConstantBuffer_Data_DownScaling
 		{
 			ConstantBuffer_Data_DownScaling() = default;
 			ConstantBuffer_Data_DownScaling(uint32_t _ScreenQuarterSizeReolutionWidth, uint32_t _ScreenQuarterSizeReolutionHeight, uint32_t _Domain, uint32_t _GroupNum, float _Adaption, float _BloomThreshold)
@@ -82,7 +82,7 @@ namespace TruthEngine
 			float2 Pad;
 		};
 
-		struct ConstantBuffer_Data_FinalPass
+		struct alignas(16) ConstantBuffer_Data_FinalPass
 		{
 			ConstantBuffer_Data_FinalPass()
 				: mMiddleGrey(0.0025f), mLumWhiteSqr(1.5f), mBloomScale(1.0f)
@@ -113,7 +113,7 @@ namespace TruthEngine
 			float2 mDOFFarValues;
 		};
 
-		struct ConstantBuffer_Data_BlurPass
+		struct alignas(16) ConstantBuffer_Data_BlurPass
 		{
 			ConstantBuffer_Data_BlurPass(uint32_t _InputResWidth, uint32_t _InputResHeight)
 				: mInputResWidth(_InputResWidth), mInputResHeight(_InputResHeight)

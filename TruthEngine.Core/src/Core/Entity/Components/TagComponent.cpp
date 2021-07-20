@@ -3,13 +3,10 @@
 
 namespace TruthEngine
 {
-	TagComponent::TagComponent(const std::string& tag)
-		: m_Tag(tag)
-	{}
 
 	TagComponent::TagComponent(const char* tag)
-		: m_Tag(tag)
 	{
+		strcpy_s(m_Tag, strlen(tag), tag);
 	}
 
 	TagComponent::TagComponent() = default;

@@ -47,14 +47,14 @@ namespace TruthEngine
 		DepthStencilView m_DepthStencilView;
 
 
-		struct ConstantBuffer_Data_PerObject
+		struct alignas(16) ConstantBuffer_Data_PerObject
 		{
 
-			ConstantBuffer_Data_PerObject(const float4x4& _WorldTransform)
+			ConstantBuffer_Data_PerObject(const float4x4A& _WorldTransform)
 				: mWorldTransform(_WorldTransform)
 			{}
 
-			float4x4 mWorldTransform;
+			float4x4A mWorldTransform;
 
 			float4 mExtents;
 		};

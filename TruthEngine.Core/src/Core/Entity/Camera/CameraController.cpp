@@ -123,11 +123,11 @@ namespace TruthEngine
 
 				if (Entity _SelectedEntity = _Scene->GetSelectedEntity(); _SelectedEntity)
 				{
-					_RotationOrigin = _RotationOrigin + _SelectedEntity.GetComponent<TransformComponent>().GetWorldCenterOffset();
-					_RotationOrigin = _RotationOrigin + _Scene->GetTranslateHierarchy(_SelectedEntity);
+					//_RotationOrigin = _RotationOrigin + _SelectedEntity.GetComponent<TransformComponent>().GetWorldCenterOffset();
+					_RotationOrigin += _Scene->GetTranslateHierarchy(_SelectedEntity);
 				}
 
-				float4x4 _Transform = Math::TransformMatrixRotation(dx_angle, float3{ .0f, 1.0f, .0f }, _RotationOrigin);
+				float4x4A _Transform = Math::TransformMatrixRotation(dx_angle, float3{ .0f, 1.0f, .0f }, _RotationOrigin);
 				_Transform = _Transform * Math::TransformMatrixRotation(dy_angle, m_Camera->m_Right, _RotationOrigin);
 
 				m_Camera->m_Position = Math::TransformPoint(m_Camera->m_Position, _Transform);

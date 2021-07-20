@@ -67,28 +67,28 @@ namespace TruthEngine
 		BufferManager* m_BufferManager;
 		LightManager* m_LightManager;
 
-		struct ConstantBuffer_Data_Per_Mesh
+		struct alignas(16) ConstantBuffer_Data_Per_Mesh
 		{
 			ConstantBuffer_Data_Per_Mesh()
 				: mWorldMatrix(IdentityMatrix)
 			{}
-			ConstantBuffer_Data_Per_Mesh(const float4x4& world)
+			ConstantBuffer_Data_Per_Mesh(const float4x4A& world)
 				: mWorldMatrix(world)
 			{}
 
-			float4x4 mWorldMatrix;
+			float4x4A mWorldMatrix;
 		};
 
 
-		struct ConstantBuffer_Data_Per_Light
+		struct alignas(16) ConstantBuffer_Data_Per_Light
 		{
 			ConstantBuffer_Data_Per_Light()
 			{}
-			ConstantBuffer_Data_Per_Light(const float4x4& viewProj)
+			ConstantBuffer_Data_Per_Light(const float4x4A& viewProj)
 				: mLightViewProj(viewProj)
 			{}
 
-			float4x4 mLightViewProj;
+			float4x4A mLightViewProj;
 		};
 
 		ConstantBufferDirect<ConstantBuffer_Data_Per_Mesh>* m_ConstantBufferDirect_PerMesh;

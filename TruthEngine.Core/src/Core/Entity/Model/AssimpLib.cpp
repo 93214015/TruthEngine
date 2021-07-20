@@ -54,7 +54,6 @@ namespace TruthEngine
 		if (aiscene == nullptr)
 			throw;
 
-		auto meshOffset = m_ModelManager->m_Meshes.size();
 
 		TE_IDX_MESH_TYPE _MeshType = TE_IDX_MESH_TYPE::MESH_NTT;
 		if (aiscene->HasAnimations())
@@ -79,6 +78,7 @@ namespace TruthEngine
 			auto t = assimpTimer.GetTotalTime();
 			TE_LOG_CORE_INFO("Import Model: Process Textures toke {0} ms", t);
 		}
+
 		{
 			assimpTimer.Start();
 			ProcessMaterials(aiscene, _MeshType);
@@ -461,11 +461,11 @@ namespace TruthEngine
 				}
 			}
 
-			Mesh* _Mesh = m_ModelManager->AddMesh(TE_IDX_MESH_TYPE::MESH_NTT, indexNum, indexOffset, vertexOffset, aimesh->mNumVertices);
+			Mesh& _Mesh = m_ModelManager->AddMesh(TE_IDX_MESH_TYPE::MESH_NTT, indexNum, indexOffset, vertexOffset, aimesh->mNumVertices);
 			Material* _Material = m_MaterialManager->GetMaterial(aimesh->mMaterialIndex + m_MaterialOffset);
 			const char* _MeshName = aimesh->mName.C_Str();
 
-			_MeshCollection.emplace_back(_MeshName, _Mesh, _Material, nullptr);
+			_MeshCollection.emplace_back(_MeshName, &_Mesh, _Material, nullptr);
 
 			//_MeshEntities.emplace_back(AddMeshEntity(meshName, mesh, material, scene, IdentityMatrix));
 
@@ -580,11 +580,11 @@ namespace TruthEngine
 				}
 			}
 
-			auto mesh = m_ModelManager->AddMesh(TE_IDX_MESH_TYPE::MESH_SKINNED, indexNum, indexOffset, vertexOffset, aimesh->mNumVertices);
-			auto material = m_MaterialManager->GetMaterial(aimesh->mMaterialIndex + m_MaterialOffset);
+			Mesh& mesh = m_ModelManager->AddMesh(TE_IDX_MESH_TYPE::MESH_SKINNED, indexNum, indexOffset, vertexOffset, aimesh->mNumVertices);
+			Material* material = m_MaterialManager->GetMaterial(aimesh->mMaterialIndex + m_MaterialOffset);
 			const char* meshName = aimesh->mName.C_Str();
 
-			_MeshCollection.emplace_back(meshName, mesh, material, m_LoadedAnimation);
+			_MeshCollection.emplace_back(meshName, &mesh, material, m_LoadedAnimation);
 
 			//_MeshEntities.emplace_back(AddMeshEntity(meshName, mesh, material, scene, IdentityMatrix));
 

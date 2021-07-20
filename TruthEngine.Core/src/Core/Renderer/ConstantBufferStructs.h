@@ -4,23 +4,23 @@
 
 namespace TruthEngine {
 
-	struct ConstantBuffer_Data_Per_Frame
+	struct alignas(16) ConstantBuffer_Data_Per_Frame
 	{
-		ConstantBuffer_Data_Per_Frame(const float4x4& viewProj, const float3& eyePos, const float4x4 cascadedShadowTransforms[4])
+		ConstantBuffer_Data_Per_Frame(const float4x4A& viewProj, const float3& eyePos, const float4x4A cascadedShadowTransforms[4])
 			: ViewProj(viewProj), EyePos(eyePos)
 		{
-			memcpy(CascadedShadowTransforms, cascadedShadowTransforms, 4 * sizeof(float4x4));
+			memcpy(CascadedShadowTransforms, cascadedShadowTransforms, 4 * sizeof(float4x4A));
 		}
 
-		float4x4 ViewProj;
+		float4x4A ViewProj;
 
 		float3 EyePos{0.0f, 0.0f, 0.0f};
 		float pad = 0.0f;
 
-		float4x4 CascadedShadowTransforms[4];
+		float4x4A CascadedShadowTransforms[4];
 	};
 
-	struct ConstantBuffer_Data_UnFrequent
+	struct alignas(16) ConstantBuffer_Data_UnFrequent
 	{
 		ConstantBuffer_Data_UnFrequent()
 			: mDLightCount(0), mSLightCount(0) , mEnabledEnvironmentMap(1), mAmbientLightStrength(.5f, .5f, .5f)
@@ -39,7 +39,7 @@ namespace TruthEngine {
 		float mPad1 = 0.0f;
 	};
 
-	struct ConstantBuffer_Struct_DLight
+	struct alignas(16) ConstantBuffer_Struct_DLight
 	{
 		ConstantBuffer_Struct_DLight() = default;
 		ConstantBuffer_Struct_DLight(const float3& strength, float lightSize, const float3& direction, uint32_t castShadow, const float3& position)
@@ -56,11 +56,11 @@ namespace TruthEngine {
 		float Pad0;
 	};
 
-	struct ConstantBuffer_Struct_SLight
+	struct alignas(16) ConstantBuffer_Struct_SLight
 	{
 		ConstantBuffer_Struct_SLight() = default;
 		ConstantBuffer_Struct_SLight(
-			const float4x4& _ShadowTransform,
+			const float4x4A& _ShadowTransform,
 			const float3& _Strength, 
 			const float _LightSize, 
 			const float3& _Direction, 
@@ -83,7 +83,7 @@ namespace TruthEngine {
 			mOuterConeAngleRangeCosRcp(_OuterConeAngleRangeRcp)
 		{}
 
-		float4x4 mShadowTransform;
+		float4x4A mShadowTransform;
 
 		float3 mStrength;
 		float mLightSize;
@@ -100,13 +100,13 @@ namespace TruthEngine {
 		float Pad0;
 	};
 
-	struct ConstantBuffer_Data_LightData
+	struct alignas(16) ConstantBuffer_Data_LightData
 	{
 		ConstantBuffer_Struct_DLight mDLights[1];
 		ConstantBuffer_Struct_SLight mSLights[1];
 	};
 
-	struct ConstantBuffer_Data_Materials
+	struct alignas(16) ConstantBuffer_Data_Materials
 	{
 		struct Material {
 			Material() = default;
@@ -132,12 +132,12 @@ namespace TruthEngine {
 		Material MaterialArray[100];
 	};
 
-	struct ConstantBuffer_Data_Bones
+	struct alignas(16) ConstantBuffer_Data_Bones
 	{
-		float4x4 mBones[256];
+		float4x4A mBones[256];
 	};
 
-	struct ConstantBuffer_Data_EnvironmentMap
+	struct alignas(16) ConstantBuffer_Data_EnvironmentMap
 	{
 		ConstantBuffer_Data_EnvironmentMap()
 			: mEnvironmentMapMultiplier(float3(1.0f, 1.0f, 1.0f))

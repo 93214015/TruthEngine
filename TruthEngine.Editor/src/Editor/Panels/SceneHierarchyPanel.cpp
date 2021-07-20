@@ -30,7 +30,7 @@ namespace TruthEngine
 		}
 		if (auto _selectedEntity = m_Context->GetSelectedEntity(); _selectedEntity)
 		{
-			ImGui::Text("Selected Entity: %s", _selectedEntity.GetComponent<TagComponent>().GetTag().c_str());
+			ImGui::Text("Selected Entity: %s", _selectedEntity.GetComponent<TagComponent>().GetTag());
 		}
 		ImGui::PopStyleColor(3);
 
@@ -173,7 +173,7 @@ namespace TruthEngine
 		{
 			auto& tag = m_Context->GetComponent<TagComponent>(entity);
 
-			auto is_open = ImGui::TreeNodeEx(tag.GetTag().c_str(), flags | (entity == m_Context->GetSelectedEntity() ? ImGuiTreeNodeFlags_Selected : 0));
+			auto is_open = ImGui::TreeNodeEx(tag.GetTag(), flags | (entity == m_Context->GetSelectedEntity() ? ImGuiTreeNodeFlags_Selected : 0));
 
 			if (ImGui::IsItemClicked())
 			{
@@ -193,7 +193,7 @@ namespace TruthEngine
 					{
 						auto& _MeshTag = m_Context->GetComponent<TagComponent>(_MeshEntity);
 
-						if (ImGui::TreeNodeEx(_MeshTag.GetTag().c_str(), flags | (_MeshEntity == m_Context->GetSelectedEntity() ? ImGuiTreeNodeFlags_Selected : 0)))
+						if (ImGui::TreeNodeEx(_MeshTag.GetTag(), flags | (_MeshEntity == m_Context->GetSelectedEntity() ? ImGuiTreeNodeFlags_Selected : 0)))
 						{
 							ImGui::TreePop();
 						}
@@ -429,7 +429,7 @@ namespace TruthEngine
 		{
 			auto& tag = m_Context->GetComponent<TagComponent>(entity);
 
-			auto is_open = ImGui::TreeNodeEx(tag.GetTag().c_str(), flags | (entity == m_Context->GetSelectedEntity() ? ImGuiTreeNodeFlags_Selected : 0));
+			auto is_open = ImGui::TreeNodeEx(tag.GetTag(), flags | (entity == m_Context->GetSelectedEntity() ? ImGuiTreeNodeFlags_Selected : 0));
 
 			if (ImGui::IsItemClicked())
 			{
@@ -487,7 +487,7 @@ namespace TruthEngine
 		{
 			auto& tag = m_Context->GetComponent<TagComponent>(lightEntity);
 
-			auto is_open = ImGui::TreeNodeEx(tag.GetTag().c_str(), flags | (lightEntity == m_Context->GetSelectedEntity() ? ImGuiTreeNodeFlags_Selected : 0));
+			auto is_open = ImGui::TreeNodeEx(tag.GetTag(), flags | (lightEntity == m_Context->GetSelectedEntity() ? ImGuiTreeNodeFlags_Selected : 0));
 
 			if (ImGui::IsItemClicked())
 			{
@@ -513,9 +513,9 @@ namespace TruthEngine
 	{
 		for (auto& childNode : childrenNodes)
 		{
-			auto meshTag = m_Context->GetComponent<TagComponent>(childNode.mEntity).GetTag();
+			const char* meshTag = m_Context->GetComponent<TagComponent>(childNode.mEntity).GetTag();
 
-			auto is_open = ImGui::TreeNodeEx(meshTag.c_str(), flags | (childNode.mEntity == m_Context->GetSelectedEntity() ? ImGuiTreeNodeFlags_Selected : 0));
+			bool is_open = ImGui::TreeNodeEx(meshTag, flags | (childNode.mEntity == m_Context->GetSelectedEntity() ? ImGuiTreeNodeFlags_Selected : 0));
 
 			if (ImGui::IsItemClicked())
 			{
