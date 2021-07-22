@@ -140,7 +140,7 @@ namespace TruthEngine
 				const BoundingAABox& _AABB = GetComponent<BoundingBoxComponent>(m_SelectedEntity).GetBoundingBox();
 				const float4x4A& _transformOffset = GetComponent<TransformComponent>(m_SelectedEntity).GetTransform();
 				_Trans._41 += _transformOffset._41;
-				_Trans._42 += _transformOffset._42 + (_AABB.Extents.y * 2.0);
+				_Trans._42 += _transformOffset._42 + (_AABB.Extents.y + 20.0f);
 				_Trans._43 += _transformOffset._43;
 
 				float3 _v{ 0.0f, 1.0f, 0.0f };
@@ -446,7 +446,8 @@ namespace TruthEngine
 
 		for (ImportedMeshMaterials& _Data : _ImportedData)
 		{
-			const auto& _MeshAABB = _Data.mMesh->GetBoundingBox();
+
+			//BoundingAABox _MeshAABB = 
 			const float3 _WorldCenterOffset = _MeshAABB.Center;
 			Entity _MeshEntity = AddMeshEntity(_Data.mName.c_str(), IdentityMatrix, _Data.mMesh, _Data.mMaterial, _ModelEntity);
 
@@ -463,6 +464,7 @@ namespace TruthEngine
 			{
 				BoundingAABox::CreateMerged(_ModelAABB, _ModelAABB, _MeshAABB);
 			}
+
 		}
 	}
 

@@ -162,7 +162,7 @@ namespace TruthEngine
 
 		void RegisterEventListener();
 		void OnEventKeyPressed(EventKeyReleased& _event);
-		
+
 
 	private:
 		float4x4A GetParentTransforms(Entity parent);
