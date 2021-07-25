@@ -28,11 +28,10 @@ namespace TruthEngine
 
 		void Init();
 
-		Entity AddEntity(const char* entityTag, Entity parent, const float4x4A& transform = IdentityMatrix /*, const float3& _WorldCenterOffset = float3{ .0f, .0f,.0f }*/);
-		Entity AddEntity(const char* entityTag, const float4x4A& transform = IdentityMatrix /*, const float3& _WorldCenterOffset = float3{ .0f, .0f,.0f }*/);
+		Entity AddEntity(const char* _EntityTag, const float4x4A& _Transform = IdentityMatrix, const Entity* _ParentEntity = nullptr);
 
-		Entity AddMeshEntity(const char* _MeshName, const float4x4A& _Transform, const Mesh& _Mesh, Material* _Material, Entity _ModelEntity);
-		Entity AddPrimitiveMesh(const char* _MeshName, TE_PRIMITIVE_TYPE _PrimitiveType, const float3& _PrimitiveSize, Entity _ModelEntity);
+		Entity AddMeshEntity(const char* _MeshName, const float4x4A& _Transform, const Mesh& _Mesh, Material* _Material, const Entity* _ParentEntity);
+		Entity AddPrimitiveMesh(const char* _MeshName, TE_PRIMITIVE_TYPE _PrimitiveType, const float3& _PrimitiveSize, const Entity* _ParentEntity);
 		Entity AddEnvironmentEntity();
 
 		Entity AddLightEntity_Directional(
@@ -58,11 +57,11 @@ namespace TruthEngine
 			const float _OuterConeAngle
 		);
 
-		Entity AddModelEntity(const char* modelName, const float4x4A& transform);
+		//Entity AddModelEntity(const char* modelName, const float4x4A& transform);
 
 		Entity CopyMeshEntity(Entity meshsEntity);
 
-		void ImportModel(const char* filePath, std::string _ModelName);
+		void ImportModel(const char* filePath, Entity* _ParentEntity);
 
 		template<class... Ts>
 		auto GroupEntities()
@@ -85,8 +84,20 @@ namespace TruthEngine
 			return m_Registery.get<T>(entityHandler);
 		}
 
+		template<class T, typename... Args>
+		inline T& AddComponent(Entity _Entity, Args&&... _Args)
+		{
+			return m_Registery.emplace<T>(_Entity.m_EntityHandle, std::forward<Args>(_Args)...);
+		}
+
+		template<class T>
+		inline bool RemoveComponent(Entity _Entity)
+		{
+			m_Registery.remove<T>(_Entity.m_EntityHandle);
+		}
+
 		template<typename T>
-		bool HasComponent(entt::entity entityHandler)
+		bool HasComponent(entt::entity entityHandler) const
 		{
 			std::scoped_lock<std::mutex> lock(m_Mutex);
 			return m_Registery.has<T>(entityHandler);
@@ -109,7 +120,7 @@ namespace TruthEngine
 
 		inline void SelectEntity(entt::entity entityHandle)
 		{
-			m_SelectedEntity = Entity(this, entityHandle);
+			m_SelectedEntity = Entity(entityHandle);
 		}
 
 		inline void ClearSelectedEntity()
@@ -117,10 +128,10 @@ namespace TruthEngine
 			m_SelectedEntity = {};
 		}
 
-		Entity GetModelEntity(Entity _Entity);
-		Entity GetParent(const Entity _Entity) const;
-		std::vector<Entity> GetChildrenEntity(Entity entity);
-		std::vector<Entity> GetChildrenEntity(entt::entity entityHandler);
+		//Entity GetModelEntity(Entity _Entity);
+		Entity* GetParent(Entity _Entity);
+		//std::vector<Entity> GetChildrenEntity(Entity entity);
+		//std::vector<Entity> GetChildrenEntity(entt::entity entityHandler);
 
 		inline std::vector<EntityNode>& GetChildrenNodes(Entity entity)
 		{
@@ -134,6 +145,9 @@ namespace TruthEngine
 		std::vector<Entity> GetAncestor(const Entity entity);
 		std::vector<Entity> GetAncestor(entt::entity entityHandler);
 
+		void AttachEntity(Entity Parent, Entity Attached);
+		void DetachEntity(Entity Parent, Entity Detached);
+
 		float4x4A GetTransformHierarchy(Entity entity);
 		float4x4A GetTransformHierarchy(entt::entity entityHandler);
 
@@ -146,12 +160,7 @@ namespace TruthEngine
 		const BoundingAABox& GetBoundingBox() const noexcept;
 		void UpdateBoundingBox(const BoundingAABox& _boundingBox);
 
-		inline bool HasParent(const Entity& entity)
-		{
-			auto itr = m_EntityTree.m_Tree.find(entity);
-			auto parentEntity = itr->second.mParent;
-			return parentEntity;
-		}
+		bool HasParent(const Entity& entity) const;
 
 		float3 GetPosition(Entity entity);
 		float3 GetPosition(entt::entity entityHandle);
@@ -162,6 +171,8 @@ namespace TruthEngine
 
 		void RegisterEventListener();
 		void OnEventKeyPressed(EventKeyReleased& _event);
+
+		void OnUpdate(float DeltaTime);
 
 
 	private:
@@ -183,6 +194,8 @@ namespace TruthEngine
 		std::mutex m_Mutex;
 
 		LightManager* m_LightManager;
+
+		std::vector<std::pair<Entity, Entity>> m_LeaderUpdated;
 
 		//
 		//Friend Classes

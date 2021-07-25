@@ -351,11 +351,11 @@ namespace TruthEngine
 
 		if (_LinearVelocity.has_value())
 		{
-			actorDynamic->setLinearVelocity(_LinearVelocity.value());
+			actorDynamic->setLinearVelocity(*_LinearVelocity);
 		}
 		if (_AngularVelocity.has_value())
 		{
-			actorDynamic->setAngularVelocity(_AngularVelocity.value());
+			actorDynamic->setAngularVelocity(*_AngularVelocity);
 		}
 		//PxRigidBodyExt::updateMassAndInertia(*actorDynamic, 1000.0f);
 

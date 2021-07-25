@@ -22,7 +22,7 @@ namespace TruthEngine
 
 	AssimpLib::~AssimpLib() = default;
 
-	std::vector<ImportedMeshMaterials> AssimpLib::ImportModel(const char* filePath, const char* _ModelName)
+	std::vector<ImportedMeshMaterials> AssimpLib::ImportModel(const char* filePath)
 	{
 		TE_TIMER_SCOPE_FUNC;
 

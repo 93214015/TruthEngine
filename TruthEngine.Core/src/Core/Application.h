@@ -37,7 +37,7 @@ namespace TruthEngine {
 
 		inline const char* GetTitle() const noexcept { return m_Title.c_str(); }
 
-		inline Scene* GetActiveScene()
+		static inline Scene* GetActiveScene()
 		{
 			return &m_ActiveScene;
 		}
@@ -86,7 +86,7 @@ namespace TruthEngine {
 
 		TimerEngine m_Timer;
 
-		Scene m_ActiveScene;
+		static Scene m_ActiveScene;
 
 		uint32_t m_ClientWidth;
 		uint32_t m_ClientHeight;

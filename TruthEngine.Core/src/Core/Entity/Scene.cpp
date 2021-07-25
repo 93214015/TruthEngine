@@ -6,6 +6,8 @@
 #include "Core/Event/EventKey.h"
 
 #include "Core/Entity/Components.h"
+#include "Core/Entity/Components/ParentComponent.h"
+#include "Core/Entity/Components/AttachedComponent.h"
 #include "Core/Entity/Model/ModelManager.h" // Mesh and Material Included
 #include "Core/Entity/Model/AssimpLib.h"
 #include "Core/Entity/Light/LightManager.h"
@@ -24,50 +26,73 @@ namespace TruthEngine
 
 	void Scene::Init()
 	{
-		m_ModelShootedBall = AddModelEntity("ShootedBallModel", IdentityMatrix);
+		m_ModelShootedBall = AddEntity("ShootedBallModel", IdentityMatrix);
 		RegisterEventListener();
 	}
 
-	Entity Scene::AddEntity(const char* entityTag, Entity parent, const float4x4A& tranform /*, const float3& _WorldCenterOffset*/)
+	Entity Scene::AddEntity(const char* _EntityTag, const float4x4A& _Transform, const Entity* _ParentEntity)
 	{
-		Entity entity(this);
-		entity.AddComponent<TransformComponent>(tranform /*, _WorldCenterOffset*/);
-		entity.AddComponent<TagComponent>(entityTag);
-		m_EntityTree.AddNode(entity, parent);
+		Entity entity;
+
+
+		float4x4A _NewTransform = _Transform;
+		if (m_SelectedEntity)
+		{
+			if (HasComponent<BoundingBoxComponent>(m_SelectedEntity))
+			{
+				const BoundingAABox& _AABB = GetComponent<BoundingBoxComponent>(m_SelectedEntity).GetBoundingBox();
+				const float4x4A& _transformOffset = GetComponent<TransformComponent>(m_SelectedEntity).GetTransform();
+				_NewTransform._41 += _transformOffset._41;
+				_NewTransform._42 += _transformOffset._42 + (_AABB.Extents.y + 10.0f);
+				_NewTransform._43 += _transformOffset._43;
+
+				float3 _v{ 0.0f, 1.0f, 0.0f };
+
+				_v = Math::TransformVector(_v, _transformOffset);
+
+				_NewTransform._41 += _v.x;
+				_NewTransform._42 += _v.y;
+				_NewTransform._43 += _v.z;
+			}
+		}
+
+		entity.AddComponent<TransformComponent>(_NewTransform /*, _WorldCenterOffset*/);
+		entity.AddComponent<TagComponent>(_EntityTag);
+
+		if (_ParentEntity != nullptr)
+		{
+			entity.AddComponent<LeaderComponent>(_ParentEntity);
+		}
+
 		return entity;
 	}
 
-	TruthEngine::Entity Scene::AddEntity(const char* entityTag, const float4x4A& tranform /*, const float3& _WorldCenterOffset*/)
+	Entity Scene::AddMeshEntity(const char* _MeshName, const float4x4A& _Transform, const Mesh& _Mesh, Material* _Material, const Entity* _ParentEntity)
 	{
-		Entity entity(this);
-		entity.AddComponent<TransformComponent>(tranform);
-		entity.AddComponent<TagComponent>(entityTag);
-		m_EntityTree.AddNode(entity);
-		return entity;
-	}
-
-	Entity Scene::AddMeshEntity(const char* _MeshName, const float4x4A& _Transform, const Mesh& _Mesh, Material* _Material, Entity _ModelEntity)
-	{
-		auto entity_mesh = AddEntity(_MeshName, _ModelEntity, _Transform);
+		auto entity_mesh = AddEntity(_MeshName, _Transform, _ParentEntity);
 		entity_mesh.AddComponent<MeshComponent>(_Mesh);
 		entity_mesh.AddComponent<MaterialComponent>(_Material);
 
-		//Add BoundignAABoxComponent and get the bounding box
+		/*Add BoundignAABoxComponentand get the bounding box*/
 		const BoundingAABox& _meshAABB = entity_mesh.AddComponent<BoundingBoxComponent>(_Mesh).GetBoundingBox();
 
-		GetComponent<ModelComponent>(_ModelEntity).AddMeshEntity(entity_mesh);
+		//GetComponent<ModelComponent>(_ParentEntity).AddMeshEntity(entity_mesh);
 
 		BoundingAABox _transformedAABB;
 		_meshAABB.Transform(_transformedAABB, XMLoadFloat4x4A(&_Transform));
 
-		BoundingAABox& _ModelAABB = GetComponent<BoundingBoxComponent>(_ModelEntity).GetBoundingBox();
-		if (_ModelAABB.Extents == float3{ 1.0f, 1.0f, 1.0f })
+		/*Entity _Parent = *_ParentEntity;*/
+		if (_ParentEntity != nullptr)
 		{
-			_ModelAABB = _transformedAABB;
-		}
-		else
-		{
-			BoundingAABox::CreateMerged(_ModelAABB, _ModelAABB, _transformedAABB);
+			BoundingAABox& _ParentAABB = GetComponent<BoundingBoxComponent>(*_ParentEntity).GetBoundingBox();
+			if (_ParentAABB.Extents == float3{ 1.0f, 1.0f, 1.0f })
+			{
+				_ParentAABB = _transformedAABB;
+			}
+			else
+			{
+				BoundingAABox::CreateMerged(_ParentAABB, _ParentAABB, _transformedAABB);
+			}
 		}
 
 		if (m_BoundingBox.Extents == float3{ 1.0f, 1.0f, 1.0f })
@@ -82,15 +107,14 @@ namespace TruthEngine
 		return entity_mesh;
 	}
 
-	Entity Scene::AddPrimitiveMesh(const char* _MeshName, TE_PRIMITIVE_TYPE _PrimitiveType, const float3& _PrimitiveSize, Entity _ModelEntity)
+	Entity Scene::AddPrimitiveMesh(const char* _MeshName, TE_PRIMITIVE_TYPE _PrimitiveType, const float3& _PrimitiveSize, const Entity* _ParentEntity)
 	{
 		const Mesh& _Mesh = TE_INSTANCE_MODELMANAGER->GeneratePrimitiveMesh(_PrimitiveType, _PrimitiveSize.x, _PrimitiveSize.y, _PrimitiveSize.z);
 		Material* _Material = TE_INSTANCE_MATERIALMANAGER->AddDefaultMaterial(TE_IDX_MESH_TYPE::MESH_NTT);
-		return AddMeshEntity(_MeshName, IdentityMatrix, _Mesh, _Material, _ModelEntity);
+		return AddMeshEntity(_MeshName, IdentityMatrix, _Mesh, _Material, _ParentEntity);
 	}
 
-
-	TruthEngine::Entity Scene::AddEnvironmentEntity()
+	Entity Scene::AddEnvironmentEntity()
 	{
 		auto entity_environment = AddEntity("EnvironmentSphere");
 
@@ -127,7 +151,7 @@ namespace TruthEngine
 		return entityLight;
 	}
 
-	Entity Scene::AddModelEntity(const char* modelName, const float4x4A& _Transform)
+	/*Entity Scene::AddModelEntity(const char* modelName, const float4x4A& _Transform)
 	{
 		//
 		///Here we are trying to place new Mesh near the selected entity
@@ -164,9 +188,9 @@ namespace TruthEngine
 
 		return _ModelEntity;
 
-	}
+	}*/
 
-	std::vector<TruthEngine::Entity> Scene::GetAncestor(const Entity entity)
+	std::vector<Entity> Scene::GetAncestor(const Entity entity)
 	{
 		std::vector<Entity> ancestors;
 
@@ -184,7 +208,7 @@ namespace TruthEngine
 		return ancestors;
 	}
 
-	std::vector<TruthEngine::Entity> Scene::GetAncestor(entt::entity entityHandler)
+	std::vector<Entity> Scene::GetAncestor(entt::entity entityHandler)
 	{
 		std::vector<Entity> ancestors;
 
@@ -331,6 +355,15 @@ namespace TruthEngine
 		BoundingAABox::CreateMerged(m_BoundingBox, m_BoundingBox, _boundingBox);
 	}
 
+	bool Scene::HasParent(const Entity& entity) const
+	{
+		/*auto itr = m_EntityTree.m_Tree.find(entity);
+		auto parentEntity = itr->second.mParent;
+		return parentEntity;*/
+
+		return HasComponent<LeaderComponent>(entity);
+	}
+
 	float4x4A Scene::GetParentTransforms(Entity parent)
 	{
 		if (!parent)
@@ -351,7 +384,7 @@ namespace TruthEngine
 		return GetParentTransforms(m_EntityTree.m_Tree.find(static_cast<uint32_t>(parentHandler))->second.mParent) * t;
 	}
 
-	Entity Scene::GetModelEntity(Entity _Entity)
+	/*Entity Scene::GetModelEntity(Entity _Entity)
 	{
 		if (HasComponent<ModelComponent>(_Entity))
 		{
@@ -359,23 +392,62 @@ namespace TruthEngine
 		}
 		else
 		{
-			return GetParent(_Entity);
+			return *GetParent(_Entity);
 		}
-	}
+	}*/
 
-	Entity Scene::GetParent(const Entity _Entity) const
+	Entity* Scene::GetParent(Entity _Entity)
 	{
 
-		const auto _Itr = m_EntityTree.m_Tree.find(_Entity);
+		/*const auto _Itr = m_EntityTree.m_Tree.find(_Entity);
 		if (_Itr != m_EntityTree.m_Tree.cend())
 		{
 			return _Itr->second.mParent;
+		}*/
+
+		if (HasComponent<LeaderComponent>(_Entity))
+		{
+			return &(GetComponent<LeaderComponent>(_Entity).m_Entity);
 		}
 
-		return Entity();
+		return nullptr;
 	}
 
-	std::vector<Entity> Scene::GetChildrenEntity(Entity entity)
+	void Scene::AttachEntity(Entity _Parent, Entity _Attached)
+	{
+		AttachedComponent* _AttachedComponent = nullptr;
+		if (HasComponent<AttachedComponent>(_Parent))
+		{
+			_AttachedComponent = &GetComponent<AttachedComponent>(_Parent);
+		}
+		else
+		{
+			_AttachedComponent = &AddComponent<AttachedComponent>(_Parent);
+		}
+
+		_AttachedComponent->AttachedEntities.push_back(_Attached);
+	}
+
+	void Scene::DetachEntity(Entity _Parent, Entity _Detached)
+	{
+
+		if (!HasComponent<AttachedComponent>(_Parent))
+		{
+			return;
+		}
+
+		auto& _AttachedEntites = GetComponent<AttachedComponent>(_Parent).AttachedEntities;
+
+		std::remove_if(_AttachedEntites.begin(), _AttachedEntites.end(), [_Detached](Entity _Entity) { return _Entity == _Detached; });
+
+		if (_AttachedEntites.size() == 0)
+		{
+			RemoveComponent<AttachedComponent>(_Parent);
+		}
+
+	}
+
+	/*std::vector<Entity> Scene::GetChildrenEntity(Entity entity)
 	{
 		std::vector<Entity> r;
 
@@ -385,9 +457,9 @@ namespace TruthEngine
 		}
 
 		return r;
-	}
+	}*/
 
-	std::vector<Entity> Scene::GetChildrenEntity(entt::entity entityHandler)
+	/*std::vector<Entity> Scene::GetChildrenEntity(entt::entity entityHandler)
 	{
 		std::vector<Entity> r;
 
@@ -397,9 +469,9 @@ namespace TruthEngine
 		}
 
 		return r;
-	}
+	}*/
 
-	TruthEngine::Entity Scene::CopyMeshEntity(Entity meshEntity)
+	Entity Scene::CopyMeshEntity(Entity meshEntity)
 	{
 		static uint32_t s_copyIndex = 0;
 
@@ -419,13 +491,13 @@ namespace TruthEngine
 		//const float3& _worldCenterOffset = _TransformComponent.GetWorldCenterOffset();
 
 		const Mesh& mesh = meshEntity.GetComponent<MeshComponent>().GetMesh();
-		auto newMesh = TE_INSTANCE_MODELMANAGER->CopyMesh(mesh);
+		//auto newMesh = TE_INSTANCE_MODELMANAGER->CopyMesh(mesh);
 		auto material = meshEntity.GetComponent<MaterialComponent>().GetMaterial();
 		auto newMaterial = TE_INSTANCE_MATERIALMANAGER->AddMaterial(material);
 
-		Entity _ModelEntity = GetParent(meshEntity);
+		Entity* _ParentEntity = GetParent(meshEntity);
 
-		auto _newMeshEntity = AddMeshEntity(name.c_str(), transform, mesh, newMaterial, _ModelEntity);
+		auto _newMeshEntity = AddMeshEntity(name.c_str(), transform, mesh, newMaterial, _ParentEntity);
 
 		SelectEntity(_newMeshEntity);
 
@@ -434,38 +506,44 @@ namespace TruthEngine
 		return _newMeshEntity;
 	}
 
-	void Scene::ImportModel(const char* filePath, std::string _ModelName)
+	void Scene::ImportModel(const char* filePath, Entity* _ParentEntity)
 	{
-		std::vector<ImportedMeshMaterials> _ImportedData = AssimpLib::GetInstance()->ImportModel(filePath, _ModelName.c_str());
+		std::vector<ImportedMeshMaterials> _ImportedData = AssimpLib::GetInstance()->ImportModel(filePath);
 
-		Entity _ModelEntity = AddModelEntity(_ModelName.c_str(), IdentityMatrix);
-		ModelComponent& _ModelComponent = GetComponent<ModelComponent>(_ModelEntity);
-		BoundingAABox& _ModelAABB = GetComponent<BoundingBoxComponent>(_ModelEntity).GetBoundingBox();
+		//ModelComponent& _ModelComponent = GetComponent<ModelComponent>(_ParentEntity);
+		BoundingAABox* _ParentAABB = nullptr;
+		if (_ParentEntity != nullptr)
+		{
+			if(HasComponent<BoundingBoxComponent>(*_ParentEntity))
+			_ParentAABB = &GetComponent<BoundingBoxComponent>(*_ParentEntity).GetBoundingBox();
+		}
 
 		TE_INSTANCE_MODELMANAGER->InitVertexAndIndexBuffer();
 
 		for (ImportedMeshMaterials& _Data : _ImportedData)
 		{
-
-			//BoundingAABox _MeshAABB = 
-			const float3 _WorldCenterOffset = _MeshAABB.Center;
-			Entity _MeshEntity = AddMeshEntity(_Data.mName.c_str(), IdentityMatrix, _Data.mMesh, _Data.mMaterial, _ModelEntity);
+			//const float3 _WorldCenterOffset = _MeshAABB.Center;
+			Entity _MeshEntity = AddMeshEntity(_Data.mName.c_str(), IdentityMatrix, *_Data.mMesh, _Data.mMaterial, _ParentEntity);
+			const BoundingAABox& _MeshAABB = GetComponent<BoundingAABox>(_MeshEntity);
 
 			if (_Data.mAnimation)
 			{
 				_MeshEntity.AddComponent<SkinnedAnimationComponent>(_Data.mAnimation);
 			}
 
-			if (_ModelAABB.Extents == float3{ 1.0f, 1.0f, 1.0f })
+			if (_ParentAABB != nullptr)
 			{
-				_ModelAABB = _MeshAABB;
+				if (_ParentAABB->Extents == float3{ 1.0f, 1.0f, 1.0f })
+				{
+					*_ParentAABB = _MeshAABB;
+				}
+				else
+				{
+					BoundingAABox::CreateMerged(*_ParentAABB, *_ParentAABB, _MeshAABB);
+				}
 			}
-			else
-			{
-				BoundingAABox::CreateMerged(_ModelAABB, _ModelAABB, _MeshAABB);
-			}
-
 		}
+
 	}
 
 	float3 Scene::GetPosition(Entity entity)
@@ -515,15 +593,15 @@ namespace TruthEngine
 	{
 		static uint32_t _BallIndex = 0;
 		std::string _BallName = "Ball" + std::to_string(_BallIndex);
-		Entity _BallEntity = AddPrimitiveMesh(_BallName.c_str(), TE_PRIMITIVE_TYPE::SPHERE, float3{1.0f, 0.0f, 0.0f}, m_ModelShootedBall);
+		Entity _BallEntity = AddPrimitiveMesh(_BallName.c_str(), TE_PRIMITIVE_TYPE::SPHERE, float3{ 1.0f, 0.0f, 0.0f }, nullptr /*, &m_ModelShootedBall*/);
 
 		Camera* _ActiveCamera = GetActiveCamera();
-		float3 _LinearVelocity = _ActiveCamera->GetLook() * float3{ 120.0f, 120.0f, 120.0f };
-		
+		float3 _LinearVelocity = _ActiveCamera->GetLook() * float3 { 120.0f, 120.0f, 120.0f };
+
 		float4x4A _Transform = Math::TransformMatrixTranslate(_ActiveCamera->GetPosition());
 
-		TEPhysicsRigidDesc _RigidDesc{0.5f, 0.5f, 0.5f, _Transform};
-		TEPhysicsRigidSphereDesc _SphereRigidDesc{1.0f, _RigidDesc};
+		TEPhysicsRigidDesc _RigidDesc{ 0.5f, 0.5f, 0.5f, _Transform };
+		TEPhysicsRigidSphereDesc _SphereRigidDesc{ 1.0f, _RigidDesc };
 
 		TE_INSTANCE_PHYSICSENGINE->AddRigidDynamicSphere(_SphereRigidDesc, _BallEntity, _LinearVelocity);
 		TE_INSTANCE_PHYSICSENGINE->Play();
@@ -531,8 +609,8 @@ namespace TruthEngine
 
 	void Scene::RegisterEventListener()
 	{
-		auto _LambdaOnKeyReleased = [this](Event& _Event) 
-		{  
+		auto _LambdaOnKeyReleased = [this](Event& _Event)
+		{
 			OnEventKeyPressed(static_cast<EventKeyReleased&>(_Event));
 		};
 
@@ -545,6 +623,11 @@ namespace TruthEngine
 		{
 			ShootTheBall();
 		}
+	}
+
+	void Scene::OnUpdate(float DeltaTime)
+	{
+
 	}
 
 }

@@ -10,23 +10,19 @@ using namespace DirectX;
 namespace TruthEngine
 {
 	Entity::Entity()
-		: m_Scene(nullptr), m_Registery(nullptr), m_EntityHandle(entt::null)
-	{
-	}
-
-	Entity::Entity(Scene* scene)
-		: m_Scene(scene), m_Registery(&scene->m_Registery), m_EntityHandle(scene->m_Registery.create())
+		: m_EntityHandle(entt::null)
 	{
 	}
 
 
-	Entity::Entity(Scene* scene, entt::entity entityHandle)
-		: m_Scene(scene), m_Registery(&scene->m_Registery), m_EntityHandle(entityHandle)
+
+	Entity::Entity(entt::entity entityHandle)
+		: m_EntityHandle(entityHandle)
 	{}
 
 	float4x4A Entity::GetTransformHierarchy()
 	{
-		return m_Scene->GetTransformHierarchy(*this);
+		return Application::GetActiveScene()->GetTransformHierarchy(*this);
 	}
 
 
@@ -48,5 +44,10 @@ namespace TruthEngine
 
 		return  _worldPostition;
 	}*/
+
+	void Entity::SetTransform(const float4x4A& _Transform) const
+	{
+		
+	}
 
 }

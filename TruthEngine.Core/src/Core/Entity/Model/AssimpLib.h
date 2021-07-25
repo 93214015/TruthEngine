@@ -28,7 +28,7 @@ namespace TruthEngine
 			AssimpLib();
 			~AssimpLib();
 
-			std::vector<ImportedMeshMaterials> ImportModel(const char* filePath, const char* _ModelName);
+			std::vector<ImportedMeshMaterials> ImportModel(const char* filePath);
 
 			static AssimpLib* GetInstance()
 			{

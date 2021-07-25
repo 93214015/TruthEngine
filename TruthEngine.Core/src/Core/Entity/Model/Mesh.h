@@ -10,8 +10,16 @@ namespace TruthEngine
 		class Mesh 
 		{
 		public:
-			Mesh();
+			Mesh() = default;
 			Mesh(size_t ID, size_t IndexNum, size_t IndexOffset, size_t VertexOffset, size_t vertexNum, VertexBufferBase* VertexBufferPtr, IndexBuffer* IndexBufferPtr);
+
+			~Mesh() = default;
+
+			Mesh(const Mesh&) = default;
+			Mesh& operator=(const Mesh&) = default;
+
+			Mesh(Mesh&&) noexcept = default;
+			Mesh& operator=(Mesh&&) noexcept = default;
 
 			VertexBufferBase* GetVertexBuffer() const noexcept
 			{
@@ -62,13 +70,12 @@ namespace TruthEngine
 
 
 		protected:
+			uint32_t m_VertexOffset = 0;
+			uint32_t m_VertexNum = 0;
+			uint32_t m_IndexOffset = 0;
+			uint32_t m_IndexNum = 0;
+
 			size_t m_ID = -1;
-
-			size_t m_VertexOffset = 0;
-			size_t m_VertexNum = 0;
-			size_t m_IndexOffset = 0;
-			size_t m_IndexNum = 0;
-
 
 			VertexBufferBase* m_VertexBuffer = nullptr;
 			IndexBuffer* m_IndexBuffer = nullptr;

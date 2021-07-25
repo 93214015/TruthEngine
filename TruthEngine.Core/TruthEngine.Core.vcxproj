@@ -180,6 +180,7 @@
     <ClInclude Include="src\Core\Entity\Camera\CameraPerspective.h" />
     <ClInclude Include="src\Core\Entity\Camera\ICamera.h" />
     <ClInclude Include="src\Core\Entity\Components.h" />
+    <ClInclude Include="src\Core\Entity\Components\AttachedComponent.h" />
     <ClInclude Include="src\Core\Entity\Components\BoundingBoxComponent.h" />
     <ClInclude Include="src\Core\Entity\Components\CameraComponent.h" />
     <ClInclude Include="src\Core\Entity\Components\EnvironmentComponent.h" />
@@ -187,10 +188,13 @@
     <ClInclude Include="src\Core\Entity\Components\MaterialComponent.h" />
     <ClInclude Include="src\Core\Entity\Components\MeshComponent.h" />
     <ClInclude Include="src\Core\Entity\Components\ModelComponent.h" />
+    <ClInclude Include="src\Core\Entity\Components\LeaderComponent.h" />
     <ClInclude Include="src\Core\Entity\Components\PhysicsComponent.h" />
+    <ClInclude Include="src\Core\Entity\Components\RotationComponent.h" />
     <ClInclude Include="src\Core\Entity\Components\SkinnedAnimationComponent.h" />
     <ClInclude Include="src\Core\Entity\Components\TagComponent.h" />
     <ClInclude Include="src\Core\Entity\Components\TransformComponent.h" />
+    <ClInclude Include="src\Core\Entity\Components\TranslationComponent.h" />
     <ClInclude Include="src\Core\Entity\Entity.h" />
     <ClInclude Include="src\Core\Entity\EntityTree.h" />
     <ClInclude Include="src\Core\Entity\Light\ILight.h" />
@@ -311,6 +315,7 @@
     <ClCompile Include="src\Core\Entity\Camera\CameraOrthographic.cpp" />
     <ClCompile Include="src\Core\Entity\Camera\CameraPerspective.cpp" />
     <ClCompile Include="src\Core\Entity\Camera\ICamera.cpp" />
+    <ClCompile Include="src\Core\Entity\Components\AttachedComponent.cpp" />
     <ClCompile Include="src\Core\Entity\Components\BoundingBoxComponent.cpp" />
     <ClCompile Include="src\Core\Entity\Components\CameraComponent.cpp" />
     <ClCompile Include="src\Core\Entity\Components\EnvironmentComponent.cpp" />

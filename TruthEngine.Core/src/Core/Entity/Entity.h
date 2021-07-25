@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Core/Application.h"
+
 namespace TruthEngine
 {
 		class Scene;
@@ -8,63 +10,58 @@ namespace TruthEngine
 		{
 		public:
 			Entity();
-			Entity(Scene* scene);
-			Entity(Scene* scene, entt::entity entityHandle);
+			//Entity(Scene* scene);
+			Entity(entt::entity entityHandle);
 
 			float4x4A GetTransformHierarchy();
 
-
 			template<class T, class... Args>
-			T& AddComponent(Args&&... args)
+			inline T& AddComponent(Args&&... args) const
 			{
-				return m_Registery->emplace<T>(m_EntityHandle, std::forward<Args>(args)...);
+				return Application::GetActiveScene()->AddComponent<T>(m_EntityHandle, std::forward<Args>(args)...);
 			}
 
 			template<class T>
-			T& GetComponent()
+			inline T& GetComponent() const
 			{
-				return m_Registery->get<T>(m_EntityHandle);
+				return Application::GetActiveScene()->GetComponent<T>(m_EntityHandle);
 			}
 
 			template<class T>
-			const T& GetComponent() const
+			inline bool HasComponent() const
 			{
-				return m_Registery->get<T>(m_EntityHandle);
+				return Application::GetActiveScene()->HasComponent<T>(m_EntityHandle);
 			}
 
 			template<class T>
-			bool HasComponent()
+			void RemoveComponent() const
 			{
-				return m_Registery->has<T>(m_EntityHandle);
+				Application::GetActiveScene()->RemoveComponent<T>(m_EntityHandle);
 			}
 
-			template<class T>
-			void RemoveComponent()
-			{
-				m_Registery->remove<T>(m_EntityHandle);
-			}
+			void SetTransform(const float4x4A& _Transform) const;
 
-			operator bool()
+			operator bool() const
 			{
 				return m_EntityHandle != entt::null;
 			}
 
-			operator entt::entity()
+			operator entt::entity() const
 			{
 				return m_EntityHandle;
 			}
 
-			bool operator==(const Entity& ent)
+			bool operator==(const Entity& ent) const
 			{
 				return m_EntityHandle == ent.m_EntityHandle;
 			}
 
-			bool operator==(const entt::entity & ent)
+			bool operator==(const entt::entity & ent) const
 			{
 				return m_EntityHandle == ent;
 			}
 
-			bool operator!=(const Entity& ent)
+			bool operator!=(const Entity& ent) const
 			{
 				return m_EntityHandle != ent.m_EntityHandle;
 			}
@@ -79,10 +76,6 @@ namespace TruthEngine
 				return static_cast<uint32_t>(m_EntityHandle);
 			}
 
-			inline Scene* GetScene()const noexcept
-			{
-				return m_Scene;
-			}
 
 			/*float3 GetPosition() noexcept;*/
 
@@ -94,7 +87,7 @@ namespace TruthEngine
 		private:
 			entt::entity m_EntityHandle = entt::null;
 
-			Scene* m_Scene = nullptr;
-			entt::registry* m_Registery = nullptr;
+			//Scene* m_Scene = nullptr;
+			//entt::registry* m_Registery = nullptr;
 		};
 }
