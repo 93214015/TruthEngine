@@ -5,6 +5,9 @@
 #include "Core/Entity/Model/ModelManager.h"
 #include "Core/Renderer/MaterialManager.h"
 
+#include "Core/Entity/Systems/SystemMovement.h"
+#include "Core/Entity/Systems/SystemUpdateTransform.h"
+
 namespace TruthEngine
 {
 
@@ -28,10 +31,10 @@ namespace TruthEngine
 
 		void Init();
 
-		Entity AddEntity(const char* _EntityTag, const float4x4A& _Transform = IdentityMatrix, const Entity* _ParentEntity = nullptr);
+		Entity AddEntity(const char* _EntityTag, const float4A& _Translation = Math::IdentityTranslate, const float4A& RotationQuaterion = Math::IdentityQuaternion, const Entity* _ParentEntity = nullptr);
 
-		Entity AddMeshEntity(const char* _MeshName, const float4x4A& _Transform, const Mesh& _Mesh, Material* _Material, const Entity* _ParentEntity);
-		Entity AddPrimitiveMesh(const char* _MeshName, TE_PRIMITIVE_TYPE _PrimitiveType, const float3& _PrimitiveSize, const Entity* _ParentEntity);
+		Entity AddMeshEntity(const char* _MeshName, const float4A& _Translation, const float4A& _RotationQuaternion, const Mesh& _Mesh, Material* _Material, const Entity* _ParentEntity = nullptr);
+		Entity AddPrimitiveMesh(const char* _MeshName, TE_PRIMITIVE_TYPE _PrimitiveType, const float3& _PrimitiveSize, const Entity* _ParentEntity = nullptr);
 		Entity AddEnvironmentEntity();
 
 		Entity AddLightEntity_Directional(
@@ -66,21 +69,18 @@ namespace TruthEngine
 		template<class... Ts>
 		auto GroupEntities()
 		{
-			std::scoped_lock<std::mutex> lock(m_Mutex);
 			return m_Registery.group<Ts...>();
 		}
 
 		template<class... Ts>
 		auto ViewEntities()
 		{
-			std::scoped_lock<std::mutex> lock(m_Mutex);
 			return m_Registery.view<Ts...>();
 		}
 
 		template<class T>
 		T& GetComponent(entt::entity entityHandler)
 		{
-			std::scoped_lock<std::mutex> lock(m_Mutex);
 			return m_Registery.get<T>(entityHandler);
 		}
 
@@ -90,8 +90,26 @@ namespace TruthEngine
 			return m_Registery.emplace<T>(_Entity.m_EntityHandle, std::forward<Args>(_Args)...);
 		}
 
+		template<class T, typename... Args>
+		inline T& AddComponent(entt::entity _Entity, Args&&... _Args)
+		{
+			return m_Registery.emplace<T>(_Entity, std::forward<Args>(_Args)...);
+		}
+
+		template<class T, typename... Args>
+		inline T& AddOrReplaceComponent(Entity _Entity, Args&&... _Args)
+		{
+			return m_Registery.emplace_or_replace<T>(_Entity.m_EntityHandle, std::forward<Args>(_Args)...);
+		}
+
+		template<class T, typename... Args>
+		inline T& AddOrReplaceComponent(entt::entity _Entity, Args&&... _Args)
+		{
+			return m_Registery.emplace_or_replace<T>(_Entity, std::forward<Args>(_Args)...);
+		}
+
 		template<class T>
-		inline bool RemoveComponent(Entity _Entity)
+		inline void RemoveComponent(Entity _Entity)
 		{
 			m_Registery.remove<T>(_Entity.m_EntityHandle);
 		}
@@ -99,7 +117,6 @@ namespace TruthEngine
 		template<typename T>
 		bool HasComponent(entt::entity entityHandler) const
 		{
-			std::scoped_lock<std::mutex> lock(m_Mutex);
 			return m_Registery.has<T>(entityHandler);
 		}
 
@@ -129,11 +146,11 @@ namespace TruthEngine
 		}
 
 		//Entity GetModelEntity(Entity _Entity);
-		Entity* GetParent(Entity _Entity);
+		//Entity* GetParent(Entity _Entity);
 		//std::vector<Entity> GetChildrenEntity(Entity entity);
 		//std::vector<Entity> GetChildrenEntity(entt::entity entityHandler);
 
-		inline std::vector<EntityNode>& GetChildrenNodes(Entity entity)
+		/*inline std::vector<EntityNode>& GetChildrenNodes(Entity entity)
 		{
 			return m_EntityTree.m_Tree.find(entity)->second.mChildren;
 		}
@@ -147,23 +164,27 @@ namespace TruthEngine
 
 		void AttachEntity(Entity Parent, Entity Attached);
 		void DetachEntity(Entity Parent, Entity Detached);
+		*/
 
-		float4x4A GetTransformHierarchy(Entity entity);
-		float4x4A GetTransformHierarchy(entt::entity entityHandler);
+
+		const float4x4A& GetTransformHierarchy(Entity entity);
+		const float4x4A& GetTransformHierarchy(entt::entity entityHandler);
 
 		float3 GetTranslateHierarchy(Entity entity);
 		float3 GetTranslateHierarchy(entt::entity entityHandler);
 
-		float4x4A GetStaticTransformHierarchy(Entity entity);
-		float4x4A GetStaticTransformHierarchy(entt::entity entityHandler);
+		const float4x4A& GetStaticTransformHierarchy(Entity entity);
+		const float4x4A& GetStaticTransformHierarchy(entt::entity entityHandler);
 
 		const BoundingAABox& GetBoundingBox() const noexcept;
 		void UpdateBoundingBox(const BoundingAABox& _boundingBox);
 
+		/*
 		bool HasParent(const Entity& entity) const;
 
 		float3 GetPosition(Entity entity);
 		float3 GetPosition(entt::entity entityHandle);
+		*/
 
 		Camera* GetActiveCamera() const;
 
@@ -176,13 +197,13 @@ namespace TruthEngine
 
 
 	private:
-		float4x4A GetParentTransforms(Entity parent);
-		float4x4A GetParentTransforms(entt::entity parentHandler);
+		/*float4x4A GetParentTransforms(Entity parent);
+		float4x4A GetParentTransforms(entt::entity parentHandler);*/
 
 	private:
 		entt::registry m_Registery;
 
-		EntityTree m_EntityTree;
+		//EntityTree m_EntityTree;
 		Entity m_SelectedEntity;
 
 		Entity m_ModelShootedBall;
@@ -191,11 +212,23 @@ namespace TruthEngine
 
 		BoundingAABox m_BoundingBox;
 
-		std::mutex m_Mutex;
+		//std::mutex m_Mutex;
 
 		LightManager* m_LightManager;
 
-		std::vector<std::pair<Entity, Entity>> m_LeaderUpdated;
+		/*std::deque<Entity> m_UpdatedEntities;
+		std::deque<Entity, const XMMatrix&> m_UpdateFollower;*/
+
+		//
+		//Systems
+		//
+		SystemMovement m_SystemMovement;
+		SystemUpdateTransform m_SystemUpdateTransforms;
+
+
+		//
+		// Statics
+		//
 
 		//
 		//Friend Classes

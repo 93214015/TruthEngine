@@ -109,7 +109,7 @@ namespace TruthEngine
 			//auto& dynamicEntityGroup = reg.group<MeshComponent, PhysicsDynamicComponent>();
 			//auto& staticEntityGroup = reg.view<MeshComponent>(entt::exclude<PhysicsDynamicComponent>);
 			//auto& EntityMeshView = scene->ViewEntities<MeshComponent>();
-			auto& EntityModelView = scene->ViewEntities<ModelComponent>();
+			//auto& EntityModelView = scene->ViewEntities<ModelComponent>();
 
 
 			m_Viewport.Width = m_ShadoWMapSize * .5f;
@@ -141,34 +141,40 @@ namespace TruthEngine
 				v.clear();
 			}
 
+			auto EntityMeshView = scene->ViewEntities<MeshComponent>();
 
-			for (auto _EntityModel : EntityModelView)
+			/*for (auto _EntityModel : EntityModelView)
 			{
 
 				for (auto& entity_mesh : scene->GetComponent<ModelComponent>(_EntityModel).GetMeshEntities())
+				{*/
+
+			for (auto entity_mesh : EntityMeshView)
+			{
+
+				/*const float4x4A _transform = scene->GetTransformHierarchy(entity_mesh);*/
+				const float4x4A& _transform = scene->GetComponent<TransformComponent>(entity_mesh).GetTransform();
+
+
+				const Mesh* mesh = &scene->GetComponent<MeshComponent>(entity_mesh).GetMesh();
+				const Material* material = scene->GetComponent<MaterialComponent>(entity_mesh).GetMaterial();
+
+				MeshMaterialTransform& _MMT = _MeshList.emplace_back(mesh, _transform, material);
+
+				BoundingAABox _AABB = Math::TransformBoundingBox(scene->GetComponent<BoundingBoxComponent>(entity_mesh).GetBoundingBox(), _transform);
+				for (size_t i = 0; i < _CascadeNum; ++i)
 				{
-					const float4x4A _transform = scene->GetTransformHierarchy(entity_mesh);
+					auto _CameraAABB = cameraCascaded->GetBoundingBox(i);
 
-
-					const Mesh* mesh = scene->GetComponent<MeshComponent>(entity_mesh).GetMesh();
-					const Material* material = scene->GetComponent<MaterialComponent>(entity_mesh).GetMaterial();
-
-					MeshMaterialTransform& _MMT = _MeshList.emplace_back(mesh, _transform, material);
-
-					BoundingAABox _AABB = Math::TransformBoundingBox(scene->GetComponent<BoundingBoxComponent>(entity_mesh).GetBoundingBox(), _transform);
-					for (size_t i = 0; i < _CascadeNum; ++i)
+					auto _containment = _CameraAABB.Contains(_AABB);
+					if (_containment != DirectX::ContainmentType::DISJOINT)
 					{
-						auto _CameraAABB = cameraCascaded->GetBoundingBox(i);
-
-						auto _containment = _CameraAABB.Contains(_AABB);
-						if (_containment != DirectX::ContainmentType::DISJOINT)
-						{
-							_EntityLists[i].emplace_back(&_MMT);
-						}
+						_EntityLists[i].emplace_back(&_MMT);
 					}
 				}
-
 			}
+
+			/*}*/
 
 			m_TimerRender_PrepareMeshList.End();
 
@@ -361,11 +367,12 @@ namespace TruthEngine
 				for (auto& entity_mesh : scene->GetComponent<ModelComponent>(_EntityModel).GetMeshEntities())
 				{
 
-					const float4x4A _transform = scene->GetTransformHierarchy(entity_mesh);
+					/*const float4x4A _transform = scene->GetTransformHierarchy(entity_mesh);*/
+					const float4x4A& _transform = scene->GetComponent<TransformComponent>(entity_mesh);
 
-					const Mesh* mesh = scene->GetComponent<MeshComponent>(entity_mesh).GetMesh();
+					const Mesh* mesh = &scene->GetComponent<MeshComponent>(entity_mesh).GetMesh();
 					const Material* material = scene->GetComponent<MaterialComponent>(entity_mesh).GetMaterial();
-					
+
 					BoundingAABox _AABB = Math::TransformBoundingBox(scene->GetComponent<BoundingBoxComponent>(entity_mesh).GetBoundingBox(), _transform);
 
 					auto _containment = _Camera->GetBoundingFrustumWorldSpace().Contains(_AABB);

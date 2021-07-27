@@ -11,3 +11,7 @@
 #include "Core/Entity/Components/LightComponent.h"
 #include "Core/Entity/Components/PhysicsComponent.h"
 #include "Core/Entity/Components/SkinnedAnimationComponent.h"
+#include "Core/Entity/Components/TranslationComponent.h"
+#include "Core/Entity/Components/RotationComponent.h"
+#include "Core/Entity/Components/MovementComponent.h"
+#include "Core/Entity/Components/UpdatedComponent.h"

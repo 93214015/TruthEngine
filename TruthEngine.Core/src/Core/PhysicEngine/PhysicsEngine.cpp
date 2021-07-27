@@ -5,6 +5,7 @@
 
 #include "Core/Entity/Model/ModelManager.h"
 #include "Core/Entity/Components.h"
+#include "Core/Entity/Scene.h"
 #include "../Application.h"
 
 using namespace physx;

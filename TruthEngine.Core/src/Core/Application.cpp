@@ -5,6 +5,7 @@
 #include "core/Renderer/SwapChain.h"
 #include "Core/Renderer/RendererLayer.h"
 
+#include "Core/Entity/Scene.h"
 #include "Core/Entity/Model/ModelManager.h"
 #include "Core/Entity/Light/LightManager.h"
 
@@ -18,8 +19,8 @@
 namespace TruthEngine {
 
 	Application::Application(const char* title, uint32_t clientWidth, uint32_t clientHeight, uint8_t framesInFlightNum)
-		: m_Title(title), m_ClientWidth(clientWidth), m_ClientHeight(clientHeight), m_FramesOnTheFlyNum(framesInFlightNum),
-		m_ActiveScene(Scene())
+		: m_Title(title), m_ClientWidth(clientWidth), m_ClientHeight(clientHeight), m_FramesOnTheFlyNum(framesInFlightNum)
+		, m_DefautlScene(new Scene)
 	{
 
 		TE_ASSERT_CORE(!s_Instance, "Aplication already exists!");

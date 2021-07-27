@@ -157,34 +157,39 @@ namespace TruthEngine
 		const BoundingFrustum& _CameraBoundingFrustum = _ActiveCamera->GetBoundingFrustumWorldSpace();
 
 
-		auto& EntityModelView = _ActiveScene->ViewEntities<ModelComponent>();
+
+		/*auto& EntityModelView = _ActiveScene->ViewEntities<ModelComponent>();*/
+		/*for (auto _EntityModel : EntityModelView)
+		{*/
+		/*for (auto& entity_mesh : _ActiveScene->GetComponent<ModelComponent>(_EntityModel).GetMeshEntities())
+		{*/
 
 
-		for (auto _EntityModel : EntityModelView)
+		auto& EntityMeshView = _ActiveScene->ViewEntities<MeshComponent>();
+		for (auto entity_mesh : EntityMeshView)
 		{
-			for (auto& entity_mesh : _ActiveScene->GetComponent<ModelComponent>(_EntityModel).GetMeshEntities())
-			{
-				const float4x4A _transform = _ActiveScene->GetTransformHierarchy(entity_mesh);
+			/*const float4x4A _transform = _ActiveScene->GetTransformHierarchy(entity_mesh);*/
+			const float4x4A& _transform = _ActiveScene->GetComponent<TransformComponent>(entity_mesh).GetTransform();
 
-				const BoundingAABox& _AABB = _ActiveScene->GetComponent<BoundingBoxComponent>(entity_mesh).GetBoundingBox();
-				const BoundingAABox _TransformedAABB = Math::TransformBoundingBox(_AABB, _transform);
+			const BoundingAABox& _AABB = _ActiveScene->GetComponent<BoundingBoxComponent>(entity_mesh).GetBoundingBox();
+			const BoundingAABox _TransformedAABB = Math::TransformBoundingBox(_AABB, _transform);
 
-				if (_CameraBoundingFrustum.Contains(_TransformedAABB) == DirectX::DISJOINT)
-					continue;
+			if (_CameraBoundingFrustum.Contains(_TransformedAABB) == DirectX::DISJOINT)
+				continue;
 
-				Mesh* mesh = _ActiveScene->GetComponent<MeshComponent>(entity_mesh).GetMesh();
-				Material* material = _ActiveScene->GetComponent<MaterialComponent>(entity_mesh).GetMaterial();
+			const Mesh* mesh = &_ActiveScene->GetComponent<MeshComponent>(entity_mesh).GetMesh();
+			const Material* material = _ActiveScene->GetComponent<MaterialComponent>(entity_mesh).GetMaterial();
 
-				*_CBData = ConstantBuffer_Data_Per_Mesh(_transform, Math::InverseTranspose(_transform), material->GetID());
+			*_CBData = ConstantBuffer_Data_Per_Mesh(_transform, Math::InverseTranspose(_transform), material->GetID());
 
-				m_RendererCommand.SetPipelineGraphics(m_MaterialPipelines[material->GetID()]);
-				m_RendererCommand.SetDirectConstantGraphics(m_ConstantBufferDirect_PerMesh);
-				m_RendererCommand.DrawIndexed(mesh);
+			m_RendererCommand.SetPipelineGraphics(m_MaterialPipelines[material->GetID()]);
+			m_RendererCommand.SetDirectConstantGraphics(m_ConstantBufferDirect_PerMesh);
+			m_RendererCommand.DrawIndexed(mesh);
 
-				m_TotalVertexNum += mesh->GetVertexNum();
-				m_TotalMeshNum++;
-			}
+			m_TotalVertexNum += mesh->GetVertexNum();
+			m_TotalMeshNum++;
 		}
+		/*}*/
 
 		if (m_RendererLayer->IsEnvironmentMapEnabled())
 		{
@@ -195,7 +200,7 @@ namespace TruthEngine
 
 			for (auto& _EntityEnv : _EntityViewEnv)
 			{
-				Mesh* mesh = _ActiveScene->GetComponent<EnvironmentComponent>(_EntityEnv).GetMesh();
+				const Mesh* mesh = &_ActiveScene->GetComponent<EnvironmentComponent>(_EntityEnv).GetMesh();
 				m_RendererCommand.DrawIndexed(mesh);
 			}
 

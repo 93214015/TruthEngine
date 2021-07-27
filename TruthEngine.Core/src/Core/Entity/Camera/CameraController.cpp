@@ -6,6 +6,7 @@
 #include "Core/Event/EventKey.h"
 #include "Core/Application.h"
 #include "Core/Input/InputManager.h"
+#include "Core/Entity/Scene.h"
 #include "Core/Entity/Components/TransformComponent.h"
 
 using namespace DirectX;
@@ -124,7 +125,10 @@ namespace TruthEngine
 				if (Entity _SelectedEntity = _Scene->GetSelectedEntity(); _SelectedEntity)
 				{
 					//_RotationOrigin = _RotationOrigin + _SelectedEntity.GetComponent<TransformComponent>().GetWorldCenterOffset();
-					_RotationOrigin += _Scene->GetTranslateHierarchy(_SelectedEntity);
+					//_RotationOrigin += _Scene->GetTranslateHierarchy(_SelectedEntity);
+					auto& _EntityTransform = _Scene->GetComponent<TransformComponent>(_SelectedEntity).GetTransform();
+					float3 _EntityTranslation = float3{ _EntityTransform._41, _EntityTransform._42, _EntityTransform._43 };
+					_RotationOrigin += _EntityTranslation;
 				}
 
 				float4x4A _Transform = Math::TransformMatrixRotation(dx_angle, float3{ .0f, 1.0f, .0f }, _RotationOrigin);

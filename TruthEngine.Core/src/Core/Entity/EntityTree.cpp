@@ -6,7 +6,7 @@
 namespace TruthEngine
 {
 	EntityTree::EntityTree(Scene* scene)
-		: m_Scene(scene), m_Root(EntityNode{ Entity(scene, scene->AddEntity("rootNode", Entity())), Entity() })
+		: m_Scene(scene), m_Root(EntityNode{ Entity(scene->AddEntity("rootNode")), Entity() })
 	{}
 
 	void EntityTree::AddNode(Entity entity, Entity parent)

@@ -3,6 +3,7 @@
 #include "Core/Renderer/BufferManager.h"
 #include "Core/Renderer/ShaderManager.h"
 #include "Core/Entity/Components/BoundingBoxComponent.h"
+#include "Core/Entity/Scene.h"
 
 
 TruthEngine::RenderPass_RenderBoundingBoxes::RenderPass_RenderBoundingBoxes(RendererLayer* _RendererLayer)

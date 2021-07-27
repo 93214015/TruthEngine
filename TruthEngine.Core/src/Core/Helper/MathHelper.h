@@ -173,6 +173,24 @@ namespace TruthEngine
 	{
 		using DirectX::XMFLOAT4A::XMFLOAT4A;
 
+		inline bool operator==(const float4A& _RHS) const
+		{
+			return x == _RHS.x && y == _RHS.y && z == _RHS.z && w == _RHS.w;
+		}
+
+		inline bool operator!=(const float4A& _RHS) const
+		{
+			return x != _RHS.x || y != _RHS.y || z != _RHS.z || w != _RHS.w;
+		}
+
+		inline float4A& operator+=(const float4A& _RHS)
+		{
+			x += _RHS.x;
+			y += _RHS.y;
+			z += _RHS.z;
+			w += _RHS.w;
+		}
+
 		inline explicit operator XMVector() const
 		{
 			return DirectX::XMLoadFloat4A(this);
@@ -314,8 +332,11 @@ namespace TruthEngine
 		1.0f, 0.0f, 0.0f, 0.0f,
 		0.0f, 1.0f, 0.0f, 0.0f,
 		0.0f, 0.0f, 1.0f, 0.0f,
-		0.0f, 0.0f, 0.0f, 1.0f);	
+		0.0f, 0.0f, 0.0f, 1.0f);
+
+
 	
+
 	
 
 	inline void CreateBoundingAABoxFromPoints(BoundingAABox& outBoundingBox, const size_t vertexNum, const float3* vertecies, size_t strideSize)
@@ -333,10 +354,26 @@ namespace TruthEngine
 	namespace Math
 	{
 
+		constexpr float4A IdentityQuaternion = { 0.0f, 0.0f, 0.0f, 1.0f };
+		constexpr float4A IdentityTranslate = { 0.0f, 0.0f, 0.0f, 0.0f };
+		constexpr float4A IdentityScale = { 1.0f, 1.0f, 1.0f, 0.0f };
+
+		constexpr DirectX::XMVECTORF32 XMIdentityTranslate = { 0.0f, 0.0f, 0.0f, 0.0f };
+		constexpr DirectX::XMVECTORF32 XMIdentityQuaternion = { 0.0f, 0.0f, 0.0f, 1.0f };
+		constexpr DirectX::XMVECTORF32 XMIdentityScale = { 1.0f, 1.0f, 1.0f, 0.0f };
+
 		constexpr float PI = DirectX::XM_PI;
 		constexpr float PI_RCP = 1.0f / PI;
 		constexpr float PIDIV4 = PI / 4.0f;
 		constexpr float _1DIV180 = 1 / 180.0f;
+
+
+		constexpr DirectX::XMVECTOR _XMVectorRow1 = { 1.0f, 0.0f, 0.0f, 0.0f };
+		constexpr DirectX::XMVECTOR _XMVectorRow2 = { 0.0f, 1.0f, 0.0f, 0.0f };
+		constexpr DirectX::XMVECTOR _XMVectorRow3 = { 0.0f, 0.0f, 1.0f, 0.0f };
+		constexpr DirectX::XMVECTOR _XMVectorRow4 = { 0.0f, 0.0f, 0.0f, 1.0f };
+		constexpr XMMatrix XMIdentityMatrix = { _XMVectorRow1, _XMVectorRow2, _XMVectorRow3, _XMVectorRow4 };
+
 
 		constexpr float DegreeToRadian(float _DegreeAngle)
 		{
@@ -763,9 +800,20 @@ namespace TruthEngine
 			return _Result;
 		}
 
+		inline float4x4A TransformMatrix(const float4A& _Scale, const float4A& _Quaternion, const float4A& _Translate)
+		{
+			XMMatrix _TransformMatrix = DirectX::XMMatrixAffineTransformation(ToXM(_Scale), XMVectorZero, ToXM(_Quaternion), ToXM(_Translate));
+			return FromXMA(_TransformMatrix);
+		}
+
 		inline XMMatrix XMTransformMatrix(const XMVector& _Scale, const XMVector& _Quaternion, const XMVector& _Translate)
 		{
 			return DirectX::XMMatrixAffineTransformation(_Scale, XMVectorZero, _Quaternion, _Translate);
+		}
+
+		inline XMMatrix XMTransformMatrix(const float4A& _Scale, const float4A& _Quaternion, const float4A& _Translate)
+		{
+			return DirectX::XMMatrixAffineTransformation(ToXM(_Scale), XMVectorZero, ToXM(_Quaternion), ToXM(_Translate));
 		}
 
 		inline float4x4A TransformMatrixTranslate(const float3& _Translate)
@@ -880,6 +928,57 @@ namespace TruthEngine
 			return DirectX::XMVectorMultiply(_V0, _V1);
 		}
 
+		inline XMVector XMAdd(const XMVector& _V0, const XMVector& _V1)
+		{
+			return DirectX::XMVectorAdd(_V0, _V1);
+		}
+
+
+		inline bool XMEqual2(const XMVector& _V0, const XMVector& _V1)
+		{
+			return DirectX::XMVector2Equal(_V0, _V1);
+		}
+
+		inline bool XMNotEqual2(const XMVector& _V0, const XMVector& _V1)
+		{
+			return DirectX::XMVector2NotEqual(_V0, _V1);
+		}
+
+		inline bool XMEqual3(const XMVector& _V0, const XMVector& _V1)
+		{
+			return DirectX::XMVector3Equal(_V0, _V1);
+		}
+
+		inline bool XMNotEqual3(const XMVector& _V0, const XMVector& _V1)
+		{
+			return DirectX::XMVector3NotEqual(_V0, _V1);
+		}
+
+		inline bool XMEqual4(const XMVector& _V0, const XMVector& _V1)
+		{
+			return DirectX::XMVector4Equal(_V0, _V1);
+		}
+
+		inline bool XMNotEqual4(const XMVector& _V0, const XMVector& _V1)
+		{
+			return DirectX::XMVector4NotEqual(_V0, _V1);
+		}
+
+
+		inline float4A QuaternionMultiply(const float4A& _Quaternion1, const float4A& _Quaternion2)
+		{
+			return FromXMA(DirectX::XMQuaternionMultiply(ToXM(_Quaternion1), ToXM(_Quaternion2)));
+		}
+
+		inline float4A QuaternionMultiply(const XMVector& _Quaternion1, const XMVector& _Quaternion2)
+		{
+			return FromXMA(DirectX::XMQuaternionMultiply(_Quaternion1, _Quaternion2));
+		}
+
+		inline XMVector XMQuaternionMultiply(const XMVector& _Quaternion1, const XMVector& _Quaternion2)
+		{
+			return DirectX::XMQuaternionMultiply(_Quaternion1, _Quaternion2);
+		}
 
 
 		namespace TriangleTests

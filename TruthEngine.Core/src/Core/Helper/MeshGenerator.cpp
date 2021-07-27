@@ -19,7 +19,7 @@ namespace TruthEngine
 	Mesh* GenerateTEMesh(T& _PrimitveMesh)
 	{
 		auto modelManager = ModelManager::GetInstance();
-		auto& vertexBuffer = std::get<0>(modelManager->m_VertexBuffers);
+		auto& vertexBuffer = modelManager->GetVertexBuffer<VertexBufferNTT>();
 
 		size_t indexOffset = modelManager->GetIndexOffset();
 		size_t vertexOffset = modelManager->GetVertexOffset(TE_IDX_MESH_TYPE::MESH_NTT);
@@ -91,13 +91,15 @@ namespace TruthEngine
 			delete[] _TangentData;
 		}
 
+		IndexBuffer& _IndexBuffer = modelManager->GetIndexBuffer();
+
 		for (size_t i = 0; i < _TriangleCount * 3; ++i)
 		{
-			modelManager->m_IndexBuffer.AddIndex(_IndeciesData[i]);
+			_IndexBuffer.AddIndex(_IndeciesData[i]);
 		}
 
 
-		return modelManager->AddMesh(TE_IDX_MESH_TYPE::MESH_NTT, indexNum, indexOffset, vertexOffset, vertexNum);
+		return &modelManager->AddMesh(TE_IDX_MESH_TYPE::MESH_NTT, indexNum, indexOffset, vertexOffset, vertexNum);
 	}
 
 

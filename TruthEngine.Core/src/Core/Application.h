@@ -6,7 +6,6 @@
 #include "Core/TimerEngine.h"
 
 #include "Core/Entity/Camera/CameraPerspective.h"
-#include "Core/Entity/Scene.h"
 
 namespace TruthEngine {
 
@@ -18,6 +17,12 @@ namespace TruthEngine {
 	public:
 		Application(const char* title, uint32_t clientWidth, uint32_t clientHeight, uint8_t framesInFlightNum);
 		virtual ~Application();
+
+		Application(const Application&) = delete;
+		Application& operator=(const Application&) = delete;
+
+		Application(Application&&) = delete;
+		Application& operator=(Application&&) = delete;
 
 
 		inline uint32_t GetClientWidth() const noexcept { return m_ClientWidth; }
@@ -37,10 +42,6 @@ namespace TruthEngine {
 
 		inline const char* GetTitle() const noexcept { return m_Title.c_str(); }
 
-		static inline Scene* GetActiveScene()
-		{
-			return &m_ActiveScene;
-		}
 
 		inline void RegisterEventListener(EventType eventType, const EventListener& listener)
 		{
@@ -68,7 +69,12 @@ namespace TruthEngine {
 		inline bool IsHoveredSceneViewPort() const noexcept { return m_IsHoveredSceneViewport; }
 		inline void IsHoveredSceneViewPort(bool hovered) noexcept { m_IsHoveredSceneViewport = hovered; }
 
-		static inline Application* GetApplication() { return s_Instance; }
+		inline static Application* GetApplication() { return s_Instance; }
+		static inline class Scene* GetActiveScene()
+		{
+			return s_ActiveScene;
+		}
+		
 
 	protected:
 		void OnWindowResize(EventWindowResize& event);
@@ -76,7 +82,10 @@ namespace TruthEngine {
 
 	protected:
 		static Application* s_Instance;
+		static class Scene* s_ActiveScene;
 
+		std::unique_ptr<class Scene> m_DefautlScene;
+		
 		std::unique_ptr<Window> m_Window;
 		EventDispatcher m_EventDispatcher;
 
@@ -86,7 +95,6 @@ namespace TruthEngine {
 
 		TimerEngine m_Timer;
 
-		static Scene m_ActiveScene;
 
 		uint32_t m_ClientWidth;
 		uint32_t m_ClientHeight;

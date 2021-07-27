@@ -85,6 +85,11 @@ namespace TruthEngine
 			return std::get<T>(m_VertexBuffers);
 		}
 
+		IndexBuffer& GetIndexBuffer()
+		{
+			return m_IndexBuffer;
+		}
+
 		/*void ImportModel(Scene* scene, const char* filePath, std::string _ModelName);*/
 
 

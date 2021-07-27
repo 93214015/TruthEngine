@@ -45,9 +45,23 @@ namespace TruthEngine
 		return  _worldPostition;
 	}*/
 
-	void Entity::SetTransform(const float4x4A& _Transform) const
+
+	void Entity::Move(const float4A& _MovementVector) const
 	{
-		
+		Scene* _Scene = Application::GetActiveScene();
+		XMVector _XMTranslate = Math::ToXM(_Scene->GetComponent<TranslationComponent>(*this).Translation);
+		XMVector _XMMovement = Math::ToXM(_MovementVector);
+		_XMTranslate = Math::XMAdd(_XMTranslate, _XMMovement);
+		_Scene->GetComponent<TranslationComponent>(*this).Translation = Math::FromXMA(_XMTranslate);
+	}
+
+	void Entity::Rotate(const float4A& _RotationQuaternion) const
+	{
+		Scene* _Scene = Application::GetActiveScene();
+
+		float4A& _Quat = _Scene->GetComponent<RotationComponent>(*this).Quaterion;
+
+		_Quat = Math::QuaternionMultiply(_Quat, _RotationQuaternion);
 	}
 
 }

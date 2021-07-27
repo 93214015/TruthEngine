@@ -39,7 +39,9 @@ namespace TruthEngine
 				Application::GetActiveScene()->RemoveComponent<T>(m_EntityHandle);
 			}
 
-			void SetTransform(const float4x4A& _Transform) const;
+			void Move(const float4A& _Translate) const;
+
+			void Rotate(const float4A& _RoatationQuaternion) const;
 
 			operator bool() const
 			{
@@ -89,5 +91,10 @@ namespace TruthEngine
 
 			//Scene* m_Scene = nullptr;
 			//entt::registry* m_Registery = nullptr;
+
+			//
+			// friend classes
+			//
+			friend class Scene;
 		};
 }

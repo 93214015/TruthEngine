@@ -189,12 +189,14 @@
     <ClInclude Include="src\Core\Entity\Components\MeshComponent.h" />
     <ClInclude Include="src\Core\Entity\Components\ModelComponent.h" />
     <ClInclude Include="src\Core\Entity\Components\LeaderComponent.h" />
+    <ClInclude Include="src\Core\Entity\Components\MovementComponent.h" />
     <ClInclude Include="src\Core\Entity\Components\PhysicsComponent.h" />
     <ClInclude Include="src\Core\Entity\Components\RotationComponent.h" />
     <ClInclude Include="src\Core\Entity\Components\SkinnedAnimationComponent.h" />
     <ClInclude Include="src\Core\Entity\Components\TagComponent.h" />
     <ClInclude Include="src\Core\Entity\Components\TransformComponent.h" />
     <ClInclude Include="src\Core\Entity\Components\TranslationComponent.h" />
+    <ClInclude Include="src\Core\Entity\Components\UpdatedComponent.h" />
     <ClInclude Include="src\Core\Entity\Entity.h" />
     <ClInclude Include="src\Core\Entity\EntityTree.h" />
     <ClInclude Include="src\Core\Entity\Light\ILight.h" />
@@ -209,6 +211,9 @@
     <ClInclude Include="src\Core\Entity\Model\ModelManager.h" />
     <ClInclude Include="src\Core\Entity\PickingEntity.h" />
     <ClInclude Include="src\Core\Entity\Scene.h" />
+    <ClInclude Include="src\Core\Entity\Systems\System.h" />
+    <ClInclude Include="src\Core\Entity\Systems\SystemMovement.h" />
+    <ClInclude Include="src\Core\Entity\Systems\SystemUpdateTransform.h" />
     <ClInclude Include="src\Core\EntryPoint.h" />
     <ClInclude Include="src\Core\Event\Event.h" />
     <ClInclude Include="src\Core\Event\EventApplication.h" />
@@ -341,6 +346,8 @@
     <ClCompile Include="src\Core\Entity\Model\ModelManager.cpp" />
     <ClCompile Include="src\Core\Entity\PickingEntity.cpp" />
     <ClCompile Include="src\Core\Entity\Scene.cpp" />
+    <ClCompile Include="src\Core\Entity\Systems\SystemMovement.cpp" />
+    <ClCompile Include="src\Core\Entity\Systems\SystemUpdateTransform.cpp" />
     <ClCompile Include="src\Core\Event\Event.cpp" />
     <ClCompile Include="src\Core\Event\EventApplication.cpp" />
     <ClCompile Include="src\Core\Event\EventEntity.cpp" />
