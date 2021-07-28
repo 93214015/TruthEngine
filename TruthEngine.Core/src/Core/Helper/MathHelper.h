@@ -319,7 +319,7 @@ namespace TruthEngine
 
 #pragma region GlobalOperators
 
-	bool operator==(const DirectX::XMFLOAT3& _in1, const float3& _in2)
+	inline bool operator==(const DirectX::XMFLOAT3& _in1, const float3& _in2)
 	{
 		return _in1.x == _in2.x && _in1.y == _in2.y && _in1.z == _in2.z;
 	}
@@ -375,12 +375,12 @@ namespace TruthEngine
 		constexpr XMMatrix XMIdentityMatrix = { _XMVectorRow1, _XMVectorRow2, _XMVectorRow3, _XMVectorRow4 };
 
 
-		constexpr float DegreeToRadian(float _DegreeAngle)
+		inline constexpr float DegreeToRadian(float _DegreeAngle)
 		{
 			return _DegreeAngle * PI * _1DIV180;
 		}
 
-		constexpr float RadianToDegree(float _RadianAngle)
+		inline constexpr float RadianToDegree(float _RadianAngle)
 		{
 			return _RadianAngle * PI_RCP * 180.0f;
 		}
@@ -881,7 +881,7 @@ namespace TruthEngine
 			return DirectX::XMMatrixRotationQuaternion(_XMQuaternion);
 		}
 
-		XMMatrix XMTransformMatrixRotation(float _RotationAngle, const float3& _RotationNormal, const float3& _RotationOrigin)
+		inline XMMatrix XMTransformMatrixRotation(float _RotationAngle, const float3& _RotationNormal, const float3& _RotationOrigin)
 		{
 			XMVector _RotationQuaternion = DirectX::XMQuaternionRotationNormal(DirectX::XMLoadFloat3(&_RotationNormal), _RotationAngle);
 
@@ -983,7 +983,7 @@ namespace TruthEngine
 
 		namespace TriangleTests
 		{
-			bool Intersects(const XMVector& _RayOrigin, const XMVector& _RayDirection, const XMVector& _V0, const XMVector& _V1, const XMVector& _V2, float& _OutDistance)
+			inline bool Intersects(const XMVector& _RayOrigin, const XMVector& _RayDirection, const XMVector& _V0, const XMVector& _V1, const XMVector& _V2, float& _OutDistance)
 			{
 				return DirectX::TriangleTests::Intersects(_RayOrigin, _RayDirection, _V0, _V1, _V2, _OutDistance);
 			}

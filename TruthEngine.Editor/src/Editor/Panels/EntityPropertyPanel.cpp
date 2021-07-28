@@ -530,7 +530,7 @@ namespace TruthEngine
 				{
 					if (!m_Context.HasComponent<ModelComponent>() && m_Context.HasComponent<MeshComponent>())
 					{
-						m_Context.GetScene()->CopyMeshEntity(m_Context);
+						Application::GetActiveScene()->CopyMeshEntity(m_Context);
 						s_CopyingMesh = true;
 					}
 				}
@@ -862,7 +862,7 @@ namespace TruthEngine
 				{
 					rigidDesc.mTransform = _Entity.GetTransformHierarchy();
 
-					auto mesh = _Entity.GetComponent<MeshComponent>().GetMesh();
+					const Mesh* mesh = &_Entity.GetComponent<MeshComponent>().GetMesh();
 					auto rigidTriangleMeshDesc = TEPhysicsRigidTriangleMeshDesc(mesh->GetVertexNum()
 						, (void*)mesh->GetVertexBuffer()->GetPosData().data()
 						, sizeof(VertexData::Pos)
@@ -885,7 +885,7 @@ namespace TruthEngine
 
 				rigidDesc.mTransform = m_Context.GetTransformHierarchy();
 
-				auto mesh = m_Context.GetComponent<MeshComponent>().GetMesh();
+				const Mesh* mesh = &m_Context.GetComponent<MeshComponent>().GetMesh();
 				auto rigidTriangleMeshDesc = TEPhysicsRigidTriangleMeshDesc(mesh->GetVertexNum()
 					, (void*)mesh->GetVertexBuffer()->GetPosData().data()
 					, sizeof(VertexData::Pos)

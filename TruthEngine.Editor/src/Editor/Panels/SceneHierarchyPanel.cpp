@@ -115,7 +115,7 @@ namespace TruthEngine
 
 				//Mesh* _Mesh = modelManager->GeneratePrimitiveMesh(primitiveType, _Size.x, _Size.y, _Size.z);
 
-				Entity _ModelEntity;
+				/*Entity _ModelEntity;
 				Entity _SelectedEntity = m_Context->GetSelectedEntity();
 				if ( _SelectedEntity)
 				{
@@ -129,12 +129,12 @@ namespace TruthEngine
 						strcpy_s(_ModelNameBuffer, _ModelName.c_str());
 					}
 					_ModelEntity = m_Context->AddModelEntity(_ModelNameBuffer, IdentityMatrix);
-				}
+				}*/
 
 				/*static MaterialManager* s_MaterialManager = MaterialManager::GetInstance();
 				Entity _MeshEntity = m_Context->AddMeshEntity(_MeshName.c_str(), IdentityMatrix, _Mesh, s_MaterialManager->AddDefaultMaterial(TE_IDX_MESH_TYPE::MESH_NTT), _ModelEntity);*/
 
-				Entity _MeshEntity = m_Context->AddPrimitiveMesh(_MeshName.c_str(), primitiveType, _Size, _ModelEntity);
+				Entity _MeshEntity = m_Context->AddPrimitiveMesh(_MeshName.c_str(), primitiveType, _Size, nullptr /*_ModelEntity*/);
 
 				m_Context->SelectEntity(_MeshEntity);
 
@@ -156,9 +156,10 @@ namespace TruthEngine
 		}
 
 		//auto g = m_Context->ViewEntities<MeshComponent>();
-		auto _ModelEntityCollection = m_Context->ViewEntities<ModelComponent>();
+		//auto _ModelEntityCollection = m_Context->ViewEntities<ModelComponent>();
+		auto _MeshEntityCollection = m_Context->ViewEntities<MeshComponent>();
 
-		if (_ModelEntityCollection.size() < 1)
+		if (_MeshEntityCollection.empty())
 			return;
 
 		ImGui::PushStyleColor(ImGuiCol_Header, ImVec4{ 0.36f, 1.0f, .57f, .31f });
@@ -169,7 +170,7 @@ namespace TruthEngine
 
 		ImGui::Indent();
 
-		for (auto entity : _ModelEntityCollection)
+		for (auto entity : _MeshEntityCollection)
 		{
 			auto& tag = m_Context->GetComponent<TagComponent>(entity);
 
@@ -177,12 +178,12 @@ namespace TruthEngine
 
 			if (ImGui::IsItemClicked())
 			{
-				m_Context->SelectEntity(Entity{ m_Context, entity });
+				m_Context->SelectEntity(Entity{ entity });
 			}
 
 			if (is_open)
 			{
-				std::vector<Entity>& _MeshEntityCollection = m_Context->GetComponent<ModelComponent>(entity).GetMeshEntities();
+				/*std::vector<Entity>& _MeshEntityCollection = m_Context->GetComponent<ModelComponent>(entity).GetMeshEntities();
 
 				if (_MeshEntityCollection.size() > 0)
 				{
@@ -206,7 +207,7 @@ namespace TruthEngine
 					}
 
 					ImGui::Unindent();
-				}
+				}*/
 
 				ImGui::TreePop();
 			}
@@ -433,14 +434,14 @@ namespace TruthEngine
 
 			if (ImGui::IsItemClicked())
 			{
-				m_Context->SelectEntity(Entity{ m_Context, entity });
+				m_Context->SelectEntity(Entity{ entity });
 			}
 
 			if (is_open)
 			{
-				auto& CameraChildrenNodes = m_Context->GetChildrenNodes(entity);
+				/*auto& CameraChildrenNodes = m_Context->GetChildrenNodes(entity);
 
-				DrawChilrenNodes(CameraChildrenNodes);
+				DrawChilrenNodes(CameraChildrenNodes);*/
 
 				ImGui::TreePop();
 			}
@@ -491,14 +492,14 @@ namespace TruthEngine
 
 			if (ImGui::IsItemClicked())
 			{
-				m_Context->SelectEntity(Entity{ m_Context, lightEntity });
+				m_Context->SelectEntity(Entity{ lightEntity });
 			}
 
 			if (is_open)
 			{
-				auto& CameraChildrenNodes = m_Context->GetChildrenNodes(lightEntity);
+				/*auto& CameraChildrenNodes = m_Context->GetChildrenNodes(lightEntity);
 
-				DrawChilrenNodes(CameraChildrenNodes);
+				DrawChilrenNodes(CameraChildrenNodes);*/
 
 				ImGui::TreePop();
 			}
