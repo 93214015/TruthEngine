@@ -2,17 +2,19 @@
 
 namespace TruthEngine
 {
+	class Scene;
+
 	class System
 	{
 	public:
-		System(class Scene* _Scene)
+		System(Scene* _Scene)
 			: m_Scene(_Scene)
 		{}
 		
 		virtual void OnUpdate(float DeltaSecond) = 0;
 
 	protected:
-		class Scene* m_Scene;
+		Scene* m_Scene;
 
 	};
 }

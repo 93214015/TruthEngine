@@ -120,7 +120,7 @@ namespace TruthEngine
 			{
 				float3 _RotationOrigin = float3{ .0f, .0f, .0f };
 
-				Scene* _Scene = TE_INSTANCE_APPLICATION->GetActiveScene();
+				Scene* _Scene = Application::GetActiveScene();
 
 				if (Entity _SelectedEntity = _Scene->GetSelectedEntity(); _SelectedEntity)
 				{

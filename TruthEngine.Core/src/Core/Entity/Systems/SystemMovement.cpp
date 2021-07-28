@@ -8,7 +8,7 @@
 namespace TruthEngine
 {
 	SystemMovement::SystemMovement()
-		: System(Application::GetApplication()->GetActiveScene())
+		: System(Application::GetActiveScene())
 	{}
 
 	void SystemMovement::OnUpdate(float DeltaTime)

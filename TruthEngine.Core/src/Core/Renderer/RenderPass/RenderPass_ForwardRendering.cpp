@@ -151,7 +151,7 @@ namespace TruthEngine
 
 		auto _CBData = m_ConstantBufferDirect_PerMesh->GetData();
 
-		Scene* _ActiveScene = Application::GetApplication()->GetActiveScene();
+		Scene* _ActiveScene = Application::GetActiveScene();
 
 		Camera* _ActiveCamera = CameraManager::GetInstance()->GetActiveCamera();
 		const BoundingFrustum& _CameraBoundingFrustum = _ActiveCamera->GetBoundingFrustumWorldSpace();

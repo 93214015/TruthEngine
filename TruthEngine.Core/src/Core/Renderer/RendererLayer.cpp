@@ -98,7 +98,7 @@ namespace TruthEngine
 		if (_dirLight0)
 		{
 			auto cameraCascaded = _dirLight0->GetCamera();
-			cameraCascaded->UpdateFrustums(TE_INSTANCE_APPLICATION->GetActiveScene(), activeCamera, true);
+			cameraCascaded->UpdateFrustums(Application::GetActiveScene(), activeCamera, true);
 			_lightManager->GetCascadedShadowTransform(cameraCascaded, _cascadedShadowTransforms);
 		}
 
@@ -469,7 +469,7 @@ namespace TruthEngine
 			});
 	}
 
-	inline const float3& RendererLayer::GetEnvironmentMapMultiplier() const
+	const float3& RendererLayer::GetEnvironmentMapMultiplier() const
 	{
 		return m_CB_EnvironmentMap->GetData()->mEnvironmentMapMultiplier;
 	}

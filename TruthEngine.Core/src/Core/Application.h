@@ -11,6 +11,7 @@ namespace TruthEngine {
 
 	class EventWindowResize;
 	class RendererLayer;
+	class Scene;
 
 	class Application {
 
@@ -69,8 +70,8 @@ namespace TruthEngine {
 		inline bool IsHoveredSceneViewPort() const noexcept { return m_IsHoveredSceneViewport; }
 		inline void IsHoveredSceneViewPort(bool hovered) noexcept { m_IsHoveredSceneViewport = hovered; }
 
-		inline static Application* GetApplication() { return s_Instance; }
-		static inline class Scene* GetActiveScene()
+		static Application* GetApplication() { return s_Instance; }
+		static Scene* GetActiveScene()
 		{
 			return s_ActiveScene;
 		}
@@ -82,9 +83,9 @@ namespace TruthEngine {
 
 	protected:
 		static Application* s_Instance;
-		static class Scene* s_ActiveScene;
+		static Scene* s_ActiveScene;
 
-		std::unique_ptr<class Scene> m_DefautlScene;
+		std::unique_ptr<Scene> m_DefautlScene;
 		
 		std::unique_ptr<Window> m_Window;
 		EventDispatcher m_EventDispatcher;

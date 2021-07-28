@@ -18,13 +18,23 @@
 
 namespace TruthEngine {
 
+	///////////////////////////////////////////////////////////////////////////////////
+	//Statics Definitions
+	///////////////////////////////////////////////////////////////////////////////////
+	Scene* Application::s_ActiveScene = nullptr;
+	Application* Application::s_Instance = nullptr;
+	/////////////////////////////////////////////////////////////////////////////////
+
+
 	Application::Application(const char* title, uint32_t clientWidth, uint32_t clientHeight, uint8_t framesInFlightNum)
 		: m_Title(title), m_ClientWidth(clientWidth), m_ClientHeight(clientHeight), m_FramesOnTheFlyNum(framesInFlightNum)
-		, m_DefautlScene(new Scene)
+		, m_DefautlScene(new Scene())
 	{
 
 		TE_ASSERT_CORE(!s_Instance, "Aplication already exists!");
 		s_Instance = this;
+		s_ActiveScene = m_DefautlScene.get();
+
 
 		m_Window = TruthEngine::TECreateWindow(title, clientWidth, clientHeight);
 
@@ -107,6 +117,5 @@ namespace TruthEngine {
 		return TE_INSTANCE_SWAPCHAIN->GetCurrentFrameIndex();
 	}
 
-	Application* Application::s_Instance = nullptr;
 
 }
