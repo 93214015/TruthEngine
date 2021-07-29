@@ -67,6 +67,8 @@ namespace TruthEngine
 		XMMatrix _XMView = Math::XMMatrixView(P, L, U);
 		m_ViewMatrix = Math::FromXMA(_XMView);
 
+		m_ViewProjMatrix = Math::Multiply(_XMView, Math::ToXM(m_ProjectionMatrix));
+
 		XMMatrix _XMViewInv = Math::XMMatrixInv(_XMView);
 		m_ViewInvMatrix = Math::FromXMA(_XMViewInv);
 

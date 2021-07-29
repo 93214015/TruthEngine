@@ -204,7 +204,7 @@ namespace TruthEngine
 		entt::registry m_Registery;
 
 		//EntityTree m_EntityTree;
-		Entity m_SelectedEntity;
+		Entity m_SelectedEntity = {};
 
 		Entity m_ModelShootedBall;
 

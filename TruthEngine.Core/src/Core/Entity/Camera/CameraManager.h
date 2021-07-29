@@ -45,19 +45,19 @@ namespace TruthEngine
 			static void EditCameraFrustumOrthographic(Camera* camera, float aspectRatio, float zNearPlane = -1.0, float zFarPlane = -1.0f);
 			static void EditCameraFrustumOrthographic(Camera* camera);
 
-			inline std::vector<Camera>::iterator begin()
+			inline auto begin()
 			{
 				return m_Cameras.begin();
 			}
-			inline std::vector<Camera>::const_iterator cbegin() const
+			inline auto cbegin() const
 			{
 				return m_Cameras.cbegin();
 			}
-			inline std::vector<Camera>::iterator end()
+			inline auto end()
 			{
 				return m_Cameras.end();
 			}
-			inline std::vector<Camera>::const_iterator cend()
+			inline auto cend()
 			{
 				return m_Cameras.cend();
 			}
@@ -68,7 +68,7 @@ namespace TruthEngine
 
 
 		protected:
-			std::vector<Camera> m_Cameras;
+			std::deque<Camera> m_Cameras;
 
 			//std::unordered_map<uint32_t, Camera*> m_Map_Cameras;
 			std::unordered_map<std::string_view, Camera*> m_Map_CamerasName;

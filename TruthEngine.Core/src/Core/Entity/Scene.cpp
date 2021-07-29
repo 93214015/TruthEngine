@@ -29,11 +29,11 @@ namespace TruthEngine
 
 	void Scene::Init()
 	{
-		m_ModelShootedBall = AddEntity("ShootedBallModel");
+		m_ModelShootedBall = AddEntity("ShootedBallM");
 		RegisterEventListener();
 	}
 
-	Entity Scene::AddEntity(const char* _EntityTag, const float4A& _Translation, const float4A& RotationQuaterion, const Entity* _ParentEntity)
+	Entity Scene::AddEntity(const char* _EntityTag, const float4A& _Translation, const float4A& _RotationQuaterion, const Entity* _ParentEntity)
 	{
 		Entity entity(m_Registery.create());
 
@@ -68,9 +68,11 @@ namespace TruthEngine
 			}
 		}
 
-		entity.AddComponent<RotationComponent>();
-		//entity.AddComponent<TransformComponent>(_NewTransform /*, _WorldCenterOffset*/);
-		entity.AddComponent<TagComponent>(_EntityTag);
+		float4x4A _NewTransform = Math::TransformMatrix(Math::IdentityScale, _RotationQuaterion, _NewTranslation);
+
+		AddComponent<RotationComponent>(entity, _RotationQuaterion);
+		AddComponent<TransformComponent>(entity, _NewTransform /*, _WorldCenterOffset*/);
+		AddComponent<TagComponent>(entity, _EntityTag);
 
 		if (_ParentEntity != nullptr)
 		{
@@ -83,11 +85,11 @@ namespace TruthEngine
 	Entity Scene::AddMeshEntity(const char* _MeshName, const float4A& _Translation, const float4A& _RotationQuaternion, const Mesh& _Mesh, Material* _Material, const Entity* _ParentEntity)
 	{
 		auto entity_mesh = AddEntity(_MeshName, _Translation, _RotationQuaternion);
-		entity_mesh.AddComponent<MeshComponent>(_Mesh);
-		entity_mesh.AddComponent<MaterialComponent>(_Material);
+		AddComponent<MeshComponent>(entity_mesh, _Mesh);
+		AddComponent<MaterialComponent>(entity_mesh, _Material);
 
 		/*Add BoundignAABoxComponentand get the bounding box*/
-		const BoundingAABox& _meshAABB = entity_mesh.AddComponent<BoundingBoxComponent>(_Mesh).GetBoundingBox();
+		const BoundingAABox& _meshAABB = AddComponent<BoundingBoxComponent>(entity_mesh, _Mesh).GetBoundingBox();
 
 		//GetComponent<ModelComponent>(_ParentEntity).AddMeshEntity(entity_mesh);
 
@@ -128,12 +130,12 @@ namespace TruthEngine
 	{
 		const Mesh& _Mesh = TE_INSTANCE_MODELMANAGER->GeneratePrimitiveMesh(_PrimitiveType, _PrimitiveSize.x, _PrimitiveSize.y, _PrimitiveSize.z);
 		Material* _Material = TE_INSTANCE_MATERIALMANAGER->AddDefaultMaterial(TE_IDX_MESH_TYPE::MESH_NTT);
-		return AddMeshEntity(_MeshName, float4A{ 0.0f, 0.0f, 0.0f, 0.0f }, float4A{ 0.0f, 0.0f, 0.0f, 0.0f }, _Mesh, _Material, _ParentEntity);
+		return AddMeshEntity(_MeshName, Math::IdentityTranslate, Math::IdentityQuaternion, _Mesh, _Material, _ParentEntity);
 	}
 
 	Entity Scene::AddEnvironmentEntity()
 	{
-		auto entity_environment = AddEntity("EnvironmentSphere");
+		auto entity_environment = AddEntity("EnvironmentS");
 
 		Mesh* _Mesh = nullptr;
 
@@ -151,7 +153,7 @@ namespace TruthEngine
 		);
 
 		auto entityLight = AddEntity(_Name.data());
-		entityLight.AddComponent<LightComponent>(_Light);
+		AddComponent<LightComponent>(entityLight, _Light);
 
 		return entityLight;
 	}
@@ -163,7 +165,7 @@ namespace TruthEngine
 		);
 
 		auto entityLight = AddEntity(_Name.data());
-		entityLight.AddComponent<LightComponent>(_Light);
+		AddComponent<LightComponent>(entityLight, _Light);
 
 		return entityLight;
 	}
@@ -370,11 +372,11 @@ namespace TruthEngine
 
 		if (HasComponent<PhysicsDynamicComponent>(entity))
 		{
-			_Transform = &entity.GetComponent<PhysicsDynamicComponent>().GetTranform();
+			_Transform = &GetComponent<PhysicsDynamicComponent>(entity).GetTranform();
 		}
 		else
 		{
-			_Transform = &entity.GetComponent<TransformComponent>().GetTransform();
+			_Transform = &GetComponent<TransformComponent>(entity).GetTransform();
 		}
 
 		return *_Transform;
@@ -454,7 +456,7 @@ namespace TruthEngine
 
 		const float4x4A* _Transform = nullptr;
 
-		_Transform = &entity.GetComponent<TransformComponent>().GetTransform();
+		_Transform = &GetComponent<TransformComponent>(entity).GetTransform();
 
 		return (*_Transform);
 	}
@@ -618,13 +620,13 @@ namespace TruthEngine
 			name = name + "_Copy" + std::to_string(s_copyIndex);
 		}
 
-		const TransformComponent& _TransformComponent = meshEntity.GetComponent<TransformComponent>();
+		const TransformComponent& _TransformComponent = GetComponent<TransformComponent>(meshEntity);
 		const float4x4A& transform = _TransformComponent.GetTransform();
 		//const float3& _worldCenterOffset = _TransformComponent.GetWorldCenterOffset();
 
-		const Mesh& mesh = meshEntity.GetComponent<MeshComponent>().GetMesh();
+		const Mesh& mesh = GetComponent<MeshComponent>(meshEntity).GetMesh();
 		//auto newMesh = TE_INSTANCE_MODELMANAGER->CopyMesh(mesh);
-		auto material = meshEntity.GetComponent<MaterialComponent>().GetMaterial();
+		auto material = GetComponent<MaterialComponent>(meshEntity).GetMaterial();
 		auto newMaterial = TE_INSTANCE_MATERIALMANAGER->AddMaterial(material);
 
 		/*Entity* _ParentEntity = GetParent(meshEntity);*/
@@ -663,7 +665,7 @@ namespace TruthEngine
 
 			if (_Data.mAnimation)
 			{
-				_MeshEntity.AddComponent<SkinnedAnimationComponent>(_Data.mAnimation);
+				AddComponent<SkinnedAnimationComponent>(_MeshEntity, _Data.mAnimation);
 			}
 
 			if (_ParentAABB != nullptr)

@@ -923,10 +923,26 @@ namespace TruthEngine
 		}
 
 
+		inline float4x4A Multiply(const float4x4A& _M0, const float4x4A& _M1)
+		{
+			return FromXMA(DirectX::XMMatrixMultiply(ToXM(_M0), ToXM(_M1)));
+		}
+
+		inline float4x4A Multiply(const XMMatrix& _M0, const XMMatrix& _M1)
+		{
+			return FromXMA(DirectX::XMMatrixMultiply(_M0, _M1));
+		}
+
 		inline XMVector XMMultiply(const XMVector& _V0, const XMVector& _V1) noexcept
 		{
 			return DirectX::XMVectorMultiply(_V0, _V1);
 		}
+
+		inline XMMatrix XMMultiply(const XMMatrix& _M0, const XMMatrix& _M1)
+		{
+			return DirectX::XMMatrixMultiply(_M0, _M1);
+		}
+
 
 		inline XMVector XMAdd(const XMVector& _V0, const XMVector& _V1)
 		{

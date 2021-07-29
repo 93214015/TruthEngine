@@ -68,12 +68,12 @@ namespace TruthEngine
 				return m_EntityHandle != ent.m_EntityHandle;
 			}
 
-			operator uint32_t()
+			explicit operator uint32_t()
 			{
 				return static_cast<uint32_t>(m_EntityHandle);
 			}
 
-			operator uint32_t() const
+			explicit operator uint32_t() const
 			{
 				return static_cast<uint32_t>(m_EntityHandle);
 			}

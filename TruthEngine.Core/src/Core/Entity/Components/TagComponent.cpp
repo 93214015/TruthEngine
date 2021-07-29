@@ -6,7 +6,9 @@ namespace TruthEngine
 
 	TagComponent::TagComponent(const char* tag)
 	{
-		strcpy_s(m_Tag, strlen(tag), tag);
+		size_t _STRLength = strlen(tag);
+		TE_ASSERT_CORE(_STRLength < 16, "The Tag should have 15 character Length at most");
+		strcpy_s(m_Tag, _STRLength + 1, tag);
 	}
 
 	TagComponent::TagComponent() = default;
