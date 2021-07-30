@@ -83,6 +83,12 @@ namespace TruthEngine
 			return m_Registery.get<T>(entityHandler);
 		}
 
+		template<class T>
+		const T& GetComponent(entt::entity entityHandler) const
+		{
+			return m_Registery.get<T>(entityHandler);
+		}
+
 		template<class T, typename... Args>
 		inline T& AddComponent(Entity _Entity, Args&&... _Args)
 		{
@@ -164,6 +170,8 @@ namespace TruthEngine
 		void AttachEntity(Entity Parent, Entity Attached);
 		void DetachEntity(Entity Parent, Entity Detached);
 		*/
+
+		const float4x4A& GetTransform(Entity _Entity) const;
 
 		void SetTransform(Entity _Entity, const float4x4A& _Transform);
 

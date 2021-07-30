@@ -516,15 +516,12 @@ namespace TruthEngine
 
 			auto activeCamera = CameraManager::GetInstance()->GetActiveCamera();
 
-			TransformComponent& _TransformComponent = m_Context.GetComponent<TransformComponent>();
-			//float4x4A _transform = _TransformComponent.GetTransformFromWorldCenter();
-			float4x4A _transform = _TransformComponent.GetTransform();
-
+			float4x4A& _Transform = m_Context.GetComponent<TransformComponent>().GetTransform();
 
 			static auto s_CopyingMesh = false;
 
 
-			if (ImGuizmo::Manipulate(&activeCamera->GetView()._11, &activeCamera->GetProjection()._11, _operationMode, _currentGizmoMode, &_transform._11, nullptr))
+			if (ImGuizmo::Manipulate(&activeCamera->GetView()._11, &activeCamera->GetProjection()._11, _operationMode, _currentGizmoMode, &_Transform._11, nullptr))
 			{
 				if (InputManager::IsKeyPressed(VK_SHIFT) && !s_CopyingMesh)
 				{
@@ -545,8 +542,8 @@ namespace TruthEngine
 				_OriginalTransform = _transform;*/
 
 
-				EventEntityTransform _eventEntityTransform{ m_Context, ETransformType::Scale & ETransformType::Translate };
-				TE_INSTANCE_APPLICATION->OnEvent(_eventEntityTransform);
+				/*EventEntityTransform _eventEntityTransform{ m_Context, ETransformType::Scale & ETransformType::Translate };
+				TE_INSTANCE_APPLICATION->OnEvent(_eventEntityTransform);*/
 			}
 
 			if (!ImGui::IsMouseDragging(0) && !InputManager::IsKeyPressed(VK_SHIFT))

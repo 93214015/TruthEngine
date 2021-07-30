@@ -60,12 +60,12 @@ namespace TruthEngine
 
 		TE_INSTANCE_CAMERAMANAGER->SetActiveCamera(mainCamera);
 
-		s_ActiveScene->Init();
+		GetActiveScene()->Init();
 
 		//
 		//Add Main Camera
 		//
-		auto entity = s_ActiveScene->AddEntity("MainCamera");
+		auto entity = GetActiveScene()->AddEntity("MainCamera");
 		entity.AddComponent<CameraComponent>(mainCamera, TE_INSTANCE_CAMERAMANAGER->GetCameraController());
 
 		m_LayerStack.PushLayer(m_RendererLayer.get());
@@ -74,13 +74,13 @@ namespace TruthEngine
 		//Adding Lights
 		//
 		/*const float4 _cascadeCoveringPercentage = float4{ 10.0f, 50.0f, 100.f, 200.0f };
-		s_ActiveScene->AddLightEntity_Directional("SunLight", float3{ 0.0f, 0.0f, 0.0f }, float3{ .38f, -.60f, .71f }, float3{ -42.0f, 66.0f, -80.0f }, 0.05f, true, _cascadeCoveringPercentage);*/
-		s_ActiveScene->AddLightEntity_Spot("SpotLight0", float3{ .8f, .8f, .8f }, float3{ .01f, -.71f, .7f }, float3{ -0.3f, 28.0f, -42.0f }, 0.05f, true, 90.0f, 200.0f, 20.0f, 60.0f);
+		GetActiveScene()->AddLightEntity_Directional("SunLight", float3{ 0.0f, 0.0f, 0.0f }, float3{ .38f, -.60f, .71f }, float3{ -42.0f, 66.0f, -80.0f }, 0.05f, true, _cascadeCoveringPercentage);*/
+		GetActiveScene()->AddLightEntity_Spot("SpotLight0", float3{ .8f, .8f, .8f }, float3{ .01f, -.71f, .7f }, float3{ -0.3f, 28.0f, -42.0f }, 0.05f, true, 90.0f, 200.0f, 20.0f, 60.0f);
 
 		//auto lightManager = LightManager::GetInstace();
 		//auto dirLight0 = lightManager->AddLightDirectional("dlight_0", float3{ 0.8f, 0.8f, 0.8f }, float3{ .38f, -.60f, .71f }, float3{ -42.0f, 66.0f, -80.0f }, 0.05f, true, _cascadeCoveringPercentage);
 		////lightManager->AddLightCamera(dirLight0, TE_CAMERA_TYPE::Perspective);
-		//auto entityLight = s_ActiveScene->AddEntity("Directional Light 0");
+		//auto entityLight = GetActiveScene()->AddEntity("Directional Light 0");
 		//entityLight.AddComponent<LightComponent>(dirLight0);
 
 		//must put ModelManager initiation after RendererLayer attachment so that the bufferManager has been initiated 
@@ -88,11 +88,11 @@ namespace TruthEngine
 		modelManager->Init(TE_INSTANCE_BUFFERMANAGER);
 		//modelManager->AddSampleModel();
 
-		m_SceneHierarchyPanel.SetContext(s_ActiveScene);
+		m_SceneHierarchyPanel.SetContext(GetActiveScene());
 
 		TE_INSTANCE_PHYSICSENGINE->Init();
 
-		s_ActiveScene->AddEnvironmentEntity();
+		GetActiveScene()->AddEnvironmentEntity();
 
 		RegisterOnEvents();
 	}
@@ -209,7 +209,7 @@ namespace TruthEngine
 
 						if (_Checked)
 						{
-							Entity _SelectedEntity = s_ActiveScene->GetSelectedEntity();
+							Entity _SelectedEntity = GetActiveScene()->GetSelectedEntity();
 							if (_SelectedEntity)
 							{
 								float angle = DirectX::XMConvertToRadians(0.25f * static_cast<float>(InputManager::GetDX()));
@@ -311,7 +311,7 @@ namespace TruthEngine
 					auto dragDelta = ImGui::GetMouseDragDelta(ImGuiMouseButton_Left);
 					if (dragDelta.x == 0 && dragDelta.y == 0)
 					{
-						s_ActiveScene->ClearSelectedEntity();
+						GetActiveScene()->ClearSelectedEntity();
 						m_SceneViewPortPos = ImGui::GetWindowPos();
 						auto _mousePos = ImGui::GetMousePos();
 						m_SceneViewPortAreaMin = ImGui::GetWindowContentRegionMin();
@@ -323,11 +323,11 @@ namespace TruthEngine
 						if ((_windowMousePos.x > 0 && _windowMousePos.y > 0) && (_windowMousePos.x < m_SceneViewPortAreaMax.x && _windowMousePos.y < m_SceneViewPortAreaMax.y))
 						{
 
-							/*std::function<void()> lambda = [this, _windowMousePos]() { PickingEntity::PickEntity(_windowMousePos, &s_ActiveScene, CameraManager::GetInstance()->GetActiveCamera()); };
+							/*std::function<void()> lambda = [this, _windowMousePos]() { PickingEntity::PickEntity(_windowMousePos, &GetActiveScene(), CameraManager::GetInstance()->GetActiveCamera()); };
 
 							gFeaturePickEntity = TE_INSTANCE_THREADPOOL.Queue(lambda);*/
 
-							PickingEntity::PickEntity(_windowMousePos, s_ActiveScene, TE_INSTANCE_CAMERAMANAGER->GetActiveCamera());
+							PickingEntity::PickEntity(_windowMousePos, GetActiveScene(), TE_INSTANCE_CAMERAMANAGER->GetActiveCamera());
 						}
 					}
 				}
@@ -406,7 +406,7 @@ namespace TruthEngine
 			{
 				ImGui::Begin("Properties");
 
-				m_EntityPropertyPanel.SetContext(s_ActiveScene->GetSelectedEntity());
+				m_EntityPropertyPanel.SetContext(GetActiveScene()->GetSelectedEntity());
 				m_EntityPropertyPanel.OnImGuiRender();
 
 				ImGui::End();
@@ -614,7 +614,7 @@ namespace TruthEngine
 
 		if (_ImportModel)
 		{
-			s_ActiveScene->ImportModel(importFilePath.c_str(), nullptr);
+			GetActiveScene()->ImportModel(importFilePath.c_str(), nullptr);
 			strcpy_s(_ModelName, "Model_");
 			_SelectedModel = false;
 			_ImportModel = false;
@@ -637,7 +637,7 @@ namespace TruthEngine
 
 		RegisterEventListener(EventType::KeyReleased, onKeyReleased);
 
-		auto onEntityTransform = [this](Event& event)
+		/*auto onEntityTransform = [this](Event& event)
 		{
 			EventEntityTransform& _e = static_cast<EventEntityTransform&>(event);
 
@@ -645,10 +645,10 @@ namespace TruthEngine
 			const BoundingAABox& _BoundingBox = _entity.GetComponent<BoundingBoxComponent>().GetBoundingBox();
 			BoundingAABox _TransformedBoundingBox = Math::TransformBoundingBox(_BoundingBox, _entity.GetComponent<TransformComponent>().GetTransform());
 
-			s_ActiveScene->UpdateBoundingBox(_TransformedBoundingBox);
+			GetActiveScene()->UpdateBoundingBox(_TransformedBoundingBox);
 		};
 
-		RegisterEventListener(EventType::EntityTransform, onEntityTransform);
+		RegisterEventListener(EventType::EntityTransform, onEntityTransform);*/
 		
 	}
 

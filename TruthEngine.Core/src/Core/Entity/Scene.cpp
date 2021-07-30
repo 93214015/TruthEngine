@@ -363,6 +363,13 @@ namespace TruthEngine
 	}
 	*/
 
+
+	const float4x4A& Scene::GetTransform(Entity _Entity) const
+	{
+		return GetComponent<TransformComponent>(_Entity).GetTransform();
+	}
+
+
 	void Scene::SetTransform(Entity _Entity, const float4x4A& _Transform)
 	{
 		GetComponent<TransformComponent>(_Entity).GetTransform() = _Transform;
@@ -392,22 +399,24 @@ namespace TruthEngine
 	{
 		float4x4A& _Transform = GetComponent<TransformComponent>(_Entity).GetTransform();
 
-		const XMMatrix _XMTransform = Math::ToXM(_Transform);
+		XMMatrix _XMTransform = Math::ToXM(_Transform);
 
 		const XMMatrix _XMNewTransform = Math::XMTransformMatrixTranslate(_XMTranslation);
 
-		_Transform = Math::Multiply(_XMNewTransform, _XMTransform);
+		_XMTransform = Math::XMMultiply(_XMNewTransform, _XMTransform);
+
+		_Transform = Math::FromXMA(_XMTransform);
 	}
 
 	void Scene::SetTranslationRelative(Entity _Entity, const XMVector& _XMTranslation)
 	{
 		float4x4A& _Transform = GetComponent<TransformComponent>(_Entity).GetTransform();
 
-		const XMMatrix _XMTransform = Math::ToXM(_Transform);
-
 		const XMMatrix _XMNewTransform = Math::XMTransformMatrixTranslate(_XMTranslation);
 
-		_Transform = Math::Multiply(_XMTransform, _XMNewTransform);
+		const XMMatrix _XMTransform = Math::XMMultiply(Math::ToXM(_Transform), _XMNewTransform);
+
+		_Transform = Math::FromXMA(_XMTransform);
 	}
 
 	void Scene::SetPosition(Entity _Entity, const XMVector& _XMTranslation)
@@ -885,5 +894,11 @@ namespace TruthEngine
 		m_SystemMovement.OnUpdate(DeltaTime);
 		m_SystemUpdateTransforms.OnUpdate(DeltaTime);
 	}
+
+
+	//
+	// Statics
+	//
+	Scene* Scene::s_ActiveScene = nullptr;
 
 }
