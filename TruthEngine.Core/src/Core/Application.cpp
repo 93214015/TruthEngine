@@ -21,7 +21,6 @@ namespace TruthEngine {
 	///////////////////////////////////////////////////////////////////////////////////
 	//Statics Definitions
 	///////////////////////////////////////////////////////////////////////////////////
-	Scene* Application::s_ActiveScene = nullptr;
 	Application* Application::s_Instance = nullptr;
 	/////////////////////////////////////////////////////////////////////////////////
 
@@ -33,8 +32,8 @@ namespace TruthEngine {
 
 		TE_ASSERT_CORE(!s_Instance, "Aplication already exists!");
 		s_Instance = this;
-		s_ActiveScene = m_DefautlScene.get();
 
+		Scene::SetActiveScene(m_DefautlScene.get());
 
 		m_Window = TruthEngine::TECreateWindow(title, clientWidth, clientHeight);
 

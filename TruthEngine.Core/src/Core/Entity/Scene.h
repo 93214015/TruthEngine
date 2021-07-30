@@ -11,18 +11,17 @@
 namespace TruthEngine
 {
 
+#pragma region Forward Declarations
 	class EventKeyReleased;
-
 	class LightManager;
 	class CameraManager;
 	class Camera;
-
 	class Material;
 	class Mesh;
-
 	class ModelComponent;
-
 	class SA_Animation;
+#pragma endregion
+
 
 	class Scene
 	{
@@ -166,6 +165,21 @@ namespace TruthEngine
 		void DetachEntity(Entity Parent, Entity Detached);
 		*/
 
+		void SetTransform(Entity _Entity, const float4x4A& _Transform);
+
+		void SetPosition(Entity _Entity, const float3A& _Translation);
+		void SetPosition(Entity _Entity, const XMVector& _Translation);
+		void SetTranslationLocal(Entity _Entity, const float3A& _Translation);
+		void SetTranslationLocal(Entity _Entity, const XMVector& _Translation);
+		void SetTranslationRelative(Entity _Entity, const float3A& _Translation);
+		void SetTranslationRelative(Entity _Entity, const XMVector& _Translation);
+
+		void SetRotation(Entity _Entity, const float4A& _Quaternion);
+		void SetRotation(Entity _Entity, const XMVector& _Quaternion);
+		void SetRotationLocal(Entity _Entity, const float4A& _Quaternion);
+		void SetRotationLocal(Entity _Entity, const XMVector& _Quaternion);
+		void SetRotationRelative(Entity _Entity, const float4A& _Quaternion);
+		void SetRotationRelative(Entity _Entity, const XMVector& _Quaternion);
 
 		const float4x4A& GetTransformHierarchy(Entity entity);
 		const float4x4A& GetTransformHierarchy(entt::entity entityHandler);
@@ -195,6 +209,16 @@ namespace TruthEngine
 
 		void OnUpdate(float DeltaTime);
 
+		//
+		//Static
+		//
+		static Scene* s_ActiveScene;
+
+		static void SetActiveScene(Scene* _Scene)
+		{
+			s_ActiveScene = _Scene;
+		}
+		
 
 	private:
 		/*float4x4A GetParentTransforms(Entity parent);
@@ -236,4 +260,10 @@ namespace TruthEngine
 		friend class Entity;
 		/*friend class EntityTree;*/
 	};
+
+
+	inline Scene* GetActiveScene()
+	{
+		return Scene::s_ActiveScene;
+	}
 }

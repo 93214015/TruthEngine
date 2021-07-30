@@ -156,7 +156,7 @@ namespace TruthEngine
 		{
 			PxRigidActor* _actor = (PxRigidActor*)actors[i];
 
-			PhysicsDynamicComponent& _physicsComponent = Application::GetActiveScene()->GetComponent<PhysicsDynamicComponent>((entt::entity)(reinterpret_cast<uint32_t>(_actor->userData)));
+			PhysicsDynamicComponent& _physicsComponent = GetActiveScene()->GetComponent<PhysicsDynamicComponent>((entt::entity)(reinterpret_cast<uint32_t>(_actor->userData)));
 
 			const auto actorPos = _actor->getGlobalPose();
 
@@ -192,7 +192,7 @@ namespace TruthEngine
 		XMVECTOR xmScale;
 		float4 translate; float4 quat;
 
-		auto activeScene = Application::GetActiveScene();
+		auto activeScene = GetActiveScene();
 
 
 		auto view_dynamic = activeScene->ViewEntities<PhysicsDynamicComponent>();
@@ -418,7 +418,7 @@ namespace TruthEngine
 
 	bool PhysicsEngine::Reset()
 	{
-		auto scene = Application::GetActiveScene();
+		auto scene = GetActiveScene();
 
 		auto& groups = scene->ViewEntities<PhysicsDynamicComponent>();
 

@@ -99,7 +99,7 @@ namespace TruthEngine
 		if (_SunLight)
 		{
 			auto cameraCascaded = _SunLight->GetCamera();
-			auto scene = Application::GetActiveScene();
+			auto scene = GetActiveScene();
 			auto camera = scene->GetActiveCamera();
 
 
@@ -344,7 +344,7 @@ namespace TruthEngine
 		if (_SpotLight)
 		{
 			const Camera* _Camera = m_LightManager->GetLightCamera(_SpotLight);
-			Scene* scene = Application::GetActiveScene();
+			Scene* scene = GetActiveScene();
 
 			bool _IsReveresedDepth = _Camera->IsReversedDepth();
 

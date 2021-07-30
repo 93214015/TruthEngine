@@ -22,7 +22,7 @@ namespace TruthEngine
 
 	float4x4A Entity::GetTransformHierarchy()
 	{
-		return Application::GetActiveScene()->GetTransformHierarchy(*this);
+		return GetActiveScene()->GetTransformHierarchy(*this);
 	}
 
 
@@ -48,7 +48,7 @@ namespace TruthEngine
 
 	void Entity::Move(const float4A& _MovementVector) const
 	{
-		Scene* _Scene = Application::GetActiveScene();
+		Scene* _Scene = GetActiveScene();
 		XMVector _XMTranslate = Math::ToXM(_Scene->GetComponent<TranslationComponent>(*this).Translation);
 		XMVector _XMMovement = Math::ToXM(_MovementVector);
 		_XMTranslate = Math::XMAdd(_XMTranslate, _XMMovement);
@@ -57,7 +57,7 @@ namespace TruthEngine
 
 	void Entity::Rotate(const float4A& _RotationQuaternion) const
 	{
-		Scene* _Scene = Application::GetActiveScene();
+		Scene* _Scene = GetActiveScene();
 
 		float4A& _Quat = _Scene->GetComponent<RotationComponent>(*this).Quaterion;
 

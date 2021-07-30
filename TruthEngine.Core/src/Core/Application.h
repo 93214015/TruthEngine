@@ -70,12 +70,7 @@ namespace TruthEngine {
 		inline bool IsHoveredSceneViewPort() const noexcept { return m_IsHoveredSceneViewport; }
 		inline void IsHoveredSceneViewPort(bool hovered) noexcept { m_IsHoveredSceneViewport = hovered; }
 
-		static Application* GetApplication() { return s_Instance; }
-		static Scene* GetActiveScene()
-		{
-			return s_ActiveScene;
-		}
-		
+		static Application* GetApplication() { return s_Instance; }		
 
 	protected:
 		void OnWindowResize(EventWindowResize& event);
@@ -83,7 +78,6 @@ namespace TruthEngine {
 
 	protected:
 		static Application* s_Instance;
-		static Scene* s_ActiveScene;
 
 		std::unique_ptr<Scene> m_DefautlScene;
 		

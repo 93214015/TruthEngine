@@ -18,25 +18,25 @@ namespace TruthEngine
 			template<class T, class... Args>
 			inline T& AddComponent(Args&&... args) const
 			{
-				return Application::GetActiveScene()->AddComponent<T>(m_EntityHandle, std::forward<Args>(args)...);
+				return GetActiveScene()->AddComponent<T>(m_EntityHandle, std::forward<Args>(args)...);
 			}
 
 			template<class T>
 			inline T& GetComponent() const
 			{
-				return Application::GetActiveScene()->GetComponent<T>(m_EntityHandle);
+				return GetActiveScene()->GetComponent<T>(m_EntityHandle);
 			}
 
 			template<class T>
 			inline bool HasComponent() const
 			{
-				return Application::GetActiveScene()->HasComponent<T>(m_EntityHandle);
+				return GetActiveScene()->HasComponent<T>(m_EntityHandle);
 			}
 
 			template<class T>
 			void RemoveComponent() const
 			{
-				Application::GetActiveScene()->RemoveComponent<T>(m_EntityHandle);
+				GetActiveScene()->RemoveComponent<T>(m_EntityHandle);
 			}
 
 			void Move(const float4A& _Translate) const;
@@ -66,11 +66,6 @@ namespace TruthEngine
 			bool operator!=(const Entity& ent) const
 			{
 				return m_EntityHandle != ent.m_EntityHandle;
-			}
-
-			explicit operator uint32_t()
-			{
-				return static_cast<uint32_t>(m_EntityHandle);
 			}
 
 			explicit operator uint32_t() const

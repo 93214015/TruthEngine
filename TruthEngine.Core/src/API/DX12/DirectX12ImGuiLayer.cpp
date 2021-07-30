@@ -192,7 +192,7 @@ namespace TruthEngine::API::DirectX12 {
 		{
 			GraphicDevice::GetPrimaryDevice()->WaitForGPU();
 			m_CommandList->WaitToFinish();
-			ModelManager::GetInstance()->ImportModel(Application::GetActiveScene(), m_SelectedFile.c_str());
+			ModelManager::GetInstance()->ImportModel(GetActiveScene(), m_SelectedFile.c_str());
 		}*/
 
 

@@ -363,6 +363,120 @@ namespace TruthEngine
 	}
 	*/
 
+	void Scene::SetTransform(Entity _Entity, const float4x4A& _Transform)
+	{
+		GetComponent<TransformComponent>(_Entity).GetTransform() = _Transform;
+	}
+
+
+	void Scene::SetPosition(Entity _Entity, const float3A& _Translation)
+	{
+		float4x4A& _Transform = GetComponent<TransformComponent>(_Entity);
+
+		_Transform._41 = _Translation.x;
+		_Transform._42 = _Translation.y;
+		_Transform._43 = _Translation.z;
+	}
+
+	void Scene::SetTranslationLocal(Entity _Entity, const float3A& _Translation)
+	{
+		SetTranslationLocal(_Entity, Math::ToXM(_Translation));
+	}
+
+	void Scene::SetTranslationRelative(Entity _Entity, const float3A& _Translation)
+	{
+		SetTranslationRelative(_Entity, Math::ToXM(_Translation));
+	}
+
+	void Scene::SetTranslationLocal(Entity _Entity, const XMVector& _XMTranslation)
+	{
+		float4x4A& _Transform = GetComponent<TransformComponent>(_Entity).GetTransform();
+
+		const XMMatrix _XMTransform = Math::ToXM(_Transform);
+
+		const XMMatrix _XMNewTransform = Math::XMTransformMatrixTranslate(_XMTranslation);
+
+		_Transform = Math::Multiply(_XMNewTransform, _XMTransform);
+	}
+
+	void Scene::SetTranslationRelative(Entity _Entity, const XMVector& _XMTranslation)
+	{
+		float4x4A& _Transform = GetComponent<TransformComponent>(_Entity).GetTransform();
+
+		const XMMatrix _XMTransform = Math::ToXM(_Transform);
+
+		const XMMatrix _XMNewTransform = Math::XMTransformMatrixTranslate(_XMTranslation);
+
+		_Transform = Math::Multiply(_XMTransform, _XMNewTransform);
+	}
+
+	void Scene::SetPosition(Entity _Entity, const XMVector& _XMTranslation)
+	{
+		float4x4A& _Transform = GetComponent<TransformComponent>(_Entity);
+		XMMatrix _XMTransform = Math::ToXM(_Transform);
+
+		_XMTransform.r[3] = _XMTranslation;
+
+		_Transform = Math::FromXMA(_XMTransform);
+	}
+
+
+	void Scene::SetRotation(Entity _Entity, const float4A& _Quaternion)
+	{
+		SetRotation(_Entity, Math::ToXM(_Quaternion));
+	}
+
+	void Scene::SetRotationLocal(Entity _Entity, const float4A& _Quaternion)
+	{
+		SetRotationLocal(_Entity, Math::ToXM(_Quaternion));
+	}
+
+	void Scene::SetRotationRelative(Entity _Entity, const float4A& _Quaternion)
+	{
+		SetRotationRelative(_Entity, Math::ToXM(_Quaternion));
+	}
+
+	void Scene::SetRotation(Entity _Entity, const XMVector& _XMQuaternionNew)
+	{
+		float4x4A& _Transform = GetComponent<TransformComponent>(_Entity).GetTransform();
+		XMMatrix _XMTransform = Math::ToXM(_Transform);
+
+		XMVector _XMTranslation, _XMScale, _XMQuaternion;
+		Math::XMDecomposeMatrix(_XMTransform, _XMScale, _XMQuaternion, _XMTranslation);
+
+		_XMTransform = Math::XMTransformMatrix(_XMScale, _XMQuaternionNew, _XMTranslation);
+
+		_Transform = Math::FromXMA(_XMTransform);
+	}
+
+	void Scene::SetRotationLocal(Entity _Entity, const XMVector& _XMQuaternion)
+	{
+		float4x4A& _Transform = GetComponent<TransformComponent>(_Entity).GetTransform();
+
+		XMMatrix _XMTransformRotation = Math::XMTransformMatrixRotation(_XMQuaternion);
+
+		XMMatrix _XMTransform = Math::ToXM(_Transform);
+
+		_XMTransform = Math::XMMultiply(_XMTransformRotation, _XMTransform);
+
+		_Transform = Math::FromXMA(_XMTransform);
+	}
+
+	void Scene::SetRotationRelative(Entity _Entity, const XMVector& _XMQuaternion)
+	{
+		XMMatrix _XMTransformRotation = Math::XMTransformMatrixRotation(_XMQuaternion);
+
+		float4x4A& _Transform = GetComponent<TransformComponent>(_Entity).GetTransform();
+		XMMatrix _XMTransform = Math::ToXM(_Transform);
+
+		_XMTransform = Math::XMMultiply(_XMTransform, _XMTransformRotation);
+
+		_Transform = Math::FromXMA(_XMTransform);
+	}
+
+
+
+
 	const float4x4A& Scene::GetTransformHierarchy(Entity entity)
 	{
 		if (!entity)
@@ -421,7 +535,7 @@ namespace TruthEngine
 		}
 
 		_Result = _Result + float3{ _Transform->_41, _Transform->_42, _Transform->_43 };
-		
+
 		return  _Result;
 	}
 
@@ -445,7 +559,7 @@ namespace TruthEngine
 
 		_Result = _Result + float3{ _Transform->_41, _Transform->_42, _Transform->_43 };
 
-		
+
 		return  _Result;
 	}
 
@@ -485,6 +599,8 @@ namespace TruthEngine
 			return;*/
 		BoundingAABox::CreateMerged(m_BoundingBox, m_BoundingBox, _boundingBox);
 	}
+
+
 
 	/*
 	bool Scene::HasParent(const Entity& entity) const
@@ -769,6 +885,5 @@ namespace TruthEngine
 		m_SystemMovement.OnUpdate(DeltaTime);
 		m_SystemUpdateTransforms.OnUpdate(DeltaTime);
 	}
-
 
 }

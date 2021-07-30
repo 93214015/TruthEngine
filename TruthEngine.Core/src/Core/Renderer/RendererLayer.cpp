@@ -98,7 +98,7 @@ namespace TruthEngine
 		if (_dirLight0)
 		{
 			auto cameraCascaded = _dirLight0->GetCamera();
-			cameraCascaded->UpdateFrustums(Application::GetActiveScene(), activeCamera, true);
+			cameraCascaded->UpdateFrustums(GetActiveScene(), activeCamera, true);
 			_lightManager->GetCascadedShadowTransform(cameraCascaded, _cascadedShadowTransforms);
 		}
 

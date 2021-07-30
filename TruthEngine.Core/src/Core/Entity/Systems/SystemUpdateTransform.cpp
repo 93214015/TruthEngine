@@ -9,7 +9,7 @@
 namespace TruthEngine
 {
 	SystemUpdateTransform::SystemUpdateTransform()
-		: System(Application::GetActiveScene())
+		: System(GetActiveScene())
 	{}
 
 	void SystemUpdateTransform::OnUpdate(float DeltaTime)

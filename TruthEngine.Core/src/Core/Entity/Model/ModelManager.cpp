@@ -121,7 +121,7 @@ namespace TruthEngine
 		InitVertexAndIndexBuffer();
 
 
-		/*auto scene = Application::GetActiveScene();
+		/*auto scene = GetActiveScene();
 		Entity _ModelEntity = scene->AddModelEntity(_ModelName, IdentityMatrix);
 		auto material = m_MaterialManager.AddDefaultMaterial(TE_IDX_MESH_TYPE::MESH_NTT);
 		Entity _MeshEntity =  scene->AddMeshEntity(_meshName.c_str(), transform, mesh, material, _ModelEntity);*/

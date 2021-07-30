@@ -530,7 +530,7 @@ namespace TruthEngine
 				{
 					if (!m_Context.HasComponent<ModelComponent>() && m_Context.HasComponent<MeshComponent>())
 					{
-						Application::GetActiveScene()->CopyMeshEntity(m_Context);
+						GetActiveScene()->CopyMeshEntity(m_Context);
 						s_CopyingMesh = true;
 					}
 				}

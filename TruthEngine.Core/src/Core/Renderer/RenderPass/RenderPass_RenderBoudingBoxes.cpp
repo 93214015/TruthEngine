@@ -48,7 +48,7 @@ void TruthEngine::RenderPass_RenderBoundingBoxes::EndScene()
 
 void TruthEngine::RenderPass_RenderBoundingBoxes::Render()
 {
-	Scene* _ActiveScene = Application::GetActiveScene();
+	Scene* _ActiveScene = GetActiveScene();
 	auto _ComponentView = _ActiveScene->ViewEntities<BoundingBoxComponent>();
 
 	for (auto _Entity : _ComponentView)
