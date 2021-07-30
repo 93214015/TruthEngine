@@ -35,6 +35,7 @@ namespace TruthEngine
 			COMPTR<ID3D12PipelineLibrary1> m_PiplineLibrary;
 			uint32_t m_PipelineNum = 0;
 
+			std::unordered_map<uint32_t, COMPTR<ID3D12PipelineState>> m_MapPipelineState;
 			
 		};
 

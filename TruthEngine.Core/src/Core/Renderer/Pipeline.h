@@ -14,8 +14,7 @@ namespace TruthEngine
 
 	class PipelineGraphics
 	{
-	public:
-		
+	public:		
 
 		virtual ~PipelineGraphics() = default;
 
@@ -161,6 +160,11 @@ namespace TruthEngine
 
 #pragma endregion
 
+		inline uint32_t GetID() const noexcept
+		{
+			return m_ID;
+		}
+
 		inline const Shader* GetShader()const noexcept
 		{
 			return m_Shader;
@@ -242,6 +246,11 @@ namespace TruthEngine
 
 		PipelineCompute(PipelineCompute&& _Pipeline) noexcept;
 		PipelineCompute& operator=(PipelineCompute&& _Pipeline) noexcept;
+
+		inline uint32_t GetID() const noexcept
+		{
+			return m_ID;
+		}
 
 		inline Shader* GetShader() const noexcept
 		{

@@ -148,6 +148,12 @@ namespace TruthEngine::API::DirectX12
 
 	COMPTR<ID3D12PipelineState> DirectX12PiplineManager::GetGraphicsPipeline(PipelineGraphics* pipeline)
 	{
+
+		if (auto _ItrPipelineState = m_MapPipelineState.find(pipeline->GetID()); _ItrPipelineState != m_MapPipelineState.end())
+		{
+			return _ItrPipelineState->second;
+		}
+
 		COMPTR<ID3D12PipelineState> PSO;
 
 		//
@@ -157,9 +163,8 @@ namespace TruthEngine::API::DirectX12
 		D3D12_GRAPHICS_PIPELINE_STATE_DESC desc = { 0 };
 
 
-
-		const auto shader = pipeline->GetShader();
-		const auto states = pipeline->GetStates();
+		const Shader*			shader = pipeline->GetShader();
+		const RendererStateSet	states = pipeline->GetStates();
 
 
 		desc.VS = CD3DX12_SHADER_BYTECODE(shader->GetVS().BufferPointer, shader->GetVS().BufferSize);
@@ -237,11 +242,18 @@ namespace TruthEngine::API::DirectX12
 			}
 		}
 
+		m_MapPipelineState[pipeline->GetID()] = PSO;
+
 		return PSO;
 	}
 
 	COMPTR<ID3D12PipelineState> DirectX12PiplineManager::GetComputePipeline(PipelineCompute* pipeline)
 	{
+		if (auto _ItrPipelineState = m_MapPipelineState.find(pipeline->GetID()); _ItrPipelineState != m_MapPipelineState.end())
+		{
+			return _ItrPipelineState->second;
+		}
+
 		COMPTR<ID3D12PipelineState> PSO;
 
 		Shader* _Shader = pipeline->GetShader();
@@ -268,6 +280,8 @@ namespace TruthEngine::API::DirectX12
 		{
 			AddComputePipeline(pipeline, PSO, desc);
 		}
+
+		m_MapPipelineState[pipeline->GetID()] = PSO;
 
 		return PSO;
 	}
