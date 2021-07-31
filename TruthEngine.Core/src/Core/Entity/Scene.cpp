@@ -85,11 +85,11 @@ namespace TruthEngine
 	Entity Scene::AddMeshEntity(const char* _MeshName, const float4A& _Translation, const float4A& _RotationQuaternion, const Mesh& _Mesh, Material* _Material, const Entity* _ParentEntity)
 	{
 		auto entity_mesh = AddEntity(_MeshName, _Translation, _RotationQuaternion);
-		AddComponent<MeshComponent>(entity_mesh, _Mesh);
+		const Mesh& _NewMesh = AddComponent<MeshComponent>(entity_mesh, _Mesh).GetMesh();
 		AddComponent<MaterialComponent>(entity_mesh, _Material);
 
 		/*Add BoundignAABoxComponentand get the bounding box*/
-		const BoundingAABox& _meshAABB = AddComponent<BoundingBoxComponent>(entity_mesh, _Mesh).GetBoundingBox();
+		const BoundingAABox& _meshAABB = AddComponent<BoundingBoxComponent>(entity_mesh, _NewMesh).GetBoundingBox();
 
 		//GetComponent<ModelComponent>(_ParentEntity).AddMeshEntity(entity_mesh);
 
@@ -736,18 +736,19 @@ namespace TruthEngine
 
 		std::string name(meshEntity.GetComponent<TagComponent>().GetTag());
 
-		if (name.find("_Copy") != std::string::npos)
+		/*if (name.find("_Copy") != std::string::npos)
 		{
 			name = name + std::to_string(s_copyIndex);
 		}
 		else
 		{
 			name = name + "_Copy" + std::to_string(s_copyIndex);
-		}
+		}*/
+
+		name = name + std::to_string(s_copyIndex);
 
 		const TransformComponent& _TransformComponent = GetComponent<TransformComponent>(meshEntity);
 		const float4x4A& transform = _TransformComponent.GetTransform();
-		//const float3& _worldCenterOffset = _TransformComponent.GetWorldCenterOffset();
 
 		const Mesh& mesh = GetComponent<MeshComponent>(meshEntity).GetMesh();
 		//auto newMesh = TE_INSTANCE_MODELMANAGER->CopyMesh(mesh);
@@ -786,7 +787,7 @@ namespace TruthEngine
 		{
 			//const float3 _WorldCenterOffset = _MeshAABB.Center;
 			Entity _MeshEntity = AddMeshEntity(_Data.mName.c_str(), Math::IdentityTranslate, Math::IdentityQuaternion, *_Data.mMesh, _Data.mMaterial, _ParentEntity);
-			const BoundingAABox& _MeshAABB = GetComponent<BoundingAABox>(_MeshEntity);
+			const BoundingAABox& _MeshAABB = GetComponent<BoundingBoxComponent>(_MeshEntity).GetBoundingBox();
 
 			if (_Data.mAnimation)
 			{
