@@ -205,6 +205,7 @@
     <ClInclude Include="src\Core\Entity\Light\LightSpot.h" />
     <ClInclude Include="src\Core\Entity\Model\AssimpLib.h" />
     <ClInclude Include="src\Core\Entity\Model\Mesh.h" />
+    <ClInclude Include="src\Core\Entity\Model\MeshHandle.h" />
     <ClInclude Include="src\Core\Entity\Model\Model.h" />
     <ClInclude Include="src\Core\Entity\Model\Model2D.h" />
     <ClInclude Include="src\Core\Entity\Model\Model3D.h" />
@@ -340,6 +341,7 @@
     <ClCompile Include="src\Core\Entity\Light\LightSpot.cpp" />
     <ClCompile Include="src\Core\Entity\Model\AssimpLib.cpp" />
     <ClCompile Include="src\Core\Entity\Model\Mesh.cpp" />
+    <ClCompile Include="src\Core\Entity\Model\MeshHandle.cpp" />
     <ClCompile Include="src\Core\Entity\Model\Model.cpp" />
     <ClCompile Include="src\Core\Entity\Model\Model2D.cpp" />
     <ClCompile Include="src\Core\Entity\Model\Model3D.cpp" />

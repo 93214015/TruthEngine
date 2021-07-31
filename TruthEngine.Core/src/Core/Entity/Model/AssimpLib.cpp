@@ -461,7 +461,7 @@ namespace TruthEngine
 				}
 			}
 
-			Mesh& _Mesh = m_ModelManager->AddMesh(TE_IDX_MESH_TYPE::MESH_NTT, indexNum, indexOffset, vertexOffset, aimesh->mNumVertices);
+			MeshHandle _Mesh = m_ModelManager->AddMesh(TE_IDX_MESH_TYPE::MESH_NTT, indexNum, indexOffset, vertexOffset, aimesh->mNumVertices);
 			Material* _Material = m_MaterialManager->GetMaterial(aimesh->mMaterialIndex + m_MaterialOffset);
 			const char* _MeshName = aimesh->mName.C_Str();
 

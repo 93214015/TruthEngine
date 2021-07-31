@@ -157,18 +157,9 @@ namespace TruthEngine
 		const BoundingFrustum& _CameraBoundingFrustum = _ActiveCamera->GetBoundingFrustumWorldSpace();
 
 
-
-		/*auto& EntityModelView = _ActiveScene->ViewEntities<ModelComponent>();*/
-		/*for (auto _EntityModel : EntityModelView)
-		{*/
-		/*for (auto& entity_mesh : _ActiveScene->GetComponent<ModelComponent>(_EntityModel).GetMeshEntities())
-		{*/
-
-
 		auto& EntityMeshView = _ActiveScene->ViewEntities<MeshComponent>();
 		for (auto entity_mesh : EntityMeshView)
 		{
-			/*const float4x4A _transform = _ActiveScene->GetTransformHierarchy(entity_mesh);*/
 			const float4x4A& _transform = _ActiveScene->GetComponent<TransformComponent>(entity_mesh).GetTransform();
 
 			const BoundingAABox& _AABB = _ActiveScene->GetComponent<BoundingBoxComponent>(entity_mesh).GetBoundingBox();

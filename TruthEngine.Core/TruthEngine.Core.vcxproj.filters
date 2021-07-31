@@ -456,6 +456,7 @@
     <ClInclude Include="src\Core\Entity\Systems\System.h" />
     <ClInclude Include="src\Core\Entity\Components\UpdatedComponent.h" />
     <ClInclude Include="src\Core\Entity\Systems\SystemUpdateTransform.h" />
+    <ClInclude Include="src\Core\Entity\Model\MeshHandle.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\API\DX12\DirectX12BufferManager.cpp">
@@ -813,5 +814,6 @@
     <ClCompile Include="src\Core\Entity\Components\AttachedComponent.cpp" />
     <ClCompile Include="src\Core\Entity\Systems\SystemMovement.cpp" />
     <ClCompile Include="src\Core\Entity\Systems\SystemUpdateTransform.cpp" />
+    <ClCompile Include="src\Core\Entity\Model\MeshHandle.cpp" />
   </ItemGroup>
 </Project>

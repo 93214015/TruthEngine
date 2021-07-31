@@ -1,4 +1,5 @@
 #pragma once
+#include "MeshHandle.h"
 
 
 namespace TruthEngine
@@ -13,11 +14,11 @@ namespace TruthEngine
 
 		struct ImportedMeshMaterials
 		{
-			ImportedMeshMaterials(const char* _Name, Mesh* _Mesh, Material* _Material, SA_Animation* _Animation)
+			ImportedMeshMaterials(const char* _Name, MeshHandle _Mesh, Material* _Material, SA_Animation* _Animation)
 				: mName(_Name), mMesh(_Mesh), mMaterial(_Material), mAnimation(_Animation)
 			{}
 			std::string mName;
-			Mesh* mMesh;
+			MeshHandle mMesh;
 			Material* mMaterial;
 			SA_Animation* mAnimation;
 		};

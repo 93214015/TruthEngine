@@ -2,6 +2,7 @@
 
 //#include "Model3D.h"
 #include "Mesh.h"
+#include "MeshHandle.h"
 
 #include "Core/Renderer/VertexBuffer.h"
 #include "Core/Renderer/IndexBuffer.h"
@@ -76,8 +77,11 @@ namespace TruthEngine
 		}
 		
 
-		Mesh& AddMesh(TE_IDX_MESH_TYPE _MeshType, uint32_t IndexNum, size_t IndexOffset, size_t VertexOffset, size_t vertexNum);
+		MeshHandle AddMesh(TE_IDX_MESH_TYPE _MeshType, uint32_t IndexNum, size_t IndexOffset, size_t VertexOffset, size_t vertexNum);
 		Mesh& CopyMesh(const Mesh& mesh);
+		Mesh& GetMesh(MeshHandle _MeshHandle);
+		Mesh& GetMesh(uint32_t _MeshIndex);
+
 
 		template<typename T>
 		T& GetVertexBuffer()

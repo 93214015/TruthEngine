@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "ModelManager.h"
 
+#include "MeshHandle.h"
 #include "AssimpLib.h"
 
 #include "Core/Application.h"
@@ -13,11 +14,9 @@
 namespace TruthEngine
 {
 
-
 	ModelManager::ModelManager()
 	{
 		m_Meshes.reserve(100000);
-		//m_Models3D.reserve(1000);
 	}
 
 	ModelManager::~ModelManager()
@@ -54,9 +53,10 @@ namespace TruthEngine
 		m_BufferManager = bufferManager;
 	}
 
-	Mesh& ModelManager::AddMesh(TE_IDX_MESH_TYPE _MeshType, uint32_t IndexNum, size_t IndexOffset, size_t VertexOffset, size_t vertexNum)
+	MeshHandle ModelManager::AddMesh(TE_IDX_MESH_TYPE _MeshType, uint32_t IndexNum, size_t IndexOffset, size_t VertexOffset, size_t vertexNum)
 	{
-		Mesh* _Mesh = nullptr;
+
+		VertexBufferBase* _VertexBufferBase = nullptr;
 
 		switch (_MeshType)
 		{
@@ -69,17 +69,18 @@ namespace TruthEngine
 		case TE_IDX_MESH_TYPE::MESH_NTT:
 		{
 			VertexBufferNTT& _VertexBuffer = _GetVertexBuffer<VertexBufferNTT>();
+			_VertexBufferBase = &_VertexBuffer;
 			/*BoundingAABox bb;
 			CreateBoundingAABoxFromPoints(bb, vertexNum, &_VertexBuffer.GetPosData()[VertexOffset].Position, sizeof(VertexData::Pos));*/
-			_Mesh = &m_Meshes.emplace_back(GenerateMeshID(), IndexNum, IndexOffset, VertexOffset, vertexNum, &_VertexBuffer, &m_IndexBuffer);
+			m_Meshes.emplace_back(GenerateMeshID(), IndexNum, IndexOffset, VertexOffset, vertexNum, &_VertexBuffer, &m_IndexBuffer);
 			break;
 		}
 		case TE_IDX_MESH_TYPE::MESH_SKINNED:
 		{
 			VertexBufferSkinned& _VertexBuffer = _GetVertexBuffer<VertexBufferSkinned>();
+			_VertexBufferBase = &_VertexBuffer;
 			/*BoundingAABox bb;
 			CreateBoundingAABoxFromPoints(bb, vertexNum, &_VertexBuffer.GetPosData()[VertexOffset].Position, sizeof(VertexData::Pos));*/
-			_Mesh = &m_Meshes.emplace_back(GenerateMeshID(), IndexNum, IndexOffset, VertexOffset, vertexNum, &_VertexBuffer, &m_IndexBuffer);
 			break;
 		}
 		default:
@@ -87,7 +88,9 @@ namespace TruthEngine
 			break;
 		}
 
-		return *_Mesh;
+		MeshHandle _MeshHandle{ static_cast<uint32_t>(m_Meshes.size()) };
+		m_Meshes.emplace_back(GenerateMeshID(), IndexNum, IndexOffset, VertexOffset, vertexNum, &_VertexBufferBase, &m_IndexBuffer);
+		return _MeshHandle;
 	}
 
 	Mesh& ModelManager::GeneratePrimitiveMesh(TE_PRIMITIVE_TYPE type, float size_x, float size_y, float size_z)
@@ -176,6 +179,16 @@ namespace TruthEngine
 	T& ModelManager::_GetVertexBuffer()
 	{
 		return std::get<T>(m_VertexBuffers);
+	}
+
+	Mesh& ModelManager::GetMesh(MeshHandle _MeshHandle)
+	{
+		return m_Meshes[_MeshHandle.m_MeshIndex];
+	}
+
+	Mesh& ModelManager::GetMesh(uint32_t _MeshIndex)
+	{
+		return m_Meshes[_MeshIndex];
 	}
 
 }
