@@ -89,33 +89,33 @@ namespace TruthEngine
 		}
 
 		MeshHandle _MeshHandle{ static_cast<uint32_t>(m_Meshes.size()) };
-		m_Meshes.emplace_back(GenerateMeshID(), IndexNum, IndexOffset, VertexOffset, vertexNum, &_VertexBufferBase, &m_IndexBuffer);
+		m_Meshes.emplace_back(GenerateMeshID(), IndexNum, IndexOffset, VertexOffset, vertexNum, _VertexBufferBase, &m_IndexBuffer);
 		return _MeshHandle;
 	}
 
-	Mesh& ModelManager::GeneratePrimitiveMesh(TE_PRIMITIVE_TYPE type, float size_x, float size_y, float size_z)
+	MeshHandle ModelManager::GeneratePrimitiveMesh(TE_PRIMITIVE_TYPE type, float size_x, float size_y, float size_z)
 	{
-		Mesh* mesh = nullptr;
+		MeshHandle _MeshHandle{0};
 
 		switch (type)
 		{
 		case TruthEngine::TE_PRIMITIVE_TYPE::BOX:
-			mesh = MeshGenerator::GetInstance()->GenerateBox(size_x, size_y, size_z);
+			_MeshHandle = MeshGenerator::GetInstance()->GenerateBox(size_x, size_y, size_z);
 			break;
 		case TruthEngine::TE_PRIMITIVE_TYPE::ROUNDEDBOX:
-			mesh = MeshGenerator::GetInstance()->GenerateRoundedBoxMesh(size_x, size_y, size_z);
+			_MeshHandle = MeshGenerator::GetInstance()->GenerateRoundedBoxMesh(size_x, size_y, size_z);
 			break;
 		case TruthEngine::TE_PRIMITIVE_TYPE::SPHERE:
-			mesh = MeshGenerator::GetInstance()->GenerateSphere(size_x);
+			_MeshHandle = MeshGenerator::GetInstance()->GenerateSphere(size_x);
 			break;
 		case TruthEngine::TE_PRIMITIVE_TYPE::CYLINDER:
-			mesh = MeshGenerator::GetInstance()->GenerateCylinder(size_x);
+			_MeshHandle = MeshGenerator::GetInstance()->GenerateCylinder(size_x);
 			break;
 		case TruthEngine::TE_PRIMITIVE_TYPE::CAPPEDCYLINDER:
-			mesh = MeshGenerator::GetInstance()->GenerateCappedCylinder(size_x);
+			_MeshHandle = MeshGenerator::GetInstance()->GenerateCappedCylinder(size_x);
 			break;
 		case TE_PRIMITIVE_TYPE::PLANE:
-			mesh = MeshGenerator::GetInstance()->GeneratePlane(size_x, size_z);
+			_MeshHandle = MeshGenerator::GetInstance()->GeneratePlane(size_x, size_z);
 			break;
 		default:
 			break;
@@ -129,13 +129,13 @@ namespace TruthEngine
 		auto material = m_MaterialManager.AddDefaultMaterial(TE_IDX_MESH_TYPE::MESH_NTT);
 		Entity _MeshEntity =  scene->AddMeshEntity(_meshName.c_str(), transform, mesh, material, _ModelEntity);*/
 
-		return *mesh;
+		return _MeshHandle;
 	}
 
 	void ModelManager::GenerateEnvironmentMesh(Mesh** outMesh)
 	{
 
-		*outMesh = MeshGenerator::GetInstance()->GenerateSphere(1.0f);
+		*outMesh = &MeshGenerator::GetInstance()->GenerateSphere(1.0f).GetMesh();
 
 		InitVertexAndIndexBuffer();
 

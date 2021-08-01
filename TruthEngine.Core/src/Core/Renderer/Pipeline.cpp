@@ -3,6 +3,8 @@
 
 #include "Core/Renderer/Shader.h"
 
+#include "Core/Event/EventRenderer.h"
+
 uint32_t gPipelineID = 0;
 
 namespace TruthEngine
@@ -50,7 +52,7 @@ namespace TruthEngine
 		else
 		{
 			**_outPipeline = PipelineGraphics(
-				gPipelineID++,
+				(*_outPipeline)->m_ID,
 				_Name,
 				states,
 				shader,
@@ -62,6 +64,11 @@ namespace TruthEngine
 				depthBiasClamp,
 				slopeScaledDepthBias);
 		}
+
+		EventRendererNewGraphicsPipeline _Event{ *_outPipeline };
+		
+		TE_INSTANCE_APPLICATION->OnEvent(_Event);
+
 	}
 
 	struct PipelineComputeContainer
@@ -89,6 +96,10 @@ namespace TruthEngine
 		{
 			**_outPipeline = PipelineCompute((*_outPipeline)->m_ID, (*_outPipeline)->m_Name, _Shader);
 		}
+
+		EventRendererNewComputePipeline _Event{ *_outPipeline };
+
+		TE_INSTANCE_APPLICATION->OnEvent(_Event);
 	}
 
 	PipelineCompute::PipelineCompute(uint32_t _ID, std::string_view _Name, Shader* _Shader)

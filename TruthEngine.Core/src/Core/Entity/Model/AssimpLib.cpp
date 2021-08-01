@@ -461,11 +461,11 @@ namespace TruthEngine
 				}
 			}
 
-			MeshHandle _Mesh = m_ModelManager->AddMesh(TE_IDX_MESH_TYPE::MESH_NTT, indexNum, indexOffset, vertexOffset, aimesh->mNumVertices);
+			MeshHandle _MeshHandle = m_ModelManager->AddMesh(TE_IDX_MESH_TYPE::MESH_NTT, indexNum, indexOffset, vertexOffset, aimesh->mNumVertices);
 			Material* _Material = m_MaterialManager->GetMaterial(aimesh->mMaterialIndex + m_MaterialOffset);
 			const char* _MeshName = aimesh->mName.C_Str();
 
-			_MeshCollection.emplace_back(_MeshName, &_Mesh, _Material, nullptr);
+			_MeshCollection.emplace_back(_MeshName, _MeshHandle, _Material, nullptr);
 
 			//_MeshEntities.emplace_back(AddMeshEntity(meshName, mesh, material, scene, IdentityMatrix));
 
@@ -580,11 +580,11 @@ namespace TruthEngine
 				}
 			}
 
-			Mesh& mesh = m_ModelManager->AddMesh(TE_IDX_MESH_TYPE::MESH_SKINNED, indexNum, indexOffset, vertexOffset, aimesh->mNumVertices);
+			MeshHandle _MeshHandle = m_ModelManager->AddMesh(TE_IDX_MESH_TYPE::MESH_SKINNED, indexNum, indexOffset, vertexOffset, aimesh->mNumVertices);
 			Material* material = m_MaterialManager->GetMaterial(aimesh->mMaterialIndex + m_MaterialOffset);
 			const char* meshName = aimesh->mName.C_Str();
 
-			_MeshCollection.emplace_back(meshName, &mesh, material, m_LoadedAnimation);
+			_MeshCollection.emplace_back(meshName, _MeshHandle, material, m_LoadedAnimation);
 
 			//_MeshEntities.emplace_back(AddMeshEntity(meshName, mesh, material, scene, IdentityMatrix));
 

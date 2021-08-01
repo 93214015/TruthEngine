@@ -10,6 +10,7 @@ namespace TruthEngine {
 		KeyPressed, KeyReleased, KeyTyped,
 		MouseButtonPressed, MouseButtonReleased, MouseMoved, MouseScrolled,
 		EntityAddMesh, EntityAddMaterial, EntityUpdatedMaterial, EntityAddLight, EntityUpdatedLight, EntityTransform,
+		RendererNewGraphicsPipeline, RendererNewComputePipeline,
 		EventTypeNum
 	};
 
@@ -21,6 +22,7 @@ namespace TruthEngine {
 		EventCategoryMouse =			BIT(3),
 		EventCategoryMouseButton =		BIT(4),
 		EventCategoryEntity =			BIT(5),
+		EventCategoryRenderer =			BIT(6),
 	};
 
 

@@ -221,6 +221,7 @@
     <ClInclude Include="src\Core\Event\EventEntity.h" />
     <ClInclude Include="src\Core\Event\EventKey.h" />
     <ClInclude Include="src\Core\Event\EventMouse.h" />
+    <ClInclude Include="src\Core\Event\EventRenderer.h" />
     <ClInclude Include="src\Core\Helper\HardwareInfo.h" />
     <ClInclude Include="src\Core\Helper\Macros.h" />
     <ClInclude Include="src\Core\Helper\MathHelper.h" />
@@ -355,6 +356,7 @@
     <ClCompile Include="src\Core\Event\EventEntity.cpp" />
     <ClCompile Include="src\Core\Event\EventKey.cpp" />
     <ClCompile Include="src\Core\Event\EventMouse.cpp" />
+    <ClCompile Include="src\Core\Event\EventRenderer.cpp" />
     <ClCompile Include="src\Core\Helper\HardwareInfo.cpp" />
     <ClCompile Include="src\Core\Helper\MathHelper.cpp" />
     <ClCompile Include="src\Core\Helper\MeshGenerator.cpp" />

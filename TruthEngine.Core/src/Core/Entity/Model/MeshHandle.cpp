@@ -7,6 +7,6 @@ namespace TruthEngine
 {
 	Mesh& MeshHandle::GetMesh()
 	{
-		TE_INSTANCE_MODELMANAGER->GetMesh(m_MeshIndex);
+		return TE_INSTANCE_MODELMANAGER->GetMesh(m_MeshIndex);
 	}
 }

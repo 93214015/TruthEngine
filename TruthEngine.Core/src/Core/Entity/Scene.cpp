@@ -128,7 +128,7 @@ namespace TruthEngine
 
 	Entity Scene::AddPrimitiveMesh(const char* _MeshName, TE_PRIMITIVE_TYPE _PrimitiveType, const float3& _PrimitiveSize, const Entity* _ParentEntity)
 	{
-		const Mesh& _Mesh = TE_INSTANCE_MODELMANAGER->GeneratePrimitiveMesh(_PrimitiveType, _PrimitiveSize.x, _PrimitiveSize.y, _PrimitiveSize.z);
+		const Mesh& _Mesh = TE_INSTANCE_MODELMANAGER->GeneratePrimitiveMesh(_PrimitiveType, _PrimitiveSize.x, _PrimitiveSize.y, _PrimitiveSize.z).GetMesh();
 		Material* _Material = TE_INSTANCE_MATERIALMANAGER->AddDefaultMaterial(TE_IDX_MESH_TYPE::MESH_NTT);
 		return AddMeshEntity(_MeshName, Math::IdentityTranslate, Math::IdentityQuaternion, _Mesh, _Material, _ParentEntity);
 	}
@@ -786,7 +786,7 @@ namespace TruthEngine
 		for (ImportedMeshMaterials& _Data : _ImportedData)
 		{
 			//const float3 _WorldCenterOffset = _MeshAABB.Center;
-			Entity _MeshEntity = AddMeshEntity(_Data.mName.c_str(), Math::IdentityTranslate, Math::IdentityQuaternion, *_Data.mMesh, _Data.mMaterial, _ParentEntity);
+			Entity _MeshEntity = AddMeshEntity(_Data.mName.c_str(), Math::IdentityTranslate, Math::IdentityQuaternion, _Data.mMesh.GetMesh(), _Data.mMaterial, _ParentEntity);
 			const BoundingAABox& _MeshAABB = GetComponent<BoundingBoxComponent>(_MeshEntity).GetBoundingBox();
 
 			if (_Data.mAnimation)

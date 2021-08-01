@@ -8,7 +8,6 @@ namespace TruthEngine
 		class DirectX12PiplineManager;
 	}
 
-
 	class Material;
 	class Shader;
 

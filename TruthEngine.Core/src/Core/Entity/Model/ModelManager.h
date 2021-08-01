@@ -97,7 +97,7 @@ namespace TruthEngine
 		/*void ImportModel(Scene* scene, const char* filePath, std::string _ModelName);*/
 
 
-		Mesh& GeneratePrimitiveMesh(TE_PRIMITIVE_TYPE type, float size_x, float size_y, float size_z);
+		MeshHandle GeneratePrimitiveMesh(TE_PRIMITIVE_TYPE type, float size_x, float size_y, float size_z);
 		void GenerateEnvironmentMesh(Mesh** outMesh);
 
 		void InitVertexAndIndexBuffer();

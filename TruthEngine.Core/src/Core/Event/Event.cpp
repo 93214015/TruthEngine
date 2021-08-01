@@ -11,7 +11,7 @@ namespace TruthEngine {
 
 	void EventDispatcher::OnEvent(Event& event)
 	{
-        for (auto& eventFunc : m_EventListerns[static_cast<int>(event.GetEventType())])
+        for (auto& eventFunc : m_EventListerns[static_cast<size_t>(event.GetEventType())])
         {
             eventFunc(event);
 
