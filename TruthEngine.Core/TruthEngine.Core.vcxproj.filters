@@ -458,6 +458,7 @@
     <ClInclude Include="src\Core\Entity\Systems\SystemUpdateTransform.h" />
     <ClInclude Include="src\Core\Entity\Model\MeshHandle.h" />
     <ClInclude Include="src\Core\Event\EventRenderer.h" />
+    <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_GenerateGBuffers.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\API\DX12\DirectX12BufferManager.cpp">
@@ -817,5 +818,6 @@
     <ClCompile Include="src\Core\Entity\Systems\SystemUpdateTransform.cpp" />
     <ClCompile Include="src\Core\Entity\Model\MeshHandle.cpp" />
     <ClCompile Include="src\Core\Event\EventRenderer.cpp" />
+    <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_GenerateGBuffers.cpp" />
   </ItemGroup>
 </Project>

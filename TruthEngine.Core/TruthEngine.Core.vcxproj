@@ -263,6 +263,7 @@
     <ClInclude Include="src\Core\Renderer\PipelineState.h" />
     <ClInclude Include="src\Core\Renderer\RenderPass.h" />
     <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_ForwardRendering.h" />
+    <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_GenerateGBuffers.h" />
     <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_GenerateShadowMap.h" />
     <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_PostProcessing_HDR.h" />
     <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_RenderBoudingBoxes.h" />
@@ -392,6 +393,7 @@
     <ClCompile Include="src\Core\Renderer\PipelineState.cpp" />
     <ClCompile Include="src\Core\Renderer\RenderPass.cpp" />
     <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_ForwardRendering.cpp" />
+    <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_GenerateGBuffers.cpp" />
     <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_GenerateShadowMap.cpp" />
     <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_PostProcessing_HDR.cpp" />
     <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_RenderBoudingBoxes.cpp" />
