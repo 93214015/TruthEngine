@@ -204,6 +204,26 @@ namespace TruthEngine
 			return m_RenderTargetNum;
 		}
 
+		inline float GetDepthBias() const noexcept
+		{
+			return m_DepthBias;
+		}
+
+		inline float GetDepthBiasClamp() const noexcept
+		{
+			return m_DepthBiasClamp;
+		}
+
+		inline float GetSlopeScaledDepthBias() const noexcept
+		{
+			return m_SlopeScaledDepthBias;
+		}
+
+		inline bool GetEnableMSAA() const noexcept
+		{
+			return m_EnableMSAA;
+		}
+
 		static void Factory(PipelineGraphics** _outPipeline, RendererStateSet states, Shader* shader, uint32_t renderTargetNum, TE_RESOURCE_FORMAT* rtvFormat, TE_RESOURCE_FORMAT dsvFormat, bool enableMSAA, float depthBias = 0.0f, float depthBiasClamp = 0.0f, float slopeScaledDepthBias = 0.0f);
 
 	private:
