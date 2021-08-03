@@ -31,4 +31,7 @@
     </ClCompile>
     <ClCompile Include="src\pch.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Assets\Shaders\GenerateGBuffers.hlsl" />
+  </ItemGroup>
 </Project>

@@ -26,7 +26,7 @@ namespace TruthEngine
 		: RenderPass(TE_IDX_RENDERPASS::FORWARDRENDERING, _RendererLayer)
 		, m_TextureDepthStencil(nullptr)
 		, m_Viewport{ 0.0f, 0.0f, static_cast<float>(TE_INSTANCE_APPLICATION->GetClientWidth()), static_cast<float>(TE_INSTANCE_APPLICATION->GetClientHeight()), 0.0f, 1.0f }
-		, m_ViewRect{ static_cast<long>(0.0), static_cast<long>(0.0), static_cast<long>(TE_INSTANCE_APPLICATION->GetClientWidth()), static_cast<long>(TE_INSTANCE_APPLICATION->GetClientHeight()) }
+		, m_ViewRect{ static_cast<long>(0), static_cast<long>(0), static_cast<long>(TE_INSTANCE_APPLICATION->GetClientWidth()), static_cast<long>(TE_INSTANCE_APPLICATION->GetClientHeight()) }
 		, m_ConstantBufferDirect_PerMesh(nullptr)
 		, m_MaterialManager(MaterialManager::GetInstance())
 	{};
@@ -311,7 +311,6 @@ namespace TruthEngine
 
 
 		m_Viewport.Resize(width, height);
-
 		m_ViewRect = ViewRect{ 0, 0, static_cast<long>(width), static_cast<long>(height) };
 	}
 

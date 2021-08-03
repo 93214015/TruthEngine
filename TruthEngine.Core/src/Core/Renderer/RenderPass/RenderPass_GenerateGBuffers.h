@@ -7,7 +7,7 @@
 
 namespace TruthEngine
 {
-	class RenderPass_GenerateGBuffers : public RenderPass
+	class RenderPass_GenerateGBuffers final : public RenderPass
 	{
 	public:
 
@@ -23,6 +23,11 @@ namespace TruthEngine
 
 	private:
 		void InitTextures();
+		void InitBuffers();
+
+		void PreparePipelines(const Material* _Material);
+
+		void OnRenderTargetResize(const class EventTextureResize& _Event);
 
 
 	private:
@@ -33,5 +38,30 @@ namespace TruthEngine
 
 		TextureRenderTarget* m_TextureGBufferColor;
 		TextureRenderTarget* m_TextureGBufferNormal;
+
+		Viewport m_Viewport;
+		ViewRect m_ViewRect;
+
+		BufferManager* m_BufferManager;
+		ShaderManager* m_ShaderManager;
+
+
+		struct ConstantBuffer_Data_Per_Mesh
+		{
+			ConstantBuffer_Data_Per_Mesh()
+				: WorldMatrix(IdentityMatrix), WorldInverseTransposeMatrix(IdentityMatrix), MaterialIndex(-1)
+			{}
+			ConstantBuffer_Data_Per_Mesh(const float4x4A& world, const float4x4A& worldIT, uint32_t materialIndex)
+				: WorldMatrix(world), WorldInverseTransposeMatrix(worldIT), MaterialIndex(materialIndex)
+			{}
+
+			float4x4A WorldMatrix;
+			float4x4A WorldInverseTransposeMatrix;
+			uint32_t MaterialIndex;
+			float3   Pad;
+		};
+
+		ConstantBufferDirect<ConstantBuffer_Data_Per_Mesh>* m_ConstantBufferDirect_PerMesh;
+
 	};
 }

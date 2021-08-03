@@ -8,6 +8,7 @@ enum class TE_IDX_GRESOURCES : IDX
 	CBuffer_PerFrame,
 	CBuffer_PerObject,
 	CBuffer_PerMesh,
+	CBuffer_PerMesh_GBuffers,
 	CBuffer_LightData,
 	CBuffer_Materials,
 	CBuffer_UnFrequent,
@@ -77,6 +78,7 @@ enum class TE_IDX_SHADERCLASS : IDX
 	POSTPROCESSING_HDR_FINALPASS,
 	POSTPROCESSING_GAUSSIANBLUR_HORZ,
 	POSTPROCESSING_GAUSSIANBLUR_VERT,
+	GENERATEGBUFFERS,
 	TOTALNUM
 };
 

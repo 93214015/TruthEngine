@@ -281,7 +281,7 @@ vertexOut vs(vertexInput vin)
 float4 ps(vertexOut pin) : SV_Target
 {
 
-	float3 normal = normalize(pin.normalW);
+    float3 normal = normalize(pin.normalW);
 
 	Material _material = MaterialArray[materialIndex];
 	float2 _texUV = (pin.texCoord * _material.UVScale) + _material.UVTranslate;
@@ -294,14 +294,16 @@ float4 ps(vertexOut pin) : SV_Target
     
         normal = MaterialTextures[_material.MapIndexNormal].Sample(sampler_point_wrap, _texUV).xyz;
         normal = (normal * 2.0f) - 1.0f;
-        normal = normalize(normal);
+        //normal = normalize(normal);
         
         normal = mul(normal, TBN);
 	
-		float normalLength = length(normal);
+		//float normalLength = length(normal);
 	
 #endif
     
+    normal = normalize(normal);
+	
     //normal = mul(normal, (float3x3)gWorldInverseTranspose);
     
     float3 _MaterialAlbedo = _material.Diffuse.xyz;
