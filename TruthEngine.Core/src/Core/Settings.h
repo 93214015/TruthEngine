@@ -24,12 +24,27 @@ namespace TruthEngine
 	{
 	public:
 
-		static constexpr bool IsMSAAEnabled()
+		inline static bool IsMSAAEnabled()
 		{
 			return static_cast<int>(MSAA) > 1;
 		}
 
+		inline static TE_SETTING_MSAA GetMSAA()
+		{
+			return MSAA;
+		}
 
+		inline static void SetMSAA(TE_SETTING_MSAA _MSAA)
+		{
+			MSAA = _MSAA;
+		}
+
+		inline static TE_RENDERER_API GetRendererAPI()
+		{
+			return RendererAPI;
+		}
+
+	private:
 		static TE_RENDERER_API RendererAPI;
 		static std::string RendererAPISTR;
 		static std::string GPUAdapterSTR;

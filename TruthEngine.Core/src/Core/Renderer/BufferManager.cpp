@@ -14,7 +14,7 @@ namespace TruthEngine {
 
 	std::shared_ptr<TruthEngine::BufferManager> BufferManager::Factory()
 	{
-		switch (Settings::RendererAPI)
+		switch (Settings::GetRendererAPI())
 		{
 		case TE_RENDERER_API::DirectX12:
 			return API::DirectX12::DirectX12BufferManager::GetInstance();

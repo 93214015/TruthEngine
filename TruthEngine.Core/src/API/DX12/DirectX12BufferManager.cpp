@@ -119,7 +119,7 @@ namespace TruthEngine::API::DirectX12
 		if (_Texture->IsMultiSample())
 		{
 			desc.MipLevels = 1;
-			desc.SampleDesc.Count = static_cast<int>(Settings::MSAA);
+			desc.SampleDesc.Count = static_cast<int>(Settings::GetMSAA());
 			desc.SampleDesc.Quality = 0;
 		}
 
@@ -495,13 +495,14 @@ namespace TruthEngine::API::DirectX12
 	{
 		if (RTV->ViewIndex == -1)
 		{
-			*RTV = RenderTargetView{ m_DescHeapRTV.GetCurrentIndex(), RT->m_ResourceIndex, RT };
-			m_DescHeapRTV.AddDescriptor(m_Resources[RT->m_ResourceIndex].Get());
+			uint32_t _ViewIndex = m_DescHeapRTV.AddDescriptor(m_Resources[RT->m_ResourceIndex].Get());
+			*RTV = RenderTargetView{ _ViewIndex, RT->m_ResourceIndex, RT };
 
 		}
 		else
 		{
 			m_DescHeapRTV.ReplaceDescriptor(m_Resources[RT->m_ResourceIndex].Get(), RTV->ViewIndex);
+			*RTV = RenderTargetView{ RTV->ViewIndex, RT->m_ResourceIndex, RT };
 		}
 	}
 
@@ -523,13 +524,15 @@ namespace TruthEngine::API::DirectX12
 
 		if (DSV->ViewIndex == -1)
 		{
-			*DSV = DepthStencilView{ m_DescHeapDSV.GetCurrentIndex(), DS->m_ResourceIndex, DS };
+			uint32_t _ViewIndex = m_DescHeapDSV.AddDescriptor(m_Resources[DS->m_ResourceIndex].Get(), &desc);
 
-			m_DescHeapDSV.AddDescriptor(m_Resources[DS->m_ResourceIndex].Get(), &desc);
+			*DSV = DepthStencilView{ _ViewIndex, DS->m_ResourceIndex, DS };
 		}
 		else
 		{
 			m_DescHeapDSV.ReplaceDescriptor(m_Resources[DS->m_ResourceIndex].Get(), &desc, DSV->ViewIndex);
+
+			*DSV = DepthStencilView{ DSV->ViewIndex, DS->m_ResourceIndex, DS };
 		}
 
 	}
@@ -586,13 +589,15 @@ namespace TruthEngine::API::DirectX12
 
 		if (SRV->ViewIndex == -1)
 		{
-			*SRV = ShaderResourceView{ m_DescHeapSRV.GetCurrentIndex(), texture->m_ResourceIndex, texture };
+			uint32_t _ViewIndex = m_DescHeapSRV.AddDescriptorSRV(m_Resources[texture->m_ResourceIndex].Get(), &_SRVDesc);
 
-			m_DescHeapSRV.AddDescriptorSRV(m_Resources[texture->m_ResourceIndex].Get(), &_SRVDesc);
+			*SRV = ShaderResourceView{ _ViewIndex, texture->m_ResourceIndex, texture };
 		}
 		else
 		{
 			m_DescHeapSRV.ReplaceDescriptorSRV(m_Resources[texture->m_ResourceIndex].Get(), &_SRVDesc, SRV->ViewIndex);
+
+			*SRV = ShaderResourceView{ SRV->ViewIndex, texture->m_ResourceIndex, texture };
 		}
 	}
 
@@ -613,12 +618,15 @@ namespace TruthEngine::API::DirectX12
 
 		if (_SRV->ViewIndex == -1)
 		{
-			*_SRV = ShaderResourceView{ m_DescHeapSRV.GetCurrentIndex(), _ResourceIndex, _Buffer };
-			m_DescHeapSRV.AddDescriptorSRV(_D3DResource, &_SRVDesc);
+			uint32_t _ViewIndex = m_DescHeapSRV.AddDescriptorSRV(_D3DResource, &_SRVDesc);
+
+			*_SRV = ShaderResourceView{ _ViewIndex, _ResourceIndex, _Buffer };
 		}
 		else
 		{
 			m_DescHeapSRV.ReplaceDescriptorSRV(_D3DResource, &_SRVDesc, _SRV->ViewIndex);
+
+			*_SRV = ShaderResourceView{ _SRV->ViewIndex, _ResourceIndex, _Buffer };
 		}
 	}
 
@@ -657,13 +665,15 @@ namespace TruthEngine::API::DirectX12
 
 		if (CBV->ViewIndex == -1)
 		{
-			*CBV = ConstantBufferView{ m_DescHeapSRV.GetCurrentIndex(), resourceIndex, constantBuffer };
+			uint32_t _ViewIndex = m_DescHeapSRV.AddDescriptorCBV(&desc);
 
-			m_DescHeapSRV.AddDescriptorCBV(&desc);
+			*CBV = ConstantBufferView{ _ViewIndex, resourceIndex, constantBuffer };
 		}
 		else
 		{
 			m_DescHeapSRV.ReplaceDescriptorCBV(&desc, CBV->ViewIndex);
+
+			*CBV = ConstantBufferView{ CBV->ViewIndex, resourceIndex, constantBuffer };
 		}
 	}
 
@@ -905,14 +915,17 @@ namespace TruthEngine::API::DirectX12
 
 		if (_outUAV->ViewIndex == -1)
 		{
-			_outUAV->Resource = _GraphicResource;
-			_outUAV->ResourceIndex = _GraphicResource->m_ResourceIndex;
-			_outUAV->ViewIndex = m_DescHeapSRV.AddDescriptorUAV(_D3DResource, nullptr, &_UAVDesc);
+			uint32_t _ViewIndex = m_DescHeapSRV.AddDescriptorUAV(_D3DResource, nullptr, &_UAVDesc);
+
+			*_outUAV = UnorderedAccessView{ _ViewIndex, _GraphicResource->m_ResourceIndex, _GraphicResource};
 		}
 		else
 		{
 			_ReplaceView = true;
+
 			m_DescHeapSRV.ReplaceDescriptorUAV(_D3DResource, nullptr, &_UAVDesc, _outUAV->ViewIndex);
+
+			*_outUAV = UnorderedAccessView{ _outUAV->ViewIndex, _GraphicResource->m_ResourceIndex, _GraphicResource};
 		}
 
 		if (!_ReplaceView)

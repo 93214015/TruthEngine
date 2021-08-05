@@ -39,8 +39,8 @@ namespace TruthEngine
 
 	void RendererLayer::OnAttach()
 	{
+		//Settings::SetMSAA(TE_SETTING_MSAA::X4);
 
-		Settings::MSAA = TE_SETTING_MSAA::X4;
 
 		m_BufferManager = TE_INSTANCE_BUFFERMANAGER;
 
@@ -112,6 +112,7 @@ namespace TruthEngine
 		m_futures.clear();
 		for (auto renderPass : m_RenderPassStack)
 		{
+			renderPass->OnUpdate(deltaFrameTime);
 			renderPass->BeginScene();
 			auto f = [renderPass]() { renderPass->Render(); };
 			m_futures.emplace_back(std::move(ThreadPool::GetInstance()->Queue(f)));

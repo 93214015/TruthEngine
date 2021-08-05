@@ -18,21 +18,18 @@ namespace TruthEngine
 	class EventTextureResize;
 
 
-	class RenderPass_ForwardRendering : public RenderPass
+	class RenderPass_ForwardRendering final : public RenderPass
 	{
 
 	public:
 
 		RenderPass_ForwardRendering(RendererLayer* _RendererLayer);
-		~RenderPass_ForwardRendering();
-
-		RenderPass_ForwardRendering(const RenderPass_ForwardRendering& renderer3D);
-		RenderPass_ForwardRendering& operator=(const RenderPass_ForwardRendering& renderer3D);
 
 		void OnAttach() override;
 		void OnDetach() override;
 
 		void OnImGuiRender() override;
+		void OnUpdate(double _DeltaTime) override;
 
 		void BeginScene() override;
 		void EndScene() override;

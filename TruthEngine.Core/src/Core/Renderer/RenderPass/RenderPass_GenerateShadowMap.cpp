@@ -63,6 +63,10 @@ namespace TruthEngine
 		ImGui::End();
 	}
 
+	void RenderPass_GenerateShadowMap::OnUpdate(double _DeltaTime)
+	{
+	}
+
 	void RenderPass_GenerateShadowMap::BeginScene()
 	{
 		m_TimerBegin.Start();
@@ -93,6 +97,9 @@ namespace TruthEngine
 		m_TimerRender.Start();
 
 		RenderSpotLightShadowMap();
+
+
+		m_RendererCommand.ExecutePendingCommands();
 
 
 		auto _SunLight = m_LightManager->GetDirectionalLight("SunLight");
@@ -339,6 +346,10 @@ namespace TruthEngine
 
 	void RenderPass_GenerateShadowMap::RenderSpotLightShadowMap()
 	{
+
+		m_RendererCommand_SpotLights.ExecutePendingCommands();
+
+
 		const LightSpot* _SpotLight = m_LightManager->GetSpotLight("SpotLight0");
 
 		if (_SpotLight)

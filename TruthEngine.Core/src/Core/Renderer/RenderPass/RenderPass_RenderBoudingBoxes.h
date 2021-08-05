@@ -9,7 +9,7 @@
 namespace TruthEngine
 {
 
-	class RenderPass_RenderBoundingBoxes : public RenderPass
+	class RenderPass_RenderBoundingBoxes final : public RenderPass
 	{
 
 	public:
@@ -23,6 +23,9 @@ namespace TruthEngine
 
 
 		void OnImGuiRender() override;
+
+
+		void OnUpdate(double _DeltaTime) override;
 
 
 		void BeginScene() override;

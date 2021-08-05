@@ -444,7 +444,7 @@ namespace TruthEngine
 						ImGui::TableNextColumn();
 
 						std::string api = "";
-						switch (Settings::RendererAPI)
+						switch (Settings::GetRendererAPI())
 						{
 						case TE_RENDERER_API::DirectX12:
 							api = "DirectX 12";

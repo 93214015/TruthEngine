@@ -14,6 +14,6 @@ namespace TruthEngine
 
 	std::string Settings::CPUThreadNumSTR = "6";
 
-	TE_SETTING_MSAA Settings::MSAA = TE_SETTING_MSAA::X4;
+	TE_SETTING_MSAA Settings::MSAA = TE_SETTING_MSAA::X1;
 
 }

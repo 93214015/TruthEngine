@@ -392,19 +392,16 @@ namespace TruthEngine::API::DirectX12
 
 	void DirectX12CommandList::DrawIndexed(uint32_t indexNum, uint32_t indexOffset, uint32_t vertexOffset)
 	{
-		Commit();
 		mD3D12CommandList->DrawIndexedInstanced(indexNum, 1, indexOffset, vertexOffset, 0);
 	}
 
 	void DirectX12CommandList::Draw(uint32_t vertexNum, uint32_t vertexOffset)
 	{
-		Commit();
 		mD3D12CommandList->DrawInstanced(vertexNum, 1, vertexOffset, 0);
 	}
 
 	void DirectX12CommandList::Dispatch(uint32_t GroupNumX, uint32_t GroupNumY, uint32_t GroupNumZ)
 	{
-		Commit();
 		mD3D12CommandList->Dispatch(GroupNumX, GroupNumY, GroupNumZ);
 	}
 
@@ -611,6 +608,7 @@ namespace TruthEngine::API::DirectX12
 		m_QueueCopyDefaultResource.emplace_back(m_BufferManager->m_Resources[buffer->GetResourceIndex()].Get(), data, sizeInByte);
 
 		m_CopyQueueRequiredSize += buffer->GetRequiredSize();
+
 	}
 
 	void DirectX12CommandList::SetDirectConstantGraphics(ConstantBufferDirectBase* cb)

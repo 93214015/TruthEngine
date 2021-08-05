@@ -18,12 +18,10 @@ namespace TruthEngine
 
 	struct RenderTargetView;
 
-	class RenderPass_PostProcessing_HDR: public RenderPass
+	class RenderPass_PostProcessing_HDR final : public RenderPass
 	{
 	public:
 		RenderPass_PostProcessing_HDR(RendererLayer* _RendererLayer);
-		~RenderPass_PostProcessing_HDR();
-
 
 		void OnAttach() override;
 
@@ -32,6 +30,9 @@ namespace TruthEngine
 
 
 		void OnImGuiRender() override;
+
+
+		void OnUpdate(double _DeltaTime) override;
 
 
 		void BeginScene() override;

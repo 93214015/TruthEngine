@@ -4,6 +4,7 @@
 #include "Core/Renderer/RendererCommand.h"
 #include "Core/Renderer/TextureRenderTarget.h"
 #include "Core/Renderer/BufferManager.h"
+#include "Core/Renderer/Viewport.h"
 
 namespace TruthEngine
 {
@@ -17,6 +18,7 @@ namespace TruthEngine
 		virtual void OnAttach() override;
 		virtual void OnDetach() override;
 		virtual void OnImGuiRender() override;
+		void OnUpdate(double _DeltaTime) override;
 		virtual void BeginScene() override;
 		virtual void EndScene() override;
 		virtual void Render() override;
@@ -25,7 +27,7 @@ namespace TruthEngine
 		void InitTextures();
 		void InitBuffers();
 
-		void PreparePipelines(const Material* _Material);
+		void PreparePipelines(const class Material* _Material);
 
 		void OnRenderTargetResize(const class EventTextureResize& _Event);
 

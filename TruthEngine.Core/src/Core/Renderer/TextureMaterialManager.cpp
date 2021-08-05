@@ -15,7 +15,7 @@ namespace TruthEngine
 
 	TextureMaterialManager* TextureMaterialManager::Factory()
 	{
-		switch (Settings::RendererAPI)
+		switch (Settings::GetRendererAPI())
 		{
 		case TE_RENDERER_API::DirectX12:
 			return API::DirectX12::DirectX12TextureMaterialManager::GetInstance();

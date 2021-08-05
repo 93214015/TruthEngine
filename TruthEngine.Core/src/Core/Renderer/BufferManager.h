@@ -54,7 +54,7 @@ namespace TruthEngine
 	struct UnorderedAccessView
 	{
 		UnorderedAccessView() = default;
-		UnorderedAccessView(uint32_t viewIndex, uint32_t resourceIndex, Buffer* resource)
+		UnorderedAccessView(uint32_t viewIndex, uint32_t resourceIndex, GraphicResource* resource)
 			: ViewIndex(viewIndex), ResourceIndex(resourceIndex), Resource(resource)
 		{}
 

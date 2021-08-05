@@ -31,12 +31,6 @@ namespace TruthEngine
 		, m_MaterialManager(MaterialManager::GetInstance())
 	{};
 
-	RenderPass_ForwardRendering::~RenderPass_ForwardRendering() = default;
-
-	RenderPass_ForwardRendering::RenderPass_ForwardRendering(const RenderPass_ForwardRendering& renderer3D) = default;
-
-	RenderPass_ForwardRendering& RenderPass_ForwardRendering::operator=(const RenderPass_ForwardRendering& renderer3D) = default;
-
 
 	void RenderPass_ForwardRendering::OnAttach()
 	{
@@ -100,6 +94,10 @@ namespace TruthEngine
 		ImGui::End();
 	}
 
+	void RenderPass_ForwardRendering::OnUpdate(double _DeltaTime)
+	{
+
+	}
 
 	void RenderPass_ForwardRendering::BeginScene()
 	{
@@ -133,16 +131,17 @@ namespace TruthEngine
 		//m_TimerBegin.End();
 	}
 
-
 	void RenderPass_ForwardRendering::EndScene()
 	{
 		m_RendererCommand.End();
 		m_RendererCommand_ResolveTextures.End();
 	}
 
-
 	void RenderPass_ForwardRendering::Render()
 	{
+
+		//Execute and clear pending commands
+		m_RendererCommand.ExecutePendingCommands();
 
 		m_TotalVertexNum = 0;
 		m_TotalMeshNum = 0;
@@ -200,7 +199,6 @@ namespace TruthEngine
 
 		m_TimerRender.End();
 	}
-
 
 	void RenderPass_ForwardRendering::PreparePiplineMaterial(const Material* material)
 	{

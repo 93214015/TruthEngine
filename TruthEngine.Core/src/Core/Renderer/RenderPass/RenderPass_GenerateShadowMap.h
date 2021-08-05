@@ -14,7 +14,7 @@ namespace TruthEngine
 	class LightManager;
 
 
-	class RenderPass_GenerateShadowMap : public RenderPass
+	class RenderPass_GenerateShadowMap final : public RenderPass
 	{
 
 	public:
@@ -28,6 +28,9 @@ namespace TruthEngine
 
 
 		void OnImGuiRender() override;
+
+
+		void OnUpdate(double _DeltaTime) override;
 
 
 		void BeginScene() override;

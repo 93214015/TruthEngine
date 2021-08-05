@@ -209,7 +209,7 @@ namespace TruthEngine::API::DirectX12
 			D3D12Desc.DSVFormat = DX12_GET_FORMAT(_Pipeline->GetDSVFormat());
 
 			//Sample desc
-			D3D12Desc.SampleDesc.Count = _Pipeline->GetEnableMSAA() ? static_cast<uint32_t>(Settings::MSAA) : 1;
+			D3D12Desc.SampleDesc.Count = _Pipeline->GetEnableMSAA() ? static_cast<uint32_t>(Settings::GetMSAA()) : 1;
 			D3D12Desc.SampleDesc.Quality = 0;
 
 			D3D12Desc.pRootSignature = DirectX12Manager::GetInstance()->GetD3D12RootSignature(shader->GetShaderClassIDX());

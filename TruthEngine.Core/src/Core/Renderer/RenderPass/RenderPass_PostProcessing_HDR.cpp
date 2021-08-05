@@ -15,8 +15,6 @@ TruthEngine::RenderPass_PostProcessing_HDR::RenderPass_PostProcessing_HDR(Render
 {
 }
 
-TruthEngine::RenderPass_PostProcessing_HDR::~RenderPass_PostProcessing_HDR() = default;
-
 void TruthEngine::RenderPass_PostProcessing_HDR::OnAttach()
 {
 	Application* _App = TE_INSTANCE_APPLICATION;
@@ -83,6 +81,13 @@ void TruthEngine::RenderPass_PostProcessing_HDR::OnImGuiRender()
 	ImGui::End();
 }
 
+void TruthEngine::RenderPass_PostProcessing_HDR::OnUpdate(double _DeltaTime)
+{
+	mAdaptation = mAdaptationPercentage < 0.0001f ? 1.0f : _DeltaTime * mAdaptationPercentage;
+	mAdaptation = mAdaptation < 0.9999f ? mAdaptation : 0.9999f;
+	mRendererCommand_DownScaling_SecondPass.AddUpdateTask([this]() {mConstantBufferDownScaling->GetData()->gAdaption = mAdaptation; });
+}
+
 void TruthEngine::RenderPass_PostProcessing_HDR::BeginScene()
 {
 
@@ -124,13 +129,9 @@ void TruthEngine::RenderPass_PostProcessing_HDR::EndScene()
 
 void TruthEngine::RenderPass_PostProcessing_HDR::Render()
 {
-	double _dt = TE_INSTANCE_APPLICATION->FrameTime();
-	mAdaptation = mAdaptationPercentage < 0.0001f ? 1.0f : _dt * mAdaptationPercentage;
-	mAdaptation = mAdaptation < 0.9999f ? mAdaptation : 0.9999f;
-	mRendererCommand_DownScaling_SecondPass.AddUpdateTask([this]() {mConstantBufferDownScaling->GetData()->gAdaption = mAdaptation; });
-
 
 	//mRendererCommand_DownScaling_FirstPass.SetPipelineCompute(mPipelineDownScalingFirstPass);
+	mRendererCommand_DownScaling_FirstPass.ExecutePendingCommands();
 	mRendererCommand_DownScaling_FirstPass.Dispatch(mGroupNum, 1, 1);
 
 
@@ -139,23 +140,29 @@ void TruthEngine::RenderPass_PostProcessing_HDR::Render()
 	GraphicResource* _PrevBuffer = _BufferIndex == 0 ? mBufferRWAverageLumSecondPass1 : mBufferRWAverageLumSecondPass0;
 	mRendererCommand_DownScaling_SecondPass.SetDirectUnorderedAccessViewCompute(_CurrentBuffer, 0);
 	mRendererCommand_DownScaling_SecondPass.SetDirectShaderResourceViewCompute(_PrevBuffer, 0);
-	//mRendererCommand_DownScaling_SecondPass.SetPipelineCompute(mPipelineDownScalingSecondPass);
+	//mRendererCommand_DownScaling_SecondPass.SetPipelineCompute(mPipelineDownScalingSecondPass); // The Pipeline is set in the BeginScene() Method
+	mRendererCommand_DownScaling_SecondPass.ExecutePendingCommands();
 	mRendererCommand_DownScaling_SecondPass.Dispatch(1, 1, 1);
 
 
 	mRendererCommand_BloomPass.SetDirectShaderResourceViewCompute(_CurrentBuffer, 1);
-	//mRendererCommand_BloomPass.SetPipelineCompute(mPipelineBloomPass);
+	//mRendererCommand_BloomPass.SetPipelineCompute(mPipelineBloomPass);  // The Pipeline is set in the BeginScene() Method
+	mRendererCommand_BloomPass.ExecutePendingCommands();
 	mRendererCommand_BloomPass.Dispatch(mGroupNum, 1, 1);
 
 	uint32_t horz = static_cast<uint32_t>(ceil(mSceneViewQuarterSize[0] / (128.0f - 12.0f)));
 	uint32_t vert = static_cast<uint32_t>(ceil(mSceneViewQuarterSize[1] / (128.0f - 12.0f)));
+	
 	//Horz Pipeline is set in BeginScene() Stage
+	mRendererCommand_BlurPassHorz.ExecutePendingCommands();
 	mRendererCommand_BlurPassHorz.Dispatch(horz, mSceneViewQuarterSize[1], 1);
-	mRendererCommand_BlurPassVert.Dispatch(mSceneViewQuarterSize[0], vert, 1);
 
+	mRendererCommand_BlurPassVert.ExecutePendingCommands();
+	mRendererCommand_BlurPassVert.Dispatch(mSceneViewQuarterSize[0], vert, 1);
 
 	mRendererCommand_FinalPass.SetDirectShaderResourceViewGraphics(_CurrentBuffer, 4);
 	//mRendererCommand_FinalPass.SetPipelineGraphics(mPipelineFinalPass);
+	mRendererCommand_FinalPass.ExecutePendingCommands();
 	mRendererCommand_FinalPass.Draw(4, 0);
 
 	_BufferIndex = (_BufferIndex + 1) % 2;

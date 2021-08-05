@@ -31,6 +31,10 @@ void TruthEngine::RenderPass_RenderBoundingBoxes::OnImGuiRender()
 	
 }
 
+void TruthEngine::RenderPass_RenderBoundingBoxes::OnUpdate(double _DeltaTime)
+{
+}
+
 void TruthEngine::RenderPass_RenderBoundingBoxes::BeginScene()
 {
 

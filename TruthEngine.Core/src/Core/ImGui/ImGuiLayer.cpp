@@ -18,7 +18,7 @@ namespace TruthEngine
 	{
 		ImTextureID id;
 
-		switch (Settings::RendererAPI)
+		switch (Settings::GetRendererAPI())
 		{
 		case TE_RENDERER_API::DirectX12:
 		{
@@ -38,7 +38,7 @@ namespace TruthEngine
 		ImTextureID id;
 		static TextureMaterialManager* _textureMaterialManager = TextureMaterialManager::GetInstance();
 
-		switch (Settings::RendererAPI)
+		switch (Settings::GetRendererAPI())
 		{
 		case TE_RENDERER_API::DirectX12:
 		{
@@ -57,7 +57,7 @@ namespace TruthEngine
 
 	std::shared_ptr<TruthEngine::ImGuiLayer> ImGuiLayer::Factory()
 	{
-		switch (Settings::RendererAPI)
+		switch (Settings::GetRendererAPI())
 		{
 		case TE_RENDERER_API::DirectX12:
 			return std::make_shared<API::DirectX12::DirectX12ImGuiLayer>();

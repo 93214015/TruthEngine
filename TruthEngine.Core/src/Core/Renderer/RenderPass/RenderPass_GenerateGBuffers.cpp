@@ -2,6 +2,7 @@
 #include "RenderPass_GenerateGBuffers.h"
 
 #include "Core/Renderer/RendererLayer.h"
+#include "Core/Renderer/Material.h"
 
 #include "Core/Event/EventApplication.h"
 
@@ -29,6 +30,9 @@ namespace TruthEngine
 	{
 	}
 	void RenderPass_GenerateGBuffers::OnImGuiRender()
+	{
+	}
+	void RenderPass_GenerateGBuffers::OnUpdate(double _DeltaTime)
 	{
 	}
 	void RenderPass_GenerateGBuffers::BeginScene()
