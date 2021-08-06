@@ -5,6 +5,7 @@
 #include "Core/Renderer/Material.h"
 
 #include "Core/Event/EventApplication.h"
+#include "Core/Event/EventRenderer.h"
 
 namespace TruthEngine
 {
@@ -82,12 +83,8 @@ namespace TruthEngine
 		
 	}
 
-	void RenderPass_GenerateGBuffers::OnRenderTargetResize(const EventTextureResize& _Event)
+	void RenderPass_GenerateGBuffers::OnRendererViewportResize(const EventRendererViewportResize& _Event)
 	{
-
-		if (_Event.GetIDX() != TE_IDX_GRESOURCES::Texture_RT_BackBuffer)
-			return;
-
 		uint32_t _NewWidth = _Event.GetWidth();
 		uint32_t _NewHeight = _Event.GetHeight();
 

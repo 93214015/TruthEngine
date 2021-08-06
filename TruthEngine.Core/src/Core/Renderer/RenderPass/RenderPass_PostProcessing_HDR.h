@@ -13,7 +13,6 @@ namespace TruthEngine
 	class Buffer;
 	class PipelineGraphics;
 	class PipelineCompute;
-	class EventTextureResize;
 
 
 	struct RenderTargetView;
@@ -53,7 +52,7 @@ namespace TruthEngine
 
 		void ResizedViewport(uint32_t _Width, uint32_t Height);
 
-		void OnRenderTargetResize(const EventTextureResize& _Event);
+		void OnRendererViewportResize(const class EventRendererViewportResize& _Event);
 		void RegisterOnEvents();
 
 	private:

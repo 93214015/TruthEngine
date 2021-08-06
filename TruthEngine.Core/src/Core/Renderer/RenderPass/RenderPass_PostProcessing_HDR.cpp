@@ -3,7 +3,7 @@
 
 #include "Core/Renderer/ShaderManager.h"
 
-#include "Core/Event/EventApplication.h"
+#include "Core/Event/EventRenderer.h"
 #include <Core/Entity/Camera/Camera.h>
 #include <Core/Entity/Camera/CameraManager.h>
 
@@ -302,49 +302,16 @@ void TruthEngine::RenderPass_PostProcessing_HDR::ResizedViewport(uint32_t _Width
 	mRWTextureBluredBloomHorz = mRendererCommand_DownScaling_FirstPass.CreateTextureRW(TE_IDX_GRESOURCES::Texture_RW_BloomBluredHorz, mSceneViewQuarterSize[0], mSceneViewQuarterSize[1], TE_RESOURCE_FORMAT::R16G16B16A16_FLOAT, true, false);
 }
 
-void TruthEngine::RenderPass_PostProcessing_HDR::OnRenderTargetResize(const EventTextureResize & _Event)
+void TruthEngine::RenderPass_PostProcessing_HDR::OnRendererViewportResize(const EventRendererViewportResize & _Event)
 {
-	if (_Event.GetIDX() != TE_IDX_GRESOURCES::Texture_RT_SceneBuffer)
-		return;
-
 	ResizedViewport(_Event.GetWidth(), _Event.GetHeight());
-
-	/*uint32_t width = _Event.GetWidth();
-	uint32_t height = _Event.GetHeight();
-
-	mViewPort.Resize(width, height);
-	mViewRect = ViewRect{ 0, 0, static_cast<long>(width), static_cast<long>(height) };
-
-	mGroupNum = static_cast<uint32_t>(std::ceilf(static_cast<float>(width * height) / (1024.0f * 16.0f)));
-	mBufferRWAverageLumFirstPass = mRendererCommand_DownScaling_FirstPass.CreateBufferStructuredRW(TE_IDX_GRESOURCES::Buffer_HDRAverageLumFirstPass, 4, mGroupNum, false);
-
-	mSceneViewQuarterSize[0] = static_cast<uint32_t>(ceil( static_cast<float>(width) / 4.0f));
-	mSceneViewQuarterSize[1] = static_cast<uint32_t>(ceil(static_cast<float>(height) / 4.0f));
-
-	mRendererCommand_DownScaling_FirstPass.AddUpdateTask([=]()
-		{
-			*mConstantBufferDownScaling->GetData() = ConstantBuffer_Data_DownScaling(mSceneViewQuarterSize[0], mSceneViewQuarterSize[1], mSceneViewQuarterSize[0] * mSceneViewQuarterSize[1], mGroupNum, mAdaptation, mBloomThreshold);
-		});
-
-	mRendererCommand_DownScaling_FirstPass.AddUpdateTask([=]()
-		{
-			*mConstantBufferBlurPass->GetData() = ConstantBuffer_Data_BlurPass(mSceneViewQuarterSize[0], mSceneViewQuarterSize[1]);
-		});
-
-	mRendererCommand_DownScaling_FirstPass.CreateRenderTargetView(TE_IDX_GRESOURCES::Texture_RT_SceneBuffer, &mRenderTargetView_SceneBuffer);
-
-	mRWTextureDownScaledHDR = mRendererCommand_DownScaling_FirstPass.CreateTextureRW(TE_IDX_GRESOURCES::Texture_RW_DownScaledHDR, mSceneViewQuarterSize[0], mSceneViewQuarterSize[1], TE_RESOURCE_FORMAT::R16G16B16A16_FLOAT, true, false);
-	mRWTextureBloom = mRendererCommand_DownScaling_FirstPass.CreateTextureRW(TE_IDX_GRESOURCES::Texture_RW_Bloom, mSceneViewQuarterSize[0], mSceneViewQuarterSize[1], TE_RESOURCE_FORMAT::R16G16B16A16_FLOAT, true, false);
-	mRWTextureBluredBloom = mRendererCommand_DownScaling_FirstPass.CreateTextureRW(TE_IDX_GRESOURCES::Texture_RW_BloomBlured, mSceneViewQuarterSize[0], mSceneViewQuarterSize[1], TE_RESOURCE_FORMAT::R16G16B16A16_FLOAT, true, false);
-	mRWTextureBluredBloomHorz = mRendererCommand_DownScaling_FirstPass.CreateTextureRW(TE_IDX_GRESOURCES::Texture_RW_BloomBluredHorz, mSceneViewQuarterSize[0], mSceneViewQuarterSize[1], TE_RESOURCE_FORMAT::R16G16B16A16_FLOAT, true, false);*/
-
 }
 
 void TruthEngine::RenderPass_PostProcessing_HDR::RegisterOnEvents()
 {
 	auto _Lambda_OnTextureResize = [this](Event& _Event)
 	{
-		this->OnRenderTargetResize(static_cast<EventTextureResize&>(_Event));
+		this->OnRendererViewportResize(static_cast<EventRendererViewportResize&>(_Event));
 	};
-	TE_INSTANCE_APPLICATION->RegisterEventListener(EventType::RenderTargetResize, _Lambda_OnTextureResize);
+	TE_INSTANCE_APPLICATION->RegisterEventListener(EventType::RendererViewportResize, _Lambda_OnTextureResize);
 }

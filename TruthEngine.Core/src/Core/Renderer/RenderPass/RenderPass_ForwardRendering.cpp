@@ -15,7 +15,7 @@
 #include "Core/Renderer/SwapChain.h"
 
 #include "Core/Event/EventEntity.h"
-#include "Core/Event/EventApplication.h"
+#include "Core/Event/EventRenderer.h"
 #include "Core/Entity/Camera/CameraManager.h"
 
 
@@ -263,17 +263,14 @@ namespace TruthEngine
 
 		auto lambda_OnSceneViewportResize = [this](Event& event)
 		{
-			this->OnRenderTargetResize(static_cast<const EventTextureResize&>(event));
+			this->OnRendererViewportResize(static_cast<const EventRendererViewportResize&>(event));
 		};
-		TE_INSTANCE_APPLICATION->RegisterEventListener(EventType::RenderTargetResize, lambda_OnSceneViewportResize);
+		TE_INSTANCE_APPLICATION->RegisterEventListener(EventType::RendererViewportResize, lambda_OnSceneViewportResize);
 
 	}
 
-	void RenderPass_ForwardRendering::OnRenderTargetResize(const EventTextureResize& _Event)
+	void RenderPass_ForwardRendering::OnRendererViewportResize(const EventRendererViewportResize& _Event)
 	{
-		if (_Event.GetIDX() != TE_IDX_GRESOURCES::Texture_RT_SceneBuffer)
-			return;
-
 		uint32_t width = _Event.GetWidth();
 		uint32_t height = _Event.GetHeight();
 

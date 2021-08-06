@@ -4,13 +4,12 @@
 
 #include "imgui-fileBrowser/imfilebrowser.h"
 #include "Core/Renderer/BufferManager.h"
+#include "Core/Event/EventRenderer.h"
 
 namespace TruthEngine
 {
 
 	class TextureRenderTarget;
-	class EventTextureResize;
-	class EventWindowResize;
 
 	void TEImGuiRenderImage(uint32_t viewIndex, const float2& size, const float2& uv0 = { 0.0f, 0.0f }, const float2& uv1 = {1.0f, 1.0f});
 	void TEImGuiRenderImage_MaterialTexture(uint32_t viewIndex, const float2& size, const float2& uv0 = { 0.0f, 0.0f }, const float2& uv1 = { 1.0f, 1.0f });
@@ -38,7 +37,8 @@ namespace TruthEngine
 		virtual void Begin() = 0;
 		virtual void End() = 0;
 
-		virtual void OnTextureResize(const EventTextureResize& event) = 0;
+		virtual void OnRendererTextureResize(const EventRendererTextureResize& event) = 0;
+		virtual void OnRendererViewportResize(const EventRendererViewportResize& event) = 0;
 
 		//virtual void RenderSceneViewport() = 0;
 		virtual void RenderSceneViewport(const ImVec2& viewportSize) = 0;

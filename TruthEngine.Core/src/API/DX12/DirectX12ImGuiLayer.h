@@ -5,13 +5,11 @@
 #include "API/DX12/DirectX12Fence.h"
 #include "API/DX12/DirectX12CommandList.h"
 
-
 #ifdef TE_API_DX12
-
 
 namespace TruthEngine::API::DirectX12
 {
-	class DirectX12ImGuiLayer : public TruthEngine::ImGuiLayer
+	class DirectX12ImGuiLayer final : public TruthEngine::ImGuiLayer
 	{
 
 	public:
@@ -31,7 +29,8 @@ namespace TruthEngine::API::DirectX12
 
 	private:
 
-		void OnTextureResize(const EventTextureResize& event);
+		void OnRendererTextureResize(const EventRendererTextureResize& event) override;
+		void OnRendererViewportResize(const EventRendererViewportResize& event) override;
 
 	private:
 		//DescriptorHeapSRV m_DescHeapSRV;

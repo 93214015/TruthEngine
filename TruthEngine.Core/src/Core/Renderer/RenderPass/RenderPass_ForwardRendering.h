@@ -15,7 +15,6 @@ namespace TruthEngine
 	class Material;
 	class EventEntityAddMaterial;
 	class EventEntityUpdateMaterial;
-	class EventTextureResize;
 
 
 	class RenderPass_ForwardRendering final : public RenderPass
@@ -43,7 +42,7 @@ namespace TruthEngine
 
 		void RegisterOnEvents();
 
-		void OnRenderTargetResize(const EventTextureResize& _Event);
+		void OnRendererViewportResize(const class EventRendererViewportResize& _Event);
 		void OnAddMaterial(EventEntityAddMaterial& event);
 		void OnUpdateMaterial(const EventEntityUpdateMaterial& event);
 

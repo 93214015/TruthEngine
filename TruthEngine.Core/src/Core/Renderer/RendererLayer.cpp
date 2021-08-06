@@ -8,6 +8,7 @@
 #include "Core/ImGui/ImGuiLayer.h"
 #include "Core/Entity/Model/ModelManager.h"
 #include "Core/Event/EventApplication.h"
+#include "Core/Event/EventRenderer.h"
 #include "Core/Event/EventEntity.h"
 #include "Core/Renderer/GraphicDevice.h"
 
@@ -250,8 +251,8 @@ namespace TruthEngine
 		m_RendererCommand.ResizeSwapChain(TE_INSTANCE_SWAPCHAIN, width, height, &m_RTVBackBuffer, nullptr);
 		m_RendererCommand.CreateRenderTargetView(TE_INSTANCE_SWAPCHAIN, &m_RTVBackBuffer);
 
-		EventTextureResize eventResizeTexture(width, height, TE_IDX_GRESOURCES::Texture_RT_BackBuffer);
-		TE_INSTANCE_APPLICATION->OnEvent(eventResizeTexture);
+		EventRendererTextureResize _EventRendererTextureResize(width, height, TE_IDX_GRESOURCES::Texture_RT_BackBuffer);
+		TE_INSTANCE_APPLICATION->OnEvent(_EventRendererTextureResize);
 
 	}
 
@@ -263,12 +264,8 @@ namespace TruthEngine
 		m_RendererCommand.ResizeRenderTarget(TE_IDX_GRESOURCES::Texture_RT_SceneBuffer, width, height, nullptr, nullptr);
 		m_RendererCommand.ResizeRenderTarget(TE_IDX_GRESOURCES::Texture_RT_SceneBufferHDR, width, height, nullptr, nullptr);
 
-		EventTextureResize RenderTargetResizeEvent(static_cast<uint16_t>(width), static_cast<uint16_t>(height), TE_IDX_GRESOURCES::Texture_RT_SceneBuffer);
-		TE_INSTANCE_APPLICATION->OnEvent(RenderTargetResizeEvent);
-
-		EventTextureResize RenderTargetResizeEventHDR(static_cast<uint16_t>(width), static_cast<uint16_t>(height), TE_IDX_GRESOURCES::Texture_RT_SceneBufferHDR);
-		TE_INSTANCE_APPLICATION->OnEvent(RenderTargetResizeEventHDR);
-
+		EventRendererViewportResize _EventRendererViewportResize(width, height);
+		TE_INSTANCE_APPLICATION->OnEvent(_EventRendererViewportResize);
 	}
 
 	void RendererLayer::OnAddMaterial(const EventEntityAddMaterial& event)

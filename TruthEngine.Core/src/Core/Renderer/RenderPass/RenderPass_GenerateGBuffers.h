@@ -15,13 +15,13 @@ namespace TruthEngine
 		RenderPass_GenerateGBuffers(class RendererLayer* _RendererLayer);
 
 		// Inherited via RenderPass
-		virtual void OnAttach() override;
-		virtual void OnDetach() override;
-		virtual void OnImGuiRender() override;
+		void OnAttach() override;
+		void OnDetach() override;
+		void OnImGuiRender() override;
 		void OnUpdate(double _DeltaTime) override;
-		virtual void BeginScene() override;
-		virtual void EndScene() override;
-		virtual void Render() override;
+		void BeginScene() override;
+		void EndScene() override;
+		void Render() override;
 
 	private:
 		void InitTextures();
@@ -29,7 +29,7 @@ namespace TruthEngine
 
 		void PreparePipelines(const class Material* _Material);
 
-		void OnRenderTargetResize(const class EventTextureResize& _Event);
+		void OnRendererViewportResize(const class EventRendererViewportResize& _Event);
 
 
 	private:
