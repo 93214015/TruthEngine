@@ -26,16 +26,16 @@ namespace TruthEngine
 			memcpy(m_RTVFormats, rtvFormat, sizeof(TE_RESOURCE_FORMAT) * renderTargetNum);
 	}
 
-	void PipelineGraphics::Factory(PipelineGraphics** _outPipeline, RendererStateSet states, Shader* shader, uint32_t renderTargetNum, TE_RESOURCE_FORMAT* rtvFormat, TE_RESOURCE_FORMAT dsvFormat, bool enableMSAA, float depthBias, float depthBiasClamp, float slopeScaledDepthBias)
+	void PipelineGraphics::Factory(PipelineGraphics* _outPipeline, RendererStateSet states, Shader* shader, uint32_t renderTargetNum, TE_RESOURCE_FORMAT* rtvFormat, TE_RESOURCE_FORMAT dsvFormat, bool enableMSAA, float depthBias, float depthBiasClamp, float slopeScaledDepthBias)
 	{
-		static PipelineGraphicsContainer sPipelineContainer;
+		//static PipelineGraphicsContainer sPipelineContainer;
 
 		std::string _Name = "PSO_";
 		_Name += std::to_string(gPipelineID);
 
-		if (*_outPipeline == nullptr)
+		if (_outPipeline->m_ID == -1)
 		{
-			*_outPipeline = &sPipelineContainer.mPipelines.emplace_back(PipelineGraphics(
+			*_outPipeline = PipelineGraphics(
 				gPipelineID++,
 				_Name,
 				states,
@@ -47,12 +47,12 @@ namespace TruthEngine
 				depthBias,
 				depthBiasClamp,
 				slopeScaledDepthBias
-			));
+			);
 		}
 		else
 		{
-			**_outPipeline = PipelineGraphics(
-				(*_outPipeline)->m_ID,
+			*_outPipeline = PipelineGraphics(
+				_outPipeline->m_ID,
 				_Name,
 				states,
 				shader,
@@ -65,7 +65,7 @@ namespace TruthEngine
 				slopeScaledDepthBias);
 		}
 
-		EventRendererNewGraphicsPipeline _Event{ *_outPipeline };
+		EventRendererNewGraphicsPipeline _Event{ _outPipeline };
 		
 		TE_INSTANCE_APPLICATION->OnEvent(_Event);
 
@@ -81,23 +81,23 @@ namespace TruthEngine
 		std::vector<PipelineCompute> mPipelines;
 	};
 
-	void PipelineCompute::Factory(PipelineCompute** _outPipeline, Shader* _Shader)
+	void PipelineCompute::Factory(PipelineCompute* _outPipeline, Shader* _Shader)
 	{
-		static PipelineComputeContainer sContainer;
+		//static PipelineComputeContainer sContainer;
 
 		std::string _Name = "PSO_";
 		_Name += std::to_string(gPipelineID);
 
-		if (*_outPipeline == nullptr)
+		if (_outPipeline->m_ID == -1)
 		{
-			*_outPipeline = &sContainer.mPipelines.emplace_back(PipelineCompute(gPipelineID++, _Name, _Shader));
+			*_outPipeline = PipelineCompute(gPipelineID++, _Name, _Shader);
 		}
 		else
 		{
-			**_outPipeline = PipelineCompute((*_outPipeline)->m_ID, (*_outPipeline)->m_Name, _Shader);
+			*_outPipeline = PipelineCompute(_outPipeline->m_ID, _outPipeline->m_Name, _Shader);
 		}
 
-		EventRendererNewComputePipeline _Event{ *_outPipeline };
+		EventRendererNewComputePipeline _Event{ _outPipeline };
 
 		TE_INSTANCE_APPLICATION->OnEvent(_Event);
 	}
@@ -106,14 +106,5 @@ namespace TruthEngine
 		: m_ID(_ID), m_Name(_Name), m_Shader(_Shader), m_ShaderClassIDX(_Shader->GetShaderClassIDX())
 	{}
 
-	PipelineCompute::~PipelineCompute() = default;
-
-	PipelineCompute::PipelineCompute(const PipelineCompute& _Pipeline) = default;
-
-	PipelineCompute& PipelineCompute::operator=(const PipelineCompute& _Pipeline) = default;
-
-	PipelineCompute::PipelineCompute(PipelineCompute&& _Pipeline) noexcept = default;
-
-	PipelineCompute& PipelineCompute::operator=(PipelineCompute&& _Pipeline) noexcept = default;
 
 }

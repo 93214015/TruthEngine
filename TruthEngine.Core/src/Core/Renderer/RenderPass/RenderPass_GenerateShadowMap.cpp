@@ -6,7 +6,6 @@
 #include "Core/Application.h"
 #include "Core/Entity/Light/LightManager.h"
 #include "Core/Entity/Camera/Camera.h"
-#include "Core/Renderer/Pipeline.h"
 #include "Core/Entity/Camera/CameraManager.h"
 #include "Core/Entity/Components.h"
 
@@ -330,18 +329,83 @@ namespace TruthEngine
 			TE_RENDERER_STATE_COMPARISSON_FUNC_LESS
 		);
 
+
 		Shader* shader = nullptr;
-		auto result = m_ShaderManager->AddShader(&shader, TE_IDX_SHADERCLASS::GENERATEBASICSHADOWMAP, TE_IDX_MESH_TYPE::MESH_NTT, _rendererStateReversedDepth, "Assets/Shaders/generateShadowMap.hlsl", "vs", "");
-		PipelineGraphics::Factory(&m_PipelinesReveresedDepth[TE_IDX_MESH_TYPE::MESH_NTT], _rendererStateReversedDepth, shader, 0, nullptr, TE_RESOURCE_FORMAT::D32_FLOAT, false, -30.0, 0.0f, -4.0f);
 
-		result = m_ShaderManager->AddShader(&shader, TE_IDX_SHADERCLASS::GENERATEBASICSHADOWMAP, TE_IDX_MESH_TYPE::MESH_NTT, _rendererStateForwardDepth, "Assets/Shaders/generateShadowMap.hlsl", "vs", "");
-		PipelineGraphics::Factory(&m_PipelinesForwardDepth[TE_IDX_MESH_TYPE::MESH_NTT], _rendererStateForwardDepth, shader, 0, nullptr, TE_RESOURCE_FORMAT::D32_FLOAT, false, 30.0, 0.0f, 4.0f);
+		m_ShaderManager->AddShader(&shader, TE_IDX_SHADERCLASS::GENERATEBASICSHADOWMAP, TE_IDX_MESH_TYPE::MESH_NTT, _rendererStateReversedDepth, "Assets/Shaders/generateShadowMap.hlsl", "vs", "");
 
-		result = m_ShaderManager->AddShader(&shader, TE_IDX_SHADERCLASS::GENERATEBASICSHADOWMAP, TE_IDX_MESH_TYPE::MESH_SKINNED, _rendererStateReversedDepth, "Assets/Shaders/generateShadowMap.hlsl", "vs", "");
-		PipelineGraphics::Factory(&m_PipelinesReveresedDepth[TE_IDX_MESH_TYPE::MESH_SKINNED], _rendererStateReversedDepth, shader, 0, nullptr, TE_RESOURCE_FORMAT::D32_FLOAT, false, -30.0, 0.0f, -4.0f);
+		PipelineGraphics* _Pipeline = nullptr;
 
-		result = m_ShaderManager->AddShader(&shader, TE_IDX_SHADERCLASS::GENERATEBASICSHADOWMAP, TE_IDX_MESH_TYPE::MESH_SKINNED, _rendererStateForwardDepth, "Assets/Shaders/generateShadowMap.hlsl", "vs", "");
-		PipelineGraphics::Factory(&m_PipelinesForwardDepth[TE_IDX_MESH_TYPE::MESH_SKINNED], _rendererStateForwardDepth, shader, 0, nullptr, TE_RESOURCE_FORMAT::D32_FLOAT, false, 30.0, 0.0f, 4.0f);
+		//Reversed Depth Pipeline
+
+		auto _ItrPipeline = m_PipelinesReveresedDepth.find(TE_IDX_MESH_TYPE::MESH_NTT);
+
+		if (_ItrPipeline == m_PipelinesReveresedDepth.end())
+		{
+			_Pipeline = &m_ContainerPipelines.emplace_back();
+			m_PipelinesReveresedDepth[TE_IDX_MESH_TYPE::MESH_NTT] = _Pipeline;
+		}
+		else
+		{
+			_Pipeline = _ItrPipeline->second;
+		}
+		PipelineGraphics::Factory(_Pipeline, _rendererStateReversedDepth, shader, 0, nullptr, TE_RESOURCE_FORMAT::D32_FLOAT, false, -30.0, 0.0f, -4.0f);
+
+		//Forward Depth Pipeline
+
+		m_ShaderManager->AddShader(&shader, TE_IDX_SHADERCLASS::GENERATEBASICSHADOWMAP, TE_IDX_MESH_TYPE::MESH_NTT, _rendererStateForwardDepth, "Assets/Shaders/generateShadowMap.hlsl", "vs", "");
+
+		_ItrPipeline = m_PipelinesForwardDepth.find(TE_IDX_MESH_TYPE::MESH_NTT);
+
+		if (_ItrPipeline == m_PipelinesForwardDepth.end())
+		{
+			_Pipeline = &m_ContainerPipelines.emplace_back();
+			m_PipelinesForwardDepth[TE_IDX_MESH_TYPE::MESH_NTT] = _Pipeline;
+		}
+		else
+		{
+			_Pipeline = _ItrPipeline->second;
+		}
+
+		PipelineGraphics::Factory(_Pipeline, _rendererStateForwardDepth, shader, 0, nullptr, TE_RESOURCE_FORMAT::D32_FLOAT, false, 30.0, 0.0f, 4.0f);
+
+
+
+
+		m_ShaderManager->AddShader(&shader, TE_IDX_SHADERCLASS::GENERATEBASICSHADOWMAP, TE_IDX_MESH_TYPE::MESH_SKINNED, _rendererStateReversedDepth, "Assets/Shaders/generateShadowMap.hlsl", "vs", "");
+
+		_ItrPipeline = m_PipelinesReveresedDepth.find(TE_IDX_MESH_TYPE::MESH_SKINNED);
+
+		if (_ItrPipeline == m_PipelinesReveresedDepth.end())
+		{
+			_Pipeline = &m_ContainerPipelines.emplace_back();
+			m_PipelinesReveresedDepth[TE_IDX_MESH_TYPE::MESH_SKINNED] = _Pipeline;
+		}
+		else
+		{
+			_Pipeline = _ItrPipeline->second;
+		}
+
+		PipelineGraphics::Factory(_Pipeline, _rendererStateReversedDepth, shader, 0, nullptr, TE_RESOURCE_FORMAT::D32_FLOAT, false, -30.0, 0.0f, -4.0f);
+
+
+
+
+		m_ShaderManager->AddShader(&shader, TE_IDX_SHADERCLASS::GENERATEBASICSHADOWMAP, TE_IDX_MESH_TYPE::MESH_SKINNED, _rendererStateForwardDepth, "Assets/Shaders/generateShadowMap.hlsl", "vs", "");
+
+		_ItrPipeline = m_PipelinesForwardDepth.find(TE_IDX_MESH_TYPE::MESH_SKINNED);
+
+		if (_ItrPipeline == m_PipelinesForwardDepth.end())
+		{
+			_Pipeline = &m_ContainerPipelines.emplace_back();
+			m_PipelinesForwardDepth[TE_IDX_MESH_TYPE::MESH_SKINNED] = _Pipeline;
+		}
+		else
+		{
+			_Pipeline = _ItrPipeline->second;
+		}
+
+		PipelineGraphics::Factory(_Pipeline, _rendererStateForwardDepth, shader, 0, nullptr, TE_RESOURCE_FORMAT::D32_FLOAT, false, 30.0, 0.0f, 4.0f);
 	}
 
 	void RenderPass_GenerateShadowMap::RenderSpotLightShadowMap()

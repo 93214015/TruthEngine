@@ -3,6 +3,8 @@
 
 #include "Core/Renderer/RendererCommand.h"
 #include "Core/Renderer/Viewport.h"
+#include "Core/Renderer/Pipeline.h"
+
 
 namespace TruthEngine
 {
@@ -62,6 +64,8 @@ namespace TruthEngine
 
 		Viewport m_Viewport;
 		ViewRect m_ViewRect;
+
+		std::vector<PipelineGraphics> m_ContainerPipelines;
 
 		std::unordered_map<TE_IDX_MESH_TYPE, PipelineGraphics*> m_PipelinesForwardDepth;
 		std::unordered_map<TE_IDX_MESH_TYPE, PipelineGraphics*> m_PipelinesReveresedDepth;

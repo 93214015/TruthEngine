@@ -7,6 +7,7 @@
 #include "Core/Renderer/BufferManager.h"
 #include "Core/Renderer/ShaderManager.h"
 #include "Core/Renderer/Viewport.h"
+#include "Core/Renderer/Pipeline.h"
 
 namespace TruthEngine
 {
@@ -71,8 +72,9 @@ namespace TruthEngine
 
 		class MaterialManager* m_MaterialManager;
 
+		std::vector<PipelineGraphics> m_ContainerPipelines;
 		std::unordered_map<uint32_t, PipelineGraphics*> m_MaterialPipelines;
-		PipelineGraphics* m_PipelineEnvironmentCube = nullptr;
+		PipelineGraphics m_PipelineEnvironmentCube;
 
 		struct ConstantBuffer_Data_Per_Mesh
 		{

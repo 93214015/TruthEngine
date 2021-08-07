@@ -139,12 +139,12 @@ namespace TruthEngine
 
 		RenderTargetView mRenderTargetView_SceneBuffer;
 
-		PipelineCompute* mPipelineDownScalingFirstPass = nullptr;
-		PipelineCompute* mPipelineDownScalingSecondPass = nullptr;
-		PipelineCompute* mPipelineBloomPass = nullptr;
-		PipelineCompute* mPipelineBlurPassHorz = nullptr;
-		PipelineCompute* mPipelineBlurPassVert = nullptr;
-		PipelineGraphics* mPipelineFinalPass = nullptr;
+		PipelineCompute mPipelineDownScalingFirstPass;
+		PipelineCompute mPipelineDownScalingSecondPass;
+		PipelineCompute mPipelineBloomPass;
+		PipelineCompute mPipelineBlurPassHorz;
+		PipelineCompute mPipelineBlurPassVert;
+		PipelineGraphics mPipelineFinalPass;
 
 		Viewport mViewPort;
 		ViewRect mViewRect;

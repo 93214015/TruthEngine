@@ -91,22 +91,22 @@ void TruthEngine::RenderPass_PostProcessing_HDR::OnUpdate(double _DeltaTime)
 void TruthEngine::RenderPass_PostProcessing_HDR::BeginScene()
 {
 
-	mRendererCommand_DownScaling_FirstPass.BeginCompute(mPipelineDownScalingFirstPass);
+	mRendererCommand_DownScaling_FirstPass.BeginCompute(&mPipelineDownScalingFirstPass);
 
 
-	mRendererCommand_DownScaling_SecondPass.BeginCompute(mPipelineDownScalingSecondPass);
+	mRendererCommand_DownScaling_SecondPass.BeginCompute(&mPipelineDownScalingSecondPass);
 
 
-	mRendererCommand_BloomPass.BeginCompute(mPipelineBloomPass);
+	mRendererCommand_BloomPass.BeginCompute(&mPipelineBloomPass);
 
 
-	mRendererCommand_BlurPassHorz.BeginCompute(mPipelineBlurPassHorz);
+	mRendererCommand_BlurPassHorz.BeginCompute(&mPipelineBlurPassHorz);
 
 
-	mRendererCommand_BlurPassVert.BeginCompute(mPipelineBlurPassVert);
+	mRendererCommand_BlurPassVert.BeginCompute(&mPipelineBlurPassVert);
 
 
-	mRendererCommand_FinalPass.BeginGraphics(mPipelineFinalPass);
+	mRendererCommand_FinalPass.BeginGraphics(&mPipelineFinalPass);
 	mRendererCommand_FinalPass.SetRenderTarget(mRenderTargetView_SceneBuffer);
 	mRendererCommand_FinalPass.SetViewPort(&mViewPort, &mViewRect);
 

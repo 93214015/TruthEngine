@@ -14,7 +14,7 @@ namespace TruthEngine
 	class PipelineGraphics
 	{
 	public:		
-
+		PipelineGraphics() = default;
 		virtual ~PipelineGraphics() = default;
 
 		PipelineGraphics(const PipelineGraphics&) = default;
@@ -224,15 +224,14 @@ namespace TruthEngine
 			return m_EnableMSAA;
 		}
 
-		static void Factory(PipelineGraphics** _outPipeline, RendererStateSet states, Shader* shader, uint32_t renderTargetNum, TE_RESOURCE_FORMAT* rtvFormat, TE_RESOURCE_FORMAT dsvFormat, bool enableMSAA, float depthBias = 0.0f, float depthBiasClamp = 0.0f, float slopeScaledDepthBias = 0.0f);
+		static void Factory(PipelineGraphics* _outPipeline, RendererStateSet states, Shader* shader, uint32_t renderTargetNum, TE_RESOURCE_FORMAT* rtvFormat, TE_RESOURCE_FORMAT dsvFormat, bool enableMSAA, float depthBias = 0.0f, float depthBiasClamp = 0.0f, float slopeScaledDepthBias = 0.0f);
 
 	private:
 		PipelineGraphics(uint32_t ID, std::string_view _Name, RendererStateSet states, Shader* shader, uint32_t renderTargetNum, TE_RESOURCE_FORMAT* rtvFormat, TE_RESOURCE_FORMAT dsvFormat, bool enableMSAA, float depthBias = 0.0f, float depthBiasClamp = 0.0f, float slopeScaledDepthBias = 0.0f);
 
 	private:
-		uint32_t m_ID;
+		uint32_t m_ID = -1;
 
-		bool m_EnableMSAA = false;
 
 		RendererStateSet m_States;
 
@@ -244,6 +243,8 @@ namespace TruthEngine
 
 		TE_RESOURCE_FORMAT m_RTVFormats[8] = { TE_RESOURCE_FORMAT::UNKNOWN, TE_RESOURCE_FORMAT::UNKNOWN , TE_RESOURCE_FORMAT::UNKNOWN , TE_RESOURCE_FORMAT::UNKNOWN , TE_RESOURCE_FORMAT::UNKNOWN, TE_RESOURCE_FORMAT::UNKNOWN, TE_RESOURCE_FORMAT::UNKNOWN, TE_RESOURCE_FORMAT::UNKNOWN };
 		TE_RESOURCE_FORMAT m_DSVFormat = TE_RESOURCE_FORMAT::D32_FLOAT;
+
+		bool m_EnableMSAA = false;
 
 		Shader* m_Shader;
 		TE_IDX_SHADERCLASS m_ShaderClassIDX = TE_IDX_SHADERCLASS::NONE;
@@ -258,13 +259,14 @@ namespace TruthEngine
 	class PipelineCompute
 	{
 	public:
-		~PipelineCompute();
+		PipelineCompute() = default;
+		~PipelineCompute() = default;
 
-		PipelineCompute(const PipelineCompute& _Pipeline);
-		PipelineCompute& operator=(const PipelineCompute& _Pipeline);
+		PipelineCompute(const PipelineCompute& _Pipeline) = default;
+		PipelineCompute& operator=(const PipelineCompute& _Pipeline) = default;
 
-		PipelineCompute(PipelineCompute&& _Pipeline) noexcept;
-		PipelineCompute& operator=(PipelineCompute&& _Pipeline) noexcept;
+		PipelineCompute(PipelineCompute&& _Pipeline) noexcept = default;
+		PipelineCompute& operator=(PipelineCompute&& _Pipeline) noexcept = default;
 
 		inline uint32_t GetID() const noexcept
 		{
@@ -281,14 +283,14 @@ namespace TruthEngine
 			return m_ShaderClassIDX;
 		}
 
-		static void Factory(PipelineCompute** _outPipeline, Shader* _Shader);
+		static void Factory(PipelineCompute* _outPipeline, Shader* _Shader);
 
 	private:
 		PipelineCompute(uint32_t _ID, std::string_view _Name, Shader* _Shader);
 
 
 	private:
-		uint32_t m_ID;
+		uint32_t m_ID = -1;
 
 		Shader* m_Shader;
 		TE_IDX_SHADERCLASS m_ShaderClassIDX;

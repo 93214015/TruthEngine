@@ -7,7 +7,6 @@
 #include "Core/Entity/Components.h"
 
 #include "Core/Renderer/Material.h"
-#include "Core/Renderer/Pipeline.h"
 
 #include "Core/Renderer/RendererLayer.h"
 
@@ -185,7 +184,7 @@ namespace TruthEngine
 		{
 			auto _EntityViewEnv = _ActiveScene->ViewEntities<EnvironmentComponent>();
 
-			m_RendererCommand.SetPipelineGraphics(m_PipelineEnvironmentCube);
+			m_RendererCommand.SetPipelineGraphics(&m_PipelineEnvironmentCube);
 			m_RendererCommand.SetDirectConstantGraphics(m_ConstantBufferDirect_EnvironmentMap);
 
 			for (auto& _EntityEnv : _EntityViewEnv)
@@ -219,7 +218,23 @@ namespace TruthEngine
 			rtvFormats[0] = TE_RESOURCE_FORMAT::R8G8B8A8_UNORM;
 		}
 
-		PipelineGraphics::Factory(&m_MaterialPipelines[material->GetID()], material->GetRendererStates(), shader, 1, rtvFormats, TE_RESOURCE_FORMAT::D32_FLOAT, true);
+		PipelineGraphics* _Pipeline = nullptr;
+
+		auto _MaterialID = material->GetID();
+
+		auto _ItrPipeline = m_MaterialPipelines.find(_MaterialID);
+		if (_ItrPipeline == m_MaterialPipelines.end())
+		{
+			_Pipeline = &m_ContainerPipelines.emplace_back();
+			m_MaterialPipelines[_MaterialID] = _Pipeline;
+		}
+		else
+		{
+			_Pipeline = _ItrPipeline->second;
+		}
+
+		PipelineGraphics::Factory(_Pipeline, material->GetRendererStates(), shader, 1, rtvFormats, TE_RESOURCE_FORMAT::D32_FLOAT, true);
+
 	}
 
 	void RenderPass_ForwardRendering::PreparePiplineEnvironment()
