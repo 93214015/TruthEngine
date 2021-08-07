@@ -5,6 +5,7 @@
 #include "Core/Renderer/TextureRenderTarget.h"
 #include "Core/Renderer/BufferManager.h"
 #include "Core/Renderer/Viewport.h"
+#include "Core/Renderer/Pipeline.h"
 
 namespace TruthEngine
 {
@@ -29,14 +30,19 @@ namespace TruthEngine
 
 		void PreparePipelines(const class Material* _Material);
 
-		void OnRendererViewportResize(const class EventRendererViewportResize& _Event);
+		void RegisterEvents();
 
+		void OnRendererViewportResize(const class EventRendererViewportResize& _Event);
+		void OnAddMaterial(const class EventEntityAddMaterial& _Event);
+		void OnUpdateMaterial(const class EventEntityUpdateMaterial& _Event);
 
 	private:
 		RendererCommand m_RendererCommand;
 
 		RenderTargetView m_RenderTargetViewGBufferColor;
 		RenderTargetView m_RenderTargetViewGBufferNormal;
+
+		DepthStencilView m_DepthStencilView;
 
 		TextureRenderTarget* m_TextureGBufferColor;
 		TextureRenderTarget* m_TextureGBufferNormal;
@@ -46,6 +52,10 @@ namespace TruthEngine
 
 		BufferManager* m_BufferManager;
 		ShaderManager* m_ShaderManager;
+
+		
+		std::vector<PipelineGraphics> m_ContainerPipelines;
+		std::unordered_map<uint32_t, PipelineGraphics*> m_MapMaterialPipeline;
 
 
 		struct ConstantBuffer_Data_Per_Mesh

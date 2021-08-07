@@ -428,6 +428,16 @@ namespace TruthEngine
 		return TE_INSTANCE_BUFFERMANAGER->CreateIndexBuffer(ib);
 	}
 
+	TextureRenderTarget* RendererCommand::GetRenderTarget(TE_IDX_GRESOURCES _IDX)
+	{
+		return m_BufferManager->GetRenderTarget(_IDX);
+	}
+
+	TextureDepthStencil* RendererCommand::GetDepthStencil(TE_IDX_GRESOURCES _IDX)
+	{
+		return m_BufferManager->GetDepthStencil(_IDX);
+	}
+
 	bool RendererCommand::IsRunning()
 	{
 		return m_CurrentCommandList->IsRunning();

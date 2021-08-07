@@ -56,9 +56,9 @@ namespace TruthEngine
 
 	void RenderPass_ForwardRendering::OnDetach()
 	{
-		m_RendererCommand.ReleaseResource(m_TextureDepthStencil);
 		m_RendererCommand.Release();
 		m_MaterialPipelines.clear();
+		m_ContainerPipelines.clear();
 	}
 
 	void RenderPass_ForwardRendering::OnImGuiRender()
@@ -201,8 +201,6 @@ namespace TruthEngine
 
 	void RenderPass_ForwardRendering::PreparePiplineMaterial(const Material* material)
 	{
-		std::string shaderName = std::string("renderer3D_material") + std::to_string(material->GetID());
-
 		Shader* shader = nullptr;
 
 		auto result = m_ShaderMgr->AddShader(&shader, TE_IDX_SHADERCLASS::FORWARDRENDERING, material->GetMeshType(), material->GetRendererStates(), "Assets/Shaders/ForwardRendering.hlsl", "vs", "ps");
@@ -289,8 +287,6 @@ namespace TruthEngine
 		uint32_t width = _Event.GetWidth();
 		uint32_t height = _Event.GetHeight();
 
-		m_RendererCommand.ResizeDepthStencil(m_TextureDepthStencil, width, height, nullptr, nullptr);
-
 		if (Settings::IsMSAAEnabled())
 		{
 			m_RendererCommand.ResizeDepthStencil(m_TextureDepthStencilMS, width, height, nullptr, nullptr);
@@ -349,13 +345,13 @@ namespace TruthEngine
 
 		ClearValue_RenderTarget _ClearValue{ 0.0f, 0.0f, 0.0f, 1.0f };
 
+		m_TextureDepthStencil = m_RendererCommand.GetDepthStencil(TE_IDX_GRESOURCES::Texture_DS_SceneBuffer);
+
 		uint32_t _ViewportWidth = TE_INSTANCE_APPLICATION->GetSceneViewportWidth();
 		uint32_t _ViewportHeight = TE_INSTANCE_APPLICATION->GetSceneViewportHeight();
 
 		_ViewportWidth = _ViewportWidth != 0 ? _ViewportWidth : 1;
 		_ViewportHeight = _ViewportHeight != 0 ? _ViewportHeight : 1;
-
-		m_TextureDepthStencil = m_RendererCommand.CreateDepthStencil(TE_IDX_GRESOURCES::Texture_DS_SceneBuffer, _ViewportWidth, _ViewportHeight, TE_RESOURCE_FORMAT::R32_TYPELESS, ClearValue_DepthStencil{ 1.0f, 0 }, true, false);
 
 		if (Settings::IsMSAAEnabled())
 		{

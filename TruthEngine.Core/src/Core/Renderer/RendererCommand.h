@@ -63,6 +63,8 @@ namespace TruthEngine
 			TE_RESULT CreateVertexBuffer(VertexBufferBase* vb);
 			TE_RESULT CreateIndexBuffer(IndexBuffer* ib);
 
+			TextureRenderTarget* GetRenderTarget(TE_IDX_GRESOURCES _IDX);
+			TextureDepthStencil* GetDepthStencil(TE_IDX_GRESOURCES _IDX);
 
 			void SetPipelineGraphics(PipelineGraphics* pipeline);
 			void SetPipelineCompute(PipelineCompute* pipeline);
