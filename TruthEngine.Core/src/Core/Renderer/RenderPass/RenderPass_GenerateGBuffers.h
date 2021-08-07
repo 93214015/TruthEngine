@@ -28,6 +28,8 @@ namespace TruthEngine
 		void InitTextures();
 		void InitBuffers();
 
+		void ReleaseResources();
+
 		void PreparePipelines(const class Material* _Material);
 
 		void RegisterEvents();

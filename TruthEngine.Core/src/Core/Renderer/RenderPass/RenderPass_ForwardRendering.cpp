@@ -28,7 +28,11 @@ namespace TruthEngine
 		, m_ViewRect{ static_cast<long>(0), static_cast<long>(0), static_cast<long>(TE_INSTANCE_APPLICATION->GetClientWidth()), static_cast<long>(TE_INSTANCE_APPLICATION->GetClientHeight()) }
 		, m_ConstantBufferDirect_PerMesh(nullptr)
 		, m_MaterialManager(MaterialManager::GetInstance())
-	{};
+	{
+		//At the moment I've used vector as a container and referece to its element by pointers other places.
+		// so, for prevent from pointers being invalidated in case of vector relocations, I reserve vector space beforehand(the simplest and probably temporary solution).
+		m_ContainerPipelines.reserve(1000);
+	};
 
 
 	void RenderPass_ForwardRendering::OnAttach()

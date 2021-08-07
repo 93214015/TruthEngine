@@ -36,8 +36,9 @@ namespace TruthEngine
 	}
 	void RenderPass_GenerateGBuffers::OnDetach()
 	{
-		m_RendererCommand.ReleaseResource(m_TextureGBufferColor);
-		m_RendererCommand.ReleaseResource(m_TextureGBufferNormal);
+		ReleaseResources();
+
+		m_RendererCommand.Release();
 
 		m_MapMaterialPipeline.clear();
 		m_ContainerPipelines.clear();
@@ -101,6 +102,12 @@ namespace TruthEngine
 	void RenderPass_GenerateGBuffers::InitBuffers()
 	{
 		m_ConstantBufferDirect_PerMesh = m_RendererCommand.CreateConstantBufferDirect<ConstantBuffer_Data_Per_Mesh>(TE_IDX_GRESOURCES::CBuffer_PerMesh_GBuffers);
+	}
+
+	void RenderPass_GenerateGBuffers::ReleaseResources()
+	{
+		m_RendererCommand.ReleaseResource(m_TextureGBufferColor);
+		m_RendererCommand.ReleaseResource(m_TextureGBufferNormal);
 	}
 
 	void RenderPass_GenerateGBuffers::PreparePipelines(const Material* _Material)
