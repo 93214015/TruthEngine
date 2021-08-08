@@ -33,5 +33,15 @@
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Assets\Shaders\GenerateGBuffers.hlsl" />
+    <FxCompile Include="Assets\Shaders\DeferredShading.hlsl" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Assets\Shaders\Lights.hlsli" />
+    <None Include="Assets\Shaders\CBPerFrame.hlsli" />
+    <None Include="Assets\Shaders\CBLights.hlsli" />
+    <None Include="Assets\Shaders\CBMaterials.hlsli" />
+    <None Include="Assets\Shaders\CBUnfrequent.hlsli" />
+    <None Include="Assets\Shaders\CBBoneTransforms.hlsli" />
+    <None Include="Assets\Shaders\Samplers.hlsli" />
   </ItemGroup>
 </Project>

@@ -8,10 +8,8 @@ cbuffer perFrame : register(b1)
     row_major matrix gViewProj;
 }
 
-cbuffer cb_boneTransforms : register(b2)
-{
-    row_major matrix gBoneTransformations[256];
-};
+#define REGISTER_CBBoneTransforms b2
+#include "CBBoneTransforms.hlsli"
 
 #ifdef MESH_TYPE_SKINNED
 

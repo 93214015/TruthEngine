@@ -1,21 +1,3 @@
-//
-//Data Structs
-//
-struct Material
-{
-    float4 Diffuse;
-    
-    float3 FresnelR0;
-    float Shininess;
-    
-    float2 UVScale;
-    float2 UVTranslate;
-    
-    uint MapIndexDiffuse;
-    uint MapIndexNormal;
-    uint MapIndexDisplacement;
-    uint pad;
-};
 
 
 ///////////////////////////////////////////////////
@@ -31,25 +13,14 @@ cbuffer CBPerMesh : register(b0)
     float3 padPerMesh;
 }
 
-cbuffer CBPerFrame : register(b1)
-{
-    row_major matrix viewProj;
-    
-    float3 EyePos;
-    float pad;
+#define REGISTER_CBPerFrame b1
+#include "CBPerFrame.hlsli"
 
-    row_major matrix gCascadedShadowTransform[4];
-}
+#define REGISTER_CBMaterials b2
+#include "CBMaterials.hlsli"
 
-cbuffer CBMaterials : register(b2)
-{
-    Material MaterialArray[200];
-}
-
-cbuffer CBBoneTransforms : register(b3)
-{
-    row_major matrix gBoneTransformations[256];
-};
+#define REGISTER_CBBoneTransforms b3
+#include "CBBoneTransforms.hlsli"
 
 ///////////////////////////////////////////////////
 //////////////// Textures
@@ -60,12 +31,7 @@ Texture2D MaterialTextures[500] : register(t0, space0);
 ///////////////////////////////////////////////////
 //////////////// Samplers
 ///////////////////////////////////////////////////
-sampler sampler_linear : register(s0);
-sampler sampler_point_borderBlack : register(s1);
-sampler sampler_point_borderWhite : register(s2);
-SamplerComparisonState samplerComparison_great_point_borderBlack : register(s3);
-sampler sampler_point_wrap : register(s4);
-SamplerComparisonState samplerComparison_less_point_borderWhite : register(s5);
+#include "Samplers.hlsli"
 
 
 #ifdef MESH_TYPE_SKINNED
