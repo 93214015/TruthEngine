@@ -113,11 +113,12 @@ namespace TruthEngine
 		//m_RendererCommand.SetRenderTarget(TE_INSTANCE_SWAPCHAIN, m_RenderTartgetView);
 		m_RendererCommand.SetRenderTarget(m_RenderTartgetView);
 		m_RendererCommand.SetDepthStencil(m_DepthStencilView);
-		m_RendererCommand.ClearRenderTarget(m_RenderTartgetView);
-		m_RendererCommand.ClearDepthStencil(m_DepthStencilView);
 
 		if (Settings::IsMSAAEnabled())
 		{
+			m_RendererCommand.ClearRenderTarget(m_RenderTartgetView);
+			m_RendererCommand.ClearDepthStencil(m_DepthStencilView);
+
 			if (m_RendererLayer->IsEnabledHDR())
 			{
 				m_RendererCommand_ResolveTextures.ResolveMultiSampledTexture(m_TextureRenderTargetHDRMS, TE_IDX_GRESOURCES::Texture_RT_SceneBufferHDR);
@@ -167,15 +168,15 @@ namespace TruthEngine
 			const BoundingAABox& _AABB = _ActiveScene->GetComponent<BoundingBoxComponent>(entity_mesh).GetBoundingBox();
 			const BoundingAABox _TransformedAABB = Math::TransformBoundingBox(_AABB, _transform);
 
-			if (_CameraBoundingFrustum.Contains(_TransformedAABB) == DirectX::DISJOINT)
+			if (_CameraBoundingFrustum.Contains(_TransformedAABB) == ContainmentType::DISJOINT)
 				continue;
 
 			const Mesh* mesh = &_ActiveScene->GetComponent<MeshComponent>(entity_mesh).GetMesh();
-			const Material* material = _ActiveScene->GetComponent<MaterialComponent>(entity_mesh).GetMaterial();
+			auto _MaterialID = _ActiveScene->GetComponent<MaterialComponent>(entity_mesh).GetMaterial()->GetID();
 
-			*_CBData = ConstantBuffer_Data_Per_Mesh(_transform, Math::InverseTranspose(_transform), material->GetID());
+			*_CBData = ConstantBuffer_Data_Per_Mesh(_transform, Math::InverseTranspose(_transform), _MaterialID);
 
-			m_RendererCommand.SetPipelineGraphics(m_MaterialPipelines[material->GetID()]);
+			m_RendererCommand.SetPipelineGraphics(m_MaterialPipelines[_MaterialID]);
 			m_RendererCommand.SetDirectConstantGraphics(m_ConstantBufferDirect_PerMesh);
 			m_RendererCommand.DrawIndexed(mesh);
 

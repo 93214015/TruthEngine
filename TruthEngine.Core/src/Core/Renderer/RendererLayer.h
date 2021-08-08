@@ -8,6 +8,7 @@
 #include "RenderPass/RenderPass_ForwardRendering.h"
 #include "RenderPass/RenderPass_GenerateShadowMap.h"
 #include "RenderPass/RenderPass_PostProcessing_HDR.h"
+#include "RenderPass/RenderPass_GenerateGBuffers.h"
 
 
 namespace TruthEngine
@@ -106,6 +107,7 @@ namespace TruthEngine
 		std::shared_ptr<RenderPass_ForwardRendering> m_RenderPass_ForwardRendering;
 		std::shared_ptr<RenderPass_GenerateShadowMap> m_RenderPass_GenerateShadowMap;
 		std::shared_ptr<RenderPass_PostProcessing_HDR> m_RenderPass_PostProcessing_HDR;
+		std::shared_ptr<RenderPass_GenerateGBuffers> m_RenderPass_GenerateGBuffers;
 
 		ModelManager* m_ModelManagers;
 
@@ -113,7 +115,8 @@ namespace TruthEngine
 
 		std::vector<const Model3D*> m_Model3DQueue;
 
-		RenderTargetView m_RTVBackBuffer, m_RTVSceneBuffer;
+		RenderTargetView m_RTVBackBuffer, m_RTVSceneBuffer, m_RTVSceneBufferHDR;
+		DepthStencilView m_DSVSceneBuffer;
 
 		ConstantBufferUpload<ConstantBuffer_Data_Per_Frame>* m_CB_PerFrame;
 		ConstantBufferUpload<ConstantBuffer_Data_LightData>* m_CB_LightData;

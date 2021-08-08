@@ -143,7 +143,7 @@ float3 ComputeSpotLight(CLightSpotData _Light, float3 _MaterialAlbedo, float _Ma
 //////////////// Constant Buffers
 ///////////////////////////////////////////////////
 
-cbuffer per_mesh : register(b0)
+cbuffer CBPerMesh : register(b0)
 {
 	row_major matrix gWorld;
 	row_major matrix gWorldInverseTranspose;
@@ -184,7 +184,7 @@ cbuffer CBUnfrequent : register(b4)
     float pad1 : packoffset(c1.w);
 }
 
-cbuffer cb_boneTransforms : register(b5)
+cbuffer CBBoneTransforms : register(b5)
 {
 	row_major matrix gBoneTransformations[256];
 };

@@ -23,6 +23,7 @@ enum class TE_IDX_GRESOURCES : IDX
 
 	Constant_DirectConstants,
 	Constant_PerMesh,
+	Constant_PerMesh_GBuffers,
 	Constant_ShadowMapPerMesh,
 	Constant_ShadowMapPerLight,
 	Constant_EnvironmentMap,

@@ -22,7 +22,7 @@ struct Material
 //////////////// Constant Buffers
 ///////////////////////////////////////////////////
 
-cbuffer per_mesh : register(b0)
+cbuffer CBPerMesh : register(b0)
 {
     row_major matrix gWorld;
     row_major matrix gWorldInverseTranspose;
@@ -46,7 +46,7 @@ cbuffer CBMaterials : register(b2)
     Material MaterialArray[200];
 }
 
-cbuffer cb_boneTransforms : register(b3)
+cbuffer CBBoneTransforms : register(b3)
 {
     row_major matrix gBoneTransformations[256];
 };
@@ -54,9 +54,7 @@ cbuffer cb_boneTransforms : register(b3)
 ///////////////////////////////////////////////////
 //////////////// Textures
 ///////////////////////////////////////////////////
-TextureCube tEnvironmentMap : register(t2, space0);
-
-Texture2D MaterialTextures[500] : register(t3, space0);
+Texture2D MaterialTextures[500] : register(t0, space0);
 
 
 ///////////////////////////////////////////////////
@@ -166,17 +164,19 @@ PixelOut ps(vertexOut pin)
         _PixelOut.Normal = (_PixelOut.Normal * 2.0f) - 1.0f;
         
         _PixelOut.Normal = mul(_PixelOut.Normal, TBN);
+        _PixelOut.Normal = normalize(_PixelOut.Normal);
 	
 		//float normalLength = length(normal);
 	
 #endif
     
-    _PixelOut.Normal = normalize(_PixelOut.Normal);
-    
-    _PixelOut.Color = _material.Diffuse.xyz;
+    _PixelOut.Normal *= .5f;
+    _PixelOut.Normal += .5f;
+        
+    _PixelOut.Color = _material.Diffuse;
     
 #ifdef ENABLE_MAP_DIFFUSE
-        _PixelOut.Color = MaterialTextures[_material.MapIndexDiffuse].Sample(sampler_linear, _texUV).xyz;
+        _PixelOut.Color = MaterialTextures[_material.MapIndexDiffuse].Sample(sampler_linear, _texUV);
 #endif
     
     

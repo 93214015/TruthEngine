@@ -62,7 +62,11 @@ namespace TruthEngine
 				return m_Cameras.cend();
 			}
 
-			static CameraManager* GetInstance();
+			inline static CameraManager* GetInstance()
+			{
+				static CameraManager s_Instance;
+				return &s_Instance;
+			}
 
 		protected:
 

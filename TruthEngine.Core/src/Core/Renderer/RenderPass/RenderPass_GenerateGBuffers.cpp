@@ -9,6 +9,13 @@
 #include "Core/Event/EventRenderer.h"
 #include "Core/Event/EventEntity.h"
 
+#include "Core/Entity/Scene.h"
+#include "Core/Entity/Camera/CameraManager.h"
+#include "Core/Entity/Components/MeshComponent.h"
+#include "Core/Entity/Components/TransformComponent.h"
+#include "Core/Entity/Components/BoundingBoxComponent.h"
+#include "Core/Entity/Components/MaterialComponent.h"
+
 namespace TruthEngine
 {
 	RenderPass_GenerateGBuffers::RenderPass_GenerateGBuffers(RendererLayer* _RendererLayer)
@@ -16,6 +23,9 @@ namespace TruthEngine
 		, m_Viewport{ 0.0f, 0.0f, static_cast<float>(TE_INSTANCE_APPLICATION->GetSceneViewportWidth()), static_cast<float>(TE_INSTANCE_APPLICATION->GetSceneViewportHeight()), 0.0f, 1.0f }
 		, m_ViewRect{ 0L, 0L, static_cast<long>(TE_INSTANCE_APPLICATION->GetSceneViewportWidth()), static_cast<long>(TE_INSTANCE_APPLICATION->GetSceneViewportHeight()) }
 	{
+		//At the moment I've used vector as a container and referece to its element by pointers at other places.
+		// so, for prevent from pointers being invalidated in case of vector relocations, I reserve vector space beforehand(the simplest and probably temporary solution).
+		m_ContainerPipelines.reserve(1000);
 	}
 
 	void RenderPass_GenerateGBuffers::OnAttach()
@@ -33,6 +43,8 @@ namespace TruthEngine
 		{
 			PreparePipelines(mat);
 		}
+
+		RegisterEvents();
 	}
 	void RenderPass_GenerateGBuffers::OnDetach()
 	{
@@ -65,9 +77,43 @@ namespace TruthEngine
 	}
 	void RenderPass_GenerateGBuffers::EndScene()
 	{
+		m_RendererCommand.End();
 	}
+
 	void RenderPass_GenerateGBuffers::Render()
 	{
+		m_RendererCommand.ExecutePendingCommands();
+
+		auto _CBData_PerMesh = m_ConstantBufferDirect_PerMesh->GetData();
+
+		Scene* _ActiveScene = GetActiveScene();
+
+		const BoundingFrustum& _CameraBoundingFrustum = TE_INSTANCE_CAMERAMANAGER->GetActiveCamera()->GetBoundingFrustumWorldSpace();
+
+		auto _EntityMeshView = _ActiveScene->ViewEntities<MeshComponent>();
+		for (const auto _Entity : _EntityMeshView)
+		{
+			const auto& _Transform = _ActiveScene->GetComponent<TransformComponent>(_Entity).GetTransform();
+			const auto _XMTransform = Math::ToXM(_Transform);
+
+			const auto& _BoundingBoxLocal = _ActiveScene->GetComponent<BoundingBoxComponent>(_Entity).GetBoundingBox();
+			const auto _BoundingBoxWorld = Math::XMTransformBoundingBox(_BoundingBoxLocal, _XMTransform);
+
+			if (_CameraBoundingFrustum.Contains(_BoundingBoxWorld) == ContainmentType::DISJOINT)
+			{
+				continue;
+			}
+
+			auto _MaterialID = _ActiveScene->GetComponent<MaterialComponent>(_Entity).GetMaterial()->GetID();
+
+			*_CBData_PerMesh = ConstantBuffer_Data_Per_Mesh(_Transform, Math::InverseTranspose(_XMTransform), _MaterialID);
+
+			m_RendererCommand.SetPipelineGraphics(m_MapMaterialPipeline[_MaterialID]);
+			m_RendererCommand.SetDirectConstantGraphics(m_ConstantBufferDirect_PerMesh);
+
+			const Mesh* _Mesh = &_ActiveScene->GetComponent<MeshComponent>(_Entity).GetMesh();
+			m_RendererCommand.DrawIndexed(_Mesh);
+		}
 	}
 
 	void RenderPass_GenerateGBuffers::InitTextures()
@@ -101,7 +147,7 @@ namespace TruthEngine
 
 	void RenderPass_GenerateGBuffers::InitBuffers()
 	{
-		m_ConstantBufferDirect_PerMesh = m_RendererCommand.CreateConstantBufferDirect<ConstantBuffer_Data_Per_Mesh>(TE_IDX_GRESOURCES::CBuffer_PerMesh_GBuffers);
+		m_ConstantBufferDirect_PerMesh = m_RendererCommand.CreateConstantBufferDirect<ConstantBuffer_Data_Per_Mesh>(TE_IDX_GRESOURCES::Constant_PerMesh_GBuffers);
 	}
 
 	void RenderPass_GenerateGBuffers::ReleaseResources()

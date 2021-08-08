@@ -27,7 +27,7 @@ namespace TruthEngine {
 
 	BufferManager::BufferManager()
 	{
-		m_TexturesRenderTarget.reserve(20);
+		m_TexturesRenderTarget.reserve(50);
 		m_TexturesDepthStencil.reserve(20);
 		m_TexturesCubeMap.reserve(20);
 		m_Buffers.reserve(100);

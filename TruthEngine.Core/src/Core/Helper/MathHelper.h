@@ -10,6 +10,8 @@ namespace TruthEngine
 	using BoundingFrustum = DirectX::BoundingFrustum;
 	using XMMatrix = DirectX::XMMATRIX;
 	using XMVector = DirectX::XMVECTOR;
+	using ContainmentType = DirectX::ContainmentType;
+
 
 
 	constexpr DirectX::XMVECTORF32 XMVectorOne = { 1.0f, 1.0f, 1.0f, 1.0f };
@@ -335,7 +337,6 @@ namespace TruthEngine
 		0.0f, 0.0f, 0.0f, 1.0f);
 
 
-	
 
 	
 
@@ -580,6 +581,20 @@ namespace TruthEngine
 
 			auto determinant = DirectX::XMMatrixDeterminant(matrix);
 
+			DirectX::XMStoreFloat4x4A(&dest, DirectX::XMMatrixTranspose(DirectX::XMMatrixInverse(&determinant, matrix)));
+
+			return dest;
+		}
+
+		inline float4x4A InverseTranspose(const XMMatrix& source)
+		{
+			auto matrix = source;
+
+			matrix.r[3] = DirectX::XMVectorSet(.0f, .0f, .0f, 1.0f);
+
+			auto determinant = DirectX::XMMatrixDeterminant(matrix);
+
+			float4x4A dest;
 			DirectX::XMStoreFloat4x4A(&dest, DirectX::XMMatrixTranspose(DirectX::XMMatrixInverse(&determinant, matrix)));
 
 			return dest;

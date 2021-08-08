@@ -30,6 +30,7 @@ namespace TruthEngine
 		, m_RenderPass_ForwardRendering(std::make_shared<RenderPass_ForwardRendering>(this))
 		, m_RenderPass_GenerateShadowMap(std::make_shared<RenderPass_GenerateShadowMap>(this, 4096))
 		, m_RenderPass_PostProcessing_HDR(std::make_shared<RenderPass_PostProcessing_HDR>(this))
+		, m_RenderPass_GenerateGBuffers(std::make_shared<RenderPass_GenerateGBuffers>(this))
 	{
 	}
 	RendererLayer::~RendererLayer() = default;
@@ -145,7 +146,6 @@ namespace TruthEngine
 		m_TimerRenderLayerUpdate.End();
 	}
 
-
 	bool RendererLayer::BeginImGuiLayer()
 	{
 		if (m_EnabledImGuiLayer)
@@ -182,8 +182,17 @@ namespace TruthEngine
 
 		auto swapchain = TE_INSTANCE_SWAPCHAIN;
 		m_RendererCommand.BeginGraphics();
+
 		m_RendererCommand.SetRenderTarget(swapchain, m_RTVBackBuffer);
+		m_RendererCommand.SetRenderTarget(m_RTVSceneBuffer);
+		m_RendererCommand.SetRenderTarget(m_RTVSceneBufferHDR);
+		m_RendererCommand.SetDepthStencil(m_DSVSceneBuffer);
+
 		m_RendererCommand.ClearRenderTarget(swapchain, m_RTVBackBuffer);
+		m_RendererCommand.ClearRenderTarget(m_RTVSceneBuffer);
+		m_RendererCommand.ClearRenderTarget(m_RTVSceneBufferHDR);
+		m_RendererCommand.ClearDepthStencil(m_DSVSceneBuffer);
+
 		m_RendererCommand.End();
 	}
 
@@ -249,7 +258,6 @@ namespace TruthEngine
 		auto height = event.GetHeight();
 
 		m_RendererCommand.ResizeSwapChain(TE_INSTANCE_SWAPCHAIN, width, height, &m_RTVBackBuffer, nullptr);
-		m_RendererCommand.CreateRenderTargetView(TE_INSTANCE_SWAPCHAIN, &m_RTVBackBuffer);
 
 		EventRendererTextureResize _EventRendererTextureResize(width, height, TE_IDX_GRESOURCES::Texture_RT_BackBuffer);
 		TE_INSTANCE_APPLICATION->OnEvent(_EventRendererTextureResize);
@@ -261,10 +269,10 @@ namespace TruthEngine
 		auto width = event.GetWidth();
 		auto height = event.GetHeight();
 
-		m_RendererCommand.ResizeRenderTarget(TE_IDX_GRESOURCES::Texture_RT_SceneBuffer, width, height, nullptr, nullptr);
-		m_RendererCommand.ResizeRenderTarget(TE_IDX_GRESOURCES::Texture_RT_SceneBufferHDR, width, height, nullptr, nullptr);
+		m_RendererCommand.ResizeRenderTarget(TE_IDX_GRESOURCES::Texture_RT_SceneBuffer, width, height, &m_RTVSceneBuffer, nullptr);
+		m_RendererCommand.ResizeRenderTarget(TE_IDX_GRESOURCES::Texture_RT_SceneBufferHDR, width, height, &m_RTVSceneBufferHDR, nullptr);
 
-		m_RendererCommand.ResizeDepthStencil(TE_IDX_GRESOURCES::Texture_DS_SceneBuffer, width, height, nullptr, nullptr);
+		m_RendererCommand.ResizeDepthStencil(TE_IDX_GRESOURCES::Texture_DS_SceneBuffer, width, height, &m_DSVSceneBuffer, nullptr);
 
 		EventRendererViewportResize _EventRendererViewportResize(width, height);
 		TE_INSTANCE_APPLICATION->OnEvent(_EventRendererViewportResize);
@@ -504,6 +512,7 @@ namespace TruthEngine
 
 		m_RenderPassStack.PushRenderPass(m_RenderPass_GenerateShadowMap.get());
 		m_RenderPassStack.PushRenderPass(m_RenderPass_ForwardRendering.get());
+		m_RenderPassStack.PushRenderPass(m_RenderPass_GenerateGBuffers.get());
 
 		if (m_IsEnabledHDR)
 			m_RenderPassStack.PushRenderPass(m_RenderPass_PostProcessing_HDR.get());
@@ -514,8 +523,14 @@ namespace TruthEngine
 		auto _ViewportWidth = TE_INSTANCE_APPLICATION->GetClientWidth();
 		auto _ViewportHeight = TE_INSTANCE_APPLICATION->GetClientHeight();
 
-		m_RendererCommand.CreateRenderTarget(TE_IDX_GRESOURCES::Texture_RT_SceneBuffer, _ViewportWidth, _ViewportHeight, TE_RESOURCE_FORMAT::R8G8B8A8_UNORM, ClearValue_RenderTarget{ 1.0f, 1.0f, 1.0f, 1.0f }, true, false);
-		m_RendererCommand.CreateRenderTarget(TE_IDX_GRESOURCES::Texture_RT_SceneBufferHDR, _ViewportWidth, _ViewportHeight, TE_RESOURCE_FORMAT::R16G16B16A16_FLOAT, ClearValue_RenderTarget{ 0.0f, 0.0f, 0.0f, 1.0f }, true, false);
+		{
+			auto _TextureSceneBuffer = m_RendererCommand.CreateRenderTarget(TE_IDX_GRESOURCES::Texture_RT_SceneBuffer, _ViewportWidth, _ViewportHeight, TE_RESOURCE_FORMAT::R8G8B8A8_UNORM, ClearValue_RenderTarget{ 1.0f, 1.0f, 1.0f, 1.0f }, true, false);
+			m_RendererCommand.CreateRenderTargetView(_TextureSceneBuffer, &m_RTVSceneBuffer);
+		}
+		{
+			auto _TextureSceneBufferHDR = m_RendererCommand.CreateRenderTarget(TE_IDX_GRESOURCES::Texture_RT_SceneBufferHDR, _ViewportWidth, _ViewportHeight, TE_RESOURCE_FORMAT::R16G16B16A16_FLOAT, ClearValue_RenderTarget{ 0.0f, 0.0f, 0.0f, 1.0f }, true, false);
+			m_RendererCommand.CreateRenderTargetView(_TextureSceneBufferHDR, &m_RTVSceneBufferHDR);
+		}
 
 		m_RendererCommand.CreateRenderTargetView(TE_INSTANCE_SWAPCHAIN, &m_RTVBackBuffer);
 
@@ -523,7 +538,8 @@ namespace TruthEngine
 		//m_RendererCommand.CreateTextureCubeMap(TE_IDX_TEXTURE::CUBEMAP_ENVIRONMENT, "K:\\Downloads\\3D\\EnvironmentMap_BabylonJs_Sample1\\textures\\SpecularHDR.dds");
 		//m_RendererCommand.CreateTextureCubeMap(TE_IDX_TEXTURE::CUBEMAP_ENVIRONMENT, "K:\\Downloads\\3D\\EnvironmentMap_BabylonJs_Forest\\textures\\forest.dds");
 
-		m_RendererCommand.CreateDepthStencil(TE_IDX_GRESOURCES::Texture_DS_SceneBuffer, _ViewportWidth, _ViewportHeight, TE_RESOURCE_FORMAT::R32_TYPELESS, ClearValue_DepthStencil{ 1.0f, 0 }, true, false);
+		auto _TextureDepthStencil = m_RendererCommand.CreateDepthStencil(TE_IDX_GRESOURCES::Texture_DS_SceneBuffer, _ViewportWidth, _ViewportHeight, TE_RESOURCE_FORMAT::R32_TYPELESS, ClearValue_DepthStencil{ 1.0f, 0 }, true, false);
+		m_RendererCommand.CreateDepthStencilView(_TextureDepthStencil, &m_DSVSceneBuffer);
 	}
 
 	void RendererLayer::InitBuffers()

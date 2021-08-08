@@ -99,12 +99,7 @@ namespace TruthEngine
 		m_ActiveCamera = m_Map_Cameras[name];
 		m_ActiveCamera->Active();
 	}*/
-
-	CameraManager* CameraManager::GetInstance()
-	{
-		static CameraManager s_Instance;
-		return &s_Instance;
-	}
+	
 
 	void CameraManager::OnResizeViewport(const EventSceneViewportResize& event)
 	{
