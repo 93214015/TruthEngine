@@ -105,7 +105,7 @@ namespace TruthEngine
 		}
 
 
-		*data_perFrame = ConstantBuffer_Data_Per_Frame(activeCamera->GetViewProj(), activeCamera->GetPosition(), _cascadedShadowTransforms);
+		*data_perFrame = ConstantBuffer_Data_Per_Frame(activeCamera->GetViewProj(), activeCamera->GetViewInv(), , activeCamera->GetPosition(), _cascadedShadowTransforms);
 
 		//
 		////Use MultiThreaded Rendering

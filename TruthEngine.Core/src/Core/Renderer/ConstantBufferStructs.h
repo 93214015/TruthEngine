@@ -6,13 +6,17 @@ namespace TruthEngine {
 
 	struct alignas(16) ConstantBuffer_Data_Per_Frame
 	{
-		ConstantBuffer_Data_Per_Frame(const float4x4A& viewProj, const float3& eyePos, const float4x4A cascadedShadowTransforms[4])
-			: ViewProj(viewProj), EyePos(eyePos)
+		ConstantBuffer_Data_Per_Frame(const float4x4A& viewProj, const float4x4A& viewInverse, const float4A& projectionValues, const float3& eyePos, const float4x4A cascadedShadowTransforms[4])
+			: ViewProj(viewProj), ViewInverse(viewInverse), ProjectionValues(projectionValues), EyePos(eyePos)
 		{
 			memcpy(CascadedShadowTransforms, cascadedShadowTransforms, 4 * sizeof(float4x4A));
 		}
 
 		float4x4A ViewProj;
+
+		float4x4A ViewInverse;
+
+		float4A ProjectionValues;
 
 		float3 EyePos{0.0f, 0.0f, 0.0f};
 		float pad = 0.0f;

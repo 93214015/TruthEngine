@@ -114,6 +114,11 @@ namespace TruthEngine
 			return m_ProjectionMatrix;
 		}
 
+		inline float4A GetProjectionValues() const
+		{
+			return float4A{1/m_ProjectionMatrix._11, 1/m_ProjectionMatrix._22, m_ProjectionMatrix._33, m_ProjectionMatrix._43};
+		}
+
 		inline float GetZNearPlane()const noexcept
 		{
 			return m_ZNear;

@@ -43,5 +43,6 @@
     <None Include="Assets\Shaders\CBUnfrequent.hlsli" />
     <None Include="Assets\Shaders\CBBoneTransforms.hlsli" />
     <None Include="Assets\Shaders\Samplers.hlsli" />
+    <None Include="Assets\Shaders\MathHelper.hlsli" />
   </ItemGroup>
 </Project>

@@ -148,6 +148,7 @@ namespace TruthEngine
 					name.c_str(),
 					L"-E", entryL.c_str(),
 					L"-T", target.c_str(),
+					L"-I", L"/Assets/Shaders", //Include File Path
 					/*L"-Fo",binaryOutput.c_str(),
 					/*L"-Fd", debugOutput.c_str(),
 					L"-Qstrip_reflect"*/};
