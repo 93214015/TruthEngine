@@ -43,11 +43,13 @@ namespace TruthEngine
 
 		RenderTargetView m_RenderTargetViewGBufferColor;
 		RenderTargetView m_RenderTargetViewGBufferNormal;
+		RenderTargetView m_RenderTargetViewGBufferSpecular;
 
 		DepthStencilView m_DepthStencilView;
 
 		TextureRenderTarget* m_TextureGBufferColor;
 		TextureRenderTarget* m_TextureGBufferNormal;
+		TextureRenderTarget* m_TextureGBufferSpecular;
 
 		Viewport m_Viewport;
 		ViewRect m_ViewRect;

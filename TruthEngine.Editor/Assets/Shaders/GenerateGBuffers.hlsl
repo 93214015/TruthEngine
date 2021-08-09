@@ -107,6 +107,7 @@ struct PixelOut
 {    
     float4 Color : SV_Target0;
     float3 Normal : SV_Target1;
+    float4 Specular : SV_Target2;
 };
 
 
@@ -144,6 +145,8 @@ PixelOut ps(vertexOut pin)
 #ifdef ENABLE_MAP_DIFFUSE
         _PixelOut.Color = MaterialTextures[_material.MapIndexDiffuse].Sample(sampler_linear, _texUV);
 #endif
+    
+    _PixelOut.Specular = float4(_material.FresnelR0, _material.Shininess);
     
     
     

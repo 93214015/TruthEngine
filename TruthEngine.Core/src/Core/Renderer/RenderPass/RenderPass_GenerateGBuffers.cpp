@@ -69,9 +69,11 @@ namespace TruthEngine
 
 		m_RendererCommand.SetRenderTarget(m_RenderTargetViewGBufferColor);
 		m_RendererCommand.SetRenderTarget(m_RenderTargetViewGBufferNormal);
+		m_RendererCommand.SetRenderTarget(m_RenderTargetViewGBufferSpecular);
 
 		m_RendererCommand.ClearRenderTarget(m_RenderTargetViewGBufferColor);
 		m_RendererCommand.ClearRenderTarget(m_RenderTargetViewGBufferNormal);
+		m_RendererCommand.ClearRenderTarget(m_RenderTargetViewGBufferSpecular);
 
 		m_RendererCommand.SetDepthStencil(m_DepthStencilView);
 	}
@@ -139,8 +141,17 @@ namespace TruthEngine
 			, true
 			, Settings::IsMSAAEnabled);
 
+		m_TextureGBufferSpecular = m_RendererCommand.CreateRenderTarget(TE_IDX_GRESOURCES::Texture_RT_GBuffer_Specular
+			, _Application->GetSceneViewportWidth()
+			, _Application->GetSceneViewportHeight()
+			, TE_RESOURCE_FORMAT::R16G16B16A16_FLOAT
+			, ClearValue_RenderTarget{ .0f, .0f, .0f, 1.0f }
+			, true
+			, Settings::IsMSAAEnabled);
+
 		m_RendererCommand.CreateRenderTargetView(m_TextureGBufferColor, &m_RenderTargetViewGBufferColor);
 		m_RendererCommand.CreateRenderTargetView(m_TextureGBufferNormal, &m_RenderTargetViewGBufferNormal);
+		m_RendererCommand.CreateRenderTargetView(m_TextureGBufferSpecular, &m_RenderTargetViewGBufferSpecular);
 
 		m_RendererCommand.CreateDepthStencilView(TE_IDX_GRESOURCES::Texture_DS_SceneBuffer, &m_DepthStencilView);
 	}
@@ -154,6 +165,7 @@ namespace TruthEngine
 	{
 		m_RendererCommand.ReleaseResource(m_TextureGBufferColor);
 		m_RendererCommand.ReleaseResource(m_TextureGBufferNormal);
+		m_RendererCommand.ReleaseResource(m_TextureGBufferSpecular);
 	}
 
 	void RenderPass_GenerateGBuffers::PreparePipelines(const Material* _Material)
@@ -162,7 +174,7 @@ namespace TruthEngine
 
 		auto result = TE_INSTANCE_SHADERMANAGER->AddShader(&shader, TE_IDX_SHADERCLASS::GENERATEGBUFFERS, _Material->GetMeshType(), _Material->GetRendererStates(), "Assets/Shaders/GenerateGBuffers.hlsl", "vs", "ps");
 
-		TE_RESOURCE_FORMAT rtvFormats[2] = { TE_RESOURCE_FORMAT::R8G8B8A8_UNORM, TE_RESOURCE_FORMAT::R11G11B10_FLOAT };
+		TE_RESOURCE_FORMAT rtvFormats[] = { TE_RESOURCE_FORMAT::R8G8B8A8_UNORM, TE_RESOURCE_FORMAT::R11G11B10_FLOAT, TE_RESOURCE_FORMAT::R16G16B16A16_FLOAT };
 
 		PipelineGraphics* _Pipeline = nullptr;
 
@@ -212,6 +224,7 @@ namespace TruthEngine
 
 		m_RendererCommand.ResizeRenderTarget(m_TextureGBufferColor, _NewWidth, _NewHeight, &m_RenderTargetViewGBufferColor, nullptr);
 		m_RendererCommand.ResizeRenderTarget(m_TextureGBufferNormal, _NewWidth, _NewHeight, &m_RenderTargetViewGBufferNormal, nullptr);
+		m_RendererCommand.ResizeRenderTarget(m_TextureGBufferSpecular, _NewWidth, _NewHeight, &m_RenderTargetViewGBufferSpecular, nullptr);
 
 		m_RendererCommand.CreateDepthStencilView(TE_IDX_GRESOURCES::Texture_DS_SceneBuffer, &m_DepthStencilView);
 
