@@ -9,6 +9,7 @@
 #include "RenderPass/RenderPass_GenerateShadowMap.h"
 #include "RenderPass/RenderPass_PostProcessing_HDR.h"
 #include "RenderPass/RenderPass_GenerateGBuffers.h"
+#include "RenderPass/RenderPass_DeferredShading.h"
 
 
 namespace TruthEngine
@@ -99,6 +100,8 @@ namespace TruthEngine
 
 	private:
 		RendererCommand m_RendererCommand;
+		RendererCommand m_RendererCommand_BackBuffer;
+
 
 		RenderPassStack m_RenderPassStack;
 
@@ -108,6 +111,7 @@ namespace TruthEngine
 		std::shared_ptr<RenderPass_GenerateShadowMap> m_RenderPass_GenerateShadowMap;
 		std::shared_ptr<RenderPass_PostProcessing_HDR> m_RenderPass_PostProcessing_HDR;
 		std::shared_ptr<RenderPass_GenerateGBuffers> m_RenderPass_GenerateGBuffers;
+		std::shared_ptr<RenderPass_DeferredShading> m_RenderPass_DeferredShading;
 
 		ModelManager* m_ModelManagers;
 

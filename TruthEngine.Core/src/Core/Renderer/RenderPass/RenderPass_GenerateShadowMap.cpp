@@ -18,7 +18,9 @@ namespace TruthEngine
 		, m_ShadoWMapSize(_ShadowMapSize)
 		, m_Viewport(Viewport(.0f, .0f, m_ShadoWMapSize, m_ShadoWMapSize, 0.0f, 1.0f))
 		, m_ViewRect(ViewRect(0, 0, m_ShadoWMapSize, m_ShadoWMapSize))
-	{}
+	{
+		m_ContainerPipelines.reserve(4);
+	}
 
 
 	void RenderPass_GenerateShadowMap::OnAttach()

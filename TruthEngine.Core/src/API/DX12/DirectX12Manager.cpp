@@ -99,7 +99,6 @@ namespace TruthEngine::API::DirectX12
 
 		auto _ShaderSignature = DirectX12ShaderManager::GetInstance()->GetShaderSignature(shaderClassIDX);
 
-
 		const auto _FramesOnTheFlyNum = TE_INSTANCE_APPLICATION->GetFramesOnTheFlyNum();
 		/*auto& _RootSig = m_DirectX12RootSignatures[shaderClassIDX];*/
 		auto& _RootArgsPerFrame = m_DirectX12RootArguments[shaderClassIDX];

@@ -131,7 +131,7 @@ namespace TruthEngine
 			, TE_RESOURCE_FORMAT::R8G8B8A8_UNORM
 			, ClearValue_RenderTarget{ .0f, .0f, .0f, 1.0f }
 			, true
-			, Settings::IsMSAAEnabled);
+			, Settings::IsMSAAEnabled());
 
 		m_TextureGBufferNormal = m_RendererCommand.CreateRenderTarget(TE_IDX_GRESOURCES::Texture_RT_GBuffer_Normal
 			, _Application->GetSceneViewportWidth()
@@ -139,15 +139,15 @@ namespace TruthEngine
 			, TE_RESOURCE_FORMAT::R11G11B10_FLOAT
 			, ClearValue_RenderTarget{ .0f, .0f, .0f, 1.0f }
 			, true
-			, Settings::IsMSAAEnabled);
+			, Settings::IsMSAAEnabled());
 
 		m_TextureGBufferSpecular = m_RendererCommand.CreateRenderTarget(TE_IDX_GRESOURCES::Texture_RT_GBuffer_Specular
 			, _Application->GetSceneViewportWidth()
 			, _Application->GetSceneViewportHeight()
 			, TE_RESOURCE_FORMAT::R16G16B16A16_FLOAT
-			, ClearValue_RenderTarget{ .0f, .0f, .0f, 1.0f }
+			, ClearValue_RenderTarget{ .0f, .0f, .0f, 0.0f }
 			, true
-			, Settings::IsMSAAEnabled);
+			, Settings::IsMSAAEnabled());
 
 		m_RendererCommand.CreateRenderTargetView(m_TextureGBufferColor, &m_RenderTargetViewGBufferColor);
 		m_RendererCommand.CreateRenderTargetView(m_TextureGBufferNormal, &m_RenderTargetViewGBufferNormal);

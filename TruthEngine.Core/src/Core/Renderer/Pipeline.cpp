@@ -30,11 +30,12 @@ namespace TruthEngine
 	{
 		//static PipelineGraphicsContainer sPipelineContainer;
 
-		std::string _Name = "PSO_";
-		_Name += std::to_string(gPipelineID);
 
 		if (_outPipeline->m_ID == -1)
 		{
+			std::string _Name = "PSO_";
+			_Name += std::to_string(gPipelineID);
+
 			*_outPipeline = PipelineGraphics(
 				gPipelineID++,
 				_Name,
@@ -53,7 +54,7 @@ namespace TruthEngine
 		{
 			*_outPipeline = PipelineGraphics(
 				_outPipeline->m_ID,
-				_Name,
+				_outPipeline->m_Name,
 				states,
 				shader,
 				renderTargetNum,
@@ -66,7 +67,7 @@ namespace TruthEngine
 		}
 
 		EventRendererNewGraphicsPipeline _Event{ _outPipeline };
-		
+
 		TE_INSTANCE_APPLICATION->OnEvent(_Event);
 
 	}

@@ -60,9 +60,10 @@ namespace TruthEngine
 
 	void RenderPass_ForwardRendering::OnDetach()
 	{
-		m_RendererCommand.Release();
 		m_MaterialPipelines.clear();
 		m_ContainerPipelines.clear();
+
+		m_RendererCommand.Release();
 	}
 
 	void RenderPass_ForwardRendering::OnImGuiRender()

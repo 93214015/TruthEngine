@@ -31,6 +31,7 @@ namespace TruthEngine
 		, m_RenderPass_GenerateShadowMap(std::make_shared<RenderPass_GenerateShadowMap>(this, 4096))
 		, m_RenderPass_PostProcessing_HDR(std::make_shared<RenderPass_PostProcessing_HDR>(this))
 		, m_RenderPass_GenerateGBuffers(std::make_shared<RenderPass_GenerateGBuffers>(this))
+		, m_RenderPass_DeferredShading(std::make_shared<RenderPass_DeferredShading>(this))
 	{
 	}
 	RendererLayer::~RendererLayer() = default;
@@ -52,6 +53,7 @@ namespace TruthEngine
 		TE_INSTANCE_SWAPCHAIN->Init(TE_INSTANCE_APPLICATION->GetClientWidth(), TE_INSTANCE_APPLICATION->GetClientHeight(), TE_INSTANCE_APPLICATION->GetWindow(), TE_INSTANCE_APPLICATION->GetFramesOnTheFlyNum());
 
 		m_RendererCommand.Init(TE_IDX_RENDERPASS::NONE, TE_IDX_SHADERCLASS::NONE);
+		m_RendererCommand_BackBuffer.Init(TE_IDX_RENDERPASS::NONE, TE_IDX_SHADERCLASS::NONE);
 
 		m_ModelManagers = TE_INSTANCE_MODELMANAGER;
 
@@ -181,14 +183,18 @@ namespace TruthEngine
 		}
 
 		auto swapchain = TE_INSTANCE_SWAPCHAIN;
+		m_RendererCommand_BackBuffer.BeginGraphics();
+		m_RendererCommand_BackBuffer.SetRenderTarget(swapchain, m_RTVBackBuffer);
+		m_RendererCommand_BackBuffer.ClearRenderTarget(swapchain, m_RTVBackBuffer);
+		m_RendererCommand_BackBuffer.End();
+
+
 		m_RendererCommand.BeginGraphics();
 
-		m_RendererCommand.SetRenderTarget(swapchain, m_RTVBackBuffer);
 		m_RendererCommand.SetRenderTarget(m_RTVSceneBuffer);
 		m_RendererCommand.SetRenderTarget(m_RTVSceneBufferHDR);
 		m_RendererCommand.SetDepthStencil(m_DSVSceneBuffer);
 
-		m_RendererCommand.ClearRenderTarget(swapchain, m_RTVBackBuffer);
 		m_RendererCommand.ClearRenderTarget(m_RTVSceneBuffer);
 		m_RendererCommand.ClearRenderTarget(m_RTVSceneBufferHDR);
 		m_RendererCommand.ClearDepthStencil(m_DSVSceneBuffer);
@@ -513,6 +519,7 @@ namespace TruthEngine
 		m_RenderPassStack.PushRenderPass(m_RenderPass_GenerateShadowMap.get());
 		m_RenderPassStack.PushRenderPass(m_RenderPass_ForwardRendering.get());
 		m_RenderPassStack.PushRenderPass(m_RenderPass_GenerateGBuffers.get());
+		m_RenderPassStack.PushRenderPass(m_RenderPass_DeferredShading.get());
 
 		if (m_IsEnabledHDR)
 			m_RenderPassStack.PushRenderPass(m_RenderPass_PostProcessing_HDR.get());

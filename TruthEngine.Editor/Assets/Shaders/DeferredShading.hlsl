@@ -36,13 +36,13 @@ Texture2D<float> tShadowMap_SpotLight   : register(t5);
 /////////////////////////////////////////////////////////////////
 #include "Samplers.hlsli"
 
-
+//Defined For TriangleStrip Topology
 static const float2 VertexPositions[4] =
 {
-    { -1.0f, 1.0f },
-    { -1.0f, -1.0f },
-    { 1.0f, -1.0f },
-    { 1.0f, 1.0 }
+    float2(-1.0, 1.0),
+	float2(1.0, 1.0),
+	float2(-1.0, -1.0),
+	float2(1.0, -1.0),
 };
 
 struct VertexOut
@@ -52,11 +52,11 @@ struct VertexOut
     float2 PosCS : TEXCOORD1;
 };
 
-float4 vs(uint vertexID : SV_VertexID) : SV_POSITION
+VertexOut vs(uint vertexID : SV_VertexID)
 {
     VertexOut _VOut;
     _VOut.PosH = float4(VertexPositions[vertexID], 0.0f, 1.0f);
-    _VOut.UV = float2((_VOut.PosH.x * 0.5) + 0.5, (_VOut.PosH.y * -0.5f) + 0.5f);
+    _VOut.UV = VertexPositions[vertexID] * float2(0.5f, -0.5f) + (0.5f, 0.5f);
     _VOut.PosCS = _VOut.PosH.xy;
     
     return _VOut;
@@ -72,7 +72,7 @@ float4 ps(VertexOut _VOut) : SV_Target
     
     float3 _NormalWorld = tNormal.Sample(sampler_point_wrap, _VOut.UV);
 
-    float3 _Color = tColor.Sample(sampler_point_wrap, _VOut.UV);
+    float4 _Color = tColor.Sample(sampler_point_wrap, _VOut.UV);
 
     float4 _SpecularFactors = tSpecular.Sample(sampler_point_wrap, _VOut.UV);
     
@@ -84,7 +84,7 @@ float4 ps(VertexOut _VOut) : SV_Target
     for (uint _DLightIndex = 0; _DLightIndex < gDLightCount; ++_DLightIndex)
     {
         
-        float3 _Lit = ComputeDirectLight(gDLights[_DLightIndex], _Color, _SpecularFactors.w, _SpecularFactors.xyz, _PosWorld.xyz, _NormalWorld, _ToEye);
+        float3 _Lit = ComputeDirectLight(gDLights[_DLightIndex], _Color.xyz, _SpecularFactors.w, _SpecularFactors.xyz, _PosWorld.xyz, _NormalWorld, _ToEye);
 		
         //code for cascaded shadow map; finding corrsponding shadow map cascade and coords
         bool found = false;
@@ -135,7 +135,7 @@ float4 ps(VertexOut _VOut) : SV_Target
 
     for (uint _SLightIndex = 0; _SLightIndex < gSLightCount; ++_SLightIndex)
     {
-        float3 _Lit = ComputeSpotLight(gSpotLights[_SLightIndex], _Color, _SpecularFactors.w, _SpecularFactors.xyz, _PosWorld.xyz, _NormalWorld, _ToEye);
+        float3 _Lit = ComputeSpotLight(gSpotLights[_SLightIndex], _Color.xyz, _SpecularFactors.w, _SpecularFactors.xyz, _PosWorld.xyz, _NormalWorld, _ToEye);
 		
         float4 shadowMapCoords = mul(_PosWorld, gSpotLights[_SLightIndex].ShadowTransform);
         shadowMapCoords.xyz /= shadowMapCoords.w;
@@ -160,7 +160,7 @@ float4 ps(VertexOut _VOut) : SV_Target
     }
     
 //Add Global Ambient Light Factor
-    _LitColor += (_Color * gAmbientLightStrength);
+    _LitColor += (_Color.xyz * gAmbientLightStrength);
     
     return float4(_LitColor, 1.0f);
 
