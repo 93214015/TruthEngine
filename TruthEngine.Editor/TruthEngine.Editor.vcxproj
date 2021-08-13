@@ -206,8 +206,12 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Dist|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </None>
-    <None Include="Assets\Shaders\LightsPBR.hlsli" />
-    <None Include="Assets\Shaders\MathHelper.hlsli" />
+    <None Include="Assets\Shaders\LightsPBR.hlsli">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </None>
+    <None Include="Assets\Shaders\MathHelper.hlsli">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </None>
     <None Include="Assets\Shaders\Samplers.hlsli" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

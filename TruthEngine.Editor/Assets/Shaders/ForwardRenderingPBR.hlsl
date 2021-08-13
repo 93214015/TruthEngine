@@ -1,4 +1,4 @@
-#include "Lights.hlsli"
+#include "LightsPBR.hlsli"
 
 
 
@@ -135,11 +135,7 @@ float4 ps(vertexOut pin) : SV_Target
         normal = normalize(mul(normal, TBN));
 	
 		//float normalLength = length(normal);
-#endif
-    
-	
-    //normal = mul(normal, (float3x3)gWorldInverseTranspose);
-    
+#endif   
 
     
 #ifdef ENABLE_MAP_DIFFUSE
@@ -171,96 +167,29 @@ float4 ps(vertexOut pin) : SV_Target
 
     float3 litColor = float3(.0f, .0f, .0f);
     
+    float3 _F0 = float3(0.4f, 0.4f, 0.4f);
+    _F0 = lerp(_F0, _MaterialAlbedo, _Metallic);
+    
     for (uint _DLightIndex = 0; _DLightIndex < gDLightCount; ++_DLightIndex)
     {
         
-        float3 lit = ComputeDirectLight(gDLights[_DLightIndex], _MaterialAlbedo, _material.Roughness, _FresnelR0, pin.posW, normal, toEye);
-		
-        //float3 shadowMapCoords = pin.posLight.xyz / pin.posLight.w;
-
-        //code for cascaded shadow map; finding corrsponding shadow map cascade and coords
-        bool found = false;
-        float3 shadowMapCoords = float3(0.0f, 0.0f, 0.0f);
-    
-        shadowMapCoords = mul(float4(pin.posW, 1.0f), gCascadedShadowTransform[0]).xyz;
-
-        if (shadowMapCoords.x >= 0.0f && shadowMapCoords.y >= 0.0f && shadowMapCoords.x <= 0.5f && shadowMapCoords.y <= 0.5f)
-        {
-            found = true;
-        }
-    
-        if (!found)
-        {
-            shadowMapCoords = mul(float4(pin.posW, 1.0f), gCascadedShadowTransform[1]).xyz;
-
-            if (shadowMapCoords.x >= 0.5f && shadowMapCoords.y >= 0.0f && shadowMapCoords.x <= 1.0f && shadowMapCoords.y <= 0.5f)
-            {
-                found = true;
-            }
-        }
-        if (!found)
-        {
-            shadowMapCoords = mul(float4(pin.posW, 1.0f), gCascadedShadowTransform[2]).xyz;
-
-            if (shadowMapCoords.x >= 0.0f && shadowMapCoords.y >= 0.5f && shadowMapCoords.x <= 0.5f && shadowMapCoords.y <= 1.0f)
-            {
-                found = true;
-            }
-        }
-        if (!found)
-        {
-            shadowMapCoords = mul(float4(pin.posW, 1.0f), gCascadedShadowTransform[3]).xyz;
-
-            if (shadowMapCoords.x >= 0.5f && shadowMapCoords.y >= 0.5f && shadowMapCoords.x <= 1.0f && shadowMapCoords.y <= 1.0f)
-            {
-                found = true;
-            }
-        }
-
-        float shadowMapSample = tShadowMap_SunLight.Sample(sampler_point_borderBlack, shadowMapCoords.xy);
-        float shadowFactor = (float) (shadowMapSample > shadowMapCoords.z);
+        float3 lit = ComputeDirectLight(gDLights[_DLightIndex], _MaterialAlbedo, _Roughness, _Metallic, _F0, normal, toEye);
         
-        litColor += lit * shadowFactor.xxx;
+        litColor += lit;
     }
 
 
     for (uint _SLightIndex = 0; _SLightIndex < gSLightCount; ++_SLightIndex)
     {
-        float3 lit = ComputeSpotLight(gSpotLights[_SLightIndex], _MaterialAlbedo, _material.Shininess, _FresnelR0, pin.posW, normal, toEye);
-		
-        float4 shadowMapCoords = mul(float4(pin.posW, 1.0f), gSpotLights[_SLightIndex].ShadowTransform);
-        shadowMapCoords.xyz /= shadowMapCoords.w;
-				
-        float shadowFactor = 0.0f;
-		[unroll]
-        for (int i = -2; i < 2; ++i)
-        {
-			[unroll]
-            for (int j = -2; j <= 2; ++j)
-            {
-                float shadowMapSample = tShadowMap_SpotLight.Sample(sampler_point_borderWhite, shadowMapCoords.xy, int2(i, j));
-                shadowFactor += (float) (shadowMapSample > shadowMapCoords.z);
-            }
-        }
-    
-        shadowFactor *= 0.04f;
-        
-        //float _ShadowFactor = tShadowMap_SpotLight.SampleCmp(samplerComparison_less_point_borderWhite, shadowMapCoords.xy, shadowMapCoords.z);
+        float3 lit = ComputeSpotLight(gSpotLights[_SLightIndex], _MaterialAlbedo, _Roughness, _Metallic, _F0, pin.posW, normal, toEye);
 
-        litColor += lit * shadowFactor.xxx;
-    }
-    
-    if (gEnabledEnvironmentMap)
-    {
-        float3 reflectVector = reflect(-toEye, pin.normalW);
-        float3 evironmentReflectColor = tEnvironmentMap.Sample(sampler_linear, reflectVector).xyz;
-        float3 frenselFactor = SchlikFresnel(_FresnelR0, pin.normalW, reflectVector);
-    
-        litColor.rgb += _material.Shininess * frenselFactor * evironmentReflectColor;
+        litColor += lit;
     }
 	
 	//Add Global Ambient Light Factor
-    litColor += (_MaterialAlbedo * gAmbientLightStrength);
+    litColor += (_MaterialAlbedo * gAmbientLightStrength * _AmbientOcclusion.xxx);
+    litColor /= litColor + float3(1.0f, 1.0f, 1.0f);
+    litColor = pow(litColor, (1.0f / 2.2f).xxx);
     
     return float4(litColor, 1.0f);
 }

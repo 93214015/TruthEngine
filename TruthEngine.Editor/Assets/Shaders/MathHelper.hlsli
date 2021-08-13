@@ -1,3 +1,6 @@
+#ifndef _MATHHELPER
+#define _MATHHELPER
+
 
 const float PI = 3.14159265359;
 
@@ -14,3 +17,5 @@ float4 ReconstructWorldPosition(float2 _PosCS, float _DepthView, float4 _Perspec
     
     return _PosWorld;
 }
+
+#endif

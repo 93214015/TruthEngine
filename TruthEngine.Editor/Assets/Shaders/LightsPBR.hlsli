@@ -1,3 +1,6 @@
+#ifndef _LIGHTSPBR
+#define _LIGHTSPBR
+
 #include "MathHelper.hlsli"
 
 
@@ -40,7 +43,6 @@ struct CLightSpotData
 
 /////////////////////////////////////////////////////////////////
 
-const float3 F0 = float3(.4f, .4f, .4f);
 
 /////////////////////////////////////////////////////////////////
 
@@ -63,41 +65,6 @@ float3 FresnelSchlick(float3 F0, float CosTheta)
 //////////////// Helper Funcitions
 ///////////////////////////////////////////////////////////////////
 
-float ClacAttenuation(float d, float fallOffStart, float fallOffEnd)
-{
-    return saturate((fallOffEnd - d) / (fallOffEnd - fallOffStart));
-}
-
-//Schlik gives an approximation to fresnel reflectance
-//float3 SchlikFresnel(float3 r0, float3 normal, float3 lightVector)
-//{
-//    float cosIncidentAngle = saturate(dot(normal, lightVector));
-//    float f0 = 1.0f - cosIncidentAngle;
-//    float3 reflectPercent = r0 + (1.0f - r0) * (f0 * f0 * f0 * f0 * f0);
-//    return reflectPercent;
-//}
-
-float3 BlinnPhong(float3 lightStrength, float3 lightVec, float3 normal, float3 toEye, float3 _MaterialAlbedo, float _MaterialShininess, float3 _MaterialFrenselR0)
-{
-
-    //Derive m from shininess which is derived from roughness.    
-    const float m = _MaterialShininess * 256.0f;
-    //const float m = mat.Shininess;
-    float3 halfVec = normalize(toEye + lightVec);
-    
-    float roughnessFactor = (m + 8.0f) * pow(max(dot(halfVec, normal), 0.0f), m) / 8.0f;
-    roughnessFactor = max(roughnessFactor, 0.0f);
-    
-    float3 fresnelFactor = SchlikFresnel(_MaterialFrenselR0, normal, lightVec);
-    
-    //our Specular formula goes outside [0,1] but we are doing LDR rendering. so scale it down a bit
-    float3 specAlbedo = fresnelFactor * roughnessFactor;
-    
-	//specAlbedo = specAlbedo / (specAlbedo + 1.0f);
-    
-    return (_MaterialAlbedo + specAlbedo) * lightStrength;
-
-}
 
 float CalculateAttenuation(float _Distance, float _FalloffStart, float _FalloffEnd)
 {
@@ -105,26 +72,30 @@ float CalculateAttenuation(float _Distance, float _FalloffStart, float _FalloffE
     return saturate((_FalloffEnd - _Distance) / (_FalloffEnd - _FalloffStart));
 }
 
-float3 ComputeDirectLight(CLightDirectionalData _Light, float3 _MaterialAlbedo, float _MaterialRoughness, float _MaterialMetallic, float3 _Position, float3 _Normal, float3 _View)
+float3 ComputeDirectLight(CLightDirectionalData _Light, float3 _MaterialAlbedo, float _MaterialRoughness, float _MaterialMetallic, float3 F0, float3 _Normal, float3 _View)
 {
     float3 _LightVector = normalize(_Light.Direction) * -1.0f;
-    
-    float _LdotN = dot(_LightVector, _Normal);
-
-    _LdotN = max(_LdotN, 0.0f);
-    
-    float3 _Radiance = _LdotN * _Light.Strength.xyz;
-    
+        
     float3 _HalfVector = normalize(_View + _LightVector);
     
-    float NDF = DistributionGGX(_Normal, _HalfVector, _MaterialRoughness);
-    float G = GeometrySmith(_Normal, _View, _LightVector, _MaterialRoughness);
-    float F = FresnelSchlick()
+    float _NDF = DistributionGGX(_Normal, _HalfVector, _MaterialRoughness);
+    float _G = GeometrySmith(_Normal, _View, _LightVector, _MaterialRoughness);
+    float3 _F = FresnelSchlick(F0, max(0.0f, dot(_HalfVector, _View)));
     
-    return BlinnPhong(_LightStrength, _LightVector, _Normal, _ToEye, _MaterialAlbedo, _MaterialShininess, _MaterialFrensel);
+    float3 _Numerator = _NDF * _G * _F;
+    float _Denomerator = 4.0f * max(0.0f, dot(_Normal, _View)) * max(0.0f, dot(_Normal, _LightVector));
+    float3 _Specular = _Numerator / max(_Denomerator, 0.001);
+
+    float _NdotL = max(0.0f, dot(_LightVector, _Normal));
+    
+    float3 _Ks = _F;
+    float3 _Kd = float(1.0f).xxx - _Ks;
+    _Kd *= 1.0f - _MaterialMetallic;
+    
+    return ((_Kd * _MaterialAlbedo / PI) + _Specular) * _Light.Strength * _NdotL;
 }
 
-float3 ComputeSpotLight(CLightSpotData _Light, float3 _MaterialAlbedo, float _MaterialShininess, float3 _MaterialFrensel, float3 _Position, float3 _Normal, float3 _ToEye)
+float3 ComputeSpotLight(CLightSpotData _Light, float3 _MaterialAlbedo, float _MaterialRoughness, float _MaterialMetallic, float3 F0, float3 _Position, float3 _Normal, float3 _View)
 {
     //Distance from surface to light
     float3 _LightPosition = _Light.Position;
@@ -135,23 +106,29 @@ float3 ComputeSpotLight(CLightSpotData _Light, float3 _MaterialAlbedo, float _Ma
         return 0.0f;
 	
     _LightVector /= _Distance;
-	
-    float _LightFactor = dot(_LightVector, _Normal);
-	
-    _LightFactor = max(_LightFactor, 0.0f);
-	
-    float3 _LightStrength = _LightFactor * _Light.Strength.xyz;
-	
-    float _DistanceAttenuation = CalculateAttenuation(_Distance, _Light.FalloffStart, _Light.FalloffEnd);
-    _LightStrength *= _DistanceAttenuation;
-	
-    float _CosAngle = dot(-1.0 * _LightVector, _Light.Direction);
-    float _CosAttenuration = saturate((_CosAngle - _Light.SpotOuterConeCos) * (_Light.SpotOuterConeAngleRangeCosRcp));
-    _CosAttenuration *= _CosAttenuration;
-	
-    _LightStrength *= _CosAttenuration;
+        
+    float3 _HalfVector = normalize(_View + _LightVector);
+    
+    float _NDF = DistributionGGX(_Normal, _HalfVector, _MaterialRoughness);
+    float _G = GeometrySmith(_Normal, _View, _LightVector, _MaterialRoughness);
+    float3 _F = FresnelSchlick(F0, max(0.0f, dot(_HalfVector, _View)));
+    
+    float3 _Numerator = _NDF * _G * _F;
+    float _Denomerator = 4.0f * max(0.0f, dot(_Normal, _View)) * max(0.0f, dot(_Normal, _LightVector));
+    float3 _Specular = _Numerator / max(_Denomerator, 0.001);
 
-    return BlinnPhong(_LightStrength, _LightVector, _Normal, _ToEye, _MaterialAlbedo, _MaterialShininess, _MaterialFrensel);
+    float _NdotL = max(0.0f, dot(_LightVector, _Normal));
+    
+    float3 _Ks = _F;
+    float3 _Kd = float3(1.0f) - _Ks;
+    _Kd *= 1.0f - _MaterialMetallic;
+    
+    float3 _Radiance = _Light.Strength * CalculateAttenuation(_Distance, _Light.FalloffStart, _Light.FalloffEnd).xxx;
+    
+    return ((_Kd * _MaterialAlbedo / PI) + _Specular) * _Radiance * _NdotL;
 }
 
 /////////////////////////////////////////////////////////////////
+
+
+#endif

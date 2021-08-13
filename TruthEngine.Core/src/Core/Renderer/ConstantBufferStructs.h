@@ -114,9 +114,24 @@ namespace TruthEngine {
 	{
 		struct Material {
 			Material() = default;
-			Material(const float4& diffuse, const float _Roughness, const float _Metallic, const float _AmbientOcclusion, const float2& uvScale, const float2& uvTranslate , uint32_t mapIndexDiffuse, uint32_t mapIndexNormal, uint32_t mapIndexDisplacement, uint32_t mapIndexSpecular)
+			Material(
+				const float4& diffuse
+				, const float _Roughness
+				, const float _Metallic
+				, const float _AmbientOcclusion
+				, const float2& uvScale
+				, const float2& uvTranslate 
+				, uint32_t mapIndexDiffuse
+				, uint32_t mapIndexNormal
+				, uint32_t mapIndexDisplacement
+				, uint32_t mapIndexSpecular
+				, uint32_t mapIndexRoughness
+				, uint32_t mapIndexMetallic
+				, uint32_t mapIndexAmbientOcclusion
+			)
 				: Diffuse(diffuse), Roughness(_Roughness), Metallic(_Metallic), AmbientOcclusion(_AmbientOcclusion)
 				, MapIndexDiffuse(mapIndexDiffuse), MapIndexNormal(mapIndexNormal), MapIndexDisplacement(mapIndexDisplacement), MapIndexSpecular(mapIndexSpecular)
+				, MapIndexRoughness(mapIndexRoughness), MapIndexMetallic(mapIndexMetallic), MapIndexAmbientOcclusion(mapIndexAmbientOcclusion)
 				, UVScale(uvScale), UVTranslate(uvTranslate)
 			{}
 
@@ -125,7 +140,7 @@ namespace TruthEngine {
 			float Roughness = .5f;
 			float Metallic = .0f;
 			float AmbientOcclusion = 1.0f;
-			float _Pad0;
+			float _Pad0 = .0f;
 			//float3 FresnelR0 = float3{ .0f,.0f,.0f };
 			//float Shininess = .0f;
 
@@ -140,7 +155,7 @@ namespace TruthEngine {
 			uint32_t MapIndexRoughness = -1;
 			uint32_t MapIndexMetallic = -1;
 			uint32_t MapIndexAmbientOcclusion = -1;
-			uint32_t _Pad1;
+			uint32_t _Pad1 = .0f;
 			
 		};
 

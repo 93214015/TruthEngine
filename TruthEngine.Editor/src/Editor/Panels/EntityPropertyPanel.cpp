@@ -161,20 +161,29 @@ namespace TruthEngine
 				}
 
 				{
-					auto r0 = material->GetFresnelR0().x;
+					auto _Roughness = material->GetRoughness();
 
-					if (ImGui::DragFloat("FresnelR0", &r0, 0.01f, 0.0f, 1.0f, nullptr, 1.0f))
+					if (ImGui::DragFloat("Roughness", &_Roughness, 0.01f, 0.0f, 1.0f, nullptr, 1.0f))
 					{
-						material->SetFresnelR0(float3{ r0, r0, r0 });
+						material->SetRoughness(_Roughness);
 					}
 				}
 
 				{
-					auto shininess = material->GetShininess();
+					float _Metallic = material->GetMetallic();
 
-					if (ImGui::DragFloat("Shininess", &shininess, 0.01f, 0.0f, 1.0f, nullptr, 1.0f))
+					if (ImGui::DragFloat("Metallic", &_Metallic, 0.01f, 0.0f, 1.0f, nullptr, 1.0f))
 					{
-						material->SetShininess(shininess);
+						material->SetMetallic(_Metallic);
+					}
+				}
+
+				{
+					float _AmbientOcclusion = material->GetAmbientOcclusion();
+
+					if (ImGui::DragFloat("AmbientOcclusion", &_AmbientOcclusion, 0.01f, 0.0f, 1.0f, nullptr, 1.0f))
+					{
+						material->SetAmbientOcclusion(_AmbientOcclusion);
 					}
 				}
 
@@ -290,7 +299,144 @@ namespace TruthEngine
 
 				}
 
+
 				{
+
+					ImGui::SetNextItemWidth(-100);
+					ImGui::Text("Roughness Texture: ");
+
+					ImGui::SameLine();
+
+					uint32_t _RoughnessIndex = material->GetMapIndexRoughness();
+
+					if (_RoughnessIndex == -1)
+					{
+						ImGui::Button("None");
+					}
+					else
+					{
+						if (ImGui::Button("Show##RoughnessTexture"))
+						{
+							ImGui::OpenPopup("showRoughnessTexturepopup");
+						}
+
+						if (ImGui::BeginPopup("showRoughnessTexturepopup"))
+						{
+							TEImGuiRenderImage_MaterialTexture(_RoughnessIndex, float2{ 150.0f, 150.0f });
+							ImGui::EndPopup();
+						}
+					}
+					ImGui::SameLine();
+					if (ImGui::Button("Pick Texture##pickRoughnessMap"))
+					{
+						auto func = [material](uint32_t _RoughnessMapIndex)
+						{
+							material->SetMapIndexRoughness(_RoughnessMapIndex);
+						};
+
+						ImGuiLayer::ShowWindowMaterialTexture(func, true);
+					}
+					ImGui::SameLine();
+					if (ImGui::Button("Clear##RoughnessMap"))
+					{
+						ImGui::SameLine();
+						material->SetMapIndexRoughness(-1);
+					}
+
+				}
+
+
+				{
+
+					ImGui::SetNextItemWidth(-100);
+					ImGui::Text("Metallic Texture: ");
+
+					ImGui::SameLine();
+
+					uint32_t _MetallicIndex = material->GetMapIndexMetallic();
+
+					if (_MetallicIndex == -1)
+					{
+						ImGui::Button("None");
+					}
+					else
+					{
+						if (ImGui::Button("Show##MetallicTexture"))
+						{
+							ImGui::OpenPopup("showMetallicTexturepopup");
+						}
+
+						if (ImGui::BeginPopup("showMetallicTexturepopup"))
+						{
+							TEImGuiRenderImage_MaterialTexture(_MetallicIndex, float2{ 150.0f, 150.0f });
+							ImGui::EndPopup();
+						}
+					}
+					ImGui::SameLine();
+					if (ImGui::Button("Pick Texture##pickMetallicMap"))
+					{
+						auto func = [material](uint32_t _MetallicMapIndex)
+						{
+							material->SetMapIndexMetallic(_MetallicMapIndex);
+						};
+
+						ImGuiLayer::ShowWindowMaterialTexture(func, true);
+					}
+					ImGui::SameLine();
+					if (ImGui::Button("Clear##MetallicMap"))
+					{
+						ImGui::SameLine();
+						material->SetMapIndexMetallic(-1);
+					}
+
+				}
+
+				{
+
+					ImGui::SetNextItemWidth(-100);
+					ImGui::Text("AO Texture: ");
+
+					ImGui::SameLine();
+
+					uint32_t _AOIndex = material->GetMapIndexAmbientOcclusion();
+
+					if (_AOIndex == -1)
+					{
+						ImGui::Button("None");
+					}
+					else
+					{
+						if (ImGui::Button("Show##AOTexture"))
+						{
+							ImGui::OpenPopup("showAOTexturepopup");
+						}
+
+						if (ImGui::BeginPopup("showAOTexturepopup"))
+						{
+							TEImGuiRenderImage_MaterialTexture(_AOIndex, float2{ 150.0f, 150.0f });
+							ImGui::EndPopup();
+						}
+					}
+					ImGui::SameLine();
+					if (ImGui::Button("Pick Texture##pickAOMap"))
+					{
+						auto func = [material](uint32_t _AOMapIndex)
+						{
+							material->SetMapIndexAmbientOcclusion(_AOMapIndex);
+						};
+
+						ImGuiLayer::ShowWindowMaterialTexture(func, true);
+					}
+					ImGui::SameLine();
+					if (ImGui::Button("Clear##AOMap"))
+					{
+						ImGui::SameLine();
+						material->SetMapIndexAmbientOcclusion(-1);
+					}
+
+				}
+
+				/*{
 
 					ImGui::SetNextItemWidth(-100);
 					ImGui::Text("Specular Texture: ");
@@ -333,7 +479,7 @@ namespace TruthEngine
 						material->SetMapIndexSpecular(-1);
 					}
 
-				}
+				}*/
 
 
 			});

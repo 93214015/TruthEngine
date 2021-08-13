@@ -36,14 +36,18 @@ namespace TruthEngine
 		Material* AddMaterial(
 			RendererStateSet states
 			, const float4& colorDiffuse
-			, const float3& fresnelR0
-			, float shininess
+			, float roughness
+			, float metallic
+			, float ambientOcclusion
 			, const float2& uvScale
 			, const float2& uvTranslate
 			, uint32_t diffuseMapIndex
 			, uint32_t normalMapIndex
 			, uint32_t displacementMapIndex
 			, uint32_t specularMapIndex
+			, uint32_t roughnessMapIndex
+			, uint32_t metallicMapIndex
+			, uint32_t ambientOcclusionMapIndex
 			, int32_t extraDepthBias
 			, float extraSlopeScaledDepthBias
 			, float extraDepthBiasClamp

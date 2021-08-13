@@ -107,7 +107,7 @@ namespace TruthEngine
 		}
 
 
-		*data_perFrame = ConstantBuffer_Data_Per_Frame(activeCamera->GetViewProj(), activeCamera->GetViewInv(), activeCamera->GetProjectionValues() , activeCamera->GetPosition(), _cascadedShadowTransforms);
+		*data_perFrame = ConstantBuffer_Data_Per_Frame(activeCamera->GetViewProj(), activeCamera->GetViewInv(), activeCamera->GetProjectionValues(), activeCamera->GetPosition(), _cascadedShadowTransforms);
 
 		//
 		////Use MultiThreaded Rendering
@@ -290,7 +290,21 @@ namespace TruthEngine
 		{
 			auto material = event.GetMaterial();
 			auto& cbMaterialData = CB_MAterials->GetData()->MaterialArray[material->GetID()];
-			cbMaterialData = ConstantBuffer_Data_Materials::Material(material->GetColorDiffuse(), material->GetFresnelR0(), material->GetShininess(), material->GetUVScale(), material->GetUVTranslate(), material->GetMapIndexDiffuse(), material->GetMapIndexNormal(), material->GetMapIndexDisplacement(), material->GetMapIndexSpecular());
+			cbMaterialData = ConstantBuffer_Data_Materials::Material(
+				material->GetColorDiffuse()
+				, material->GetRoughness()
+				, material->GetMetallic()
+				, material->GetAmbientOcclusion()
+				, material->GetUVScale()
+				, material->GetUVTranslate()
+				, material->GetMapIndexDiffuse()
+				, material->GetMapIndexNormal()
+				, material->GetMapIndexDisplacement()
+				, material->GetMapIndexSpecular()
+				, material->GetMapIndexRoughness()
+				, material->GetMapIndexMetallic()
+				, material->GetMapIndexAmbientOcclusion()
+			);
 		});
 	}
 
@@ -300,7 +314,21 @@ namespace TruthEngine
 		{
 			auto material = event.GetMaterial();
 			auto& cbMaterialData = CB_MAterials->GetData()->MaterialArray[material->GetID()];
-			cbMaterialData = ConstantBuffer_Data_Materials::Material(material->GetColorDiffuse(), material->GetFresnelR0(), material->GetShininess(), material->GetUVScale(), material->GetUVTranslate(), material->GetMapIndexDiffuse(), material->GetMapIndexNormal(), material->GetMapIndexDisplacement(), material->GetMapIndexSpecular());
+			cbMaterialData = ConstantBuffer_Data_Materials::Material(
+				material->GetColorDiffuse()
+				, material->GetRoughness()
+				, material->GetMetallic()
+				, material->GetAmbientOcclusion()
+				, material->GetUVScale()
+				, material->GetUVTranslate()
+				, material->GetMapIndexDiffuse()
+				, material->GetMapIndexNormal()
+				, material->GetMapIndexDisplacement()
+				, material->GetMapIndexSpecular()
+				, material->GetMapIndexRoughness()
+				, material->GetMapIndexMetallic()
+				, material->GetMapIndexAmbientOcclusion()
+			);
 		});
 	}
 

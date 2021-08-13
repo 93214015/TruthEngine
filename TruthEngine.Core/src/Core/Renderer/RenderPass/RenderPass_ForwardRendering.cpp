@@ -209,7 +209,7 @@ namespace TruthEngine
 	{
 		Shader* shader = nullptr;
 
-		auto result = m_ShaderMgr->AddShader(&shader, TE_IDX_SHADERCLASS::FORWARDRENDERING, material->GetMeshType(), material->GetRendererStates(), "Assets/Shaders/ForwardRendering.hlsl", "vs", "ps");
+		auto result = m_ShaderMgr->AddShader(&shader, TE_IDX_SHADERCLASS::FORWARDRENDERING, material->GetMeshType(), material->GetRendererStates(), "Assets/Shaders/ForwardRenderingPBR.hlsl", "vs", "ps");
 
 		TE_RESOURCE_FORMAT rtvFormats[1];
 

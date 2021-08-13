@@ -55,7 +55,7 @@ namespace TruthEngine
 				return m_Metallic;
 			}
 
-			inline float GetRoughtness() const noexcept
+			inline float GetRoughness() const noexcept
 			{
 				return m_Roughness;
 			}
@@ -103,6 +103,21 @@ namespace TruthEngine
 			inline uint32_t GetMapIndexSpecular() const noexcept
 			{
 				return m_MapIndexSpecular;
+			}
+
+			inline uint32_t GetMapIndexRoughness() const noexcept
+			{
+				return m_MapIndexRoughness;
+			}
+
+			inline uint32_t GetMapIndexMetallic() const noexcept
+			{
+				return m_MapIndexMetallic;
+			}
+
+			inline uint32_t GetMapIndexAmbientOcclusion() const noexcept
+			{
+				return m_MapIndexAmbientOcclusion;
 			}
 
 			inline TE_IDX_MESH_TYPE GetMeshType() const noexcept

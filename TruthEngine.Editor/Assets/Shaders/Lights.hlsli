@@ -1,3 +1,6 @@
+#ifndef _LIGHTS
+#define _LIGHTS
+
 
 /////////////////////////////////////////////////////////////////
 //////////////// Data Structs
@@ -44,10 +47,6 @@ struct CLightSpotData
 //////////////// Helper Funcitions
 ///////////////////////////////////////////////////////////////////
 
-float ClacAttenuation(float d, float fallOffStart, float fallOffEnd)
-{
-    return saturate((fallOffEnd - d) / (fallOffEnd - fallOffStart));
-}
 
 //Schlik gives an approximation to fresnel reflectance
 float3 SchlikFresnel(float3 r0, float3 normal, float3 lightVector)
@@ -117,7 +116,7 @@ float3 ComputeSpotLight(CLightSpotData _Light, float3 _MaterialAlbedo, float _Ma
     float3 _LightStrength = _LightFactor * _Light.Strength.xyz;
 	
     float _DistanceAttenuation = CalculateAttenuation(_Distance, _Light.FalloffStart, _Light.FalloffEnd);
-    _LightStrength *= _DistanceAttenuation;
+    _LightStrength *= _DistanceAttenuation.xxx;
 	
     float _CosAngle = dot(-1.0 * _LightVector, _Light.Direction);
     float _CosAttenuration = saturate((_CosAngle - _Light.SpotOuterConeCos) * (_Light.SpotOuterConeAngleRangeCosRcp));
@@ -129,3 +128,5 @@ float3 ComputeSpotLight(CLightSpotData _Light, float3 _MaterialAlbedo, float _Ma
 }
 
 /////////////////////////////////////////////////////////////////
+
+#endif

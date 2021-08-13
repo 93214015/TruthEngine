@@ -334,7 +334,7 @@ namespace TruthEngine
 			//	}
 			//}
 
-			m_MaterialManager->AddMaterial(
+			/*m_MaterialManager->AddMaterial(
 				states
 				, float4{ aiColorDiffuse.r, aiColorDiffuse.g, aiColorDiffuse.b, 1.0f }
 				, float3{ aiColorSpecular.r, aiColorSpecular.g, aiColorSpecular.b }
@@ -345,6 +345,21 @@ namespace TruthEngine
 				, normalMapViewIndex
 				, -1
 				, specularMapViewIndex
+				, 0, 0.0f, 0.0f, _MeshType);*/
+
+			m_MaterialManager->AddMaterial(
+				states
+				, float4{ aiColorDiffuse.r, aiColorDiffuse.g, aiColorDiffuse.b, 1.0f }
+				, 0.5f
+				, 0.0f
+				, 1.0f
+				, float2{ 1.0f, 1.0f }
+				, float2{ .0f, .0f }
+				, diffuseMapViewIndex
+				, normalMapViewIndex
+				, -1
+				, specularMapViewIndex
+				, -1, -1, -1
 				, 0, 0.0f, 0.0f, _MeshType);
 		}
 	}
