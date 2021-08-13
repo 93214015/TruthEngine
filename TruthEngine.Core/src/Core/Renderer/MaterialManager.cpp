@@ -26,6 +26,7 @@ namespace TruthEngine
 		, uint32_t diffuseMapIndex
 		, uint32_t normalMapIndex
 		, uint32_t displacementMapIndex
+		, uint32_t specularMapIndex
 		, int32_t extraDepthBias
 		, float extraSlopeScaledDepthBias
 		, float extraDepthBiasClamp
@@ -33,7 +34,7 @@ namespace TruthEngine
 	{
 		auto ID = static_cast<uint32_t>(m_Map_Materials.size());
 
-		auto material = std::make_shared<Material>(ID, states, colorDiffuse, fresnelR0, shininess, uvScale, uvTranslate, diffuseMapIndex, normalMapIndex, displacementMapIndex, extraDepthBias, extraSlopeScaledDepthBias, extraDepthBiasClamp, meshType);
+		auto material = std::make_shared<Material>(ID, states, colorDiffuse, fresnelR0, shininess, uvScale, uvTranslate, diffuseMapIndex, normalMapIndex, displacementMapIndex, specularMapIndex, extraDepthBias, extraSlopeScaledDepthBias, extraDepthBiasClamp, meshType);
 
 		m_Map_Materials[ID] = material;
 		m_Materials.push_back(material.get());
@@ -49,7 +50,7 @@ namespace TruthEngine
 	{
 		auto ID = static_cast<uint32_t>(m_Map_Materials.size());
 
-		auto _newMaterial = std::make_shared<Material>(ID, material->m_RendererStates, material->m_ColorDiffuse, material->m_FresnelR0, material->m_Shininess, material->m_UVScale, material->m_UVTranslate, material->m_MapIndexDiffuse, material->m_MapIndexNormal, material->m_MapIndexDisplacement, material->m_ExtraDepthBias, material->m_ExtraSlopeScaledDepthBias, material->m_ExtraDepthBiasClamp, material->m_MeshType);
+		auto _newMaterial = std::make_shared<Material>(ID, material->m_RendererStates, material->m_ColorDiffuse, material->m_FresnelR0, material->m_Shininess, material->m_UVScale, material->m_UVTranslate, material->m_MapIndexDiffuse, material->m_MapIndexNormal, material->m_MapIndexDisplacement, material->m_MapIndexSpecular, material->m_ExtraDepthBias, material->m_ExtraSlopeScaledDepthBias, material->m_ExtraDepthBiasClamp, material->m_MeshType);
 
 		m_Map_Materials[ID] = _newMaterial;
 		m_Materials.push_back(_newMaterial.get());
@@ -73,6 +74,7 @@ namespace TruthEngine
 			, 0.0f
 			, float2{ 1.0f, 1.0f }
 			, float2{ .0f,.0f }
+			, -1
 			, -1
 			, -1
 			, -1

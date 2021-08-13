@@ -43,6 +43,7 @@ namespace TruthEngine
 			, uint32_t diffuseMapIndex
 			, uint32_t normalMapIndex
 			, uint32_t displacementMapIndex
+			, uint32_t specularMapIndex
 			, int32_t extraDepthBias
 			, float extraSlopeScaledDepthBias
 			, float extraDepthBiasClamp

@@ -29,7 +29,7 @@ namespace TruthEngine
 
 			inline void SetTag(const char* buffer)
 			{
-				strcpy_s(m_Tag, strnlen(buffer, 16), buffer);
+				strcpy_s(m_Tag, strnlen(buffer, MAX_LENGTH), buffer);
 			}
 
 			inline static constexpr size_t GetTagMaxLength()
@@ -39,7 +39,7 @@ namespace TruthEngine
 
 		private:
 
-			static constexpr size_t MAX_LENGTH = 16;
+			static constexpr size_t MAX_LENGTH = 32;
 
 		private:
 			char m_Tag[MAX_LENGTH];

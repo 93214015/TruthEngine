@@ -104,7 +104,7 @@ vertexOut vs(vertexInput vin)
 
 
 struct PixelOut
-{    
+{
     float4 Color : SV_Target0;
     float3 Normal : SV_Target1;
     float4 Specular : SV_Target2;
@@ -123,7 +123,7 @@ PixelOut ps(vertexOut pin)
     
 #ifdef ENABLE_MAP_NORMAL
         float3 tangent = normalize(pin.tangentW);
-        float3 bitangent = cross(normal, tangent);
+        float3 bitangent = cross(_PixelOut.Normal, tangent);
         float3x3 TBN = float3x3(tangent, bitangent, _PixelOut.Normal);
     
     
@@ -146,7 +146,13 @@ PixelOut ps(vertexOut pin)
         _PixelOut.Color = MaterialTextures[_material.MapIndexDiffuse].Sample(sampler_linear, _texUV);
 #endif
     
-    _PixelOut.Specular = float4(_material.FresnelR0, _material.Shininess);
+#ifdef ENABLE_MAP_SPECULAR
+    float3 _FresnelR0 = MaterialTextures[_material.MapIndexSpecular].Sample(sampler_point_wrap, _texUV).xyz;
+#else
+    float3 _FresnelR0 = _material.FresnelR0;
+#endif
+    
+    _PixelOut.Specular = float4(_FresnelR0, _material.Shininess);
     
     
     

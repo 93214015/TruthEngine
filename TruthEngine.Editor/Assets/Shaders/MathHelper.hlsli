@@ -1,4 +1,6 @@
 
+const float PI = 3.14159265359;
+
 float ConvertToLinearDepth(float _Depth, float _Proj33, float _Proj43)
 {
     return _Proj43 / (_Depth - _Proj33);

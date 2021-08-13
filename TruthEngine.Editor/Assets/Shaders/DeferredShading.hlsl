@@ -65,12 +65,15 @@ VertexOut vs(uint vertexID : SV_VertexID)
 float4 ps(VertexOut _VOut) : SV_Target
 {
     float _DepthProj = tDepth.Sample(sampler_point_wrap, _VOut.UV);
+
+    if(_DepthProj > 0.9999f)
+        discard;
     
     float _DepthView = ConvertToLinearDepth(_DepthProj, ProjectionValues.z, ProjectionValues.w);
     
     float4 _PosWorld = ReconstructWorldPosition(_VOut.PosCS, _DepthView, ProjectionValues, ViewInverse);
     
-    float3 _NormalWorld = tNormal.Sample(sampler_point_wrap, _VOut.UV);
+    float3 _NormalWorld = tNormal.Sample(sampler_point_wrap, _VOut.UV) * 2.0f - 1.0f;
 
     float4 _Color = tColor.Sample(sampler_point_wrap, _VOut.UV);
 

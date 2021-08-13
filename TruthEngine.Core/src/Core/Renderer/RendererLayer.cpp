@@ -290,7 +290,7 @@ namespace TruthEngine
 		{
 			auto material = event.GetMaterial();
 			auto& cbMaterialData = CB_MAterials->GetData()->MaterialArray[material->GetID()];
-			cbMaterialData = ConstantBuffer_Data_Materials::Material(material->GetColorDiffuse(), material->GetFresnelR0(), material->GetShininess(), material->GetUVScale(), material->GetUVTranslate(), material->GetMapIndexDiffuse(), material->GetMapIndexNormal(), material->GetMapIndexDisplacement());
+			cbMaterialData = ConstantBuffer_Data_Materials::Material(material->GetColorDiffuse(), material->GetFresnelR0(), material->GetShininess(), material->GetUVScale(), material->GetUVTranslate(), material->GetMapIndexDiffuse(), material->GetMapIndexNormal(), material->GetMapIndexDisplacement(), material->GetMapIndexSpecular());
 		});
 	}
 
@@ -300,7 +300,7 @@ namespace TruthEngine
 		{
 			auto material = event.GetMaterial();
 			auto& cbMaterialData = CB_MAterials->GetData()->MaterialArray[material->GetID()];
-			cbMaterialData = ConstantBuffer_Data_Materials::Material(material->GetColorDiffuse(), material->GetFresnelR0(), material->GetShininess(), material->GetUVScale(), material->GetUVTranslate(), material->GetMapIndexDiffuse(), material->GetMapIndexNormal(), material->GetMapIndexDisplacement());
+			cbMaterialData = ConstantBuffer_Data_Materials::Material(material->GetColorDiffuse(), material->GetFresnelR0(), material->GetShininess(), material->GetUVScale(), material->GetUVTranslate(), material->GetMapIndexDiffuse(), material->GetMapIndexNormal(), material->GetMapIndexDisplacement(), material->GetMapIndexSpecular());
 		});
 	}
 
@@ -518,8 +518,8 @@ namespace TruthEngine
 
 		m_RenderPassStack.PushRenderPass(m_RenderPass_GenerateShadowMap.get());
 		m_RenderPassStack.PushRenderPass(m_RenderPass_ForwardRendering.get());
-		m_RenderPassStack.PushRenderPass(m_RenderPass_GenerateGBuffers.get());
-		m_RenderPassStack.PushRenderPass(m_RenderPass_DeferredShading.get());
+		//m_RenderPassStack.PushRenderPass(m_RenderPass_GenerateGBuffers.get());
+		//m_RenderPassStack.PushRenderPass(m_RenderPass_DeferredShading.get());
 
 		if (m_IsEnabledHDR)
 			m_RenderPassStack.PushRenderPass(m_RenderPass_PostProcessing_HDR.get());

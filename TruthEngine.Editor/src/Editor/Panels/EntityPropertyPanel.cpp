@@ -290,6 +290,51 @@ namespace TruthEngine
 
 				}
 
+				{
+
+					ImGui::SetNextItemWidth(-100);
+					ImGui::Text("Specular Texture: ");
+
+					ImGui::SameLine();
+
+					uint32_t specularIndex = material->GetMapIndexSpecular();
+
+					if (specularIndex == -1)
+					{
+						ImGui::Button("None");
+					}
+					else
+					{
+						if (ImGui::Button("Show##specularTexture"))
+						{
+							ImGui::OpenPopup("showspecularTexturepopup");
+						}
+
+						if (ImGui::BeginPopup("showspecularTexturepopup"))
+						{
+							TEImGuiRenderImage_MaterialTexture(specularIndex, float2{ 150.0f, 150.0f });
+							ImGui::EndPopup();
+						}
+					}
+					ImGui::SameLine();
+					if (ImGui::Button("Pick Texture##pickspecularMap"))
+					{
+						auto func = [material](uint32_t _specularMapIndex)
+						{
+							material->SetMapIndexSpecular(_specularMapIndex);
+						};
+
+						ImGuiLayer::ShowWindowMaterialTexture(func, true);
+					}
+					ImGui::SameLine();
+					if (ImGui::Button("Clear##specularMap"))
+					{
+						ImGui::SameLine();
+						material->SetMapIndexSpecular(-1);
+					}
+
+				}
+
 
 			});
 

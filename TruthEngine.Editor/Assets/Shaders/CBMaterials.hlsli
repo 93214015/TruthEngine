@@ -1,12 +1,31 @@
 ///////////////////////////////////////////////////////////////////
 //////////////// Data Structs
 ///////////////////////////////////////////////////////////////////
+
+//struct Material
+//{
+//    float4 Diffuse;
+    
+//    float3 FresnelR0;
+//    float Shininess;
+    
+//    float2 UVScale;
+//    float2 UVTranslate;
+    
+//    uint MapIndexDiffuse;
+//    uint MapIndexNormal;
+//    uint MapIndexDisplacement;
+//    uint MapIndexSpecular;
+//};
+
 struct Material
 {
     float4 Diffuse;
     
-    float3 FresnelR0;
-    float Shininess;
+    float Roughness;
+    float Metallic;
+    float AmbientOcclusion;
+    float _Pad0;
     
     float2 UVScale;
     float2 UVTranslate;
@@ -14,7 +33,12 @@ struct Material
     uint MapIndexDiffuse;
     uint MapIndexNormal;
     uint MapIndexDisplacement;
-    uint pad;
+    uint MapIndexSpecular;
+    
+    uint MapIndexRoughness;
+    uint MapIndexMetallic;
+    uint MapIndexAmbientOcclusion;
+    uint _Pad1;
 };
 
 

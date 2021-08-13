@@ -34,6 +34,7 @@
   <ItemGroup>
     <FxCompile Include="Assets\Shaders\GenerateGBuffers.hlsl" />
     <FxCompile Include="Assets\Shaders\DeferredShading.hlsl" />
+    <FxCompile Include="Assets\Shaders\ForwardRenderingPBR.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Shaders\Lights.hlsli" />
@@ -44,5 +45,6 @@
     <None Include="Assets\Shaders\CBBoneTransforms.hlsli" />
     <None Include="Assets\Shaders\Samplers.hlsli" />
     <None Include="Assets\Shaders\MathHelper.hlsli" />
+    <None Include="Assets\Shaders\LightsPBR.hlsli" />
   </ItemGroup>
 </Project>

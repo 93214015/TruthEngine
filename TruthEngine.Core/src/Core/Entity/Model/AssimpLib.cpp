@@ -253,6 +253,50 @@ namespace TruthEngine
 				}
 			}
 
+			uint32_t specularMapViewIndex = -1;
+
+			{
+				const auto SpecularTextureCount = aiMaterial->GetTextureCount(aiTextureType_SPECULAR);
+
+				if (SpecularTextureCount > 0)
+				{
+					SET_RENDERER_STATE(states, TE_RENDERER_STATE_ENABLED_MAP_SPECULAR, TE_RENDERER_STATE_ENABLED_MAP_SPECULAR_TRUE);
+				}
+
+				for (UINT j = 0; j < SpecularTextureCount; ++j)
+				{
+					if (aiMaterial->GetTexture(aiTextureType_SPECULAR, j, &ais) == AI_SUCCESS)
+					{
+						if (auto aitex = aiscene->GetEmbeddedTexture(ais.C_Str()); aitex)
+						{
+							std::string_view name = aitex->mFilename.C_Str();
+							auto index = name.find_last_of('/');
+							name = name.substr(index);
+							//auto index = std::atoi(&ais.C_Str()[1]);
+
+							auto& _Itr = mMapTexFileName.find(name);
+							if (_Itr == mMapTexFileName.end())
+							{
+								throw;
+							}
+
+							specularMapViewIndex = _Itr->second;
+						}
+						/*if (ais.C_Str()[0] == '*')
+						{
+							auto index = std::atoi(&ais.C_Str()[1]);
+
+							normalMapViewIndex = index + m_TextureMaterialOffset;
+						}*/
+						else
+						{
+							specularMapViewIndex = texManager->CreateTexture(ais.C_Str(), m_ModelFilePath)->GetViewIndex();
+						}
+
+					}
+				}
+			}
+
 			//{
 			//	const auto heightTextureCount = aiMaterial->GetTextureCount(aiTextureType_HEIGHT);
 
@@ -300,6 +344,7 @@ namespace TruthEngine
 				, diffuseMapViewIndex
 				, normalMapViewIndex
 				, -1
+				, specularMapViewIndex
 				, 0, 0.0f, 0.0f, _MeshType);
 		}
 	}
@@ -463,9 +508,10 @@ namespace TruthEngine
 
 			MeshHandle _MeshHandle = m_ModelManager->AddMesh(TE_IDX_MESH_TYPE::MESH_NTT, indexNum, indexOffset, vertexOffset, aimesh->mNumVertices);
 			Material* _Material = m_MaterialManager->GetMaterial(aimesh->mMaterialIndex + m_MaterialOffset);
-			const char* _MeshName = aimesh->mName.C_Str();
+			std::string _MeshName = std::string_view(aimesh->mName.C_Str(), 15).data();
+			//const char* _MeshName = aimesh->mName.C_Str();
 
-			_MeshCollection.emplace_back(_MeshName, _MeshHandle, _Material, nullptr);
+			_MeshCollection.emplace_back(_MeshName.c_str(), _MeshHandle, _Material, nullptr);
 
 			//_MeshEntities.emplace_back(AddMeshEntity(meshName, mesh, material, scene, IdentityMatrix));
 
