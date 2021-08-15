@@ -46,7 +46,7 @@ namespace TruthEngine
 
 	void Material::SetMapIndexDiffuse(uint32_t index)
 	{
-		if (index == m_MapIndexNormal)
+		if (index == m_MapIndexDiffuse)
 		{
 			return;
 		}

@@ -48,15 +48,40 @@ struct CLightSpotData
 
 float DistributionGGX(float3 _Normal, float3 _HalfVector, float _Roughness)
 {
+    float a = _Roughness * _Roughness;
+    float a2 = a * a;
+    float NdotH = max(dot(_Normal, _HalfVector), 0.0f);
+    float NdotH2 = NdotH * NdotH;
+    
+    float _Numerator = a2;
+    float _Denominator = (NdotH2 * (a2 - 1.0f) + 1.0f);
+    _Denominator = PI * _Denominator * _Denominator;
+    
+    return _Numerator / _Denominator;
 }
 float GeometrySchlickGGX(float _NdotV, float _Roughness)
 {
+    float r = _Roughness + 1.0f;
+    float k = (r * r) / 8.0f;
+    
+    float _Numerator = _NdotV;
+    float _Denominator = _NdotV * (1.0f - k) + k;
+
+    return _Numerator / _Denominator;
 }
 float GeometrySmith(float3 _Normal, float3 _View, float3 _LightVector, float _Roughness)
 {
+    float _NdotV = max(dot(_Normal, _View), 0.0f);
+    float ggx1 = GeometrySchlickGGX(_NdotV, _Roughness);
+    
+    float _NdotL = max(dot(_Normal, _LightVector), 0.0f);
+    float ggx2 = GeometrySchlickGGX(_NdotL, _Roughness);
+    
+    return ggx1 * ggx2;
 }
 float3 FresnelSchlick(float3 F0, float CosTheta)
 {
+    return F0 + (1.0f - F0) * pow(max(1.0f - CosTheta, 0.0f), 5.0f);
 }
 
 
@@ -83,8 +108,8 @@ float3 ComputeDirectLight(CLightDirectionalData _Light, float3 _MaterialAlbedo, 
     float3 _F = FresnelSchlick(F0, max(0.0f, dot(_HalfVector, _View)));
     
     float3 _Numerator = _NDF * _G * _F;
-    float _Denomerator = 4.0f * max(0.0f, dot(_Normal, _View)) * max(0.0f, dot(_Normal, _LightVector));
-    float3 _Specular = _Numerator / max(_Denomerator, 0.001);
+    float _Denominator = 4.0f * max(0.0f, dot(_Normal, _View)) * max(0.0f, dot(_Normal, _LightVector));
+    float3 _Specular = _Numerator / max(_Denominator, 0.001);
 
     float _NdotL = max(0.0f, dot(_LightVector, _Normal));
     
@@ -114,13 +139,13 @@ float3 ComputeSpotLight(CLightSpotData _Light, float3 _MaterialAlbedo, float _Ma
     float3 _F = FresnelSchlick(F0, max(0.0f, dot(_HalfVector, _View)));
     
     float3 _Numerator = _NDF * _G * _F;
-    float _Denomerator = 4.0f * max(0.0f, dot(_Normal, _View)) * max(0.0f, dot(_Normal, _LightVector));
-    float3 _Specular = _Numerator / max(_Denomerator, 0.001);
+    float _Denominator = 4.0f * max(0.0f, dot(_Normal, _View)) * max(0.0f, dot(_Normal, _LightVector));
+    float3 _Specular = _Numerator / max(_Denominator, 0.001);
 
     float _NdotL = max(0.0f, dot(_LightVector, _Normal));
     
     float3 _Ks = _F;
-    float3 _Kd = float3(1.0f) - _Ks;
+    float3 _Kd = float3(1.0f, 1.0f, 1.0f) - _Ks;
     _Kd *= 1.0f - _MaterialMetallic;
     
     float3 _Radiance = _Light.Strength * CalculateAttenuation(_Distance, _Light.FalloffStart, _Light.FalloffEnd).xxx;

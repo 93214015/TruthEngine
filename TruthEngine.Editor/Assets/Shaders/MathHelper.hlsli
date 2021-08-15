@@ -2,7 +2,7 @@
 #define _MATHHELPER
 
 
-const float PI = 3.14159265359;
+const static float PI = 3.14159265359;
 
 float ConvertToLinearDepth(float _Depth, float _Proj33, float _Proj43)
 {
