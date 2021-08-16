@@ -99,7 +99,8 @@ namespace TruthEngine
 						}),
 						ShaderSignature::ShaderRange(0, 0, ShaderSignature::EShaderRangeType::SRV, ShaderSignature::EShaderRangeFlags::EShaderRangeFlags_NONE,
 						{
-							ShaderSignature::ShaderRangeView(TE_IDX_GRESOURCES::Texture_CubeMap_Environment, ShaderSignature::EShaderRangeType::SRV),
+							//ShaderSignature::ShaderRangeView(TE_IDX_GRESOURCES::Texture_CubeMap_Environment, ShaderSignature::EShaderRangeType::SRV),
+							ShaderSignature::ShaderRangeView(TE_IDX_GRESOURCES::Texture_RT_CubeMap, ShaderSignature::EShaderRangeType::SRV),
 						})
 				}
 			);
@@ -497,7 +498,7 @@ namespace TruthEngine
 				{
 						ShaderSignature::ShaderRange(0, 0, ShaderSignature::EShaderRangeType::SRV, ShaderSignature::EShaderRangeFlags::EShaderRangeFlags_NONE,
 						{
-							ShaderSignature::ShaderRangeView(TE_IDX_GRESOURCES::Texture_CubeMap_Environment, ShaderSignature::EShaderRangeType::SRV),
+							ShaderSignature::ShaderRangeView(TE_IDX_GRESOURCES::Texture_IBL, ShaderSignature::EShaderRangeType::SRV),
 						})
 				}
 

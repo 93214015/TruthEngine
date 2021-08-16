@@ -330,19 +330,34 @@ namespace TruthEngine
 
 	TruthEngine::TextureRenderTarget* RendererCommand::CreateRenderTarget(TE_IDX_GRESOURCES idx, uint32_t width, uint32_t height, TE_RESOURCE_FORMAT format, const ClearValue_RenderTarget& clearValue, bool useAsShaderResource, bool enbaleMSAA)
 	{
-		return TE_INSTANCE_BUFFERMANAGER->CreateRenderTarget(idx, width, height, format, clearValue, useAsShaderResource, enbaleMSAA);
+		return TE_INSTANCE_BUFFERMANAGER->CreateRenderTarget(idx, width, height, 1, TE_RESOURCE_TYPE::TEXTURE2D, format, clearValue, useAsShaderResource, enbaleMSAA);
+	}
+
+	TextureRenderTarget* RendererCommand::CreateRenderTargetArray(TE_IDX_GRESOURCES idx, uint32_t width, uint32_t height, uint8_t arraySize, TE_RESOURCE_FORMAT format, const ClearValue_RenderTarget& clearValue, bool useAsShaderResource, bool enbaleMSAA)
+	{
+		return TE_INSTANCE_BUFFERMANAGER->CreateRenderTarget(idx, width, height, arraySize, TE_RESOURCE_TYPE::TEXTURE2DARRAY, format, clearValue, useAsShaderResource, enbaleMSAA);
+	}
+
+	TextureRenderTarget* RendererCommand::CreateRenderTargetCubeMap(TE_IDX_GRESOURCES idx, uint32_t width, uint32_t height, TE_RESOURCE_FORMAT format, const ClearValue_RenderTarget& clearValue, bool useAsShaderResource, bool enbaleMSAA)
+	{
+		return TE_INSTANCE_BUFFERMANAGER->CreateRenderTarget(idx, width, height, 6, TE_RESOURCE_TYPE::TEXTURECUBE, format, clearValue, useAsShaderResource, enbaleMSAA);
 	}
 
 
 	TruthEngine::TextureDepthStencil* RendererCommand::CreateDepthStencil(TE_IDX_GRESOURCES idx, uint32_t width, uint32_t height, TE_RESOURCE_FORMAT format, const ClearValue_DepthStencil& clearValue, bool useAsShaderResource, bool enbaleMSAA)
 	{
-		return TE_INSTANCE_BUFFERMANAGER->CreateDepthStencil(idx, width, height, format, clearValue, useAsShaderResource, enbaleMSAA);
+		return TE_INSTANCE_BUFFERMANAGER->CreateDepthStencil(idx, width, height, 1, format, clearValue, useAsShaderResource, enbaleMSAA);
 	}
 
 
 	TruthEngine::TextureCubeMap* RendererCommand::CreateTextureCubeMap(TE_IDX_GRESOURCES idx, const char* filePath)
 	{
 		return TE_INSTANCE_BUFFERMANAGER->CreateTextureCube(idx, filePath);
+	}
+
+	void RendererCommand::LoadTexture(Texture& _OutTextue, TE_IDX_GRESOURCES _IDX, const char* _FilePath)
+	{
+		TE_INSTANCE_BUFFERMANAGER->LoadTexture(_OutTextue, _IDX, _FilePath);
 	}
 
 	Buffer* RendererCommand::CreateBufferStructuredRW(TE_IDX_GRESOURCES _IDX, uint32_t _ElementSizeInByte, uint32_t _ElementNum, bool _IsByteAddressBuffer)

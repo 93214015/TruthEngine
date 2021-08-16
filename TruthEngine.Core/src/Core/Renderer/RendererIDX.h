@@ -30,6 +30,7 @@ enum class TE_IDX_GRESOURCES : IDX
 
 	Texture_MaterialTextures,
 	Texture_CubeMap_Environment,
+	Texture_IBL,
 	Texture_RT_BackBuffer,
 	Texture_RT_GBuffer_Color,
 	Texture_RT_GBuffer_Normal,
@@ -38,6 +39,7 @@ enum class TE_IDX_GRESOURCES : IDX
 	Texture_RT_SceneBufferMS,
 	Texture_RT_SceneBufferHDR,
 	Texture_RT_SceneBufferHDRMS,
+	Texture_RT_CubeMap,
 	Texture_DS_SceneBuffer,
 	Texture_DS_SceneBufferMS,
 	Texture_DS_ShadowMap_SunLight,

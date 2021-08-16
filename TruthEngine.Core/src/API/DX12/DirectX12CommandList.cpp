@@ -21,7 +21,7 @@
 namespace TruthEngine::API::DirectX12
 {
 
-	inline DXGI_FORMAT GetDepthStencilSRVFormat(const TE_RESOURCE_FORMAT format)
+	static DXGI_FORMAT GetDepthStencilSRVFormat(const TE_RESOURCE_FORMAT format)
 	{
 		switch (format)
 		{

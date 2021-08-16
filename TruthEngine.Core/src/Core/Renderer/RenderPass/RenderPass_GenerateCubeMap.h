@@ -33,15 +33,11 @@ namespace TruthEngine
 	private:
 
 		RendererCommand m_RendererCommand;
-		RendererCommand m_RendererCommand_ResolveTextures;
 
 		RenderTargetView m_RenderTartgetView;
-		DepthStencilView m_DepthStencilView;
 
-		TextureDepthStencil* m_TextureDepthStencil = nullptr;
-		TextureDepthStencil* m_TextureDepthStencilMS = nullptr;
-		TextureRenderTarget* m_TextureRenderTargetHDRMS = nullptr;
-		TextureRenderTarget* m_TextureRenderTargetMS = nullptr;
+		TextureRenderTarget* m_TextureRenderTargetCubeMap = nullptr;
+		Texture m_TextureIBL;
 
 		Viewport m_Viewport;
 		ViewRect m_ViewRect;

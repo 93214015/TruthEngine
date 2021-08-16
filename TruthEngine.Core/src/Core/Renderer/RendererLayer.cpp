@@ -545,11 +545,11 @@ namespace TruthEngine
 	{
 		m_RenderPassStack.PopAll();
 
+		m_RenderPassStack.PushRenderPass(m_RenderPass_GenerateCubeMap.get());
 		m_RenderPassStack.PushRenderPass(m_RenderPass_GenerateShadowMap.get());
 		m_RenderPassStack.PushRenderPass(m_RenderPass_ForwardRendering.get());
 		//m_RenderPassStack.PushRenderPass(m_RenderPass_GenerateGBuffers.get());
 		//m_RenderPassStack.PushRenderPass(m_RenderPass_DeferredShading.get());
-		m_RenderPassStack.PushRenderPass(m_RenderPass_GenerateCubeMap.get());
 
 		if (m_IsEnabledHDR)
 			m_RenderPassStack.PushRenderPass(m_RenderPass_PostProcessing_HDR.get());

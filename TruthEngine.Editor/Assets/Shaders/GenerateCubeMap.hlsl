@@ -13,7 +13,7 @@ Texture2D tMap : register(t0, space0);
 //////////////// Const Values
 ///////////////////////////////////////////////////
 
-static float4 _PositionClipSpace[] =
+static float4 _PositionClipSpace[4] =
 {
     float4(-1.0f, 1.0f, 1.0f, 1.0f),
     float4(1.0f, 1.0f, 1.0f, 1.0f),
@@ -21,45 +21,52 @@ static float4 _PositionClipSpace[] =
     float4(1.0f, -1.0f, 1.0f, 1.0f)
 };
 
-static float4 _PositionsWorld[][] =
+static float4 _PositionsWorld[6][4] =
 {
-    //Front Face
-    {
-        float4(-1.0f, 1.0f, 1.0f, 1.0f),
-        float4(1.0f, 1.0f, 1.0f, 1.0f),
-        float4(-1.0f, -1.0f, 1.0f, 1.0f),
-        float4(1.0f, -1.0f, 1.0f, 1.0f),
-    }, // Right Face
+    // Right Face
     {
         float4(1.0f, 1.0f, 1.0f, 1.0f),
         float4(1.0f, 1.0f, -1.0f, 1.0f),
         float4(1.0f, -1.0f, 1.0f, 1.0f),
         float4(1.0f, -1.0f, -1.0f, 1.0f),
-    }, // Back Face
-    {
-        float4(-1.0f, 1.0f, -1.0f, 1.0f),
-        float4(1.0f, 1.0f, -1.0f, 1.0f),
-        float4(-1.0f, -1.0f, -1.0f, 1.0f),
-        float4(1.0f, -1.0f, -1.0f, 1.0f),
-    }, // Left Face
+    },
+    // Left Face
     {
         float4(-1.0f, 1.0f, -1.0f, 1.0f),
         float4(-1.0f, 1.0f, 1.0f, 1.0f),
         float4(-1.0f, -1.0f, -1.0f, 1.0f),
         float4(-1.0f, -1.0f, 1.0f, 1.0f),
-    }, // Top Face
+    },
+    // Top Face
     {
         float4(-1.0f, 1.0f, -1.0f, 1.0f),
         float4(1.0f, 1.0f, -1.0f, 1.0f),
         float4(-1.0f, 1.0f, 1.0f, 1.0f),
         float4(1.0f, 1.0f, 1.0f, 1.0f),
-    }, // Bottom Face
+    },
+    // Bottom Face
     {
         float4(-1.0f, -1.0f, 1.0f, 1.0f),
         float4(1.0f, -1.0f, 1.0f, 1.0f),
         float4(-1.0f, -1.0f, -1.0f, 1.0f),
         float4(1.0f, -1.0f, -1.0f, 1.0f),
     },
+    //Front Face
+    {
+        float4(-1.0f, 1.0f, 1.0f, 1.0f),
+        float4(1.0f, 1.0f, 1.0f, 1.0f),
+        float4(-1.0f, -1.0f, 1.0f, 1.0f),
+        float4(1.0f, -1.0f, 1.0f, 1.0f),
+    },
+    // Back Face
+    {
+        float4(-1.0f, 1.0f, -1.0f, 1.0f),
+        float4(1.0f, 1.0f, -1.0f, 1.0f),
+        float4(-1.0f, -1.0f, -1.0f, 1.0f),
+        float4(1.0f, -1.0f, -1.0f, 1.0f),
+    },
+     
+    
 };
 
 ///////////////////////////////////////////////////
@@ -100,12 +107,13 @@ void gs(
     
     for (uint _RTVIndex = 0; _RTVIndex < 6; _RTVIndex++)
     {
+        GSOutput element;
+        element._RTVIndex = _RTVIndex;
+
         for (uint i = 0; i < 4; i++)
         {
-            GSOutput element;
             element._Position = _PositionClipSpace[i];
             element._PositionW = normalize(_PositionsWorld[_RTVIndex][i].xyz);
-            element._RTVIndex = _RTVIndex;
             output.Append(element);
         }
         
@@ -124,9 +132,9 @@ static const float2 invAtan = float2(0.1591, 0.3183);
 
 float2 SampleSphericalMap(float3 _PositionWorld)
 {
-    float2 uv = float2(atan(_PositionWorld.z / _PositionWorld.x), asin(_PositionWorld.y));
+    float2 uv = float2(atan2(_PositionWorld.x, _PositionWorld.z), acos(_PositionWorld.y));
     uv *= invAtan;
-    uv += 0.5;
+    uv.x += 0.5;
     return uv;
 }
 

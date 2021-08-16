@@ -17,7 +17,7 @@
 namespace TruthEngine::API::DirectX12 {
 
 
-	class DirectX12BufferManager : public BufferManager
+	class DirectX12BufferManager final : public BufferManager
 	{
 
 	public:
@@ -40,7 +40,9 @@ namespace TruthEngine::API::DirectX12 {
 
 		TE_RESULT CreateIndexBuffer(IndexBuffer* ib) override;
 
-		virtual TextureCubeMap* CreateTextureCube(TE_IDX_GRESOURCES idx, const char* filePath);
+		TextureCubeMap* CreateTextureCube(TE_IDX_GRESOURCES idx, const char* filePath) override;
+
+		void LoadTexture(Texture& _OutTexture, TE_IDX_GRESOURCES _IDX, const char* _FilePath) override;
 
 
 		//

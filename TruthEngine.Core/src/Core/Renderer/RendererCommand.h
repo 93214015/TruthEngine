@@ -27,8 +27,11 @@ namespace TruthEngine
 			void Release();
 
 			TextureRenderTarget* CreateRenderTarget(TE_IDX_GRESOURCES idx, uint32_t width, uint32_t height, TE_RESOURCE_FORMAT format, const ClearValue_RenderTarget& clearValue, bool useAsShaderResource, bool enbaleMSAA);
+			TextureRenderTarget* CreateRenderTargetArray(TE_IDX_GRESOURCES idx, uint32_t width, uint32_t height, uint8_t arraySize, TE_RESOURCE_FORMAT format, const ClearValue_RenderTarget& clearValue, bool useAsShaderResource, bool enbaleMSAA);
+			TextureRenderTarget* CreateRenderTargetCubeMap(TE_IDX_GRESOURCES idx, uint32_t width, uint32_t height, TE_RESOURCE_FORMAT format, const ClearValue_RenderTarget& clearValue, bool useAsShaderResource, bool enbaleMSAA);
 			TextureDepthStencil* CreateDepthStencil(TE_IDX_GRESOURCES idx, uint32_t width, uint32_t height, TE_RESOURCE_FORMAT format, const ClearValue_DepthStencil& clearValue, bool useAsShaderResource, bool enbaleMSAA);
 			TextureCubeMap* CreateTextureCubeMap(TE_IDX_GRESOURCES idx, const char* filePath);
+			void LoadTexture(Texture& _OutTextue, TE_IDX_GRESOURCES _IDX, const char* _FilePath);
 			Buffer* CreateBufferStructuredRW(TE_IDX_GRESOURCES _IDX, uint32_t _ElementSizeInByte, uint32_t _ElementNum, bool _IsByteAddressBuffer);
 			Texture* CreateTextureRW(TE_IDX_GRESOURCES _IDX, uint32_t _Width, uint32_t _Height, TE_RESOURCE_FORMAT _Format, bool _UseAsShaderResource, bool _EnableMSAA);
 
