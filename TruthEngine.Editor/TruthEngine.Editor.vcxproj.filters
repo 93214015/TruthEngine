@@ -35,6 +35,7 @@
     <FxCompile Include="Assets\Shaders\GenerateGBuffers.hlsl" />
     <FxCompile Include="Assets\Shaders\DeferredShading.hlsl" />
     <FxCompile Include="Assets\Shaders\ForwardRenderingPBR.hlsl" />
+    <FxCompile Include="Assets\Shaders\RenderCubeMap.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Shaders\Lights.hlsli" />
