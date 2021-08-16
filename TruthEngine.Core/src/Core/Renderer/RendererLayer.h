@@ -10,6 +10,7 @@
 #include "RenderPass/RenderPass_PostProcessing_HDR.h"
 #include "RenderPass/RenderPass_GenerateGBuffers.h"
 #include "RenderPass/RenderPass_DeferredShading.h"
+#include "RenderPass/RenderPass_GenerateCubeMap.h"
 
 
 namespace TruthEngine
@@ -112,6 +113,7 @@ namespace TruthEngine
 		std::shared_ptr<RenderPass_PostProcessing_HDR> m_RenderPass_PostProcessing_HDR;
 		std::shared_ptr<RenderPass_GenerateGBuffers> m_RenderPass_GenerateGBuffers;
 		std::shared_ptr<RenderPass_DeferredShading> m_RenderPass_DeferredShading;
+		std::shared_ptr<RenderPass_GenerateCubeMap> m_RenderPass_GenerateCubeMap;
 
 		ModelManager* m_ModelManagers;
 

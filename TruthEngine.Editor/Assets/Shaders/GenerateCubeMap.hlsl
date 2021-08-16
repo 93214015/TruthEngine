@@ -13,7 +13,7 @@ Texture2D tMap : register(t0, space0);
 //////////////// Const Values
 ///////////////////////////////////////////////////
 
-static const float4 _PositionClipSpace[] =
+static float4 _PositionClipSpace[] =
 {
     float4(-1.0f, 1.0f, 1.0f, 1.0f),
     float4(1.0f, 1.0f, 1.0f, 1.0f),
@@ -21,7 +21,7 @@ static const float4 _PositionClipSpace[] =
     float4(1.0f, -1.0f, 1.0f, 1.0f)
 };
 
-static const float4 _PositionsWorld[][] =
+static float4 _PositionsWorld[][] =
 {
     //Front Face
     {

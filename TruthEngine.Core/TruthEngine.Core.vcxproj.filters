@@ -460,6 +460,7 @@
     <ClInclude Include="src\Core\Event\EventRenderer.h" />
     <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_GenerateGBuffers.h" />
     <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_DeferredShading.h" />
+    <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_GenerateCubeMap.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\API\DX12\DirectX12BufferManager.cpp">
@@ -821,5 +822,6 @@
     <ClCompile Include="src\Core\Event\EventRenderer.cpp" />
     <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_GenerateGBuffers.cpp" />
     <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_DeferredShading.cpp" />
+    <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_GenerateCubeMap.cpp" />
   </ItemGroup>
 </Project>

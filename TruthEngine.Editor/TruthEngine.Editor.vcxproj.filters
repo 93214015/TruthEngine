@@ -32,10 +32,8 @@
     <ClCompile Include="src\pch.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="Assets\Shaders\GenerateGBuffers.hlsl" />
     <FxCompile Include="Assets\Shaders\DeferredShading.hlsl" />
-    <FxCompile Include="Assets\Shaders\ForwardRenderingPBR.hlsl" />
-    <FxCompile Include="Assets\Shaders\RenderCubeMap.hlsl" />
+    <FxCompile Include="Assets\Shaders\GenerateCubeMap.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Shaders\Lights.hlsli" />
@@ -47,5 +45,7 @@
     <None Include="Assets\Shaders\Samplers.hlsli" />
     <None Include="Assets\Shaders\MathHelper.hlsli" />
     <None Include="Assets\Shaders\LightsPBR.hlsli" />
+    <None Include="Assets\Shaders\ForwardRenderingPBR.hlsl" />
+    <None Include="Assets\Shaders\GenerateGBuffers.hlsl" />
   </ItemGroup>
 </Project>

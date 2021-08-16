@@ -32,6 +32,7 @@ namespace TruthEngine
 		, m_RenderPass_PostProcessing_HDR(std::make_shared<RenderPass_PostProcessing_HDR>(this))
 		, m_RenderPass_GenerateGBuffers(std::make_shared<RenderPass_GenerateGBuffers>(this))
 		, m_RenderPass_DeferredShading(std::make_shared<RenderPass_DeferredShading>(this))
+		, m_RenderPass_GenerateCubeMap(std::make_shared<RenderPass_GenerateCubeMap>(this))
 	{
 	}
 	RendererLayer::~RendererLayer() = default;
@@ -548,6 +549,7 @@ namespace TruthEngine
 		m_RenderPassStack.PushRenderPass(m_RenderPass_ForwardRendering.get());
 		//m_RenderPassStack.PushRenderPass(m_RenderPass_GenerateGBuffers.get());
 		//m_RenderPassStack.PushRenderPass(m_RenderPass_DeferredShading.get());
+		m_RenderPassStack.PushRenderPass(m_RenderPass_GenerateCubeMap.get());
 
 		if (m_IsEnabledHDR)
 			m_RenderPassStack.PushRenderPass(m_RenderPass_PostProcessing_HDR.get());
