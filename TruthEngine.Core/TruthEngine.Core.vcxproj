@@ -80,7 +80,7 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>_DEBUG;TE_ENABLE_ASSERTS;TE_API_DX12;TE_PLATFORM_WINDOWS;TE_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;..\Dependencies\spdlog\include;..\Dependencies;..\Dependencies\imgui;..\Dependencies\DirectXGraphicsSamples\Libraries\D3DX12;..\Dependencies\Physx;..\..\Git\Boost\boost_1_76_0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;..\Dependencies\spdlog\include;..\Dependencies;..\Dependencies\imgui;..\Dependencies\DirectXGraphicsSamples\Libraries\D3DX12;..\Dependencies\Physx;..\..\Library\Boost\boost_1_71_0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
       <MinimalRebuild>false</MinimalRebuild>
@@ -94,8 +94,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalDependencies>PhysX_static_64.lib;PhysXCharacterKinematic_static_64.lib;PhysXCommon_static_64.lib;PhysXCooking_static_64.lib;PhysXExtensions_static_64.lib;PhysXFoundation_static_64.lib;PhysXPvdSDK_static_64.lib;PhysXVehicle_static_64.lib;DirectXMesh.lib;assimp-vc142-mtd.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\Dependencies\Lib;..\..\Git\Boost\boost_1_76_0\stage\lib;..\Dependencies\Lib\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>PhysX_static_64.lib;PhysXCharacterKinematic_static_64.lib;PhysXCommon_static_64.lib;PhysXCooking_static_64.lib;PhysXExtensions_static_64.lib;PhysXFoundation_static_64.lib;PhysXPvdSDK_static_64.lib;PhysXVehicle_static_64.lib;DirectXMesh.lib;DirectXTex.lib;assimp-vc142-mtd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\Dependencies\Lib;..\..\Library\Boost\boost_1_71_0\lib64-msvc-14.2;..\Dependencies\Lib\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -104,7 +104,7 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>NDEBUG;TE_API_DX12;TE_PLATFORM_WINDOWS;TE_RELEASE;TE_NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;..\Dependencies\spdlog\include;..\Dependencies;..\Dependencies\imgui;..\Dependencies\DirectXGraphicsSamples\Libraries\D3DX12;..\Dependencies\Physx;..\..\Git\Boost\boost_1_76_0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;..\Dependencies\spdlog\include;..\Dependencies;..\Dependencies\imgui;..\Dependencies\DirectXGraphicsSamples\Libraries\D3DX12;..\Dependencies\Physx;..\..\Library\Boost\boost_1_71_0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -121,8 +121,8 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <Lib>
-      <AdditionalDependencies>PhysX_static_64.lib;PhysXCharacterKinematic_static_64.lib;PhysXCommon_static_64.lib;PhysXCooking_static_64.lib;PhysXExtensions_static_64.lib;PhysXFoundation_static_64.lib;PhysXPvdSDK_static_64.lib;PhysXVehicle_static_64.lib;DirectXMesh.lib;assimp-vc142-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\Dependencies\Lib;..\..\Git\Boost\boost_1_76_0\stage\lib;..\Dependencies\Lib\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>PhysX_static_64.lib;PhysXCharacterKinematic_static_64.lib;PhysXCommon_static_64.lib;PhysXCooking_static_64.lib;PhysXExtensions_static_64.lib;PhysXFoundation_static_64.lib;PhysXPvdSDK_static_64.lib;PhysXVehicle_static_64.lib;DirectXMesh.lib;DirectXTex.lib;assimp-vc142-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\Dependencies\Lib;..\..\Library\Boost\boost_1_71_0\lib64-msvc-14.2;..\Dependencies\Lib\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Dist|x64'">
@@ -131,7 +131,7 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>NDEBUG;TE_API_DX12;TE_PLATFORM_WINDOWS;TE_DIST;TE_NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;..\Dependencies\spdlog\include;..\Dependencies;..\Dependencies\imgui;..\Dependencies\DirectXGraphicsSamples\Libraries\D3DX12;..\Dependencies\Physx;..\..\Git\Boost\boost_1_76_0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;..\Dependencies\spdlog\include;..\Dependencies;..\Dependencies\imgui;..\Dependencies\DirectXGraphicsSamples\Libraries\D3DX12;..\Dependencies\Physx;..\..\Library\Boost\boost_1_71_0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -148,8 +148,8 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <Lib>
-      <AdditionalDependencies>PhysX_static_64.lib;PhysXCharacterKinematic_static_64.lib;PhysXCommon_static_64.lib;PhysXCooking_static_64.lib;PhysXExtensions_static_64.lib;PhysXFoundation_static_64.lib;PhysXPvdSDK_static_64.lib;PhysXVehicle_static_64.lib;DirectXMesh.lib;assimp-vc142-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\Dependencies\Lib;..\..\Git\Boost\boost_1_76_0\stage\lib;..\Dependencies\Lib\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>PhysX_static_64.lib;PhysXCharacterKinematic_static_64.lib;PhysXCommon_static_64.lib;PhysXCooking_static_64.lib;PhysXExtensions_static_64.lib;PhysXFoundation_static_64.lib;PhysXPvdSDK_static_64.lib;PhysXVehicle_static_64.lib;DirectXMesh.lib;DirectXTex.lib;assimp-vc142-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\Dependencies\Lib;..\..\Library\Boost\boost_1_71_0\lib64-msvc-14.2;..\Dependencies\Lib\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -160,6 +160,7 @@
     <ClInclude Include="src\API\DX12\DirectX12DescriptorHeap.h" />
     <ClInclude Include="src\API\DX12\DirectX12Fence.h" />
     <ClInclude Include="src\API\DX12\DirectX12GraphicDevice.h" />
+    <ClInclude Include="src\API\DX12\DirectX12Helpers.h" />
     <ClInclude Include="src\API\DX12\DirectX12ImGuiLayer.h" />
     <ClInclude Include="src\API\DX12\DirectX12Manager.h" />
     <ClInclude Include="src\API\DX12\DirectX12PipelineManager.h" />
@@ -184,11 +185,11 @@
     <ClInclude Include="src\Core\Entity\Components\BoundingBoxComponent.h" />
     <ClInclude Include="src\Core\Entity\Components\CameraComponent.h" />
     <ClInclude Include="src\Core\Entity\Components\EnvironmentComponent.h" />
+    <ClInclude Include="src\Core\Entity\Components\LeaderComponent.h" />
     <ClInclude Include="src\Core\Entity\Components\LightComponent.h" />
     <ClInclude Include="src\Core\Entity\Components\MaterialComponent.h" />
     <ClInclude Include="src\Core\Entity\Components\MeshComponent.h" />
     <ClInclude Include="src\Core\Entity\Components\ModelComponent.h" />
-    <ClInclude Include="src\Core\Entity\Components\LeaderComponent.h" />
     <ClInclude Include="src\Core\Entity\Components\MovementComponent.h" />
     <ClInclude Include="src\Core\Entity\Components\PhysicsComponent.h" />
     <ClInclude Include="src\Core\Entity\Components\RotationComponent.h" />
@@ -266,6 +267,8 @@
     <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_ForwardRendering.h" />
     <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_GenerateCubeMap.h" />
     <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_GenerateGBuffers.h" />
+    <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_GenerateIBL.h" />
+    <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_GenerateIBLSpecular.h" />
     <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_GenerateShadowMap.h" />
     <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_PostProcessing_HDR.h" />
     <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_RenderBoudingBoxes.h" />
@@ -307,6 +310,7 @@
     <ClCompile Include="src\API\DX12\DirectX12DescriptorHeap.cpp" />
     <ClCompile Include="src\API\DX12\DirectX12Fence.cpp" />
     <ClCompile Include="src\API\DX12\DirectX12GraphicDevice.cpp" />
+    <ClCompile Include="src\API\DX12\DirectX12Helpers.cpp" />
     <ClCompile Include="src\API\DX12\DirectX12ImGuiLayer.cpp" />
     <ClCompile Include="src\API\DX12\DirectX12Manager.cpp" />
     <ClCompile Include="src\API\DX12\DirectX12PipelineManager.cpp" />
@@ -398,6 +402,8 @@
     <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_ForwardRendering.cpp" />
     <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_GenerateCubeMap.cpp" />
     <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_GenerateGBuffers.cpp" />
+    <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_GenerateIBL.cpp" />
+    <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_GenerateIBLSpecular.cpp" />
     <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_GenerateShadowMap.cpp" />
     <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_PostProcessing_HDR.cpp" />
     <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_RenderBoudingBoxes.cpp" />

@@ -1,7 +1,9 @@
+#include "MathHelper.hlsli"
+
 ///////////////////////////////////////////////////
 //////////////// Textures
 ///////////////////////////////////////////////////
-Texture2D tMap : register(t0, space0);
+TextureCube tMap : register(t0, space0);
 
 ///////////////////////////////////////////////////
 //////////////// Sampler
@@ -127,23 +129,39 @@ void gs(
 //////////////// Pixel Shader
 ///////////////////////////////////////////////////
 
+#define SAMPLE_DELTA 0.025f
 
-static const float2 invAtan = float2(0.1591, 0.3183);
-
-float2 SampleSphericalMap(float3 _PositionWorld)
-{
-    float2 uv = float2(atan2(_PositionWorld.z, _PositionWorld.x), acos(_PositionWorld.y));
-    uv *= invAtan;
-    uv.x += 0.5;
-    return uv;
-}
 
 float4 ps(GSOutput _GsOut) : SV_Target
 {
-    float2 uv = SampleSphericalMap(normalize(_GsOut._PositionW)); // make sure to normalize localPos
-    float3 color = tMap.Sample(sampler_linear, uv).rgb;
+    float3 _Normal = normalize(_GsOut._PositionW);
+    float3 _Up = float3(0.0f, 1.0f, 0.0f);
+    float3 _Right = normalize(cross(_Normal, _Up));
+    _Up = normalize(cross(_Normal, _Right));
     
+    float _SampleCount = 0.0f;
+    
+    float3 _Irrediance = float3(0.0f, 0.0f, 0.0f);
+    
+    for (float _Theta = 0.0f; _Theta < PI * 2.0f; _Theta += SAMPLE_DELTA)
+    {
+        for (float _Phi = 0.0f; _Phi < PI * 0.5f; _Phi += SAMPLE_DELTA)
+        {
+            //Spherical to cartesian
+            float3 _TangentSample = float3(sin(_Phi) * cos(_Theta), sin(_Phi) * sin(_Theta), cos(_Phi));
+            //Tangent space to world space
+            float3 _SampleVec = _TangentSample.x * _Right + _TangentSample.y * _Up + _TangentSample.z * _Normal;
+            _SampleVec = normalize(_SampleVec);
+            
+            _Irrediance += tMap.Sample(sampler_linear, _SampleVec).xyz * sin(_Phi) * cos(_Phi);
+            _SampleCount++;
+        }
+
+    }
+    _Irrediance = _Irrediance * PI / _SampleCount;
+    
+    
+        
     //color = pow(color, float3(1.0 / 2.2, 1.0 / 2.2, 1.0 / 2.2));
-    
-    return float4(color, 1.0);
+    return float4(_Irrediance, 1.0);
 }

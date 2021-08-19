@@ -9,11 +9,12 @@ namespace TruthEngine
 		, uint32_t width
 		, uint32_t height
 		, uint8_t arraySize
+		, uint8_t mipLevels
 		, TE_RESOURCE_FORMAT format
 		, const ClearValue_DepthStencil clearValue
 		, bool useAsShaderResource
 		, bool enbaleMSAA)
-		: Texture(_IDX, width, height, arraySize, format, TE_RESOURCE_USAGE_DEPTHSTENCIL, TE_RESOURCE_TYPE::TEXTURE2D, TE_RESOURCE_STATES::DEPTH_WRITE, enbaleMSAA)
+		: Texture(_IDX, width, height, arraySize, mipLevels, format, TE_RESOURCE_USAGE_DEPTHSTENCIL, TE_RESOURCE_TYPE::TEXTURE2D, TE_RESOURCE_STATES::DEPTH_WRITE, enbaleMSAA)
 		, m_ClearValue(clearValue)
 	{
 		if (useAsShaderResource)

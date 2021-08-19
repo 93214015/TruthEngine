@@ -32,8 +32,8 @@ namespace TruthEngine
 		m_RendererCommand.Init(TE_IDX_RENDERPASS::GENERATEBASICSHADOWMAP, TE_IDX_SHADERCLASS::GENERATEBASICSHADOWMAP, m_BufferManager, m_ShaderManager);
 		m_RendererCommand_SpotLights.Init(TE_IDX_RENDERPASS::GENERATEBASICSHADOWMAP, TE_IDX_SHADERCLASS::GENERATEBASICSHADOWMAP, m_BufferManager, m_ShaderManager);
 
-		m_TextureDepthStencil_SunLight = m_RendererCommand.CreateDepthStencil(TE_IDX_GRESOURCES::Texture_DS_ShadowMap_SunLight, m_ShadoWMapSize, m_ShadoWMapSize, TE_RESOURCE_FORMAT::R32_TYPELESS, ClearValue_DepthStencil{ 1.0f, 0 }, true, false);
-		m_TextureDepthStencil_SpotLight = m_RendererCommand_SpotLights.CreateDepthStencil(TE_IDX_GRESOURCES::Texture_DS_ShadowMap_SpotLight, m_ShadoWMapSize, m_ShadoWMapSize, TE_RESOURCE_FORMAT::R32_TYPELESS, ClearValue_DepthStencil{ 1.0f, 0 }, true, false);
+		m_TextureDepthStencil_SunLight = m_RendererCommand.CreateDepthStencil(TE_IDX_GRESOURCES::Texture_DS_ShadowMap_SunLight, m_ShadoWMapSize, m_ShadoWMapSize, 1, TE_RESOURCE_FORMAT::R32_TYPELESS, ClearValue_DepthStencil{ 1.0f, 0 }, true, false);
+		m_TextureDepthStencil_SpotLight = m_RendererCommand_SpotLights.CreateDepthStencil(TE_IDX_GRESOURCES::Texture_DS_ShadowMap_SpotLight, m_ShadoWMapSize, m_ShadoWMapSize, 1, TE_RESOURCE_FORMAT::R32_TYPELESS, ClearValue_DepthStencil{ 1.0f, 0 }, true, false);
 
 		m_RendererCommand.CreateDepthStencilView(m_TextureDepthStencil_SunLight, &m_DepthStencilView_SunLight);
 		m_RendererCommand_SpotLights.CreateDepthStencilView(m_TextureDepthStencil_SpotLight, &m_DepthStencilView_SpotLight);

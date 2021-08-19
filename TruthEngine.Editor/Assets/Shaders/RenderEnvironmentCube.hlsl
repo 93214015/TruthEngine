@@ -53,6 +53,6 @@ VertexOutput vs(VertexInput vin)
 
 float4 ps(VertexOutput pin) : SV_Target
 {    
-    return tEnvironmentCubeMap.Sample(sampler_linear, pin.PosL) * float4(gEnvironmentMapMultiplier, 1.0f);
+    return tEnvironmentCubeMap.Sample(sampler_linear, normalize(pin.PosL)) * float4(gEnvironmentMapMultiplier, 1.0f);
 
 }

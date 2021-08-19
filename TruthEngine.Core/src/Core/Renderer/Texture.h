@@ -10,14 +10,16 @@ namespace TruthEngine
 
 		Texture(
 			TE_IDX_GRESOURCES _IDX
-			,uint32_t width
+			, uint32_t width
 			, uint32_t height
 			, uint8_t arraySize
+			, uint8_t mipLevels
 			, TE_RESOURCE_FORMAT format
 			, TE_RESOURCE_USAGE usage
 			, TE_RESOURCE_TYPE type
 			, TE_RESOURCE_STATES initState
-			, bool enableMSAA);
+			, bool enableMSAA
+		);
 
 		virtual ~Texture() = default;
 

@@ -36,8 +36,9 @@ cbuffer CBPerMesh : register(b0)
 Texture2D<float> tShadowMap_SunLight : register(t0, space0);
 Texture2D<float> tShadowMap_SpotLight : register(t1, space0);
 TextureCube tEnvironmentMap : register(t2, space0);
+TextureCube tIBL : register(t3, space0);
 
-Texture2D MaterialTextures[500] : register(t3, space0);
+Texture2D MaterialTextures[500] : register(t4, space0);
 
 
 ///////////////////////////////////////////////////
@@ -185,9 +186,16 @@ float4 ps(vertexOut pin) : SV_Target
 
         litColor += lit;
     }
+    
+    float3 _Ks = FresnelSchlickRoughness(_F0, max(dot(normal, toEye), 0.0f), _Roughness);
+    float3 _Kd = 1.0 - _Ks;
+    float3 _Irrediance = tIBL.Sample(sampler_linear, normal).rgb;
+    float3 _Diffuse = _Irrediance * _MaterialAlbedo;
+    float3 _Ambient = _Kd * _Diffuse * _AmbientOcclusion.xxx;
 	
 	//Add Global Ambient Light Factor
-    litColor += (_MaterialAlbedo * gAmbientLightStrength * _AmbientOcclusion.xxx);
+    //litColor += (_MaterialAlbedo * gAmbientLightStrength * _AmbientOcclusion.xxx);
+    litColor += _Ambient;
     litColor /= litColor + float3(1.0f, 1.0f, 1.0f);
     litColor = pow(litColor, (1.0f / 2.2f).xxx);
     

@@ -17,10 +17,12 @@
 #include "DirectX12GraphicDevice.h"
 #include "DirectX12SwapChain.h"
 #include "DirectX12Manager.h"
+#include "DirectX12Helpers.h"
 
 #include "DirectXTK12/Inc/ResourceUploadBatch.h"
 #include "DirectXTK12/Inc/WICTextureLoader.h"
 #include "DirectXTK12/Inc/DDSTextureLoader.h"
+#include "DirectXTex/DirectXTex.h"
 
 #include <boost/filesystem.hpp>
 
@@ -50,6 +52,7 @@ namespace TruthEngine::API::DirectX12
 			return DXGI_FORMAT_UNKNOWN;
 		}
 	}
+
 
 	static DXGI_FORMAT GetDepthStencilSRVFormat(const TE_RESOURCE_FORMAT format)
 	{
@@ -506,6 +509,68 @@ namespace TruthEngine::API::DirectX12
 		}
 	}
 
+	struct TED3D12RenderTargetViewDesc
+	{
+		TED3D12RenderTargetViewDesc(Texture* _Texture, uint8_t _MipSlice, uint8_t _ArraySlice, uint8_t _PlaneSlice)
+		{
+			D3D12Desc.Format = DX12_GET_FORMAT(_Texture->GetFormat());
+			switch (_Texture->GetType())
+			{
+			case TE_RESOURCE_TYPE::BUFFER:
+				throw;
+				break;
+			case TE_RESOURCE_TYPE::TEXTURE1D:
+				D3D12Desc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE1D;
+				D3D12Desc.Texture1D.MipSlice = _MipSlice;
+				break;
+			case TE_RESOURCE_TYPE::TEXTURE2D:
+				D3D12Desc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
+				D3D12Desc.Texture2D.MipSlice = _MipSlice;
+				D3D12Desc.Texture2D.PlaneSlice = _PlaneSlice;
+				break;
+			case TE_RESOURCE_TYPE::TEXTURE3D:
+				throw;
+				break;
+			case TE_RESOURCE_TYPE::TEXTURE1DARRAY:
+				D3D12Desc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE1DARRAY;
+				D3D12Desc.Texture1DArray.ArraySize = _Texture->GetArraySize();
+				D3D12Desc.Texture1DArray.FirstArraySlice = _ArraySlice;
+				D3D12Desc.Texture1DArray.MipSlice = _MipSlice;
+				break;
+			case TE_RESOURCE_TYPE::TEXTURECUBE:
+			case TE_RESOURCE_TYPE::TEXTURE2DARRAY:
+			case TE_RESOURCE_TYPE::TEXTURECUBEARRAY:
+				D3D12Desc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2DARRAY;
+				D3D12Desc.Texture2DArray.ArraySize = _Texture->GetArraySize();
+				D3D12Desc.Texture2DArray.FirstArraySlice = _ArraySlice;
+				D3D12Desc.Texture2DArray.MipSlice = _MipSlice;
+				D3D12Desc.Texture2DArray.PlaneSlice = _PlaneSlice;
+				break;
+			default:
+				break;
+			}
+		}
+
+		D3D12_RENDER_TARGET_VIEW_DESC D3D12Desc;
+	};
+
+	void DirectX12BufferManager::CreateRenderTargetView(TextureRenderTarget* RT, RenderTargetView* _outRTV, uint8_t mipSlice, uint8_t arraySlice)
+	{
+		TED3D12RenderTargetViewDesc _TERTVDesc{ RT, mipSlice, arraySlice, 0 };
+
+		if (_outRTV->ViewIndex == -1)
+		{
+			uint32_t _ViewIndex = m_DescHeapRTV.AddDescriptor(m_Resources[RT->m_ResourceIndex].Get(), &_TERTVDesc.D3D12Desc);
+			*_outRTV = RenderTargetView{ _ViewIndex, RT->m_ResourceIndex, RT };
+
+		}
+		else
+		{
+			m_DescHeapRTV.ReplaceDescriptor(m_Resources[RT->m_ResourceIndex].Get(), _outRTV->ViewIndex, &_TERTVDesc.D3D12Desc);
+			*_outRTV = RenderTargetView{ _outRTV->ViewIndex, RT->m_ResourceIndex, RT };
+		}
+	}
+
 	void DirectX12BufferManager::CreateRenderTargetView(SwapChain* swapChain, RenderTargetView* RTV)
 	{
 		auto sc = static_cast<DirectX12SwapChain*>(swapChain);
@@ -848,9 +913,9 @@ namespace TruthEngine::API::DirectX12
 		return m_DescHeapSRV.GetGPUHandle(index);
 	}
 
-	D3D12_CPU_DESCRIPTOR_HANDLE DirectX12BufferManager::AddDescriptorRTV(ID3D12Resource* resource)
+	D3D12_CPU_DESCRIPTOR_HANDLE DirectX12BufferManager::AddDescriptorRTV(ID3D12Resource* resource, const D3D12_RENDER_TARGET_VIEW_DESC* desc)
 	{
-		auto index = m_DescHeapRTV.AddDescriptor(resource);
+		auto index = m_DescHeapRTV.AddDescriptor(resource, desc);
 		return m_DescHeapRTV.GetCPUHandle(index);
 	}
 
@@ -888,27 +953,90 @@ namespace TruthEngine::API::DirectX12
 		return &tex;
 	}
 
-	void DirectX12BufferManager::LoadTexture(Texture& _OutTexture, TE_IDX_GRESOURCES _IDX, const char* _FilePath)
+	void DirectX12BufferManager::LoadTextureFromFile(Texture& _OutTexture, TE_IDX_GRESOURCES _IDX, const char* _FilePath, uint8_t _MipLevels)
 	{
 		boost::filesystem::path textureFilePath(_FilePath);
 		std::string fileName = textureFilePath.filename().string();
+		std::wstring filePathW = textureFilePath.wstring();
+		std::wstring fileExtension = textureFilePath.extension().wstring();
 
 		auto d3d12device = static_cast<DirectX12GraphicDevice*>(TE_INSTANCE_GRAPHICDEVICE)->GetDevice();
 		DirectX::ResourceUploadBatch uploadBatch(d3d12device);
 
+		//auto resourceIndex = static_cast<uint32_t>(m_Resources.size());
+		//auto resource = std::addressof(m_Resources.emplace_back());
+
 		uploadBatch.Begin(D3D12_COMMAND_LIST_TYPE_COPY);
-		auto resourceIndex = static_cast<uint32_t>(m_Resources.size());
-		auto resource = std::addressof(m_Resources.emplace_back());
-		DirectX::CreateWICTextureFromFileEx(d3d12device, uploadBatch, to_wstring(std::string_view(_FilePath)).c_str(), 0, D3D12_RESOURCE_FLAG_NONE, DirectX::WIC_LOADER_DEFAULT, resource->ReleaseAndGetAddressOf());
+		if (fileExtension == L".hdr")
+		{
+			DirectX::ScratchImage _ScratchImage;
+			DirectX::LoadFromHDRFile(filePathW.c_str(), nullptr, _ScratchImage);
+
+			auto _Image = _ScratchImage.GetImage(0, 0, 0);
+			_OutTexture = Texture{ _IDX, static_cast<uint32_t>(_Image->width), static_cast<uint32_t>(_Image->height), 1, _MipLevels, static_cast<TE_RESOURCE_FORMAT>(_Image->format), TE_RESOURCE_USAGE_SHADERRESOURCE, TE_RESOURCE_TYPE::TEXTURE2D, TE_RESOURCE_STATES::COPY_DEST, false };
+
+			CreateResource(&_OutTexture);
+
+			D3D12_SUBRESOURCE_DATA _InitData;
+			_InitData.pData = _Image->pixels;
+			_InitData.RowPitch = _Image->rowPitch;
+			_InitData.SlicePitch = _Image->slicePitch;
+
+			uploadBatch.Upload(m_Resources[_OutTexture.GetResourceIndex()].Get(), 0, &_InitData, 1);
+			uploadBatch.Transition(m_Resources[_OutTexture.GetResourceIndex()].Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE | D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
+		}
+		else
+		{
+			auto resourceIndex = static_cast<uint32_t>(m_Resources.size());
+			auto resource = std::addressof(m_Resources.emplace_back());
+
+
+			if (fileExtension == L".dds")
+			{
+				DirectX::CreateDDSTextureFromFileEx(d3d12device, uploadBatch, filePathW.c_str(), 0, D3D12_RESOURCE_FLAG_NONE, DirectX::DDS_LOADER_DEFAULT, resource->ReleaseAndGetAddressOf());
+			}
+			else
+			{
+				DirectX::CreateWICTextureFromFileEx(d3d12device, uploadBatch, filePathW.c_str(), 0, D3D12_RESOURCE_FLAG_NONE, DirectX::WIC_LOADER_DEFAULT, resource->ReleaseAndGetAddressOf());
+			}
+
+			auto desc = (*resource)->GetDesc();
+
+			_OutTexture = Texture{ _IDX, static_cast<uint32_t>(desc.Width), static_cast<uint32_t>(desc.Height), 1, _MipLevels, static_cast<TE_RESOURCE_FORMAT>(desc.Format), TE_RESOURCE_USAGE_SHADERRESOURCE, TE_RESOURCE_TYPE::TEXTURE2D, TE_RESOURCE_STATES::PIXEL_SHADER_RESOURCE | TE_RESOURCE_STATES::NON_PIXEL_SHADER_RESOURCE, false };
+			_OutTexture.m_ResourceIndex = resourceIndex;
+		}
 		uploadBatch.End(TE_INSTANCE_API_DX12_COMMANDQUEUECOPY->GetNativeObject());
-
-		auto desc = (*resource)->GetDesc();
-
-		_OutTexture = Texture{ _IDX, static_cast<uint32_t>(desc.Width), static_cast<uint32_t>(desc.Height), 1, static_cast<TE_RESOURCE_FORMAT>(desc.Format), TE_RESOURCE_USAGE_SHADERRESOURCE, TE_RESOURCE_TYPE::TEXTURE2D, TE_RESOURCE_STATES::PIXEL_SHADER_RESOURCE | TE_RESOURCE_STATES::NON_PIXEL_SHADER_RESOURCE, false };
-		_OutTexture.m_ResourceIndex = resourceIndex;
 
 		m_Map_Textures[_IDX] = &_OutTexture;
 		m_Map_GraphicResources[_IDX] = &_OutTexture;
+	}
+
+	void DirectX12BufferManager::SaveTextureToFile(const Texture& _Texture, const char* _FilePath)
+	{
+		boost::filesystem::path _BoostFilePath(_FilePath);
+		std::wstring _FilePathW = _BoostFilePath.wstring();
+		std::wstring _FileName = _BoostFilePath.filename().wstring();
+		std::wstring _Extension = _BoostFilePath.extension().wstring();
+
+		std::transform(_Extension.cbegin(), _Extension.cend(), _Extension.begin(), ::tolower);
+
+		D3D12_RESOURCE_STATES _State = DX12_GET_STATE(_Texture.GetState());
+		DirectX::ScratchImage _ScratchImage;
+		HRESULT _HResult = DirectX::CaptureTexture(TE_INSTANCE_API_DX12_COMMANDQUEUEDIRECT->GetNativeObject(), m_Resources[_Texture.GetResourceIndex()].Get(), _Texture.GetType() == TE_RESOURCE_TYPE::TEXTURECUBE, _ScratchImage, _State, _State);
+		TE_ASSERT_CORE(SUCCEEDED(_HResult), "DirectX12 Capture Texture is failed");
+
+		if (_Extension == L".dds")
+		{
+			//_HResult = DirectX::SaveDDSTextureToFile(TE_INSTANCE_API_DX12_COMMANDQUEUECOPY->GetNativeObject(), m_Resources[_Texture.GetResourceIndex()].Get(), _FilePathW.c_str(), _State, _State);
+			_HResult = DirectX::SaveToDDSFile(_ScratchImage.GetImages(), _ScratchImage.GetImageCount(), _ScratchImage.GetMetadata(), DirectX::DDS_FLAGS_NONE, _FilePathW.c_str());
+		}
+		else
+		{
+			_HResult = DirectX::SaveToWICFile(_ScratchImage.GetImages(), _ScratchImage.GetImageCount(), DirectX::WIC_FLAGS_NONE, GUID_ContainerFormatJpeg, _FilePathW.c_str());
+		}
+
+		TE_ASSERT_CORE(SUCCEEDED(_HResult), "The Saving Texture To File Is Failed");
+
 	}
 
 	void DirectX12BufferManager::CreateUnorderedAccessView(GraphicResource* _GraphicResource, UnorderedAccessView* _outUAV)

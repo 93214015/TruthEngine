@@ -31,21 +31,4 @@
     </ClCompile>
     <ClCompile Include="src\pch.cpp" />
   </ItemGroup>
-  <ItemGroup>
-    <FxCompile Include="Assets\Shaders\DeferredShading.hlsl" />
-    <FxCompile Include="Assets\Shaders\GenerateCubeMap.hlsl" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Assets\Shaders\Lights.hlsli" />
-    <None Include="Assets\Shaders\CBPerFrame.hlsli" />
-    <None Include="Assets\Shaders\CBLights.hlsli" />
-    <None Include="Assets\Shaders\CBMaterials.hlsli" />
-    <None Include="Assets\Shaders\CBUnfrequent.hlsli" />
-    <None Include="Assets\Shaders\CBBoneTransforms.hlsli" />
-    <None Include="Assets\Shaders\Samplers.hlsli" />
-    <None Include="Assets\Shaders\MathHelper.hlsli" />
-    <None Include="Assets\Shaders\LightsPBR.hlsli" />
-    <None Include="Assets\Shaders\ForwardRenderingPBR.hlsl" />
-    <None Include="Assets\Shaders\GenerateGBuffers.hlsl" />
-  </ItemGroup>
 </Project>

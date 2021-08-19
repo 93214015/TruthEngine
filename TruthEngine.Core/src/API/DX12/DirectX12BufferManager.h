@@ -42,13 +42,17 @@ namespace TruthEngine::API::DirectX12 {
 
 		TextureCubeMap* CreateTextureCube(TE_IDX_GRESOURCES idx, const char* filePath) override;
 
-		void LoadTexture(Texture& _OutTexture, TE_IDX_GRESOURCES _IDX, const char* _FilePath) override;
+		void LoadTextureFromFile(Texture& _OutTexture, TE_IDX_GRESOURCES _IDX, const char* _FilePath, uint8_t _MipLevels) override;
+
+		void SaveTextureToFile(const Texture& _Texture, const char* _FilePath) override;
 
 
 		//
 		//Create Views Methods
 		//
 		void CreateRenderTargetView(TextureRenderTarget* RT, RenderTargetView* _outRTV) override;
+
+		void CreateRenderTargetView(TextureRenderTarget* RT, RenderTargetView* _outRTV, uint8_t mipSlice, uint8_t arraySlice) override;
 
 		void CreateRenderTargetView(SwapChain* swapChain, RenderTargetView* _outRTV) override;
 
@@ -76,7 +80,7 @@ namespace TruthEngine::API::DirectX12 {
 		D3D12_GPU_DESCRIPTOR_HANDLE AddDescriptorSRV(ID3D12Resource* resource, const D3D12_SHADER_RESOURCE_VIEW_DESC* desc);
 		D3D12_GPU_DESCRIPTOR_HANDLE AddDescriptorCBV(const D3D12_CONSTANT_BUFFER_VIEW_DESC* cbvDesc);
 		D3D12_GPU_DESCRIPTOR_HANDLE AddDescriptorUAV(ID3D12Resource* resource, ID3D12Resource* counterResource, const D3D12_UNORDERED_ACCESS_VIEW_DESC* desc);
-		D3D12_CPU_DESCRIPTOR_HANDLE AddDescriptorRTV(ID3D12Resource* resource);
+		D3D12_CPU_DESCRIPTOR_HANDLE AddDescriptorRTV(ID3D12Resource* resource, const D3D12_RENDER_TARGET_VIEW_DESC* desc = nullptr);
 		D3D12_CPU_DESCRIPTOR_HANDLE AddDescriptorDSV(ID3D12Resource* resource, const D3D12_DEPTH_STENCIL_VIEW_DESC* desc);
 
 		inline DescriptorHeapSRV& GetDescriptorHeapSRV() noexcept

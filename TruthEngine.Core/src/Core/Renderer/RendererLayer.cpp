@@ -33,6 +33,7 @@ namespace TruthEngine
 		, m_RenderPass_GenerateGBuffers(std::make_shared<RenderPass_GenerateGBuffers>(this))
 		, m_RenderPass_DeferredShading(std::make_shared<RenderPass_DeferredShading>(this))
 		, m_RenderPass_GenerateCubeMap(std::make_shared<RenderPass_GenerateCubeMap>(this))
+		, m_RenderPass_GenerateIBL(std::make_shared<RenderPass_GenerateIBL>(this))
 	{
 	}
 	RendererLayer::~RendererLayer() = default;
@@ -543,9 +544,28 @@ namespace TruthEngine
 
 	void RendererLayer::InitRenderPasses()
 	{
+		/*m_RenderPass_GenerateCubeMap->Initialize(TE_IDX_GRESOURCES::Texture_InputCreateIBLMap, 1024, TE_RESOURCE_FORMAT::R16G16B16A16_FLOAT, "E:\\3DModels\\2021\\Textures\\PolyHeaven\\studio_country_hall_4k.hdr");
+		m_RenderPass_GenerateCubeMap->OnAttach();
+		m_RenderPass_GenerateCubeMap->BeginScene();
+		m_RenderPass_GenerateCubeMap->Render();
+		m_RenderPass_GenerateCubeMap->EndScene();*/
+
+		//m_RendererCommand.SaveTextureToFile(TE_IDX_GRESOURCES::Texture_RT_CubeMap, "E:\\3DModels\\2021\\Textures\\GeneratedEnvironmentMap.dds");
+
+		/*m_RenderPass_GenerateIBL->Initialize(TE_IDX_GRESOURCES::Texture_RT_IBL, 512, TE_RESOURCE_FORMAT::R16G16B16A16_FLOAT, "E:\\3DModels\\2021\\Textures\\IBL\\GeneratedIBL.dds");
+		m_RenderPass_GenerateIBL->OnAttach();
+		m_RenderPass_GenerateIBL->BeginScene();
+		m_RenderPass_GenerateIBL->Render();
+		m_RenderPass_GenerateIBL->EndScene();*/
+
+		/*m_RenderPass_GenerateCubeMap->OnDetach();
+		m_RenderPass_GenerateIBL->OnDetach(); */
+
+
 		m_RenderPassStack.PopAll();
 
-		m_RenderPassStack.PushRenderPass(m_RenderPass_GenerateCubeMap.get());
+		//m_RenderPassStack.PushRenderPass(m_RenderPass_GenerateCubeMap.get());
+		//m_RenderPassStack.PushRenderPass(m_RenderPass_GenerateIBL.get());
 		m_RenderPassStack.PushRenderPass(m_RenderPass_GenerateShadowMap.get());
 		m_RenderPassStack.PushRenderPass(m_RenderPass_ForwardRendering.get());
 		//m_RenderPassStack.PushRenderPass(m_RenderPass_GenerateGBuffers.get());
@@ -561,21 +581,23 @@ namespace TruthEngine
 		auto _ViewportHeight = TE_INSTANCE_APPLICATION->GetClientHeight();
 
 		{
-			auto _TextureSceneBuffer = m_RendererCommand.CreateRenderTarget(TE_IDX_GRESOURCES::Texture_RT_SceneBuffer, _ViewportWidth, _ViewportHeight, TE_RESOURCE_FORMAT::R8G8B8A8_UNORM, ClearValue_RenderTarget{ 1.0f, 1.0f, 1.0f, 1.0f }, true, false);
+			auto _TextureSceneBuffer = m_RendererCommand.CreateRenderTarget(TE_IDX_GRESOURCES::Texture_RT_SceneBuffer, _ViewportWidth, _ViewportHeight, 1, TE_RESOURCE_FORMAT::R8G8B8A8_UNORM, ClearValue_RenderTarget{ 1.0f, 1.0f, 1.0f, 1.0f }, true, false);
 			m_RendererCommand.CreateRenderTargetView(_TextureSceneBuffer, &m_RTVSceneBuffer);
 		}
 		{
-			auto _TextureSceneBufferHDR = m_RendererCommand.CreateRenderTarget(TE_IDX_GRESOURCES::Texture_RT_SceneBufferHDR, _ViewportWidth, _ViewportHeight, TE_RESOURCE_FORMAT::R16G16B16A16_FLOAT, ClearValue_RenderTarget{ 0.0f, 0.0f, 0.0f, 1.0f }, true, false);
+			auto _TextureSceneBufferHDR = m_RendererCommand.CreateRenderTarget(TE_IDX_GRESOURCES::Texture_RT_SceneBufferHDR, _ViewportWidth, _ViewportHeight, 1, TE_RESOURCE_FORMAT::R16G16B16A16_FLOAT, ClearValue_RenderTarget{ 0.0f, 0.0f, 0.0f, 1.0f }, true, false);
 			m_RendererCommand.CreateRenderTargetView(_TextureSceneBufferHDR, &m_RTVSceneBufferHDR);
 		}
 
 		m_RendererCommand.CreateRenderTargetView(TE_INSTANCE_SWAPCHAIN, &m_RTVBackBuffer);
 
-		m_RendererCommand.CreateTextureCubeMap(TE_IDX_GRESOURCES::Texture_CubeMap_Environment, "K:\\EBook\\Game Programming\\Source Codes\\d3d12book-master\\d3d12book-master\\Textures\\grasscube1024.dds");
+		m_RendererCommand.CreateTextureCubeMap(TE_IDX_GRESOURCES::Texture_CubeMap_Environment, "E:\\3DModels\\2021\\Textures\\GeneratedEnvironmentMap.dds");
+		m_RendererCommand.CreateTextureCubeMap(TE_IDX_GRESOURCES::Texture_CubeMap_IBL, "E:\\3DModels\\2021\\Textures\\IBL\\GeneratedIBL.dds");
+		//m_RendererCommand.CreateTextureCubeMap(TE_IDX_GRESOURCES::Texture_CubeMap_Environment, "K:\\EBook\\Game Programming\\Source Codes\\d3d12book-master\\d3d12book-master\\Textures\\grasscube1024.dds");
 		//m_RendererCommand.CreateTextureCubeMap(TE_IDX_TEXTURE::CUBEMAP_ENVIRONMENT, "K:\\Downloads\\3D\\EnvironmentMap_BabylonJs_Sample1\\textures\\SpecularHDR.dds");
 		//m_RendererCommand.CreateTextureCubeMap(TE_IDX_TEXTURE::CUBEMAP_ENVIRONMENT, "K:\\Downloads\\3D\\EnvironmentMap_BabylonJs_Forest\\textures\\forest.dds");
 
-		auto _TextureDepthStencil = m_RendererCommand.CreateDepthStencil(TE_IDX_GRESOURCES::Texture_DS_SceneBuffer, _ViewportWidth, _ViewportHeight, TE_RESOURCE_FORMAT::R32_TYPELESS, ClearValue_DepthStencil{ 1.0f, 0 }, true, false);
+		auto _TextureDepthStencil = m_RendererCommand.CreateDepthStencil(TE_IDX_GRESOURCES::Texture_DS_SceneBuffer, _ViewportWidth, _ViewportHeight, 1, TE_RESOURCE_FORMAT::R32_TYPELESS, ClearValue_DepthStencil{ 1.0f, 0 }, true, false);
 		m_RendererCommand.CreateDepthStencilView(_TextureDepthStencil, &m_DSVSceneBuffer);
 	}
 

@@ -30,7 +30,9 @@ enum class TE_IDX_GRESOURCES : IDX
 
 	Texture_MaterialTextures,
 	Texture_CubeMap_Environment,
-	Texture_IBL,
+	Texture_CubeMap_IBL,
+	Texture_InputCreateCubeMap,
+	Texture_InputCreateIBLAmbient,
 	Texture_RT_BackBuffer,
 	Texture_RT_GBuffer_Color,
 	Texture_RT_GBuffer_Normal,
@@ -40,6 +42,8 @@ enum class TE_IDX_GRESOURCES : IDX
 	Texture_RT_SceneBufferHDR,
 	Texture_RT_SceneBufferHDRMS,
 	Texture_RT_CubeMap,
+	Texture_RT_IBL_Ambient,
+	Texture_RT_IBL_Specular,
 	Texture_DS_SceneBuffer,
 	Texture_DS_SceneBufferMS,
 	Texture_DS_ShadowMap_SunLight,
@@ -84,6 +88,8 @@ enum class TE_IDX_SHADERCLASS : IDX
 	GENERATEGBUFFERS,
 	DEFERREDSHADING,
 	GENERATECUBEMAP,
+	GENERATEIBLAMBIENT,
+	GENERATEIBLSPECULAR,
 	TOTALNUM
 };
 
@@ -96,7 +102,9 @@ enum class TE_IDX_RENDERPASS : IDX
 	POSTPROCESSING_HDR,
 	GENERATEGBUFFERS,
 	DEFERREDSHADING,
-	GENERATECUBEMAP
+	GENERATECUBEMAP,
+	GENERATEIBLAMBIENT,
+	GENERATEIBLSPECULAR,
 };
 
 enum class TE_IDX_MESH_TYPE : IDX

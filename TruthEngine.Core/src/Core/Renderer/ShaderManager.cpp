@@ -99,8 +99,8 @@ namespace TruthEngine
 						}),
 						ShaderSignature::ShaderRange(0, 0, ShaderSignature::EShaderRangeType::SRV, ShaderSignature::EShaderRangeFlags::EShaderRangeFlags_NONE,
 						{
-							//ShaderSignature::ShaderRangeView(TE_IDX_GRESOURCES::Texture_CubeMap_Environment, ShaderSignature::EShaderRangeType::SRV),
-							ShaderSignature::ShaderRangeView(TE_IDX_GRESOURCES::Texture_RT_CubeMap, ShaderSignature::EShaderRangeType::SRV),
+							ShaderSignature::ShaderRangeView(TE_IDX_GRESOURCES::Texture_CubeMap_Environment, ShaderSignature::EShaderRangeType::SRV),
+							//ShaderSignature::ShaderRangeView(TE_IDX_GRESOURCES::Texture_RT_CubeMap, ShaderSignature::EShaderRangeType::SRV),
 						})
 				}
 			);
@@ -136,6 +136,7 @@ namespace TruthEngine
 							ShaderSignature::ShaderRangeView(TE_IDX_GRESOURCES::Texture_DS_ShadowMap_SunLight, ShaderSignature::EShaderRangeType::SRV),
 							ShaderSignature::ShaderRangeView(TE_IDX_GRESOURCES::Texture_DS_ShadowMap_SpotLight, ShaderSignature::EShaderRangeType::SRV),
 							ShaderSignature::ShaderRangeView(TE_IDX_GRESOURCES::Texture_CubeMap_Environment, ShaderSignature::EShaderRangeType::SRV),
+							ShaderSignature::ShaderRangeView(TE_IDX_GRESOURCES::Texture_CubeMap_IBL, ShaderSignature::EShaderRangeType::SRV),
 						})
 				}
 			);
@@ -145,7 +146,7 @@ namespace TruthEngine
 			(
 				static_cast<ShaderSignature::EShaderVisibility>(ShaderSignature::EShaderVisibility_ALL),
 				{
-						ShaderSignature::ShaderRange(3, 0, ShaderSignature::EShaderRangeType::SRV, ShaderSignature::EShaderRangeFlags::EShaderRangeFlags_NONE,
+						ShaderSignature::ShaderRange(4, 0, ShaderSignature::EShaderRangeType::SRV, ShaderSignature::EShaderRangeFlags::EShaderRangeFlags_NONE,
 						{
 							ShaderSignature::ShaderRangeView(TE_IDX_GRESOURCES::Texture_MaterialTextures, ShaderSignature::EShaderRangeType::SRV)
 						} , MATERIAL_TEXTURE_COUNT)
@@ -494,11 +495,34 @@ namespace TruthEngine
 			auto _ShaderParam = &_ShaderSignature->AddParameter();
 			_ShaderParam->mParameter = ShaderSignature::ShaderTable
 			(
-				static_cast<ShaderSignature::EShaderVisibility>(ShaderSignature::EShaderVisibility_PIXEL),
+				static_cast<ShaderSignature::EShaderVisibility>(ShaderSignature::EShaderVisibility_ALL),
 				{
 						ShaderSignature::ShaderRange(0, 0, ShaderSignature::EShaderRangeType::SRV, ShaderSignature::EShaderRangeFlags::EShaderRangeFlags_NONE,
 						{
-							ShaderSignature::ShaderRangeView(TE_IDX_GRESOURCES::Texture_IBL, ShaderSignature::EShaderRangeType::SRV),
+							ShaderSignature::ShaderRangeView(TE_IDX_GRESOURCES::Texture_InputCreateCubeMap, ShaderSignature::EShaderRangeType::SRV),
+						})
+				}
+
+			);
+
+			break;
+		}
+		case TE_IDX_SHADERCLASS::GENERATEIBLAMBIENT:
+		{
+			_ShaderSignature->mShaderSignatureFlags = ShaderSignature::EShaderSignatureFlags_DENY_DOMAIN_SHADER_ROOT_ACCESS
+				| ShaderSignature::EShaderSignatureFlags_ALLOW_STREAM_OUTPUT
+				| ShaderSignature::EShaderSignatureFlags_DENY_HULL_SHADER_ROOT_ACCESS
+				| ShaderSignature::EShaderSignatureFlags_DENY_MESH_SHADER_ROOT_ACCESS;
+
+
+			auto _ShaderParam = &_ShaderSignature->AddParameter();
+			_ShaderParam->mParameter = ShaderSignature::ShaderTable
+			(
+				static_cast<ShaderSignature::EShaderVisibility>(ShaderSignature::EShaderVisibility_ALL),
+				{
+						ShaderSignature::ShaderRange(0, 0, ShaderSignature::EShaderRangeType::SRV, ShaderSignature::EShaderRangeFlags::EShaderRangeFlags_NONE,
+						{
+							ShaderSignature::ShaderRangeView(TE_IDX_GRESOURCES::Texture_InputCreateIBLAmbient, ShaderSignature::EShaderRangeType::SRV),
 						})
 				}
 

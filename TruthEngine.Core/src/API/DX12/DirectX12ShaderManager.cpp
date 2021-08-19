@@ -157,6 +157,9 @@ namespace TruthEngine
 				vargs.emplace_back(L"-Od");
 				vargs.emplace_back(L"-Qembed_debug");
 				vargs.emplace_back(L"-Zi");
+
+#else
+				vargs.emplace_back(L"-O3");
 #endif
 
 				for (auto& d : m_Defines)

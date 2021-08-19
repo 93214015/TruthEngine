@@ -26,12 +26,14 @@ namespace TruthEngine
 			void Init(TE_IDX_RENDERPASS renderPassIDX, TE_IDX_SHADERCLASS shaderClassIDX, BufferManager* bufferManager = nullptr, ShaderManager* shaderManager = nullptr);
 			void Release();
 
-			TextureRenderTarget* CreateRenderTarget(TE_IDX_GRESOURCES idx, uint32_t width, uint32_t height, TE_RESOURCE_FORMAT format, const ClearValue_RenderTarget& clearValue, bool useAsShaderResource, bool enbaleMSAA);
-			TextureRenderTarget* CreateRenderTargetArray(TE_IDX_GRESOURCES idx, uint32_t width, uint32_t height, uint8_t arraySize, TE_RESOURCE_FORMAT format, const ClearValue_RenderTarget& clearValue, bool useAsShaderResource, bool enbaleMSAA);
-			TextureRenderTarget* CreateRenderTargetCubeMap(TE_IDX_GRESOURCES idx, uint32_t width, uint32_t height, TE_RESOURCE_FORMAT format, const ClearValue_RenderTarget& clearValue, bool useAsShaderResource, bool enbaleMSAA);
-			TextureDepthStencil* CreateDepthStencil(TE_IDX_GRESOURCES idx, uint32_t width, uint32_t height, TE_RESOURCE_FORMAT format, const ClearValue_DepthStencil& clearValue, bool useAsShaderResource, bool enbaleMSAA);
+			TextureRenderTarget* CreateRenderTarget(TE_IDX_GRESOURCES idx, uint32_t width, uint32_t height, uint8_t mipLevels, TE_RESOURCE_FORMAT format, const ClearValue_RenderTarget& clearValue, bool useAsShaderResource, bool enbaleMSAA);
+			TextureRenderTarget* CreateRenderTargetArray(TE_IDX_GRESOURCES idx, uint32_t width, uint32_t height, uint8_t arraySize, uint8_t mipLevels, TE_RESOURCE_FORMAT format, const ClearValue_RenderTarget& clearValue, bool useAsShaderResource, bool enbaleMSAA);
+			TextureRenderTarget* CreateRenderTargetCubeMap(TE_IDX_GRESOURCES idx, uint32_t width, uint32_t height, uint8_t mipLevels, TE_RESOURCE_FORMAT format, const ClearValue_RenderTarget& clearValue, bool useAsShaderResource, bool enbaleMSAA);
+			TextureDepthStencil* CreateDepthStencil(TE_IDX_GRESOURCES idx, uint32_t width, uint32_t height, uint8_t mipLevels, TE_RESOURCE_FORMAT format, const ClearValue_DepthStencil& clearValue, bool useAsShaderResource, bool enbaleMSAA);
 			TextureCubeMap* CreateTextureCubeMap(TE_IDX_GRESOURCES idx, const char* filePath);
-			void LoadTexture(Texture& _OutTextue, TE_IDX_GRESOURCES _IDX, const char* _FilePath);
+			void LoadTextureFromFile(Texture& _OutTextue, TE_IDX_GRESOURCES _IDX, const char* _FilePath, uint8_t _MipLevels = 1);
+			void SaveTextureToFile(const Texture& _Textue, const char* _FilePath);
+			void SaveTextureToFile(TE_IDX_GRESOURCES _TextureIDX, const char* _FilePath);
 			Buffer* CreateBufferStructuredRW(TE_IDX_GRESOURCES _IDX, uint32_t _ElementSizeInByte, uint32_t _ElementNum, bool _IsByteAddressBuffer);
 			Texture* CreateTextureRW(TE_IDX_GRESOURCES _IDX, uint32_t _Width, uint32_t _Height, TE_RESOURCE_FORMAT _Format, bool _UseAsShaderResource, bool _EnableMSAA);
 
@@ -53,8 +55,10 @@ namespace TruthEngine
 			void ReleaseResource(GraphicResource* graphicResource);
 			void ReleaseResource(TE_IDX_GRESOURCES idx);
 
-			void CreateRenderTargetView(TE_IDX_GRESOURCES idx, RenderTargetView* RTV);
 			void CreateRenderTargetView(TextureRenderTarget* RT, RenderTargetView* RTV);
+			void CreateRenderTargetView(TextureRenderTarget* RT, RenderTargetView* RTV, uint8_t MipSlice, uint8_t ArraySlice);
+			void CreateRenderTargetView(TE_IDX_GRESOURCES idx, RenderTargetView* RTV);
+			void CreateRenderTargetView(TE_IDX_GRESOURCES idx, RenderTargetView* RTV, uint8_t MipSlice, uint8_t ArraySlice);
 			void CreateRenderTargetView(SwapChain* swapChain, RenderTargetView* RTV);
 
 			void CreateDepthStencilView(TE_IDX_GRESOURCES idx, DepthStencilView* DSV);
@@ -82,6 +86,12 @@ namespace TruthEngine
 			void SetDirectConstantBufferViewCompute(GraphicResource* _GraphicResource, uint32_t _ShaderRegisterSlot);
 			void SetDirectUnorderedAccessViewGraphics(GraphicResource* _GraphicResource, uint32_t _ShaderRegisterSlot);
 			void SetDirectUnorderedAccessViewCompute(GraphicResource* _GraphicResource, uint32_t _ShaderRegisterSlot);
+			void SetDirectShaderResourceViewGraphics(TE_IDX_GRESOURCES _GraphicResourceIDX, uint32_t _ShaderRegisterSlot);
+			void SetDirectShaderResourceViewCompute(TE_IDX_GRESOURCES _GraphicResourceIDX, uint32_t _ShaderRegisterSlot);
+			void SetDirectConstantBufferViewGraphics(TE_IDX_GRESOURCES _GraphicResourceIDX, uint32_t _ShaderRegisterSlot);
+			void SetDirectConstantBufferViewCompute(TE_IDX_GRESOURCES _GraphicResourceIDX, uint32_t _ShaderRegisterSlot);
+			void SetDirectUnorderedAccessViewGraphics(TE_IDX_GRESOURCES _GraphicResourceIDX, uint32_t _ShaderRegisterSlot);
+			void SetDirectUnorderedAccessViewCompute(TE_IDX_GRESOURCES _GraphicResourceIDX, uint32_t _ShaderRegisterSlot);
 			/*void SetShaderResource(const ShaderResourceView SRV, uint32_t registerIndex);
 			void SetConstantBuffer(const ConstantBufferView CBV, uint32_t registerIndex);*/
 

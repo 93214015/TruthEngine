@@ -11,6 +11,7 @@
 #include "RenderPass/RenderPass_GenerateGBuffers.h"
 #include "RenderPass/RenderPass_DeferredShading.h"
 #include "RenderPass/RenderPass_GenerateCubeMap.h"
+#include "RenderPass/RenderPass_GenerateIBL.h"
 
 
 namespace TruthEngine
@@ -114,6 +115,7 @@ namespace TruthEngine
 		std::shared_ptr<RenderPass_GenerateGBuffers> m_RenderPass_GenerateGBuffers;
 		std::shared_ptr<RenderPass_DeferredShading> m_RenderPass_DeferredShading;
 		std::shared_ptr<RenderPass_GenerateCubeMap> m_RenderPass_GenerateCubeMap;
+		std::shared_ptr<RenderPass_GenerateIBL> m_RenderPass_GenerateIBL;
 
 		ModelManager* m_ModelManagers;
 

@@ -111,6 +111,42 @@ namespace TruthEngine
 		m_CurrentCommandList->SetDirectViewUAVCompute(_GraphicResource, _ShaderRegisterSlot);
 	}
 
+	void RendererCommand::SetDirectShaderResourceViewGraphics(TE_IDX_GRESOURCES _GraphicResourceIDX, uint32_t _ShaderRegisterSlot)
+	{
+		auto _GraphicResource = TE_INSTANCE_BUFFERMANAGER->GetGraphicResource(_GraphicResourceIDX);
+		SetDirectShaderResourceViewGraphics(_GraphicResource, _ShaderRegisterSlot);
+	}
+
+	void RendererCommand::SetDirectShaderResourceViewCompute(TE_IDX_GRESOURCES _GraphicResourceIDX, uint32_t _ShaderRegisterSlot)
+	{
+		auto _GraphicResource = TE_INSTANCE_BUFFERMANAGER->GetGraphicResource(_GraphicResourceIDX);
+		SetDirectShaderResourceViewCompute(_GraphicResource, _ShaderRegisterSlot);
+	}
+
+	void RendererCommand::SetDirectConstantBufferViewGraphics(TE_IDX_GRESOURCES _GraphicResourceIDX, uint32_t _ShaderRegisterSlot)
+	{
+		auto _GraphicResource = TE_INSTANCE_BUFFERMANAGER->GetGraphicResource(_GraphicResourceIDX);
+		SetDirectConstantBufferViewGraphics(_GraphicResource, _ShaderRegisterSlot);
+	}
+
+	void RendererCommand::SetDirectConstantBufferViewCompute(TE_IDX_GRESOURCES _GraphicResourceIDX, uint32_t _ShaderRegisterSlot)
+	{
+		auto _GraphicResource = TE_INSTANCE_BUFFERMANAGER->GetGraphicResource(_GraphicResourceIDX);
+		SetDirectConstantBufferViewCompute(_GraphicResource, _ShaderRegisterSlot);
+	}
+
+	void RendererCommand::SetDirectUnorderedAccessViewGraphics(TE_IDX_GRESOURCES _GraphicResourceIDX, uint32_t _ShaderRegisterSlot)
+	{
+		auto _GraphicResource = TE_INSTANCE_BUFFERMANAGER->GetGraphicResource(_GraphicResourceIDX);
+		SetDirectUnorderedAccessViewGraphics(_GraphicResource, _ShaderRegisterSlot);
+	}
+
+	void RendererCommand::SetDirectUnorderedAccessViewCompute(TE_IDX_GRESOURCES _GraphicResourceIDX, uint32_t _ShaderRegisterSlot)
+	{
+		auto _GraphicResource = TE_INSTANCE_BUFFERMANAGER->GetGraphicResource(_GraphicResourceIDX);
+		SetDirectUnorderedAccessViewCompute(_GraphicResource, _ShaderRegisterSlot);
+	}
+
 	/*void RendererCommand::SetShaderResource(const ShaderResourceView SRV, uint32_t registerIndex)
 	{
 		m_CurrentCommandList->SetShaderResource(SRV, registerIndex);
@@ -328,25 +364,25 @@ namespace TruthEngine
 	}
 
 
-	TruthEngine::TextureRenderTarget* RendererCommand::CreateRenderTarget(TE_IDX_GRESOURCES idx, uint32_t width, uint32_t height, TE_RESOURCE_FORMAT format, const ClearValue_RenderTarget& clearValue, bool useAsShaderResource, bool enbaleMSAA)
+	TruthEngine::TextureRenderTarget* RendererCommand::CreateRenderTarget(TE_IDX_GRESOURCES idx, uint32_t width, uint32_t height, uint8_t mipLevels, TE_RESOURCE_FORMAT format, const ClearValue_RenderTarget& clearValue, bool useAsShaderResource, bool enbaleMSAA)
 	{
-		return TE_INSTANCE_BUFFERMANAGER->CreateRenderTarget(idx, width, height, 1, TE_RESOURCE_TYPE::TEXTURE2D, format, clearValue, useAsShaderResource, enbaleMSAA);
+		return TE_INSTANCE_BUFFERMANAGER->CreateRenderTarget(idx, width, height, 1, mipLevels, TE_RESOURCE_TYPE::TEXTURE2D, format, clearValue, useAsShaderResource, enbaleMSAA);
 	}
 
-	TextureRenderTarget* RendererCommand::CreateRenderTargetArray(TE_IDX_GRESOURCES idx, uint32_t width, uint32_t height, uint8_t arraySize, TE_RESOURCE_FORMAT format, const ClearValue_RenderTarget& clearValue, bool useAsShaderResource, bool enbaleMSAA)
+	TextureRenderTarget* RendererCommand::CreateRenderTargetArray(TE_IDX_GRESOURCES idx, uint32_t width, uint32_t height, uint8_t arraySize, uint8_t mipLevels, TE_RESOURCE_FORMAT format, const ClearValue_RenderTarget& clearValue, bool useAsShaderResource, bool enbaleMSAA)
 	{
-		return TE_INSTANCE_BUFFERMANAGER->CreateRenderTarget(idx, width, height, arraySize, TE_RESOURCE_TYPE::TEXTURE2DARRAY, format, clearValue, useAsShaderResource, enbaleMSAA);
+		return TE_INSTANCE_BUFFERMANAGER->CreateRenderTarget(idx, width, height, arraySize, mipLevels, TE_RESOURCE_TYPE::TEXTURE2DARRAY, format, clearValue, useAsShaderResource, enbaleMSAA);
 	}
 
-	TextureRenderTarget* RendererCommand::CreateRenderTargetCubeMap(TE_IDX_GRESOURCES idx, uint32_t width, uint32_t height, TE_RESOURCE_FORMAT format, const ClearValue_RenderTarget& clearValue, bool useAsShaderResource, bool enbaleMSAA)
+	TextureRenderTarget* RendererCommand::CreateRenderTargetCubeMap(TE_IDX_GRESOURCES idx, uint32_t width, uint32_t height, uint8_t mipLevels, TE_RESOURCE_FORMAT format, const ClearValue_RenderTarget& clearValue, bool useAsShaderResource, bool enbaleMSAA)
 	{
-		return TE_INSTANCE_BUFFERMANAGER->CreateRenderTarget(idx, width, height, 6, TE_RESOURCE_TYPE::TEXTURECUBE, format, clearValue, useAsShaderResource, enbaleMSAA);
+		return TE_INSTANCE_BUFFERMANAGER->CreateRenderTarget(idx, width, height, 6, mipLevels, TE_RESOURCE_TYPE::TEXTURECUBE, format, clearValue, useAsShaderResource, enbaleMSAA);
 	}
 
 
-	TruthEngine::TextureDepthStencil* RendererCommand::CreateDepthStencil(TE_IDX_GRESOURCES idx, uint32_t width, uint32_t height, TE_RESOURCE_FORMAT format, const ClearValue_DepthStencil& clearValue, bool useAsShaderResource, bool enbaleMSAA)
+	TruthEngine::TextureDepthStencil* RendererCommand::CreateDepthStencil(TE_IDX_GRESOURCES idx, uint32_t width, uint32_t height, uint8_t mipLevels, TE_RESOURCE_FORMAT format, const ClearValue_DepthStencil& clearValue, bool useAsShaderResource, bool enbaleMSAA)
 	{
-		return TE_INSTANCE_BUFFERMANAGER->CreateDepthStencil(idx, width, height, 1, format, clearValue, useAsShaderResource, enbaleMSAA);
+		return TE_INSTANCE_BUFFERMANAGER->CreateDepthStencil(idx, width, height, 1, mipLevels, format, clearValue, useAsShaderResource, enbaleMSAA);
 	}
 
 
@@ -355,9 +391,21 @@ namespace TruthEngine
 		return TE_INSTANCE_BUFFERMANAGER->CreateTextureCube(idx, filePath);
 	}
 
-	void RendererCommand::LoadTexture(Texture& _OutTextue, TE_IDX_GRESOURCES _IDX, const char* _FilePath)
+	void RendererCommand::LoadTextureFromFile(Texture& _OutTextue, TE_IDX_GRESOURCES _IDX, const char* _FilePath, uint8_t _MipLevels)
 	{
-		TE_INSTANCE_BUFFERMANAGER->LoadTexture(_OutTextue, _IDX, _FilePath);
+		TE_INSTANCE_BUFFERMANAGER->LoadTextureFromFile(_OutTextue, _IDX, _FilePath, _MipLevels);
+	}
+
+	void RendererCommand::SaveTextureToFile(const Texture& _Textue, const char* _FilePath)
+	{
+		WaitForGPU();
+		TE_INSTANCE_BUFFERMANAGER->SaveTextureToFile(_Textue, _FilePath);
+	}
+
+	void RendererCommand::SaveTextureToFile(TE_IDX_GRESOURCES _TextureIDX, const char* _FilePath)
+	{
+		Texture* _Texture = TE_INSTANCE_BUFFERMANAGER->GetTexture(_TextureIDX);
+		SaveTextureToFile(*_Texture, _FilePath);
 	}
 
 	Buffer* RendererCommand::CreateBufferStructuredRW(TE_IDX_GRESOURCES _IDX, uint32_t _ElementSizeInByte, uint32_t _ElementNum, bool _IsByteAddressBuffer)
@@ -411,6 +459,11 @@ namespace TruthEngine
 		return TE_INSTANCE_BUFFERMANAGER->CreateRenderTargetView(RT, RTV);
 	}
 
+	void RendererCommand::CreateRenderTargetView(TextureRenderTarget* RT, RenderTargetView* RTV, uint8_t MipSlice, uint8_t ArraySlice)
+	{
+		return TE_INSTANCE_BUFFERMANAGER->CreateRenderTargetView(RT, RTV, MipSlice, ArraySlice);
+	}
+
 	void RendererCommand::CreateRenderTargetView(SwapChain* swapChain, RenderTargetView* RTV)
 	{
 		return TE_INSTANCE_BUFFERMANAGER->CreateRenderTargetView(swapChain, RTV);
@@ -420,6 +473,12 @@ namespace TruthEngine
 	{
 		auto rt = TE_INSTANCE_BUFFERMANAGER->GetRenderTarget(idx);
 		return TE_INSTANCE_BUFFERMANAGER->CreateRenderTargetView(rt, RTV);
+	}
+
+	void RendererCommand::CreateRenderTargetView(TE_IDX_GRESOURCES idx, RenderTargetView* RTV, uint8_t MipSlice, uint8_t ArraySlice)
+	{
+		auto rt = TE_INSTANCE_BUFFERMANAGER->GetRenderTarget(idx);
+		return TE_INSTANCE_BUFFERMANAGER->CreateRenderTargetView(rt, RTV, MipSlice, ArraySlice);
 	}
 
 	void RendererCommand::CreateShaderResourceView(Texture* texture, ShaderResourceView* SRV)

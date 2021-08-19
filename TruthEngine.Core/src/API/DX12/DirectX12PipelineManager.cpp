@@ -7,6 +7,7 @@
 #include "API/DX12/DirectX12GraphicDevice.h"
 #include "API/DX12/DirectX12ShaderManager.h"
 #include "API/DX12/DirectX12Manager.h"
+#include "API/DX12/DirectX12Helpers.h"
 
 #include "Core/Event/EventRenderer.h"
 
@@ -99,11 +100,6 @@ namespace TruthEngine::API::DirectX12
 	D3D12_COMPARISON_FUNC DX12_GET_COMPARISON_FUNC(RendererStateSet states)
 	{
 		return static_cast<D3D12_COMPARISON_FUNC>(GET_RENDERER_STATE(states, TE_RENDERER_STATE_COMPARISSON_FUNC));
-	}
-
-	inline DXGI_FORMAT DX12_GET_FORMAT(const TE_RESOURCE_FORMAT format)
-	{
-		return static_cast<DXGI_FORMAT>(format);
 	}
 
 	inline D3D12_INPUT_CLASSIFICATION DX12_GET_INPUT_CLASSIFICATION(TE_RENDERER_SHADER_INPUT_CLASSIFICATION inputClass)

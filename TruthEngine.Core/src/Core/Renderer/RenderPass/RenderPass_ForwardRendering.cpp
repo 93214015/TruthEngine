@@ -363,16 +363,16 @@ namespace TruthEngine
 		{
 			if (m_RendererLayer->IsEnabledHDR())
 			{
-				m_TextureRenderTargetHDRMS = m_RendererCommand.CreateRenderTarget(TE_IDX_GRESOURCES::Texture_RT_SceneBufferHDRMS, _ViewportWidth, _ViewportHeight, TE_RESOURCE_FORMAT::R16G16B16A16_FLOAT, _ClearValue, false, true);
+				m_TextureRenderTargetHDRMS = m_RendererCommand.CreateRenderTarget(TE_IDX_GRESOURCES::Texture_RT_SceneBufferHDRMS, _ViewportWidth, _ViewportHeight, 1, TE_RESOURCE_FORMAT::R16G16B16A16_FLOAT, _ClearValue, false, true);
 				m_RendererCommand.CreateRenderTargetView(m_TextureRenderTargetHDRMS, &m_RenderTartgetView);
 			}
 			else
 			{
-				m_TextureRenderTargetMS = m_RendererCommand.CreateRenderTarget(TE_IDX_GRESOURCES::Texture_RT_SceneBufferMS, _ViewportWidth, _ViewportHeight, TE_RESOURCE_FORMAT::R8G8B8A8_UNORM, _ClearValue, false, true);
+				m_TextureRenderTargetMS = m_RendererCommand.CreateRenderTarget(TE_IDX_GRESOURCES::Texture_RT_SceneBufferMS, _ViewportWidth, _ViewportHeight, 1, TE_RESOURCE_FORMAT::R8G8B8A8_UNORM, _ClearValue, false, true);
 				m_RendererCommand.CreateRenderTargetView(m_TextureRenderTargetMS, &m_RenderTartgetView);
 			}
 
-			m_TextureDepthStencilMS = m_RendererCommand.CreateDepthStencil(TE_IDX_GRESOURCES::Texture_DS_SceneBufferMS, _ViewportWidth, _ViewportHeight, TE_RESOURCE_FORMAT::R32_TYPELESS, ClearValue_DepthStencil{ 1.0f, 0 }, false, true);
+			m_TextureDepthStencilMS = m_RendererCommand.CreateDepthStencil(TE_IDX_GRESOURCES::Texture_DS_SceneBufferMS, _ViewportWidth, _ViewportHeight, 1, TE_RESOURCE_FORMAT::R32_TYPELESS, ClearValue_DepthStencil{ 1.0f, 0 }, false, true);
 			m_RendererCommand.CreateDepthStencilView(m_TextureDepthStencilMS, &m_DepthStencilView);
 
 		}

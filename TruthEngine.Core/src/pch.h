@@ -90,6 +90,8 @@
 #include <windowsx.h>
 #include <wrl/client.h>
 #include <ppl.h>
+#include <wincodec.h>
+#include <wincodecsdk.h>
 
 template<class T>
 using COMPTR = Microsoft::WRL::ComPtr<T>;

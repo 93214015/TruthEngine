@@ -7,19 +7,21 @@
 namespace TruthEngine
 {
 
-	constexpr long CUBE_MAP_SIZE = 1024l;
 
 	RenderPass_GenerateCubeMap::RenderPass_GenerateCubeMap(RendererLayer* _RendererLayer)
 		: RenderPass(TE_IDX_RENDERPASS::GENERATECUBEMAP, _RendererLayer)
-		, m_Viewport(0.0f, 0.0f, static_cast<float>(CUBE_MAP_SIZE), static_cast<float>(CUBE_MAP_SIZE), 0.0f, 1.0f)
-		, m_ViewRect(0l, 0l, CUBE_MAP_SIZE, CUBE_MAP_SIZE)
-		, m_TextureIBL(TE_IDX_GRESOURCES::Texture_IBL, 1024, 1024, 1, TE_RESOURCE_FORMAT::UNKNOWN, TE_RESOURCE_USAGE_SHADERRESOURCE, TE_RESOURCE_TYPE::TEXTURE2D, TE_RESOURCE_STATES::COPY_DEST, false)
+		, m_Viewport(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f)
+		, m_ViewRect(0l, 0l, 0l, 0l)
+		, m_TextureEnvironment(TE_IDX_GRESOURCES::Texture_InputCreateCubeMap, 0, 0, 1, 1, TE_RESOURCE_FORMAT::UNKNOWN, TE_RESOURCE_USAGE_SHADERRESOURCE, TE_RESOURCE_TYPE::TEXTURE2D, TE_RESOURCE_STATES::COPY_DEST, false)
 	{
 	}
 
 	void RenderPass_GenerateCubeMap::OnAttach()
 	{
-		m_RendererCommand.Init(TE_IDX_RENDERPASS::GENERATECUBEMAP, TE_IDX_SHADERCLASS::GENERATECUBEMAP);
+		TE_ASSERT_CORE(m_IsInitialized, "The resources for RenderPass_GenerateCubeMap are not set");
+
+		m_RendererCommand_GenerateCubeMap.Init(TE_IDX_RENDERPASS::GENERATECUBEMAP, TE_IDX_SHADERCLASS::GENERATECUBEMAP);
+		//m_RendererCommand_GenerateIBL.Init(TE_IDX_RENDERPASS::GENERATECUBEMAP, TE_IDX_SHADERCLASS::GENERATEIBL);
 
 		InitTextures();
 		InitBuffers();
@@ -29,9 +31,12 @@ namespace TruthEngine
 
 	void RenderPass_GenerateCubeMap::OnDetach()
 	{
-		m_RendererCommand.ReleaseResource(m_TextureRenderTargetCubeMap);
+		m_RendererCommand_GenerateCubeMap.ReleaseResource(&m_TextureEnvironment);
 
-		m_RendererCommand.Release();
+		m_RendererCommand_GenerateCubeMap.Release();
+		//m_RendererCommand_GenerateIBL.Release();
+
+		m_IsInitialized = false;
 	}
 
 	void RenderPass_GenerateCubeMap::OnImGuiRender()
@@ -44,30 +49,53 @@ namespace TruthEngine
 
 	void RenderPass_GenerateCubeMap::BeginScene()
 	{
-		m_RendererCommand.BeginGraphics(&m_Pipeline);
 
-		m_RendererCommand.SetRenderTarget(m_RenderTartgetView);
-		m_RendererCommand.ClearRenderTarget(m_RenderTartgetView);
-		m_RendererCommand.SetViewPort(&m_Viewport, &m_ViewRect);
+		m_RendererCommand_GenerateCubeMap.BeginGraphics(&m_PipelineGenerateCubeMap);
+
+		m_RendererCommand_GenerateCubeMap.SetRenderTarget(m_RenderTartgetViewCubeMap);
+		m_RendererCommand_GenerateCubeMap.ClearRenderTarget(m_RenderTartgetViewCubeMap);
+		m_RendererCommand_GenerateCubeMap.SetViewPort(&m_Viewport, &m_ViewRect);
+
+		//m_RendererCommand_GenerateIBL.BeginGraphics(&m_PipelineGenerateIBL);
+
+		//m_RendererCommand_GenerateIBL.SetRenderTarget(m_RenderTartgetViewIBL);
+		//m_RendererCommand_GenerateIBL.ClearRenderTarget(m_RenderTartgetViewIBL);
+		//m_RendererCommand_GenerateIBL.SetViewPort(&m_Viewport, &m_ViewRect);
 	}
 
 	void RenderPass_GenerateCubeMap::EndScene()
 	{
-		m_RendererCommand.End();
+		m_RendererCommand_GenerateCubeMap.End();
+		//m_RendererCommand_GenerateIBL.End();
 	}
 
 	void RenderPass_GenerateCubeMap::Render()
 	{
-		m_RendererCommand.ExecutePendingCommands();
 
-		m_RendererCommand.Draw(1, 0);
+		m_RendererCommand_GenerateCubeMap.ExecutePendingCommands();
 
+		m_RendererCommand_GenerateCubeMap.Draw(1, 0);
+
+		//m_RendererCommand_GenerateIBL.ExecutePendingCommands();
+
+		//m_RendererCommand_GenerateIBL.Draw(1, 0);
+	}
+
+	void RenderPass_GenerateCubeMap::Initialize(TE_IDX_GRESOURCES _TextureCubeIDX, size_t _CubeMapSize, TE_RESOURCE_FORMAT _TextureCubeFormat, const char* _FilePath)
+	{
+		m_TextureCubeIDX = _TextureCubeIDX;
+		m_CubeMapSize = _CubeMapSize;
+		m_TextureCubeFormat = _TextureCubeFormat;
+		m_InputTextureFilePath = _FilePath;
+
+		m_Viewport.Resize(static_cast<float>(_CubeMapSize), static_cast<float>(_CubeMapSize));
+		m_ViewRect = ViewRect{ 0, 0, static_cast<long>(_CubeMapSize), static_cast<long>(_CubeMapSize) };
+
+		m_IsInitialized = true;
 	}
 
 	void RenderPass_GenerateCubeMap::PreparePipline()
 	{
-		std::string shaderName = std::string("GenerateCubeMap");
-
 		Shader* shader = nullptr;
 
 		constexpr RendererStateSet _RendererStates = InitRenderStates(
@@ -91,20 +119,29 @@ namespace TruthEngine
 			TE_RENDERER_STATE_DEPTH_WRITE_MASK_ZERO
 		);
 
+		//Generate Cube Map Shader
 		auto result = TE_INSTANCE_SHADERMANAGER->AddShader(&shader, TE_IDX_SHADERCLASS::GENERATECUBEMAP, TE_IDX_MESH_TYPE::MESH_POINT, _RendererStates, "Assets/Shaders/GenerateCubeMap.hlsl", "vs", "ps", "", "", "", "gs");
 
 		TE_RESOURCE_FORMAT rtvFormats[] = { TE_RESOURCE_FORMAT::R16G16B16A16_FLOAT };
 
-		PipelineGraphics::Factory(&m_Pipeline, _RendererStates, shader, _countof(rtvFormats), rtvFormats, TE_RESOURCE_FORMAT::D32_FLOAT, false);
+		PipelineGraphics::Factory(&m_PipelineGenerateCubeMap, _RendererStates, shader, _countof(rtvFormats), rtvFormats, TE_RESOURCE_FORMAT::D32_FLOAT, false);
+
+		//Generate IBL Shader
+		//result = TE_INSTANCE_SHADERMANAGER->AddShader(&shader, TE_IDX_SHADERCLASS::GENERATEIBL, TE_IDX_MESH_TYPE::MESH_POINT, _RendererStates, "Assets/Shaders/GenerateIBL.hlsl", "vs", "ps", "", "", "", "gs");
+
+		//PipelineGraphics::Factory(&m_PipelineGenerateIBL, _RendererStates, shader, _countof(rtvFormats), rtvFormats, TE_RESOURCE_FORMAT::D32_FLOAT, false);
 	}
 
 	void RenderPass_GenerateCubeMap::InitTextures()
 	{
-		m_TextureRenderTargetCubeMap = m_RendererCommand.CreateRenderTargetCubeMap(TE_IDX_GRESOURCES::Texture_RT_CubeMap, static_cast<uint32_t>(CUBE_MAP_SIZE), static_cast<uint32_t>(CUBE_MAP_SIZE), TE_RESOURCE_FORMAT::R16G16B16A16_FLOAT, ClearValue_RenderTarget{ 0.0f, 0.0f, 0.0f, 0.0f }, true, false);
+		m_TextureRenderTargetCubeMap = m_RendererCommand_GenerateCubeMap.CreateRenderTargetCubeMap(m_TextureCubeIDX, static_cast<uint32_t>(m_CubeMapSize), static_cast<uint32_t>(m_CubeMapSize), 1, m_TextureCubeFormat, ClearValue_RenderTarget{ 0.0f, 0.0f, 0.0f, 0.0f }, true, false);
+		//m_TextureRenderTargetIBL = m_RendererCommand_GenerateCubeMap.CreateRenderTargetCubeMap(TE_IDX_GRESOURCES::Texture_RT_IBL, static_cast<uint32_t>(CUBE_MAP_SIZE), static_cast<uint32_t>(CUBE_MAP_SIZE), TE_RESOURCE_FORMAT::R16G16B16A16_FLOAT, ClearValue_RenderTarget{ 0.0f, 0.0f, 0.0f, 0.0f }, true, false);
 
-		m_RendererCommand.CreateRenderTargetView(m_TextureRenderTargetCubeMap, &m_RenderTartgetView);
+		m_RendererCommand_GenerateCubeMap.CreateRenderTargetView(m_TextureRenderTargetCubeMap, &m_RenderTartgetViewCubeMap);
+		//m_RendererCommand_GenerateCubeMap.CreateRenderTargetView(m_TextureRenderTargetIBL, &m_RenderTartgetViewIBL);
 
-		m_RendererCommand.LoadTexture(m_TextureIBL, TE_IDX_GRESOURCES::Texture_IBL, "E:\\3DModels\\2021\\Textures\\IBL\\Road_to_MonumentValley.jpg");
+		//m_RendererCommand_GenerateCubeMap.LoadTextureFromFile(m_TextureEnvironment, TE_IDX_GRESOURCES::Texture_Environment, "E:\\3DModels\\2021\\Textures\\IBL\\Road_to_MonumentValley_8k.jpg");
+		m_RendererCommand_GenerateCubeMap.LoadTextureFromFile(m_TextureEnvironment, TE_IDX_GRESOURCES::Texture_InputCreateCubeMap, m_InputTextureFilePath.c_str());
 	}
 
 	void RenderPass_GenerateCubeMap::InitBuffers()

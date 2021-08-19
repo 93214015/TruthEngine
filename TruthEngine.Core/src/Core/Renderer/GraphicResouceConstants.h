@@ -194,5 +194,4 @@ enum class TE_RENDERER_COMMANDLIST_TYPE
 	VIDEO_ENCODE = 6
 };
 
-#define DX12_GET_STATE(x) static_cast<D3D12_RESOURCE_STATES>(x)
 #define DXGIFORMAT(x) static_cast<DXGI_FORMAT>(x)

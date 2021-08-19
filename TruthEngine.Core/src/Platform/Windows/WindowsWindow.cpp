@@ -10,6 +10,8 @@
 #include "Core/Renderer/SwapChain.h"
 #include "API/DX12/DirectX12SwapChain.h"
 
+#include <wrl/wrappers/corewrappers.h>
+
 using namespace TruthEngine;
 
 //forward declaration of ImGui function for processing window events.
@@ -104,6 +106,9 @@ namespace TruthEngine::Platforms::Windows {
 
 	WindowsWindow::WindowsWindow(const char* title, uint16_t width, uint16_t height) : Window(title, width, height)
 	{
+
+		HRESULT hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
+		TE_ASSERT_CORE(SUCCEEDED(hr), "Windows CoInitialize() is failed");
 
 		const auto hInstance = GetModuleHandle(NULL);
 

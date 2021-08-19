@@ -78,7 +78,8 @@ links
 	"PhysXFoundation_static_64.lib",
 	"PhysXPvdSDK_static_64.lib",
 	"PhysXVehicle_static_64.lib",
-	"DirectXMesh.lib"
+	"DirectXMesh.lib",
+	"DirectXTex.lib"
 }
 
 

@@ -8,6 +8,7 @@
 #include "DirectX12BufferManager.h"
 #include "DirectX12ShaderManager.h"
 #include "DirectX12SwapChain.h"
+#include "DirectX12Helpers.h"
 
 
 #include "Core/Renderer/TextureRenderTarget.h"

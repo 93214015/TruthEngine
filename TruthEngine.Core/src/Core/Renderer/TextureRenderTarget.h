@@ -34,6 +34,7 @@ namespace TruthEngine
 			, uint32_t width
 			, uint32_t height
 			, uint8_t arraySize
+			, uint8_t mipLevels
 			, TE_RESOURCE_TYPE type
 			, TE_RESOURCE_FORMAT format
 			, ClearValue_RenderTarget clearValue

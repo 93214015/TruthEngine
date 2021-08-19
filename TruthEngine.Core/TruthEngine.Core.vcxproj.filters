@@ -28,6 +28,9 @@
     <Filter Include="Core\Entity\Model">
       <UniqueIdentifier>{7A0D95D8-E623-936E-2F9B-1E909BF063F6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Core\Entity\Systems">
+      <UniqueIdentifier>{C1F05638-2D52-3446-B6BF-7AF822206B05}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Core\Event">
       <UniqueIdentifier>{FF1F37CD-EBD7-781A-54DF-517640B6130B}</UniqueIdentifier>
     </Filter>
@@ -141,6 +144,9 @@
     <ClInclude Include="src\Core\Entity\Components.h">
       <Filter>Core\Entity</Filter>
     </ClInclude>
+    <ClInclude Include="src\Core\Entity\Components\AttachedComponent.h">
+      <Filter>Core\Entity\Components</Filter>
+    </ClInclude>
     <ClInclude Include="src\Core\Entity\Components\BoundingBoxComponent.h">
       <Filter>Core\Entity\Components</Filter>
     </ClInclude>
@@ -148,6 +154,9 @@
       <Filter>Core\Entity\Components</Filter>
     </ClInclude>
     <ClInclude Include="src\Core\Entity\Components\EnvironmentComponent.h">
+      <Filter>Core\Entity\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Entity\Components\LeaderComponent.h">
       <Filter>Core\Entity\Components</Filter>
     </ClInclude>
     <ClInclude Include="src\Core\Entity\Components\LightComponent.h">
@@ -162,7 +171,13 @@
     <ClInclude Include="src\Core\Entity\Components\ModelComponent.h">
       <Filter>Core\Entity\Components</Filter>
     </ClInclude>
+    <ClInclude Include="src\Core\Entity\Components\MovementComponent.h">
+      <Filter>Core\Entity\Components</Filter>
+    </ClInclude>
     <ClInclude Include="src\Core\Entity\Components\PhysicsComponent.h">
+      <Filter>Core\Entity\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Entity\Components\RotationComponent.h">
       <Filter>Core\Entity\Components</Filter>
     </ClInclude>
     <ClInclude Include="src\Core\Entity\Components\SkinnedAnimationComponent.h">
@@ -172,6 +187,12 @@
       <Filter>Core\Entity\Components</Filter>
     </ClInclude>
     <ClInclude Include="src\Core\Entity\Components\TransformComponent.h">
+      <Filter>Core\Entity\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Entity\Components\TranslationComponent.h">
+      <Filter>Core\Entity\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Entity\Components\UpdatedComponent.h">
       <Filter>Core\Entity\Components</Filter>
     </ClInclude>
     <ClInclude Include="src\Core\Entity\Entity.h">
@@ -198,6 +219,9 @@
     <ClInclude Include="src\Core\Entity\Model\Mesh.h">
       <Filter>Core\Entity\Model</Filter>
     </ClInclude>
+    <ClInclude Include="src\Core\Entity\Model\MeshHandle.h">
+      <Filter>Core\Entity\Model</Filter>
+    </ClInclude>
     <ClInclude Include="src\Core\Entity\Model\Model.h">
       <Filter>Core\Entity\Model</Filter>
     </ClInclude>
@@ -216,6 +240,15 @@
     <ClInclude Include="src\Core\Entity\Scene.h">
       <Filter>Core\Entity</Filter>
     </ClInclude>
+    <ClInclude Include="src\Core\Entity\Systems\System.h">
+      <Filter>Core\Entity\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Entity\Systems\SystemMovement.h">
+      <Filter>Core\Entity\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Entity\Systems\SystemUpdateTransform.h">
+      <Filter>Core\Entity\Systems</Filter>
+    </ClInclude>
     <ClInclude Include="src\Core\EntryPoint.h">
       <Filter>Core</Filter>
     </ClInclude>
@@ -232,6 +265,9 @@
       <Filter>Core\Event</Filter>
     </ClInclude>
     <ClInclude Include="src\Core\Event\EventMouse.h">
+      <Filter>Core\Event</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Event\EventRenderer.h">
       <Filter>Core\Event</Filter>
     </ClInclude>
     <ClInclude Include="src\Core\Helper\HardwareInfo.h">
@@ -354,7 +390,19 @@
     <ClInclude Include="src\Core\Renderer\RenderPass.h">
       <Filter>Core\Renderer</Filter>
     </ClInclude>
+    <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_DeferredShading.h">
+      <Filter>Core\Renderer\RenderPass</Filter>
+    </ClInclude>
     <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_ForwardRendering.h">
+      <Filter>Core\Renderer\RenderPass</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_GenerateCubeMap.h">
+      <Filter>Core\Renderer\RenderPass</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_GenerateGBuffers.h">
+      <Filter>Core\Renderer\RenderPass</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_GenerateIBL.h">
       <Filter>Core\Renderer\RenderPass</Filter>
     </ClInclude>
     <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_GenerateShadowMap.h">
@@ -447,20 +495,8 @@
     <ClInclude Include="src\TruthEngine.h" />
     <ClInclude Include="src\lib.h" />
     <ClInclude Include="src\pch.h" />
-    <ClInclude Include="src\Core\Entity\Components\LeaderComponent.h" />
-    <ClInclude Include="src\Core\Entity\Components\AttachedComponent.h" />
-    <ClInclude Include="src\Core\Entity\Components\TranslationComponent.h" />
-    <ClInclude Include="src\Core\Entity\Components\RotationComponent.h" />
-    <ClInclude Include="src\Core\Entity\Components\MovementComponent.h" />
-    <ClInclude Include="src\Core\Entity\Systems\SystemMovement.h" />
-    <ClInclude Include="src\Core\Entity\Systems\System.h" />
-    <ClInclude Include="src\Core\Entity\Components\UpdatedComponent.h" />
-    <ClInclude Include="src\Core\Entity\Systems\SystemUpdateTransform.h" />
-    <ClInclude Include="src\Core\Entity\Model\MeshHandle.h" />
-    <ClInclude Include="src\Core\Event\EventRenderer.h" />
-    <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_GenerateGBuffers.h" />
-    <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_DeferredShading.h" />
-    <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_GenerateCubeMap.h" />
+    <ClInclude Include="src\API\DX12\DirectX12Helpers.h" />
+    <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_GenerateIBLSpecular.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\API\DX12\DirectX12BufferManager.cpp">
@@ -538,6 +574,9 @@
     <ClCompile Include="src\Core\Entity\Camera\ICamera.cpp">
       <Filter>Core\Entity\Camera</Filter>
     </ClCompile>
+    <ClCompile Include="src\Core\Entity\Components\AttachedComponent.cpp">
+      <Filter>Core\Entity\Components</Filter>
+    </ClCompile>
     <ClCompile Include="src\Core\Entity\Components\BoundingBoxComponent.cpp">
       <Filter>Core\Entity\Components</Filter>
     </ClCompile>
@@ -595,6 +634,9 @@
     <ClCompile Include="src\Core\Entity\Model\Mesh.cpp">
       <Filter>Core\Entity\Model</Filter>
     </ClCompile>
+    <ClCompile Include="src\Core\Entity\Model\MeshHandle.cpp">
+      <Filter>Core\Entity\Model</Filter>
+    </ClCompile>
     <ClCompile Include="src\Core\Entity\Model\Model.cpp">
       <Filter>Core\Entity\Model</Filter>
     </ClCompile>
@@ -613,6 +655,12 @@
     <ClCompile Include="src\Core\Entity\Scene.cpp">
       <Filter>Core\Entity</Filter>
     </ClCompile>
+    <ClCompile Include="src\Core\Entity\Systems\SystemMovement.cpp">
+      <Filter>Core\Entity\Systems</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Entity\Systems\SystemUpdateTransform.cpp">
+      <Filter>Core\Entity\Systems</Filter>
+    </ClCompile>
     <ClCompile Include="src\Core\Event\Event.cpp">
       <Filter>Core\Event</Filter>
     </ClCompile>
@@ -626,6 +674,9 @@
       <Filter>Core\Event</Filter>
     </ClCompile>
     <ClCompile Include="src\Core\Event\EventMouse.cpp">
+      <Filter>Core\Event</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Event\EventRenderer.cpp">
       <Filter>Core\Event</Filter>
     </ClCompile>
     <ClCompile Include="src\Core\Helper\HardwareInfo.cpp">
@@ -730,7 +781,19 @@
     <ClCompile Include="src\Core\Renderer\RenderPass.cpp">
       <Filter>Core\Renderer</Filter>
     </ClCompile>
+    <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_DeferredShading.cpp">
+      <Filter>Core\Renderer\RenderPass</Filter>
+    </ClCompile>
     <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_ForwardRendering.cpp">
+      <Filter>Core\Renderer\RenderPass</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_GenerateCubeMap.cpp">
+      <Filter>Core\Renderer\RenderPass</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_GenerateGBuffers.cpp">
+      <Filter>Core\Renderer\RenderPass</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_GenerateIBL.cpp">
       <Filter>Core\Renderer\RenderPass</Filter>
     </ClCompile>
     <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_GenerateShadowMap.cpp">
@@ -815,13 +878,7 @@
       <Filter>Platform\Windows</Filter>
     </ClCompile>
     <ClCompile Include="src\pch.cpp" />
-    <ClCompile Include="src\Core\Entity\Components\AttachedComponent.cpp" />
-    <ClCompile Include="src\Core\Entity\Systems\SystemMovement.cpp" />
-    <ClCompile Include="src\Core\Entity\Systems\SystemUpdateTransform.cpp" />
-    <ClCompile Include="src\Core\Entity\Model\MeshHandle.cpp" />
-    <ClCompile Include="src\Core\Event\EventRenderer.cpp" />
-    <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_GenerateGBuffers.cpp" />
-    <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_DeferredShading.cpp" />
-    <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_GenerateCubeMap.cpp" />
+    <ClCompile Include="src\API\DX12\DirectX12Helpers.cpp" />
+    <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_GenerateIBLSpecular.cpp" />
   </ItemGroup>
 </Project>

@@ -33,6 +33,7 @@ namespace TruthEngine
 			, uint32_t width
 			, uint32_t height
 			, uint8_t arraySize
+			, uint8_t mipLevels
 			, TE_RESOURCE_FORMAT format
 			, const ClearValue_DepthStencil clearValue
 			, bool useAsShaderResource
