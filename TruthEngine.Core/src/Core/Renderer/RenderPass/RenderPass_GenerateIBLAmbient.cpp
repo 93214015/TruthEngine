@@ -1,23 +1,21 @@
 #include "pch.h"
-#include "RenderPass_GenerateIBL.h"
+#include "RenderPass_GenerateIBLAmbient.h"
 
 #include "Core/Renderer/BufferManager.h"
 #include "Core/Renderer/ShaderManager.h"
 
-#include "DirectXTex/DirectXTex.h"
-
 namespace TruthEngine
 {
 
-	RenderPass_GenerateIBL::RenderPass_GenerateIBL(RendererLayer* _RendererLayer)
+	RenderPass_GenerateIBLAmbient::RenderPass_GenerateIBLAmbient(RendererLayer* _RendererLayer)
 		: RenderPass(TE_IDX_RENDERPASS::GENERATEIBLAMBIENT, _RendererLayer)
 		, m_Viewport(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f)
 		, m_ViewRect(0l, 0l, 0l, 0l)
 	{
 	}
-	void RenderPass_GenerateIBL::OnAttach()
+	void RenderPass_GenerateIBLAmbient::OnAttach()
 	{
-		TE_ASSERT_CORE(m_IsInitialized, "The RenderPass_GenerateIBL is not initialized!");
+		TE_ASSERT_CORE(m_IsInitialized, "The RenderPass_GenerateIBLAmbient is not initialized!");
 
 		m_RendererCommand.Init(TE_IDX_RENDERPASS::GENERATEIBLAMBIENT, TE_IDX_SHADERCLASS::GENERATEIBLAMBIENT);
 
@@ -26,19 +24,19 @@ namespace TruthEngine
 
 		PreparePipline();
 	}
-	void RenderPass_GenerateIBL::OnDetach()
+	void RenderPass_GenerateIBLAmbient::OnDetach()
 	{
 		m_RendererCommand.ReleaseResource(m_TextureRenderTargetIBL);
 
 		m_RendererCommand.Release();
 	}
-	void RenderPass_GenerateIBL::OnImGuiRender()
+	void RenderPass_GenerateIBLAmbient::OnImGuiRender()
 	{
 	}
-	void RenderPass_GenerateIBL::OnUpdate(double _DeltaTime)
+	void RenderPass_GenerateIBLAmbient::OnUpdate(double _DeltaTime)
 	{
 	}
-	void RenderPass_GenerateIBL::BeginScene()
+	void RenderPass_GenerateIBLAmbient::BeginScene()
 	{
 		m_RendererCommand.BeginGraphics(&m_PipelineGenerateIBL);
 
@@ -46,20 +44,20 @@ namespace TruthEngine
 		m_RendererCommand.SetRenderTarget(m_RenderTartgetViewIBL);
 		m_RendererCommand.ClearRenderTarget(m_RenderTartgetViewIBL);
 	}
-	void RenderPass_GenerateIBL::EndScene()
+	void RenderPass_GenerateIBLAmbient::EndScene()
 	{
 		m_RendererCommand.End();
 
 		if (m_OutputTextureFilePath.c_str() != "")
 			m_RendererCommand.SaveTextureToFile(*m_TextureRenderTargetIBL, m_OutputTextureFilePath.c_str());
 	}
-	void RenderPass_GenerateIBL::Render()
+	void RenderPass_GenerateIBLAmbient::Render()
 	{
 		m_RendererCommand.ExecutePendingCommands();
 
 		m_RendererCommand.Draw(1, 0);
 	}
-	void RenderPass_GenerateIBL::Initialize(TE_IDX_GRESOURCES _TextureIBLIDX, size_t _TextureIBLSize, TE_RESOURCE_FORMAT _TextureIBLFormat, const char* _OutputFilePath)
+	void RenderPass_GenerateIBLAmbient::Initialize(TE_IDX_GRESOURCES _TextureIBLIDX, size_t _TextureIBLSize, TE_RESOURCE_FORMAT _TextureIBLFormat, const char* _OutputFilePath)
 	{
 		m_TextureIBLIDX = _TextureIBLIDX;
 		m_TextureIBLSize = _TextureIBLSize;
@@ -71,7 +69,7 @@ namespace TruthEngine
 
 		m_IsInitialized = true;
 	}
-	void RenderPass_GenerateIBL::PreparePipline()
+	void RenderPass_GenerateIBLAmbient::PreparePipline()
 	{
 
 		constexpr RendererStateSet _RendererStates = InitRenderStates(
@@ -97,20 +95,20 @@ namespace TruthEngine
 
 		Shader* shader = nullptr;
 		//Generate Cube Map Shader
-		auto result = TE_INSTANCE_SHADERMANAGER->AddShader(&shader, TE_IDX_SHADERCLASS::GENERATEIBLAMBIENT, TE_IDX_MESH_TYPE::MESH_POINT, _RendererStates, "Assets/Shaders/GenerateIBL.hlsl", "vs", "ps", "", "", "", "gs");
+		auto result = TE_INSTANCE_SHADERMANAGER->AddShader(&shader, TE_IDX_SHADERCLASS::GENERATEIBLAMBIENT, TE_IDX_MESH_TYPE::MESH_POINT, _RendererStates, "Assets/Shaders/GenerateIBLAmbient.hlsl", "vs", "ps", "", "", "", "gs");
 
 		TE_RESOURCE_FORMAT rtvFormats[] = { TE_RESOURCE_FORMAT::R16G16B16A16_FLOAT };
 
 		PipelineGraphics::Factory(&m_PipelineGenerateIBL, _RendererStates, shader, _countof(rtvFormats), rtvFormats, TE_RESOURCE_FORMAT::D32_FLOAT, false);
 	}
-	void RenderPass_GenerateIBL::InitTextures()
+	void RenderPass_GenerateIBLAmbient::InitTextures()
 	{
 		m_TextureRenderTargetIBL = m_RendererCommand.CreateRenderTargetCubeMap(m_TextureIBLIDX, static_cast<uint32_t>(m_TextureIBLSize), static_cast<uint32_t>(m_TextureIBLSize), 1, m_TextureIBLFormat, ClearValue_RenderTarget{ 0.0f, 0.0f, 0.0f, 0.0f }, true, false);
 
 		m_RendererCommand.CreateRenderTargetView(m_TextureRenderTargetIBL, &m_RenderTartgetViewIBL);
 
 	}
-	void RenderPass_GenerateIBL::InitBuffers()
+	void RenderPass_GenerateIBLAmbient::InitBuffers()
 	{
 	}
 }

@@ -402,7 +402,7 @@
     <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_GenerateGBuffers.h">
       <Filter>Core\Renderer\RenderPass</Filter>
     </ClInclude>
-    <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_GenerateIBL.h">
+    <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_GenerateIBLAmbient.h">
       <Filter>Core\Renderer\RenderPass</Filter>
     </ClInclude>
     <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_GenerateShadowMap.h">
@@ -793,7 +793,7 @@
     <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_GenerateGBuffers.cpp">
       <Filter>Core\Renderer\RenderPass</Filter>
     </ClCompile>
-    <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_GenerateIBL.cpp">
+    <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_GenerateIBLAmbient.cpp">
       <Filter>Core\Renderer\RenderPass</Filter>
     </ClCompile>
     <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_GenerateShadowMap.cpp">

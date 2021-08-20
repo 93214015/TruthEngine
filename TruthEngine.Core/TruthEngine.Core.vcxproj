@@ -267,7 +267,7 @@
     <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_ForwardRendering.h" />
     <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_GenerateCubeMap.h" />
     <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_GenerateGBuffers.h" />
-    <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_GenerateIBL.h" />
+    <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_GenerateIBLAmbient.h" />
     <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_GenerateIBLSpecular.h" />
     <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_GenerateShadowMap.h" />
     <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_PostProcessing_HDR.h" />
@@ -402,7 +402,7 @@
     <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_ForwardRendering.cpp" />
     <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_GenerateCubeMap.cpp" />
     <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_GenerateGBuffers.cpp" />
-    <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_GenerateIBL.cpp" />
+    <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_GenerateIBLAmbient.cpp" />
     <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_GenerateIBLSpecular.cpp" />
     <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_GenerateShadowMap.cpp" />
     <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_PostProcessing_HDR.cpp" />

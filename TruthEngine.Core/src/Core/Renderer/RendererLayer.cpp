@@ -33,7 +33,8 @@ namespace TruthEngine
 		, m_RenderPass_GenerateGBuffers(std::make_shared<RenderPass_GenerateGBuffers>(this))
 		, m_RenderPass_DeferredShading(std::make_shared<RenderPass_DeferredShading>(this))
 		, m_RenderPass_GenerateCubeMap(std::make_shared<RenderPass_GenerateCubeMap>(this))
-		, m_RenderPass_GenerateIBL(std::make_shared<RenderPass_GenerateIBL>(this))
+		, m_RenderPass_GenerateIBLAmbient(std::make_shared<RenderPass_GenerateIBLAmbient>(this))
+		, m_RenderPass_GenerateIBLSpecular(std::make_shared<RenderPass_GenerateIBLSpecular>(this))
 	{
 	}
 	RendererLayer::~RendererLayer() = default;
@@ -49,7 +50,7 @@ namespace TruthEngine
 
 		m_BufferManager = TE_INSTANCE_BUFFERMANAGER;
 
-		m_BufferManager->Init(1000, 1000, 10, 10);
+		m_BufferManager->Init(1000, 1000, 20, 10);
 
 		// init singleton object of dx12 swap chain
 		TE_INSTANCE_SWAPCHAIN->Init(TE_INSTANCE_APPLICATION->GetClientWidth(), TE_INSTANCE_APPLICATION->GetClientHeight(), TE_INSTANCE_APPLICATION->GetWindow(), TE_INSTANCE_APPLICATION->GetFramesOnTheFlyNum());
@@ -558,14 +559,25 @@ namespace TruthEngine
 		m_RenderPass_GenerateIBL->Render();
 		m_RenderPass_GenerateIBL->EndScene();*/
 
+		static Texture s_TextureInputGenerateIBLSpecular{TE_IDX_GRESOURCES::Texture_InputCreateIBLSpecular, 1024, 1024, 1, 1, TE_RESOURCE_FORMAT::UNKNOWN, TE_RESOURCE_USAGE_SHADERRESOURCE, TE_RESOURCE_TYPE::TEXTURE2D, TE_RESOURCE_STATES::COPY_DEST, false };
+
+		m_RendererCommand.LoadTextureFromFile(s_TextureInputGenerateIBLSpecular, TE_IDX_GRESOURCES::Texture_InputCreateIBLSpecular, "E:\\3DModels\\2021\\Textures\\GeneratedEnvironmentMap.dds");
+
+		m_RenderPass_GenerateIBLSpecular->Initialize(128, 512, 5, TE_RESOURCE_FORMAT::R16G16B16A16_FLOAT);
+		m_RenderPass_GenerateIBLSpecular->OnAttach();
+		m_RenderPass_GenerateIBLSpecular->BeginScene();
+		m_RenderPass_GenerateIBLSpecular->Render();
+		m_RenderPass_GenerateIBLSpecular->EndScene();
+
+		m_RendererCommand.SaveTextureToFile(TE_IDX_GRESOURCES::Texture_RT_IBL_Specular_Prefilter, "E:\\3DModels\\2021\\Textures\\GeneratedIBLMapSpecular.dds");
+		m_RendererCommand.SaveTextureToFile(TE_IDX_GRESOURCES::Texture_RT_IBL_Specular_BRDF, "E:\\3DModels\\2021\\Textures\\GeneratedIBLMapSpecularBRDF.dds");
+
 		/*m_RenderPass_GenerateCubeMap->OnDetach();
 		m_RenderPass_GenerateIBL->OnDetach(); */
 
 
 		m_RenderPassStack.PopAll();
 
-		//m_RenderPassStack.PushRenderPass(m_RenderPass_GenerateCubeMap.get());
-		//m_RenderPassStack.PushRenderPass(m_RenderPass_GenerateIBL.get());
 		m_RenderPassStack.PushRenderPass(m_RenderPass_GenerateShadowMap.get());
 		m_RenderPassStack.PushRenderPass(m_RenderPass_ForwardRendering.get());
 		//m_RenderPassStack.PushRenderPass(m_RenderPass_GenerateGBuffers.get());

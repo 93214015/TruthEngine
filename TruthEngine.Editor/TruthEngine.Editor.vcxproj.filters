@@ -31,4 +31,8 @@
     </ClCompile>
     <ClCompile Include="src\pch.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Assets\Shaders\GenerateIBLSpecular_PrefilterEnvironment.hlsl" />
+    <FxCompile Include="Assets\Shaders\GenerateIBLSpecular_PrecomputeBRDF.hlsl" />
+  </ItemGroup>
 </Project>

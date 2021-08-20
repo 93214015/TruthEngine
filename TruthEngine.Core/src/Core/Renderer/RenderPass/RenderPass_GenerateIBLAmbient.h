@@ -7,10 +7,10 @@
 
 namespace TruthEngine
 {
-	class RenderPass_GenerateIBL final : public RenderPass
+	class RenderPass_GenerateIBLAmbient final : public RenderPass
 	{
 	public:
-		RenderPass_GenerateIBL(RendererLayer* _RendererLayer);
+		RenderPass_GenerateIBLAmbient(RendererLayer* _RendererLayer);
 
 		void OnAttach() override;
 		void OnDetach() override;

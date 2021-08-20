@@ -23,7 +23,7 @@ namespace TruthEngine
 		virtual void EndScene() override;
 		virtual void Render() override;
 
-		void Initialize(size_t _TextureIBLSize, size_t _MipMapLevels, TE_RESOURCE_FORMAT _TextureIBLFormat);
+		void Initialize(size_t _TextureIBLPrefilterEnvironmentSize, size_t _TextureIBLPrecomputeBRDFSize, size_t _MipMapLevels, TE_RESOURCE_FORMAT _TextureIBLFormat);
 
 	private:
 		void InitTextures();
@@ -32,19 +32,38 @@ namespace TruthEngine
 
 	private:
 		bool m_IsInitialized = false;
-		uint32_t m_TextureIBLSize;
+		uint32_t m_TextureIBLPrefilterEnvironmentSize;
+		uint32_t m_TextureIBLPrecomputeBRDFSize;
 		uint32_t m_MipMapLevels;
 		TE_RESOURCE_FORMAT m_TextureIBLFormat;
 
-		RendererCommand m_RendererCommand;
+		std::vector<RendererCommand> m_ContainerRendererCommand_Prefilter;
+		RendererCommand m_RendererCommand_BRDF;
 
-		PipelineGraphics m_Pipeline;
+		PipelineGraphics m_PipelinePrefilter;
+		PipelineGraphics m_PipelineBRDF;
 
-		TextureRenderTarget* m_RenderTargetIBLSpecular;
+		TextureRenderTarget* m_RenderTargetIBLSpecularPrefilter;
+		TextureRenderTarget* m_RenderTargetIBLSpecularBRDF;
 
-		std::vector<RenderTargetView> m_RTVs;
+		std::vector<RenderTargetView> m_ContainerRTVPrefilter;
+		RenderTargetView m_RTVBRDF;
 
 		Viewport m_Viewport;
 		ViewRect m_ViewRect;
+
+		struct alignas(16) ConstantBuffer_Data
+		{
+			ConstantBuffer_Data()
+			{}
+			ConstantBuffer_Data(float _Roughness)
+				: Roughness(_Roughness)
+			{}
+
+			float Roughness = 0.0f;
+			float3 _Pad;
+		};
+
+		ConstantBufferDirect<ConstantBuffer_Data>* m_ConstantBufferDirect;
 	};
 }

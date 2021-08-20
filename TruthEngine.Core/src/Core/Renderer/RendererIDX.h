@@ -27,12 +27,14 @@ enum class TE_IDX_GRESOURCES : IDX
 	Constant_ShadowMapPerMesh,
 	Constant_ShadowMapPerLight,
 	Constant_EnvironmentMap,
+	Constant_IBL_Specular,
 
 	Texture_MaterialTextures,
 	Texture_CubeMap_Environment,
 	Texture_CubeMap_IBL,
 	Texture_InputCreateCubeMap,
 	Texture_InputCreateIBLAmbient,
+	Texture_InputCreateIBLSpecular,
 	Texture_RT_BackBuffer,
 	Texture_RT_GBuffer_Color,
 	Texture_RT_GBuffer_Normal,
@@ -43,7 +45,8 @@ enum class TE_IDX_GRESOURCES : IDX
 	Texture_RT_SceneBufferHDRMS,
 	Texture_RT_CubeMap,
 	Texture_RT_IBL_Ambient,
-	Texture_RT_IBL_Specular,
+	Texture_RT_IBL_Specular_Prefilter,
+	Texture_RT_IBL_Specular_BRDF,
 	Texture_DS_SceneBuffer,
 	Texture_DS_SceneBufferMS,
 	Texture_DS_ShadowMap_SunLight,
@@ -89,7 +92,8 @@ enum class TE_IDX_SHADERCLASS : IDX
 	DEFERREDSHADING,
 	GENERATECUBEMAP,
 	GENERATEIBLAMBIENT,
-	GENERATEIBLSPECULAR,
+	GENERATEIBLSPECULAR_PREFILTER,
+	GENERATEIBLSPECULAR_BRDF,
 	TOTALNUM
 };
 
