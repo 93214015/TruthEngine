@@ -42,7 +42,7 @@ namespace TruthEngine::API::DirectX12 {
 
 		TextureCubeMap* CreateTextureCube(TE_IDX_GRESOURCES idx, const char* filePath) override;
 
-		void LoadTextureFromFile(Texture& _OutTexture, TE_IDX_GRESOURCES _IDX, const char* _FilePath, uint8_t _MipLevels) override;
+		Texture* LoadTextureFromFile(TE_IDX_GRESOURCES _IDX, const char* _FilePath, uint8_t _MipLevels) override;
 
 		void SaveTextureToFile(const Texture& _Texture, const char* _FilePath) override;
 

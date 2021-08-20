@@ -559,7 +559,7 @@ namespace TruthEngine
 		m_RenderPass_GenerateIBL->Render();
 		m_RenderPass_GenerateIBL->EndScene();*/
 
-		static Texture s_TextureInputGenerateIBLSpecular{TE_IDX_GRESOURCES::Texture_InputCreateIBLSpecular, 1024, 1024, 1, 1, TE_RESOURCE_FORMAT::UNKNOWN, TE_RESOURCE_USAGE_SHADERRESOURCE, TE_RESOURCE_TYPE::TEXTURE2D, TE_RESOURCE_STATES::COPY_DEST, false };
+		/*static Texture s_TextureInputGenerateIBLSpecular{TE_IDX_GRESOURCES::Texture_InputCreateIBLSpecular, 1024, 1024, 1, 1, TE_RESOURCE_FORMAT::UNKNOWN, TE_RESOURCE_USAGE_SHADERRESOURCE, TE_RESOURCE_TYPE::TEXTURE2D, TE_RESOURCE_STATES::COPY_DEST, false};
 
 		m_RendererCommand.LoadTextureFromFile(s_TextureInputGenerateIBLSpecular, TE_IDX_GRESOURCES::Texture_InputCreateIBLSpecular, "E:\\3DModels\\2021\\Textures\\GeneratedEnvironmentMap.dds");
 
@@ -571,6 +571,7 @@ namespace TruthEngine
 
 		m_RendererCommand.SaveTextureToFile(TE_IDX_GRESOURCES::Texture_RT_IBL_Specular_Prefilter, "E:\\3DModels\\2021\\Textures\\GeneratedIBLMapSpecular.dds");
 		m_RendererCommand.SaveTextureToFile(TE_IDX_GRESOURCES::Texture_RT_IBL_Specular_BRDF, "E:\\3DModels\\2021\\Textures\\GeneratedIBLMapSpecularBRDF.dds");
+		*/
 
 		/*m_RenderPass_GenerateCubeMap->OnDetach();
 		m_RenderPass_GenerateIBL->OnDetach(); */
@@ -603,14 +604,19 @@ namespace TruthEngine
 
 		m_RendererCommand.CreateRenderTargetView(TE_INSTANCE_SWAPCHAIN, &m_RTVBackBuffer);
 
-		m_RendererCommand.CreateTextureCubeMap(TE_IDX_GRESOURCES::Texture_CubeMap_Environment, "E:\\3DModels\\2021\\Textures\\GeneratedEnvironmentMap.dds");
-		m_RendererCommand.CreateTextureCubeMap(TE_IDX_GRESOURCES::Texture_CubeMap_IBL, "E:\\3DModels\\2021\\Textures\\IBL\\GeneratedIBL.dds");
+		//m_RendererCommand.CreateTextureCubeMap(TE_IDX_GRESOURCES::Texture_CubeMap_Environment, "E:\\3DModels\\2021\\Textures\\GeneratedEnvironmentMap.dds");
+		//m_RendererCommand.CreateTextureCubeMap(TE_IDX_GRESOURCES::Texture_CubeMap_IBLAmbient, "E:\\3DModels\\2021\\Textures\\IBL\\GeneratedIBL.dds");
 		//m_RendererCommand.CreateTextureCubeMap(TE_IDX_GRESOURCES::Texture_CubeMap_Environment, "K:\\EBook\\Game Programming\\Source Codes\\d3d12book-master\\d3d12book-master\\Textures\\grasscube1024.dds");
 		//m_RendererCommand.CreateTextureCubeMap(TE_IDX_TEXTURE::CUBEMAP_ENVIRONMENT, "K:\\Downloads\\3D\\EnvironmentMap_BabylonJs_Sample1\\textures\\SpecularHDR.dds");
 		//m_RendererCommand.CreateTextureCubeMap(TE_IDX_TEXTURE::CUBEMAP_ENVIRONMENT, "K:\\Downloads\\3D\\EnvironmentMap_BabylonJs_Forest\\textures\\forest.dds");
 
 		auto _TextureDepthStencil = m_RendererCommand.CreateDepthStencil(TE_IDX_GRESOURCES::Texture_DS_SceneBuffer, _ViewportWidth, _ViewportHeight, 1, TE_RESOURCE_FORMAT::R32_TYPELESS, ClearValue_DepthStencil{ 1.0f, 0 }, true, false);
 		m_RendererCommand.CreateDepthStencilView(_TextureDepthStencil, &m_DSVSceneBuffer);
+
+		m_RendererCommand.LoadTextureFromFile(TE_IDX_GRESOURCES::Texture_CubeMap_Environment, "E:\\3DModels\\2021\\Textures\\GeneratedEnvironmentMap.dds");
+		m_RendererCommand.LoadTextureFromFile(TE_IDX_GRESOURCES::Texture_CubeMap_IBLAmbient, "E:\\3DModels\\2021\\Textures\\IBL\\GeneratedIBL.dds");
+		m_RendererCommand.LoadTextureFromFile(TE_IDX_GRESOURCES::Texture_CubeMap_IBLSpecular, "E:\\3DModels\\2021\\Textures\\GeneratedIBLMapSpecular.dds");
+		m_RendererCommand.LoadTextureFromFile(TE_IDX_GRESOURCES::Texture_PrecomputedBRDF, "E:\\3DModels\\2021\\Textures\\GeneratedIBLMapSpecularBRDF.dds");
 	}
 
 	void RendererLayer::InitBuffers()

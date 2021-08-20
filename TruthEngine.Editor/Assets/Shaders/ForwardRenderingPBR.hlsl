@@ -36,9 +36,11 @@ cbuffer CBPerMesh : register(b0)
 Texture2D<float> tShadowMap_SunLight : register(t0, space0);
 Texture2D<float> tShadowMap_SpotLight : register(t1, space0);
 TextureCube tEnvironmentMap : register(t2, space0);
-TextureCube tIBL : register(t3, space0);
+TextureCube tIBLAmbient : register(t3, space0);
+TextureCube tIBLSpecular : register(t4, space0);
+Texture2D<float2> tPrecomputedBRDF : register(t5, space0);
 
-Texture2D MaterialTextures[500] : register(t4, space0);
+Texture2D MaterialTextures[500] : register(t6, space0);
 
 
 ///////////////////////////////////////////////////
@@ -187,11 +189,22 @@ float4 ps(vertexOut pin) : SV_Target
         litColor += lit;
     }
     
-    float3 _Ks = FresnelSchlickRoughness(_F0, max(dot(normal, toEye), 0.0f), _Roughness);
+    float _NdotV = max(dot(normal, toEye), 0.0f);
+    
+    float3 _Ks = FresnelSchlickRoughness(_F0, _NdotV, _Roughness);
     float3 _Kd = 1.0 - _Ks;
-    float3 _Irrediance = tIBL.Sample(sampler_linear, normal).rgb;
+    _Kd *= 1.0f - _Metallic;
+    
+    float3 _Irrediance = tIBLAmbient.Sample(sampler_linear, normal).rgb;
     float3 _Diffuse = _Irrediance * _MaterialAlbedo;
-    float3 _Ambient = _Kd * _Diffuse * _AmbientOcclusion.xxx;
+
+    float3 _ReflectVector = reflect(-toEye, normal);
+    const float MAX_REFLECTION_LOD = 4.0f;
+    float3 _PrefilteredIBLSpecular = tIBLSpecular.SampleLevel(sampler_linear, _ReflectVector, _Roughness * MAX_REFLECTION_LOD).rgb;
+    float2 _PrecomputeBRDF = tPrecomputedBRDF.Sample(sampler_linear, float2(_NdotV, _Roughness)).rg;
+    float3 _Specular = _PrefilteredIBLSpecular * (_Ks * _PrecomputeBRDF.x + _PrecomputeBRDF.y);
+
+    float3 _Ambient = (_Kd * _Diffuse + _Specular) * _AmbientOcclusion.xxx;
 	
 	//Add Global Ambient Light Factor
     //litColor += (_MaterialAlbedo * gAmbientLightStrength * _AmbientOcclusion.xxx);

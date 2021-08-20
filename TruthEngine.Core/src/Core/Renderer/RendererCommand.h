@@ -31,7 +31,7 @@ namespace TruthEngine
 			TextureRenderTarget* CreateRenderTargetCubeMap(TE_IDX_GRESOURCES idx, uint32_t width, uint32_t height, uint8_t mipLevels, TE_RESOURCE_FORMAT format, const ClearValue_RenderTarget& clearValue, bool useAsShaderResource, bool enbaleMSAA);
 			TextureDepthStencil* CreateDepthStencil(TE_IDX_GRESOURCES idx, uint32_t width, uint32_t height, uint8_t mipLevels, TE_RESOURCE_FORMAT format, const ClearValue_DepthStencil& clearValue, bool useAsShaderResource, bool enbaleMSAA);
 			TextureCubeMap* CreateTextureCubeMap(TE_IDX_GRESOURCES idx, const char* filePath);
-			void LoadTextureFromFile(Texture& _OutTextue, TE_IDX_GRESOURCES _IDX, const char* _FilePath, uint8_t _MipLevels = 1);
+			Texture* LoadTextureFromFile(TE_IDX_GRESOURCES _IDX, const char* _FilePath, uint8_t _MipLevels = 1);
 			void SaveTextureToFile(const Texture& _Textue, const char* _FilePath);
 			void SaveTextureToFile(TE_IDX_GRESOURCES _TextureIDX, const char* _FilePath);
 			Buffer* CreateBufferStructuredRW(TE_IDX_GRESOURCES _IDX, uint32_t _ElementSizeInByte, uint32_t _ElementNum, bool _IsByteAddressBuffer);

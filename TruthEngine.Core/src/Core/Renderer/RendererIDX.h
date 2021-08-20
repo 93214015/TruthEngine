@@ -31,7 +31,9 @@ enum class TE_IDX_GRESOURCES : IDX
 
 	Texture_MaterialTextures,
 	Texture_CubeMap_Environment,
-	Texture_CubeMap_IBL,
+	Texture_CubeMap_IBLAmbient,
+	Texture_CubeMap_IBLSpecular,
+	Texture_PrecomputedBRDF,
 	Texture_InputCreateCubeMap,
 	Texture_InputCreateIBLAmbient,
 	Texture_InputCreateIBLSpecular,

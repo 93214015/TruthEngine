@@ -30,7 +30,8 @@ float RadicalInverse_VdC(uint bits)
 // ----------------------------------------------------------------------------
 float2 Hammersley(uint i, uint N)
 {
-    return float2(float(i) / float(N), RadicalInverse_VdC(i));
+    float _idivn = float(i) / float(N);
+    return float2(_idivn, RadicalInverse_VdC(i));
 }
 
 #endif

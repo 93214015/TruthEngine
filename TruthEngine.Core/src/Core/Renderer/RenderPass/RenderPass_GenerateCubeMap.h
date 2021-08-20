@@ -48,7 +48,7 @@ namespace TruthEngine
 
 		TextureRenderTarget* m_TextureRenderTargetCubeMap = nullptr;
 		//TextureRenderTarget* m_TextureRenderTargetIBL = nullptr;
-		Texture m_TextureEnvironment;
+		Texture* m_TextureEnvironment;
 
 		Viewport m_Viewport;
 		ViewRect m_ViewRect;

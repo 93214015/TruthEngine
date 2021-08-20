@@ -391,9 +391,9 @@ namespace TruthEngine
 		return TE_INSTANCE_BUFFERMANAGER->CreateTextureCube(idx, filePath);
 	}
 
-	void RendererCommand::LoadTextureFromFile(Texture& _OutTextue, TE_IDX_GRESOURCES _IDX, const char* _FilePath, uint8_t _MipLevels)
+	Texture* RendererCommand::LoadTextureFromFile(TE_IDX_GRESOURCES _IDX, const char* _FilePath, uint8_t _MipLevels)
 	{
-		TE_INSTANCE_BUFFERMANAGER->LoadTextureFromFile(_OutTextue, _IDX, _FilePath, _MipLevels);
+		return TE_INSTANCE_BUFFERMANAGER->LoadTextureFromFile(_IDX, _FilePath, _MipLevels);
 	}
 
 	void RendererCommand::SaveTextureToFile(const Texture& _Textue, const char* _FilePath)

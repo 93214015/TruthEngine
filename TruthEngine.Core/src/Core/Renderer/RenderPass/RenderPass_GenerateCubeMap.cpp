@@ -12,7 +12,6 @@ namespace TruthEngine
 		: RenderPass(TE_IDX_RENDERPASS::GENERATECUBEMAP, _RendererLayer)
 		, m_Viewport(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f)
 		, m_ViewRect(0l, 0l, 0l, 0l)
-		, m_TextureEnvironment(TE_IDX_GRESOURCES::Texture_InputCreateCubeMap, 0, 0, 1, 1, TE_RESOURCE_FORMAT::UNKNOWN, TE_RESOURCE_USAGE_SHADERRESOURCE, TE_RESOURCE_TYPE::TEXTURE2D, TE_RESOURCE_STATES::COPY_DEST, false)
 	{
 	}
 
@@ -31,8 +30,6 @@ namespace TruthEngine
 
 	void RenderPass_GenerateCubeMap::OnDetach()
 	{
-		m_RendererCommand_GenerateCubeMap.ReleaseResource(&m_TextureEnvironment);
-
 		m_RendererCommand_GenerateCubeMap.Release();
 		//m_RendererCommand_GenerateIBL.Release();
 
@@ -141,7 +138,7 @@ namespace TruthEngine
 		//m_RendererCommand_GenerateCubeMap.CreateRenderTargetView(m_TextureRenderTargetIBL, &m_RenderTartgetViewIBL);
 
 		//m_RendererCommand_GenerateCubeMap.LoadTextureFromFile(m_TextureEnvironment, TE_IDX_GRESOURCES::Texture_Environment, "E:\\3DModels\\2021\\Textures\\IBL\\Road_to_MonumentValley_8k.jpg");
-		m_RendererCommand_GenerateCubeMap.LoadTextureFromFile(m_TextureEnvironment, TE_IDX_GRESOURCES::Texture_InputCreateCubeMap, m_InputTextureFilePath.c_str());
+		m_TextureEnvironment = m_RendererCommand_GenerateCubeMap.LoadTextureFromFile(TE_IDX_GRESOURCES::Texture_InputCreateCubeMap, m_InputTextureFilePath.c_str());
 	}
 
 	void RenderPass_GenerateCubeMap::InitBuffers()

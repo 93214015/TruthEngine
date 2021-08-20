@@ -129,7 +129,7 @@ void gs(
 //////////////// Pixel Shader
 ///////////////////////////////////////////////////
 
-#define SAMPLE_COUNT 1024
+#define SAMPLE_COUNT 1024u
 
 cbuffer CBData : register(b0)
 {
@@ -171,7 +171,7 @@ float4 ps(GSOutput _GsOut) : SV_Target
     float _TotalWeight = 0.0f;
     float3 _PrefilteredColor = float3(0.0f, 0.0f, 0.0f);
     
-    for (uint i = 0; i < SAMPLE_COUNT; ++i)
+    for (uint i = 0u; i < SAMPLE_COUNT; ++i)
     {
         float2 _Xi = Hammersley(i, SAMPLE_COUNT);
         float3 _H = ImportanceSampleGGX(_Xi, _Normal, gRoughness);

@@ -32,13 +32,13 @@ VSOut vs(uint _VertexID : SV_VertexID)
 
 float GeometrySchlickGGX(float _NdotV, float _Roughness)
 {
-    float r = _Roughness + 1.0f;
-    float k = (r * r) / 8.0f;
-    
-    float _Numerator = _NdotV;
-    float _Denominator = _NdotV * (1.0f - k) + k;
+    float a = _Roughness;
+    float k = (a * a) / 2.0;
 
-    return _Numerator / _Denominator;
+    float nom = _NdotV;
+    float denom = _NdotV * (1.0 - k) + k;
+
+    return nom / denom;
 }
 
 float GeometrySmith(float3 _Normal, float3 _View, float3 _LightVector, float _Roughness)

@@ -953,7 +953,7 @@ namespace TruthEngine::API::DirectX12
 		return &tex;
 	}
 
-	void DirectX12BufferManager::LoadTextureFromFile(Texture& _OutTexture, TE_IDX_GRESOURCES _IDX, const char* _FilePath, uint8_t _MipLevels)
+	Texture* DirectX12BufferManager::LoadTextureFromFile(TE_IDX_GRESOURCES _IDX, const char* _FilePath, uint8_t _MipLevels)
 	{
 		boost::filesystem::path textureFilePath(_FilePath);
 		std::string fileName = textureFilePath.filename().string();
@@ -966,6 +966,8 @@ namespace TruthEngine::API::DirectX12
 		//auto resourceIndex = static_cast<uint32_t>(m_Resources.size());
 		//auto resource = std::addressof(m_Resources.emplace_back());
 
+		Texture* _OutTexture = nullptr;
+
 		uploadBatch.Begin(D3D12_COMMAND_LIST_TYPE_COPY);
 		if (fileExtension == L".hdr")
 		{
@@ -973,17 +975,17 @@ namespace TruthEngine::API::DirectX12
 			DirectX::LoadFromHDRFile(filePathW.c_str(), nullptr, _ScratchImage);
 
 			auto _Image = _ScratchImage.GetImage(0, 0, 0);
-			_OutTexture = Texture{ _IDX, static_cast<uint32_t>(_Image->width), static_cast<uint32_t>(_Image->height), 1, _MipLevels, static_cast<TE_RESOURCE_FORMAT>(_Image->format), TE_RESOURCE_USAGE_SHADERRESOURCE, TE_RESOURCE_TYPE::TEXTURE2D, TE_RESOURCE_STATES::COPY_DEST, false };
+			_OutTexture = &m_Textures.emplace_back( _IDX, static_cast<uint32_t>(_Image->width), static_cast<uint32_t>(_Image->height), 1, _MipLevels, static_cast<TE_RESOURCE_FORMAT>(_Image->format), TE_RESOURCE_USAGE_SHADERRESOURCE, TE_RESOURCE_TYPE::TEXTURE2D, TE_RESOURCE_STATES::COPY_DEST, false );
 
-			CreateResource(&_OutTexture);
+			CreateResource(_OutTexture);
 
 			D3D12_SUBRESOURCE_DATA _InitData;
 			_InitData.pData = _Image->pixels;
 			_InitData.RowPitch = _Image->rowPitch;
 			_InitData.SlicePitch = _Image->slicePitch;
 
-			uploadBatch.Upload(m_Resources[_OutTexture.GetResourceIndex()].Get(), 0, &_InitData, 1);
-			uploadBatch.Transition(m_Resources[_OutTexture.GetResourceIndex()].Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE | D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
+			uploadBatch.Upload(m_Resources[_OutTexture->GetResourceIndex()].Get(), 0, &_InitData, 1);
+			uploadBatch.Transition(m_Resources[_OutTexture->GetResourceIndex()].Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE | D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
 		}
 		else
 		{
@@ -1002,13 +1004,30 @@ namespace TruthEngine::API::DirectX12
 
 			auto desc = (*resource)->GetDesc();
 
-			_OutTexture = Texture{ _IDX, static_cast<uint32_t>(desc.Width), static_cast<uint32_t>(desc.Height), 1, _MipLevels, static_cast<TE_RESOURCE_FORMAT>(desc.Format), TE_RESOURCE_USAGE_SHADERRESOURCE, TE_RESOURCE_TYPE::TEXTURE2D, TE_RESOURCE_STATES::PIXEL_SHADER_RESOURCE | TE_RESOURCE_STATES::NON_PIXEL_SHADER_RESOURCE, false };
-			_OutTexture.m_ResourceIndex = resourceIndex;
+			TE_RESOURCE_TYPE _RType = TE_RESOURCE_TYPE::UNKNOWN;
+
+			if (desc.DepthOrArraySize == 1)
+			{
+				_RType = TE_RESOURCE_TYPE::TEXTURE2D;
+			}
+			else if (desc.DepthOrArraySize == 6)
+			{
+				_RType = TE_RESOURCE_TYPE::TEXTURECUBE;
+			}
+			else
+			{
+				_RType = TE_RESOURCE_TYPE::TEXTURE2DARRAY;
+			}
+
+			_OutTexture = &m_Textures.emplace_back( _IDX, static_cast<uint32_t>(desc.Width), static_cast<uint32_t>(desc.Height), static_cast<uint8_t>(desc.DepthOrArraySize), _MipLevels, static_cast<TE_RESOURCE_FORMAT>(desc.Format), TE_RESOURCE_USAGE_SHADERRESOURCE, _RType, TE_RESOURCE_STATES::PIXEL_SHADER_RESOURCE | TE_RESOURCE_STATES::NON_PIXEL_SHADER_RESOURCE, false );
+			_OutTexture->m_ResourceIndex = resourceIndex;
 		}
 		uploadBatch.End(TE_INSTANCE_API_DX12_COMMANDQUEUECOPY->GetNativeObject());
 
-		m_Map_Textures[_IDX] = &_OutTexture;
-		m_Map_GraphicResources[_IDX] = &_OutTexture;
+		m_Map_Textures[_IDX] = _OutTexture;
+		m_Map_GraphicResources[_IDX] = _OutTexture;
+
+		return _OutTexture;
 	}
 
 	void DirectX12BufferManager::SaveTextureToFile(const Texture& _Texture, const char* _FilePath)

@@ -136,7 +136,9 @@ namespace TruthEngine
 							ShaderSignature::ShaderRangeView(TE_IDX_GRESOURCES::Texture_DS_ShadowMap_SunLight, ShaderSignature::EShaderRangeType::SRV),
 							ShaderSignature::ShaderRangeView(TE_IDX_GRESOURCES::Texture_DS_ShadowMap_SpotLight, ShaderSignature::EShaderRangeType::SRV),
 							ShaderSignature::ShaderRangeView(TE_IDX_GRESOURCES::Texture_CubeMap_Environment, ShaderSignature::EShaderRangeType::SRV),
-							ShaderSignature::ShaderRangeView(TE_IDX_GRESOURCES::Texture_CubeMap_IBL, ShaderSignature::EShaderRangeType::SRV),
+							ShaderSignature::ShaderRangeView(TE_IDX_GRESOURCES::Texture_CubeMap_IBLAmbient, ShaderSignature::EShaderRangeType::SRV),
+							ShaderSignature::ShaderRangeView(TE_IDX_GRESOURCES::Texture_CubeMap_IBLSpecular, ShaderSignature::EShaderRangeType::SRV),
+							ShaderSignature::ShaderRangeView(TE_IDX_GRESOURCES::Texture_PrecomputedBRDF, ShaderSignature::EShaderRangeType::SRV),
 						})
 				}
 			);
@@ -146,7 +148,7 @@ namespace TruthEngine
 			(
 				static_cast<ShaderSignature::EShaderVisibility>(ShaderSignature::EShaderVisibility_ALL),
 				{
-						ShaderSignature::ShaderRange(4, 0, ShaderSignature::EShaderRangeType::SRV, ShaderSignature::EShaderRangeFlags::EShaderRangeFlags_NONE,
+						ShaderSignature::ShaderRange(6, 0, ShaderSignature::EShaderRangeType::SRV, ShaderSignature::EShaderRangeFlags::EShaderRangeFlags_NONE,
 						{
 							ShaderSignature::ShaderRangeView(TE_IDX_GRESOURCES::Texture_MaterialTextures, ShaderSignature::EShaderRangeType::SRV)
 						} , MATERIAL_TEXTURE_COUNT)
