@@ -132,7 +132,7 @@ static const float2 invAtan = float2(0.1591, 0.3183);
 
 float2 SampleSphericalMap(float3 _PositionWorld)
 {
-    float2 uv = float2(atan2(_PositionWorld.z, _PositionWorld.x), acos(_PositionWorld.y));
+    float2 uv = float2(atan2(_PositionWorld.x, _PositionWorld.z), acos(_PositionWorld.y));
     uv *= invAtan;
     uv.x += 0.5;
     return uv;

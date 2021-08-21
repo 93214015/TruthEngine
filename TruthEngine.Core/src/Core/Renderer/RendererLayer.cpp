@@ -545,13 +545,13 @@ namespace TruthEngine
 
 	void RendererLayer::InitRenderPasses()
 	{
-		/*m_RenderPass_GenerateCubeMap->Initialize(TE_IDX_GRESOURCES::Texture_InputCreateIBLMap, 1024, TE_RESOURCE_FORMAT::R16G16B16A16_FLOAT, "E:\\3DModels\\2021\\Textures\\PolyHeaven\\studio_country_hall_4k.hdr");
+		m_RenderPass_GenerateCubeMap->Initialize(TE_IDX_GRESOURCES::Texture_RT_CubeMap, 2048, TE_RESOURCE_FORMAT::R16G16B16A16_FLOAT, "E:\\3DModels\\2021\\Textures\\IBL\\Desert_Highway\\Road_to_MonumentValley_Ref.hdr");
 		m_RenderPass_GenerateCubeMap->OnAttach();
 		m_RenderPass_GenerateCubeMap->BeginScene();
 		m_RenderPass_GenerateCubeMap->Render();
-		m_RenderPass_GenerateCubeMap->EndScene();*/
+		m_RenderPass_GenerateCubeMap->EndScene();
 
-		//m_RendererCommand.SaveTextureToFile(TE_IDX_GRESOURCES::Texture_RT_CubeMap, "E:\\3DModels\\2021\\Textures\\GeneratedEnvironmentMap.dds");
+		m_RendererCommand.SaveTextureToFile(TE_IDX_GRESOURCES::Texture_RT_CubeMap, "E:\\3DModels\\2021\\Textures\\GeneratedEnvironmentMap_DesertHighway.dds");
 
 		/*m_RenderPass_GenerateIBL->Initialize(TE_IDX_GRESOURCES::Texture_RT_IBL, 512, TE_RESOURCE_FORMAT::R16G16B16A16_FLOAT, "E:\\3DModels\\2021\\Textures\\IBL\\GeneratedIBL.dds");
 		m_RenderPass_GenerateIBL->OnAttach();
@@ -613,7 +613,7 @@ namespace TruthEngine
 		auto _TextureDepthStencil = m_RendererCommand.CreateDepthStencil(TE_IDX_GRESOURCES::Texture_DS_SceneBuffer, _ViewportWidth, _ViewportHeight, 1, TE_RESOURCE_FORMAT::R32_TYPELESS, ClearValue_DepthStencil{ 1.0f, 0 }, true, false);
 		m_RendererCommand.CreateDepthStencilView(_TextureDepthStencil, &m_DSVSceneBuffer);
 
-		m_RendererCommand.LoadTextureFromFile(TE_IDX_GRESOURCES::Texture_CubeMap_Environment, "E:\\3DModels\\2021\\Textures\\GeneratedEnvironmentMap.dds");
+		m_RendererCommand.LoadTextureFromFile(TE_IDX_GRESOURCES::Texture_CubeMap_Environment, "E:\\3DModels\\2021\\Textures\\GeneratedEnvironmentMap_DesertHighway.dds");
 		m_RendererCommand.LoadTextureFromFile(TE_IDX_GRESOURCES::Texture_CubeMap_IBLAmbient, "E:\\3DModels\\2021\\Textures\\IBL\\GeneratedIBL.dds");
 		m_RendererCommand.LoadTextureFromFile(TE_IDX_GRESOURCES::Texture_CubeMap_IBLSpecular, "E:\\3DModels\\2021\\Textures\\GeneratedIBLMapSpecular.dds");
 		m_RendererCommand.LoadTextureFromFile(TE_IDX_GRESOURCES::Texture_PrecomputedBRDF, "E:\\3DModels\\2021\\Textures\\GeneratedIBLMapSpecularBRDF.dds");
