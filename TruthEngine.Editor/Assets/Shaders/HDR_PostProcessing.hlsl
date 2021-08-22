@@ -113,6 +113,9 @@ float4 FinalPassPS(VS_OUTPUT In) : SV_TARGET
 
 	// Tone mapping
     _Color = ToneMapping(_Color);
+    
+    //Gamma Correction
+    _Color = pow(_Color, (1.0f / 2.2f).xxx);
 
 	// Output the LDR value
     return float4(_Color, 1.0);

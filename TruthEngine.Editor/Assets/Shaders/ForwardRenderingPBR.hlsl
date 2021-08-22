@@ -209,8 +209,8 @@ float4 ps(vertexOut pin) : SV_Target
 	//Add Global Ambient Light Factor
     //litColor += (_MaterialAlbedo * gAmbientLightStrength * _AmbientOcclusion.xxx);
     litColor += _Ambient;
-    litColor /= litColor + float3(1.0f, 1.0f, 1.0f);
-    litColor = pow(litColor, (1.0f / 2.2f).xxx);
+    //litColor /= litColor + float3(1.0f, 1.0f, 1.0f); //clamp values for LDR lighting
+    //litColor = pow(litColor, (1.0f / 2.2f).xxx);
     
     return float4(litColor, 1.0f);
 }

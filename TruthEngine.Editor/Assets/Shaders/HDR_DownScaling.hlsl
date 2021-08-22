@@ -217,7 +217,7 @@ void BloomReveal(uint3 _DispatchThreadID : SV_DispatchThreadID)
         float _AvgLum = bAverageLum[0];
 
         //Find the color scale
-        float _ColorScale = (_Lum - _AvgLum * gBloomThreshold);
+        float _ColorScale = max(_Lum - _AvgLum * gBloomThreshold, 0.0f);
         
         uBloom[_CurrPixel] = _Color * _ColorScale;
     }
