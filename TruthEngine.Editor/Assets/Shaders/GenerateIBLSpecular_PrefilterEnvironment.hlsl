@@ -142,15 +142,15 @@ float3 ImportanceSampleGGX(float2 Xi, float3 N, float roughness)
 {
     float a = roughness * roughness;
 	
-    float phi = 2.0 * PI * Xi.x;
-    float cosTheta = sqrt((1.0 - Xi.y) / (1.0 + (a * a - 1.0) * Xi.y));
-    float sinTheta = sqrt(1.0 - cosTheta * cosTheta);
+    float _theta = 2.0 * PI * Xi.x;
+    float _cosPhi = sqrt((1.0 - Xi.y) / (1.0 + (a * a - 1.0) * Xi.y));
+    float _sinPhi = sqrt(1.0 - _cosPhi * _cosPhi);
 	
     // from spherical coordinates to cartesian coordinates
     float3 H;
-    H.x = cos(phi) * sinTheta;
-    H.y = sin(phi) * sinTheta;
-    H.z = cosTheta;
+    H.x = cos(_theta) * _sinPhi;
+    H.y = sin(_theta) * _sinPhi;
+    H.z = _cosPhi;
 	
     // from tangent-space vector to world-space sample vector
     float3 up = abs(N.z) < 0.999 ? float3(0.0, 0.0, 1.0) : float3(1.0, 0.0, 0.0);

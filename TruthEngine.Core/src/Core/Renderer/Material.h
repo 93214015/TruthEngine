@@ -3,8 +3,6 @@
 
 namespace TruthEngine
 {
-		class MaterialTexture;
-
 		class Material
 		{
 

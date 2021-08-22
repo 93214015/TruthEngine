@@ -65,7 +65,7 @@ namespace TruthEngine
 
 		m_ModelManager->GetOffsets(m_BaseVertexOffset, m_BaseIndexOffset, m_MeshOffset, _MeshType);
 		m_MaterialOffset = m_MaterialManager->GetMatrialOffset();
-		
+
 		m_TextureMaterialOffset = TextureMaterialManager::GetInstance()->GetOffset();
 
 		AddSpace(aiscene, _MeshType);
@@ -174,10 +174,10 @@ namespace TruthEngine
 			{
 				const auto diffuseTextureCount = aiMaterial->GetTextureCount(aiTextureType_DIFFUSE);
 
-				if (diffuseTextureCount > 0)
+				/*if (diffuseTextureCount > 0)
 				{
 					SET_RENDERER_STATE(states, TE_RENDERER_STATE_ENABLED_MAP_DIFFUSE, TE_RENDERER_STATE_ENABLED_MAP_DIFFUSE_TRUE);
-				}
+				}*/
 
 				for (UINT j = 0; j < diffuseTextureCount; ++j)
 				{
@@ -202,11 +202,21 @@ namespace TruthEngine
 						}
 						else
 						{
-							diffuseMapViewIndex = texManager->CreateTexture(ais.C_Str(), m_ModelFilePath)->GetViewIndex();
+							if (TextureMaterial* _Texture = texManager->CreateTexture(ais.C_Str(), m_ModelFilePath); _Texture)
+							{
+								diffuseMapViewIndex = _Texture->GetViewIndex();
+							}
 						}
 
 					}
 				}
+
+				if (diffuseMapViewIndex != -1)
+				{
+					SET_RENDERER_STATE(states, TE_RENDERER_STATE_ENABLED_MAP_DIFFUSE, TE_RENDERER_STATE_ENABLED_MAP_DIFFUSE_TRUE);
+				}
+
+
 			}
 
 			uint32_t normalMapViewIndex = -1;
@@ -214,10 +224,10 @@ namespace TruthEngine
 			{
 				const auto normalTextureCount = aiMaterial->GetTextureCount(aiTextureType_NORMALS);
 
-				if (normalTextureCount > 0)
+				/*if (normalTextureCount > 0)
 				{
 					SET_RENDERER_STATE(states, TE_RENDERER_STATE_ENABLED_MAP_NORMAL, TE_RENDERER_STATE_ENABLED_MAP_NORMAL_TRUE);
-				}
+				}*/
 
 				for (UINT j = 0; j < normalTextureCount; ++j)
 				{
@@ -246,10 +256,18 @@ namespace TruthEngine
 						}*/
 						else
 						{
-							normalMapViewIndex = texManager->CreateTexture(ais.C_Str(), m_ModelFilePath)->GetViewIndex();
+							if (TextureMaterial* _Texture = texManager->CreateTexture(ais.C_Str(), m_ModelFilePath); _Texture)
+							{
+								normalMapViewIndex = _Texture->GetViewIndex();
+							}
 						}
 
 					}
+				}
+
+				if (normalMapViewIndex != -1)
+				{
+					SET_RENDERER_STATE(states, TE_RENDERER_STATE_ENABLED_MAP_NORMAL, TE_RENDERER_STATE_ENABLED_MAP_NORMAL_TRUE);
 				}
 			}
 
@@ -258,10 +276,10 @@ namespace TruthEngine
 			{
 				const auto SpecularTextureCount = aiMaterial->GetTextureCount(aiTextureType_SPECULAR);
 
-				if (SpecularTextureCount > 0)
+				/*if (SpecularTextureCount > 0)
 				{
 					SET_RENDERER_STATE(states, TE_RENDERER_STATE_ENABLED_MAP_SPECULAR, TE_RENDERER_STATE_ENABLED_MAP_SPECULAR_TRUE);
-				}
+				}*/
 
 				for (UINT j = 0; j < SpecularTextureCount; ++j)
 				{
@@ -290,11 +308,20 @@ namespace TruthEngine
 						}*/
 						else
 						{
-							specularMapViewIndex = texManager->CreateTexture(ais.C_Str(), m_ModelFilePath)->GetViewIndex();
+							if (TextureMaterial* _Texture = texManager->CreateTexture(ais.C_Str(), m_ModelFilePath); _Texture)
+							{
+								specularMapViewIndex = _Texture->GetViewIndex();
+							}
 						}
 
 					}
 				}
+
+				if (specularMapViewIndex != -1)
+				{
+					SET_RENDERER_STATE(states, TE_RENDERER_STATE_ENABLED_MAP_SPECULAR, TE_RENDERER_STATE_ENABLED_MAP_SPECULAR_TRUE);
+				}
+
 			}
 
 			//{

@@ -170,7 +170,7 @@ float4 ps(vertexOut pin) : SV_Target
 
     float3 litColor = float3(.0f, .0f, .0f);
     
-    float3 _F0 = float3(0.4f, 0.4f, 0.4f);
+    float3 _F0 = float3(0.04f, 0.04f, 0.04f);
     _F0 = lerp(_F0, _MaterialAlbedo, _Metallic);
     
     for (uint _DLightIndex = 0; _DLightIndex < gDLightCount; ++_DLightIndex)
