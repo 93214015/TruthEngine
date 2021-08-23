@@ -44,6 +44,12 @@ namespace TruthEngine
 		Application::GetApplication()->OnEvent(event);
 	}
 
+	void Material::SetShadingModel(TE_RENDERER_STATE_SHADING_MODEL _ShadingModel)
+	{
+		SET_RENDERER_STATE(m_RendererStates, TE_RENDERER_STATE_SHADING_MODEL, _ShadingModel);
+		InvokeEventChangeMaterial();
+	}
+
 	void Material::SetMapIndexDiffuse(uint32_t index)
 	{
 		if (index == m_MapIndexDiffuse)

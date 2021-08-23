@@ -225,7 +225,7 @@ namespace TruthEngine
 
 		RendererStateSet _ShadingModel = GET_RENDERER_STATE(_RendererState, TE_RENDERER_STATE_SHADING_MODEL);
 
-		auto _LambdaGetShaderAddress = [_ShadingModel]() -> std::string_view
+		auto _LambdaGetShaderAddress = [_ShadingModel]()
 		{
 			switch (_ShadingModel)
 			{
@@ -239,9 +239,9 @@ namespace TruthEngine
 			}
 		};
 
-		std::string_view _ShaderFilePath = _LambdaGetShaderAddress();
+		const char* _ShaderFilePath = _LambdaGetShaderAddress();
 
-		auto result = m_ShaderMgr->AddShader(&shader, TE_IDX_SHADERCLASS::FORWARDRENDERING, material->GetMeshType(), material->GetRendererStates(), _ShaderFilePath.data(), "vs", "ps");
+		auto result = m_ShaderMgr->AddShader(&shader, TE_IDX_SHADERCLASS::FORWARDRENDERING, material->GetMeshType(), _RendererState, _ShaderFilePath, "vs", "ps");
 
 		PipelineGraphics* _Pipeline = nullptr;
 
@@ -258,7 +258,7 @@ namespace TruthEngine
 			_Pipeline = _ItrPipeline->second;
 		}
 
-		PipelineGraphics::Factory(_Pipeline, material->GetRendererStates(), shader, 1, rtvFormats, TE_RESOURCE_FORMAT::D32_FLOAT, true);
+		PipelineGraphics::Factory(_Pipeline, _RendererState, shader, 1, rtvFormats, TE_RESOURCE_FORMAT::D32_FLOAT, true);
 
 	}
 

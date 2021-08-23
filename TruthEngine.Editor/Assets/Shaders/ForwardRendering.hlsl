@@ -151,7 +151,7 @@ float4 ps(vertexOut pin) : SV_Target
 	
     
 #ifdef ENABLE_MAP_SPECULAR
-    float3 _FresnelR0 = MaterialTextures[_material.MapIndexSpecular].Sample(sampler_point_wrap, _texUV).xyz;
+    float3 _FresnelR0 = MaterialTextures[_material.MapIndexSpecular].Sample(sampler_point_wrap, _texUV).xxx;
 #else
     float3 _FresnelR0 = _material.Metallic.xxx;
 #endif
@@ -160,13 +160,17 @@ float4 ps(vertexOut pin) : SV_Target
 
     float3 litColor = float3(.0f, .0f, .0f);
     
+    float _Shininess = 1.0f - _material.Roughness;
+    
     for (uint _DLightIndex = 0; _DLightIndex < gDLightCount; ++_DLightIndex)
     {
         
-        float3 lit = ComputeDirectLight(gDLights[_DLightIndex], _MaterialAlbedo, _material.Roughness, _FresnelR0, pin.posW, normal, toEye);
+        float3 lit = ComputeDirectLight(gDLights[_DLightIndex], _MaterialAlbedo, _Shininess, _FresnelR0, pin.posW, normal, toEye);
 		
         //float3 shadowMapCoords = pin.posLight.xyz / pin.posLight.w;
 
+        /***
+        
         //code for cascaded shadow map; finding corrsponding shadow map cascade and coords
         bool found = false;
         float3 shadowMapCoords = float3(0.0f, 0.0f, 0.0f);
@@ -224,13 +228,16 @@ float4 ps(vertexOut pin) : SV_Target
         //material_albedo = lightFactor * (material_albedo * Diffuse.xyz).xyz;
         
         litColor += lit * shadowFactor.xxx;
+
+        ***/
     }
 
 
     for (uint _SLightIndex = 0; _SLightIndex < gSLightCount; ++_SLightIndex)
     {
-        float3 lit = ComputeSpotLight(gSpotLights[_SLightIndex], _MaterialAlbedo, _material.Shininess, _FresnelR0, pin.posW, normal, toEye);
+        float3 lit = ComputeSpotLight(gSpotLights[_SLightIndex], _MaterialAlbedo, _Shininess, _FresnelR0, pin.posW, normal, toEye);
 		
+        /***
         float4 shadowMapCoords = mul(float4(pin.posW, 1.0f), gSpotLights[_SLightIndex].ShadowTransform);
         shadowMapCoords.xyz /= shadowMapCoords.w;
 				
@@ -251,6 +258,9 @@ float4 ps(vertexOut pin) : SV_Target
         //float _ShadowFactor = tShadowMap_SpotLight.SampleCmp(samplerComparison_less_point_borderWhite, shadowMapCoords.xy, shadowMapCoords.z);
 
         litColor += lit * shadowFactor.xxx;
+        
+        ***/
+
     }
     
     if (gEnabledEnvironmentMap)
@@ -259,7 +269,7 @@ float4 ps(vertexOut pin) : SV_Target
         float3 evironmentReflectColor = tEnvironmentMap.Sample(sampler_linear, reflectVector).xyz;
         float3 frenselFactor = SchlikFresnel(_FresnelR0, pin.normalW, reflectVector);
     
-        litColor.rgb += _material.Shininess * frenselFactor * evironmentReflectColor;
+        litColor.rgb += _Shininess * frenselFactor * evironmentReflectColor;
     }
 	
 	//Add Global Ambient Light Factor

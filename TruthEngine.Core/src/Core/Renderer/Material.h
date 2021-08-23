@@ -129,6 +129,7 @@ namespace TruthEngine
 			//
 			void InvokeEventChangeMaterial();
 
+			void SetShadingModel(TE_RENDERER_STATE_SHADING_MODEL _ShadingModel);		
 
 			inline void SetColorDiffuse(const float4& color)
 			{

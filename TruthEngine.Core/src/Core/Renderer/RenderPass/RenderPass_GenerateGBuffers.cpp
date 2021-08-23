@@ -175,9 +175,31 @@ namespace TruthEngine
 	{
 		Shader* shader = nullptr;
 
-		auto result = TE_INSTANCE_SHADERMANAGER->AddShader(&shader, TE_IDX_SHADERCLASS::GENERATEGBUFFERS, _Material->GetMeshType(), _Material->GetRendererStates(), "Assets/Shaders/GenerateGBuffers.hlsl", "vs", "ps");
+		RendererStateSet _RendererState = _Material->GetRendererStates();
+		auto _ShadingModel = GET_RENDERER_STATE(_RendererState, TE_RENDERER_STATE_SHADING_MODEL);
+
 
 		TE_RESOURCE_FORMAT rtvFormats[] = { TE_RESOURCE_FORMAT::R8G8B8A8_UNORM, TE_RESOURCE_FORMAT::R11G11B10_FLOAT, TE_RESOURCE_FORMAT::R16G16B16A16_FLOAT };
+
+		if (m_RendererLayer->IsEnabledHDR())
+		{
+			SET_RENDERER_STATE(_RendererState, TE_RENDERER_STATE_ENABLED_HDR, TE_RENDERER_STATE_ENABLED_HDR_TRUE);
+			rtvFormats[0] = TE_RESOURCE_FORMAT::R16G16B16A16_FLOAT;
+		}
+
+		auto _LambdaGetShaderFilePath = [_ShadingModel]() 
+		{
+			switch (_ShadingModel)
+			{
+			case TE_RENDERER_STATE_SHADING_MODEL_BLINNPHONG:
+				return "Assets/Shaders/GenerateGBuffers.hlsl";
+			case TE_RENDERER_STATE_SHADING_MODEL_PBR:
+				return "Assets/Shaders/GenerateGBuffersPBR.hlsl";
+			}
+		};
+
+		auto result = TE_INSTANCE_SHADERMANAGER->AddShader(&shader, TE_IDX_SHADERCLASS::GENERATEGBUFFERS, _Material->GetMeshType(), _RendererState, _LambdaGetShaderFilePath(), "vs", "ps");
+				
 
 		PipelineGraphics* _Pipeline = nullptr;
 
@@ -194,7 +216,7 @@ namespace TruthEngine
 			_Pipeline = _ItrPipeline->second;
 		}
 
-		PipelineGraphics::Factory(_Pipeline, _Material->GetRendererStates(), shader, static_cast<uint32_t>(_countof(rtvFormats)), rtvFormats, TE_RESOURCE_FORMAT::D32_FLOAT, true);
+		PipelineGraphics::Factory(_Pipeline, _RendererState, shader, static_cast<uint32_t>(_countof(rtvFormats)), rtvFormats, TE_RESOURCE_FORMAT::D32_FLOAT, true);
 	}
 
 	void RenderPass_GenerateGBuffers::RegisterEvents()

@@ -5,6 +5,7 @@
 #include "Core/Event/Event.h"
 
 #include "Core/Renderer/ShaderManager.h"
+#include "Core/Renderer/RendererLayer.h"
 
 namespace TruthEngine
 {
@@ -60,14 +61,21 @@ namespace TruthEngine
 	}
 	void RenderPass_DeferredShading::InitTexture()
 	{
-		m_RendererCommand.CreateRenderTargetView(TE_IDX_GRESOURCES::Texture_RT_SceneBuffer, &m_RTVSceneBuffer);
+		TE_IDX_GRESOURCES _RT_IDX = TE_IDX_GRESOURCES::Texture_RT_SceneBuffer;
+
+		if (m_RendererLayer->IsEnabledHDR())
+		{
+			_RT_IDX = TE_IDX_GRESOURCES::Texture_RT_SceneBufferHDR;
+		}
+
+		m_RendererCommand.CreateRenderTargetView(_RT_IDX, &m_RTVSceneBuffer);
 	}
 	void RenderPass_DeferredShading::InitBuffer()
 	{
 	}
 	void RenderPass_DeferredShading::PreparePipeline()
 	{
-		constexpr RendererStateSet _RendererStates = InitRenderStates(
+		RendererStateSet _RendererStates = InitRenderStates(
 			TE_RENDERER_STATE_ENABLED_SHADER_HS_FALSE,
 			TE_RENDERER_STATE_ENABLED_SHADER_DS_FALSE,
 			TE_RENDERER_STATE_ENABLED_SHADER_GS_FALSE,
@@ -84,14 +92,21 @@ namespace TruthEngine
 			TE_RENDERER_STATE_FILL_MODE_SOLID,
 			TE_RENDERER_STATE_CULL_MODE_BACK,
 			TE_RENDERER_STATE_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP,
-			TE_RENDERER_STATE_COMPARISSON_FUNC_LESS
+			TE_RENDERER_STATE_COMPARISSON_FUNC_LESS,
+			TE_RENDERER_STATE_DEPTH_WRITE_MASK_ZERO
 		);
 
+		TE_RESOURCE_FORMAT rtvFormats[] = { TE_RESOURCE_FORMAT::R8G8B8A8_UNORM };
+
+		if (m_RendererLayer->IsEnabledHDR())
+		{
+			rtvFormats[0] = TE_RESOURCE_FORMAT::R16G16B16A16_FLOAT;
+			SET_RENDERER_STATE(_RendererStates, TE_RENDERER_STATE_ENABLED_HDR, TE_RENDERER_STATE_ENABLED_HDR_TRUE);
+		}
 
 		Shader* shader = nullptr;
-		auto result = TE_INSTANCE_SHADERMANAGER->AddShader(&shader, TE_IDX_SHADERCLASS::DEFERREDSHADING, TE_IDX_MESH_TYPE::MESH_POINT, _RendererStates, "Assets/Shaders/DeferredShading.hlsl", "vs", "ps");
+		auto result = TE_INSTANCE_SHADERMANAGER->AddShader(&shader, TE_IDX_SHADERCLASS::DEFERREDSHADING, TE_IDX_MESH_TYPE::MESH_POINT, _RendererStates, "Assets/Shaders/DeferredShadingPBR.hlsl", "vs", "ps");
 
-		TE_RESOURCE_FORMAT rtvFormats[] = { TE_RESOURCE_FORMAT::R8G8B8A8_UNORM };
 
 		PipelineGraphics::Factory(&m_Pipeline, _RendererStates, shader, _countof(rtvFormats), rtvFormats, TE_RESOURCE_FORMAT::D32_FLOAT, false);
 	}
