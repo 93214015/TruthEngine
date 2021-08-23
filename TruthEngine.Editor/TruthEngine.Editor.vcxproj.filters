@@ -34,5 +34,7 @@
   <ItemGroup>
     <FxCompile Include="Assets\Shaders\GenerateIBLSpecular_PrefilterEnvironment.hlsl" />
     <FxCompile Include="Assets\Shaders\GenerateIBLSpecular_PrecomputeBRDF.hlsl" />
+    <FxCompile Include="Assets\Shaders\GenerateGBuffersPBR.hlsl" />
+    <FxCompile Include="Assets\Shaders\DeferredShadingPBR.hlsl" />
   </ItemGroup>
 </Project>

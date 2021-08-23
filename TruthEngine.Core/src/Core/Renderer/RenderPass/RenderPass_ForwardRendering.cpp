@@ -209,18 +209,39 @@ namespace TruthEngine
 	{
 		Shader* shader = nullptr;
 
-		auto result = m_ShaderMgr->AddShader(&shader, TE_IDX_SHADERCLASS::FORWARDRENDERING, material->GetMeshType(), material->GetRendererStates(), "Assets/Shaders/ForwardRenderingPBR.hlsl", "vs", "ps");
+		RendererStateSet _RendererState = material->GetRendererStates();
 
 		TE_RESOURCE_FORMAT rtvFormats[1];
 
 		if (m_RendererLayer->IsEnabledHDR())
 		{
+			SET_RENDERER_STATE(_RendererState, TE_RENDERER_STATE_ENABLED_HDR, TE_RENDERER_STATE_ENABLED_HDR_TRUE);
 			rtvFormats[0] = TE_RESOURCE_FORMAT::R16G16B16A16_FLOAT;
 		}
 		else
 		{
 			rtvFormats[0] = TE_RESOURCE_FORMAT::R8G8B8A8_UNORM;
 		}
+
+		RendererStateSet _ShadingModel = GET_RENDERER_STATE(_RendererState, TE_RENDERER_STATE_SHADING_MODEL);
+
+		auto _LambdaGetShaderAddress = [_ShadingModel]() -> std::string_view
+		{
+			switch (_ShadingModel)
+			{
+			case TE_RENDERER_STATE_SHADING_MODEL_NONE:
+				TE_LOG_CORE_WARN("RenderPass_ForwardRendering: the shading model of material was 'None'. the blinn-phong is used as default.");
+				return "Assets/Shaders/ForwardRendering.hlsl";
+			case TE_RENDERER_STATE_SHADING_MODEL_BLINNPHONG:
+				return "Assets/Shaders/ForwardRendering.hlsl";
+			case TE_RENDERER_STATE_SHADING_MODEL_PBR:
+				return "Assets/Shaders/ForwardRenderingPBR.hlsl";
+			}
+		};
+
+		std::string_view _ShaderFilePath = _LambdaGetShaderAddress();
+
+		auto result = m_ShaderMgr->AddShader(&shader, TE_IDX_SHADERCLASS::FORWARDRENDERING, material->GetMeshType(), material->GetRendererStates(), _ShaderFilePath.data(), "vs", "ps");
 
 		PipelineGraphics* _Pipeline = nullptr;
 
@@ -251,18 +272,18 @@ namespace TruthEngine
 		SET_RENDERER_STATE(states, TE_RENDERER_STATE_CULL_MODE, TE_RENDERER_STATE_CULL_MODE::TE_RENDERER_STATE_CULL_MODE_NONE);
 		SET_RENDERER_STATE(states, TE_RENDERER_STATE_DEPTH_WRITE_MASK, TE_RENDERER_STATE_DEPTH_WRITE_MASK::TE_RENDERER_STATE_DEPTH_WRITE_MASK_ZERO);
 
-		auto result = m_ShaderMgr->AddShader(&shader, TE_IDX_SHADERCLASS::RENDERENVIRONMENTMAP, TE_IDX_MESH_TYPE::MESH_NTT, states, "Assets/Shaders/RenderEnvironmentCube.hlsl", "vs", "ps");
-
 		TE_RESOURCE_FORMAT rtvFormats[1];
-
 		if (m_RendererLayer->IsEnabledHDR())
 		{
+			SET_RENDERER_STATE(states, TE_RENDERER_STATE_ENABLED_HDR, TE_RENDERER_STATE_ENABLED_HDR_TRUE);
 			rtvFormats[0] = TE_RESOURCE_FORMAT::R16G16B16A16_FLOAT;
 		}
 		else
 		{
 			rtvFormats[0] = TE_RESOURCE_FORMAT::R8G8B8A8_UNORM;
 		}
+
+		auto result = m_ShaderMgr->AddShader(&shader, TE_IDX_SHADERCLASS::RENDERENVIRONMENTMAP, TE_IDX_MESH_TYPE::MESH_NTT, states, "Assets/Shaders/RenderEnvironmentCube.hlsl", "vs", "ps");
 
 		PipelineGraphics::Factory(&m_PipelineEnvironmentCube, states, shader, 1, rtvFormats, TE_RESOURCE_FORMAT::D32_FLOAT, true);
 	}

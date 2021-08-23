@@ -139,7 +139,7 @@ PixelOut ps(vertexOut pin)
     
     _PixelOut.Normal *= .5f;
     _PixelOut.Normal += .5f;
-    
+        
 #ifdef ENABLE_MAP_DIFFUSE
     _PixelOut.Color = MaterialTextures[_material.MapIndexDiffuse].Sample(sampler_linear, _texUV).xyz;
 #else
@@ -148,19 +148,19 @@ PixelOut ps(vertexOut pin)
 	
     
 #ifdef ENABLE_MAP_ROUGHNESS
-    _PixelOut.Specular.x = MaterialTextures[_material.MapIndexRoughness].Sample(sampler_point_wrap, _texUV).r;
+     _PixelOut.Specular.x = MaterialTextures[_material.MapIndexRoughness].Sample(sampler_point_wrap, _texUV).r;
 #else
     _PixelOut.Specular.x = _material.Roughness;
 #endif
     
 #ifdef ENABLE_MAP_METALLIC
-    _PixelOut.Specular.y = MaterialTextures[_material.MapIndexMetallic].Sample(sampler_point_wrap, _texUV).r;
+     _PixelOut.Specular.y = MaterialTextures[_material.MapIndexMetallic].Sample(sampler_point_wrap, _texUV).r;
 #else
     _PixelOut.Specular.y = _material.Metallic;
 #endif
     
 #ifdef ENABLE_MAP_AMBIENTOCCLUSION
-    _PixelOut.Specular.z = MaterialTextures[_material.MapIndexAmbientOcclusion].Sample(sampler_point_wrap, _texUV).r;
+     _PixelOut.Specular.z = MaterialTextures[_material.MapIndexAmbientOcclusion].Sample(sampler_point_wrap, _texUV).r;
 #else
     _PixelOut.Specular.z = _material.AmbientOcclusion;
 #endif

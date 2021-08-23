@@ -151,6 +151,8 @@ namespace TruthEngine
 		{
 			auto states = InitRenderStates();
 
+			SET_RENDERER_STATE(states, TE_RENDERER_STATE_SHADING_MODEL, TE_RENDERER_STATE_SHADING_MODEL_BLINNPHONG);
+
 			auto aiMaterial = aiscene->mMaterials[i];
 			aiColor3D aiColorDiffuse;
 			aiMaterial->Get(AI_MATKEY_COLOR_DIFFUSE, aiColorDiffuse);

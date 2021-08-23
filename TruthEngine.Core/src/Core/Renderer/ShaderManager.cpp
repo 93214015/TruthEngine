@@ -459,11 +459,11 @@ namespace TruthEngine
 				| ShaderSignature::EShaderSignatureFlags_DENY_HULL_SHADER_ROOT_ACCESS
 				| ShaderSignature::EShaderSignatureFlags_DENY_MESH_SHADER_ROOT_ACCESS;
 
-			
+
 			auto _ShaderParam = &_ShaderSignature->AddParameter();
 			_ShaderParam->mParameter = ShaderSignature::ShaderTable
 			(
-				static_cast<ShaderSignature::EShaderVisibility>(ShaderSignature::EShaderVisibility_ALL), 
+				static_cast<ShaderSignature::EShaderVisibility>(ShaderSignature::EShaderVisibility_ALL),
 				{
 						ShaderSignature::ShaderRange(0, 0, ShaderSignature::EShaderRangeType::CBV, ShaderSignature::EShaderRangeFlags::EShaderRangeFlags_NONE,
 						{
@@ -477,6 +477,9 @@ namespace TruthEngine
 							ShaderSignature::ShaderRangeView(TE_IDX_GRESOURCES::Texture_RT_GBuffer_Normal, ShaderSignature::EShaderRangeType::SRV),
 							ShaderSignature::ShaderRangeView(TE_IDX_GRESOURCES::Texture_RT_GBuffer_Specular, ShaderSignature::EShaderRangeType::SRV),
 							ShaderSignature::ShaderRangeView(TE_IDX_GRESOURCES::Texture_DS_SceneBuffer, ShaderSignature::EShaderRangeType::SRV),
+							ShaderSignature::ShaderRangeView(TE_IDX_GRESOURCES::Texture_CubeMap_IBLAmbient, ShaderSignature::EShaderRangeType::SRV),
+							ShaderSignature::ShaderRangeView(TE_IDX_GRESOURCES::Texture_CubeMap_IBLSpecular, ShaderSignature::EShaderRangeType::SRV),
+							ShaderSignature::ShaderRangeView(TE_IDX_GRESOURCES::Texture_PrecomputedBRDF, ShaderSignature::EShaderRangeType::SRV),
 							ShaderSignature::ShaderRangeView(TE_IDX_GRESOURCES::Texture_DS_ShadowMap_SunLight, ShaderSignature::EShaderRangeType::SRV),
 							ShaderSignature::ShaderRangeView(TE_IDX_GRESOURCES::Texture_DS_ShadowMap_SpotLight, ShaderSignature::EShaderRangeType::SRV),
 						})
@@ -718,6 +721,10 @@ namespace TruthEngine
 		if (GET_RENDERER_STATE(states, TE_RENDERER_STATE_ENABLED_MAP_AMBIENTOCCLUSION) == TE_RENDERER_STATE_ENABLED_MAP_AMBIENTOCCLUSION_TRUE)
 		{
 			m_Defines.emplace_back(L"ENABLE_MAP_AMBIENTOCCLUSION");
+		}
+		if (GET_RENDERER_STATE(states, TE_RENDERER_STATE_ENABLED_HDR) == TE_RENDERER_STATE_ENABLED_HDR_TRUE)
+		{
+			m_Defines.emplace_back(L"ENABLE_HDR");
 		}
 
 

@@ -1,4 +1,4 @@
-#include "Lights.hlsli"
+#include "LightsPBR.hlsli"
 #include "MathHelper.hlsli"
 
 
@@ -28,7 +28,6 @@ TextureCube tIBLSpecular : register(t5);
 Texture2D<float2> tPrecomputedBRDF : register(t6);
 Texture2D<float> tShadowMap_SunLight : register(t7);
 Texture2D<float> tShadowMap_SpotLight : register(t8);
-
 
 
 /////////////////////////////////////////////////////////////////
@@ -69,7 +68,7 @@ float4 ps(VertexOut _VOut) : SV_Target
 {
     float _DepthProj = tDepth.Sample(sampler_point_wrap, _VOut.UV);
 
-    if(_DepthProj > 0.9999f)
+    if (_DepthProj > 0.9999f)
         discard;
     
     float _DepthView = ConvertToLinearDepth(_DepthProj, ProjectionValues.z, ProjectionValues.w);
@@ -78,21 +77,28 @@ float4 ps(VertexOut _VOut) : SV_Target
     
     float3 _NormalWorld = tNormal.Sample(sampler_point_wrap, _VOut.UV) * 2.0f - 1.0f;
 
-    float4 _Color = tColor.Sample(sampler_point_wrap, _VOut.UV);
+    float3 _Albedo = tColor.Sample(sampler_point_wrap, _VOut.UV).xyz;
 
-    float4 _SpecularFactors = tSpecular.Sample(sampler_point_wrap, _VOut.UV);
+    float4 _SpecularFactors = tSpecular.Sample(sampler_point_wrap, _VOut.UV); // SpecularFctors.x = Roughness ; SpecularFctors.y = Metallic ; SpecularFctors.z = AmbientOcclusion
+      
     
         
     float3 _ToEye = normalize(EyePos.xyz - _PosWorld.xyz);
 
     float3 _LitColor = float3(.0f, .0f, .0f);
+
+    float3 _F0 = float3(0.04f, 0.04f, 0.04f);
+    _F0 = lerp(_F0, _Albedo, _SpecularFactors.y);
     
     for (uint _DLightIndex = 0; _DLightIndex < gDLightCount; ++_DLightIndex)
     {
         
-        float3 _Lit = ComputeDirectLight(gDLights[_DLightIndex], _Color.xyz, _SpecularFactors.w, _SpecularFactors.xyz, _PosWorld.xyz, _NormalWorld, _ToEye);
+        float3 _Lit = ComputeDirectLight(gDLights[_DLightIndex], _Albedo.xyz, _SpecularFactors.x, _SpecularFactors.y, _F0, _NormalWorld, _ToEye);
 		
         //code for cascaded shadow map; finding corrsponding shadow map cascade and coords
+
+        /***
+
         bool found = false;
         float3 shadowMapCoords = float3(0.0f, 0.0f, 0.0f);
     
@@ -136,13 +142,18 @@ float4 ps(VertexOut _VOut) : SV_Target
     
         
         _LitColor += _Lit * shadowFactor.xxx;
+
+        ***/
     }
 
 
     for (uint _SLightIndex = 0; _SLightIndex < gSLightCount; ++_SLightIndex)
     {
-        float3 _Lit = ComputeSpotLight(gSpotLights[_SLightIndex], _Color.xyz, _SpecularFactors.w, _SpecularFactors.xyz, _PosWorld.xyz, _NormalWorld, _ToEye);
+        float3 _Lit = ComputeSpotLight(gSpotLights[_SLightIndex], _Albedo, _SpecularFactors.x, _SpecularFactors.y, _F0, _PosWorld.xyz, _NormalWorld, _ToEye);
 		
+        
+        /*
+        
         float4 shadowMapCoords = mul(_PosWorld, gSpotLights[_SLightIndex].ShadowTransform);
         shadowMapCoords.xyz /= shadowMapCoords.w;
 				
@@ -163,7 +174,32 @@ float4 ps(VertexOut _VOut) : SV_Target
         //float _ShadowFactor = tShadowMap_SpotLight.SampleCmp(samplerComparison_less_point_borderWhite, shadowMapCoords.xy, shadowMapCoords.z);
 
         _LitColor += _Lit * shadowFactor.xxx;
+
+        */        
+
     }
+    
+    float _NdotV = max(dot(_NormalWorld, _ToEye), 0.0f);
+    
+    float3 _Ks = FresnelSchlickRoughness(_F0, _NdotV, _SpecularFactors.x);
+    float3 _Kd = 1.0 - _Ks;
+    _Kd *= 1.0f - _SpecularFactors.y;
+    
+    float3 _Irrediance = tIBLAmbient.Sample(sampler_linear, normal).rgb;
+    float3 _Diffuse = _Irrediance * _MaterialAlbedo;
+
+    float3 _ReflectVector = reflect(-toEye, normal);
+    const float MAX_REFLECTION_LOD = 4.0f;
+    float3 _PrefilteredIBLSpecular = tIBLSpecular.SampleLevel(sampler_linear, _ReflectVector, _Roughness * MAX_REFLECTION_LOD).rgb;
+    float2 _PrecomputeBRDF = tPrecomputedBRDF.Sample(sampler_linear, float2(_NdotV, _Roughness)).rg;
+    float3 _Specular = _PrefilteredIBLSpecular * (_Ks * _PrecomputeBRDF.x + _PrecomputeBRDF.y);
+
+    float3 _Ambient = (_Kd * _Diffuse + _Specular) * _AmbientOcclusion.xxx;
+	
+	//Add Global Ambient Light Factor
+    //litColor += (_MaterialAlbedo * gAmbientLightStrength * _AmbientOcclusion.xxx);
+    litColor += _Ambient;
+    
     
 //Add Global Ambient Light Factor
     _LitColor += (_Color.xyz * gAmbientLightStrength);
