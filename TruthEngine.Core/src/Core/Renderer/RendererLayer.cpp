@@ -110,7 +110,7 @@ namespace TruthEngine
 		}
 
 
-		*data_perFrame = ConstantBuffer_Data_Per_Frame(activeCamera->GetViewProj(), activeCamera->GetViewInv(), activeCamera->GetProjectionValues(), activeCamera->GetPosition(), _cascadedShadowTransforms);
+		*data_perFrame = ConstantBuffer_Data_Per_Frame(activeCamera->GetViewProj(), activeCamera->GetView(), activeCamera->GetViewInv(), activeCamera->GetProjectionValues(), activeCamera->GetPosition(), _cascadedShadowTransforms);
 
 		//
 		////Use MultiThreaded Rendering
@@ -282,6 +282,12 @@ namespace TruthEngine
 		m_RendererCommand.ResizeRenderTarget(TE_IDX_GRESOURCES::Texture_RT_SceneBufferHDR, width, height, &m_RTVSceneBufferHDR, nullptr);
 
 		m_RendererCommand.ResizeDepthStencil(TE_IDX_GRESOURCES::Texture_DS_SceneBuffer, width, height, &m_DSVSceneBuffer, nullptr);
+
+		m_RendererCommand.AddUpdateTask([width, height, CB_UnFrequent = m_CB_UnFrequent]()
+			{
+				CB_UnFrequent->GetData()->mSceneViewportSize = float2(width, height);
+				CB_UnFrequent->GetData()->mSceneViewportStep = float2(1.0f/width, 1.0f/height);
+			});
 
 		EventRendererViewportResize _EventRendererViewportResize(width, height);
 		TE_INSTANCE_APPLICATION->OnEvent(_EventRendererViewportResize);

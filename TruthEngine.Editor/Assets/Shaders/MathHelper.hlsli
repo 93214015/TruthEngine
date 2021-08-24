@@ -18,6 +18,13 @@ float4 ReconstructWorldPosition(float2 _PosCS, float _DepthView, float4 _Perspec
     return _PosWorld;
 }
 
+float4 ReconstructViewPosition(float2 _PosCS, float _DepthView, float4 _PerspectiveValues)
+{
+    float4 _PosView = float4(_PosCS.xy * _PerspectiveValues.xy * _DepthView, _DepthView, 1.0f);
+
+    return _PosView;
+}
+
 float RadicalInverse_VdC(uint bits)
 {
     bits = (bits << 16u) | (bits >> 16u);

@@ -148,228 +148,419 @@ namespace TruthEngine
 
 		auto _ShadingModel = GET_RENDERER_STATE(material->GetRendererStates(), TE_RENDERER_STATE_SHADING_MODEL);
 
+		auto _LambdaDrawShadingModelComponent = [](Material* _Material)
+		{
+			static const char* _ShadingModelsStr[] = { "Blinn-Phong", "PBR" };
+			static const char* _CurrentShadingModelItem = _ShadingModelsStr[0];
+
+			TE_RENDERER_STATE_SHADING_MODEL _ShadingModel = static_cast<TE_RENDERER_STATE_SHADING_MODEL>(GET_RENDERER_STATE(_Material->GetRendererStates(), TE_RENDERER_STATE_SHADING_MODEL));
+
+			if (ImGui::BeginCombo("Shading Model: ", _CurrentShadingModelItem))
+			{
+				if (ImGui::Selectable("Blinn_Phong", _ShadingModel == TE_RENDERER_STATE_SHADING_MODEL_BLINNPHONG))
+				{
+					_CurrentShadingModelItem = _ShadingModelsStr[0];
+					_Material->SetShadingModel(TE_RENDERER_STATE_SHADING_MODEL_BLINNPHONG);
+				}
+				if (ImGui::Selectable("PBR", _ShadingModel == TE_RENDERER_STATE_SHADING_MODEL_PBR))
+				{
+					_CurrentShadingModelItem = _ShadingModelsStr[1];
+					_Material->SetShadingModel(TE_RENDERER_STATE_SHADING_MODEL_PBR);
+				}
+
+
+				ImGui::EndCombo();
+			}
+		};
+
+		auto _LambdaDrawDiffuseColorComponent = [](Material* _Material)
+		{
+			auto diffuseColor = _Material->GetColorDiffuse();
+
+			//if (ImGui::DragFloat4("Diffuse Color", &diffuseColor.x, 0.01f, 0.0f, 1.0f, nullptr, 1.0f))
+			ImGui::Text("DiffuseColor: ");
+			if (ImGui::ColorEdit4("##materialdiffusecolor", &diffuseColor.x, ImGuiColorEditFlags_Float))
+			{
+				_Material->SetColorDiffuse(diffuseColor);
+			}
+		};
+
+		auto _LambdaDrawRoughnessComponent = [](Material* _Material)
+		{
+			auto _Roughness = _Material->GetRoughness();
+
+			if (ImGui::DragFloat("Roughness", &_Roughness, 0.01f, 0.0f, 1.0f, nullptr, 1.0f))
+			{
+				_Material->SetRoughness(_Roughness);
+			}
+		};
+
+		auto _LambdaDrawMetallicComponent = [](Material* _Material)
+		{
+			float _Metallic = _Material->GetMetallic();
+
+			if (ImGui::DragFloat("Metallic", &_Metallic, 0.01f, 0.0f, 1.0f, nullptr, 1.0f))
+			{
+				_Material->SetMetallic(_Metallic);
+			}
+		};
+
+		auto _LambdaDrawAmbientOcclusionComponent = [](Material* _Material)
+		{
+			float _AmbientOcclusion = _Material->GetAmbientOcclusion();
+
+			if (ImGui::DragFloat("AmbientOcclusion", &_AmbientOcclusion, 0.01f, 0.0f, 1.0f, nullptr, 1.0f))
+			{
+				_Material->SetAmbientOcclusion(_AmbientOcclusion);
+			}
+		};
+
+		auto _LambdaDrawUVScaleComponent = [](Material* _Material)
+		{
+			auto uvScale = _Material->GetUVScale();
+			static bool s_chainedUVScale = true;
+			if (ImGuiLayer::DrawFloat2ControlUV("UV Scale", &uvScale, s_chainedUVScale))
+			{
+				_Material->SetUVScale(uvScale);
+			}
+			ImGui::SameLine();
+			ImGui::Checkbox("Chained##uvScale", &s_chainedUVScale);
+		};
+
+		auto _LamdaDrawUVTranslationComponent = [](Material* _Material)
+		{
+			static bool s_chainedUVTranslate = true;
+			auto uvTranslate = _Material->GetUVTranslate();
+			if (ImGuiLayer::DrawFloat2ControlUV("UV Translate", &uvTranslate, s_chainedUVTranslate))
+			{
+				_Material->SetUVTranslate(uvTranslate);
+			}
+			ImGui::SameLine();
+			ImGui::Checkbox("Chained##uvTranslate", &s_chainedUVTranslate);
+		};
+
+		auto _LambdaDrawDiffuseTextureComponent = [](Material* _Material)
+		{
+			ImGui::SetNextItemWidth(-100);
+			ImGui::Text("Diffuse Texture: ");
+
+			ImGui::SameLine();
+
+			uint32_t diffuseIndex = _Material->GetMapIndexDiffuse();
+
+			if (diffuseIndex == -1)
+			{
+				ImGui::Button("None");
+			}
+			else
+			{
+				if (ImGui::Button("Show##diffuseTexture"))
+				{
+					ImGui::OpenPopup("showdiffuseTexturepopup");
+				}
+
+				if (ImGui::BeginPopup("showdiffuseTexturepopup"))
+				{
+					TEImGuiRenderImage_MaterialTexture(diffuseIndex, float2{ 150.0f, 150.0f });
+					ImGui::EndPopup();
+				}
+			}
+
+			ImGui::SameLine();
+			if (ImGui::Button("Pick Texture##pickdiffuseMap"))
+			{
+				auto func = [_Material](uint32_t _diffuseMapIndex)
+				{
+					_Material->SetMapIndexDiffuse(_diffuseMapIndex);
+				};
+
+				ImGuiLayer::ShowWindowMaterialTexture(func, true);
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Clear##diffuseMap"))
+			{
+				_Material->SetMapIndexDiffuse(-1);
+			}
+		};
+
+		auto _LambdaDrawNormalTextureComponent = [](Material* _Material)
+		{
+			ImGui::SetNextItemWidth(-100);
+			ImGui::Text("Normal Texture: ");
+
+			ImGui::SameLine();
+
+			uint32_t normalIndex = _Material->GetMapIndexNormal();
+
+			if (normalIndex == -1)
+			{
+				ImGui::Button("None");
+			}
+			else
+			{
+				if (ImGui::Button("Show##normalTexture"))
+				{
+					ImGui::OpenPopup("shownormalTexturepopup");
+				}
+
+				if (ImGui::BeginPopup("shownormalTexturepopup"))
+				{
+					TEImGuiRenderImage_MaterialTexture(normalIndex, float2{ 150.0f, 150.0f });
+					ImGui::EndPopup();
+				}
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Pick Texture##picknormalMap"))
+			{
+				auto func = [_Material](uint32_t _normalMapIndex)
+				{
+					_Material->SetMapIndexNormal(_normalMapIndex);
+				};
+
+				ImGuiLayer::ShowWindowMaterialTexture(func, true);
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Clear##normalMap"))
+			{
+				ImGui::SameLine();
+				_Material->SetMapIndexNormal(-1);
+			}
+		};
+
+		auto _LambdaDrawRoughnessTextureComponent = [](Material* _Material)
+		{
+			ImGui::SetNextItemWidth(-100);
+			ImGui::Text("Roughness Texture: ");
+
+			ImGui::SameLine();
+
+			uint32_t _RoughnessIndex = _Material->GetMapIndexRoughness();
+
+			if (_RoughnessIndex == -1)
+			{
+				ImGui::Button("None");
+			}
+			else
+			{
+				if (ImGui::Button("Show##RoughnessTexture"))
+				{
+					ImGui::OpenPopup("showRoughnessTexturepopup");
+				}
+
+				if (ImGui::BeginPopup("showRoughnessTexturepopup"))
+				{
+					TEImGuiRenderImage_MaterialTexture(_RoughnessIndex, float2{ 150.0f, 150.0f });
+					ImGui::EndPopup();
+				}
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Pick Texture##pickRoughnessMap"))
+			{
+				auto func = [_Material](uint32_t _RoughnessMapIndex)
+				{
+					_Material->SetMapIndexRoughness(_RoughnessMapIndex);
+				};
+
+				ImGuiLayer::ShowWindowMaterialTexture(func, true);
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Clear##RoughnessMap"))
+			{
+				ImGui::SameLine();
+				_Material->SetMapIndexRoughness(-1);
+			}
+		};
+
+		auto _LambdaDrawMetallicTextureComponent = [](Material* _Material)
+		{
+			ImGui::SetNextItemWidth(-100);
+			ImGui::Text("Metallic Texture: ");
+
+			ImGui::SameLine();
+
+			uint32_t _MetallicIndex = _Material->GetMapIndexMetallic();
+
+			if (_MetallicIndex == -1)
+			{
+				ImGui::Button("None");
+			}
+			else
+			{
+				if (ImGui::Button("Show##MetallicTexture"))
+				{
+					ImGui::OpenPopup("showMetallicTexturepopup");
+				}
+
+				if (ImGui::BeginPopup("showMetallicTexturepopup"))
+				{
+					TEImGuiRenderImage_MaterialTexture(_MetallicIndex, float2{ 150.0f, 150.0f });
+					ImGui::EndPopup();
+				}
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Pick Texture##pickMetallicMap"))
+			{
+				auto func = [_Material](uint32_t _MetallicMapIndex)
+				{
+					_Material->SetMapIndexMetallic(_MetallicMapIndex);
+				};
+
+				ImGuiLayer::ShowWindowMaterialTexture(func, true);
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Clear##MetallicMap"))
+			{
+				ImGui::SameLine();
+				_Material->SetMapIndexMetallic(-1);
+			}
+		};
+
+		auto _LambdaDrawAmbientOcclusionTextureComponent = [](Material* _Material)
+		{
+			ImGui::SetNextItemWidth(-100);
+			ImGui::Text("AO Texture: ");
+
+			ImGui::SameLine();
+
+			uint32_t _AOIndex = _Material->GetMapIndexAmbientOcclusion();
+
+			if (_AOIndex == -1)
+			{
+				ImGui::Button("None");
+			}
+			else
+			{
+				if (ImGui::Button("Show##AOTexture"))
+				{
+					ImGui::OpenPopup("showAOTexturepopup");
+				}
+
+				if (ImGui::BeginPopup("showAOTexturepopup"))
+				{
+					TEImGuiRenderImage_MaterialTexture(_AOIndex, float2{ 150.0f, 150.0f });
+					ImGui::EndPopup();
+				}
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Pick Texture##pickAOMap"))
+			{
+				auto func = [_Material](uint32_t _AOMapIndex)
+				{
+					_Material->SetMapIndexAmbientOcclusion(_AOMapIndex);
+				};
+
+				ImGuiLayer::ShowWindowMaterialTexture(func, true);
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Clear##AOMap"))
+			{
+				ImGui::SameLine();
+				_Material->SetMapIndexAmbientOcclusion(-1);
+			}
+		};
+
+		auto _LambdaDrawFresnelR0Component = [](Material* _Material)
+		{
+			float _Metallic = _Material->GetMetallic();
+
+			if (ImGui::DragFloat("FresnelR0", &_Metallic, 0.01f, 0.0f, 1.0f, nullptr, 1.0f))
+			{
+				_Material->SetMetallic(_Metallic);
+			}
+		};
+
+		auto _LambdaDrawSpecularTextureComponent = [](Material* _Material)
+		{
+
+			ImGui::SetNextItemWidth(-100);
+			ImGui::Text("Specular Texture: ");
+
+			ImGui::SameLine();
+
+			uint32_t _SpecularIndex = _Material->GetMapIndexSpecular();
+
+			if (_SpecularIndex == -1)
+			{
+				ImGui::Button("None");
+			}
+			else
+			{
+				if (ImGui::Button("Show##SpecularTexture"))
+				{
+					ImGui::OpenPopup("showSpecularTexturepopup");
+				}
+
+				if (ImGui::BeginPopup("showSpecularTexturepopup"))
+				{
+					TEImGuiRenderImage_MaterialTexture(_SpecularIndex, float2{ 150.0f, 150.0f });
+					ImGui::EndPopup();
+				}
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Pick Texture##pickSpecularMap"))
+			{
+				auto func = [_Material](uint32_t _SpecularMapIndex)
+				{
+					_Material->SetMapIndexSpecular(_SpecularMapIndex);
+				};
+
+				ImGuiLayer::ShowWindowMaterialTexture(func, true);
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Clear##SpecularMap"))
+			{
+				ImGui::SameLine();
+				_Material->SetMapIndexSpecular(-1);
+			}
+
+		};
+
 		switch (_ShadingModel)
 		{
 		case TE_RENDERER_STATE_SHADING_MODEL_BLINNPHONG:
-			DrawComponent<MaterialComponent>("Material", m_Context, [](MaterialComponent& component)
+			DrawComponent<MaterialComponent>("Material", m_Context, [=](MaterialComponent& component)
 				{
 
 					auto material = component.GetMaterial();
 
-					{
-						auto diffuseColor = material->GetColorDiffuse();
+					//Shading Models
 
-						//if (ImGui::DragFloat4("Diffuse Color", &diffuseColor.x, 0.01f, 0.0f, 1.0f, nullptr, 1.0f))
-						ImGui::Text("DiffuseColor: ");
-						if (ImGui::ColorEdit4("##materialdiffusecolor", &diffuseColor.x, ImGuiColorEditFlags_Float))
-						{
-							material->SetColorDiffuse(diffuseColor);
-						}
-					}
+					_LambdaDrawShadingModelComponent(material);
 
 					// Diffuse Color
 
-					{
-						auto diffuseColor = material->GetColorDiffuse();
-
-						//if (ImGui::DragFloat4("Diffuse Color", &diffuseColor.x, 0.01f, 0.0f, 1.0f, nullptr, 1.0f))
-						ImGui::Text("DiffuseColor: ");
-						if (ImGui::ColorEdit4("##materialdiffusecolor", &diffuseColor.x, ImGuiColorEditFlags_Float))
-						{
-							material->SetColorDiffuse(diffuseColor);
-						}
-					}
+					_LambdaDrawDiffuseColorComponent(material);
 
 					// Roughness
 
-					{
-						auto _Roughness = material->GetRoughness();
-
-						if (ImGui::DragFloat("Roughness", &_Roughness, 0.01f, 0.0f, 1.0f, nullptr, 1.0f))
-						{
-							material->SetRoughness(_Roughness);
-						}
-					}
+					_LambdaDrawRoughnessComponent(material);
 
 					// FresnelR0 (used metallic field)
 
-					{
-						float _Metallic = material->GetMetallic();
-
-						if (ImGui::DragFloat("FresnelR0", &_Metallic, 0.01f, 0.0f, 1.0f, nullptr, 1.0f))
-						{
-							material->SetMetallic(_Metallic);
-						}
-					}
+					_LambdaDrawFresnelR0Component(material);
 
 					// UV Scale
 
-					{
-						auto uvScale = material->GetUVScale();
-						static bool s_chainedUVScale = true;
-						if (ImGuiLayer::DrawFloat2ControlUV("UV Scale", &uvScale, s_chainedUVScale))
-						{
-							material->SetUVScale(uvScale);
-						}
-						ImGui::SameLine();
-						ImGui::Checkbox("Chained##uvScale", &s_chainedUVScale);
-					}
+					_LambdaDrawUVScaleComponent(material);
 
 					//UV Translate
 
-					{
-						static bool s_chainedUVTranslate = true;
-						auto uvTranslate = material->GetUVTranslate();
-						if (ImGuiLayer::DrawFloat2ControlUV("UV Translate", &uvTranslate, s_chainedUVTranslate))
-						{
-							material->SetUVTranslate(uvTranslate);
-						}
-						ImGui::SameLine();
-						ImGui::Checkbox("Chained##uvTranslate", &s_chainedUVTranslate);
-					}
+					_LamdaDrawUVTranslationComponent(material);
 
 					// Diffuse Map
 
-					{
-						ImGui::SetNextItemWidth(-100);
-						ImGui::Text("Diffuse Texture: ");
-
-						ImGui::SameLine();
-
-						uint32_t diffuseIndex = material->GetMapIndexDiffuse();
-
-						if (diffuseIndex == -1)
-						{
-							ImGui::Button("None");
-						}
-						else
-						{
-							if (ImGui::Button("Show##diffuseTexture"))
-							{
-								ImGui::OpenPopup("showdiffuseTexturepopup");
-							}
-
-							if (ImGui::BeginPopup("showdiffuseTexturepopup"))
-							{
-								TEImGuiRenderImage_MaterialTexture(diffuseIndex, float2{ 150.0f, 150.0f });
-								ImGui::EndPopup();
-							}
-						}
-
-						ImGui::SameLine();
-						if (ImGui::Button("Pick Texture##pickdiffuseMap"))
-						{
-							auto func = [material](uint32_t _diffuseMapIndex)
-							{
-								material->SetMapIndexDiffuse(_diffuseMapIndex);
-							};
-
-							ImGuiLayer::ShowWindowMaterialTexture(func, true);
-						}
-						ImGui::SameLine();
-						if (ImGui::Button("Clear##diffuseMap"))
-						{
-							material->SetMapIndexDiffuse(-1);
-						}
-
-					}
+					_LambdaDrawDiffuseTextureComponent(material);
 
 
 					// Normal Map
 
-					{
-
-						ImGui::SetNextItemWidth(-100);
-						ImGui::Text("Normal Texture: ");
-
-						ImGui::SameLine();
-
-						uint32_t normalIndex = material->GetMapIndexNormal();
-
-						if (normalIndex == -1)
-						{
-							ImGui::Button("None");
-						}
-						else
-						{
-							if (ImGui::Button("Show##normalTexture"))
-							{
-								ImGui::OpenPopup("shownormalTexturepopup");
-							}
-
-							if (ImGui::BeginPopup("shownormalTexturepopup"))
-							{
-								TEImGuiRenderImage_MaterialTexture(normalIndex, float2{ 150.0f, 150.0f });
-								ImGui::EndPopup();
-							}
-						}
-						ImGui::SameLine();
-						if (ImGui::Button("Pick Texture##picknormalMap"))
-						{
-							auto func = [material](uint32_t _normalMapIndex)
-							{
-								material->SetMapIndexNormal(_normalMapIndex);
-							};
-
-							ImGuiLayer::ShowWindowMaterialTexture(func, true);
-						}
-						ImGui::SameLine();
-						if (ImGui::Button("Clear##normalMap"))
-						{
-							ImGui::SameLine();
-							material->SetMapIndexNormal(-1);
-						}
-
-					}
+					_LambdaDrawNormalTextureComponent(material);
 
 					// Specular Map
 
-					{
+					_LambdaDrawSpecularTextureComponent(material);
 
-						ImGui::SetNextItemWidth(-100);
-						ImGui::Text("Specular Texture: ");
 
-						ImGui::SameLine();
-
-						uint32_t _SpecularIndex = material->GetMapIndexSpecular();
-
-						if (_SpecularIndex == -1)
-						{
-							ImGui::Button("None");
-						}
-						else
-						{
-							if (ImGui::Button("Show##SpecularTexture"))
-							{
-								ImGui::OpenPopup("showSpecularTexturepopup");
-							}
-
-							if (ImGui::BeginPopup("showSpecularTexturepopup"))
-							{
-								TEImGuiRenderImage_MaterialTexture(_SpecularIndex, float2{ 150.0f, 150.0f });
-								ImGui::EndPopup();
-							}
-						}
-						ImGui::SameLine();
-						if (ImGui::Button("Pick Texture##pickSpecularMap"))
-						{
-							auto func = [material](uint32_t _SpecularMapIndex)
-							{
-								material->SetMapIndexSpecular(_SpecularMapIndex);
-							};
-
-							ImGuiLayer::ShowWindowMaterialTexture(func, true);
-						}
-						ImGui::SameLine();
-						if (ImGui::Button("Clear##SpecularMap"))
-						{
-							ImGui::SameLine();
-							material->SetMapIndexSpecular(-1);
-						}
-
-					}
-
-					
 					/*{
 
 						ImGui::SetNextItemWidth(-100);
@@ -419,297 +610,34 @@ namespace TruthEngine
 				});
 			break;
 		case TE_RENDERER_STATE_SHADING_MODEL_PBR:
-			DrawComponent<MaterialComponent>("Material", m_Context, [](MaterialComponent& component)
+			DrawComponent<MaterialComponent>("Material", m_Context, [=](MaterialComponent& component)
 				{
 
 					auto material = component.GetMaterial();
 
-					{
-						auto diffuseColor = material->GetColorDiffuse();
+					_LambdaDrawShadingModelComponent(material);
 
-						//if (ImGui::DragFloat4("Diffuse Color", &diffuseColor.x, 0.01f, 0.0f, 1.0f, nullptr, 1.0f))
-						ImGui::Text("DiffuseColor: ");
-						if (ImGui::ColorEdit4("##materialdiffusecolor", &diffuseColor.x, ImGuiColorEditFlags_Float))
-						{
-							material->SetColorDiffuse(diffuseColor);
-						}
-					}
+					_LambdaDrawDiffuseColorComponent(material);
 
-					{
-						auto _Roughness = material->GetRoughness();
+					_LambdaDrawRoughnessComponent(material);
 
-						if (ImGui::DragFloat("Roughness", &_Roughness, 0.01f, 0.0f, 1.0f, nullptr, 1.0f))
-						{
-							material->SetRoughness(_Roughness);
-						}
-					}
+					_LambdaDrawMetallicComponent(material);
 
-					{
-						float _Metallic = material->GetMetallic();
+					_LambdaDrawAmbientOcclusionComponent(material);
 
-						if (ImGui::DragFloat("Metallic", &_Metallic, 0.01f, 0.0f, 1.0f, nullptr, 1.0f))
-						{
-							material->SetMetallic(_Metallic);
-						}
-					}
+					_LambdaDrawUVScaleComponent(material);
 
-					{
-						float _AmbientOcclusion = material->GetAmbientOcclusion();
+					_LamdaDrawUVTranslationComponent(material);
 
-						if (ImGui::DragFloat("AmbientOcclusion", &_AmbientOcclusion, 0.01f, 0.0f, 1.0f, nullptr, 1.0f))
-						{
-							material->SetAmbientOcclusion(_AmbientOcclusion);
-						}
-					}
+					_LambdaDrawDiffuseTextureComponent(material);
 
-					{
-						auto uvScale = material->GetUVScale();
-						static bool s_chainedUVScale = true;
-						if (ImGuiLayer::DrawFloat2ControlUV("UV Scale", &uvScale, s_chainedUVScale))
-						{
-							material->SetUVScale(uvScale);
-						}
-						ImGui::SameLine();
-						ImGui::Checkbox("Chained##uvScale", &s_chainedUVScale);
-					}
+					_LambdaDrawNormalTextureComponent(material);
 
-					{
-						static bool s_chainedUVTranslate = true;
-						auto uvTranslate = material->GetUVTranslate();
-						if (ImGuiLayer::DrawFloat2ControlUV("UV Translate", &uvTranslate, s_chainedUVTranslate))
-						{
-							material->SetUVTranslate(uvTranslate);
-						}
-						ImGui::SameLine();
-						ImGui::Checkbox("Chained##uvTranslate", &s_chainedUVTranslate);
-					}
+					_LambdaDrawRoughnessTextureComponent(material);
 
-					{
-						ImGui::SetNextItemWidth(-100);
-						ImGui::Text("Diffuse Texture: ");
+					_LambdaDrawMetallicTextureComponent(material);
 
-						ImGui::SameLine();
-
-						uint32_t diffuseIndex = material->GetMapIndexDiffuse();
-
-						if (diffuseIndex == -1)
-						{
-							ImGui::Button("None");
-						}
-						else
-						{
-							if (ImGui::Button("Show##diffuseTexture"))
-							{
-								ImGui::OpenPopup("showdiffuseTexturepopup");
-							}
-
-							if (ImGui::BeginPopup("showdiffuseTexturepopup"))
-							{
-								TEImGuiRenderImage_MaterialTexture(diffuseIndex, float2{ 150.0f, 150.0f });
-								ImGui::EndPopup();
-							}
-						}
-
-						ImGui::SameLine();
-						if (ImGui::Button("Pick Texture##pickdiffuseMap"))
-						{
-							auto func = [material](uint32_t _diffuseMapIndex)
-							{
-								material->SetMapIndexDiffuse(_diffuseMapIndex);
-							};
-
-							ImGuiLayer::ShowWindowMaterialTexture(func, true);
-						}
-						ImGui::SameLine();
-						if (ImGui::Button("Clear##diffuseMap"))
-						{
-							material->SetMapIndexDiffuse(-1);
-						}
-
-					}
-
-
-					{
-
-						ImGui::SetNextItemWidth(-100);
-						ImGui::Text("Normal Texture: ");
-
-						ImGui::SameLine();
-
-						uint32_t normalIndex = material->GetMapIndexNormal();
-
-						if (normalIndex == -1)
-						{
-							ImGui::Button("None");
-						}
-						else
-						{
-							if (ImGui::Button("Show##normalTexture"))
-							{
-								ImGui::OpenPopup("shownormalTexturepopup");
-							}
-
-							if (ImGui::BeginPopup("shownormalTexturepopup"))
-							{
-								TEImGuiRenderImage_MaterialTexture(normalIndex, float2{ 150.0f, 150.0f });
-								ImGui::EndPopup();
-							}
-						}
-						ImGui::SameLine();
-						if (ImGui::Button("Pick Texture##picknormalMap"))
-						{
-							auto func = [material](uint32_t _normalMapIndex)
-							{
-								material->SetMapIndexNormal(_normalMapIndex);
-							};
-
-							ImGuiLayer::ShowWindowMaterialTexture(func, true);
-						}
-						ImGui::SameLine();
-						if (ImGui::Button("Clear##normalMap"))
-						{
-							ImGui::SameLine();
-							material->SetMapIndexNormal(-1);
-						}
-
-					}
-
-
-					{
-
-						ImGui::SetNextItemWidth(-100);
-						ImGui::Text("Roughness Texture: ");
-
-						ImGui::SameLine();
-
-						uint32_t _RoughnessIndex = material->GetMapIndexRoughness();
-
-						if (_RoughnessIndex == -1)
-						{
-							ImGui::Button("None");
-						}
-						else
-						{
-							if (ImGui::Button("Show##RoughnessTexture"))
-							{
-								ImGui::OpenPopup("showRoughnessTexturepopup");
-							}
-
-							if (ImGui::BeginPopup("showRoughnessTexturepopup"))
-							{
-								TEImGuiRenderImage_MaterialTexture(_RoughnessIndex, float2{ 150.0f, 150.0f });
-								ImGui::EndPopup();
-							}
-						}
-						ImGui::SameLine();
-						if (ImGui::Button("Pick Texture##pickRoughnessMap"))
-						{
-							auto func = [material](uint32_t _RoughnessMapIndex)
-							{
-								material->SetMapIndexRoughness(_RoughnessMapIndex);
-							};
-
-							ImGuiLayer::ShowWindowMaterialTexture(func, true);
-						}
-						ImGui::SameLine();
-						if (ImGui::Button("Clear##RoughnessMap"))
-						{
-							ImGui::SameLine();
-							material->SetMapIndexRoughness(-1);
-						}
-
-					}
-
-
-					{
-
-						ImGui::SetNextItemWidth(-100);
-						ImGui::Text("Metallic Texture: ");
-
-						ImGui::SameLine();
-
-						uint32_t _MetallicIndex = material->GetMapIndexMetallic();
-
-						if (_MetallicIndex == -1)
-						{
-							ImGui::Button("None");
-						}
-						else
-						{
-							if (ImGui::Button("Show##MetallicTexture"))
-							{
-								ImGui::OpenPopup("showMetallicTexturepopup");
-							}
-
-							if (ImGui::BeginPopup("showMetallicTexturepopup"))
-							{
-								TEImGuiRenderImage_MaterialTexture(_MetallicIndex, float2{ 150.0f, 150.0f });
-								ImGui::EndPopup();
-							}
-						}
-						ImGui::SameLine();
-						if (ImGui::Button("Pick Texture##pickMetallicMap"))
-						{
-							auto func = [material](uint32_t _MetallicMapIndex)
-							{
-								material->SetMapIndexMetallic(_MetallicMapIndex);
-							};
-
-							ImGuiLayer::ShowWindowMaterialTexture(func, true);
-						}
-						ImGui::SameLine();
-						if (ImGui::Button("Clear##MetallicMap"))
-						{
-							ImGui::SameLine();
-							material->SetMapIndexMetallic(-1);
-						}
-
-					}
-
-					{
-
-						ImGui::SetNextItemWidth(-100);
-						ImGui::Text("AO Texture: ");
-
-						ImGui::SameLine();
-
-						uint32_t _AOIndex = material->GetMapIndexAmbientOcclusion();
-
-						if (_AOIndex == -1)
-						{
-							ImGui::Button("None");
-						}
-						else
-						{
-							if (ImGui::Button("Show##AOTexture"))
-							{
-								ImGui::OpenPopup("showAOTexturepopup");
-							}
-
-							if (ImGui::BeginPopup("showAOTexturepopup"))
-							{
-								TEImGuiRenderImage_MaterialTexture(_AOIndex, float2{ 150.0f, 150.0f });
-								ImGui::EndPopup();
-							}
-						}
-						ImGui::SameLine();
-						if (ImGui::Button("Pick Texture##pickAOMap"))
-						{
-							auto func = [material](uint32_t _AOMapIndex)
-							{
-								material->SetMapIndexAmbientOcclusion(_AOMapIndex);
-							};
-
-							ImGuiLayer::ShowWindowMaterialTexture(func, true);
-						}
-						ImGui::SameLine();
-						if (ImGui::Button("Clear##AOMap"))
-						{
-							ImGui::SameLine();
-							material->SetMapIndexAmbientOcclusion(-1);
-						}
-
-					}
+					_LambdaDrawAmbientOcclusionTextureComponent(material);
 
 					/*{
 
@@ -761,7 +689,7 @@ namespace TruthEngine
 			break;
 		}
 
-		
+
 
 	}
 

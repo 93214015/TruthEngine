@@ -6,13 +6,15 @@ namespace TruthEngine {
 
 	struct alignas(16) ConstantBuffer_Data_Per_Frame
 	{
-		ConstantBuffer_Data_Per_Frame(const float4x4A& viewProj, const float4x4A& viewInverse, const float4A& projectionValues, const float3& eyePos, const float4x4A cascadedShadowTransforms[4])
-			: ViewProj(viewProj), ViewInverse(viewInverse), ProjectionValues(projectionValues), EyePos(eyePos)
+		ConstantBuffer_Data_Per_Frame(const float4x4A& viewProj, const float4x4A& view, const float4x4A& viewInverse, const float4A& projectionValues, const float3& eyePos, const float4x4A cascadedShadowTransforms[4])
+			: ViewProj(viewProj), View(view), ViewInverse(viewInverse), ProjectionValues(projectionValues), EyePos(eyePos)
 		{
 			memcpy(CascadedShadowTransforms, cascadedShadowTransforms, 4 * sizeof(float4x4A));
 		}
 
 		float4x4A ViewProj;
+
+		float4x4A View;
 
 		float4x4A ViewInverse;
 
@@ -30,8 +32,13 @@ namespace TruthEngine {
 			: mDLightCount(0), mSLightCount(0) , mEnabledEnvironmentMap(1), mAmbientLightStrength(.5f, .5f, .5f)
 		{}
 
-		ConstantBuffer_Data_UnFrequent(uint32_t _LightDirectionalCount, uint32_t _LightSpotCount, bool _EnabledEnvironmentMap, const float3& _AmbientLightStrength)
-			: mDLightCount(_LightDirectionalCount), mSLightCount(_LightSpotCount), mEnabledEnvironmentMap(static_cast<uint32_t>(_EnabledEnvironmentMap)), mAmbientLightStrength(_AmbientLightStrength)
+		ConstantBuffer_Data_UnFrequent(
+			uint32_t _LightDirectionalCount, uint32_t _LightSpotCount
+			, bool _EnabledEnvironmentMap, const float3& _AmbientLightStrength
+			, const float2& _SceneViewportSize)
+			: mDLightCount(_LightDirectionalCount), mSLightCount(_LightSpotCount)
+			, mEnabledEnvironmentMap(static_cast<uint32_t>(_EnabledEnvironmentMap)), mAmbientLightStrength(_AmbientLightStrength)
+			, mSceneViewportSize(_SceneViewportSize), mSceneViewportStep(float2(1.0f /_SceneViewportSize.x, 1.0f / _SceneViewportSize.y))
 		{}
 
 		uint32_t mDLightCount;
@@ -41,6 +48,9 @@ namespace TruthEngine {
 
 		float3 mAmbientLightStrength;
 		float mPad1 = 0.0f;
+
+		float2 mSceneViewportSize;
+		float2 mSceneViewportStep;
 	};
 
 	struct alignas(16) ConstantBuffer_Struct_DLight

@@ -71,7 +71,7 @@ namespace TruthEngine::API::DirectX12
 
 	void DX12_GET_RTV_FORMATS(const TE_RESOURCE_FORMAT* inFormats, DXGI_FORMAT outFormats[8])
 	{
-		memcpy(outFormats, inFormats, sizeof(outFormats));
+		memcpy(outFormats, inFormats, sizeof(DXGI_FORMAT) * 8);
 	}
 
 	D3D12_PRIMITIVE_TOPOLOGY_TYPE DX12_GET_PRIMITIVE_TOPOLOGY_TYPE(RendererStateSet states)

@@ -2,6 +2,8 @@ cbuffer CBPerFrame : register(REGISTER_CBPerFrame)
 {
     row_major matrix viewProj;
 
+    row_major matrix View;
+    
     row_major matrix ViewInverse;
     
     float4 ProjectionValues;

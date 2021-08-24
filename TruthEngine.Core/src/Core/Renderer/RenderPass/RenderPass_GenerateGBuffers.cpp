@@ -125,11 +125,18 @@ namespace TruthEngine
 		m_Viewport.Resize(static_cast<float>(_Application->GetSceneViewportWidth()), static_cast<float>(_Application->GetSceneViewportHeight()));
 		m_ViewRect = ViewRect{ 0L, 0L, static_cast<long>(_Application->GetSceneViewportWidth()), static_cast<long>(_Application->GetSceneViewportHeight()) };
 
+		auto _ColorTextureFormat = TE_RESOURCE_FORMAT::R8G8B8A8_UNORM;
+
+		if (m_RendererLayer->IsEnabledHDR())
+		{
+			_ColorTextureFormat = TE_RESOURCE_FORMAT::R16G16B16A16_FLOAT;
+		}
+
 		m_TextureGBufferColor = m_RendererCommand.CreateRenderTarget(TE_IDX_GRESOURCES::Texture_RT_GBuffer_Color
 			, _Application->GetSceneViewportWidth()
 			, _Application->GetSceneViewportHeight()
 			, 1
-			, TE_RESOURCE_FORMAT::R8G8B8A8_UNORM
+			, _ColorTextureFormat
 			, ClearValue_RenderTarget{ .0f, .0f, .0f, 1.0f }
 			, true
 			, Settings::IsMSAAEnabled());

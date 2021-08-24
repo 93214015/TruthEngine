@@ -126,13 +126,14 @@ PixelOut ps(vertexOut pin)
         float3 bitangent = cross(_PixelOut.Normal, tangent);
         float3x3 TBN = float3x3(tangent, bitangent, _PixelOut.Normal);
     
+        TBN = transpose(TBN);
     
         _PixelOut.Normal = MaterialTextures[_material.MapIndexNormal].Sample(sampler_point_wrap, _texUV).xyz;
         _PixelOut.Normal = (_PixelOut.Normal * 2.0f) - 1.0f;
         
         _PixelOut.Normal = mul(_PixelOut.Normal, TBN);
         _PixelOut.Normal = normalize(_PixelOut.Normal);
-	
+    
 		//float normalLength = length(normal);
 	
 #endif
@@ -141,9 +142,9 @@ PixelOut ps(vertexOut pin)
     _PixelOut.Normal += .5f;
     
 #ifdef ENABLE_MAP_DIFFUSE
-    _PixelOut.Color = MaterialTextures[_material.MapIndexDiffuse].Sample(sampler_linear, _texUV).xyz;
+    _PixelOut.Color = float4(MaterialTextures[_material.MapIndexDiffuse].Sample(sampler_linear, _texUV).xyz, 1.0f);
 #else
-    _PixelOut.Color = _material.Diffuse.xyz;
+    _PixelOut.Color = float4(_material.Diffuse.xyz, 1.0f);
 #endif
 	
     

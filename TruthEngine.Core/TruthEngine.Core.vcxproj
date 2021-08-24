@@ -270,6 +270,7 @@
     <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_GenerateIBLAmbient.h" />
     <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_GenerateIBLSpecular.h" />
     <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_GenerateShadowMap.h" />
+    <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_GenerateSSAO.h" />
     <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_PostProcessing_HDR.h" />
     <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_RenderBoudingBoxes.h" />
     <ClInclude Include="src\Core\Renderer\RenderPassStack.h" />
@@ -405,6 +406,7 @@
     <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_GenerateIBLAmbient.cpp" />
     <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_GenerateIBLSpecular.cpp" />
     <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_GenerateShadowMap.cpp" />
+    <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_GenerateSSAO.cpp" />
     <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_PostProcessing_HDR.cpp" />
     <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_RenderBoudingBoxes.cpp" />
     <ClCompile Include="src\Core\Renderer\RenderPassStack.cpp" />

@@ -141,9 +141,9 @@ PixelOut ps(vertexOut pin)
     _PixelOut.Normal += .5f;
         
 #ifdef ENABLE_MAP_DIFFUSE
-    _PixelOut.Color = MaterialTextures[_material.MapIndexDiffuse].Sample(sampler_linear, _texUV).xyz;
+    _PixelOut.Color = float4(MaterialTextures[_material.MapIndexDiffuse].Sample(sampler_linear, _texUV).xyz, 1.0f);
 #else
-    _PixelOut.Color = _material.Diffuse.xyz;
+    _PixelOut.Color = float4(_material.Diffuse.xyz, 1.0f);
 #endif
 	
     
@@ -164,6 +164,8 @@ PixelOut ps(vertexOut pin)
 #else
     _PixelOut.Specular.z = _material.AmbientOcclusion;
 #endif
+    
+    _PixelOut.Specular.w = 1.0f;
     
     return _PixelOut;
 }

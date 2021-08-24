@@ -497,6 +497,7 @@
     <ClInclude Include="src\pch.h" />
     <ClInclude Include="src\API\DX12\DirectX12Helpers.h" />
     <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_GenerateIBLSpecular.h" />
+    <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_GenerateSSAO.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\API\DX12\DirectX12BufferManager.cpp">
@@ -880,5 +881,6 @@
     <ClCompile Include="src\pch.cpp" />
     <ClCompile Include="src\API\DX12\DirectX12Helpers.cpp" />
     <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_GenerateIBLSpecular.cpp" />
+    <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_GenerateSSAO.cpp" />
   </ItemGroup>
 </Project>

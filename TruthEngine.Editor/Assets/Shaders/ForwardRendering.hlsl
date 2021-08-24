@@ -40,7 +40,7 @@ TextureCube tIBLAmbient : register(t3, space0);
 TextureCube tIBLSpecular : register(t4, space0);
 Texture2D<float2> tPrecomputedBRDF : register(t5, space0);
 
-Texture2D MaterialTextures[500] : register(t3, space0);
+Texture2D MaterialTextures[500] : register(t6, space0);
 
 
 ///////////////////////////////////////////////////
@@ -130,6 +130,7 @@ float4 ps(vertexOut pin) : SV_Target
         float3 bitangent = cross(normal, tangent);
         float3x3 TBN = float3x3(tangent, bitangent, normal);
     
+        TBN = transpose(TBN);
     
         normal = MaterialTextures[_material.MapIndexNormal].Sample(sampler_point_wrap, _texUV).xyz;
         normal = (normal * 2.0f) - 1.0f;
@@ -230,6 +231,8 @@ float4 ps(vertexOut pin) : SV_Target
         litColor += lit * shadowFactor.xxx;
 
         ***/
+        
+        litColor += lit;
     }
 
 
@@ -260,6 +263,8 @@ float4 ps(vertexOut pin) : SV_Target
         litColor += lit * shadowFactor.xxx;
         
         ***/
+        
+        litColor += lit;
 
     }
     

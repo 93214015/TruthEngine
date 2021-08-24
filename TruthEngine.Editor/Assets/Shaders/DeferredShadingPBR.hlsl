@@ -144,6 +144,9 @@ float4 ps(VertexOut _VOut) : SV_Target
         _LitColor += _Lit * shadowFactor.xxx;
 
         ***/
+        
+        _LitColor += _Lit;
+        
     }
 
 
@@ -176,6 +179,8 @@ float4 ps(VertexOut _VOut) : SV_Target
         _LitColor += _Lit * shadowFactor.xxx;
 
         */        
+        
+        _LitColor += _Lit;
 
     }
     
@@ -185,24 +190,29 @@ float4 ps(VertexOut _VOut) : SV_Target
     float3 _Kd = 1.0 - _Ks;
     _Kd *= 1.0f - _SpecularFactors.y;
     
-    float3 _Irrediance = tIBLAmbient.Sample(sampler_linear, normal).rgb;
-    float3 _Diffuse = _Irrediance * _MaterialAlbedo;
+    float3 _Irrediance = tIBLAmbient.Sample(sampler_linear, _NormalWorld).rgb;
+    float3 _Diffuse = _Irrediance * _Albedo;
 
-    float3 _ReflectVector = reflect(-toEye, normal);
+    float3 _ReflectVector = reflect(-_ToEye, _NormalWorld);
     const float MAX_REFLECTION_LOD = 4.0f;
-    float3 _PrefilteredIBLSpecular = tIBLSpecular.SampleLevel(sampler_linear, _ReflectVector, _Roughness * MAX_REFLECTION_LOD).rgb;
-    float2 _PrecomputeBRDF = tPrecomputedBRDF.Sample(sampler_linear, float2(_NdotV, _Roughness)).rg;
+    float3 _PrefilteredIBLSpecular = tIBLSpecular.SampleLevel(sampler_linear, _ReflectVector, _SpecularFactors.x * MAX_REFLECTION_LOD).rgb;
+    float2 _PrecomputeBRDF = tPrecomputedBRDF.Sample(sampler_linear, float2(_NdotV, _SpecularFactors.x)).rg;
     float3 _Specular = _PrefilteredIBLSpecular * (_Ks * _PrecomputeBRDF.x + _PrecomputeBRDF.y);
 
-    float3 _Ambient = (_Kd * _Diffuse + _Specular) * _AmbientOcclusion.xxx;
+    float3 _Ambient = (_Kd * _Diffuse + _Specular) * _SpecularFactors.z;
 	
 	//Add Global Ambient Light Factor
     //litColor += (_MaterialAlbedo * gAmbientLightStrength * _AmbientOcclusion.xxx);
-    litColor += _Ambient;
+    _LitColor += _Ambient;
     
     
-//Add Global Ambient Light Factor
-    _LitColor += (_Color.xyz * gAmbientLightStrength);
+    //Add Global Ambient Light Factor
+    //_LitColor += (_Albedo.xyz * gAmbientLightStrength);
+    
+#ifndef ENABLE_HDR
+    _LitColor /= _LitColor + float3(1.0f, 1.0f, 1.0f); //clamp values for LDR lighting
+    _LitColor = pow(_LitColor, (1.0f / 2.2f).xxx);
+#endif
     
     return float4(_LitColor, 1.0f);
 
