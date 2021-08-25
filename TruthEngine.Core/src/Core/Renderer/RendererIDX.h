@@ -16,6 +16,7 @@ enum class TE_IDX_GRESOURCES : IDX
 	CBuffer_HDR_FinalPass,
 	CBuffer_GaussianBlur,
 	CBuffer_Bones,
+	CBuffer_SSAO,
 
 	Buffer_HDRAverageLumFirstPass,
 	Buffer_HDRAverageLumSecondPass0,
@@ -34,6 +35,7 @@ enum class TE_IDX_GRESOURCES : IDX
 	Texture_CubeMap_IBLAmbient,
 	Texture_CubeMap_IBLSpecular,
 	Texture_PrecomputedBRDF,
+	Texture_SSAONoises,
 	Texture_InputCreateCubeMap,
 	Texture_InputCreateIBLAmbient,
 	Texture_InputCreateIBLSpecular,
@@ -49,6 +51,8 @@ enum class TE_IDX_GRESOURCES : IDX
 	Texture_RT_IBL_Ambient,
 	Texture_RT_IBL_Specular_Prefilter,
 	Texture_RT_IBL_Specular_BRDF,
+	Texture_RT_SSAO,
+	Texture_RT_SSAOBlurred,
 	Texture_DS_SceneBuffer,
 	Texture_DS_SceneBufferMS,
 	Texture_DS_ShadowMap_SunLight,
@@ -96,6 +100,8 @@ enum class TE_IDX_SHADERCLASS : IDX
 	GENERATEIBLAMBIENT,
 	GENERATEIBLSPECULAR_PREFILTER,
 	GENERATEIBLSPECULAR_BRDF,
+	GENERATESSAO,
+	SSAOBLURRING,
 	TOTALNUM
 };
 
@@ -111,6 +117,7 @@ enum class TE_IDX_RENDERPASS : IDX
 	GENERATECUBEMAP,
 	GENERATEIBLAMBIENT,
 	GENERATEIBLSPECULAR,
+	GENERATESSAO,
 };
 
 enum class TE_IDX_MESH_TYPE : IDX

@@ -15,3 +15,4 @@
 #include "Core/Entity/Components/RotationComponent.h"
 #include "Core/Entity/Components/MovementComponent.h"
 #include "Core/Entity/Components/UpdatedComponent.h"
+#include "Core/Entity/Components/DynamicLightComponent.h"

@@ -8,22 +8,18 @@
 
 namespace TruthEngine
 {
-	SystemUpdateTransform::SystemUpdateTransform()
-		: System(GetActiveScene())
-	{}
-
-	void SystemUpdateTransform::OnUpdate(float DeltaTime)
+	void SystemUpdateTransform::OnUpdate(Scene* _Scene, double DeltaSecond)
 	{
-		for (auto _EntityHandler : m_Scene->ViewEntities<UpdatedComponent>())
+		for (auto _EntityHandler : _Scene->ViewEntities<UpdatedComponent>())
 		{
-			UpdatedComponent& _UpdatedComponent = m_Scene->GetComponent<UpdatedComponent>(_EntityHandler);
+			UpdatedComponent& _UpdatedComponent = _Scene->GetComponent<UpdatedComponent>(_EntityHandler);
 			if (_UpdatedComponent.m_Updated == true)
 			{
-				const XMVector _XMTranslation = Math::ToXM(m_Scene->GetComponent<TranslationComponent>(_EntityHandler).Translation);
-				const XMVector _XMQuaternion = Math::ToXM(m_Scene->GetComponent<RotationComponent>(_EntityHandler).Quaterion);
+				const XMVector _XMTranslation = Math::ToXM(_Scene->GetComponent<TranslationComponent>(_EntityHandler).Translation);
+				const XMVector _XMQuaternion = Math::ToXM(_Scene->GetComponent<RotationComponent>(_EntityHandler).Quaterion);
 
 				const XMMatrix _XMTransform = Math::XMTransformMatrix(Math::XMIdentityScale, _XMQuaternion, _XMTranslation);
-				float4x4A& _Transform = m_Scene->GetComponent<TransformComponent>(_EntityHandler).GetTransform();
+				float4x4A& _Transform = _Scene->GetComponent<TransformComponent>(_EntityHandler).GetTransform();
 				_Transform = Math::FromXMA(_XMTransform);
 
 				_UpdatedComponent.m_Updated = false;

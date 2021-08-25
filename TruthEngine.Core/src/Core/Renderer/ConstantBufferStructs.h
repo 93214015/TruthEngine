@@ -6,8 +6,8 @@ namespace TruthEngine {
 
 	struct alignas(16) ConstantBuffer_Data_Per_Frame
 	{
-		ConstantBuffer_Data_Per_Frame(const float4x4A& viewProj, const float4x4A& view, const float4x4A& viewInverse, const float4A& projectionValues, const float3& eyePos, const float4x4A cascadedShadowTransforms[4])
-			: ViewProj(viewProj), View(view), ViewInverse(viewInverse), ProjectionValues(projectionValues), EyePos(eyePos)
+		ConstantBuffer_Data_Per_Frame(const float4x4A& viewProj, const float4x4A& view, const float4x4A& viewInverse, const float4x4A& projection, const float4A& projectionValues, const float3& eyePos, const float4x4A cascadedShadowTransforms[4])
+			: ViewProj(viewProj), View(view), ViewInverse(viewInverse), Projection(projection), ProjectionValues(projectionValues), EyePos(eyePos)
 		{
 			memcpy(CascadedShadowTransforms, cascadedShadowTransforms, 4 * sizeof(float4x4A));
 		}
@@ -17,6 +17,8 @@ namespace TruthEngine {
 		float4x4A View;
 
 		float4x4A ViewInverse;
+
+		float4x4A Projection;
 
 		float4A ProjectionValues;
 
@@ -29,22 +31,22 @@ namespace TruthEngine {
 	struct alignas(16) ConstantBuffer_Data_UnFrequent
 	{
 		ConstantBuffer_Data_UnFrequent()
-			: mDLightCount(0), mSLightCount(0) , mEnabledEnvironmentMap(1), mAmbientLightStrength(.5f, .5f, .5f)
+			: mDLightCount(0), mSLightCount(0), mPLightCount(0) , mEnabledEnvironmentMap(1), mAmbientLightStrength(.5f, .5f, .5f)
 		{}
 
 		ConstantBuffer_Data_UnFrequent(
-			uint32_t _LightDirectionalCount, uint32_t _LightSpotCount
+			uint32_t _LightDirectionalCount, uint32_t _LightSpotCount, uint32_t _LightPointCount
 			, bool _EnabledEnvironmentMap, const float3& _AmbientLightStrength
 			, const float2& _SceneViewportSize)
-			: mDLightCount(_LightDirectionalCount), mSLightCount(_LightSpotCount)
+			: mDLightCount(_LightDirectionalCount), mSLightCount(_LightSpotCount), mPLightCount(_LightPointCount)
 			, mEnabledEnvironmentMap(static_cast<uint32_t>(_EnabledEnvironmentMap)), mAmbientLightStrength(_AmbientLightStrength)
 			, mSceneViewportSize(_SceneViewportSize), mSceneViewportStep(float2(1.0f /_SceneViewportSize.x, 1.0f / _SceneViewportSize.y))
 		{}
 
 		uint32_t mDLightCount;
 		uint32_t mSLightCount;
+		uint32_t mPLightCount;
 		uint32_t mEnabledEnvironmentMap;
-		uint32_t mPad0 = 0;
 
 		float3 mAmbientLightStrength;
 		float mPad1 = 0.0f;
@@ -53,10 +55,10 @@ namespace TruthEngine {
 		float2 mSceneViewportStep;
 	};
 
-	struct alignas(16) ConstantBuffer_Struct_DLight
+	struct alignas(16) ConstantBuffer_Struct_DirectionalLight
 	{
-		ConstantBuffer_Struct_DLight() = default;
-		ConstantBuffer_Struct_DLight(const float3& strength, float lightSize, const float3& direction, uint32_t castShadow, const float3& position)
+		ConstantBuffer_Struct_DirectionalLight() = default;
+		ConstantBuffer_Struct_DirectionalLight(const float3& strength, float lightSize, const float3& direction, uint32_t castShadow, const float3& position)
 			: mStrength(strength), mDirection(direction), mLightSize(lightSize), mCastShadow(castShadow), mPosition(position)
 		{}
 
@@ -70,10 +72,10 @@ namespace TruthEngine {
 		float Pad0;
 	};
 
-	struct alignas(16) ConstantBuffer_Struct_SLight
+	struct alignas(16) ConstantBuffer_Struct_SpotLight
 	{
-		ConstantBuffer_Struct_SLight() = default;
-		ConstantBuffer_Struct_SLight(
+		ConstantBuffer_Struct_SpotLight() = default;
+		ConstantBuffer_Struct_SpotLight(
 			const float4x4A& _ShadowTransform,
 			const float3& _Strength, 
 			const float _LightSize, 
@@ -114,10 +116,30 @@ namespace TruthEngine {
 		float Pad0;
 	};
 
+	struct alignas(16) ConstantBuffer_Struct_PointLight
+	{
+		ConstantBuffer_Struct_PointLight() = default;
+		ConstantBuffer_Struct_PointLight(const float3& _Strength, float _LightSize, const float3& _Position, bool _CastShadow, float _AttenuationConstant, float _AttenuationLinear, float _AttenuationQuadrant)
+			: Strength(_Strength), LightSize(_LightSize), Position(_Position), CastShadow(static_cast<uint32_t>(_CastShadow)), AttenuationConstant(_AttenuationConstant), AttenuationLinear(_AttenuationLinear), AttenuationQuadrant(_AttenuationQuadrant)
+		{}
+
+		float3 Strength;
+		float LightSize;
+
+		float3 Position;
+		uint32_t CastShadow;
+
+		float AttenuationConstant;
+		float AttenuationLinear;
+		float AttenuationQuadrant;
+		float _Pad;
+	};
+
 	struct alignas(16) ConstantBuffer_Data_LightData
 	{
-		ConstantBuffer_Struct_DLight mDLights[1];
-		ConstantBuffer_Struct_SLight mSLights[1];
+		ConstantBuffer_Struct_DirectionalLight mDLights[1];
+		ConstantBuffer_Struct_SpotLight mSLights[1];
+		ConstantBuffer_Struct_PointLight mPLights[20];
 	};
 
 	struct alignas(16) ConstantBuffer_Data_Materials

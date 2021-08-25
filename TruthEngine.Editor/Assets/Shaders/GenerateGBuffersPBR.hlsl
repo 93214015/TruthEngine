@@ -133,8 +133,6 @@ PixelOut ps(vertexOut pin)
         _PixelOut.Normal = mul(_PixelOut.Normal, TBN);
         _PixelOut.Normal = normalize(_PixelOut.Normal);
 	
-		//float normalLength = length(normal);
-	
 #endif
     
     _PixelOut.Normal *= .5f;

@@ -167,6 +167,8 @@ namespace TruthEngine
 
 		virtual TextureCubeMap* CreateTextureCube(TE_IDX_GRESOURCES idx, const char* filePath) = 0;
 
+		virtual Texture* CreateTexture(TE_IDX_GRESOURCES _IDX, uint32_t _Width, uint32_t _Height, uint8_t _ArraySize, uint8_t _MipLevels, TE_RESOURCE_FORMAT _Format, TE_RESOURCE_TYPE _ResourceType, TE_RESOURCE_STATES _State, const void* _InitData) = 0;
+
 		virtual Texture* LoadTextureFromFile(TE_IDX_GRESOURCES _IDX, const char* _FilePath, uint8_t _MipLevels) = 0;
 
 		virtual void SaveTextureToFile(const Texture& _Texture, const char* _FilePath) = 0;

@@ -7,6 +7,7 @@
 
 #include "Core/Entity/Systems/SystemMovement.h"
 #include "Core/Entity/Systems/SystemUpdateTransform.h"
+#include "Core/Entity/Systems/SystemDynamicLights.h"
 
 namespace TruthEngine
 {
@@ -57,6 +58,17 @@ namespace TruthEngine
 			const float _FalloffEnd,
 			const float _InnerConeAngle,
 			const float _OuterConeAngle
+		);
+
+		Entity AddLightEntity_Point(
+			const std::string_view _Name,
+			const float3& _Strength,
+			const float3& _Position,
+			const float _LightSize,
+			const bool _IsCastShadow,
+			const float _AttenuationConstant,
+			const float _AttenuationLinear,
+			const float _AttenuationQuadrant
 		);
 
 		//Entity AddModelEntity(const char* modelName, const float4x4A& transform);
@@ -215,7 +227,7 @@ namespace TruthEngine
 		void RegisterEventListener();
 		void OnEventKeyPressed(EventKeyReleased& _event);
 
-		void OnUpdate(float DeltaTime);
+		void OnUpdate(double DeltaTime);
 
 		//
 		//Static
@@ -256,6 +268,7 @@ namespace TruthEngine
 		//
 		SystemMovement m_SystemMovement;
 		SystemUpdateTransform m_SystemUpdateTransforms;
+		SystemDynamicLights m_SystemDynamicLights;
 
 
 		//

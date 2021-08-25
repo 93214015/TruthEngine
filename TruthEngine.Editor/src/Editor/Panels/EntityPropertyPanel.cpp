@@ -16,6 +16,7 @@
 #include "Core/Event/EventEntity.h"
 #include "Core/Entity/Light/LightDirectional.h"
 #include "Core/Entity/Light/LightSpot.h"
+#include "Core/Entity/Light/LightPoint.h"
 
 using namespace DirectX;
 
@@ -765,10 +766,8 @@ namespace TruthEngine
 
 	inline void EntityPropertyPanel::DrawLightComponent(LightComponent& component)
 	{
-		DrawComponent<LightComponent>("Light", m_Context, [](LightComponent& component)
+		DrawComponent<LightComponent>("Light", m_Context, [this](LightComponent& component)
 			{
-
-
 				auto light = component.GetLight();
 
 
@@ -782,14 +781,57 @@ namespace TruthEngine
 						light->SetPosition(position);
 					}
 
+					bool _IsDynamic = m_Context.HasComponent<DynamicLightMovementComponent>();
+
+					auto _LambdaActiveLight = [](Entity _LightEntity)
+					{
+						_LightEntity.AddComponent<DynamicLightMovementComponent>();
+						_LightEntity.AddComponent<DynamicLightRotationComponent>();
+					};
+
+					auto _LambdaDeactiveLight = [](Entity _LightEntity)
+					{
+						_LightEntity.RemoveComponent<DynamicLightMovementComponent>();
+						_LightEntity.RemoveComponent<DynamicLightRotationComponent>();
+					};
+
+
+					if (ImGui::Checkbox("Dynamic Light: ", &_IsDynamic))
+					{
+						if (_IsDynamic)
+						{
+							_LambdaActiveLight(m_Context);
+						}
+						else
+						{
+							_LambdaDeactiveLight(m_Context);
+						}
+					}
+
 					static bool s_MoveWithCamera = false;
-					ImGui::Checkbox("Move With Camera: ", &s_MoveWithCamera);
+					if (ImGui::Checkbox("Move With Camera: ", &s_MoveWithCamera))
+					{
+						if (s_MoveWithCamera && !_IsDynamic)
+						{
+							_LambdaActiveLight(m_Context);
+						}
+					}
 
 					if (s_MoveWithCamera)
 					{
 						Camera* _Camera = CameraManager::GetInstance()->GetActiveCamera();
 
-						light->SetView(_Camera->GetPosition(), _Camera->GetLook(), _Camera->GetUp(), _Camera->GetRight());
+						if (light->GetLightType() == TE_LIGHT_TYPE::Point)
+						{
+							//light->SetPosition(_Camera->GetPosition());
+							auto& _DynamicLightMovementComponent = m_Context.GetComponent<DynamicLightMovementComponent>();
+							_DynamicLightMovementComponent.IsPosition = true;
+							_DynamicLightMovementComponent.Movement = _Camera->GetPosition();
+						}
+						else
+						{
+							light->SetView(_Camera->GetPosition(), _Camera->GetLook(), _Camera->GetUp(), _Camera->GetRight());
+						}
 					}
 
 				}
@@ -818,9 +860,10 @@ namespace TruthEngine
 				{
 					TE_LIGHT_TYPE _LightType = light->GetLightType();
 
-					if (_LightType == TE_LIGHT_TYPE::Directional)
+					switch (_LightType)
 					{
-
+					case TE_LIGHT_TYPE::Directional:
+					{
 						LightDirectional* _DLight = static_cast<LightDirectional*>(light);
 						float4 _Depths = _DLight->GetCascadesConveringDepth();
 						ImGui::Text("Directional Light Cascades Depth: ");
@@ -828,12 +871,10 @@ namespace TruthEngine
 						{
 							_DLight->SetCascadesDepth(_Depths);
 						}
-
+						break;
 					}
-
-					if (_LightType == TE_LIGHT_TYPE::Spot)
+					case TE_LIGHT_TYPE::Spot:
 					{
-
 						LightSpot* _SLight = static_cast<LightSpot*>(light);
 
 						ImGui::Text("Spot Light Start Falloff Distance: ");
@@ -863,7 +904,36 @@ namespace TruthEngine
 						{
 							_SLight->SetOuterConeAngle(_OuterConeAngle);
 						}
+						break;
+					}
+					case TE_LIGHT_TYPE::Point:
+					{
+						LightPoint* _PLight = static_cast<LightPoint*>(light);
 
+						ImGui::Text("Attenuation Constant: ");
+						float _AttenuationConstant = _PLight->GetAttuantionConstant();
+						if (ImGui::DragFloat("##PointLightAttenuationConstant", &_AttenuationConstant, 0.0001f))
+						{
+							_PLight->SetAttenuationConstant(_AttenuationConstant);
+						}
+
+						ImGui::Text("Attenuation Linear: ");
+						float _AttenuationLinear = _PLight->GetAttenuationLinear();
+						if (ImGui::DragFloat("##PointLightAttenuationLinear", &_AttenuationLinear, 0.0001f))
+						{
+							_PLight->SetAttenuationLinear(_AttenuationLinear);
+						}
+
+						ImGui::Text("Attenuation Quadrant: ");
+						float _AttenuationQuadrant = _PLight->GetAttenuationQuadrant();
+						if (ImGui::DragFloat("##PointLightAttenuationQuadrant", &_AttenuationQuadrant, 0.0001f))
+						{
+							_PLight->SetAttenuationQuadrant(_AttenuationQuadrant);
+						}
+
+						break;
+						break;
+					}
 					}
 
 				}
@@ -877,7 +947,7 @@ namespace TruthEngine
 		//
 		////ImGuizmo Rendering
 		//
-		if (m_Context.HasComponent<TransformComponent>() && (m_Context.HasComponent<ModelComponent>() || m_Context.HasComponent<MeshComponent>()))
+		if (m_Context.HasComponent<TransformComponent>() /*&& (m_Context.HasComponent<ModelComponent>() || m_Context.HasComponent<MeshComponent>())*/)
 		{
 			static ImGuizmo::OPERATION _operationMode(ImGuizmo::TRANSLATE);
 			static ImGuizmo::MODE _currentGizmoMode(ImGuizmo::LOCAL);
@@ -916,10 +986,12 @@ namespace TruthEngine
 
 			float4x4A& _Transform = m_Context.GetComponent<TransformComponent>().GetTransform();
 
+			float4x4A _DeltaTransform;
+
 			static auto s_CopyingMesh = false;
 
 
-			if (ImGuizmo::Manipulate(&activeCamera->GetView()._11, &activeCamera->GetProjection()._11, _operationMode, _currentGizmoMode, &_Transform._11, nullptr))
+			if (ImGuizmo::Manipulate(&activeCamera->GetView()._11, &activeCamera->GetProjection()._11, _operationMode, _currentGizmoMode, &_Transform._11, &_DeltaTransform._11))
 			{
 				if (InputManager::IsKeyPressed(VK_SHIFT) && !s_CopyingMesh)
 				{
@@ -928,6 +1000,13 @@ namespace TruthEngine
 						GetActiveScene()->CopyMeshEntity(m_Context);
 						s_CopyingMesh = true;
 					}
+				}
+
+				if (m_Context.HasComponent<LightComponent>())
+				{
+					auto& _LightRotationComponent = GetActiveScene()->AddOrReplaceComponent<DynamicLightRotationComponent>(m_Context);
+					auto& _LightMovementComponent = GetActiveScene()->AddOrReplaceComponent<DynamicLightMovementComponent>(m_Context);
+					_LightMovementComponent.Movement = float3A(_DeltaTransform._41, _DeltaTransform._42, _DeltaTransform._43);
 				}
 
 				/*const float3& _WorldCenterOffset = _TransformComponent.GetWorldCenterOffset();

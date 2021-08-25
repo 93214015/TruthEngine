@@ -116,7 +116,7 @@ namespace TruthEngine
 			void ClearDepthStencil(const DepthStencilView DSV);
 
 
-			void SetViewport(Viewport* viewport, ViewRect* rect);
+			void SetViewport(const Viewport* viewport, const ViewRect* rect) override;
 
 
 			void Submit() override;

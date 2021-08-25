@@ -41,6 +41,21 @@ struct CLightSpotData
     float pad;
 };
 
+struct CLightPointData
+{
+    float3 Strength;
+    float LightSize;
+    
+    float3 Position;
+    bool CastShadow;
+    
+    float AttenuationConstant;
+    float AttenuationLinear;
+    float AttenuationQuadratic;
+    float pad;
+};
+
+
 /////////////////////////////////////////////////////////////////
 
 
@@ -154,6 +169,39 @@ float3 ComputeSpotLight(CLightSpotData _Light, float3 _MaterialAlbedo, float _Ma
     _Kd *= 1.0f - _MaterialMetallic;
     
     float3 _Radiance = _Light.Strength * CalculateAttenuation(_Distance, _Light.FalloffStart, _Light.FalloffEnd).xxx;
+    
+    return ((_Kd * _MaterialAlbedo / PI) + _Specular) * _Radiance * _NdotL;
+}
+
+float3 ComputePointLight(CLightPointData _Light, float3 _MaterialAlbedo, float _MaterialRoughness, float _MaterialMetallic, float3 _F0, float3 _Position, float3 _Normal, float3 _View)
+{
+    float3 _LightVector = _Light.Position - _Position;
+    float _Distance = length(_LightVector);
+    
+    float _Attenuation = 1.0f / (_Light.AttenuationConstant + (_Light.AttenuationLinear * _Distance) + (_Light.AttenuationQuadratic * _Distance * _Distance));
+    
+    if (_Attenuation < 0.0001)
+        return 0.0f;
+    
+    _LightVector /= _Distance;
+    
+    float3 _HalfVector = normalize(_View + _LightVector);
+    
+    float _NDF = DistributionGGX(_Normal, _HalfVector, _MaterialRoughness);
+    float _G = GeometrySmith(_Normal, _View, _LightVector, _MaterialRoughness);
+    float3 _F = FresnelSchlick(_F0, max(0.0f, dot(_HalfVector, _View)));
+    
+    float3 _Numerator = _NDF * _G * _F;
+    float _Denominator = 4.0f * max(0.0f, dot(_Normal, _View)) * max(0.0f, dot(_Normal, _LightVector));
+    float3 _Specular = _Numerator / max(_Denominator, 0.001);
+
+    float _NdotL = max(0.0f, dot(_LightVector, _Normal));
+    
+    float3 _Ks = _F;
+    float3 _Kd = float3(1.0f, 1.0f, 1.0f) - _Ks;
+    _Kd *= 1.0f - _MaterialMetallic;
+    
+    float3 _Radiance = _Light.Strength * _Attenuation;
     
     return ((_Kd * _MaterialAlbedo / PI) + _Specular) * _Radiance * _NdotL;
 }

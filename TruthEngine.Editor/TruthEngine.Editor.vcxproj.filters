@@ -37,5 +37,6 @@
     <FxCompile Include="Assets\Shaders\GenerateGBuffersPBR.hlsl" />
     <FxCompile Include="Assets\Shaders\DeferredShadingPBR.hlsl" />
     <FxCompile Include="Assets\Shaders\GenerateSSAO.hlsl" />
+    <FxCompile Include="Assets\Shaders\SSAOBlur.hlsl" />
   </ItemGroup>
 </Project>

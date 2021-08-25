@@ -3,9 +3,9 @@
 /////////////////////////////////////////////////////////////////
 //////////////// Textures
 /////////////////////////////////////////////////////////////////
-Texture2D<float> tDepth;
-Texture2D<float3> tNormal;
-Texture2D<float3> tNoise;
+Texture2D<float> tDepth : register(t0);
+Texture2D<float3> tNormal : register(t1);
+Texture2D<float3> tNoise : register(t2);
 
 /////////////////////////////////////////////////////////////////
 //////////////// Constant Buffers
@@ -19,7 +19,12 @@ Texture2D<float3> tNoise;
 
 cbuffer CBSSAO : register(b2)
 {
-    float3 KernelSamples[64];
+    float gSSAORadius;
+    float gSSAODepthBias;
+    float2 _CBSSAOPad0;
+
+    float3 KernelSamples[64];    
+    
 };
 
 
@@ -67,8 +72,11 @@ VertexOut vs(uint vertexID : SV_VertexID)
 /////////////////////////////////////////////////////////////////
 
 #define NOISE_TEXTURE_SIZE 4.0f // 4x4
+#define KernelSize 64u
+#define Radius 0.5f
+#define DepthBias 0.025f
 
-float4 ps(VertexOut _PixelIn) : SV_Target
+float ps(VertexOut _PixelIn) : SV_Target
 {
     
     float _DepthProjection = tDepth.Sample(sampler_point_borderWhite, _PixelIn.UV);
@@ -79,16 +87,41 @@ float4 ps(VertexOut _PixelIn) : SV_Target
     
     float3 _NormalWorld = tNormal.Sample(sampler_point_borderWhite, _PixelIn.UV) * 2.0f - 1.0f;
     
-    float3 _NormalView = mul(_NormalWorld, (float3x3)View);
+    float3 _NormalView = normalize(mul(_NormalWorld, (float3x3) View));
     
     const float2 _NoiseScale = gSceneViewportSize / NOISE_TEXTURE_SIZE.xx;
     
     float3 _RandomVector = tNoise.Sample(sampler_point_wrap, _PixelIn.UV * _NoiseScale);
     
-    float3 _Tanget = normalize(_RandomVector - _NormalView * dot(_NormalView, _RandomVector)); // Gramm-Schmidt process
+    float3 _Tangent = normalize(_RandomVector - _NormalView * dot(_NormalView, _RandomVector)); // Gramm-Schmidt process
     
-    float3 _BiTanget = cross(_NormalView, _Tanget);
+    float3 _BiTangent = cross(_NormalView, _Tangent);
     
-    float
+    float3x3 _TBN = float3x3(_Tangent, _BiTangent, _NormalView);
+
+    float _Occlusion = 0.0f;
+    
+    for (uint i = 0; i < KernelSize; ++i)
+    {
+        float3 _SamplePos = mul(KernelSamples[i], _TBN);
+        _SamplePos = _PosView.xyz + (_SamplePos * gSSAORadius);
+        float4 _Offset = float4(_SamplePos, 1.0f);
+        
+        _Offset = mul(_Offset, Projection);
+        _Offset.xyz /= _Offset.w;
+        float2 _SampleUV = (_Offset.xy * float2(0.5f, -0.5f)) + float2(0.5f, 0.5f);
+        
+        float _SampleDepthProjection = tDepth.Sample(sampler_point_borderWhite, _SampleUV);
+        float _SampleDepthView = ConvertToLinearDepth(_SampleDepthProjection, ProjectionValues.z, ProjectionValues.w);
+
+        float _RangeCheck = smoothstep(0.0f, 1.0f, gSSAORadius / abs(_SampleDepthView - _DepthView));
+        
+        _Occlusion += ((_SampleDepthView <= (_SamplePos.z - gSSAODepthBias)) ? 1.0 : 0.0f) * _RangeCheck;
+
+    }
+    
+    _Occlusion = 1.0f - (_Occlusion / KernelSize);
+    
+    return _Occlusion;
     
 }

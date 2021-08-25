@@ -27,16 +27,14 @@ namespace TruthEngine
 	{
 		m_Data.Strength = _Strength;
 
-		EventEntityUpdateLight event(this);
-		TE_INSTANCE_APPLICATION->OnEvent(event);
+		InvokeEventUpdateLight();
 	}
 
 	void LightSpot::SetCastShadow(const bool _Castshadow) noexcept
 	{
 		m_Data.CastShadow = static_cast<uint32_t>(_Castshadow);
 
-		EventEntityUpdateLight event(this);
-		TE_INSTANCE_APPLICATION->OnEvent(event);
+		InvokeEventUpdateLight();
 	}
 
 	void LightSpot::SetView(const float3& _Position, const float3& _Direction, const float3& _Up, const float3& _Right) noexcept
@@ -51,8 +49,7 @@ namespace TruthEngine
 			m_Data.ShadowTransform = m_Camera->GetViewProj() * m_ProjToUV;
 		}
 
-		EventEntityUpdateLight event(this);
-		TE_INSTANCE_APPLICATION->OnEvent(event);
+		InvokeEventUpdateLight();
 	}
 
 	void LightSpot::SetDirection(const float3& _Direction, const float3& _Up, const float3& _Right) noexcept
@@ -66,8 +63,7 @@ namespace TruthEngine
 			m_Data.ShadowTransform = m_Camera->GetViewProj() * m_ProjToUV;
 		}
 
-		EventEntityUpdateLight event(this);
-		TE_INSTANCE_APPLICATION->OnEvent(event);
+		InvokeEventUpdateLight();
 	}
 
 	void LightSpot::SetPosition(const float3& _Position) noexcept
@@ -81,8 +77,7 @@ namespace TruthEngine
 			m_Data.ShadowTransform = m_Camera->GetViewProj() * m_ProjToUV;
 		}
 
-		EventEntityUpdateLight event(this);
-		TE_INSTANCE_APPLICATION->OnEvent(event);
+		InvokeEventUpdateLight();
 	}
 
 	void LightSpot::SetPosition(const float x, const float y, const float z) noexcept
@@ -96,8 +91,14 @@ namespace TruthEngine
 			m_Data.ShadowTransform = m_Camera->GetViewProj() * m_ProjToUV;
 		}
 
-		EventEntityUpdateLight event(this);
-		TE_INSTANCE_APPLICATION->OnEvent(event);
+		InvokeEventUpdateLight();
+	}
+
+	void LightSpot::SetLightSize(float _LightSize) noexcept
+	{
+		m_Data.LightSize = _LightSize;
+
+		InvokeEventUpdateLight();
 	}
 
 	void LightSpot::SetFalloffStart(float _FalloffStart)
@@ -105,8 +106,7 @@ namespace TruthEngine
 		m_Data.FalloffStart = _FalloffStart;
 
 
-		EventEntityUpdateLight event(this);
-		TE_INSTANCE_APPLICATION->OnEvent(event);
+		InvokeEventUpdateLight();
 	}
 
 	void LightSpot::SetFalloffEnd(float _FalloffEnd)
@@ -120,8 +120,7 @@ namespace TruthEngine
 			m_Data.ShadowTransform = m_Camera->GetViewProj() * m_ProjToUV;
 		}
 
-		EventEntityUpdateLight event(this);
-		TE_INSTANCE_APPLICATION->OnEvent(event);
+		InvokeEventUpdateLight();
 	}
 
 	void LightSpot::SetInnerConeAngle(float _InnerConeAngleDegree)
@@ -129,8 +128,7 @@ namespace TruthEngine
 		m_Data.SpotOuterConeAngleRangeCosRcp = 1 / (cosf(Math::DegreeToRadian(_InnerConeAngleDegree)) - m_Data.SpotOuterConeCos);
 
 
-		EventEntityUpdateLight event(this);
-		TE_INSTANCE_APPLICATION->OnEvent(event);
+		InvokeEventUpdateLight();
 	}
 
 	void LightSpot::SetOuterConeAngle(float _OuterConeAngleDegree)
@@ -147,8 +145,7 @@ namespace TruthEngine
 			m_Data.ShadowTransform = m_Camera->GetViewProj() * m_ProjToUV;
 		}
 
-		EventEntityUpdateLight event(this);
-		TE_INSTANCE_APPLICATION->OnEvent(event);
+		InvokeEventUpdateLight();
 	}
 
 	const float3& LightSpot::GetPosition() const noexcept

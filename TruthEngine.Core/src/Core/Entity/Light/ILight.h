@@ -26,7 +26,7 @@ namespace TruthEngine
 		uint32_t CastShadow;
 
 		float3 Position;
-		float Pad0;
+		float Pad0 = 0.0f;
 	};
 
 
@@ -56,7 +56,25 @@ namespace TruthEngine
 		float FalloffEnd;
 		float SpotOuterConeCos;
 		float SpotOuterConeAngleRangeCosRcp;
-		float pad;
+		float pad = 0.0f;
+	};
+
+	struct PointLightData
+	{
+		PointLightData(const float3& _Strength, float _LightSize, const float3& _Position, bool _CastShadow, float _AttenuationConstant, float _AttenuationLinear, float _AttenuationQuadrant)
+			: Strength(_Strength), LightSize(_LightSize), Position(_Position), CastShadow(static_cast<uint32_t>(_CastShadow)), AttenuationConstant(_AttenuationConstant), AttenuationLinear(_AttenuationLinear), AttenuationQuadrant(_AttenuationQuadrant)
+		{}
+
+		float3 Strength;
+		float LightSize;
+
+		float3 Position;
+		uint32_t CastShadow;
+
+		float AttenuationConstant;
+		float AttenuationLinear;
+		float AttenuationQuadrant;
+		float _Pad = 0.0f;
 	};
 
 
@@ -70,12 +88,10 @@ namespace TruthEngine
 			, std::string_view name
 			, TE_LIGHT_TYPE lightType);
 
-		virtual ~ILight();
+		virtual ~ILight() = default;
 
-
-		ILight(ILight&&) noexcept;
-		ILight& operator=(ILight&&) noexcept;
-
+		ILight(ILight&&) noexcept = default;
+		ILight& operator=(ILight&&) noexcept = default;
 
 
 		//
@@ -92,6 +108,8 @@ namespace TruthEngine
 		virtual void SetPosition(const float3& _Position) noexcept = 0;
 
 		virtual void SetPosition(const float x, const float y, const float z) noexcept = 0;
+
+		virtual void SetLightSize(float _LightSize) noexcept = 0;
 
 		//
 		//Get Methods
@@ -122,7 +140,7 @@ namespace TruthEngine
 
 
 	protected:
-
+		void InvokeEventUpdateLight();
 
 	protected:
 

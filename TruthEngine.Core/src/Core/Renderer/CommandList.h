@@ -72,7 +72,7 @@ namespace TruthEngine
 		virtual void ClearRenderTarget(const SwapChain* swapChain, const RenderTargetView RTV) = 0;
 		virtual void ClearDepthStencil(const DepthStencilView DSV) = 0;
 
-		virtual void SetViewport(Viewport* viewport, ViewRect* rect) = 0;
+		virtual void SetViewport(const Viewport* viewport, const ViewRect* rect) = 0;
 
 		virtual void DrawIndexed(uint32_t indexNum, uint32_t indexOffset, uint32_t vertexOffset) = 0;
 		virtual void Draw(uint32_t vertexNum, uint32_t vertexOffset) = 0;

@@ -31,6 +31,7 @@ namespace TruthEngine
 			TextureRenderTarget* CreateRenderTargetCubeMap(TE_IDX_GRESOURCES idx, uint32_t width, uint32_t height, uint8_t mipLevels, TE_RESOURCE_FORMAT format, const ClearValue_RenderTarget& clearValue, bool useAsShaderResource, bool enbaleMSAA);
 			TextureDepthStencil* CreateDepthStencil(TE_IDX_GRESOURCES idx, uint32_t width, uint32_t height, uint8_t mipLevels, TE_RESOURCE_FORMAT format, const ClearValue_DepthStencil& clearValue, bool useAsShaderResource, bool enbaleMSAA);
 			TextureCubeMap* CreateTextureCubeMap(TE_IDX_GRESOURCES idx, const char* filePath);
+			Texture* CreateTexture(TE_IDX_GRESOURCES _IDX, uint32_t _Width, uint32_t _Height, uint8_t _ArraySize, uint8_t _MipLevels, TE_RESOURCE_FORMAT _Format, TE_RESOURCE_TYPE _ResourceType, TE_RESOURCE_STATES _State, const void* _InitData);
 			Texture* LoadTextureFromFile(TE_IDX_GRESOURCES _IDX, const char* _FilePath, uint8_t _MipLevels = 1);
 			void SaveTextureToFile(const Texture& _Textue, const char* _FilePath);
 			void SaveTextureToFile(TE_IDX_GRESOURCES _TextureIDX, const char* _FilePath);
@@ -103,7 +104,7 @@ namespace TruthEngine
 			void SetVertexBuffer(VertexBufferBase* vertexBuffer);
 			void SetIndexBuffer(IndexBuffer* indexBuffer);
 			
-			void SetViewPort(Viewport* viewport, ViewRect* rect);
+			void SetViewPort(const Viewport* viewport, const ViewRect* rect);
 
 			void BeginCompute();
 			void BeginCompute(PipelineCompute* pipeline);

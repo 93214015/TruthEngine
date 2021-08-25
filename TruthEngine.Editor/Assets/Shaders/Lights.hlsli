@@ -39,6 +39,20 @@ struct CLightSpotData
     float pad;
 };
 
+struct CLightPointData
+{
+    float3 Strength;
+    float LightSize;
+    
+    float3 Position;
+    bool CastShadow;
+    
+    float AttenuationConstant;
+    float AttenuationLinear;
+    float AttenuationQuadratic;
+    float pad;
+};
+
 /////////////////////////////////////////////////////////////////
 
 
@@ -80,7 +94,7 @@ float3 BlinnPhong(float3 lightStrength, float3 lightVec, float3 normal, float3 t
 
 }
 
-float CalculateAttenuation(float _Distance, float _FalloffStart, float _FalloffEnd)
+float CalculateAttenuationSpotLight(float _Distance, float _FalloffStart, float _FalloffEnd)
 {
     //Linear Falloff
     return saturate((_FalloffEnd - _Distance) / (_FalloffEnd - _FalloffStart));
@@ -103,28 +117,47 @@ float3 ComputeSpotLight(CLightSpotData _Light, float3 _MaterialAlbedo, float _Ma
     float3 _LightPosition = _Light.Position;
     float3 _LightVector = _LightPosition - _Position;
     float _Distance = length(_LightVector);
-    
+
     if (_Distance > _Light.FalloffEnd)
         return 0.0f;
 	
     _LightVector /= _Distance;
 	
-    float _LightFactor = dot(_LightVector, _Normal);
-	
-    _LightFactor = max(_LightFactor, 0.0f);
+    float _LightFactor = max(dot(_LightVector, _Normal), 0.0f);
 	
     float3 _LightStrength = _LightFactor * _Light.Strength.xyz;
 	
-    float _DistanceAttenuation = CalculateAttenuation(_Distance, _Light.FalloffStart, _Light.FalloffEnd);
-    _LightStrength *= _DistanceAttenuation.xxx;
-	
+    float _DistanceAttenuation = CalculateAttenuationSpotLight(_Distance, _Light.FalloffStart, _Light.FalloffEnd);
+    
     float _CosAngle = dot(-1.0 * _LightVector, _Light.Direction);
     float _CosAttenuration = saturate((_CosAngle - _Light.SpotOuterConeCos) * (_Light.SpotOuterConeAngleRangeCosRcp));
     _CosAttenuration *= _CosAttenuration;
+    
+    float _Attenuation = _DistanceAttenuation * _CosAttenuration;
 	
-    _LightStrength *= _CosAttenuration;
+    _LightStrength *= _Attenuation.xxx;
 
     return BlinnPhong(_LightStrength, _LightVector, _Normal, _ToEye, _MaterialAlbedo, _MaterialShininess, _MaterialFrensel);
+}
+
+float3 ComputePointLight(CLightPointData _Light, float3 _MaterialAlbedo, float _MaterialShininess, float3 _MaterialFresnel, float3 _Position, float3 _Normal, float3 _ToEye)
+{
+    float3 _LightVector = _Light.Position - _Position;
+    float _Distance = length(_LightVector);
+    
+    float _Attenuation = 1.0f / (_Light.AttenuationConstant + (_Light.AttenuationLinear * _Distance) + (_Light.AttenuationQuadratic * _Distance * _Distance) );
+    
+    if(_Attenuation < 0.0001)
+        return 0.0f;
+    
+    _LightVector /= _Distance;
+    
+    float _LightFactor = max(dot(_Normal, _LightVector), 0.0f);
+    
+    float3 _Radiance = _Light.Strength.xyz * (_LightFactor * _Attenuation);
+    
+    return BlinnPhong(_Radiance, _LightVector, _Normal, _ToEye, _MaterialAlbedo, _MaterialShininess, _MaterialFresnel);
+    
 }
 
 /////////////////////////////////////////////////////////////////

@@ -67,10 +67,32 @@ namespace TruthEngine
 	{
 		using DirectX::XMFLOAT3A::XMFLOAT3A;
 
+		float3A(const struct float3& _f3);
+
 		inline explicit operator XMVector() const
 		{
 			return DirectX::XMLoadFloat3A(this);
 		}
+
+		float3A& operator*=(const float& _f)
+		{
+			x *= _f;
+			y *= _f;
+			z *= _f;
+
+			return *this;
+		}
+
+		float3A& operator+=(const float3A _f3A)
+		{
+			x += _f3A.x;
+			y += _f3A.y;
+			z += _f3A.z;
+
+			return *this;
+		}
+
+
 	};
 
 	struct float3 : DirectX::XMFLOAT3
@@ -618,14 +640,29 @@ namespace TruthEngine
 			DirectX::XMStoreFloat2(&source, DirectX::XMVector2Normalize(XMLoadFloat2(&source)));
 		}
 
+		inline void Normalize(float2A& source)
+		{
+			DirectX::XMStoreFloat2A(&source, DirectX::XMVector2Normalize(XMLoadFloat2A(&source)));
+		}
+
 		inline void Normalize(float3& source)
 		{
 			DirectX::XMStoreFloat3(&source, DirectX::XMVector3Normalize(XMLoadFloat3(&source)));
 		}
 
+		inline void Normalize(float3A& source)
+		{
+			DirectX::XMStoreFloat3A(&source, DirectX::XMVector3Normalize(XMLoadFloat3A(&source)));
+		}
+
 		inline void Normalize(float4& source)
 		{
 			DirectX::XMStoreFloat4(&source, DirectX::XMVector4Normalize(XMLoadFloat4(&source)));
+		}
+
+		inline void Normalize(float4A& source)
+		{
+			DirectX::XMStoreFloat4A(&source, DirectX::XMVector4Normalize(XMLoadFloat4A(&source)));
 		}
 
 		inline XMVector Normalize(const XMVector& _Source)
@@ -925,6 +962,8 @@ namespace TruthEngine
 			XMMatrix _Result = DirectX::XMMatrixMultiply(XMLoadFloat4x4A(&_OutTransform), _Matrix);
 			XMStoreFloat4x4(&_OutTransform, _Result);
 		}
+
+		float3A Rotate(const float3A& _Vector, const float4A& _RotationQuaternion);
 
 
 		inline XMMatrix XMMatrixView(const XMVector& _Position, const XMVector& _Look, const XMVector& _Up)

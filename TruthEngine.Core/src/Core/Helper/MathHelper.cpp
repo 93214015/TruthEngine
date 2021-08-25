@@ -65,8 +65,21 @@ namespace TruthEngine
 			XMStoreFloat4(&quaternion, _quaternion);
 		}
 
+		float3A Rotate(const float3A& _Vector, const float4A& _RotationQuaternion)
+		{
+			float3A _Result;
+			auto _ResultVector = DirectX::XMVector3Rotate(ToXM(_Vector), ToXM(_RotationQuaternion));
+			_Result = FromXM3A(_ResultVector);
+
+			return _Result;
+		}
+
 	}
 	
+	float3A::float3A(const float3& _f3)
+		: XMFLOAT3A(_f3.x, _f3.y, _f3.z)
+	{}
+
 }
 
 

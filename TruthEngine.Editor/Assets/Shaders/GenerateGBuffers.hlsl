@@ -126,16 +126,11 @@ PixelOut ps(vertexOut pin)
         float3 bitangent = cross(_PixelOut.Normal, tangent);
         float3x3 TBN = float3x3(tangent, bitangent, _PixelOut.Normal);
     
-        TBN = transpose(TBN);
-    
         _PixelOut.Normal = MaterialTextures[_material.MapIndexNormal].Sample(sampler_point_wrap, _texUV).xyz;
         _PixelOut.Normal = (_PixelOut.Normal * 2.0f) - 1.0f;
         
         _PixelOut.Normal = mul(_PixelOut.Normal, TBN);
         _PixelOut.Normal = normalize(_PixelOut.Normal);
-    
-		//float normalLength = length(normal);
-	
 #endif
     
     _PixelOut.Normal *= .5f;
@@ -146,25 +141,26 @@ PixelOut ps(vertexOut pin)
 #else
     _PixelOut.Color = float4(_material.Diffuse.xyz, 1.0f);
 #endif
-	
     
-#ifdef ENABLE_MAP_ROUGHNESS
-    _PixelOut.Specular.x = MaterialTextures[_material.MapIndexRoughness].Sample(sampler_point_wrap, _texUV).r;
+#ifdef ENABLE_MAP_SPECULAR
+    _PixelOut.Specular.x = MaterialTextures[_material.MapIndexSpecular].Sample(sampler_point_wrap, _texUV).x;
 #else
     _PixelOut.Specular.x = _material.Roughness;
 #endif
     
-#ifdef ENABLE_MAP_METALLIC
-    _PixelOut.Specular.y = MaterialTextures[_material.MapIndexMetallic].Sample(sampler_point_wrap, _texUV).r;
-#else
-    _PixelOut.Specular.y = _material.Metallic;
-#endif
+//#ifdef ENABLE_MAP_METALLIC
+//    _PixelOut.Specular.y = MaterialTextures[_material.MapIndexMetallic].Sample(sampler_point_wrap, _texUV).r;
+//#else
+//    _PixelOut.Specular.y = _material.Metallic;
+//#endif
+    _PixelOut.Specular.y = 0;
     
-#ifdef ENABLE_MAP_AMBIENTOCCLUSION
-    _PixelOut.Specular.z = MaterialTextures[_material.MapIndexAmbientOcclusion].Sample(sampler_point_wrap, _texUV).r;
-#else
-    _PixelOut.Specular.z = _material.AmbientOcclusion;
-#endif
+//#ifdef ENABLE_MAP_AMBIENTOCCLUSION
+//    _PixelOut.Specular.z = MaterialTextures[_material.MapIndexAmbientOcclusion].Sample(sampler_point_wrap, _texUV).r;
+//#else
+//    _PixelOut.Specular.z = _material.AmbientOcclusion;
+//#endif
+    _PixelOut.Specular.z = 1.0f;
     
     return _PixelOut;
 }

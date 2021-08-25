@@ -27,6 +27,8 @@ namespace TruthEngine
 {
 
 	RendererLayer::RendererLayer() : m_ImGuiLayer(ImGuiLayer::Factory())
+		, m_ViewportScene(0.0f, 0.0f, static_cast<float>(TE_INSTANCE_APPLICATION->GetClientWidth()), static_cast<float>(TE_INSTANCE_APPLICATION->GetClientHeight()), 0.0f, 1.0f)
+		, m_ViewRectScene(0l, 0l, static_cast<long>(TE_INSTANCE_APPLICATION->GetClientWidth()), static_cast<long>(TE_INSTANCE_APPLICATION->GetClientHeight()))
 		, m_RenderPass_ForwardRendering(std::make_shared<RenderPass_ForwardRendering>(this))
 		, m_RenderPass_GenerateShadowMap(std::make_shared<RenderPass_GenerateShadowMap>(this, 4096))
 		, m_RenderPass_PostProcessing_HDR(std::make_shared<RenderPass_PostProcessing_HDR>(this))
@@ -35,6 +37,8 @@ namespace TruthEngine
 		, m_RenderPass_GenerateCubeMap(std::make_shared<RenderPass_GenerateCubeMap>(this))
 		, m_RenderPass_GenerateIBLAmbient(std::make_shared<RenderPass_GenerateIBLAmbient>(this))
 		, m_RenderPass_GenerateIBLSpecular(std::make_shared<RenderPass_GenerateIBLSpecular>(this))
+		, m_RenderPass_GenerateSSAO(std::make_shared<RenderPass_GenerateSSAO>(this))
+
 	{
 	}
 	RendererLayer::~RendererLayer() = default;
@@ -110,7 +114,7 @@ namespace TruthEngine
 		}
 
 
-		*data_perFrame = ConstantBuffer_Data_Per_Frame(activeCamera->GetViewProj(), activeCamera->GetView(), activeCamera->GetViewInv(), activeCamera->GetProjectionValues(), activeCamera->GetPosition(), _cascadedShadowTransforms);
+		*data_perFrame = ConstantBuffer_Data_Per_Frame(activeCamera->GetViewProj(), activeCamera->GetView(), activeCamera->GetViewInv(), activeCamera->GetProjection(), activeCamera->GetProjectionValues(), activeCamera->GetPosition(), _cascadedShadowTransforms);
 
 		//
 		////Use MultiThreaded Rendering
@@ -232,6 +236,16 @@ namespace TruthEngine
 		InitRenderPasses();
 	}
 
+	const Viewport& RendererLayer::GetViewportScene() const
+	{
+		return m_ViewportScene;
+	}
+
+	const ViewRect& RendererLayer::GetViewRectScene() const
+	{
+		return m_ViewRectScene;
+	}
+
 	void RendererLayer::RegisterEvents()
 	{
 		auto listener_windowResize = [this](Event& event) {  OnWindowResize(static_cast<EventWindowResize&>(event)); };
@@ -283,10 +297,13 @@ namespace TruthEngine
 
 		m_RendererCommand.ResizeDepthStencil(TE_IDX_GRESOURCES::Texture_DS_SceneBuffer, width, height, &m_DSVSceneBuffer, nullptr);
 
+		m_ViewportScene.Resize(width, height);
+		m_ViewRectScene = ViewRect{ 0l, 0l, static_cast<long>(width), static_cast<long>(height) };
+
 		m_RendererCommand.AddUpdateTask([width, height, CB_UnFrequent = m_CB_UnFrequent]()
 			{
 				CB_UnFrequent->GetData()->mSceneViewportSize = float2(width, height);
-				CB_UnFrequent->GetData()->mSceneViewportStep = float2(1.0f/width, 1.0f/height);
+				CB_UnFrequent->GetData()->mSceneViewportStep = float2(1.0f / width, 1.0f / height);
 			});
 
 		EventRendererViewportResize _EventRendererViewportResize(width, height);
@@ -364,7 +381,7 @@ namespace TruthEngine
 			{
 				const auto& _LightData = _Light->GetDirectionalLightData();
 
-				CB_Lights->GetData()->mDLights[_BufferIndex] = ConstantBuffer_Struct_DLight
+				CB_Lights->GetData()->mDLights[_BufferIndex] = ConstantBuffer_Struct_DirectionalLight
 				(
 					_LightData.Strength
 					, _LightData.LightSize
@@ -393,7 +410,7 @@ namespace TruthEngine
 			{
 				const auto& _LightData = _Light->GetLightData();
 
-				CB_Lights->GetData()->mSLights[_BufferIndex] = ConstantBuffer_Struct_SLight
+				CB_Lights->GetData()->mSLights[_BufferIndex] = ConstantBuffer_Struct_SpotLight
 				(
 					_LightData.ShadowTransform
 					, _LightData.Strength
@@ -412,7 +429,34 @@ namespace TruthEngine
 			break;
 		}
 		case TE_LIGHT_TYPE::Point:
+		{
+			auto _Itr = m_Map_PLightToCBuffer.find(_LightID);
+			if (_Itr == m_Map_PLightToCBuffer.end())
+			{
+				throw;
+				return;
+			}
+
+			int _BufferIndex = _Itr->second;
+
+			m_RendererCommand.AddUpdateTask([_BufferIndex, _Light = static_cast<LightPoint*>(event.GetLight()), CB_Lights = m_CB_LightData]()
+			{
+				const auto& _LightData = _Light->GetLightData();
+
+				CB_Lights->GetData()->mPLights[_BufferIndex] = ConstantBuffer_Struct_PointLight
+				(
+					_LightData.Strength
+					, _LightData.LightSize
+					, _LightData.Position
+					, static_cast<uint32_t>(_LightData.CastShadow)
+					, _LightData.AttenuationConstant
+					, _LightData.AttenuationLinear
+					, _LightData.AttenuationQuadrant
+				);
+			});
+
 			break;
+		}
 		default:
 			break;
 		}
@@ -438,7 +482,7 @@ namespace TruthEngine
 			{
 				const auto& _LightData = _Light->GetDirectionalLightData();
 
-				CB_Lights->GetData()->mDLights[_BufferIndex] = ConstantBuffer_Struct_DLight
+				CB_Lights->GetData()->mDLights[_BufferIndex] = ConstantBuffer_Struct_DirectionalLight
 				(
 					_LightData.Strength
 					, _LightData.LightSize
@@ -465,7 +509,7 @@ namespace TruthEngine
 			{
 				const auto& _LightData = _Light->GetLightData();
 
-				CB_Lights->GetData()->mSLights[_BufferIndex] = ConstantBuffer_Struct_SLight
+				CB_Lights->GetData()->mSLights[_BufferIndex] = ConstantBuffer_Struct_SpotLight
 				(
 					_LightData.ShadowTransform
 					, _LightData.Strength
@@ -488,8 +532,34 @@ namespace TruthEngine
 			break;
 		}
 		case TE_LIGHT_TYPE::Point:
-			throw;
+		{
+			size_t _BufferIndex = m_Map_PLightToCBuffer.size();
+
+			m_Map_PLightToCBuffer[_LightID] = _BufferIndex;
+
+			m_RendererCommand.AddUpdateTask([_BufferIndex, _Light = static_cast<LightPoint*>(event.GetLight()), CB_Lights = m_CB_LightData]()
+			{
+				const auto& _LightData = _Light->GetLightData();
+
+				CB_Lights->GetData()->mPLights[_BufferIndex] = ConstantBuffer_Struct_PointLight
+				(
+					_LightData.Strength
+					, _LightData.LightSize
+					, _LightData.Position
+					, static_cast<uint32_t>(_LightData.CastShadow)
+					, _LightData.AttenuationConstant
+					, _LightData.AttenuationLinear
+					, _LightData.AttenuationQuadrant
+				);
+			}
+			);
+
+			auto _PointLightCount = TE_INSTANCE_LIGHTMANAGER->GetLightPointCount();
+
+			_ChangeUnfrequentBuffer_LightPointCount(_PointLightCount);
+
 			break;
+		}
 		default:
 			throw;
 			break;
@@ -549,6 +619,14 @@ namespace TruthEngine
 			});
 	}
 
+	void RendererLayer::_ChangeUnfrequentBuffer_LightPointCount(uint32_t _LightPointCount)
+	{
+		m_RendererCommand.AddUpdateTask([_LightPointCount, CB_UnFrequent = m_CB_UnFrequent]()
+			{
+				CB_UnFrequent->GetData()->mPLightCount = _LightPointCount;
+			});
+	}
+
 	void RendererLayer::InitRenderPasses()
 	{
 		//////////////////////////////////////////////////
@@ -601,9 +679,10 @@ namespace TruthEngine
 		m_RenderPassStack.PopAll();
 
 		m_RenderPassStack.PushRenderPass(m_RenderPass_GenerateShadowMap.get());
-		m_RenderPassStack.PushRenderPass(m_RenderPass_ForwardRendering.get());
-		//m_RenderPassStack.PushRenderPass(m_RenderPass_GenerateGBuffers.get());
-		//m_RenderPassStack.PushRenderPass(m_RenderPass_DeferredShading.get());
+		//m_RenderPassStack.PushRenderPass(m_RenderPass_ForwardRendering.get());
+		m_RenderPassStack.PushRenderPass(m_RenderPass_GenerateGBuffers.get());
+		m_RenderPassStack.PushRenderPass(m_RenderPass_GenerateSSAO.get());
+		m_RenderPassStack.PushRenderPass(m_RenderPass_DeferredShading.get());
 
 		if (m_IsEnabledHDR)
 			m_RenderPassStack.PushRenderPass(m_RenderPass_PostProcessing_HDR.get());

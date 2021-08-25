@@ -152,6 +152,93 @@ namespace TruthEngine::API::DirectX12
 		}
 	}
 
+	size_t GetPixelByteSize(TE_RESOURCE_FORMAT _Format)
+	{
+		switch (_Format)
+		{
+		case TE_RESOURCE_FORMAT::R32G32B32A32_TYPELESS:
+		case TE_RESOURCE_FORMAT::R32G32B32A32_FLOAT:
+		case TE_RESOURCE_FORMAT::R32G32B32A32_UINT:
+		case TE_RESOURCE_FORMAT::R32G32B32A32_SINT:
+			return 16;
+			break;
+		case TE_RESOURCE_FORMAT::R32G32B32_TYPELESS:
+		case TE_RESOURCE_FORMAT::R32G32B32_FLOAT:
+		case TE_RESOURCE_FORMAT::R32G32B32_UINT:
+		case TE_RESOURCE_FORMAT::R32G32B32_SINT:
+			return 12;
+			break;
+		case TE_RESOURCE_FORMAT::R16G16B16A16_TYPELESS:
+		case TE_RESOURCE_FORMAT::R16G16B16A16_FLOAT:
+		case TE_RESOURCE_FORMAT::R16G16B16A16_UNORM:
+		case TE_RESOURCE_FORMAT::R16G16B16A16_UINT:
+		case TE_RESOURCE_FORMAT::R16G16B16A16_SNORM:
+		case TE_RESOURCE_FORMAT::R16G16B16A16_SINT:
+		case TE_RESOURCE_FORMAT::R32G32_TYPELESS:
+		case TE_RESOURCE_FORMAT::R32G32_FLOAT:
+		case TE_RESOURCE_FORMAT::R32G32_UINT:
+		case TE_RESOURCE_FORMAT::R32G32_SINT:
+		case TE_RESOURCE_FORMAT::R32G8X24_TYPELESS:
+		case TE_RESOURCE_FORMAT::D32_FLOAT_S8X24_UINT:
+		case TE_RESOURCE_FORMAT::R32_FLOAT_X8X24_TYPELESS:
+		case TE_RESOURCE_FORMAT::X32_TYPELESS_G8X24_UINT:
+			return 8;
+			break;
+		case TE_RESOURCE_FORMAT::R10G10B10A2_TYPELESS:
+		case TE_RESOURCE_FORMAT::R10G10B10A2_UNORM:
+		case TE_RESOURCE_FORMAT::R10G10B10A2_UINT:
+		case TE_RESOURCE_FORMAT::R11G11B10_FLOAT:
+		case TE_RESOURCE_FORMAT::R8G8B8A8_TYPELESS:
+		case TE_RESOURCE_FORMAT::R8G8B8A8_UNORM:
+		case TE_RESOURCE_FORMAT::R8G8B8A8_UNORM_SRGB:
+		case TE_RESOURCE_FORMAT::R8G8B8A8_UINT:
+		case TE_RESOURCE_FORMAT::R8G8B8A8_SNORM:
+		case TE_RESOURCE_FORMAT::R8G8B8A8_SINT:
+		case TE_RESOURCE_FORMAT::R16G16_TYPELESS:
+		case TE_RESOURCE_FORMAT::R16G16_FLOAT:
+		case TE_RESOURCE_FORMAT::R16G16_UNORM:
+		case TE_RESOURCE_FORMAT::R16G16_UINT:
+		case TE_RESOURCE_FORMAT::R16G16_SNORM:
+		case TE_RESOURCE_FORMAT::R16G16_SINT:
+		case TE_RESOURCE_FORMAT::R32_TYPELESS:
+		case TE_RESOURCE_FORMAT::D32_FLOAT:
+		case TE_RESOURCE_FORMAT::R32_FLOAT:
+		case TE_RESOURCE_FORMAT::R32_UINT:
+		case TE_RESOURCE_FORMAT::R32_SINT:
+		case TE_RESOURCE_FORMAT::R24G8_TYPELESS:
+		case TE_RESOURCE_FORMAT::D24_UNORM_S8_UINT:
+		case TE_RESOURCE_FORMAT::R24_UNORM_X8_TYPELESS:
+		case TE_RESOURCE_FORMAT::X24_TYPELESS_G8_UINT:
+			return 4;
+			break;
+		case TE_RESOURCE_FORMAT::R8G8_TYPELESS:
+		case TE_RESOURCE_FORMAT::R8G8_UNORM:
+		case TE_RESOURCE_FORMAT::R8G8_UINT:
+		case TE_RESOURCE_FORMAT::R8G8_SNORM:
+		case TE_RESOURCE_FORMAT::R8G8_SINT:
+		case TE_RESOURCE_FORMAT::R16_TYPELESS:
+		case TE_RESOURCE_FORMAT::R16_FLOAT:
+		case TE_RESOURCE_FORMAT::D16_UNORM:
+		case TE_RESOURCE_FORMAT::R16_UNORM:
+		case TE_RESOURCE_FORMAT::R16_UINT:
+		case TE_RESOURCE_FORMAT::R16_SNORM:
+		case TE_RESOURCE_FORMAT::R16_SINT:
+			return 2;
+			break;
+		case TE_RESOURCE_FORMAT::R8_TYPELESS:
+		case TE_RESOURCE_FORMAT::R8_UNORM:
+		case TE_RESOURCE_FORMAT::R8_UINT:
+		case TE_RESOURCE_FORMAT::R8_SNORM:
+		case TE_RESOURCE_FORMAT::R8_SINT:
+		case TE_RESOURCE_FORMAT::A8_UNORM:
+			return 1;
+			break;
+		default:
+			return -1;
+			break;
+		}
+	}
+
 
 
 	TE_RESULT DirectX12BufferManager::CreateResource(TextureRenderTarget* tRT)
@@ -951,6 +1038,57 @@ namespace TruthEngine::API::DirectX12
 		m_Map_GraphicResources[idx] = &tex;
 
 		return &tex;
+	}
+
+	Texture* DirectX12BufferManager::CreateTexture(TE_IDX_GRESOURCES _IDX, uint32_t _Width, uint32_t _Height, uint8_t _ArraySize, uint8_t _MipLevels, TE_RESOURCE_FORMAT _Format, TE_RESOURCE_TYPE _ResourceType, TE_RESOURCE_STATES _State, const void* _InitData)
+	{
+		Texture* _OutTexture = nullptr;
+
+		auto _Itr = m_Map_Textures.find(_IDX);
+		if (_Itr == m_Map_Textures.end())
+		{
+			_OutTexture = &m_Textures.emplace_back(_IDX, _Width, _Height, _ArraySize, _MipLevels, _Format, TE_RESOURCE_USAGE_SHADERRESOURCE, _ResourceType, TE_RESOURCE_STATES::COPY_DEST, false);
+		}
+		else
+		{
+			_OutTexture = _Itr->second;
+
+			_OutTexture->m_Width = _Width;
+			_OutTexture->m_Height = _Height;
+			_OutTexture->m_ArraySize = _ArraySize;
+			_OutTexture->m_MipLevels = _MipLevels;
+			_OutTexture->m_Format = _Format;
+			_OutTexture->m_Usage = TE_RESOURCE_USAGE_SHADERRESOURCE;
+			_OutTexture->m_Type = _ResourceType;
+			_OutTexture->m_State = _InitData != nullptr ? TE_RESOURCE_STATES::COPY_DEST : (TE_RESOURCE_STATES::PIXEL_SHADER_RESOURCE | TE_RESOURCE_STATES::NON_PIXEL_SHADER_RESOURCE);
+			_OutTexture->m_EnableMSAA = false;
+		}
+
+		CreateResource(_OutTexture);
+
+		if (_InitData != nullptr)
+		{
+			auto d3d12device = static_cast<DirectX12GraphicDevice*>(TE_INSTANCE_GRAPHICDEVICE)->GetDevice();
+			DirectX::ResourceUploadBatch uploadBatch(d3d12device);
+
+			D3D12_SUBRESOURCE_DATA _D3D12Data;
+			_D3D12Data.pData = _InitData;
+			size_t _PixelByteSize = GetPixelByteSize(_Format);
+			_D3D12Data.RowPitch = _PixelByteSize * _Width;
+			_D3D12Data.SlicePitch = _PixelByteSize * _Width * _Height;
+
+			ID3D12Resource* _ID3D12Resource = m_Resources[_OutTexture->GetResourceIndex()].Get();
+
+			uploadBatch.Begin(D3D12_COMMAND_LIST_TYPE_COPY);
+			uploadBatch.Upload(_ID3D12Resource, 0, &_D3D12Data, 1);
+			uploadBatch.Transition(_ID3D12Resource, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE | D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
+			uploadBatch.End(TE_INSTANCE_API_DX12_COMMANDQUEUECOPY->GetNativeObject());
+		}
+
+		m_Map_Textures[_IDX] = _OutTexture;
+		m_Map_GraphicResources[_IDX] = _OutTexture;
+
+		return _OutTexture;
 	}
 
 	Texture* DirectX12BufferManager::LoadTextureFromFile(TE_IDX_GRESOURCES _IDX, const char* _FilePath, uint8_t _MipLevels)

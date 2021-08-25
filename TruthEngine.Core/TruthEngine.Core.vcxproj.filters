@@ -498,6 +498,9 @@
     <ClInclude Include="src\API\DX12\DirectX12Helpers.h" />
     <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_GenerateIBLSpecular.h" />
     <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_GenerateSSAO.h" />
+    <ClInclude Include="src\Core\Entity\Light\LightPoint.h" />
+    <ClInclude Include="src\Core\Entity\Systems\SystemDynamicLights.h" />
+    <ClInclude Include="src\Core\Entity\Components\DynamicLightComponent.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\API\DX12\DirectX12BufferManager.cpp">
@@ -882,5 +885,8 @@
     <ClCompile Include="src\API\DX12\DirectX12Helpers.cpp" />
     <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_GenerateIBLSpecular.cpp" />
     <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_GenerateSSAO.cpp" />
+    <ClCompile Include="src\Core\Entity\Light\LightPoint.cpp" />
+    <ClCompile Include="src\Core\Entity\Systems\SystemDynamicLights.cpp" />
+    <ClCompile Include="src\Core\Entity\Components\DynamicLightComponent.cpp" />
   </ItemGroup>
 </Project>

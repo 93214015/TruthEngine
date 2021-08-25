@@ -1,6 +1,7 @@
 #pragma once
 #include "LightDirectional.h"
 #include "LightSpot.h"
+#include "LightPoint.h"
 
 #include "Core/Entity/Camera/CameraCascadedFrustum.h"
 
@@ -15,6 +16,8 @@ namespace TruthEngine
 	class LightManager
 	{
 	public:
+
+		LightManager();
 
 		LightDirectional* AddLightDirectional(
 			std::string_view name
@@ -38,6 +41,18 @@ namespace TruthEngine
 			float _OuterConeAngle
 		);
 
+		LightPoint* AddLightPoint
+		(
+			std::string_view _Name,
+			const float3& _Strength,
+			float _LightSize,
+			const float3& _Position,
+			bool _CastShadow,
+			float _AttenuationConstant,
+			float _AttenuationLinear,
+			float _AttenuationQuadrant
+		);
+
 
 		LightDirectional* GetDirectionalLight(const std::string_view name)const;
 		LightDirectional* GetDirectionalLight(uint32_t _LightID)const;
@@ -52,6 +67,11 @@ namespace TruthEngine
 		inline size_t GetLightSpotCount() const noexcept
 		{
 			return m_LightsSpot.size();
+		}
+
+		inline size_t GetLightPointCount() const noexcept
+		{
+			return m_LightsPoint.size();
 		}
 
 		Camera* GetLightCamera(const ILight* light);
@@ -79,6 +99,7 @@ namespace TruthEngine
 
 		std::vector<LightDirectional> m_LightsDirectional;
 		std::vector<LightSpot> m_LightsSpot;
+		std::vector<LightPoint> m_LightsPoint;
 	};
 
 

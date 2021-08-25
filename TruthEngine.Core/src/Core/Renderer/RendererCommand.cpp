@@ -358,7 +358,7 @@ namespace TruthEngine
 		m_CurrentCommandList->ExecuteUpdateTasks();
 	}
 
-	void RendererCommand::SetViewPort(Viewport* viewport, ViewRect* rect /* =0 */)
+	void RendererCommand::SetViewPort(const Viewport* viewport, const ViewRect* rect /* =0 */)
 	{
 		m_CurrentCommandList->SetViewport(viewport, rect);
 	}
@@ -389,6 +389,11 @@ namespace TruthEngine
 	TruthEngine::TextureCubeMap* RendererCommand::CreateTextureCubeMap(TE_IDX_GRESOURCES idx, const char* filePath)
 	{
 		return TE_INSTANCE_BUFFERMANAGER->CreateTextureCube(idx, filePath);
+	}
+
+	Texture* RendererCommand::CreateTexture(TE_IDX_GRESOURCES _IDX, uint32_t _Width, uint32_t _Height, uint8_t _ArraySize, uint8_t _MipLevels, TE_RESOURCE_FORMAT _Format, TE_RESOURCE_TYPE _ResourceType, TE_RESOURCE_STATES _State, const void* _InitData)
+	{
+		return TE_INSTANCE_BUFFERMANAGER->CreateTexture(_IDX, _Width, _Height, _ArraySize, _MipLevels, _Format, _ResourceType, _State, _InitData);
 	}
 
 	Texture* RendererCommand::LoadTextureFromFile(TE_IDX_GRESOURCES _IDX, const char* _FilePath, uint8_t _MipLevels)

@@ -3,9 +3,10 @@
 
 namespace TruthEngine
 {
-	class SystemUpdateTransform final : public System
+	class SystemDynamicLights final : public System
 	{
 	public:
+		// Inherited via System
 		void OnUpdate(Scene* _Scene, double DeltaSecond) override;
 	};
 }

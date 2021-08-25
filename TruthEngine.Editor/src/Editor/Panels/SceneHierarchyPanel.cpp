@@ -8,6 +8,7 @@
 #include "Core/ImGui/ImGuiLayer.h"
 #include "Core/Application.h"
 #include "Core/Entity/Model/ModelManager.h"
+#include "Core/Entity/Light/LightManager.h"
 
 using namespace TruthEngine;
 
@@ -67,7 +68,7 @@ namespace TruthEngine
 
 			static uint16_t _ModelNamePostfix = 0;
 			static char _ModelNameBuffer[50];
-		
+
 
 			if (!m_Context->GetSelectedEntity())
 			{
@@ -76,7 +77,7 @@ namespace TruthEngine
 
 			ImGui::Text("Primitves");
 
-			static float3 _Size = {1.0f, 1.0f, 1.0f};
+			static float3 _Size = { 1.0f, 1.0f, 1.0f };
 			static auto primitiveType = TE_PRIMITIVE_TYPE::BOX;
 			ImGui::InputFloat3("Primitive Size.X/Radius Size.Y Size.Z", &_Size.x);
 
@@ -454,7 +455,10 @@ namespace TruthEngine
 
 	void SceneHierarchyPanel::DrawLightEntities() const
 	{
-		auto isHeaderOpen = ImGui::CollapsingHeader("Lights");
+		static char s_LightNameBuffer[50];
+		static float3 s_LightPosition = float3(0.0f, 0.0f, 0.0f);
+
+		auto isHeaderOpen = ImGui::CollapsingHeader("Lights", ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_AllowItemOverlap | ImGuiTreeNodeFlags_FramePadding);
 
 		ImVec2 contentRegionAvailable = ImGui::GetContentRegionAvail();
 		float lineHeight = GImGui->Font->FontSize + (GImGui->Style.FramePadding.y * 2.0f);
@@ -462,9 +466,56 @@ namespace TruthEngine
 
 		if (ImGui::Button("Add Light", ImVec2{ 80, lineHeight }))
 		{
-			// 			auto entity = m_Context->AddEntity("Empty Light");
-			// 			entity.AddComponent<LightComponent>();
-			// 			m_Context->SelectEntity(entity);
+			ImGui::OpenPopup("AddLightPopup");
+		}
+
+		if (ImGui::BeginPopupModal("AddLightPopup"))
+		{
+			ImGui::InputText("Light Name: ", s_LightNameBuffer, sizeof(s_LightNameBuffer));
+
+			static auto s_LightType = TE_LIGHT_TYPE::Point;
+
+			if (ImGui::RadioButton("Point", s_LightType == TE_LIGHT_TYPE::Point))
+			{
+				s_LightType = TE_LIGHT_TYPE::Point;
+			}
+			ImGui::SameLine();
+			if (ImGui::RadioButton("Spot", s_LightType == TE_LIGHT_TYPE::Spot))
+			{
+				s_LightType = TE_LIGHT_TYPE::Spot;
+			}
+			ImGui::SameLine();
+			if (ImGui::RadioButton("Directional", s_LightType == TE_LIGHT_TYPE::Directional))
+			{
+				s_LightType = TE_LIGHT_TYPE::Directional;
+			}
+
+			ImGuiLayer::DrawFloat3Control("AddLightEntityPosition", &s_LightPosition.x);
+
+			if (ImGui::Button("Add##AddLightPopup"))
+			{
+				ILight* _ILight = nullptr;
+				switch (s_LightType)
+				{
+				case TE_LIGHT_TYPE::Directional:
+					m_Context->AddLightEntity_Directional(s_LightNameBuffer, float3(0.3f, 0.3f, 0.3f), float3(0.0f, 0.0f, 1.0f), s_LightPosition, 0.1f, false, float4(1.0f, 2.0f, 10.0f, 100.0f));
+					break;
+				case TE_LIGHT_TYPE::Spot:
+					m_Context->AddLightEntity_Spot(s_LightNameBuffer, float3(0.3f, 0.3f, 0.3f), float3(0.0f, 0.0f, 1.0f), s_LightPosition, 0.1f, false, 10.0f, 100.0f, 45.0f, 90.0f);
+					break;
+				case TE_LIGHT_TYPE::Point:
+					m_Context->AddLightEntity_Point(s_LightNameBuffer, float3(0.3f, 0.3f, 0.3f), s_LightPosition, 0.1f, false, 1.0f, 0.007f, 0.0002f);
+					break;
+				}
+				ImGui::CloseCurrentPopup();
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Cancel##AddLightPopup"))
+			{
+				ImGui::CloseCurrentPopup();
+			}
+
+			ImGui::EndPopup();
 		}
 
 

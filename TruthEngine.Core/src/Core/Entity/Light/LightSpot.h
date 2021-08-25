@@ -38,6 +38,8 @@ namespace TruthEngine
 
 		virtual void SetPosition(const float x, const float y, const float z) noexcept override;
 
+		virtual void SetLightSize(float _LightSize) noexcept override;
+
 		void SetFalloffStart(float _FalloffStart);
 
 		void SetFalloffEnd(float _FalloffEnd);

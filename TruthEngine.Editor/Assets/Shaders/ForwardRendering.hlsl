@@ -130,15 +130,12 @@ float4 ps(vertexOut pin) : SV_Target
         float3 bitangent = cross(normal, tangent);
         float3x3 TBN = float3x3(tangent, bitangent, normal);
     
-        TBN = transpose(TBN);
     
         normal = MaterialTextures[_material.MapIndexNormal].Sample(sampler_point_wrap, _texUV).xyz;
         normal = (normal * 2.0f) - 1.0f;
-        //normal = normalize(normal);
         
         normal = normalize(mul(normal, TBN));
 	
-		//float normalLength = length(normal);
 #endif
     
 	
@@ -266,6 +263,13 @@ float4 ps(vertexOut pin) : SV_Target
         
         litColor += lit;
 
+    }
+    
+    for (uint _PLightIndex = 0; _PLightIndex < gPLightCount; ++_PLightIndex)
+    {
+        float3 _Illumination = ComputePointLight(gPointLights[_PLightIndex], _MaterialAlbedo, _Shininess, _FresnelR0, pin.posW, normal, toEye);
+
+        litColor += _Illumination;
     }
     
     if (gEnabledEnvironmentMap)

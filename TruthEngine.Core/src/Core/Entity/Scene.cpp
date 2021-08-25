@@ -155,6 +155,11 @@ namespace TruthEngine
 		auto entityLight = AddEntity(_Name.data());
 		AddComponent<LightComponent>(entityLight, _Light);
 
+		auto& _Transform = GetComponent<TransformComponent>(entityLight).GetTransform();
+		_Transform._41 = _Position.x;
+		_Transform._42 = _Position.y;
+		_Transform._43 = _Position.z;
+
 		return entityLight;
 	}
 
@@ -166,6 +171,28 @@ namespace TruthEngine
 
 		auto entityLight = AddEntity(_Name.data());
 		AddComponent<LightComponent>(entityLight, _Light);
+
+		auto& _Transform = GetComponent<TransformComponent>(entityLight).GetTransform();
+		_Transform._41 = _Position.x;
+		_Transform._42 = _Position.y;
+		_Transform._43 = _Position.z;
+
+		return entityLight;
+	}
+
+	Entity Scene::AddLightEntity_Point(const std::string_view _Name, const float3& _Strength, const float3& _Position, const float _LightSize, const bool _IsCastShadow, const float _AttenuationConstant, const float _AttenuationLinear, const float _AttenuationQuadrant)
+	{
+		LightPoint* _Light = m_LightManager->AddLightPoint(
+			_Name, _Strength, _LightSize, _Position, _IsCastShadow, _AttenuationConstant, _AttenuationLinear, _AttenuationQuadrant
+		);
+
+		auto entityLight = AddEntity(_Name.data());
+		AddComponent<LightComponent>(entityLight, _Light);
+
+		auto& _Transform = GetComponent<TransformComponent>(entityLight).GetTransform();
+		_Transform._41 = _Position.x;
+		_Transform._42 = _Position.y;
+		_Transform._43 = _Position.z;
 
 		return entityLight;
 	}
@@ -890,10 +917,11 @@ namespace TruthEngine
 		}
 	}
 
-	void Scene::OnUpdate(float DeltaTime)
+	void Scene::OnUpdate(double DeltaTime)
 	{
-		m_SystemMovement.OnUpdate(DeltaTime);
-		m_SystemUpdateTransforms.OnUpdate(DeltaTime);
+		m_SystemMovement.OnUpdate(this, DeltaTime);
+		m_SystemUpdateTransforms.OnUpdate(this, DeltaTime);
+		m_SystemDynamicLights.OnUpdate(this, DeltaTime);
 	}
 
 

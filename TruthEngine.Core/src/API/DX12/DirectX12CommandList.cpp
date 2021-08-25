@@ -561,10 +561,10 @@ namespace TruthEngine::API::DirectX12
 		sc.Present();
 	}
 
-	void DirectX12CommandList::SetViewport(Viewport* viewport, ViewRect* rect)
+	void DirectX12CommandList::SetViewport(const Viewport* viewport, const ViewRect* rect)
 	{
-		mD3D12CommandList->RSSetViewports(1, reinterpret_cast<D3D12_VIEWPORT*>(viewport));
-		mD3D12CommandList->RSSetScissorRects(1, reinterpret_cast<D3D12_RECT*>(rect));
+		mD3D12CommandList->RSSetViewports(1, reinterpret_cast<const D3D12_VIEWPORT*>(viewport));
+		mD3D12CommandList->RSSetScissorRects(1, reinterpret_cast<const D3D12_RECT*>(rect));
 	}
 
 	bool DirectX12CommandList::IsRunning()

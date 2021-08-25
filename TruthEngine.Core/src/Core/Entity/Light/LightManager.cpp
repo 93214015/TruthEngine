@@ -43,6 +43,13 @@ namespace TruthEngine
 		0.75f, 0.75f, 0.0f, 1.0f);
 
 
+	LightManager::LightManager()
+	{
+		m_LightsDirectional.reserve(10);
+		m_LightsSpot.reserve(20);
+		m_LightsPoint.reserve(100);
+	}
+
 	LightDirectional* LightManager::AddLightDirectional(
 		std::string_view name,
 		const float3& strength,
@@ -110,6 +117,20 @@ namespace TruthEngine
 		TE_INSTANCE_APPLICATION->OnEvent(_Event);
 
 		return slight;
+	}
+
+	LightPoint* LightManager::AddLightPoint(std::string_view _Name, const float3& _Strength, float _LightSize, const float3& _Position, bool _CastShadow, float _AttenuationConstant, float _AttenuationLinear, float _AttenuationQuadrant)
+	{
+		uint32_t _id = m_Map_Lights.size();
+
+		auto _PointLight = &m_LightsPoint.emplace_back(_id, _Name.data(), _Strength, _LightSize, _Position, _CastShadow, _AttenuationConstant, _AttenuationLinear, _AttenuationQuadrant);
+		m_Map_Lights[_id] = _PointLight;
+		m_Map_LightsName[_Name] = _PointLight;
+				
+		EventEntityAddLight _Event(_PointLight);
+		TE_INSTANCE_APPLICATION->OnEvent(_Event);
+
+		return _PointLight;
 	}
 
 	LightDirectional* LightManager::GetDirectionalLight(const std::string_view name) const

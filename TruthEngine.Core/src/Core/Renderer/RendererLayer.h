@@ -13,6 +13,7 @@
 #include "RenderPass/RenderPass_GenerateCubeMap.h"
 #include "RenderPass/RenderPass_GenerateIBLAmbient.h"
 #include "RenderPass/RenderPass_GenerateIBLSpecular.h"
+#include "RenderPass/RenderPass_GenerateSSAO.h"
 
 
 namespace TruthEngine
@@ -69,8 +70,6 @@ namespace TruthEngine
 
 		const float3& GetEnvironmentMapMultiplier()const;
 		const void SetEnvironmentMapMultiplier(const float3& _EnvironmentMapMultiplier);
-		
-
 
 		inline bool IsEnvironmentMapEnabled()const noexcept
 		{
@@ -84,6 +83,9 @@ namespace TruthEngine
 
 		void SetHDR(bool _EnableHDR);
 
+		const Viewport& GetViewportScene() const;
+		const ViewRect& GetViewRectScene() const;
+
 	private:
 		void RegisterEvents();
 
@@ -96,6 +98,7 @@ namespace TruthEngine
 
 		void _ChangeUnfrequentBuffer_LightDirectionalCount(uint32_t _LightDirectionalCount);
 		void _ChangeUnfrequentBuffer_LightSpotCount(uint32_t _LightSpotCount);
+		void _ChangeUnfrequentBuffer_LightPointCount(uint32_t _LightPointCount);
 
 		void InitRenderPasses();
 		void InitTextures();
@@ -118,6 +121,7 @@ namespace TruthEngine
 		std::shared_ptr<RenderPass_GenerateCubeMap> m_RenderPass_GenerateCubeMap;
 		std::shared_ptr<RenderPass_GenerateIBLAmbient> m_RenderPass_GenerateIBLAmbient;
 		std::shared_ptr<RenderPass_GenerateIBLSpecular> m_RenderPass_GenerateIBLSpecular;
+		std::shared_ptr<RenderPass_GenerateSSAO> m_RenderPass_GenerateSSAO;
 
 		ModelManager* m_ModelManagers;
 
@@ -136,8 +140,12 @@ namespace TruthEngine
 
 		ConstantBufferDirect<ConstantBuffer_Data_EnvironmentMap>* m_CB_EnvironmentMap;
 
+		Viewport m_ViewportScene;
+		ViewRect m_ViewRectScene;
+
 		std::map<int, int> m_Map_DLightToCBuffer;
 		std::map<int, int> m_Map_SLightToCBuffer;
+		std::map<int, int> m_Map_PLightToCBuffer;
 
 		bool m_EnabledImGuiLayer = true;
 		bool m_EnabledEnvironmentMap = false;

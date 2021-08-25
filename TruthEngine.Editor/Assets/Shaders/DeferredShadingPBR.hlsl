@@ -26,8 +26,9 @@ Texture2D<float> tDepth : register(t3);
 TextureCube tIBLAmbient : register(t4);
 TextureCube tIBLSpecular : register(t5);
 Texture2D<float2> tPrecomputedBRDF : register(t6);
-Texture2D<float> tShadowMap_SunLight : register(t7);
-Texture2D<float> tShadowMap_SpotLight : register(t8);
+Texture2D<float> tSSAO : register(t7);
+Texture2D<float> tShadowMap_SunLight : register(t8);
+Texture2D<float> tShadowMap_SpotLight : register(t9);
 
 
 /////////////////////////////////////////////////////////////////
@@ -184,6 +185,13 @@ float4 ps(VertexOut _VOut) : SV_Target
 
     }
     
+    for (uint _PointLightIndex = 0; _PointLightIndex < gPLightCount; ++_PointLightIndex)
+    {
+        float3 lit = ComputePointLight(gPointLights[_PointLightIndex], _Albedo, _SpecularFactors.x, _SpecularFactors.y, _F0, _PosWorld.xyz, _NormalWorld, _ToEye);
+
+        _LitColor += lit;
+    }
+    
     float _NdotV = max(dot(_NormalWorld, _ToEye), 0.0f);
     
     float3 _Ks = FresnelSchlickRoughness(_F0, _NdotV, _SpecularFactors.x);
@@ -200,6 +208,10 @@ float4 ps(VertexOut _VOut) : SV_Target
     float3 _Specular = _PrefilteredIBLSpecular * (_Ks * _PrecomputeBRDF.x + _PrecomputeBRDF.y);
 
     float3 _Ambient = (_Kd * _Diffuse + _Specular) * _SpecularFactors.z;
+    
+    float _SSAO = tSSAO.Sample(sampler_linear_clamp, _VOut.UV).x;
+    
+    _Ambient *= _SSAO;
 	
 	//Add Global Ambient Light Factor
     //litColor += (_MaterialAlbedo * gAmbientLightStrength * _AmbientOcclusion.xxx);

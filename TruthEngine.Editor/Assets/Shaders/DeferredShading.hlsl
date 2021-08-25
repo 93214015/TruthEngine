@@ -26,8 +26,9 @@ Texture2D<float> tDepth : register(t3);
 TextureCube tIBLAmbient : register(t4);
 TextureCube tIBLSpecular : register(t5);
 Texture2D<float2> tPrecomputedBRDF : register(t6);
-Texture2D<float> tShadowMap_SunLight : register(t7);
-Texture2D<float> tShadowMap_SpotLight : register(t8);
+Texture2D<float> tSSAO : register(t7);
+Texture2D<float> tShadowMap_SunLight : register(t8);
+Texture2D<float> tShadowMap_SpotLight : register(t9);
 
 
 

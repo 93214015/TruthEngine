@@ -105,6 +105,8 @@ namespace TruthEngine
 
 		TE_INSTANCE_ANIMATIONMANAGER->Update(m_Timer.DeltaTime());
 
+		GetActiveScene()->OnUpdate(m_Timer.DeltaTime());
+
 		InputManager::ProcessInput();
 
 		m_RendererLayer->BeginRendering();

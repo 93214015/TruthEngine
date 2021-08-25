@@ -6,9 +6,7 @@ namespace TruthEngine
 	class SystemMovement final : public System
 	{
 	public:
-		SystemMovement();
-
-		void OnUpdate(float DeltaTime) final override;
+		void OnUpdate(Scene* _Scene, double DeltaSecond) final override;
 	};
 }
 

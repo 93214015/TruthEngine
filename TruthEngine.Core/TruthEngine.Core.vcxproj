@@ -184,6 +184,7 @@
     <ClInclude Include="src\Core\Entity\Components\AttachedComponent.h" />
     <ClInclude Include="src\Core\Entity\Components\BoundingBoxComponent.h" />
     <ClInclude Include="src\Core\Entity\Components\CameraComponent.h" />
+    <ClInclude Include="src\Core\Entity\Components\DynamicLightComponent.h" />
     <ClInclude Include="src\Core\Entity\Components\EnvironmentComponent.h" />
     <ClInclude Include="src\Core\Entity\Components\LeaderComponent.h" />
     <ClInclude Include="src\Core\Entity\Components\LightComponent.h" />
@@ -203,6 +204,7 @@
     <ClInclude Include="src\Core\Entity\Light\ILight.h" />
     <ClInclude Include="src\Core\Entity\Light\LightDirectional.h" />
     <ClInclude Include="src\Core\Entity\Light\LightManager.h" />
+    <ClInclude Include="src\Core\Entity\Light\LightPoint.h" />
     <ClInclude Include="src\Core\Entity\Light\LightSpot.h" />
     <ClInclude Include="src\Core\Entity\Model\AssimpLib.h" />
     <ClInclude Include="src\Core\Entity\Model\Mesh.h" />
@@ -214,6 +216,7 @@
     <ClInclude Include="src\Core\Entity\PickingEntity.h" />
     <ClInclude Include="src\Core\Entity\Scene.h" />
     <ClInclude Include="src\Core\Entity\Systems\System.h" />
+    <ClInclude Include="src\Core\Entity\Systems\SystemDynamicLights.h" />
     <ClInclude Include="src\Core\Entity\Systems\SystemMovement.h" />
     <ClInclude Include="src\Core\Entity\Systems\SystemUpdateTransform.h" />
     <ClInclude Include="src\Core\EntryPoint.h" />
@@ -333,6 +336,7 @@
     <ClCompile Include="src\Core\Entity\Components\AttachedComponent.cpp" />
     <ClCompile Include="src\Core\Entity\Components\BoundingBoxComponent.cpp" />
     <ClCompile Include="src\Core\Entity\Components\CameraComponent.cpp" />
+    <ClCompile Include="src\Core\Entity\Components\DynamicLightComponent.cpp" />
     <ClCompile Include="src\Core\Entity\Components\EnvironmentComponent.cpp" />
     <ClCompile Include="src\Core\Entity\Components\LightComponent.cpp" />
     <ClCompile Include="src\Core\Entity\Components\MaterialComponent.cpp" />
@@ -347,6 +351,7 @@
     <ClCompile Include="src\Core\Entity\Light\ILight.cpp" />
     <ClCompile Include="src\Core\Entity\Light\LightDirectional.cpp" />
     <ClCompile Include="src\Core\Entity\Light\LightManager.cpp" />
+    <ClCompile Include="src\Core\Entity\Light\LightPoint.cpp" />
     <ClCompile Include="src\Core\Entity\Light\LightSpot.cpp" />
     <ClCompile Include="src\Core\Entity\Model\AssimpLib.cpp" />
     <ClCompile Include="src\Core\Entity\Model\Mesh.cpp" />
@@ -357,6 +362,7 @@
     <ClCompile Include="src\Core\Entity\Model\ModelManager.cpp" />
     <ClCompile Include="src\Core\Entity\PickingEntity.cpp" />
     <ClCompile Include="src\Core\Entity\Scene.cpp" />
+    <ClCompile Include="src\Core\Entity\Systems\SystemDynamicLights.cpp" />
     <ClCompile Include="src\Core\Entity\Systems\SystemMovement.cpp" />
     <ClCompile Include="src\Core\Entity\Systems\SystemUpdateTransform.cpp" />
     <ClCompile Include="src\Core\Event\Event.cpp" />
