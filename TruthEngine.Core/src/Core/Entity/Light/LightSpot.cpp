@@ -18,14 +18,33 @@ namespace TruthEngine
 		0.0f, 0.0f, 1.0f, 0.0f,
 		0.5f, 0.5f, 0.0f, 1.0f);
 
-	LightSpot::LightSpot(uint32_t _ID, std::string_view _Name, const float3& _Strength, const float _LightSize, const float3& _Direction, const bool _CastShadow, const float3& _Position, const float _FalloffStart, const float _FalloffEnd, const float _InnerConeAngle, const float _OuterConeAngle)
+	LightSpot::LightSpot(
+		uint32_t _ID
+		, std::string_view _Name
+		, const float3& _Position
+		, const float _LightSize
+		, const float3& _Strength
+		, float _StrengthMultiplier
+		, const float3& _Direction
+		, const bool _CastShadow
+		, const float _FalloffStart
+		, const float _FalloffEnd
+		, const float _InnerConeAngle
+		, const float _OuterConeAngle)
 		: ILight(_ID, _Name, TE_LIGHT_TYPE::Spot),
-		m_Data(_Strength, _LightSize, _Direction, _CastShadow, _Position, _FalloffStart, _FalloffEnd, cosf(Math::DegreeToRadian(_OuterConeAngle)), 1 / (cosf(Math::DegreeToRadian(_InnerConeAngle)) - cosf(Math::DegreeToRadian(_OuterConeAngle))))
+		m_Data(_Position, _LightSize, _Strength, _StrengthMultiplier, _Direction, _CastShadow, _FalloffStart, _FalloffEnd, cosf(Math::DegreeToRadian(_InnerConeAngle)), cosf(Math::DegreeToRadian(_OuterConeAngle)))
 	{}
 
 	void LightSpot::SetStrength(const float3& _Strength) noexcept
 	{
 		m_Data.Strength = _Strength;
+
+		InvokeEventUpdateLight();
+	}
+
+	void LightSpot::SetStrengthMultiplier(float _StrengthMultiplier) noexcept
+	{
+		m_Data.StrengthMultiplier = _StrengthMultiplier;
 
 		InvokeEventUpdateLight();
 	}
@@ -125,7 +144,7 @@ namespace TruthEngine
 
 	void LightSpot::SetInnerConeAngle(float _InnerConeAngleDegree)
 	{
-		m_Data.SpotOuterConeAngleRangeCosRcp = 1 / (cosf(Math::DegreeToRadian(_InnerConeAngleDegree)) - m_Data.SpotOuterConeCos);
+		m_Data.SpotInnerConeCos = cosf(Math::DegreeToRadian(_InnerConeAngleDegree));
 
 
 		InvokeEventUpdateLight();
@@ -133,9 +152,10 @@ namespace TruthEngine
 
 	void LightSpot::SetOuterConeAngle(float _OuterConeAngleDegree)
 	{
-		float _NewAngleRangeCos = m_Data.SpotOuterConeCos - cosf(Math::DegreeToRadian(_OuterConeAngleDegree));
+		m_Data.SpotOuterConeCos = cosf(Math::DegreeToRadian(_OuterConeAngleDegree));
+
+		/*float _NewAngleRangeCos = m_Data.SpotOuterConeCos - cosf(Math::DegreeToRadian(_OuterConeAngleDegree));
 		float _OuterConeAngleRadian = Math::DegreeToRadian(_OuterConeAngleDegree);
-		m_Data.SpotOuterConeCos = cosf(_OuterConeAngleRadian);
 		m_Data.SpotOuterConeAngleRangeCosRcp = 1 / ( (1 / m_Data.SpotOuterConeAngleRangeCosRcp) + _NewAngleRangeCos ) ;
 
 		if (m_Camera)
@@ -143,7 +163,7 @@ namespace TruthEngine
 			m_Camera->SetFOVY(_OuterConeAngleRadian);
 
 			m_Data.ShadowTransform = m_Camera->GetViewProj() * m_ProjToUV;
-		}
+		}*/
 
 		InvokeEventUpdateLight();
 	}
@@ -163,6 +183,11 @@ namespace TruthEngine
 		return m_Data.Strength;
 	}
 
+	float LightSpot::GetStrengthMultiplier() const noexcept
+	{
+		return m_Data.StrengthMultiplier;
+	}
+
 	bool LightSpot::GetCastShadow() const noexcept
 	{
 		return static_cast<bool>(m_Data.CastShadow);
@@ -174,12 +199,9 @@ namespace TruthEngine
 		float _AngleRange = (1 / m_Data.SpotOuterConeAngleRangeCosRcp);
 
 		return _OuterAngle - _AngleRange;*/
+		
 
-		float _Angle = 1 / m_Data.SpotOuterConeAngleRangeCosRcp;
-
-		_Angle += m_Data.SpotOuterConeCos;
-
-		return (acosf(_Angle));
+		return (acosf(m_Data.SpotInnerConeCos));
 	}
 
 	float LightSpot::GetOuterConeAngle() const noexcept

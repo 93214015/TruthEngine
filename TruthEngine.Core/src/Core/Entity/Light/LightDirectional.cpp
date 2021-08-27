@@ -10,15 +10,16 @@ namespace TruthEngine
 	LightDirectional::LightDirectional(
 		uint32_t id
 		, std::string_view name
-		, const float3& strength
-		, const float3& direction
 		, const float3& position
 		, const float lightSize
+		, const float3& strength
+		, float strengthMultiplier
+		, const float3& direction
 		, const int castShadow
 		, const float4& cascadesCoveringDepth
 		, CameraCascadedFrustumBase* cascadedCamera)
 		: ILight(id, name, TE_LIGHT_TYPE::Directional)
-		, m_DLightData(strength, lightSize, direction, castShadow, position)
+		, m_DLightData(position, lightSize, strength, strengthMultiplier, direction, castShadow)
 		, m_Camera(cascadedCamera), m_CascadesDepth(cascadesCoveringDepth)
 	{
 	}
@@ -26,6 +27,13 @@ namespace TruthEngine
 	void LightDirectional::SetStrength(const float3& _Strength) noexcept
 	{
 		m_DLightData.Strength = _Strength;
+
+		InvokeEventUpdateLight();
+	}
+
+	void LightDirectional::SetStrengthMultiplier(float _StrengthMultiplier) noexcept
+	{
+		m_DLightData.StrengthMultipier = _StrengthMultiplier;
 
 		InvokeEventUpdateLight();
 	}
@@ -99,6 +107,11 @@ namespace TruthEngine
 	const float3& LightDirectional::GetStrength() const noexcept
 	{
 		return m_DLightData.Strength;
+	}
+
+	float LightDirectional::GetStrengthMultiplier() const noexcept
+	{
+		return m_DLightData.StrengthMultipier;
 	}
 
 	bool LightDirectional::GetCastShadow() const noexcept

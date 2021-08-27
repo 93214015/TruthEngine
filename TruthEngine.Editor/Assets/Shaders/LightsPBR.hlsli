@@ -10,13 +10,13 @@
 
 struct CLightDirectionalData
 {
-    float3 Strength;
+    float3 Position;
     float LightSize;
 
-    float3 Direction;
+    float3 Strength;
     bool CastShadow;
     
-    float3 Position;
+    float3 Direction;
     float Pad0;
     //row_major matrix shadowTransform;
 };
@@ -25,13 +25,13 @@ struct CLightSpotData
 {
     row_major matrix ShadowTransform;
 	
-    float3 Strength;
+    float3 Position;
     float LightSize;
 
-    float3 Direction;
+    float3 Strength;
     bool CastShadow;
 	
-    float3 Position;
+    float3 Direction;
     float FalloffStart;
 
 
@@ -43,10 +43,10 @@ struct CLightSpotData
 
 struct CLightPointData
 {
-    float3 Strength;
+    float3 Position;
     float LightSize;
     
-    float3 Position;
+    float3 Strength;
     bool CastShadow;
     
     float AttenuationConstant;
@@ -114,7 +114,9 @@ float3 FresnelSchlickRoughness(float3 _F0, float _CosTheta, float _Roughness)
 float CalculateAttenuation(float _Distance, float _FalloffStart, float _FalloffEnd)
 {
     //Linear Falloff
-    return saturate((_FalloffEnd - _Distance) / (_FalloffEnd - _FalloffStart));
+    float _Falloff = saturate((_FalloffEnd - _Distance) / (_FalloffEnd - _FalloffStart));
+    _Falloff *= _Falloff;
+    return _Falloff;
 }
 
 float3 ComputeDirectLight(CLightDirectionalData _Light, float3 _MaterialAlbedo, float _MaterialRoughness, float _MaterialMetallic, float3 F0, float3 _Normal, float3 _View)
@@ -146,11 +148,19 @@ float3 ComputeSpotLight(CLightSpotData _Light, float3 _MaterialAlbedo, float _Ma
     float3 _LightPosition = _Light.Position;
     float3 _LightVector = _LightPosition - _Position;
     float _Distance = length(_LightVector);
+    _LightVector /= _Distance;
     
-    if (_Distance > _Light.FalloffEnd)
+    float _DistanceAttenuation = CalculateAttenuation(_Distance, _Light.FalloffStart, _Light.FalloffEnd);
+    
+    float _CosAngle = dot(-1.0 * _LightVector, _Light.Direction);
+    float _CosAttenuration = saturate((_CosAngle - _Light.SpotOuterConeCos) * (_Light.SpotOuterConeAngleRangeCosRcp));
+    _CosAttenuration *= _CosAttenuration;
+    
+    float _Attenuation = _DistanceAttenuation * _CosAttenuration;
+    
+    if (_Distance > _Light.FalloffEnd || _Attenuation < 0.001)
         return 0.0f;
 	
-    _LightVector /= _Distance;
         
     float3 _HalfVector = normalize(_View + _LightVector);
     
@@ -168,7 +178,7 @@ float3 ComputeSpotLight(CLightSpotData _Light, float3 _MaterialAlbedo, float _Ma
     float3 _Kd = float3(1.0f, 1.0f, 1.0f) - _Ks;
     _Kd *= 1.0f - _MaterialMetallic;
     
-    float3 _Radiance = _Light.Strength * CalculateAttenuation(_Distance, _Light.FalloffStart, _Light.FalloffEnd).xxx;
+    float3 _Radiance = _Light.Strength * _Attenuation.xxx;
     
     return ((_Kd * _MaterialAlbedo / PI) + _Specular) * _Radiance * _NdotL;
 }
@@ -179,7 +189,7 @@ float3 ComputePointLight(CLightPointData _Light, float3 _MaterialAlbedo, float _
     float _Distance = length(_LightVector);
     
     float _Attenuation = 1.0f / (_Light.AttenuationConstant + (_Light.AttenuationLinear * _Distance) + (_Light.AttenuationQuadratic * _Distance * _Distance));
-    
+        
     if (_Attenuation < 0.0001)
         return 0.0f;
     

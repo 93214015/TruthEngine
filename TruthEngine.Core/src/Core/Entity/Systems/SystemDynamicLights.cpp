@@ -71,6 +71,8 @@ namespace TruthEngine
 					Math::Rotate(_Direction, _RotationQuaternion);
 				}
 
+				_RotationQuaternion = Math::IdentityQuaternion;
+
 				Math::Normalize(_Direction);
 
 				_Light->SetDirection(_Direction, float3(0.0f, 1.0f, 0.0f), float3(0.0f, 1.0f, 0.0f));

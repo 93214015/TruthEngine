@@ -10,9 +10,10 @@ namespace TruthEngine
 		LightPoint(
 			uint32_t _ID,
 			const char* _Name,
-			const float3& _Strength,
-			const float _LightSize,
 			const float3& _Position,
+			float _LightSize,
+			const float3& _Strength,
+			float _StrengthMultiplier,
 			const bool _CastShadow,
 			const float _AttenuationConstant,
 			const float _AttenuationLinear,
@@ -23,6 +24,8 @@ namespace TruthEngine
 		//Set Methods
 		//
 		void SetStrength(const float3& _Strength) noexcept override;
+
+		void SetStrengthMultiplier(float _StrengthMultiplier) noexcept override;
 
 		void SetCastShadow(const bool _castshadow) noexcept override;
 
@@ -54,6 +57,8 @@ namespace TruthEngine
 		}
 
 		const float3& GetStrength() const noexcept override;
+
+		float GetStrengthMultiplier() const noexcept override;
 
 		bool GetCastShadow()const noexcept override;
 

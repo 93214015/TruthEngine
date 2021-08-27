@@ -383,11 +383,11 @@ namespace TruthEngine
 
 				CB_Lights->GetData()->mDLights[_BufferIndex] = ConstantBuffer_Struct_DirectionalLight
 				(
-					_LightData.Strength
+					_LightData.Position
 					, _LightData.LightSize
-					, _LightData.Direction
+					, _LightData.Strength * _LightData.StrengthMultipier
 					, static_cast<uint32_t>(_LightData.CastShadow)
-					, _LightData.Position
+					, _LightData.Direction
 				);
 
 			});
@@ -413,15 +413,15 @@ namespace TruthEngine
 				CB_Lights->GetData()->mSLights[_BufferIndex] = ConstantBuffer_Struct_SpotLight
 				(
 					_LightData.ShadowTransform
-					, _LightData.Strength
-					, _LightData.LightSize
-					, _LightData.Direction
-					, static_cast<uint32_t>(_LightData.CastShadow)
 					, _LightData.Position
+					, _LightData.LightSize
+					, _LightData.Strength * _LightData.StrengthMultiplier
+					, static_cast<uint32_t>(_LightData.CastShadow)
+					, _LightData.Direction
 					, _LightData.FalloffStart
 					, _LightData.FalloffEnd
 					, _LightData.SpotOuterConeCos
-					, _LightData.SpotOuterConeAngleRangeCosRcp
+					, (1 / (_LightData.SpotInnerConeCos - _LightData.SpotOuterConeCos))
 				);
 
 			});
@@ -445,9 +445,9 @@ namespace TruthEngine
 
 				CB_Lights->GetData()->mPLights[_BufferIndex] = ConstantBuffer_Struct_PointLight
 				(
-					_LightData.Strength
+					_LightData.Position
 					, _LightData.LightSize
-					, _LightData.Position
+					, _LightData.Strength * _LightData.StrengthMultiplier
 					, static_cast<uint32_t>(_LightData.CastShadow)
 					, _LightData.AttenuationConstant
 					, _LightData.AttenuationLinear
@@ -484,11 +484,11 @@ namespace TruthEngine
 
 				CB_Lights->GetData()->mDLights[_BufferIndex] = ConstantBuffer_Struct_DirectionalLight
 				(
-					_LightData.Strength
+					_LightData.Position
 					, _LightData.LightSize
-					, _LightData.Direction
+					, _LightData.Strength * _LightData.StrengthMultipier
 					, static_cast<uint32_t>(_LightData.CastShadow)
-					, _LightData.Position
+					, _LightData.Direction
 				);
 
 			});
@@ -512,15 +512,15 @@ namespace TruthEngine
 				CB_Lights->GetData()->mSLights[_BufferIndex] = ConstantBuffer_Struct_SpotLight
 				(
 					_LightData.ShadowTransform
-					, _LightData.Strength
-					, _LightData.LightSize
-					, _LightData.Direction
-					, static_cast<uint32_t>(_LightData.CastShadow)
 					, _LightData.Position
+					, _LightData.LightSize
+					, _LightData.Strength * _LightData.StrengthMultiplier
+					, static_cast<uint32_t>(_LightData.CastShadow)
+					, _LightData.Direction
 					, _LightData.FalloffStart
 					, _LightData.FalloffEnd
 					, _LightData.SpotOuterConeCos
-					, _LightData.SpotOuterConeAngleRangeCosRcp
+					, (1 / (_LightData.SpotInnerConeCos - _LightData.SpotOuterConeCos))
 				);
 
 			});
@@ -543,9 +543,9 @@ namespace TruthEngine
 
 				CB_Lights->GetData()->mPLights[_BufferIndex] = ConstantBuffer_Struct_PointLight
 				(
-					_LightData.Strength
+					_LightData.Position
 					, _LightData.LightSize
-					, _LightData.Position
+					, _LightData.Strength * _LightData.StrengthMultiplier
 					, static_cast<uint32_t>(_LightData.CastShadow)
 					, _LightData.AttenuationConstant
 					, _LightData.AttenuationLinear

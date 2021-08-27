@@ -3,14 +3,30 @@
 
 namespace TruthEngine
 {
-    LightPoint::LightPoint(uint32_t _ID, const char* _Name, const float3& _Strength, const float _LightSize, const float3& _Position, const bool _CastShadow, const float _AttenuationConstant, const float _AttenuationLinear, const float _AttenuationQuadrant )
+    LightPoint::LightPoint(
+        uint32_t _ID
+        , const char* _Name
+        , const float3& _Position
+        , float _LightSize
+        , const float3& _Strength
+        , float _StrengthMultiplier
+        , const bool _CastShadow
+        , const float _AttenuationConstant
+        , const float _AttenuationLinear
+        , const float _AttenuationQuadrant )
         : ILight(_ID, _Name, TE_LIGHT_TYPE::Point)
-        , m_Data(_Strength, _LightSize, _Position, _CastShadow, _AttenuationConstant, _AttenuationLinear, _AttenuationQuadrant)
+        , m_Data(_Position, _LightSize, _Strength, _StrengthMultiplier, _CastShadow, _AttenuationConstant, _AttenuationLinear, _AttenuationQuadrant)
     {
     }
     void LightPoint::SetStrength(const float3& _Strength) noexcept
     {
         m_Data.Strength = _Strength;
+
+        InvokeEventUpdateLight();
+    }
+    void LightPoint::SetStrengthMultiplier(float _StrengthMultiplier) noexcept
+    {
+        m_Data.StrengthMultiplier = _StrengthMultiplier;
 
         InvokeEventUpdateLight();
     }
@@ -63,6 +79,10 @@ namespace TruthEngine
     const float3& LightPoint::GetStrength() const noexcept
     {
         return m_Data.Strength;
+    }
+    float LightPoint::GetStrengthMultiplier() const noexcept
+    {
+        return m_Data.StrengthMultiplier;
     }
     bool LightPoint::GetCastShadow() const noexcept
     {

@@ -21,19 +21,21 @@ namespace TruthEngine
 
 		LightDirectional* AddLightDirectional(
 			std::string_view name
-			, const float3& strength
-			, const float3& direction
 			, const float3& position
 			, float lightSize
+			, const float3& strength
+			, float strengthMultiplier
+			, const float3& direction
 			, uint32_t castShadow
 			, const float4& CascadesCoveringDepth);
 
 		LightSpot* AddLightSpot(
 			std::string_view _Name,
-			const float3& _Strength,
-			const float3& _Direction,
 			const float3& _Position,
 			float _LightSize,
+			const float3& _Strength,
+			float _StrengthMultiplier,
+			const float3& _Direction,
 			bool _IsCastShadow,
 			float _FalloffStart,
 			float _FalloffEnd,
@@ -44,9 +46,10 @@ namespace TruthEngine
 		LightPoint* AddLightPoint
 		(
 			std::string_view _Name,
-			const float3& _Strength,
-			float _LightSize,
 			const float3& _Position,
+			float _LightSize,
+			const float3& _Strength,
+			float _StrengthMultiplier,
 			bool _CastShadow,
 			float _AttenuationConstant,
 			float _AttenuationLinear,

@@ -142,6 +142,11 @@ namespace TruthEngine
 			return float3{ x * _f2.x, y * _f2.y, z * _f2.z };
 		}
 
+		inline float3 operator*(float _f) const
+		{
+			return float3{ x * _f, y * _f, z * _f };
+		}
+
 		inline float3& operator+=(const float3& _float3)
 		{
 			x += _float3.x;

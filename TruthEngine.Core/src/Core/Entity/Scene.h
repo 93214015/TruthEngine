@@ -39,20 +39,22 @@ namespace TruthEngine
 
 		Entity AddLightEntity_Directional(
 			const std::string_view _Name
-			, const float3& _Strength
-			, const float3& _Direction
 			, const float3& _Position
 			, const float _LightSize
+			, const float3& _Strength
+			, float _StrengthMultiplier
+			, const float3& _Direction
 			, const uint32_t _CastShadow
 			, const float4& _CascadesCoveringDepth
 		);
 
 		Entity AddLightEntity_Spot(
 			const std::string_view _Name,
-			const float3& _Strength,
-			const float3& _Direction,
 			const float3& _Position,
 			const float _LightSize,
+			const float3& _Strength,
+			float StrengthMultiplier,
+			const float3& _Direction,
 			const bool _IsCastShadow,
 			const float _FalloffStart,
 			const float _FalloffEnd,
@@ -62,14 +64,16 @@ namespace TruthEngine
 
 		Entity AddLightEntity_Point(
 			const std::string_view _Name,
-			const float3& _Strength,
 			const float3& _Position,
 			const float _LightSize,
+			const float3& _Strength,
+			float StrengthMultiplier,
 			const bool _IsCastShadow,
 			const float _AttenuationConstant,
 			const float _AttenuationLinear,
 			const float _AttenuationQuadrant
 		);
+
 
 		//Entity AddModelEntity(const char* modelName, const float4x4A& transform);
 

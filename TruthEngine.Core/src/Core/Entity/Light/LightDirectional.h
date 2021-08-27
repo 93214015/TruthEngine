@@ -7,16 +7,17 @@ namespace TruthEngine
 {
 	class CameraCascadedFrustumBase;
 
-	class LightDirectional : public ILight
+	class LightDirectional final : public ILight
 	{
 	public:
 		LightDirectional(
 			uint32_t id
 			, std::string_view name
-			, const float3& strength
-			, const float3& direction
 			, const float3& position
 			, const float lightSize
+			, const float3& strength
+			, float strengthMultiplier
+			, const float3& direction
 			, const int castShadow
 			, const float4& cascadesDepth
 			, CameraCascadedFrustumBase* cascadedCamera);
@@ -49,6 +50,8 @@ namespace TruthEngine
 
 		virtual void SetStrength(const float3& _Strength) noexcept override;
 
+		virtual void SetStrengthMultiplier(float _StrengthMultiplier) noexcept override;
+
 		virtual void SetCastShadow(const bool _castshadow) noexcept override;
 
 		virtual void SetView(const float3& _Position, const float3& _Direction, const float3& _Up, const float3& _Right) noexcept;
@@ -65,13 +68,15 @@ namespace TruthEngine
 		//Get Methods
 		//
 
-		virtual const float3& GetPosition() const noexcept;
+		virtual const float3& GetPosition() const noexcept override;
 
-		virtual const float3& GetDirection() const noexcept;
+		virtual const float3& GetDirection() const noexcept override;
 
-		virtual const float3& GetStrength() const noexcept;
+		virtual const float3& GetStrength() const noexcept override;
 
-		virtual bool GetCastShadow()const noexcept;
+		virtual float GetStrengthMultiplier() const noexcept override;
+
+		virtual bool GetCastShadow()const noexcept override;
 		
 
 	protected:

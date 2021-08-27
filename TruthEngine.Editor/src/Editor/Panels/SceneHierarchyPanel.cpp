@@ -498,13 +498,13 @@ namespace TruthEngine
 				switch (s_LightType)
 				{
 				case TE_LIGHT_TYPE::Directional:
-					m_Context->AddLightEntity_Directional(s_LightNameBuffer, float3(0.3f, 0.3f, 0.3f), float3(0.0f, 0.0f, 1.0f), s_LightPosition, 0.1f, false, float4(1.0f, 2.0f, 10.0f, 100.0f));
+					m_Context->AddLightEntity_Directional(s_LightNameBuffer, s_LightPosition, 0.1f, float3(0.3f, 0.3f, 0.3f), 1.0f, float3(0.0f, 0.0f, 1.0f), false, float4(1.0f, 2.0f, 10.0f, 100.0f));
 					break;
 				case TE_LIGHT_TYPE::Spot:
-					m_Context->AddLightEntity_Spot(s_LightNameBuffer, float3(0.3f, 0.3f, 0.3f), float3(0.0f, 0.0f, 1.0f), s_LightPosition, 0.1f, false, 10.0f, 100.0f, 45.0f, 90.0f);
+					m_Context->AddLightEntity_Spot(s_LightNameBuffer, s_LightPosition, 0.1f, float3(0.3f, 0.3f, 0.3f), 1.0f, float3(0.0f, 0.0f, 1.0f), false, 10.0f, 100.0f, 45.0f, 90.0f);
 					break;
 				case TE_LIGHT_TYPE::Point:
-					m_Context->AddLightEntity_Point(s_LightNameBuffer, float3(0.3f, 0.3f, 0.3f), s_LightPosition, 0.1f, false, 1.0f, 0.007f, 0.0002f);
+					m_Context->AddLightEntity_Point(s_LightNameBuffer, s_LightPosition, 0.1f, float3(0.3f, 0.3f, 0.3f), 1.0f, false, 1.0f, 0.007f, 0.0002f);
 					break;
 				}
 				ImGui::CloseCurrentPopup();

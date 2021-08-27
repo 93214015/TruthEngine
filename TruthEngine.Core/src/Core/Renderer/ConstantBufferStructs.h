@@ -58,17 +58,17 @@ namespace TruthEngine {
 	struct alignas(16) ConstantBuffer_Struct_DirectionalLight
 	{
 		ConstantBuffer_Struct_DirectionalLight() = default;
-		ConstantBuffer_Struct_DirectionalLight(const float3& strength, float lightSize, const float3& direction, uint32_t castShadow, const float3& position)
-			: mStrength(strength), mDirection(direction), mLightSize(lightSize), mCastShadow(castShadow), mPosition(position)
+		ConstantBuffer_Struct_DirectionalLight(const float3& position, float lightSize, const float3& strength, uint32_t castShadow, const float3& direction)
+			: mPosition(position), mLightSize(lightSize), mStrength(strength), mCastShadow(castShadow), mDirection(direction)
 		{}
 
-		float3 mStrength;
+		float3 mPosition;
 		float mLightSize;
 
-		float3 mDirection;
+		float3 mStrength;
 		bool mCastShadow;
 
-		float3 mPosition;
+		float3 mDirection;
 		float Pad0;
 	};
 
@@ -77,22 +77,22 @@ namespace TruthEngine {
 		ConstantBuffer_Struct_SpotLight() = default;
 		ConstantBuffer_Struct_SpotLight(
 			const float4x4A& _ShadowTransform,
-			const float3& _Strength, 
-			const float _LightSize, 
-			const float3& _Direction, 
-			bool _IsCastShadow, 
 			const float3& _Position,
+			const float _LightSize, 
+			const float3& _Strength, 
+			bool _IsCastShadow, 
+			const float3& _Direction, 
 			const float _FalloffStart,
 			const float _FalloffEnd,
 			const float _OuterConeAngleCos,
 			const float _OuterConeAngleRangeRcp)
 			: 
 			mShadowTransform(_ShadowTransform),
-			mStrength(_Strength), 
-			mLightSize(_LightSize), 
-			mDirection(_Direction), 
-			mCastShadow(_IsCastShadow), 
 			mPosition(_Position),
+			mLightSize(_LightSize), 
+			mStrength(_Strength), 
+			mCastShadow(_IsCastShadow), 
+			mDirection(_Direction), 
 			mFalloffStart(_FalloffStart), 
 			mFalloffEnd(_FalloffEnd), 
 			mOuterConeCos(_OuterConeAngleCos), 
@@ -101,13 +101,13 @@ namespace TruthEngine {
 
 		float4x4A mShadowTransform;
 
-		float3 mStrength;
+		float3 mPosition;
 		float mLightSize;
 
-		float3 mDirection;
+		float3 mStrength;
 		uint32_t mCastShadow;
 
-		float3 mPosition;
+		float3 mDirection;
 		float mFalloffStart;
 
 		float mFalloffEnd;
@@ -119,14 +119,14 @@ namespace TruthEngine {
 	struct alignas(16) ConstantBuffer_Struct_PointLight
 	{
 		ConstantBuffer_Struct_PointLight() = default;
-		ConstantBuffer_Struct_PointLight(const float3& _Strength, float _LightSize, const float3& _Position, bool _CastShadow, float _AttenuationConstant, float _AttenuationLinear, float _AttenuationQuadrant)
-			: Strength(_Strength), LightSize(_LightSize), Position(_Position), CastShadow(static_cast<uint32_t>(_CastShadow)), AttenuationConstant(_AttenuationConstant), AttenuationLinear(_AttenuationLinear), AttenuationQuadrant(_AttenuationQuadrant)
+		ConstantBuffer_Struct_PointLight(const float3& _Position, float _LightSize, const float3& _Strength, bool _CastShadow, float _AttenuationConstant, float _AttenuationLinear, float _AttenuationQuadrant)
+			: Position(_Position), LightSize(_LightSize), Strength(_Strength), CastShadow(static_cast<uint32_t>(_CastShadow)), AttenuationConstant(_AttenuationConstant), AttenuationLinear(_AttenuationLinear), AttenuationQuadrant(_AttenuationQuadrant)
 		{}
 
-		float3 Strength;
+		float3 Position;
 		float LightSize;
 
-		float3 Position;
+		float3 Strength;
 		uint32_t CastShadow;
 
 		float AttenuationConstant;

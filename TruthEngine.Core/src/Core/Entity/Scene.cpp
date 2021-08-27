@@ -146,10 +146,18 @@ namespace TruthEngine
 		return entity_environment;
 	}
 
-	Entity Scene::AddLightEntity_Directional(const std::string_view _Name, const float3& _Strength, const float3& _Direction, const float3& _Position, const float _LightSize, const uint32_t _CastShadow, const float4& _CascadesCoveringDepth)
+	Entity Scene::AddLightEntity_Directional(
+		const std::string_view _Name
+		, const float3& _Position
+		, const float _LightSize
+		, const float3& _Strength
+		, float _StrengthMultiplier
+		, const float3& _Direction
+		, const uint32_t _CastShadow
+		, const float4& _CascadesCoveringDepth)
 	{
 		LightDirectional* _Light = m_LightManager->AddLightDirectional(
-			_Name, _Strength, _Direction, _Position, _LightSize, _CastShadow, _CascadesCoveringDepth
+			_Name, _Position, _LightSize, _Strength, _StrengthMultiplier, _Direction, _CastShadow, _CascadesCoveringDepth
 		);
 
 		auto entityLight = AddEntity(_Name.data());
@@ -163,10 +171,21 @@ namespace TruthEngine
 		return entityLight;
 	}
 
-	Entity Scene::AddLightEntity_Spot(const std::string_view _Name, const float3& _Strength, const float3& _Direction, const float3& _Position, const float _LightSize, const bool _IsCastShadow, const float _FalloffStart, const float _FalloffEnd, const float _InnerConeAngle, const float _OuterConeAngle)
+	Entity Scene::AddLightEntity_Spot(
+		const std::string_view _Name
+		, const float3& _Position
+		, const float _LightSize
+		, const float3& _Strength
+		, float _StrengthMultiplier
+		, const float3& _Direction
+		, const bool _IsCastShadow
+		, const float _FalloffStart
+		, const float _FalloffEnd
+		, const float _InnerConeAngle
+		, const float _OuterConeAngle)
 	{
 		LightSpot* _Light = m_LightManager->AddLightSpot(
-			_Name, _Strength, _Direction, _Position, _LightSize, _IsCastShadow, _FalloffStart, _FalloffEnd, _InnerConeAngle, _OuterConeAngle
+			_Name, _Position, _LightSize, _Strength, _StrengthMultiplier, _Direction, _IsCastShadow, _FalloffStart, _FalloffEnd, _InnerConeAngle, _OuterConeAngle
 		);
 
 		auto entityLight = AddEntity(_Name.data());
@@ -180,10 +199,19 @@ namespace TruthEngine
 		return entityLight;
 	}
 
-	Entity Scene::AddLightEntity_Point(const std::string_view _Name, const float3& _Strength, const float3& _Position, const float _LightSize, const bool _IsCastShadow, const float _AttenuationConstant, const float _AttenuationLinear, const float _AttenuationQuadrant)
+	Entity Scene::AddLightEntity_Point(
+		const std::string_view _Name
+		, const float3& _Position
+		, const float _LightSize
+		, const float3& _Strength
+		, float _StrengthMultiplier
+		, const bool _IsCastShadow
+		, const float _AttenuationConstant
+		, const float _AttenuationLinear
+		, const float _AttenuationQuadrant)
 	{
 		LightPoint* _Light = m_LightManager->AddLightPoint(
-			_Name, _Strength, _LightSize, _Position, _IsCastShadow, _AttenuationConstant, _AttenuationLinear, _AttenuationQuadrant
+			_Name, _Position, _LightSize, _Strength, _StrengthMultiplier, _IsCastShadow, _AttenuationConstant, _AttenuationLinear, _AttenuationQuadrant
 		);
 
 		auto entityLight = AddEntity(_Name.data());

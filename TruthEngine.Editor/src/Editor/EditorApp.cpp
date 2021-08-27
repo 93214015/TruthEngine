@@ -75,7 +75,7 @@ namespace TruthEngine
 		//
 		/*const float4 _cascadeCoveringPercentage = float4{ 10.0f, 50.0f, 100.f, 200.0f };
 		GetActiveScene()->AddLightEntity_Directional("SunLight", float3{ 0.0f, 0.0f, 0.0f }, float3{ .38f, -.60f, .71f }, float3{ -42.0f, 66.0f, -80.0f }, 0.05f, true, _cascadeCoveringPercentage);*/
-		GetActiveScene()->AddLightEntity_Spot("SpotLight0", float3{ .8f, .8f, .8f }, float3{ .01f, -.71f, .7f }, float3{ -0.3f, 28.0f, -42.0f }, 0.05f, true, 90.0f, 200.0f, 20.0f, 60.0f);
+		GetActiveScene()->AddLightEntity_Spot("SpotLight0", float3{ -0.3f, 28.0f, -42.0f }, 0.05f, float3{ .8f, .8f, .8f }, 1.0f, float3{ .01f, -.71f, .7f }, true, 90.0f, 200.0f, 20.0f, 60.0f);
 
 		//auto lightManager = LightManager::GetInstace();
 		//auto dirLight0 = lightManager->AddLightDirectional("dlight_0", float3{ 0.8f, 0.8f, 0.8f }, float3{ .38f, -.60f, .71f }, float3{ -42.0f, 66.0f, -80.0f }, 0.05f, true, _cascadeCoveringPercentage);

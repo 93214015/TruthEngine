@@ -827,6 +827,11 @@ namespace TruthEngine
 							auto& _DynamicLightMovementComponent = m_Context.GetComponent<DynamicLightMovementComponent>();
 							_DynamicLightMovementComponent.IsPosition = true;
 							_DynamicLightMovementComponent.Movement = _Camera->GetPosition();
+
+							auto& _DynamicLightRotationComponent = m_Context.GetComponent<DynamicLightRotationComponent>();
+							_DynamicLightRotationComponent.IsDirection = false;
+							const float3& _CameraLookDirection = _Camera->GetLook();
+							_DynamicLightRotationComponent.RotationQuaternion = float4A(_CameraLookDirection.x, _CameraLookDirection.y, _CameraLookDirection.z, 1.0f);
 						}
 						else
 						{
@@ -854,6 +859,16 @@ namespace TruthEngine
 					if (ImGui::ColorEdit3("##lightdiffusecolor", &_Strength.x, ImGuiColorEditFlags_Float))
 					{
 						light->SetStrength(_Strength);
+					}
+				}
+
+				{
+					auto _StrengthMultiplier = light->GetStrengthMultiplier();
+
+					ImGui::Text("Light Intensity Multiplier: ");
+					if (ImGui::DragFloat("##lightIntensityMultiplier", &_StrengthMultiplier, 0.01, 0.0f))
+					{
+						light->SetStrengthMultiplier(_StrengthMultiplier);
 					}
 				}
 
@@ -893,14 +908,14 @@ namespace TruthEngine
 
 						ImGui::Text("Spot Light Inner Cone Angle: ");
 						float _InnerConeAngle = Math::RadianToDegree(_SLight->GetInnerConeAngle());
-						if (ImGui::DragFloat("##SpotLightInnerConeAngle", &_InnerConeAngle))
+						if (ImGui::DragFloat("##SpotLightInnerConeAngle", &_InnerConeAngle, 1.0f, 1.0f))
 						{
 							_SLight->SetInnerConeAngle(_InnerConeAngle);
 						}
 
 						ImGui::Text("Spot Light Outer Cone Angle: ");
 						float _OuterConeAngle = Math::RadianToDegree(_SLight->GetOuterConeAngle());
-						if (ImGui::DragFloat("##SpotLightOuterConeAngle", &_OuterConeAngle))
+						if (ImGui::DragFloat("##SpotLightOuterConeAngle", &_OuterConeAngle, 1.0f, _InnerConeAngle + 1))
 						{
 							_SLight->SetOuterConeAngle(_OuterConeAngle);
 						}

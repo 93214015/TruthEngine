@@ -13,68 +13,75 @@ namespace TruthEngine
 
 	struct DirectionalLightData
 	{
-		DirectionalLightData(const float3& _Strength, float _LightSize, const float3& _Direction, bool _CastShadow, const float3& _Position)
-			: Strength(_Strength), LightSize(_LightSize), Direction(_Direction), CastShadow(static_cast<uint32_t>(_CastShadow)), Position(_Position)
+		DirectionalLightData(const float3& _Position, float _LightSize, const float3& _Strength
+			, float _StrengthMultiplier, const float3& _Direction, bool _CastShadow)
+			: Position(_Position), LightSize(_LightSize)
+			, Strength(_Strength), StrengthMultipier(_StrengthMultiplier)
+			, Direction(_Direction), CastShadow(static_cast<uint32_t>(_CastShadow))
 		{
 			Math::Normalize(Direction);
 		}
+		float3 Position;
+		float LightSize;
 
 		float3 Strength;
-		float LightSize;
+		float StrengthMultipier;
 
 		float3 Direction;
 		uint32_t CastShadow;
 
-		float3 Position;
-		float Pad0 = 0.0f;
+
 	};
 
 
 	struct SpotLightData
 	{
-		SpotLightData( const float3& _Strength, float _LightSize, const float3& _Direction, bool _CastShadow
-			, const float3& _Position, float _FalloffStart, float _FalloffEnd, float _SpotOuterConeCos,
-			float _SpotOuterConeAngleRangeCosRcp)
-			: Strength(_Strength), LightSize(_LightSize), Direction(_Direction), CastShadow(static_cast<uint32_t>(_CastShadow))
-			, Position(_Position), FalloffStart(_FalloffStart), FalloffEnd(_FalloffEnd), SpotOuterConeCos(_SpotOuterConeCos), SpotOuterConeAngleRangeCosRcp(_SpotOuterConeAngleRangeCosRcp)
+		SpotLightData(const float3& _Position, float _LightSize,  const float3& _Strength
+			, float _StrengthMultiplier, const float3& _Direction, bool _CastShadow
+			, float _FalloffStart, float _FalloffEnd, float _SpotInnerConeCos, float _SpotOuterConeCos)
+			: Position(_Position), LightSize(_LightSize)
+			, Strength(_Strength), StrengthMultiplier(_StrengthMultiplier)
+			, Direction(_Direction), CastShadow(static_cast<uint32_t>(_CastShadow))
+			, FalloffStart(_FalloffStart), FalloffEnd(_FalloffEnd)
+			, SpotInnerConeCos(_SpotInnerConeCos), SpotOuterConeCos(_SpotOuterConeCos)
 		{
 			Math::Normalize(Direction);
 		}
 
 		float4x4A ShadowTransform = IdentityMatrix;
 
-		float3 Strength;
+		float3 Position;
 		float LightSize;
+
+		float3 Strength;
+		float StrengthMultiplier = 0.0f;
 
 		float3 Direction;
 		uint32_t CastShadow;
 
-		float3 Position;
+
 		float FalloffStart;
-
-
 		float FalloffEnd;
+		float SpotInnerConeCos;
 		float SpotOuterConeCos;
-		float SpotOuterConeAngleRangeCosRcp;
-		float pad = 0.0f;
 	};
 
 	struct PointLightData
 	{
-		PointLightData(const float3& _Strength, float _LightSize, const float3& _Position, bool _CastShadow, float _AttenuationConstant, float _AttenuationLinear, float _AttenuationQuadrant)
-			: Strength(_Strength), LightSize(_LightSize), Position(_Position), CastShadow(static_cast<uint32_t>(_CastShadow)), AttenuationConstant(_AttenuationConstant), AttenuationLinear(_AttenuationLinear), AttenuationQuadrant(_AttenuationQuadrant)
+		PointLightData(const float3& _Position, float _LightSize, const float3& _Strength, float _StrengthMultiplier, bool _CastShadow, float _AttenuationConstant, float _AttenuationLinear, float _AttenuationQuadrant)
+			: Position(_Position), LightSize(_LightSize), Strength(_Strength), StrengthMultiplier(_StrengthMultiplier), CastShadow(static_cast<uint32_t>(_CastShadow)), AttenuationConstant(_AttenuationConstant), AttenuationLinear(_AttenuationLinear), AttenuationQuadrant(_AttenuationQuadrant)
 		{}
 
-		float3 Strength;
+		float3 Position;
 		float LightSize;
 
-		float3 Position;
-		uint32_t CastShadow;
+		float3 Strength;
+		float StrengthMultiplier = 0.0f;
 
+		uint32_t CastShadow;
 		float AttenuationConstant;
 		float AttenuationLinear;
 		float AttenuationQuadrant;
-		float _Pad = 0.0f;
 	};
 
 
@@ -98,6 +105,8 @@ namespace TruthEngine
 		//Set Methods
 		//
 		virtual void SetStrength(const float3& _Strength) noexcept = 0;
+
+		virtual void SetStrengthMultiplier(float _StrengthMultiplier) noexcept = 0;
 
 		virtual void SetCastShadow(const bool _castshadow) noexcept = 0;
 
@@ -135,6 +144,8 @@ namespace TruthEngine
 		virtual const float3& GetDirection() const noexcept = 0;
 
 		virtual const float3& GetStrength() const noexcept = 0;
+
+		virtual float GetStrengthMultiplier() const noexcept = 0;
 
 		virtual bool GetCastShadow()const noexcept = 0;
 
