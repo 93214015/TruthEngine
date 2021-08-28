@@ -14,6 +14,7 @@ namespace TruthEngine
 				, float _roughness
 				, float _metallic
 				, float _ambientOcclusion
+				, float _emission
 				//, const float3& fresnelR0
 				//, float shininess
 				, const float2& uvScale
@@ -33,10 +34,7 @@ namespace TruthEngine
 			//
 			//////Get Methods
 			//
-			inline RendererStateSet GetRendererStates() const noexcept
-			{
-				return m_RendererStates;
-			}
+			RendererStateSet GetRendererStates() const noexcept;
 
 			inline uint32_t GetID() const noexcept
 			{
@@ -61,6 +59,11 @@ namespace TruthEngine
 			inline float GetAmbientOcclusion() const noexcept
 			{
 				return m_AmbientOccclusion;
+			}
+
+			inline float GetEmission() const noexcept
+			{
+				return m_Emission;
 			}
 
 			/*inline const float3& GetFresnelR0() const noexcept
@@ -155,6 +158,12 @@ namespace TruthEngine
 				InvokeEventChangeMaterial();
 			}
 
+			inline void SetEmission(float _emission)
+			{
+				m_Emission = _emission;
+				InvokeEventChangeMaterial();
+			}
+
 			/*inline void SetFresnelR0(const float3& r0)
 			{
 				m_FresnelR0 = r0;
@@ -209,6 +218,7 @@ namespace TruthEngine
 			float m_Roughness;
 			float m_Metallic;
 			float m_AmbientOccclusion;
+			float m_Emission = 0.0f;
 			//float3 m_FresnelR0;
 			//float m_Shininess = 0.0f;
 

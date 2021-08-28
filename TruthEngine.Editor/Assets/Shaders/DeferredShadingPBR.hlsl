@@ -78,7 +78,8 @@ float4 ps(VertexOut _VOut) : SV_Target
     
     float3 _NormalWorld = tNormal.Sample(sampler_point_wrap, _VOut.UV) * 2.0f - 1.0f;
 
-    float3 _Albedo = tColor.Sample(sampler_point_wrap, _VOut.UV).xyz;
+    float4 _Color = tColor.Sample(sampler_point_wrap, _VOut.UV);
+    float3 _Albedo = _Color.xyz;
 
     float4 _SpecularFactors = tSpecular.Sample(sampler_point_wrap, _VOut.UV); // SpecularFctors.x = Roughness ; SpecularFctors.y = Metallic ; SpecularFctors.z = AmbientOcclusion
       
@@ -213,9 +214,11 @@ float4 ps(VertexOut _VOut) : SV_Target
     
     _Ambient *= _SSAO;
 	
+    float3 _Emission = _Albedo * _Color.w;
+    
 	//Add Global Ambient Light Factor
     //litColor += (_MaterialAlbedo * gAmbientLightStrength * _AmbientOcclusion.xxx);
-    _LitColor += _Ambient;
+    _LitColor += _Ambient + _Emission;
     
     
     //Add Global Ambient Light Factor

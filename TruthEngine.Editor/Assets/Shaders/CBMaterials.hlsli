@@ -25,7 +25,7 @@ struct Material
     float Roughness;
     float Metallic;
     float AmbientOcclusion;
-    float _Pad0;
+    float Emission;
     
     float2 UVScale;
     float2 UVTranslate;

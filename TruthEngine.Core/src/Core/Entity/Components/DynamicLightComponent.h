@@ -2,6 +2,12 @@
 
 namespace TruthEngine
 {
+
+	struct DynamicLightComponent
+	{
+		uint8_t Data;
+	};
+
 	struct DynamicLightMovementComponent
 	{
 		DynamicLightMovementComponent() = default;

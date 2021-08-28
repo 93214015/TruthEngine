@@ -39,6 +39,7 @@ namespace TruthEngine
 			, float roughness
 			, float metallic
 			, float ambientOcclusion
+			, float emission
 			, const float2& uvScale
 			, const float2& uvTranslate
 			, uint32_t diffuseMapIndex

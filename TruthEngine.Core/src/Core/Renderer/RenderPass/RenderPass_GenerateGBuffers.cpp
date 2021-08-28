@@ -190,7 +190,6 @@ namespace TruthEngine
 
 		if (m_RendererLayer->IsEnabledHDR())
 		{
-			SET_RENDERER_STATE(_RendererState, TE_RENDERER_STATE_ENABLED_HDR, TE_RENDERER_STATE_ENABLED_HDR_TRUE);
 			rtvFormats[0] = TE_RESOURCE_FORMAT::R16G16B16A16_FLOAT;
 		}
 

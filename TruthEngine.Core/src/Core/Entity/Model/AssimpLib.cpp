@@ -379,9 +379,10 @@ namespace TruthEngine
 			m_MaterialManager->AddMaterial(
 				states
 				, float4{ aiColorDiffuse.r, aiColorDiffuse.g, aiColorDiffuse.b, 1.0f }
-				, 0.5f
-				, 0.0f
-				, 1.0f
+				, (1.0f - aiShininess) //Convert to Roughness
+				, (aiColorSpecular.r + aiColorSpecular.g + aiColorSpecular.b) / 3.0f // Trying to convert imported material reflectivity in term of specularity to engine's metallic workflow
+				, 1.0f //AmbientOcclusion
+				, 0.0f //Emission
 				, float2{ 1.0f, 1.0f }
 				, float2{ .0f, .0f }
 				, diffuseMapViewIndex

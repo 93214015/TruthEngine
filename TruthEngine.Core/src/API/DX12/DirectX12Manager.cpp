@@ -248,9 +248,12 @@ namespace TruthEngine::API::DirectX12
 		//
 		//Define Static Samplers
 		//
-		D3D12_STATIC_SAMPLER_DESC sampler_desc[7];
+		D3D12_STATIC_SAMPLER_DESC sampler_desc[8];
 
 		size_t _SamplerIndex = 0;
+
+
+		// Linear - Wrap
 
 		{
 
@@ -273,6 +276,8 @@ namespace TruthEngine::API::DirectX12
 
 		}
 
+		// Linear - clamp
+
 		{
 
 			auto& _SameplerDesc = sampler_desc[_SamplerIndex];
@@ -294,6 +299,7 @@ namespace TruthEngine::API::DirectX12
 
 		}
 
+		// Point - Border Black
 
 		{
 
@@ -316,6 +322,8 @@ namespace TruthEngine::API::DirectX12
 			_SamplerIndex++;
 		}
 
+		// Point - Border White
+
 		{
 
 			auto& _SameplerDesc = sampler_desc[_SamplerIndex];
@@ -337,6 +345,53 @@ namespace TruthEngine::API::DirectX12
 			_SamplerIndex++;
 
 		}
+
+		// Point - Wrap
+
+
+		{
+			auto& _SameplerDesc = sampler_desc[_SamplerIndex];
+
+			_SameplerDesc.AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+			_SameplerDesc.AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+			_SameplerDesc.AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+			_SameplerDesc.ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER;
+			_SameplerDesc.Filter = D3D12_FILTER_MIN_MAG_MIP_POINT;
+			_SameplerDesc.RegisterSpace = 0;
+			_SameplerDesc.ShaderRegister = _SamplerIndex;
+			_SameplerDesc.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+			_SameplerDesc.MaxAnisotropy = 1;
+			_SameplerDesc.MinLOD = 0;
+			_SameplerDesc.MaxLOD = D3D12_FLOAT32_MAX;
+			_SameplerDesc.MipLODBias = 0;
+
+			_SamplerIndex++;
+
+		}
+
+		//Anisotropic 16X
+
+		{
+			auto& _SameplerDesc = sampler_desc[_SamplerIndex];
+
+			_SameplerDesc.AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+			_SameplerDesc.AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+			_SameplerDesc.AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+			_SameplerDesc.BorderColor = D3D12_STATIC_BORDER_COLOR_OPAQUE_WHITE;
+			_SameplerDesc.ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER;
+			_SameplerDesc.Filter = D3D12_FILTER_COMPARISON_ANISOTROPIC;
+			_SameplerDesc.MaxAnisotropy = 16u;
+			_SameplerDesc.RegisterSpace = 0;
+			_SameplerDesc.ShaderRegister = _SamplerIndex;
+			_SameplerDesc.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+			_SameplerDesc.MinLOD = 0;
+			_SameplerDesc.MaxLOD = D3D12_FLOAT32_MAX;
+			_SameplerDesc.MipLODBias = 0;
+
+			_SamplerIndex++;
+		}
+
+		// Comparoison Sampler - Greater
 
 		{
 			auto& _SameplerDesc = sampler_desc[_SamplerIndex];
@@ -360,27 +415,7 @@ namespace TruthEngine::API::DirectX12
 
 		}
 
-
-		{
-			auto& _SameplerDesc = sampler_desc[_SamplerIndex];
-
-			_SameplerDesc.AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-			_SameplerDesc.AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-			_SameplerDesc.AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-			_SameplerDesc.ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER;
-			_SameplerDesc.Filter = D3D12_FILTER_MIN_MAG_MIP_POINT;
-			_SameplerDesc.RegisterSpace = 0;
-			_SameplerDesc.ShaderRegister = _SamplerIndex;
-			_SameplerDesc.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-			_SameplerDesc.MaxAnisotropy = 1;
-			_SameplerDesc.MinLOD = 0;
-			_SameplerDesc.MaxLOD = D3D12_FLOAT32_MAX;
-			_SameplerDesc.MipLODBias = 0;
-
-			_SamplerIndex++;
-
-		}
-
+		// Comparoison Sampler - Less
 
 		{
 			auto& _SameplerDesc = sampler_desc[_SamplerIndex];
@@ -401,6 +436,8 @@ namespace TruthEngine::API::DirectX12
 
 			_SamplerIndex++;
 		}
+
+		
 
 
 		COMPTR<ID3DBlob> errorBlob;

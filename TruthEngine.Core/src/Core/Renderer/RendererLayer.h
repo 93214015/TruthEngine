@@ -16,6 +16,7 @@
 #include "RenderPass/RenderPass_GenerateSSAO.h"
 
 
+
 namespace TruthEngine
 {
 	class ModelManager;
@@ -30,6 +31,7 @@ namespace TruthEngine
 	template<class T> class ConstantBufferUpload;
 	struct ConstantBuffer_Data_Per_Frame;
 
+
 	class RendererLayer : public Layer
 	{
 
@@ -42,6 +44,7 @@ namespace TruthEngine
 		RendererLayer(const RendererLayer& renderer);
 		RendererLayer& operator=(const RendererLayer& renderer);
 
+		static RendererStateSet GetSharedRendererStates();
 
 		void OnAttach() override;
 

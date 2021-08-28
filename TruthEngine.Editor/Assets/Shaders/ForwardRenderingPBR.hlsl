@@ -140,7 +140,7 @@ float4 ps(vertexOut pin) : SV_Target
 
     
 #ifdef ENABLE_MAP_DIFFUSE
-    float3 _MaterialAlbedo = MaterialTextures[_material.MapIndexDiffuse].Sample(sampler_linear, _texUV).xyz;
+    float3 _MaterialAlbedo = MaterialTextures[_material.MapIndexDiffuse].Sample(sampler_anisotropic16x, _texUV).xyz;
 #else
     float3 _MaterialAlbedo = _material.Diffuse.xyz;
 #endif
@@ -210,10 +210,10 @@ float4 ps(vertexOut pin) : SV_Target
     float3 _Specular = _PrefilteredIBLSpecular * (_Ks * _PrecomputeBRDF.x + _PrecomputeBRDF.y);
 
     float3 _Ambient = (_Kd * _Diffuse + _Specular) * _AmbientOcclusion.xxx;
-	
+    float3 _Emission = _MaterialAlbedo * _material.Emission;
 	//Add Global Ambient Light Factor
     //litColor += (_MaterialAlbedo * gAmbientLightStrength * _AmbientOcclusion.xxx);
-    litColor += _Ambient;
+    litColor += _Ambient + _Emission;
     
 #ifndef ENABLE_HDR
     litColor /= litColor + float3(1.0f, 1.0f, 1.0f); //clamp values for LDR lighting

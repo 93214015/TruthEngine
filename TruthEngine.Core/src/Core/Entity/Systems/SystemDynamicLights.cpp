@@ -12,44 +12,36 @@ namespace TruthEngine
 {
 	void SystemDynamicLights::OnUpdate(Scene* _Scene, double DeltaSecond)
 	{
+
+		//Apply Movements to light transform
+
 		{
 			auto MovementEntities = _Scene->ViewEntities<DynamicLightMovementComponent>();
 
 			for (auto _Entity : MovementEntities)
 			{
-				ILight* _Light = _Scene->GetComponent<LightComponent>(_Entity).GetLight();
-
-				float3A _Position;
-
 				auto& _MovementComponent = _Scene->GetComponent<DynamicLightMovementComponent>(_Entity);
-				float3A& _Movement = _MovementComponent.Movement;
+				XMVector _XMMovement = Math::ToXM(_MovementComponent.Movement);
+
+				XMMatrix _XMTransform = Math::ToXM(_Scene->GetComponent<TransformComponent>(_Entity).GetTransform());
 
 				if (_MovementComponent.IsPosition)
 				{
-					_Position = _Movement;
+					_XMTransform.r[3] = _XMMovement;
 					_MovementComponent.IsPosition = false;
 				}
 				else
 				{
-					_Position = _Light->GetPosition();
-					_Position += _Movement;
+					_XMTransform.r[3] = Math::XMAdd(_XMTransform.r[3], _XMMovement);
 				}
 
-				_Movement = float3A(0.0f, 0.0f, 0.0f);
-				_Light->SetPosition(_Position);
-
-				auto _Transform = _Scene->GetComponent<TransformComponent>(_Entity).GetTransform();
-
-				_Transform._41 = _Position.x;
-				_Transform._42 = _Position.y;
-				_Transform._43 = _Position.z;
-
+				_MovementComponent.Movement = float3A(0.0f, 0.0f, 0.0f);
 			}
 		}
 
 		{
 
-			auto RotationEntities = _Scene->ViewEntities<DynamicLightRotationComponent>();
+			/*auto RotationEntities = _Scene->ViewEntities<DynamicLightRotationComponent>();
 
 			for (auto _Entity : RotationEntities)
 			{
@@ -76,9 +68,25 @@ namespace TruthEngine
 				Math::Normalize(_Direction);
 
 				_Light->SetDirection(_Direction, float3(0.0f, 1.0f, 0.0f), float3(0.0f, 1.0f, 0.0f));
-			}
+			}*/
 		}
 
+		// Apply Transform to Light Object
+
+		{
+			auto _DynamicLightEntities = _Scene->ViewEntities<DynamicLightComponent>();
+
+			for (auto _Entity : _DynamicLightEntities)
+			{
+				ILight* _Light = _Scene->GetComponent<LightComponent>(_Entity).GetLight();
+				auto _XMTransform = Math::ToXM(_Scene->GetComponent<TransformComponent>(_Entity).GetTransform());
+				auto _XMLightPosition = Math::ToXM(_Light->GetPosition());
+
+				_XMLightPosition = Math::XMTransformVector3Point(_XMLightPosition, _XMTransform);
+
+				_Light->SetPosition(Math::FromXM3(_XMLightPosition));
+			}
+		}
 
 	}
 }

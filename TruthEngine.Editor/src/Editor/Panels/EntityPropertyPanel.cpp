@@ -216,6 +216,16 @@ namespace TruthEngine
 			}
 		};
 
+		auto _LambdaDrawEmissionComponent = [](Material* _Material)
+		{
+			float _Emission = _Material->GetEmission();
+
+			if (ImGui::DragFloat("Emission Factor", &_Emission, 0.01f, 0.0f, 5.0f, nullptr, 1.0f))
+			{
+				_Material->SetEmission(_Emission);
+			}
+		};
+
 		auto _LambdaDrawUVScaleComponent = [](Material* _Material)
 		{
 			auto uvScale = _Material->GetUVScale();
@@ -540,6 +550,10 @@ namespace TruthEngine
 
 					_LambdaDrawFresnelR0Component(material);
 
+					// Emission Factor
+
+					_LambdaDrawEmissionComponent(material);
+
 					// UV Scale
 
 					_LambdaDrawUVScaleComponent(material);
@@ -625,6 +639,8 @@ namespace TruthEngine
 					_LambdaDrawMetallicComponent(material);
 
 					_LambdaDrawAmbientOcclusionComponent(material);
+
+					_LambdaDrawEmissionComponent(material);
 
 					_LambdaDrawUVScaleComponent(material);
 
@@ -785,14 +801,14 @@ namespace TruthEngine
 
 					auto _LambdaActiveLight = [](Entity _LightEntity)
 					{
+						_LightEntity.AddComponent<DynamicLightComponent>();
 						_LightEntity.AddComponent<DynamicLightMovementComponent>();
-						_LightEntity.AddComponent<DynamicLightRotationComponent>();
 					};
 
 					auto _LambdaDeactiveLight = [](Entity _LightEntity)
 					{
+						_LightEntity.RemoveComponent<DynamicLightComponent>();
 						_LightEntity.RemoveComponent<DynamicLightMovementComponent>();
-						_LightEntity.RemoveComponent<DynamicLightRotationComponent>();
 					};
 
 
@@ -1019,9 +1035,10 @@ namespace TruthEngine
 
 				if (m_Context.HasComponent<LightComponent>())
 				{
-					auto& _LightRotationComponent = GetActiveScene()->AddOrReplaceComponent<DynamicLightRotationComponent>(m_Context);
+					GetActiveScene()->AddOrReplaceComponent<DynamicLightComponent>(m_Context);
+					/*auto& _LightRotationComponent = GetActiveScene()->AddOrReplaceComponent<DynamicLightRotationComponent>(m_Context);
 					auto& _LightMovementComponent = GetActiveScene()->AddOrReplaceComponent<DynamicLightMovementComponent>(m_Context);
-					_LightMovementComponent.Movement = float3A(_DeltaTransform._41, _DeltaTransform._42, _DeltaTransform._43);
+					_LightMovementComponent.Movement = float3A(_DeltaTransform._41, _DeltaTransform._42, _DeltaTransform._43);*/
 				}
 
 				/*const float3& _WorldCenterOffset = _TransformComponent.GetWorldCenterOffset();

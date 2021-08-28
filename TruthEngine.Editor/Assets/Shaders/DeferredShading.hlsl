@@ -167,7 +167,7 @@ float4 ps(VertexOut _VOut) : SV_Target
     }
     
 //Add Global Ambient Light Factor
-    _LitColor += (_Color.xyz * gAmbientLightStrength);
+    _LitColor += (_Color.xyz * gAmbientLightStrength) + (_Color.xyz * _Color.w);
     
     return float4(_LitColor, 1.0f);
 

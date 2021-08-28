@@ -144,7 +144,7 @@ float4 ps(vertexOut pin) : SV_Target
     float3 _MaterialAlbedo = _material.Diffuse.xyz;
     
 #ifdef ENABLE_MAP_DIFFUSE
-        _MaterialAlbedo = MaterialTextures[_material.MapIndexDiffuse].Sample(sampler_linear, _texUV).xyz;
+        _MaterialAlbedo = MaterialTextures[_material.MapIndexDiffuse].Sample(sampler_anisotropic16x, _texUV).xyz;
 #endif
 	
     
@@ -282,7 +282,7 @@ float4 ps(vertexOut pin) : SV_Target
     }
 	
 	//Add Global Ambient Light Factor
-    litColor += (_MaterialAlbedo * gAmbientLightStrength);
+    litColor += (_MaterialAlbedo * gAmbientLightStrength) + (_MaterialAlbedo * _material.Emission);
     
 #ifndef ENABLE_HDR
     litColor /= (litColor + 1.0f.xxx);

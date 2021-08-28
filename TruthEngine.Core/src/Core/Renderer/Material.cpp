@@ -5,6 +5,8 @@
 #include "Core/Event/EventEntity.h"
 #include "Core/Entity/Model/ModelManager.h"
 
+#include "RendererLayer.h"
+
 namespace TruthEngine
 {
 
@@ -15,6 +17,7 @@ namespace TruthEngine
 		, float roughness
 		, float metallic
 		, float ambientOcclusion
+		, float emission
 		, const float2& uvScale, const float2& uvTranslate
 		, uint32_t diffuseMapIndex, uint32_t normalMapIndex
 		, uint32_t displacementMapIndex
@@ -30,12 +33,18 @@ namespace TruthEngine
 		, m_Roughness(roughness)
 		, m_Metallic(metallic)
 		, m_AmbientOccclusion(ambientOcclusion)
+		, m_Emission(emission)
 		, m_UVScale(uvScale), m_UVTranslate(uvTranslate)
 		, m_MapIndexDiffuse(diffuseMapIndex), m_MapIndexNormal(normalMapIndex), m_MapIndexDisplacement(displacementMapIndex), m_MapIndexSpecular(specularMapIndex)
 		, m_MapIndexRoughness(roughnessMapIndex), m_MapIndexMetallic(metallicMapIndex), m_MapIndexAmbientOcclusion(ambientOcclusionMapIndex)
 		, m_ExtraDepthBias(extraDepthBias), m_ExtraSlopeScaledDepthBias(extraSlopeScaledDepthBias), m_ExtraDepthBiasClamp(extraDepthBiasClamp)
 		, m_MeshType(meshType)
 	{}
+
+	RendererStateSet Material::GetRendererStates() const noexcept
+	{
+		return m_RendererStates | RendererLayer::GetSharedRendererStates();
+	}
 
 
 	void Material::InvokeEventChangeMaterial()

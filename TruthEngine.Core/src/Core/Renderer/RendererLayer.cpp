@@ -25,6 +25,7 @@
 
 namespace TruthEngine
 {
+	RendererStateSet SharedRendererStates = InitRenderStates();
 
 	RendererLayer::RendererLayer() : m_ImGuiLayer(ImGuiLayer::Factory())
 		, m_ViewportScene(0.0f, 0.0f, static_cast<float>(TE_INSTANCE_APPLICATION->GetClientWidth()), static_cast<float>(TE_INSTANCE_APPLICATION->GetClientHeight()), 0.0f, 1.0f)
@@ -45,6 +46,11 @@ namespace TruthEngine
 
 	RendererLayer::RendererLayer(const RendererLayer& renderer) = default;
 	RendererLayer& RendererLayer::operator=(const RendererLayer& renderer) = default;
+
+	RendererStateSet RendererLayer::GetSharedRendererStates()
+	{
+		return SharedRendererStates;
+	}
 
 
 	void RendererLayer::OnAttach()
@@ -233,6 +239,15 @@ namespace TruthEngine
 	{
 		m_IsEnabledHDR = _EnableHDR;
 
+		if (_EnableHDR)
+		{
+			SET_RENDERER_STATE(SharedRendererStates, TE_RENDERER_STATE_ENABLED_HDR, TE_RENDERER_STATE_ENABLED_HDR_TRUE);
+		}
+		else
+		{
+			SET_RENDERER_STATE(SharedRendererStates, TE_RENDERER_STATE_ENABLED_HDR, TE_RENDERER_STATE_ENABLED_HDR_FALSE);
+		}
+
 		InitRenderPasses();
 	}
 
@@ -321,6 +336,7 @@ namespace TruthEngine
 				, material->GetRoughness()
 				, material->GetMetallic()
 				, material->GetAmbientOcclusion()
+				, material->GetEmission()
 				, material->GetUVScale()
 				, material->GetUVTranslate()
 				, material->GetMapIndexDiffuse()
@@ -345,6 +361,7 @@ namespace TruthEngine
 				, material->GetRoughness()
 				, material->GetMetallic()
 				, material->GetAmbientOcclusion()
+				, material->GetEmission()
 				, material->GetUVScale()
 				, material->GetUVTranslate()
 				, material->GetMapIndexDiffuse()
@@ -728,6 +745,8 @@ namespace TruthEngine
 		m_CB_Bones = m_RendererCommand.CreateConstantBufferUpload<ConstantBuffer_Data_Bones>(TE_IDX_GRESOURCES::CBuffer_Bones);
 		m_CB_EnvironmentMap = m_RendererCommand.CreateConstantBufferDirect<ConstantBuffer_Data_EnvironmentMap>(TE_IDX_GRESOURCES::Constant_EnvironmentMap);
 	}
+
+
 
 }
 
