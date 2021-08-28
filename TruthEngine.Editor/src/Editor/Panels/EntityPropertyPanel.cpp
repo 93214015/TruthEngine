@@ -797,22 +797,20 @@ namespace TruthEngine
 						light->SetPosition(position);
 					}
 
-					bool _IsDynamic = m_Context.HasComponent<DynamicLightMovementComponent>();
+					bool _IsDynamic = GetActiveScene()->HasComponent<MovementComponent>(m_Context);
 
-					auto _LambdaActiveLight = [](Entity _LightEntity)
+
+					auto _LambdaAddMovementComponent = [](Entity _LightEntity) -> MovementComponent&
 					{
-						_LightEntity.AddComponent<DynamicLightComponent>();
-						_LightEntity.AddComponent<DynamicLightMovementComponent>();
+						return GetActiveScene()->AddOrReplaceComponent<MovementComponent>(_LightEntity);
 					};
 
-					auto _LambdaDeactiveLight = [](Entity _LightEntity)
+					auto _LambdaRemoveMovementComponent = [](Entity _LightEntity)
 					{
-						_LightEntity.RemoveComponent<DynamicLightComponent>();
-						_LightEntity.RemoveComponent<DynamicLightMovementComponent>();
+						GetActiveScene()->RemoveComponent<MovementComponent>(_LightEntity);
 					};
 
-
-					if (ImGui::Checkbox("Dynamic Light: ", &_IsDynamic))
+					/*if (ImGui::Checkbox("Dynamic Light: ", &_IsDynamic))
 					{
 						if (_IsDynamic)
 						{
@@ -822,14 +820,18 @@ namespace TruthEngine
 						{
 							_LambdaDeactiveLight(m_Context);
 						}
-					}
+					}*/
 
 					static bool s_MoveWithCamera = false;
 					if (ImGui::Checkbox("Move With Camera: ", &s_MoveWithCamera))
 					{
 						if (s_MoveWithCamera && !_IsDynamic)
 						{
-							_LambdaActiveLight(m_Context);
+							_LambdaAddMovementComponent(m_Context);
+						}
+						else
+						{
+							_LambdaRemoveMovementComponent(m_Context);
 						}
 					}
 
@@ -840,14 +842,9 @@ namespace TruthEngine
 						if (light->GetLightType() == TE_LIGHT_TYPE::Point)
 						{
 							//light->SetPosition(_Camera->GetPosition());
-							auto& _DynamicLightMovementComponent = m_Context.GetComponent<DynamicLightMovementComponent>();
-							_DynamicLightMovementComponent.IsPosition = true;
-							_DynamicLightMovementComponent.Movement = _Camera->GetPosition();
-
-							auto& _DynamicLightRotationComponent = m_Context.GetComponent<DynamicLightRotationComponent>();
-							_DynamicLightRotationComponent.IsDirection = false;
-							const float3& _CameraLookDirection = _Camera->GetLook();
-							_DynamicLightRotationComponent.RotationQuaternion = float4A(_CameraLookDirection.x, _CameraLookDirection.y, _CameraLookDirection.z, 1.0f);
+							auto& _MovementComponent = GetActiveScene()->GetComponent<MovementComponent>(m_Context);
+							_MovementComponent.IsAbsolutePostion = true;
+							_MovementComponent.MovementVector = _Camera->GetPosition();
 						}
 						else
 						{

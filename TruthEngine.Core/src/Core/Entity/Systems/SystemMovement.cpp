@@ -12,16 +12,26 @@ namespace TruthEngine
 
 		for (auto _EntityHandler : _Scene->ViewEntities<MovementComponent>())
 		{
-			const XMVector _XMMovement = Math::ToXM(_Scene->GetComponent<MovementComponent>(_EntityHandler).MovementVector);
-			if (Math::XMNotEqual3(_XMMovement, Math::XMIdentityTranslate))
-			{
-				float4A& _Translate = _Scene->GetComponent<TranslationComponent>(_EntityHandler).Translation;
-				XMVector _XMTranslate = Math::ToXM(_Translate);
-				_XMTranslate = Math::XMAdd(_XMTranslate, _XMMovement);
-				_Translate = Math::FromXMA(_XMTranslate);
+			auto& _MovementComponent = _Scene->GetComponent<MovementComponent>(_EntityHandler);
+			const XMVector _XMMovement = Math::ToXM(_MovementComponent.MovementVector);
+			auto& _Transform = _Scene->GetComponent<TransformComponent>(_EntityHandler).GetTransform();
+			XMMatrix _XMTransform = Math::ToXM(_Transform);
 
-				_Scene->AddOrReplaceComponent<UpdatedComponent>(_EntityHandler, true);
+			if (_MovementComponent.IsAbsolutePostion)
+			{
+				_XMTransform.r[3] = _XMMovement;
+				_MovementComponent.IsAbsolutePostion = false;
 			}
+			else
+			{
+				_XMTransform.r[3] = Math::XMAdd(_XMTransform.r[3], _XMMovement);
+			}
+
+			_MovementComponent.MovementVector = float3A(0.0f, 0.0f, 0.0f);
+
+			_Transform = Math::FromXMA(_XMTransform);
+
+			_Scene->AddOrReplaceComponent<UpdatedComponent>(_EntityHandler, true);			
 		}
 	}
 }

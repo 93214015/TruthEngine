@@ -5,6 +5,7 @@ namespace TruthEngine
 {
 	struct MovementComponent
 	{
-		float4A MovementVector;
+		bool IsAbsolutePostion = false;
+		float3A MovementVector = float3A(0.0f, 0.0f, 0.0f);
 	};
 }

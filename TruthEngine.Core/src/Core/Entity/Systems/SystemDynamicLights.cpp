@@ -5,6 +5,7 @@
 #include "Core/Entity/Components/DynamicLightComponent.h"
 #include "Core/Entity/Components/LightComponent.h"
 #include "Core/Entity/Components/TransformComponent.h"
+#include "Core/Entity/Components/MovementComponent.h"
 
 #include "Core/Entity/Light/ILight.h"
 
@@ -12,32 +13,6 @@ namespace TruthEngine
 {
 	void SystemDynamicLights::OnUpdate(Scene* _Scene, double DeltaSecond)
 	{
-
-		//Apply Movements to light transform
-
-		{
-			auto MovementEntities = _Scene->ViewEntities<DynamicLightMovementComponent>();
-
-			for (auto _Entity : MovementEntities)
-			{
-				auto& _MovementComponent = _Scene->GetComponent<DynamicLightMovementComponent>(_Entity);
-				XMVector _XMMovement = Math::ToXM(_MovementComponent.Movement);
-
-				XMMatrix _XMTransform = Math::ToXM(_Scene->GetComponent<TransformComponent>(_Entity).GetTransform());
-
-				if (_MovementComponent.IsPosition)
-				{
-					_XMTransform.r[3] = _XMMovement;
-					_MovementComponent.IsPosition = false;
-				}
-				else
-				{
-					_XMTransform.r[3] = Math::XMAdd(_XMTransform.r[3], _XMMovement);
-				}
-
-				_MovementComponent.Movement = float3A(0.0f, 0.0f, 0.0f);
-			}
-		}
 
 		{
 
@@ -74,13 +49,13 @@ namespace TruthEngine
 		// Apply Transform to Light Object
 
 		{
-			auto _DynamicLightEntities = _Scene->ViewEntities<DynamicLightComponent>();
+			auto _DynamicLightEntities = _Scene->ViewEntities<LightComponent, MovementComponent>();
 
 			for (auto _Entity : _DynamicLightEntities)
 			{
 				ILight* _Light = _Scene->GetComponent<LightComponent>(_Entity).GetLight();
-				auto _XMTransform = Math::ToXM(_Scene->GetComponent<TransformComponent>(_Entity).GetTransform());
-				auto _XMLightPosition = Math::ToXM(_Light->GetPosition());
+				XMMatrix _XMTransform = Math::ToXM(_Scene->GetComponent<TransformComponent>(_Entity).GetTransform());
+				XMVector _XMLightPosition = Math::ToXM(_Light->GetPosition());
 
 				_XMLightPosition = Math::XMTransformVector3Point(_XMLightPosition, _XMTransform);
 
