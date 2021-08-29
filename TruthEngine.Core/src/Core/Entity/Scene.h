@@ -37,6 +37,10 @@ namespace TruthEngine
 		Entity AddPrimitiveMesh(const char* _MeshName, TE_PRIMITIVE_TYPE _PrimitiveType, const float3& _PrimitiveSize, const Entity* _ParentEntity = nullptr);
 		Entity AddEnvironmentEntity();
 
+		void SetMovement(Entity _Entity, const float3A& _Movement, bool _IsAbsolute);
+		void SetDirection(Entity _Entity, const float3A& _Direction);
+		void SetTransform(Entity _Entity, const float3A& _Direction, const float3A& _Position);
+
 		Entity AddLightEntity_Directional(
 			const std::string_view _Name
 			, const float3& _Position
@@ -97,6 +101,12 @@ namespace TruthEngine
 		T& GetComponent(entt::entity entityHandler)
 		{
 			return m_Registery.get<T>(entityHandler);
+		}
+
+		template<class T>
+		T& GetOrAddComponent(Entity _Entity)
+		{
+			return m_Registery.get_or_emplace<T>(_Entity);
 		}
 
 		template<class T>

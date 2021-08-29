@@ -19,7 +19,7 @@ namespace TruthEngine
 
 			if (_MovementComponent.IsAbsolutePostion)
 			{
-				_XMTransform.r[3] = _XMMovement;
+				_XMTransform.r[3] = Math::XMSelect(_XMMovement, XMVectorOne, Math::XMSelectVector(0, 0, 0, 1));
 				_MovementComponent.IsAbsolutePostion = false;
 			}
 			else

@@ -46,8 +46,6 @@ namespace TruthEngine
 
 			void AddSpace(const aiScene* scene, TE_IDX_MESH_TYPE _MeshType);
 
-			Entity AddMeshEntity(const char* meshName, Mesh* mesh, Material* material, Scene* scene, const float4x4& transform);
-
 		protected:
 			bool m_IsLoadingAnimatedModel = false;
 			size_t m_MeshOffset, /*m_ModelOffset,*/ m_MaterialOffset, m_BaseVertexOffset, m_BaseIndexOffset, m_TextureMaterialOffset;

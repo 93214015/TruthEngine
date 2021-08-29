@@ -10,7 +10,7 @@ namespace TruthEngine
 {
 	void SystemUpdateTransform::OnUpdate(Scene* _Scene, double DeltaSecond)
 	{
-		for (auto _EntityHandler : _Scene->ViewEntities<UpdatedComponent>())
+		/*for (auto _EntityHandler : _Scene->ViewEntities<UpdatedComponent>())
 		{
 			UpdatedComponent& _UpdatedComponent = _Scene->GetComponent<UpdatedComponent>(_EntityHandler);
 			if (_UpdatedComponent.m_Updated == true)
@@ -24,6 +24,6 @@ namespace TruthEngine
 
 				_UpdatedComponent.m_Updated = false;
 			}
-		}
+		}*/
 	}
 }

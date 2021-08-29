@@ -788,7 +788,6 @@ namespace TruthEngine
 
 
 				{
-
 					auto position = light->GetPosition();
 					//ImGui::Text("Light Position: ");
 					//if (ImGui::DragFloat3("##lightpostition", &position.x))
@@ -797,59 +796,25 @@ namespace TruthEngine
 						light->SetPosition(position);
 					}
 
-					bool _IsDynamic = GetActiveScene()->HasComponent<MovementComponent>(m_Context);
-
-
-					auto _LambdaAddMovementComponent = [](Entity _LightEntity) -> MovementComponent&
-					{
-						return GetActiveScene()->AddOrReplaceComponent<MovementComponent>(_LightEntity);
-					};
-
-					auto _LambdaRemoveMovementComponent = [](Entity _LightEntity)
-					{
-						GetActiveScene()->RemoveComponent<MovementComponent>(_LightEntity);
-					};
-
-					/*if (ImGui::Checkbox("Dynamic Light: ", &_IsDynamic))
-					{
-						if (_IsDynamic)
-						{
-							_LambdaActiveLight(m_Context);
-						}
-						else
-						{
-							_LambdaDeactiveLight(m_Context);
-						}
-					}*/
-
 					static bool s_MoveWithCamera = false;
-					if (ImGui::Checkbox("Move With Camera: ", &s_MoveWithCamera))
-					{
-						if (s_MoveWithCamera && !_IsDynamic)
-						{
-							_LambdaAddMovementComponent(m_Context);
-						}
-						else
-						{
-							_LambdaRemoveMovementComponent(m_Context);
-						}
-					}
-
+					ImGui::Checkbox("Move With Camera: ", &s_MoveWithCamera);
+					
 					if (s_MoveWithCamera)
 					{
 						Camera* _Camera = CameraManager::GetInstance()->GetActiveCamera();
 
-						if (light->GetLightType() == TE_LIGHT_TYPE::Point)
+						GetActiveScene()->SetTransform(m_Context, _Camera->GetLook(), _Camera->GetPosition());
+
+						/*if (light->GetLightType() == TE_LIGHT_TYPE::Point)
 						{
 							//light->SetPosition(_Camera->GetPosition());
-							auto& _MovementComponent = GetActiveScene()->GetComponent<MovementComponent>(m_Context);
-							_MovementComponent.IsAbsolutePostion = true;
-							_MovementComponent.MovementVector = _Camera->GetPosition();
+							_MovementComponent->IsAbsolutePostion = true;
+							_MovementComponent->MovementVector = _Camera->GetPosition();
 						}
 						else
 						{
 							light->SetView(_Camera->GetPosition(), _Camera->GetLook(), _Camera->GetUp(), _Camera->GetRight());
-						}
+						}*/
 					}
 
 				}
@@ -1018,7 +983,6 @@ namespace TruthEngine
 
 			static auto s_CopyingMesh = false;
 
-
 			if (ImGuizmo::Manipulate(&activeCamera->GetView()._11, &activeCamera->GetProjection()._11, _operationMode, _currentGizmoMode, &_Transform._11, &_DeltaTransform._11))
 			{
 				if (InputManager::IsKeyPressed(VK_SHIFT) && !s_CopyingMesh)
@@ -1030,26 +994,7 @@ namespace TruthEngine
 					}
 				}
 
-				if (m_Context.HasComponent<LightComponent>())
-				{
-					GetActiveScene()->AddOrReplaceComponent<DynamicLightComponent>(m_Context);
-					/*auto& _LightRotationComponent = GetActiveScene()->AddOrReplaceComponent<DynamicLightRotationComponent>(m_Context);
-					auto& _LightMovementComponent = GetActiveScene()->AddOrReplaceComponent<DynamicLightMovementComponent>(m_Context);
-					_LightMovementComponent.Movement = float3A(_DeltaTransform._41, _DeltaTransform._42, _DeltaTransform._43);*/
-				}
-
-				/*const float3& _WorldCenterOffset = _TransformComponent.GetWorldCenterOffset();
-				_transform._41 -= _WorldCenterOffset.x;
-				_transform._42 -= _WorldCenterOffset.y;
-				_transform._43 -= _WorldCenterOffset.z;*/
-
-
-				/*float4x4& _OriginalTransform = _TransformComponent.GetTransform();
-				_OriginalTransform = _transform;*/
-
-
-				/*EventEntityTransform _eventEntityTransform{ m_Context, ETransformType::Scale & ETransformType::Translate };
-				TE_INSTANCE_APPLICATION->OnEvent(_eventEntityTransform);*/
+				GetActiveScene()->AddOrReplaceComponent<UpdatedComponent>(m_Context);
 			}
 
 			if (!ImGui::IsMouseDragging(0) && !InputManager::IsKeyPressed(VK_SHIFT))

@@ -16,9 +16,13 @@ namespace TruthEngine
 
 	constexpr DirectX::XMVECTORF32 XMVectorOne = { 1.0f, 1.0f, 1.0f, 1.0f };
 	constexpr DirectX::XMVECTORF32 XMVectorZero = { .0f, .0f, .0f, .0f };
+	constexpr DirectX::XMVECTORF32 XMVectorOrigin = { .0f, .0f, .0f, 1.0f };
 	constexpr DirectX::XMVECTORF32 XMVectorFLTMin = { -1.0f * FLT_MAX, -1.0f * FLT_MAX, -1.0f * FLT_MAX, -1.0f * FLT_MAX };
 	constexpr DirectX::XMVECTORF32 XMVectorFLTMax = { FLT_MAX, FLT_MAX, FLT_MAX, FLT_MAX };
 	constexpr DirectX::XMVECTORF32 XMVectorHalf = { .5f, .5f , .5f , .5f };
+	constexpr DirectX::XMVECTORF32 XMVectorUp = { 0.0f, 1.0f , 0.0f , 0.0f };
+	constexpr DirectX::XMVECTORF32 XMVectorForward = { 0.0f, 0.0f , 1.0f , 0.0f };
+	constexpr DirectX::XMVECTORF32 XMVectorRight = { 1.0f, 0.0f , 0.0f , 0.0f };
 
 	struct float2 : DirectX::XMFLOAT2
 	{
@@ -863,6 +867,10 @@ namespace TruthEngine
 			return FromXMA(_TransformMatrix);
 		}
 
+		XMMatrix TransformMatrix(const float3A& _Forward);
+
+		XMMatrix TransformMatrix(const float3A& _Forward, const float3A& _Position);
+
 		inline XMMatrix XMTransformMatrix(const XMVector& _Scale, const XMVector& _Quaternion, const XMVector& _Translate)
 		{
 			return DirectX::XMMatrixAffineTransformation(_Scale, XMVectorZero, _Quaternion, _Translate);
@@ -872,6 +880,10 @@ namespace TruthEngine
 		{
 			return DirectX::XMMatrixAffineTransformation(ToXM(_Scale), XMVectorZero, ToXM(_Quaternion), ToXM(_Translate));
 		}
+
+		XMMatrix XMTransformMatrix(const XMVector& _Forward);
+
+		XMMatrix XMTransformMatrix(const XMVector& _Forward, const XMVector& _Position);
 
 		inline float4x4A TransformMatrixTranslate(const float3& _Translate)
 		{
@@ -1008,6 +1020,10 @@ namespace TruthEngine
 			return DirectX::XMVectorAdd(_V0, _V1);
 		}
 
+		XMVector XMDot(const XMVector& _V0, const XMVector& _V1);
+
+		XMVector XMCross(const XMVector& _V0, const XMVector& _V1);
+
 
 		inline bool XMEqual2(const XMVector& _V0, const XMVector& _V1)
 		{
@@ -1054,6 +1070,10 @@ namespace TruthEngine
 		{
 			return DirectX::XMQuaternionMultiply(_Quaternion1, _Quaternion2);
 		}
+
+		XMVector XMSelect(const XMVector& _V1, const XMVector& _V2, const XMVector& _VSelect);
+
+		XMVector XMSelectVector(uint32_t _S0, uint32_t _S1, uint32_t _S2, uint32_t _S3);
 
 
 		namespace TriangleTests

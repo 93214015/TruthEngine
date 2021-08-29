@@ -65,6 +65,36 @@ namespace TruthEngine
 			XMStoreFloat4(&quaternion, _quaternion);
 		}
 
+		XMMatrix TransformMatrix(const float3A& _Forward)
+		{
+			return XMTransformMatrix(Math::ToXM(_Forward));
+		}
+
+		XMMatrix TransformMatrix(const float3A& _Forward, const float3A& _Position)
+		{
+			return XMTransformMatrix(Math::ToXM(_Forward), Math::ToXM(_Position));
+		}
+
+		XMMatrix XMTransformMatrix(const XMVector& _Forward)
+		{
+			XMVector _Right = Math::XMCross(_Forward, XMVectorUp);
+
+			XMVector _Up = Math::XMCross(_Forward, _Right);
+
+			return  XMMatrix(_Right, _Up, _Forward, _XMVectorRow4);
+		}
+
+		XMMatrix XMTransformMatrix(const XMVector& _Forward, const XMVector& _Position)
+		{
+			XMVector _Right = Math::XMCross(_Forward, XMVectorUp);
+
+			XMVector _Up = Math::XMCross(_Forward, _Right);
+
+			XMVector _Row3 = XMVectorSelect(_Position, XMVectorOne, XMVectorSelectControl(0, 0, 0, 1));
+
+			return  XMMatrix(_Right, _Up, _Forward, _Row3);
+		}
+
 		float3A Rotate(const float3A& _Vector, const float4A& _RotationQuaternion)
 		{
 			float3A _Result;
@@ -72,6 +102,26 @@ namespace TruthEngine
 			_Result = FromXM3A(_ResultVector);
 
 			return _Result;
+		}
+
+		XMVector XMDot(const XMVector& _V0, const XMVector& _V1)
+		{
+			return DirectX::XMVector3Dot(_V0, _V1);
+		}
+
+		XMVector XMCross(const XMVector& _V0, const XMVector& _V1)
+		{
+			return DirectX::XMVector3Cross(_V0, _V1);
+		}
+
+		XMVector XMSelect(const XMVector& _V1, const XMVector& _V2, const XMVector& _VSelect)
+		{
+			return DirectX::XMVectorSelect(_V1, _V2, _VSelect);
+		}
+
+		XMVector XMSelectVector(uint32_t _S0, uint32_t _S1, uint32_t _S2, uint32_t _S3)
+		{
+			return DirectX::XMVectorSelectControl(_S0, _S1, _S2, _S3);
 		}
 
 	}

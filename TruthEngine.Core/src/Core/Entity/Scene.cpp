@@ -146,6 +146,38 @@ namespace TruthEngine
 		return entity_environment;
 	}
 
+	void Scene::SetMovement(Entity _Entity, const float3A& _Movement, bool _IsAbsolute)
+	{
+		MovementComponent& _MovementComponent = GetOrAddComponent<MovementComponent>(_Entity);
+
+		if (_IsAbsolute)
+		{
+			_MovementComponent.IsAbsolutePostion = true;
+			_MovementComponent.MovementVector = _Movement;
+		}
+		else
+		{
+			_MovementComponent.MovementVector += _Movement;
+		}
+
+	}
+
+	void Scene::SetDirection(Entity _Entity, const float3A& _NormalizedDirection)
+	{
+		auto& _Transform = GetComponent<TransformComponent>(_Entity).GetTransform();
+		_Transform = Math::FromXMA(Math::TransformMatrix(_NormalizedDirection));
+
+		AddOrReplaceComponent<UpdatedComponent>(_Entity);
+	}
+
+	void Scene::SetTransform(Entity _Entity, const float3A& _NormalizedDirection, const float3A& _Position)
+	{
+		auto& _Transform = GetComponent<TransformComponent>(_Entity).GetTransform();
+		_Transform = Math::FromXMA(Math::TransformMatrix(_NormalizedDirection, _Position));
+
+		AddOrReplaceComponent<UpdatedComponent>(_Entity);
+	}
+
 	Entity Scene::AddLightEntity_Directional(
 		const std::string_view _Name
 		, const float3& _Position

@@ -2,8 +2,6 @@
 
 cbuffer CBPerObject
 {
-    row_major matrix gWorld;
-    
     float4 gExtents;
     float4 gCenter;
 };
@@ -13,24 +11,15 @@ cbuffer CBPerObject
 //    float3 PosL : POSITION;
 //};
 
-struct SVertexOut
+
+
+float vs()
 {
-    float4 Center : POSITION[0],
-    float4 Extents : POSITION[1]
-};
-
-SVertexOut vs() : POSITION
-{
-    SVertexOut vOut;
-
-    vOut.Center = gCenter;
-    vOut.Extents = gExtents;
-
-    return vOut;
+    return 0;
 }
 
-[maxVertexcount(8)]
-void gs(SVertexOut gin) : SV_Position
+[maxVertexcount(16)]
+void gs() : SV_Position
 {
     
 }
