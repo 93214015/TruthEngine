@@ -30,6 +30,7 @@ enum class TE_IDX_GRESOURCES : IDX
 	Constant_EnvironmentMap,
 	Constant_IBL_Specular,
 	Constant_RenderBoundingBox,
+	Constant_RenderEntityIcon,
 
 	Texture_MaterialTextures,
 	Texture_CubeMap_Environment,
@@ -103,6 +104,7 @@ enum class TE_IDX_SHADERCLASS : IDX
 	GENERATEIBLSPECULAR_BRDF,
 	GENERATESSAO,
 	SSAOBLURRING,
+	RENDERENTITYICON,
 	TOTALNUM
 };
 
@@ -119,6 +121,7 @@ enum class TE_IDX_RENDERPASS : IDX
 	GENERATEIBLAMBIENT,
 	GENERATEIBLSPECULAR,
 	GENERATESSAO,
+	RENDERENTITYICON
 };
 
 enum class TE_IDX_MESH_TYPE : IDX

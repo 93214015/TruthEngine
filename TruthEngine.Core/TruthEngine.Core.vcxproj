@@ -185,6 +185,7 @@
     <ClInclude Include="src\Core\Entity\Components\BoundingBoxComponent.h" />
     <ClInclude Include="src\Core\Entity\Components\CameraComponent.h" />
     <ClInclude Include="src\Core\Entity\Components\DynamicLightComponent.h" />
+    <ClInclude Include="src\Core\Entity\Components\EditorEntityIconComponent.h" />
     <ClInclude Include="src\Core\Entity\Components\EnvironmentComponent.h" />
     <ClInclude Include="src\Core\Entity\Components\LeaderComponent.h" />
     <ClInclude Include="src\Core\Entity\Components\LightComponent.h" />
@@ -280,6 +281,7 @@
     <ClInclude Include="src\Core\Renderer\RendererCommand.h" />
     <ClInclude Include="src\Core\Renderer\RendererIDX.h" />
     <ClInclude Include="src\Core\Renderer\RendererLayer.h" />
+    <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_RenderEntityIcons.h" />
     <ClInclude Include="src\Core\Renderer\Shader.h" />
     <ClInclude Include="src\Core\Renderer\ShaderInputLayout.h" />
     <ClInclude Include="src\Core\Renderer\ShaderManager.h" />
@@ -337,6 +339,7 @@
     <ClCompile Include="src\Core\Entity\Components\BoundingBoxComponent.cpp" />
     <ClCompile Include="src\Core\Entity\Components\CameraComponent.cpp" />
     <ClCompile Include="src\Core\Entity\Components\DynamicLightComponent.cpp" />
+    <ClCompile Include="src\Core\Entity\Components\EditorEntityIconComponent.cpp" />
     <ClCompile Include="src\Core\Entity\Components\EnvironmentComponent.cpp" />
     <ClCompile Include="src\Core\Entity\Components\LightComponent.cpp" />
     <ClCompile Include="src\Core\Entity\Components\MaterialComponent.cpp" />
@@ -418,6 +421,7 @@
     <ClCompile Include="src\Core\Renderer\RenderPassStack.cpp" />
     <ClCompile Include="src\Core\Renderer\RendererCommand.cpp" />
     <ClCompile Include="src\Core\Renderer\RendererLayer.cpp" />
+    <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_RenderEntityIcons.cpp" />
     <ClCompile Include="src\Core\Renderer\Shader.cpp" />
     <ClCompile Include="src\Core\Renderer\ShaderInputLayout.cpp" />
     <ClCompile Include="src\Core\Renderer\ShaderManager.cpp" />
