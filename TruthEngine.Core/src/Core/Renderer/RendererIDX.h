@@ -29,6 +29,7 @@ enum class TE_IDX_GRESOURCES : IDX
 	Constant_ShadowMapPerLight,
 	Constant_EnvironmentMap,
 	Constant_IBL_Specular,
+	Constant_RenderBoundingBox,
 
 	Texture_MaterialTextures,
 	Texture_CubeMap_Environment,

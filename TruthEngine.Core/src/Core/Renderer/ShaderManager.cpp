@@ -185,6 +185,28 @@ namespace TruthEngine
 			);
 			break;
 		}
+		case TE_IDX_SHADERCLASS::RENDERBOUNDINGBOX:
+		{
+			_ShaderSignature->mShaderSignatureFlags = ShaderSignature::EShaderSignatureFlags_DENY_DOMAIN_SHADER_ROOT_ACCESS
+				| ShaderSignature::EShaderSignatureFlags_DENY_HULL_SHADER_ROOT_ACCESS
+				| ShaderSignature::EShaderSignatureFlags_DENY_MESH_SHADER_ROOT_ACCESS;
+
+			ShaderSignature::ShaderParameter* _ShaderParam = &_ShaderSignature->AddParameter();
+			_ShaderParam->mParameter = ShaderSignature::ShaderConstant(TE_IDX_GRESOURCES::Constant_RenderBoundingBox, 0, 0, static_cast<ShaderSignature::EShaderVisibility>(ShaderSignature::EShaderVisibility_GEOMETRY));
+						
+			_ShaderParam = &_ShaderSignature->AddParameter();
+			_ShaderParam->mParameter = ShaderSignature::ShaderTable
+			(
+				static_cast<ShaderSignature::EShaderVisibility>(ShaderSignature::EShaderVisibility_GEOMETRY)
+				, {
+						ShaderSignature::ShaderRange(1, 0, ShaderSignature::EShaderRangeType::CBV, ShaderSignature::EShaderRangeFlags::EShaderRangeFlags_NONE,
+						{
+							ShaderSignature::ShaderRangeView(TE_IDX_GRESOURCES::CBuffer_PerFrame, ShaderSignature::EShaderRangeType::CBV),
+						})
+				}
+			);
+			break;
+		}
 		case TE_IDX_SHADERCLASS::POSTPROCESSING_HDR_DOWNSACLING_FIRSTPASS:
 		{
 			_ShaderSignature->mShaderSignatureFlags = 

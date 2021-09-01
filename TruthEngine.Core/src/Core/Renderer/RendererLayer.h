@@ -14,6 +14,7 @@
 #include "RenderPass/RenderPass_GenerateIBLAmbient.h"
 #include "RenderPass/RenderPass_GenerateIBLSpecular.h"
 #include "RenderPass/RenderPass_GenerateSSAO.h"
+#include "RenderPass/RenderPass_RenderBoudingBoxes.h"
 
 
 
@@ -125,6 +126,7 @@ namespace TruthEngine
 		std::shared_ptr<RenderPass_GenerateIBLAmbient> m_RenderPass_GenerateIBLAmbient;
 		std::shared_ptr<RenderPass_GenerateIBLSpecular> m_RenderPass_GenerateIBLSpecular;
 		std::shared_ptr<RenderPass_GenerateSSAO> m_RenderPass_GenerateSSAO;
+		std::shared_ptr<RenderPass_RenderBoundingBoxes> m_RenderPass_RenderBoundingBoxes;
 
 		ModelManager* m_ModelManagers;
 

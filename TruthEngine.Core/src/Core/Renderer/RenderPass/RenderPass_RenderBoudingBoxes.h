@@ -4,6 +4,7 @@
 #include "Core/Renderer/Viewport.h"
 #include "Core/Renderer/BufferManager.h"
 #include "Core/Renderer/VertexBuffer.h"
+#include "Core/Renderer/Pipeline.h"
 
 
 namespace TruthEngine
@@ -38,31 +39,36 @@ namespace TruthEngine
 
 
 	private:
+		void InitTextures();
+		void InitBuffers();
+		void InitPipelines();
+		void RegisterOnEvents();
 
+		void OnEventRendererViewportResize(class EventRendererViewportResize& _Event);
 
 	private:
 		RendererCommand m_RendererCommand;
 
-		Viewport m_Viewport;
-		ViewRect m_ViewRect;
-
 		RenderTargetView m_RenderTargetView;
 		DepthStencilView m_DepthStencilView;
 
+		PipelineGraphics m_Pipeline;
 
-		struct alignas(16) ConstantBuffer_Data_PerObject
+		struct alignas(16) ConstantBuffer_Data_PerBoundingBox
 		{
-
-			ConstantBuffer_Data_PerObject(const float4x4A& _WorldTransform)
-				: mWorldTransform(_WorldTransform)
+			ConstantBuffer_Data_PerBoundingBox() = default;
+			ConstantBuffer_Data_PerBoundingBox(const float3& _Extents, const float3& _Center)
+				: Extents(_Extents), Center(_Center)
 			{}
 
-			float4x4A mWorldTransform;
 
-			float4 mExtents;
+			float3 Extents;
+			float _pad0 = 0.0f;
+			float3 Center;
+			float _pad1 = 0.0f;
 		};
 
-		ConstantBufferDirect<ConstantBuffer_Data_PerObject>* m_ConstantBufferDirect_PerObject;
+		ConstantBufferDirect<ConstantBuffer_Data_PerBoundingBox>* m_ConstantBufferDirect_PerBB;
 	};
 
 }

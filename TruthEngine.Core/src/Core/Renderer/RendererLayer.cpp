@@ -39,6 +39,7 @@ namespace TruthEngine
 		, m_RenderPass_GenerateIBLAmbient(std::make_shared<RenderPass_GenerateIBLAmbient>(this))
 		, m_RenderPass_GenerateIBLSpecular(std::make_shared<RenderPass_GenerateIBLSpecular>(this))
 		, m_RenderPass_GenerateSSAO(std::make_shared<RenderPass_GenerateSSAO>(this))
+		, m_RenderPass_RenderBoundingBoxes(std::make_shared<RenderPass_RenderBoundingBoxes>(this))
 
 	{
 	}
@@ -60,7 +61,7 @@ namespace TruthEngine
 
 		m_BufferManager = TE_INSTANCE_BUFFERMANAGER;
 
-		m_BufferManager->Init(1000, 1000, 20, 10);
+		m_BufferManager->Init(1000, 1000, 30, 10);
 
 		// init singleton object of dx12 swap chain
 		TE_INSTANCE_SWAPCHAIN->Init(TE_INSTANCE_APPLICATION->GetClientWidth(), TE_INSTANCE_APPLICATION->GetClientHeight(), TE_INSTANCE_APPLICATION->GetWindow(), TE_INSTANCE_APPLICATION->GetFramesOnTheFlyNum());
@@ -703,6 +704,8 @@ namespace TruthEngine
 
 		if (m_IsEnabledHDR)
 			m_RenderPassStack.PushRenderPass(m_RenderPass_PostProcessing_HDR.get());
+
+		m_RenderPassStack.PushRenderPass(m_RenderPass_RenderBoundingBoxes.get());
 	}
 
 	void RendererLayer::InitTextures()
