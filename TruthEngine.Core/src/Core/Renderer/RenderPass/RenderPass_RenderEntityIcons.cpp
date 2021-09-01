@@ -59,10 +59,22 @@ namespace TruthEngine
 
 		auto _ViewEntitiesIcons = _ActiveScene->ViewEntities<EditorEntityIconComponent>();
 
+		auto _CBData = m_ConstantBuffer->GetData();
+
 		for (auto _Entity : _ViewEntitiesIcons)
 		{
 			auto& _IconComponent = _ActiveScene->GetComponent<EditorEntityIconComponent>(_Entity);
-			auto& _Transform = _ActiveScene->GetComponent<TransformComponent>(_Entity);
+			XMMatrix _XMTransform = Math::ToXM(_ActiveScene->GetComponent<TransformComponent>(_Entity).GetTransform());
+
+			auto _XMCenter = Math::XMTransformPoint(XMVectorOrigin, _XMTransform);
+
+			_CBData->Center = Math::FromXM3(_XMCenter);
+			_CBData->TextureIndex = _IconComponent.GetTextureMaterialIndex();
+			_CBData->Extents = float3(1.0f, 1.0f, 1.0f);
+
+			m_RendererCommand.SetDirectConstantGraphics(m_ConstantBuffer);
+
+			m_RendererCommand.Draw(1, 0);
 		}
 	}
 

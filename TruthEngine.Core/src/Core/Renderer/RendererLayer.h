@@ -108,6 +108,8 @@ namespace TruthEngine
 		void InitTextures();
 		void InitBuffers();
 
+		void LoadIconTextures();
+
 	private:
 		RendererCommand m_RendererCommand;
 		RendererCommand m_RendererCommand_BackBuffer;

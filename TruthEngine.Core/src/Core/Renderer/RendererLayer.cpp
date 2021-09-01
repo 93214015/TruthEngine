@@ -10,7 +10,10 @@
 #include "Core/Event/EventApplication.h"
 #include "Core/Event/EventRenderer.h"
 #include "Core/Event/EventEntity.h"
+
 #include "Core/Renderer/GraphicDevice.h"
+#include "Core/Renderer/TextureMaterial.h"
+#include "Core/Renderer/IconsIDX.h"
 
 #include "Core/AnimationEngine/AnimationManager.h"
 
@@ -87,6 +90,8 @@ namespace TruthEngine
 		InitRenderPasses();
 
 		RegisterEvents();
+
+		LoadIconTextures();
 	}
 
 	void RendererLayer::OnDetach()
@@ -747,6 +752,17 @@ namespace TruthEngine
 		m_CB_UnFrequent = m_RendererCommand.CreateConstantBufferUpload<ConstantBuffer_Data_UnFrequent>(TE_IDX_GRESOURCES::CBuffer_UnFrequent);
 		m_CB_Bones = m_RendererCommand.CreateConstantBufferUpload<ConstantBuffer_Data_Bones>(TE_IDX_GRESOURCES::CBuffer_Bones);
 		m_CB_EnvironmentMap = m_RendererCommand.CreateConstantBufferDirect<ConstantBuffer_Data_EnvironmentMap>(TE_IDX_GRESOURCES::Constant_EnvironmentMap);
+	}
+
+	void RendererLayer::LoadIconTextures()
+	{
+		// Load SpotLight Icon
+		auto SpotLightTexMat = m_RendererCommand.LoadTextureMaterialFromFile("Assets\\Icons\\SpotLight1.png");
+		TE_IDX_ICONS::SpotLight = SpotLightTexMat->GetViewIndex();
+
+		// Load PointLight Icon
+		auto PointLightTexMat = m_RendererCommand.LoadTextureMaterialFromFile("Assets\\Icons\\Light0.png");
+		TE_IDX_ICONS::PointLight = PointLightTexMat->GetViewIndex();
 	}
 
 

@@ -261,6 +261,7 @@
     <ClInclude Include="src\Core\Renderer\GraphicDevice.h" />
     <ClInclude Include="src\Core\Renderer\GraphicResouceConstants.h" />
     <ClInclude Include="src\Core\Renderer\GraphicResource.h" />
+    <ClInclude Include="src\Core\Renderer\IconsIDX.h" />
     <ClInclude Include="src\Core\Renderer\IndexBuffer.h" />
     <ClInclude Include="src\Core\Renderer\Material.h" />
     <ClInclude Include="src\Core\Renderer\MaterialManager.h" />
@@ -402,6 +403,7 @@
     <ClCompile Include="src\Core\Renderer\CommandList.cpp" />
     <ClCompile Include="src\Core\Renderer\ConstantBuffer.cpp" />
     <ClCompile Include="src\Core\Renderer\GraphicResource.cpp" />
+    <ClCompile Include="src\Core\Renderer\IconsIDX.cpp" />
     <ClCompile Include="src\Core\Renderer\IndexBuffer.cpp" />
     <ClCompile Include="src\Core\Renderer\Material.cpp" />
     <ClCompile Include="src\Core\Renderer\MaterialManager.cpp" />

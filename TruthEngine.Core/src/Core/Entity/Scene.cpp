@@ -11,6 +11,8 @@
 #include "Core/Entity/Components/RotationComponent.h"
 #include "Core/Entity/Components/LeaderComponent.h"
 #include "Core/Entity/Components/AttachedComponent.h"
+#include "Core/Entity/Components/EditorEntityIconComponent.h"
+
 #include "Core/Entity/Model/ModelManager.h" // Mesh and Material Included
 #include "Core/Entity/Model/AssimpLib.h"
 #include "Core/Entity/Light/LightManager.h"
@@ -18,6 +20,8 @@
 #include "Core/Entity/Camera/CameraManager.h"
 
 #include "Core/PhysicEngine/PhysicsEngine.h"
+
+#include "Core/Renderer/IconsIDX.h"
 
 namespace TruthEngine
 {
@@ -222,6 +226,7 @@ namespace TruthEngine
 
 		auto entityLight = AddEntity(_Name.data());
 		AddComponent<LightComponent>(entityLight, _Light);
+		AddComponent<EditorEntityIconComponent>(entityLight, TE_IDX_ICONS::GetSpotLight());
 
 		auto& _Transform = GetComponent<TransformComponent>(entityLight).GetTransform();
 		_Transform._41 = _Position.x;
@@ -248,6 +253,7 @@ namespace TruthEngine
 
 		auto entityLight = AddEntity(_Name.data());
 		AddComponent<LightComponent>(entityLight, _Light);
+		AddComponent<EditorEntityIconComponent>(entityLight, TE_IDX_ICONS::GetPointLight());
 
 		auto& _Transform = GetComponent<TransformComponent>(entityLight).GetTransform();
 		_Transform._41 = _Position.x;

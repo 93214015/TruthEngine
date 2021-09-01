@@ -13,6 +13,7 @@
 #include "CommandList.h"
 #include "Viewport.h"
 #include "SwapChain.h"
+#include "TextureMaterialManager.h"
 
 #include "Core/Entity/Model/Mesh.h"
 
@@ -399,6 +400,11 @@ namespace TruthEngine
 	Texture* RendererCommand::LoadTextureFromFile(TE_IDX_GRESOURCES _IDX, const char* _FilePath, uint8_t _MipLevels)
 	{
 		return TE_INSTANCE_BUFFERMANAGER->LoadTextureFromFile(_IDX, _FilePath, _MipLevels);
+	}
+
+	TextureMaterial* RendererCommand::LoadTextureMaterialFromFile(const char* _FilePath)
+	{
+		return TE_INSTANCE_TEXTUREMATERIALMANAGER->CreateTexture(_FilePath, "");
 	}
 
 	void RendererCommand::SaveTextureToFile(const Texture& _Textue, const char* _FilePath)

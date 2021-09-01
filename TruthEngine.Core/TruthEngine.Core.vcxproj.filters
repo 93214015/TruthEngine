@@ -503,6 +503,7 @@
     <ClInclude Include="src\Core\Entity\Components\DynamicLightComponent.h" />
     <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_RenderEntityIcons.h" />
     <ClInclude Include="src\Core\Entity\Components\EditorEntityIconComponent.h" />
+    <ClInclude Include="src\Core\Renderer\IconsIDX.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\API\DX12\DirectX12BufferManager.cpp">
@@ -892,5 +893,6 @@
     <ClCompile Include="src\Core\Entity\Components\DynamicLightComponent.cpp" />
     <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_RenderEntityIcons.cpp" />
     <ClCompile Include="src\Core\Entity\Components\EditorEntityIconComponent.cpp" />
+    <ClCompile Include="src\Core\Renderer\IconsIDX.cpp" />
   </ItemGroup>
 </Project>

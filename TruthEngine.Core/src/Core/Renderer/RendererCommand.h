@@ -33,6 +33,7 @@ namespace TruthEngine
 			TextureCubeMap* CreateTextureCubeMap(TE_IDX_GRESOURCES idx, const char* filePath);
 			Texture* CreateTexture(TE_IDX_GRESOURCES _IDX, uint32_t _Width, uint32_t _Height, uint8_t _ArraySize, uint8_t _MipLevels, TE_RESOURCE_FORMAT _Format, TE_RESOURCE_TYPE _ResourceType, TE_RESOURCE_STATES _State, const void* _InitData);
 			Texture* LoadTextureFromFile(TE_IDX_GRESOURCES _IDX, const char* _FilePath, uint8_t _MipLevels = 1);
+			TextureMaterial* LoadTextureMaterialFromFile(const char* _FilePath);
 			void SaveTextureToFile(const Texture& _Textue, const char* _FilePath);
 			void SaveTextureToFile(TE_IDX_GRESOURCES _TextureIDX, const char* _FilePath);
 			Buffer* CreateBufferStructuredRW(TE_IDX_GRESOURCES _IDX, uint32_t _ElementSizeInByte, uint32_t _ElementNum, bool _IsByteAddressBuffer);
