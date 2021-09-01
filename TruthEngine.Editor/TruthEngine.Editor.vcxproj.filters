@@ -38,6 +38,6 @@
     <FxCompile Include="Assets\Shaders\DeferredShadingPBR.hlsl" />
     <FxCompile Include="Assets\Shaders\GenerateSSAO.hlsl" />
     <FxCompile Include="Assets\Shaders\SSAOBlur.hlsl" />
-    <FxCompile Include="Assets\Shaders\RenderEntityIcons.hlsl" />
+    <FxCompile Include="Assets\Shaders\RenderEntityIcon.hlsl" />
   </ItemGroup>
 </Project>

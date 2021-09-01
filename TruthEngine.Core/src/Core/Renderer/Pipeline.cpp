@@ -19,14 +19,14 @@ namespace TruthEngine
 		std::vector<PipelineGraphics> mPipelines;
 	};
 
-	PipelineGraphics::PipelineGraphics(uint32_t ID, std::string_view _Name, RendererStateSet states, Shader* shader, uint32_t renderTargetNum, TE_RESOURCE_FORMAT* rtvFormat, TE_RESOURCE_FORMAT dsvFormat, bool enableMSAA, float depthBias, float depthBiasClamp, float slopeScaledDepthBias)
-		: m_ID(ID), m_Name(_Name), m_States(states), m_Shader(shader), m_ShaderClassIDX(shader->GetShaderClassIDX()), m_RenderTargetNum(renderTargetNum), m_DepthBias(depthBias), m_DepthBiasClamp(depthBiasClamp), m_SlopeScaledDepthBias(slopeScaledDepthBias), m_DSVFormat(dsvFormat), m_EnableMSAA(enableMSAA)
+	PipelineGraphics::PipelineGraphics(uint32_t ID, std::string_view _Name, RendererStateSet states, Shader* shader, uint32_t renderTargetNum, TE_RESOURCE_FORMAT* rtvFormat, TE_RESOURCE_FORMAT dsvFormat, bool enableMSAA, const PipelineBlendMode& pipelineBlendMode, float depthBias, float depthBiasClamp, float slopeScaledDepthBias)
+		: m_ID(ID), m_Name(_Name), m_States(states), m_Shader(shader), m_ShaderClassIDX(shader->GetShaderClassIDX()), m_RenderTargetNum(renderTargetNum), m_DepthBias(depthBias), m_DepthBiasClamp(depthBiasClamp), m_SlopeScaledDepthBias(slopeScaledDepthBias), m_DSVFormat(dsvFormat), m_PipelineBlendMode(pipelineBlendMode), m_EnableMSAA(enableMSAA)
 	{
 		if (renderTargetNum > 0)
 			memcpy(m_RTVFormats, rtvFormat, sizeof(TE_RESOURCE_FORMAT) * renderTargetNum);
 	}
 
-	void PipelineGraphics::Factory(PipelineGraphics* _outPipeline, RendererStateSet states, Shader* shader, uint32_t renderTargetNum, TE_RESOURCE_FORMAT* rtvFormat, TE_RESOURCE_FORMAT dsvFormat, bool enableMSAA, float depthBias, float depthBiasClamp, float slopeScaledDepthBias)
+	void PipelineGraphics::Factory(PipelineGraphics* _outPipeline, RendererStateSet states, Shader* shader, uint32_t renderTargetNum, TE_RESOURCE_FORMAT* rtvFormat, TE_RESOURCE_FORMAT dsvFormat, bool enableMSAA, const PipelineBlendMode& pipelineBlendMode, float depthBias, float depthBiasClamp, float slopeScaledDepthBias)
 	{
 		//static PipelineGraphicsContainer sPipelineContainer;
 
@@ -45,6 +45,7 @@ namespace TruthEngine
 				rtvFormat,
 				dsvFormat,
 				enableMSAA,
+				pipelineBlendMode,
 				depthBias,
 				depthBiasClamp,
 				slopeScaledDepthBias
@@ -61,6 +62,7 @@ namespace TruthEngine
 				rtvFormat,
 				dsvFormat,
 				enableMSAA,
+				pipelineBlendMode,
 				depthBias,
 				depthBiasClamp,
 				slopeScaledDepthBias);

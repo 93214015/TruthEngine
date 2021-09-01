@@ -13,7 +13,7 @@ namespace TruthEngine
 	class RenderPass_RenderEntityIcons final : public RenderPass
 	{
 	public:
-
+		RenderPass_RenderEntityIcons(class RendererLayer* _RendererLayer);
 
 		// Inherited via RenderPass
 		void OnAttach() override;

@@ -12,7 +12,7 @@ namespace TruthEngine
 
 		static uint32_t GetPointLight()
 		{
-			return SpotLight;
+			return PointLight;
 		}
 
 	private:

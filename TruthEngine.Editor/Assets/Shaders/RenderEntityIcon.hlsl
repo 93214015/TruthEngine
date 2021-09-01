@@ -16,10 +16,10 @@ Texture2D MaterialTextures[500] : register(t0, space0);
 
 struct VertexOut
 {
-    uint VertexID;
+    uint VertexID : TEXCOORD;
 };
 
-float4 vs(uint _VertexID : SV_VertexID) : POSITIONT 
+VertexOut vs(uint _VertexID : SV_VertexID)
 {
     VertexOut _VSOut;
     _VSOut.VertexID = _VertexID;
@@ -39,27 +39,31 @@ void gs(
     inout TriangleStream<GSOut> output
 )
 {
-    float4 _CenterProjection = mul(float4(gCenter, 1.0f), viewProj);
-    _CenterProjection.xyzw /= _CenterProjection.w;
-    
-    float4 _ExtentsProjection = mul(float4(gExtents, 1.0f), viewProj);
-    _ExtentsProjection.xyzw /= _ExtentsProjection.w;
+    float4 _CenterView = mul(float4(gCenter, 1.0f), View);
     
     
     GSOut _GSOut;
-    _GSOut.Position = float4(_CenterProjection.x - _ExtentsProjection.x, _CenterProjection.y + _ExtentsProjection.y, _CenterProjection.z, 1.0f);
+    _GSOut.Position = float4(_CenterView.x - gExtents.x, _CenterView.y + gExtents.y, _CenterView.z, 1.0f);
+    _GSOut.Position = mul(_GSOut.Position, Projection);
+    _GSOut.Position.xyzw /= _GSOut.Position.w;
     _GSOut.UV = float2(0.0f, 0.0f);
     output.Append(_GSOut);
     
-    _GSOut.Position = float4(_CenterProjection.x + _ExtentsProjection.x, _CenterProjection.y + _ExtentsProjection.y, _CenterProjection.z, 1.0f);
+    _GSOut.Position = float4(_CenterView.x + gExtents.x, _CenterView.y + gExtents.y, _CenterView.z, 1.0f);
+    _GSOut.Position = mul(_GSOut.Position, Projection);
+    _GSOut.Position.xyzw /= _GSOut.Position.w;
     _GSOut.UV = float2(1.0f, 0.0f);
     output.Append(_GSOut);
     
-    _GSOut.Position = float4(_CenterProjection.x - _ExtentsProjection.x, _CenterProjection.y - _ExtentsProjection.y, _CenterProjection.z, 1.0f);
+    _GSOut.Position = float4(_CenterView.x - gExtents.x, _CenterView.y - gExtents.y, _CenterView.z, 1.0f);
+    _GSOut.Position = mul(_GSOut.Position, Projection);
+    _GSOut.Position.xyzw /= _GSOut.Position.w;
     _GSOut.UV = float2(0.0f, 1.0f);
     output.Append(_GSOut);
     
-    _GSOut.Position = float4(_CenterProjection.x + _ExtentsProjection.x, _CenterProjection.y - _ExtentsProjection.y, _CenterProjection.z, 1.0f);
+    _GSOut.Position = float4(_CenterView.x + gExtents.x, _CenterView.y - gExtents.y, _CenterView.z, 1.0f);
+    _GSOut.Position = mul(_GSOut.Position, Projection);
+    _GSOut.Position.xyzw /= _GSOut.Position.w;
     _GSOut.UV = float2(1.0f, 1.0f);
     output.Append(_GSOut);
 }

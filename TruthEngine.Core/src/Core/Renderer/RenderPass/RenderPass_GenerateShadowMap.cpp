@@ -359,7 +359,7 @@ namespace TruthEngine
 		{
 			_Pipeline = _ItrPipeline->second;
 		}
-		PipelineGraphics::Factory(_Pipeline, _rendererStateReversedDepth, shader, 0, nullptr, TE_RESOURCE_FORMAT::D32_FLOAT, false, -30.0, 0.0f, -4.0f);
+		PipelineGraphics::Factory(_Pipeline, _rendererStateReversedDepth, shader, 0, nullptr, TE_RESOURCE_FORMAT::D32_FLOAT, false, PipelineBlendMode(), -30.0, 0.0f, -4.0f);
 
 		//Forward Depth Pipeline
 
@@ -377,7 +377,7 @@ namespace TruthEngine
 			_Pipeline = _ItrPipeline->second;
 		}
 
-		PipelineGraphics::Factory(_Pipeline, _rendererStateForwardDepth, shader, 0, nullptr, TE_RESOURCE_FORMAT::D32_FLOAT, false, 30.0, 0.0f, 4.0f);
+		PipelineGraphics::Factory(_Pipeline, _rendererStateForwardDepth, shader, 0, nullptr, TE_RESOURCE_FORMAT::D32_FLOAT, false, PipelineBlendMode(), 30.0, 0.0f, 4.0f);
 
 
 
@@ -396,7 +396,7 @@ namespace TruthEngine
 			_Pipeline = _ItrPipeline->second;
 		}
 
-		PipelineGraphics::Factory(_Pipeline, _rendererStateReversedDepth, shader, 0, nullptr, TE_RESOURCE_FORMAT::D32_FLOAT, false, -30.0, 0.0f, -4.0f);
+		PipelineGraphics::Factory(_Pipeline, _rendererStateReversedDepth, shader, 0, nullptr, TE_RESOURCE_FORMAT::D32_FLOAT, false, PipelineBlendMode(), -30.0, 0.0f, -4.0f);
 
 
 
@@ -415,7 +415,7 @@ namespace TruthEngine
 			_Pipeline = _ItrPipeline->second;
 		}
 
-		PipelineGraphics::Factory(_Pipeline, _rendererStateForwardDepth, shader, 0, nullptr, TE_RESOURCE_FORMAT::D32_FLOAT, false, 30.0, 0.0f, 4.0f);
+		PipelineGraphics::Factory(_Pipeline, _rendererStateForwardDepth, shader, 0, nullptr, TE_RESOURCE_FORMAT::D32_FLOAT, false, PipelineBlendMode(), 30.0, 0.0f, 4.0f);
 	}
 
 	void RenderPass_GenerateShadowMap::RenderSpotLightShadowMap()

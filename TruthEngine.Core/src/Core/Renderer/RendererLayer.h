@@ -15,6 +15,7 @@
 #include "RenderPass/RenderPass_GenerateIBLSpecular.h"
 #include "RenderPass/RenderPass_GenerateSSAO.h"
 #include "RenderPass/RenderPass_RenderBoudingBoxes.h"
+#include "RenderPass/RenderPass_RenderEntityIcons.h"
 
 
 
@@ -129,6 +130,7 @@ namespace TruthEngine
 		std::shared_ptr<RenderPass_GenerateIBLSpecular> m_RenderPass_GenerateIBLSpecular;
 		std::shared_ptr<RenderPass_GenerateSSAO> m_RenderPass_GenerateSSAO;
 		std::shared_ptr<RenderPass_RenderBoundingBoxes> m_RenderPass_RenderBoundingBoxes;
+		std::shared_ptr<RenderPass_RenderEntityIcons> m_RenderPass_RenderEntityIcons;
 
 		ModelManager* m_ModelManagers;
 

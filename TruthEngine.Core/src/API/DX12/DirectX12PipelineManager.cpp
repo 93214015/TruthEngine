@@ -142,6 +142,32 @@ namespace TruthEngine::API::DirectX12
 		return 0.0f;
 	}
 
+	bool IsBlendEnabled(RendererStateSet _States)
+	{
+		return COMPARE_RENDERER_STATE(_States, TE_RENDERER_STATE_ENABLED_BLEND, TE_RENDERER_STATE_ENABLED_BLEND_TRUE);
+	}
+
+	D3D12_BLEND_DESC DX12_GET_BLEND_DESC(RendererStateSet _States, const PipelineBlendMode& _BlendMode)
+	{
+		CD3DX12_BLEND_DESC DX12Blend{ CD3DX12_DEFAULT() };
+
+		if (IsBlendEnabled(_States))
+		{
+			DX12Blend.RenderTarget[0].BlendEnable = true;
+			DX12Blend.RenderTarget[0].LogicOpEnable = false;
+			DX12Blend.RenderTarget[0].SrcBlend = static_cast<D3D12_BLEND>(_BlendMode.SourceBlend);
+			DX12Blend.RenderTarget[0].DestBlend = static_cast<D3D12_BLEND>(_BlendMode.DestinationBlend);
+			DX12Blend.RenderTarget[0].BlendOp = static_cast<D3D12_BLEND_OP>(_BlendMode.BlendingOperation);
+			DX12Blend.RenderTarget[0].SrcBlendAlpha = static_cast<D3D12_BLEND>(_BlendMode.SourceBlendAlpha);
+			DX12Blend.RenderTarget[0].DestBlendAlpha = static_cast<D3D12_BLEND>(_BlendMode.DestinationBlendAlpha);
+			DX12Blend.RenderTarget[0].BlendOpAlpha = static_cast<D3D12_BLEND_OP>(_BlendMode.BlendingOperationAlpha);
+			DX12Blend.RenderTarget[0].LogicOp = D3D12_LOGIC_OP_NOOP;
+			DX12Blend.RenderTarget[0].RenderTargetWriteMask = static_cast<D3D12_COLOR_WRITE_ENABLE>(_BlendMode.RenderTargetWriteMask);
+		}
+		
+		return DX12Blend;
+	}
+
 	struct TED3D12GraphicsPipelineStateDesc
 	{
 		D3D12_GRAPHICS_PIPELINE_STATE_DESC D3D12Desc = { 0 };
@@ -159,8 +185,8 @@ namespace TruthEngine::API::DirectX12
 			D3D12Desc.GS = CD3DX12_SHADER_BYTECODE(shader->GetGS().BufferPointer, shader->GetGS().BufferSize);
 
 			//Blend Desc
-			D3D12Desc.BlendState = CD3DX12_BLEND_DESC(CD3DX12_DEFAULT());
-
+			D3D12Desc.BlendState = DX12_GET_BLEND_DESC(states, _Pipeline->GetBlendMode());
+			
 			D3D12Desc.SampleMask = UINT_MAX;
 
 			//Rasterized Desc
@@ -176,7 +202,7 @@ namespace TruthEngine::API::DirectX12
 			D3D12Desc.RasterizerState.ForcedSampleCount = 0;
 			D3D12Desc.RasterizerState.ConservativeRaster = D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF;
 
-			//Blend Desc
+			//DepthStencil Desc
 			auto depthEnabled = DX12_GET_ENABLED_DEPTH(states);
 			D3D12Desc.DepthStencilState.DepthEnable = depthEnabled;
 			D3D12Desc.DepthStencilState.DepthWriteMask = DX12_GET_DEPTH_WRITE_MASK(states);
@@ -337,7 +363,7 @@ namespace TruthEngine::API::DirectX12
 	{
 		const PipelineCompute* _Pipeline = _Event.GetPipeline();
 
-		TED3D12ComputePipelineStateDesc _TEDesc{_Pipeline};
+		TED3D12ComputePipelineStateDesc _TEDesc{ _Pipeline };
 
 		COMPTR<ID3D12PipelineState> _PSO;
 		auto hr = TE_INSTANCE_API_DX12_GRAPHICDEVICE->CreateComputePipelineState(&_TEDesc.D3D12Desc, IID_PPV_ARGS(_PSO.GetAddressOf()));

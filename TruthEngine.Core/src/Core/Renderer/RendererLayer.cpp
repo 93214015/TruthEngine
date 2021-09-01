@@ -43,6 +43,7 @@ namespace TruthEngine
 		, m_RenderPass_GenerateIBLSpecular(std::make_shared<RenderPass_GenerateIBLSpecular>(this))
 		, m_RenderPass_GenerateSSAO(std::make_shared<RenderPass_GenerateSSAO>(this))
 		, m_RenderPass_RenderBoundingBoxes(std::make_shared<RenderPass_RenderBoundingBoxes>(this))
+		, m_RenderPass_RenderEntityIcons(std::make_shared<RenderPass_RenderEntityIcons>(this))
 
 	{
 	}
@@ -711,6 +712,7 @@ namespace TruthEngine
 			m_RenderPassStack.PushRenderPass(m_RenderPass_PostProcessing_HDR.get());
 
 		m_RenderPassStack.PushRenderPass(m_RenderPass_RenderBoundingBoxes.get());
+		m_RenderPassStack.PushRenderPass(m_RenderPass_RenderEntityIcons.get());
 	}
 
 	void RendererLayer::InitTextures()

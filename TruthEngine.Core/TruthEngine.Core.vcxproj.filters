@@ -504,6 +504,7 @@
     <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_RenderEntityIcons.h" />
     <ClInclude Include="src\Core\Entity\Components\EditorEntityIconComponent.h" />
     <ClInclude Include="src\Core\Renderer\IconsIDX.h" />
+    <ClInclude Include="src\Core\Renderer\PipelineBlendMode.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\API\DX12\DirectX12BufferManager.cpp">
@@ -894,5 +895,6 @@
     <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_RenderEntityIcons.cpp" />
     <ClCompile Include="src\Core\Entity\Components\EditorEntityIconComponent.cpp" />
     <ClCompile Include="src\Core\Renderer\IconsIDX.cpp" />
+    <ClCompile Include="src\Core\Renderer\PipelineBlendMode.cpp" />
   </ItemGroup>
 </Project>

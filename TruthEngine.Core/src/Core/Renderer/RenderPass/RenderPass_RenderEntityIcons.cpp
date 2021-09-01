@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "RenderPass_RenderEntityIcons.h"
 
+#include "Core/Renderer/RendererLayer.h"
 #include "Core/Renderer/ShaderManager.h"
 #include "Core/Renderer/RendererLayer.h"
 #include "Core/Entity/Scene.h"
@@ -12,6 +13,11 @@ namespace TruthEngine
 
 
 
+	RenderPass_RenderEntityIcons::RenderPass_RenderEntityIcons(RendererLayer* _RendererLayer)
+		: RenderPass(TE_IDX_RENDERPASS::RENDERENTITYICON, _RendererLayer)
+	{
+	}
+
 	void RenderPass_RenderEntityIcons::OnAttach()
 	{
 		m_RendererCommand.Init(TE_IDX_RENDERPASS::RENDERENTITYICON, TE_IDX_SHADERCLASS::RENDERENTITYICON);
@@ -19,6 +25,8 @@ namespace TruthEngine
 		InitTextures();
 		InitBuffers();
 		InitPipeline();
+
+		RegisterOnEvents();
 	}
 
 	void RenderPass_RenderEntityIcons::OnDetach()
@@ -44,6 +52,7 @@ namespace TruthEngine
 
 		m_RendererCommand.SetRenderTarget(m_RTV);
 		m_RendererCommand.SetDepthStencil(m_DSV);
+		m_RendererCommand.SetViewPort(&m_RendererLayer->GetViewportScene(), &m_RendererLayer->GetViewRectScene());
 	}
 
 	void RenderPass_RenderEntityIcons::EndScene()
@@ -109,7 +118,10 @@ namespace TruthEngine
 			TE_RENDERER_STATE_CULL_MODE_NONE,
 			TE_RENDERER_STATE_PRIMITIVE_TOPOLOGY_POINTLIST,
 			TE_RENDERER_STATE_COMPARISSON_FUNC_LESS,
-			TE_RENDERER_STATE_DEPTH_WRITE_MASK_ALL
+			TE_RENDERER_STATE_DEPTH_WRITE_MASK_ALL,
+			TE_RENDERER_STATE_ENABLED_HDR_FALSE,
+			TE_RENDERER_STATE_SHADING_MODEL_NONE,
+			TE_RENDERER_STATE_ENABLED_BLEND_TRUE
 		);
 
 		Shader* shader = nullptr;
@@ -117,7 +129,9 @@ namespace TruthEngine
 
 		TE_RESOURCE_FORMAT rtvFormats[] = { TE_RESOURCE_FORMAT::R8G8B8A8_UNORM };
 
-		PipelineGraphics::Factory(&m_Pipeline, _RendererStates, shader, _countof(rtvFormats), rtvFormats, TE_RESOURCE_FORMAT::D32_FLOAT, false);
+		PipelineBlendMode _BlendMode{TE_BLEND::SRC_ALPHA, TE_BLEND::INV_SRC_ALPHA, TE_BLEND_OP::ADD, TE_BLEND::ZERO, TE_BLEND::ONE, TE_BLEND_OP::ADD, TE_COLOR_WRITE_ENABLE_ALL };
+
+		PipelineGraphics::Factory(&m_Pipeline, _RendererStates, shader, _countof(rtvFormats), rtvFormats, TE_RESOURCE_FORMAT::D32_FLOAT, false, _BlendMode);
 	}
 
 	void RenderPass_RenderEntityIcons::ReleaseTextures()
