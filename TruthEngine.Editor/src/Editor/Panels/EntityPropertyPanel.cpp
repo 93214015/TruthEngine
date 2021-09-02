@@ -925,12 +925,6 @@ namespace TruthEngine
 							_PLight->SetAttenuationQuadrant(_AttenuationQuadrant);
 						}
 
-						float4x4A _Transform = GetActiveScene()->GetComponent<TransformComponent>(m_Context);
-
-
-						auto _RendererLayer = m_App->GetRendererLayer();
-						_RendererLayer->RenderWireframe(&_RendererLayer->GetLightVolumeMeshes().Sphere.GetMesh(), );
-
 						break;
 					}
 					}

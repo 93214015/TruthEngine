@@ -5,7 +5,11 @@
 #include "Core/Renderer/RendererLayer.h"
 #include "Core/Entity/Scene.h"
 #include "Core/Entity/Camera/Camera.h"
+#include "Core/Entity/Components/LightComponent.h"
+#include "Core/Entity/Components/TransformComponent.h"
 #include "Core/Event/EventRenderer.h"
+
+#include "Core/Entity/Light/LightPoint.h"
 
 namespace TruthEngine
 {
@@ -56,6 +60,37 @@ namespace TruthEngine
 	void RenderPass_Wireframe::EndScene()
 	{
 		m_RendererCommand.End();
+	}
+
+	void RenderPass_Wireframe::Render()
+	{
+		Scene* _Scene = GetActiveScene();
+
+		if (Entity _Entity = _Scene->GetSelectedEntity(); _Entity && _Scene->HasComponent<LightComponent>(_Entity))
+		{
+			const ILight* _Light = _Scene->GetComponent<LightComponent>(_Entity).GetLight();
+
+			if (_Light->GetLightType() == TE_LIGHT_TYPE::Point)
+			{
+				float4x4A _Transform = _Scene->GetComponent<TransformComponent>(_Entity).GetTransform();
+
+				const LightPoint* _LightPoint = static_cast<const LightPoint*>(_Light);
+
+				float _AttenQuadrant = _LightPoint->GetAttenuationQuadrant();
+				float _StrengthFactor = Math::Max(_LightPoint->GetStrength()) * _LightPoint->GetStrengthMultiplier();
+
+				float _EstRadius = sqrtf(100 * _StrengthFactor / _AttenQuadrant);
+
+				XMMatrix _ScaleTransform = Math::XMTransformMatrixScale(Math::ToXM(float3{ _EstRadius,_EstRadius ,_EstRadius }));
+
+				_Transform = Math::Multiply(_ScaleTransform, Math::ToXM(_Transform));
+
+				const Mesh& _Mesh = TE_INSTANCE_MODELMANAGER->GetPrimitiveMeshInstances().Sphere.GetMesh();
+
+				Render(&_Mesh, _Transform);
+			}
+		}
+
 	}
 
 	void RenderPass_Wireframe::Render(const Mesh* _Mesh, const float4x4A& _Transform)
@@ -143,7 +178,7 @@ namespace TruthEngine
 
 	void RenderPass_Wireframe::RegiterOnEvents()
 	{
-		TE_INSTANCE_APPLICATION->RegisterEventListener(EventType::RendererViewportResize, [this](Event& _Event) 
+		TE_INSTANCE_APPLICATION->RegisterEventListener(EventType::RendererViewportResize, [this](Event& _Event)
 			{
 				OnEventRendererViewportResize(static_cast<EventRendererViewportResize&>(_Event));
 			}

@@ -45,7 +45,6 @@ namespace TruthEngine
 		, m_RenderPass_RenderBoundingBoxes(std::make_shared<RenderPass_RenderBoundingBoxes>(this))
 		, m_RenderPass_RenderEntityIcons(std::make_shared<RenderPass_RenderEntityIcons>(this))
 		, m_RenderPass_Wireframe(std::make_shared<RenderPass_Wireframe>(this))
-
 	{
 	}
 	RendererLayer::~RendererLayer() = default;
@@ -94,8 +93,6 @@ namespace TruthEngine
 		RegisterEvents();
 
 		LoadIconTextures();
-
-		GenerateLightVolumeMeshes();
 	}
 
 	void RendererLayer::OnDetach()
@@ -264,11 +261,6 @@ namespace TruthEngine
 	void RendererLayer::RenderWireframe(const Mesh* _Mesh, const float4x4A& _Transform)
 	{
 		m_RenderPass_Wireframe->Render(_Mesh, _Transform);
-	}
-
-	const LightVolumeMeshes& RendererLayer::GetLightVolumeMeshes() const
-	{
-		return m_LightVolumeMeshes;
 	}
 
 	const Viewport& RendererLayer::GetViewportScene() const
@@ -726,9 +718,7 @@ namespace TruthEngine
 
 		m_RenderPassStack.PushRenderPass(m_RenderPass_RenderBoundingBoxes.get());
 		m_RenderPassStack.PushRenderPass(m_RenderPass_RenderEntityIcons.get());
-
-		m_RenderPass_Wireframe->OnAttach();
-
+		m_RenderPassStack.PushRenderPass(m_RenderPass_Wireframe.get());
 	}
 
 	void RendererLayer::InitTextures()
@@ -783,10 +773,6 @@ namespace TruthEngine
 		TE_IDX_ICONS::PointLight = PointLightTexMat->GetViewIndex();
 	}
 
-	void RendererLayer::GenerateLightVolumeMeshes()
-	{
-		m_LightVolumeMeshes.Sphere = m_ModelManagers->GeneratePrimitiveMesh(TE_PRIMITIVE_TYPE::SPHERE, { 0.0f, 0.0f, 0.0f }, 1.0f, {8,8,8}, { 8,8,8 });
-	}
 
 
 

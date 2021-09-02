@@ -26,10 +26,11 @@ namespace TruthEngine
 
 		void EndScene() override;
 
+		void Render() override;
+
 		void Render(const Mesh* _Mesh, const float4x4A& _Transform);
 
 	private:
-		void Render() override {};
 
 		void InitRendererCommand();
 		void InitTextures();

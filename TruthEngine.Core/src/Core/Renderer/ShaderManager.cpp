@@ -682,8 +682,22 @@ namespace TruthEngine
 
 			break;
 		}
+		case TE_IDX_SHADERCLASS::WIREFRAME:
+		{
+			_ShaderSignature->mShaderSignatureFlags = ShaderSignature::EShaderSignatureFlags_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT
+				| ShaderSignature::EShaderSignatureFlags_DENY_GEOMETRY_SHADER_ROOT_ACCESS
+				| ShaderSignature::EShaderSignatureFlags_DENY_DOMAIN_SHADER_ROOT_ACCESS
+				| ShaderSignature::EShaderSignatureFlags_DENY_HULL_SHADER_ROOT_ACCESS
+				| ShaderSignature::EShaderSignatureFlags_DENY_MESH_SHADER_ROOT_ACCESS;
+
+			ShaderSignature::ShaderParameter* _ShaderParam = &_ShaderSignature->AddParameter();
+			_ShaderParam->mParameter = ShaderSignature::ShaderConstant(TE_IDX_GRESOURCES::Constant_Wireframe, 0, 0, static_cast<ShaderSignature::EShaderVisibility>(ShaderSignature::EShaderVisibility_VERTEX));
+
+
+			break;
+		}
 		default:
-			throw;
+			TE_ASSERT_CORE(false, "There is no Shader Signature for specifid shader idx");
 			break;
 		}
 
@@ -732,6 +746,12 @@ namespace TruthEngine
 			ie2.emplace_back("POSITION", 0, TE_RESOURCE_FORMAT::R32G32B32_FLOAT, 0, 0, TE_RENDERER_SHADER_INPUT_CLASSIFICATION::PER_VERTEX, 0);
 			ie2.emplace_back("BONEWEIGHT", 0, TE_RESOURCE_FORMAT::R32G32B32_FLOAT, 2, 0, TE_RENDERER_SHADER_INPUT_CLASSIFICATION::PER_VERTEX, 0);
 			ie2.emplace_back("BONEINDEX", 0, TE_RESOURCE_FORMAT::R8G8B8A8_UINT, 2, 12, TE_RENDERER_SHADER_INPUT_CLASSIFICATION::PER_VERTEX, 0);
+			break;
+		}
+		case TE_IDX_SHADERCLASS::WIREFRAME:
+		{
+			auto& ie = shaderInputs[(uint32_t)TE_IDX_MESH_TYPE::MESH_SIMPLE];
+			ie.emplace_back("POSITION", 0, TE_RESOURCE_FORMAT::R32G32B32_FLOAT, 0, 0, TE_RENDERER_SHADER_INPUT_CLASSIFICATION::PER_VERTEX, 0);
 			break;
 		}
 		default:

@@ -26,6 +26,13 @@ namespace TruthEngine
 		PLANE,
 	};
 
+	struct PrimitiveMeshInstances
+	{
+		MeshHandle Sphere;
+		MeshHandle Cone;
+	};
+
+
 	class BufferManager;
 	class RendererCommand;
 	class Scene;
@@ -102,16 +109,16 @@ namespace TruthEngine
 
 		void InitVertexAndIndexBuffer();
 
-
 		BoundingAABox GenerateBoundingAABox(Mesh* _Mesh) const;
+
+		const PrimitiveMeshInstances& GetPrimitiveMeshInstances() const;
 
 	protected:
 
-		inline uint32_t GenerateMeshID()
-		{
-			static uint32_t s_ID = 0;
-			return s_ID++;
-		}
+		uint32_t GenerateMeshID();
+
+		void GeneratePrimitiveMeshInstances();
+
 
 		template<class T>
 		T& _GetVertexBuffer();
@@ -133,6 +140,8 @@ namespace TruthEngine
 		BufferManager* m_BufferManager;
 
 		std::shared_ptr<RendererCommand> m_RendererCommand;
+
+		PrimitiveMeshInstances m_PrimitiveMeshInstances;
 
 		//
 		// Friend Classes

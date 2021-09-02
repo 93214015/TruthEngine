@@ -18,7 +18,7 @@
 #include "RenderPass/RenderPass_RenderEntityIcons.h"
 #include "RenderPass/RenderPass_Wireframe.h"
 
-
+#include "Core/Entity/Model/MeshHandle.h"
 
 namespace TruthEngine
 {
@@ -34,11 +34,7 @@ namespace TruthEngine
 	template<class T> class ConstantBufferUpload;
 	struct ConstantBuffer_Data_Per_Frame;
 
-	struct LightVolumeMeshes
-	{
-		MeshHandle Sphere;
-		MeshHandle Cone;
-	};
+	
 
 	class RendererLayer : public Layer
 	{
@@ -96,7 +92,6 @@ namespace TruthEngine
 
 		void RenderWireframe(const Mesh* _Mesh, const float4x4A& _Transform);
 
-		const LightVolumeMeshes& GetLightVolumeMeshes() const;
 
 		const Viewport& GetViewportScene() const;
 		const ViewRect& GetViewRectScene() const;
@@ -120,7 +115,6 @@ namespace TruthEngine
 		void InitBuffers();
 
 		void LoadIconTextures();
-		void GenerateLightVolumeMeshes();
 
 	private:
 		RendererCommand m_RendererCommand;
@@ -171,8 +165,6 @@ namespace TruthEngine
 		bool m_EnabledImGuiLayer = true;
 		bool m_EnabledEnvironmentMap = false;
 		bool m_IsEnabledHDR = false;
-
-		LightVolumeMeshes m_LightVolumeMeshes;
 
 		TimerProfile_OneSecond m_TimerRenderLayerUpdate;
 

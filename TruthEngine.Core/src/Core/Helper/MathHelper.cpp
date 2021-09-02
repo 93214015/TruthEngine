@@ -50,6 +50,14 @@ namespace TruthEngine
 
 	namespace Math
 	{
+		float Min(const float3& _f3)
+		{
+			return std::min(std::min(_f3.x, _f3.y), _f3.z);
+		}
+		float Max(const float3& _f3)
+		{
+			return std::max(std::max(_f3.x, _f3.y), _f3.z);
+		}
 		void DecomposeMatrix(const float4x4A& inMatrix, float4& scale, float4& translate, float4& quaternion)
 		{
 			auto xmMatrix = XMLoadFloat4x4A(&inMatrix);

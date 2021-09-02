@@ -51,6 +51,19 @@ namespace TruthEngine
 		m_RendererCommand->Init(TE_IDX_RENDERPASS::NONE, TE_IDX_SHADERCLASS::NONE);
 
 		m_BufferManager = bufferManager;
+
+		GeneratePrimitiveMeshInstances();
+	}
+
+	uint32_t ModelManager::GenerateMeshID()
+	{
+		static uint32_t s_ID = 0;
+		return s_ID++;
+	}
+
+	void ModelManager::GeneratePrimitiveMeshInstances()
+	{
+		m_PrimitiveMeshInstances.Sphere = GeneratePrimitiveMesh(TE_PRIMITIVE_TYPE::SPHERE, { 0.0f, 0.0f, 0.0f }, 1.0f, { 8,8,8 }, { 8,8,8 });
 	}
 
 	MeshHandle ModelManager::AddMesh(TE_IDX_MESH_TYPE _MeshType, uint32_t IndexNum, size_t IndexOffset, size_t VertexOffset, size_t vertexNum)
@@ -189,6 +202,11 @@ namespace TruthEngine
 	Mesh& ModelManager::GetMesh(uint32_t _MeshIndex)
 	{
 		return m_Meshes[_MeshIndex];
+	}
+
+	const PrimitiveMeshInstances& ModelManager::GetPrimitiveMeshInstances() const
+	{
+		return m_PrimitiveMeshInstances;
 	}
 
 }

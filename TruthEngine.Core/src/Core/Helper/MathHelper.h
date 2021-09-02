@@ -459,6 +459,8 @@ namespace TruthEngine
 		constexpr DirectX::XMVECTOR _XMVectorRow4 = { 0.0f, 0.0f, 0.0f, 1.0f };
 		constexpr XMMatrix XMIdentityMatrix = { _XMVectorRow1, _XMVectorRow2, _XMVectorRow3, _XMVectorRow4 };
 
+		float Min(const float3& _f3);
+		float Max(const float3& _f3);
 
 		inline constexpr float DegreeToRadian(float _DegreeAngle)
 		{
