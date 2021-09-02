@@ -34,7 +34,7 @@ namespace TruthEngine
 		Entity AddEntity(const char* _EntityTag, const float4A& _Translation = Math::IdentityTranslate, const float4A& RotationQuaterion = Math::IdentityQuaternion, const Entity* _ParentEntity = nullptr);
 
 		Entity AddMeshEntity(const char* _MeshName, const float4A& _Translation, const float4A& _RotationQuaternion, const Mesh& _Mesh, Material* _Material, const Entity* _ParentEntity = nullptr);
-		Entity AddPrimitiveMesh(const char* _MeshName, TE_PRIMITIVE_TYPE _PrimitiveType, const float3& _PrimitiveSize, const Entity* _ParentEntity = nullptr);
+		Entity AddPrimitiveMesh(const char* _MeshName, TE_PRIMITIVE_TYPE _PrimitiveType, const float3& _PrimitiveSize, float radius, const int3 slices, const int3& segments, const Entity* _ParentEntity = nullptr);
 		Entity AddEnvironmentEntity();
 
 		void SetMovement(Entity _Entity, const float3A& _Movement, bool _IsAbsolute);

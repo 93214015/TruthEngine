@@ -77,9 +77,7 @@ namespace TruthEngine
 
 			ImGui::Text("Primitves");
 
-			static float3 _Size = { 1.0f, 1.0f, 1.0f };
 			static auto primitiveType = TE_PRIMITIVE_TYPE::BOX;
-			ImGui::InputFloat3("Primitive Size.X/Radius Size.Y Size.Z", &_Size.x);
 
 			if (ImGui::RadioButton("Box", primitiveType == TE_PRIMITIVE_TYPE::BOX))
 			{
@@ -108,34 +106,62 @@ namespace TruthEngine
 
 
 
+			static float3 _Size = { 1.0f, 1.0f, 1.0f };
+			static float _Radius = 1.0f;
+			static int3  _Slices{ 16,16,16 };
+			static int3  _Segments{ 16,16,16 };
+
+			auto _LambdaSize3 = [&size = _Size]() { ImGui::InputFloat3("Size ", &size.x);  };
+			auto _LambdaSize2 = [&size = _Size]() { ImGui::InputFloat2("Size ", &size.x);  };
+			auto _LambdaSize = [&size = _Size]() { ImGui::InputFloat("Size ", &size.x);  };
+			auto _LambdaRadius = [&radius = _Radius]() { ImGui::InputFloat("Radius ", &radius);  };
+			auto _LambdaSlices3 = [&slices = _Slices]() { ImGui::InputInt3("Slices ", &slices.x);  };
+			auto _LambdaSlices = [&slices = _Slices]() { ImGui::InputInt("Slices ", &slices.x);  };
+			auto _LambdaSegments3 = [&segments = _Segments]() { ImGui::InputInt3("Segments ", &segments.x);  };
+			auto _LambdaSegments2 = [&segments = _Segments]() { ImGui::InputInt2("Segments ", &segments.x);  };
+			auto _LambdaSegments = [&segments = _Segments]() { ImGui::InputInt("Segments ", &segments.x);  };
+
+			switch (primitiveType)
+			{
+			case TruthEngine::TE_PRIMITIVE_TYPE::BOX:
+				_LambdaSize3();
+				_LambdaSegments3();
+				break;
+			case TruthEngine::TE_PRIMITIVE_TYPE::ROUNDEDBOX:
+				_LambdaSize3();
+				_LambdaRadius();
+				_LambdaSlices();
+				_LambdaSegments3();
+				break;
+			case TruthEngine::TE_PRIMITIVE_TYPE::SPHERE:
+				_LambdaRadius();
+				_LambdaSlices();
+				_LambdaSegments();
+				break;
+			case TruthEngine::TE_PRIMITIVE_TYPE::CYLINDER:
+			case TruthEngine::TE_PRIMITIVE_TYPE::CAPPEDCYLINDER:
+				_LambdaSize();
+				_LambdaRadius();
+				_LambdaSlices();
+				_LambdaSegments();
+				break;
+			case TruthEngine::TE_PRIMITIVE_TYPE::PLANE:
+				_LambdaSize2();
+				_LambdaSegments2();
+				break;
+			default:
+				break;
+			}
+
+
+
 			if (ImGui::Button("Add"))
 			{
 
 				std::string _MeshName = "Primitive_" + std::to_string(_ModelNamePostfix);
 				_ModelNamePostfix++;
 
-				//Mesh* _Mesh = modelManager->GeneratePrimitiveMesh(primitiveType, _Size.x, _Size.y, _Size.z);
-
-				/*Entity _ModelEntity;
-				Entity _SelectedEntity = m_Context->GetSelectedEntity();
-				if ( _SelectedEntity)
-				{
-					_ModelEntity = m_Context->GetModelEntity(_SelectedEntity);
-				}
-				else
-				{
-					if (strcmp(_ModelNameBuffer, "") == 0)
-					{
-						std::string _ModelName = "Model_" + std::to_string(_ModelNamePostfix);
-						strcpy_s(_ModelNameBuffer, _ModelName.c_str());
-					}
-					_ModelEntity = m_Context->AddModelEntity(_ModelNameBuffer, IdentityMatrix);
-				}*/
-
-				/*static MaterialManager* s_MaterialManager = MaterialManager::GetInstance();
-				Entity _MeshEntity = m_Context->AddMeshEntity(_MeshName.c_str(), IdentityMatrix, _Mesh, s_MaterialManager->AddDefaultMaterial(TE_IDX_MESH_TYPE::MESH_NTT), _ModelEntity);*/
-
-				Entity _MeshEntity = m_Context->AddPrimitiveMesh(_MeshName.c_str(), primitiveType, _Size, nullptr /*_ModelEntity*/);
+				Entity _MeshEntity = m_Context->AddPrimitiveMesh(_MeshName.c_str(), primitiveType, _Size, _Radius, _Slices, _Segments, nullptr /*_ModelEntity*/);
 
 				m_Context->SelectEntity(_MeshEntity);
 

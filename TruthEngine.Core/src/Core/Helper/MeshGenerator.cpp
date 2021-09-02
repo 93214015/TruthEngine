@@ -106,9 +106,9 @@ namespace TruthEngine
 	MeshGenerator::MeshGenerator()
 	{}
 
-	MeshHandle MeshGenerator::GenerateBox(float size_x, float size_y, float size_z)
+	MeshHandle MeshGenerator::GenerateBox(const float3& size, const int3& segments)
 	{
-		generator::BoxMesh box({ size_x, size_y, size_z }, { 1, 1, 1 });
+		generator::BoxMesh box({ size.x, size.y, size.z }, { 1, 1, 1 });
 
 		return GenerateTEMesh(box);
 
@@ -188,9 +188,9 @@ namespace TruthEngine
 		return modelManager->AddMesh(TE_IDX_MESH_TYPE::MESH_NTT, indexNum, indexOffset, vertexOffset, vertexNum);*/
 	}
 
-	MeshHandle MeshGenerator::GenerateSphere(float size)
+	MeshHandle MeshGenerator::GenerateSphere(float radius, int slices, int segments)
 	{
-		generator::SphereMesh sphere(size);
+		generator::SphereMesh sphere(radius, slices, segments);
 
 		return GenerateTEMesh(sphere);
 
@@ -268,9 +268,9 @@ namespace TruthEngine
 		return modelManager->AddMesh(TE_IDX_MESH_TYPE::MESH_NTT, indexNum, indexOffset, vertexOffset, vertexNum);*/
 	}
 
-	MeshHandle MeshGenerator::GenerateRoundedBoxMesh(float size_x, float size_y, float size_z)
+	MeshHandle MeshGenerator::GenerateRoundedBoxMesh(float radius, const float3& size, int slices, const int3& segments)
 	{
-		generator::RoundedBoxMesh roundedBoxMesh(.25f, { size_x, size_y, size_z });
+		generator::RoundedBoxMesh roundedBoxMesh(radius, { size.x, size.y, size.z }, slices, {segments.x, segments.y, segments.z});
 
 		return GenerateTEMesh(roundedBoxMesh);
 
@@ -347,9 +347,9 @@ namespace TruthEngine
 		return modelManager->AddMesh(TE_IDX_MESH_TYPE::MESH_NTT, indexNum, indexOffset, vertexOffset, vertexNum);*/
 	}
 
-	MeshHandle MeshGenerator::GenerateCylinder(float size)
+	MeshHandle MeshGenerator::GenerateCylinder(float radius, float size, int slices, int segments)
 	{
-		generator::CylinderMesh cylinder(size, size);
+		generator::CylinderMesh cylinder(radius, size, slices, segments);
 
 		return GenerateTEMesh(cylinder);
 
@@ -426,10 +426,10 @@ namespace TruthEngine
 		return modelManager->AddMesh(TE_IDX_MESH_TYPE::MESH_NTT, indexNum, indexOffset, vertexOffset, vertexNum);*/
 	}
 
-	MeshHandle MeshGenerator::GenerateCappedCylinder(float size)
+	MeshHandle MeshGenerator::GenerateCappedCylinder(float radius, float size, int slices, int segments, int rings)
 	{
 		
-		generator::CappedCylinderMesh cylinder(size, size);
+		generator::CappedCylinderMesh cylinder(radius, size, slices, segments, rings);
 		
 		return GenerateTEMesh(cylinder);
 
@@ -506,9 +506,9 @@ namespace TruthEngine
 		return modelManager->AddMesh(TE_IDX_MESH_TYPE::MESH_NTT, indexNum, indexOffset, vertexOffset, vertexNum);*/
 	}
 
-	MeshHandle MeshGenerator::GeneratePlane(float size_x, float size_z)
+	MeshHandle MeshGenerator::GeneratePlane(const float2& size, const int2& segments )
 	{		
-		generator::BoxMesh plane({ size_x, 0.1f, size_z }, { 1, 1, 1 });
+		generator::BoxMesh plane({ size.x, 0.1f, size.y }, { segments.x, 1, segments.y });
 
 		return GenerateTEMesh(plane);
 

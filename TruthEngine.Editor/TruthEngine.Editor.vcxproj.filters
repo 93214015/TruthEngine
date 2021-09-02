@@ -39,5 +39,6 @@
     <FxCompile Include="Assets\Shaders\GenerateSSAO.hlsl" />
     <FxCompile Include="Assets\Shaders\SSAOBlur.hlsl" />
     <FxCompile Include="Assets\Shaders\RenderEntityIcon.hlsl" />
+    <FxCompile Include="Assets\Shaders\RenderWireframe.hlsl" />
   </ItemGroup>
 </Project>

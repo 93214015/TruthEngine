@@ -16,6 +16,7 @@
 #include "RenderPass/RenderPass_GenerateSSAO.h"
 #include "RenderPass/RenderPass_RenderBoudingBoxes.h"
 #include "RenderPass/RenderPass_RenderEntityIcons.h"
+#include "RenderPass/RenderPass_Wireframe.h"
 
 
 
@@ -33,6 +34,11 @@ namespace TruthEngine
 	template<class T> class ConstantBufferUpload;
 	struct ConstantBuffer_Data_Per_Frame;
 
+	struct LightVolumeMeshes
+	{
+		MeshHandle Sphere;
+		MeshHandle Cone;
+	};
 
 	class RendererLayer : public Layer
 	{
@@ -88,6 +94,10 @@ namespace TruthEngine
 
 		void SetHDR(bool _EnableHDR);
 
+		void RenderWireframe(const Mesh* _Mesh, const float4x4A& _Transform);
+
+		const LightVolumeMeshes& GetLightVolumeMeshes() const;
+
 		const Viewport& GetViewportScene() const;
 		const ViewRect& GetViewRectScene() const;
 
@@ -110,6 +120,7 @@ namespace TruthEngine
 		void InitBuffers();
 
 		void LoadIconTextures();
+		void GenerateLightVolumeMeshes();
 
 	private:
 		RendererCommand m_RendererCommand;
@@ -131,6 +142,7 @@ namespace TruthEngine
 		std::shared_ptr<RenderPass_GenerateSSAO> m_RenderPass_GenerateSSAO;
 		std::shared_ptr<RenderPass_RenderBoundingBoxes> m_RenderPass_RenderBoundingBoxes;
 		std::shared_ptr<RenderPass_RenderEntityIcons> m_RenderPass_RenderEntityIcons;
+		std::shared_ptr<RenderPass_Wireframe> m_RenderPass_Wireframe;
 
 		ModelManager* m_ModelManagers;
 
@@ -159,6 +171,8 @@ namespace TruthEngine
 		bool m_EnabledImGuiLayer = true;
 		bool m_EnabledEnvironmentMap = false;
 		bool m_IsEnabledHDR = false;
+
+		LightVolumeMeshes m_LightVolumeMeshes;
 
 		TimerProfile_OneSecond m_TimerRenderLayerUpdate;
 

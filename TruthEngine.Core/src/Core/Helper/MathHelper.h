@@ -349,6 +349,59 @@ namespace TruthEngine
 		}
 	};
 
+	struct int2
+	{
+		union
+		{
+			struct
+			{
+				int32_t x;
+				int32_t y;
+			};
+		};
+
+		int32_t& operator[](uint32_t i)
+		{
+			return (&x)[i];
+		}
+	};
+
+	struct int3
+	{
+		union
+		{
+			struct
+			{
+				int32_t x;
+				int32_t y;
+				int32_t z;
+			};
+		};
+
+		int32_t& operator[](uint32_t i)
+		{
+			return (&x)[i];
+		}
+	};
+
+	struct int4
+	{
+		union
+		{
+			struct
+			{
+				int32_t x;
+				int32_t y;
+				int32_t z;
+				int32_t w;
+			};
+		};
+
+		int32_t& operator[](uint32_t i)
+		{
+			return (&x)[i];
+		}
+	};
 
 #pragma region GlobalOperators
 

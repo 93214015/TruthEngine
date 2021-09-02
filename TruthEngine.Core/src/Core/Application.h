@@ -70,6 +70,8 @@ namespace TruthEngine {
 		inline bool IsHoveredSceneViewPort() const noexcept { return m_IsHoveredSceneViewport; }
 		inline void IsHoveredSceneViewPort(bool hovered) noexcept { m_IsHoveredSceneViewport = hovered; }
 
+		RendererLayer* GetRendererLayer();
+
 		static Application* GetApplication() { return s_Instance; }		
 
 	protected:

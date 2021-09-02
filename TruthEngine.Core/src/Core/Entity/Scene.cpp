@@ -130,9 +130,9 @@ namespace TruthEngine
 		return entity_mesh;
 	}
 
-	Entity Scene::AddPrimitiveMesh(const char* _MeshName, TE_PRIMITIVE_TYPE _PrimitiveType, const float3& _PrimitiveSize, const Entity* _ParentEntity)
+	Entity Scene::AddPrimitiveMesh(const char* _MeshName, TE_PRIMITIVE_TYPE _PrimitiveType, const float3& _PrimitiveSize, float radius, const int3 slices, const int3& segments, const Entity* _ParentEntity)
 	{
-		const Mesh& _Mesh = TE_INSTANCE_MODELMANAGER->GeneratePrimitiveMesh(_PrimitiveType, _PrimitiveSize.x, _PrimitiveSize.y, _PrimitiveSize.z).GetMesh();
+		const Mesh& _Mesh = TE_INSTANCE_MODELMANAGER->GeneratePrimitiveMesh(_PrimitiveType, _PrimitiveSize, radius, segments, slices).GetMesh();
 		Material* _Material = TE_INSTANCE_MATERIALMANAGER->AddDefaultMaterial(TE_IDX_MESH_TYPE::MESH_NTT);
 		return AddMeshEntity(_MeshName, Math::IdentityTranslate, Math::IdentityQuaternion, _Mesh, _Material, _ParentEntity);
 	}
@@ -951,7 +951,7 @@ namespace TruthEngine
 	{
 		static uint32_t _BallIndex = 0;
 		std::string _BallName = "Ball" + std::to_string(_BallIndex);
-		Entity _BallEntity = AddPrimitiveMesh(_BallName.c_str(), TE_PRIMITIVE_TYPE::SPHERE, float3{ 1.0f, 0.0f, 0.0f }, nullptr /*, &m_ModelShootedBall*/);
+		Entity _BallEntity = AddPrimitiveMesh(_BallName.c_str(), TE_PRIMITIVE_TYPE::SPHERE, float3{ 0.0f, 0.0f, 0.0f }, 1.0f, { 16, 16, 16 }, { 8,8,8 }, nullptr /*, &m_ModelShootedBall*/);
 
 		Camera* _ActiveCamera = GetActiveCamera();
 		float3 _LinearVelocity = _ActiveCamera->GetLook() * float3 { 120.0f, 120.0f, 120.0f };

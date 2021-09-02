@@ -9,4 +9,9 @@ namespace TruthEngine
 	{
 		return TE_INSTANCE_MODELMANAGER->GetMesh(m_MeshIndex);
 	}
+
+	const Mesh& MeshHandle::GetMesh() const
+	{
+		return TE_INSTANCE_MODELMANAGER->GetMesh(m_MeshIndex);
+	}
 }

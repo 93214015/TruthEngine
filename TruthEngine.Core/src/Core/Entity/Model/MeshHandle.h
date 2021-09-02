@@ -11,6 +11,7 @@ namespace TruthEngine
 
 
 		class Mesh& GetMesh();
+		const class Mesh& GetMesh() const;
 
 	private:
 		uint32_t m_MeshIndex;

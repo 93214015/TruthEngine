@@ -102,6 +102,11 @@ namespace TruthEngine {
 		m_EventDispatcher.OnEvent(e);
 	}
 
+	RendererLayer* Application::GetRendererLayer()
+	{
+		return m_RendererLayer.get();
+	}
+
 	void Application::OnWindowResize(EventWindowResize& event)
 	{
 		if (event.GetWidth() == 0 || event.GetHeight() == 0)

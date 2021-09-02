@@ -2,6 +2,7 @@
 #include "EntityPropertyPanel.h"
 
 #include "Core/Application.h"
+#include "Core/Renderer/RendererLayer.h"
 #include "Core/ImGui/ImGuiLayer.h"
 
 #include "Core/Entity/Components.h"
@@ -924,7 +925,12 @@ namespace TruthEngine
 							_PLight->SetAttenuationQuadrant(_AttenuationQuadrant);
 						}
 
-						break;
+						float4x4A _Transform = GetActiveScene()->GetComponent<TransformComponent>(m_Context);
+
+
+						auto _RendererLayer = m_App->GetRendererLayer();
+						_RendererLayer->RenderWireframe(&_RendererLayer->GetLightVolumeMeshes().Sphere.GetMesh(), );
+
 						break;
 					}
 					}

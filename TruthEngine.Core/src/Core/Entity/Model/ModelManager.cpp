@@ -93,29 +93,29 @@ namespace TruthEngine
 		return _MeshHandle;
 	}
 
-	MeshHandle ModelManager::GeneratePrimitiveMesh(TE_PRIMITIVE_TYPE type, float size_x, float size_y, float size_z)
+	MeshHandle ModelManager::GeneratePrimitiveMesh(TE_PRIMITIVE_TYPE type, const float3& size, float radius, const int3& segments, const int3& slices)
 	{
 		MeshHandle _MeshHandle{0};
 
 		switch (type)
 		{
 		case TruthEngine::TE_PRIMITIVE_TYPE::BOX:
-			_MeshHandle = MeshGenerator::GetInstance()->GenerateBox(size_x, size_y, size_z);
+			_MeshHandle = MeshGenerator::GetInstance()->GenerateBox(size, segments);
 			break;
 		case TruthEngine::TE_PRIMITIVE_TYPE::ROUNDEDBOX:
-			_MeshHandle = MeshGenerator::GetInstance()->GenerateRoundedBoxMesh(size_x, size_y, size_z);
+			_MeshHandle = MeshGenerator::GetInstance()->GenerateRoundedBoxMesh(radius, size, slices.x, segments);
 			break;
 		case TruthEngine::TE_PRIMITIVE_TYPE::SPHERE:
-			_MeshHandle = MeshGenerator::GetInstance()->GenerateSphere(size_x);
+			_MeshHandle = MeshGenerator::GetInstance()->GenerateSphere(radius, slices.x, segments.x);
 			break;
 		case TruthEngine::TE_PRIMITIVE_TYPE::CYLINDER:
-			_MeshHandle = MeshGenerator::GetInstance()->GenerateCylinder(size_x);
+			_MeshHandle = MeshGenerator::GetInstance()->GenerateCylinder(radius, size.x, slices.x, segments.x);
 			break;
 		case TruthEngine::TE_PRIMITIVE_TYPE::CAPPEDCYLINDER:
-			_MeshHandle = MeshGenerator::GetInstance()->GenerateCappedCylinder(size_x);
+			_MeshHandle = MeshGenerator::GetInstance()->GenerateCappedCylinder(radius, size.x, slices.x, segments.x, 8);
 			break;
 		case TE_PRIMITIVE_TYPE::PLANE:
-			_MeshHandle = MeshGenerator::GetInstance()->GeneratePlane(size_x, size_z);
+			_MeshHandle = MeshGenerator::GetInstance()->GeneratePlane(float2{ size.x, size.y }, int2{ segments.x, segments.y });
 			break;
 		default:
 			break;
@@ -135,7 +135,7 @@ namespace TruthEngine
 	void ModelManager::GenerateEnvironmentMesh(Mesh** outMesh)
 	{
 
-		*outMesh = &MeshGenerator::GetInstance()->GenerateSphere(1.0f).GetMesh();
+		*outMesh = &MeshGenerator::GetInstance()->GenerateSphere(1.0f, 32, 16).GetMesh();
 
 		InitVertexAndIndexBuffer();
 
