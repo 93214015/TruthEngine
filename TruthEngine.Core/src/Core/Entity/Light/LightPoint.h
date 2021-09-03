@@ -15,9 +15,8 @@ namespace TruthEngine
 			const float3& _Strength,
 			float _StrengthMultiplier,
 			const bool _CastShadow,
-			const float _AttenuationConstant,
-			const float _AttenuationLinear,
-			const float _AttenuationQuadrant
+			float _AttenuationStartRadius,
+			float _AttenuationEndRadius
 			);
 
 		//
@@ -41,9 +40,13 @@ namespace TruthEngine
 
 		void SetLightSize(float _LightSize) noexcept;
 
-		void SetAttenuationConstant(float _AttenuationConstant) noexcept;
+		/*void SetAttenuationConstant(float _AttenuationConstant) noexcept;
 		void SetAttenuationLinear(float _AttenuationLinear) noexcept;
-		void SetAttenuationQuadrant(float _AttenuationQuadrant) noexcept;
+		void SetAttenuationQuadrant(float _AttenuationQuadrant) noexcept;*/
+
+		void SetAttenuationStartRadius(float _AttenuationStartRadius) noexcept;
+
+		void SetAttenuationEndRadius(float _AttenuationEndRadius) noexcept;
 
 		//
 		//Get Methods
@@ -62,11 +65,15 @@ namespace TruthEngine
 
 		bool GetCastShadow()const noexcept override;
 
-		float GetAttuantionConstant()const noexcept;
+		//float GetAttuantionConstant()const noexcept;
 
-		float GetAttenuationLinear()const noexcept;
+		//float GetAttenuationLinear()const noexcept;
 
-		float GetAttenuationQuadrant()const noexcept;
+		//float GetAttenuationQuadrant()const noexcept;
+
+		float GetAttenuationStartRadius() const noexcept;
+
+		float GetAttenuationEndRadius() const noexcept;
 
 		const PointLightData& GetLightData() const noexcept;
 

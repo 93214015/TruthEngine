@@ -39,6 +39,8 @@ namespace TruthEngine
 		inline void DrawCameraComponent(CameraComponent& component);
 		inline void DrawLightComponent(LightComponent& component);
 
+		void RenderBoundignBox();
+
 		void AddPhysicsComponent(TE_PHYSICS_RIGID_TYPE rigidType, TE_PHYSICS_RIGID_SHAPE rigidshape, TEPhysicsRigidDesc& rigidDesc);
 	private:
 		Entity m_Context;

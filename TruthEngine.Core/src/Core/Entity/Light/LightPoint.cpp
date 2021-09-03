@@ -11,11 +11,14 @@ namespace TruthEngine
         , const float3& _Strength
         , float _StrengthMultiplier
         , const bool _CastShadow
-        , const float _AttenuationConstant
+        , float _AttenuationStartRadius
+        , float _AttenuationEndRadius
+    /*    , const float _AttenuationConstant
         , const float _AttenuationLinear
-        , const float _AttenuationQuadrant )
+        , const float _AttenuationQuadrant*/
+    )
         : ILight(_ID, _Name, TE_LIGHT_TYPE::Point)
-        , m_Data(_Position, _LightSize, _Strength, _StrengthMultiplier, _CastShadow, _AttenuationConstant, _AttenuationLinear, _AttenuationQuadrant)
+        , m_Data(_Position, _LightSize, _Strength, _StrengthMultiplier, _CastShadow, _AttenuationStartRadius, _AttenuationEndRadius)
     {
     }
     void LightPoint::SetStrength(const float3& _Strength) noexcept
@@ -54,7 +57,19 @@ namespace TruthEngine
 
         InvokeEventUpdateLight();
     }
-    void LightPoint::SetAttenuationConstant(float _AttenuationConstant) noexcept
+    void LightPoint::SetAttenuationStartRadius(float _AttenuationStartRadius) noexcept
+    {
+        m_Data.AttenuationStartRadius = _AttenuationStartRadius;
+
+        InvokeEventUpdateLight();
+    }
+    void LightPoint::SetAttenuationEndRadius(float _AttenuationEndRadius) noexcept
+    {
+        m_Data.AttenuationEndRadius = _AttenuationEndRadius;
+
+        InvokeEventUpdateLight();
+    }
+   /* void LightPoint::SetAttenuationConstant(float _AttenuationConstant) noexcept
     {
         m_Data.AttenuationConstant = _AttenuationConstant;
 
@@ -71,7 +86,7 @@ namespace TruthEngine
         m_Data.AttenuationQuadrant = _AttenuationQuadrant;
 
         InvokeEventUpdateLight();
-    }
+    }*/
     const float3& LightPoint::GetPosition() const noexcept
     {
         return m_Data.Position;
@@ -88,7 +103,7 @@ namespace TruthEngine
     {
         return static_cast<bool>(m_Data.CastShadow);
     }
-    float LightPoint::GetAttuantionConstant() const noexcept
+    /*float LightPoint::GetAttuantionConstant() const noexcept
     {
         return m_Data.AttenuationConstant;
     }
@@ -99,6 +114,14 @@ namespace TruthEngine
     float LightPoint::GetAttenuationQuadrant() const noexcept
     {
         return m_Data.AttenuationQuadrant;
+    }*/
+    float LightPoint::GetAttenuationStartRadius() const noexcept
+    {
+        return m_Data.AttenuationStartRadius;
+    }
+    float LightPoint::GetAttenuationEndRadius() const noexcept
+    {
+        return m_Data.AttenuationEndRadius;
     }
     const PointLightData& LightPoint::GetLightData() const noexcept
     {

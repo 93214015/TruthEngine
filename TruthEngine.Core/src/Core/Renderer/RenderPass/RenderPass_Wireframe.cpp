@@ -64,9 +64,9 @@ namespace TruthEngine
 
 	void RenderPass_Wireframe::Render()
 	{
-		Scene* _Scene = GetActiveScene();
+		m_RendererCommand.ExecutePendingCommands();
 
-		if (Entity _Entity = _Scene->GetSelectedEntity(); _Entity && _Scene->HasComponent<LightComponent>(_Entity))
+		/*if (Entity _Entity = _Scene->GetSelectedEntity(); _Entity && _Scene->HasComponent<LightComponent>(_Entity))
 		{
 			const ILight* _Light = _Scene->GetComponent<LightComponent>(_Entity).GetLight();
 
@@ -76,36 +76,39 @@ namespace TruthEngine
 
 				const LightPoint* _LightPoint = static_cast<const LightPoint*>(_Light);
 
-				float _AttenQuadrant = _LightPoint->GetAttenuationQuadrant();
-				float _StrengthFactor = Math::Max(_LightPoint->GetStrength()) * _LightPoint->GetStrengthMultiplier();
-
-				float _EstRadius = sqrtf(100 * _StrengthFactor / _AttenQuadrant);
-
+				float _EstRadius = _LightPoint->GetAttenuationStartRadius();
 				XMMatrix _ScaleTransform = Math::XMTransformMatrixScale(Math::ToXM(float3{ _EstRadius,_EstRadius ,_EstRadius }));
-
-				_Transform = Math::Multiply(_ScaleTransform, Math::ToXM(_Transform));
-
 				const Mesh& _Mesh = TE_INSTANCE_MODELMANAGER->GetPrimitiveMeshInstances().Sphere.GetMesh();
+				Render(&_Mesh, Math::Multiply(_ScaleTransform, Math::ToXM(_Transform)), float4{0.8, 1.0, 0.0f, 1.0f});
 
-				Render(&_Mesh, _Transform);
+				_EstRadius = _LightPoint->GetAttenuationEndRadius();
+				_ScaleTransform = Math::XMTransformMatrixScale(Math::ToXM(float3{ _EstRadius,_EstRadius ,_EstRadius }));
+				Render(&_Mesh, Math::Multiply(_ScaleTransform, Math::ToXM(_Transform)), float4{1.0, 0.7, 0.0f, 1.0f});
 			}
+		}*/
+
+		const Camera* _Camera = GetActiveScene()->GetActiveCamera();
+		XMMatrix _XMViewProj = Math::ToXM(_Camera->GetViewProj());
+
+		for (auto& _QueueItem : m_Queue)
+		{
+
+			auto _CBData = m_ConstantBuffer->GetData();
+
+			*_CBData = ConstantBufferData_Wireframe(Math::Multiply(Math::ToXM(_QueueItem.Transform), _XMViewProj), _QueueItem.Color);
+
+			m_RendererCommand.SetDirectConstantGraphics(m_ConstantBuffer);
+
+			m_RendererCommand.DrawIndexed(_QueueItem.Mesh);
 		}
+
+		m_Queue.clear();
 
 	}
 
-	void RenderPass_Wireframe::Render(const Mesh* _Mesh, const float4x4A& _Transform)
+	void RenderPass_Wireframe::Queue(const RenderPass_Wireframe::QueueItem& _QueueItem)
 	{
-		m_RendererCommand.ExecutePendingCommands();
-
-		auto _Camera = GetActiveScene()->GetActiveCamera();
-
-		auto _CBData = m_ConstantBuffer->GetData();
-
-		_CBData->WVP = Math::Multiply(_Transform, _Camera->GetViewProj());
-
-		m_RendererCommand.SetDirectConstantGraphics(m_ConstantBuffer);
-
-		m_RendererCommand.DrawIndexed(_Mesh);
+		m_Queue.push_back(_QueueItem);
 	}
 
 	void RenderPass_Wireframe::InitRendererCommand()

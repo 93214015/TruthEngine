@@ -73,9 +73,8 @@ namespace TruthEngine
 			const float3& _Strength,
 			float StrengthMultiplier,
 			const bool _IsCastShadow,
-			const float _AttenuationConstant,
-			const float _AttenuationLinear,
-			const float _AttenuationQuadrant
+			float _AttenuationStartRadius,
+			float _AttenuationEndRadius
 		);
 
 

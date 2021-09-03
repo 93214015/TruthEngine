@@ -68,8 +68,8 @@ namespace TruthEngine
 
 	struct PointLightData
 	{
-		PointLightData(const float3& _Position, float _LightSize, const float3& _Strength, float _StrengthMultiplier, bool _CastShadow, float _AttenuationConstant, float _AttenuationLinear, float _AttenuationQuadrant)
-			: Position(_Position), LightSize(_LightSize), Strength(_Strength), StrengthMultiplier(_StrengthMultiplier), CastShadow(static_cast<uint32_t>(_CastShadow)), AttenuationConstant(_AttenuationConstant), AttenuationLinear(_AttenuationLinear), AttenuationQuadrant(_AttenuationQuadrant)
+		PointLightData(const float3& _Position, float _LightSize, const float3& _Strength, float _StrengthMultiplier, bool _CastShadow, float _AttenuationStartRadius, float _AttenuationEndRadius)
+			: Position(_Position), LightSize(_LightSize), Strength(_Strength), StrengthMultiplier(_StrengthMultiplier), CastShadow(static_cast<uint32_t>(_CastShadow)), AttenuationStartRadius(_AttenuationStartRadius), AttenuationEndRadius(_AttenuationEndRadius)
 		{}
 
 		float3 Position;
@@ -79,9 +79,12 @@ namespace TruthEngine
 		float StrengthMultiplier = 0.0f;
 
 		uint32_t CastShadow;
-		float AttenuationConstant;
+		float AttenuationStartRadius;
+		float AttenuationEndRadius;
+		float _pad;
+		/*float AttenuationConstant;
 		float AttenuationLinear;
-		float AttenuationQuadrant;
+		float AttenuationQuadrant;*/
 	};
 
 

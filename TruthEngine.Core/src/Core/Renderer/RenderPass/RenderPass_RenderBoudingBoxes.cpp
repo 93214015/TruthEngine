@@ -59,11 +59,10 @@ void TruthEngine::RenderPass_RenderBoundingBoxes::Render()
 	m_RendererCommand.ExecutePendingCommands();
 
 	Scene* _ActiveScene = GetActiveScene();
-	auto _ComponentView = _ActiveScene->ViewEntities<BoundingBoxComponent>();
 
 	auto _CBData = m_ConstantBufferDirect_PerBB->GetData();
 
-	for (auto _Entity : _ComponentView)
+	for (auto _Entity : m_Queue)
 	{
 		const auto& _AABB = _ActiveScene->GetComponent<BoundingBoxComponent>(_Entity).GetBoundingBox();
 
@@ -78,6 +77,13 @@ void TruthEngine::RenderPass_RenderBoundingBoxes::Render()
 
 		m_RendererCommand.Draw(1, 0);
 	}
+
+	m_Queue.clear();
+}
+
+void TruthEngine::RenderPass_RenderBoundingBoxes::Queue(Entity _Entity)
+{
+	m_Queue.push_back(_Entity);
 }
 
 void TruthEngine::RenderPass_RenderBoundingBoxes::InitTextures()

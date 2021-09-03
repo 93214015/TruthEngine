@@ -258,9 +258,14 @@ namespace TruthEngine
 		InitRenderPasses();
 	}
 
-	void RendererLayer::RenderWireframe(const Mesh* _Mesh, const float4x4A& _Transform)
+	void RendererLayer::RenderBoundingBox(Entity _Entity)
 	{
-		m_RenderPass_Wireframe->Render(_Mesh, _Transform);
+		m_RenderPass_RenderBoundingBoxes->Queue(_Entity);
+	}
+
+	void RendererLayer::RenderWireframe(const Mesh* _Mesh, const float4x4A& _Transform, const float4 _Color)
+	{
+		m_RenderPass_Wireframe->Queue({ _Transform, _Color, _Mesh });
 	}
 
 	const Viewport& RendererLayer::GetViewportScene() const
@@ -478,9 +483,11 @@ namespace TruthEngine
 					, _LightData.LightSize
 					, _LightData.Strength * _LightData.StrengthMultiplier
 					, static_cast<uint32_t>(_LightData.CastShadow)
-					, _LightData.AttenuationConstant
+					, _LightData.AttenuationStartRadius
+					, _LightData.AttenuationEndRadius
+					/*, _LightData.AttenuationConstant
 					, _LightData.AttenuationLinear
-					, _LightData.AttenuationQuadrant
+					, _LightData.AttenuationQuadrant*/
 				);
 			});
 
@@ -576,9 +583,11 @@ namespace TruthEngine
 					, _LightData.LightSize
 					, _LightData.Strength * _LightData.StrengthMultiplier
 					, static_cast<uint32_t>(_LightData.CastShadow)
-					, _LightData.AttenuationConstant
+					, _LightData.AttenuationStartRadius
+					, _LightData.AttenuationEndRadius
+					/*, _LightData.AttenuationConstant
 					, _LightData.AttenuationLinear
-					, _LightData.AttenuationQuadrant
+					, _LightData.AttenuationQuadrant*/
 				);
 			}
 			);

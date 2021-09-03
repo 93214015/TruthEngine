@@ -90,8 +90,9 @@ namespace TruthEngine
 
 		void SetHDR(bool _EnableHDR);
 
-		void RenderWireframe(const Mesh* _Mesh, const float4x4A& _Transform);
+		void RenderBoundingBox(Entity _Entity);
 
+		void RenderWireframe(const Mesh* _Mesh, const float4x4A& _Transform, const float4 _Color);
 
 		const Viewport& GetViewportScene() const;
 		const ViewRect& GetViewRectScene() const;

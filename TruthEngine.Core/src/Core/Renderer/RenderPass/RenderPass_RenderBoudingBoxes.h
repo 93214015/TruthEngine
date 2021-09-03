@@ -5,6 +5,7 @@
 #include "Core/Renderer/BufferManager.h"
 #include "Core/Renderer/VertexBuffer.h"
 #include "Core/Renderer/Pipeline.h"
+#include "Core/Entity/Entity.h"
 
 
 namespace TruthEngine
@@ -38,6 +39,9 @@ namespace TruthEngine
 		void Render() override;
 
 
+		void Queue(Entity _Entity);
+
+
 	private:
 		void InitTextures();
 		void InitBuffers();
@@ -69,6 +73,8 @@ namespace TruthEngine
 		};
 
 		ConstantBufferDirect<ConstantBuffer_Data_PerBoundingBox>* m_ConstantBufferDirect_PerBB;
+
+		std::vector<Entity> m_Queue;
 	};
 
 }

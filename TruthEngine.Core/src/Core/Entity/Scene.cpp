@@ -243,12 +243,12 @@ namespace TruthEngine
 		, const float3& _Strength
 		, float _StrengthMultiplier
 		, const bool _IsCastShadow
-		, const float _AttenuationConstant
-		, const float _AttenuationLinear
-		, const float _AttenuationQuadrant)
+		, float _AttenuationStartRadius
+		, float _AttenuationEndRadius
+	)
 	{
 		LightPoint* _Light = m_LightManager->AddLightPoint(
-			_Name, _Position, _LightSize, _Strength, _StrengthMultiplier, _IsCastShadow, _AttenuationConstant, _AttenuationLinear, _AttenuationQuadrant
+			_Name, _Position, _LightSize, _Strength, _StrengthMultiplier, _IsCastShadow, _AttenuationStartRadius, _AttenuationEndRadius
 		);
 
 		auto entityLight = AddEntity(_Name.data());

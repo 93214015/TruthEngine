@@ -119,8 +119,8 @@ namespace TruthEngine {
 	struct alignas(16) ConstantBuffer_Struct_PointLight
 	{
 		ConstantBuffer_Struct_PointLight() = default;
-		ConstantBuffer_Struct_PointLight(const float3& _Position, float _LightSize, const float3& _Strength, bool _CastShadow, float _AttenuationConstant, float _AttenuationLinear, float _AttenuationQuadrant)
-			: Position(_Position), LightSize(_LightSize), Strength(_Strength), CastShadow(static_cast<uint32_t>(_CastShadow)), AttenuationConstant(_AttenuationConstant), AttenuationLinear(_AttenuationLinear), AttenuationQuadrant(_AttenuationQuadrant)
+		ConstantBuffer_Struct_PointLight(const float3& _Position, float _LightSize, const float3& _Strength, bool _CastShadow, float _AttenuationStartRadius, float _AttenuationEndRadius)
+			: Position(_Position), LightSize(_LightSize), Strength(_Strength), CastShadow(static_cast<uint32_t>(_CastShadow)), AttenuationStartRadius(_AttenuationStartRadius), AttenuationEndRadius(_AttenuationEndRadius)
 		{}
 
 		float3 Position;
@@ -129,10 +129,14 @@ namespace TruthEngine {
 		float3 Strength;
 		uint32_t CastShadow;
 
-		float AttenuationConstant;
+		float AttenuationStartRadius;
+		float AttenuationEndRadius;
+		float2 _pad = float2{0.0f, 0.0f};
+
+		/*float AttenuationConstant;
 		float AttenuationLinear;
 		float AttenuationQuadrant;
-		float _Pad;
+		float _Pad;*/
 	};
 
 	struct alignas(16) ConstantBuffer_Data_LightData

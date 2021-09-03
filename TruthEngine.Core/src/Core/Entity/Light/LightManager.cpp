@@ -121,11 +121,11 @@ namespace TruthEngine
 		return slight;
 	}
 
-	LightPoint* LightManager::AddLightPoint(std::string_view _Name, const float3& _Position, float _LightSize, const float3& _Strength, float _StrengthMultiplier, bool _CastShadow, float _AttenuationConstant, float _AttenuationLinear, float _AttenuationQuadrant)
+	LightPoint* LightManager::AddLightPoint(std::string_view _Name, const float3& _Position, float _LightSize, const float3& _Strength, float _StrengthMultiplier, bool _CastShadow, float _AttenuationStartRadius, float _AttenuationEndRadius)
 	{
 		uint32_t _id = m_Map_Lights.size();
 
-		auto _PointLight = &m_LightsPoint.emplace_back(_id, _Name.data(), _Position, _LightSize, _Strength, _StrengthMultiplier, _CastShadow, _AttenuationConstant, _AttenuationLinear, _AttenuationQuadrant);
+		auto _PointLight = &m_LightsPoint.emplace_back(_id, _Name.data(), _Position, _LightSize, _Strength, _StrengthMultiplier, _CastShadow, _AttenuationStartRadius, _AttenuationEndRadius);
 		m_Map_Lights[_id] = _PointLight;
 		m_Map_LightsName[_Name] = _PointLight;
 				

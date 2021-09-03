@@ -1,6 +1,7 @@
 cbuffer CBPerObject_Wireframe : register(b0)
 {
     row_major matrix gWVP;
+    float4 gColor;
 };
 
 struct VertexInput
@@ -16,5 +17,5 @@ float4 vs( VertexInput _Input) : SV_POSITION
 
 float4 ps(float4 Position : SV_Position) : SV_Target
 {
-    return float4(1.0f, 0.8f, 0.0f, 1.0f);
+    return gColor;
 }

@@ -105,6 +105,10 @@ namespace TruthEngine
 		{
 			DrawPhysicComponent();
 		}
+		if (m_Context.HasComponent<BoundingBoxComponent>())
+		{
+			RenderBoundignBox();
+		}
 	}
 
 
@@ -904,26 +908,35 @@ namespace TruthEngine
 					{
 						LightPoint* _PLight = static_cast<LightPoint*>(light);
 
-						ImGui::Text("Attenuation Constant: ");
-						float _AttenuationConstant = _PLight->GetAttuantionConstant();
-						if (ImGui::DragFloat("##PointLightAttenuationConstant", &_AttenuationConstant, 0.0001f))
+						ImGui::Text("Attenuation Start Radius: ");
+						float _AttenuationStartRadius = _PLight->GetAttenuationStartRadius();
+						if (ImGui::DragFloat("##PointLightAttenuationConstant", &_AttenuationStartRadius, 0.01f))
 						{
-							_PLight->SetAttenuationConstant(_AttenuationConstant);
+							_PLight->SetAttenuationStartRadius(_AttenuationStartRadius);
 						}
 
-						ImGui::Text("Attenuation Linear: ");
-						float _AttenuationLinear = _PLight->GetAttenuationLinear();
-						if (ImGui::DragFloat("##PointLightAttenuationLinear", &_AttenuationLinear, 0.0001f))
+						ImGui::Text("Attenuation End Radius: ");
+						float _AttenuationEndRadius = _PLight->GetAttenuationEndRadius();
+						if (ImGui::DragFloat("##PointLightAttenuationLinear", &_AttenuationEndRadius, 0.01f))
 						{
-							_PLight->SetAttenuationLinear(_AttenuationLinear);
+							_PLight->SetAttenuationEndRadius(_AttenuationEndRadius);
 						}
 
-						ImGui::Text("Attenuation Quadrant: ");
-						float _AttenuationQuadrant = _PLight->GetAttenuationQuadrant();
-						if (ImGui::DragFloat("##PointLightAttenuationQuadrant", &_AttenuationQuadrant, 0.0001f))
-						{
-							_PLight->SetAttenuationQuadrant(_AttenuationQuadrant);
-						}
+
+						/*
+						* Render Point Light Volumes
+						*/
+
+						float4x4A _Transform = GetActiveScene()->GetComponent<TransformComponent>(m_Context).GetTransform();
+
+						float _EstRadius = _PLight->GetAttenuationStartRadius();
+						XMMatrix _ScaleTransform = Math::XMTransformMatrixScale(Math::ToXM(float3{ _EstRadius,_EstRadius ,_EstRadius }));
+						const Mesh& _Mesh = TE_INSTANCE_MODELMANAGER->GetPrimitiveMeshInstances().Sphere.GetMesh();
+						m_App->GetRendererLayer()->RenderWireframe(&_Mesh, Math::Multiply(_ScaleTransform, Math::ToXM(_Transform)), float4{ 0.8, 1.0, 0.0f, 1.0f });
+
+						_EstRadius = _PLight->GetAttenuationEndRadius();
+						_ScaleTransform = Math::XMTransformMatrixScale(Math::ToXM(float3{ _EstRadius,_EstRadius ,_EstRadius }));
+						m_App->GetRendererLayer()->RenderWireframe(&_Mesh, Math::Multiply(_ScaleTransform, Math::ToXM(_Transform)), float4{ 1.0, 0.7, 0.0f, 1.0f });
 
 						break;
 					}
@@ -931,6 +944,11 @@ namespace TruthEngine
 
 				}
 			});
+	}
+
+	void EntityPropertyPanel::RenderBoundignBox()
+	{
+		m_App->GetRendererLayer()->RenderBoundingBox(m_Context);
 	}
 
 
