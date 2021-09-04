@@ -195,59 +195,6 @@ void TruthEngine::RenderPass_PostProcessing_HDR::InitBuffers()
 
 void TruthEngine::RenderPass_PostProcessing_HDR::InitPipelines()
 {
-}
-
-void TruthEngine::RenderPass_PostProcessing_HDR::ReleaseRendererCommand()
-{
-	mRendererCommand_DownScaling_FirstPass.Release();
-	mRendererCommand_DownScaling_SecondPass.Release();
-	mRendererCommand_BloomPass.Release();
-	mRendererCommand_BlurPassHorz.Release();
-	mRendererCommand_BlurPassVert.Release();
-	mRendererCommand_FinalPass.Release();
-
-}
-
-void TruthEngine::RenderPass_PostProcessing_HDR::ReleaseTextures()
-{
-	mRendererCommand_FinalPass.ReleaseResource(mRWTextureDownScaledHDR);
-	mRendererCommand_FinalPass.ReleaseResource(mRWTextureBloom);
-	mRendererCommand_FinalPass.ReleaseResource(mRWTextureBluredBloom);
-	mRendererCommand_FinalPass.ReleaseResource(mRWTextureBluredBloomHorz);
-
-}
-
-void TruthEngine::RenderPass_PostProcessing_HDR::ReleaseBuffers()
-{
-	mRendererCommand_DownScaling_FirstPass.ReleaseResource(mConstantBufferDownScaling);
-	mRendererCommand_DownScaling_FirstPass.ReleaseResource(mConstantBufferFinalPass);
-	mRendererCommand_DownScaling_FirstPass.ReleaseResource(mBufferRWAverageLumFirstPass);
-	mRendererCommand_DownScaling_FirstPass.ReleaseResource(mBufferRWAverageLumSecondPass0);
-	mRendererCommand_DownScaling_FirstPass.ReleaseResource(mBufferRWAverageLumSecondPass1);
-}
-
-void TruthEngine::RenderPass_PostProcessing_HDR::ReleasePipelines()
-{
-}
-
-void TruthEngine::RenderPass_PostProcessing_HDR::RegisterEventListeners()
-{
-
-	auto _Lambda_OnTextureResize = [this](Event& _Event)
-	{
-		this->OnRendererViewportResize(static_cast<EventRendererViewportResize&>(_Event));
-	};
-
-	m_EventListenerList.push_back(TE_INSTANCE_APPLICATION->RegisterEventListener(EventType::RendererViewportResize, _Lambda_OnTextureResize));
-}
-
-void TruthEngine::RenderPass_PostProcessing_HDR::UnRegisterEventListeners()
-{
-	TE_INSTANCE_APPLICATION->UnRegisterEventListener(m_EventListenerList.data(), m_EventListenerList.size());
-}
-
-void TruthEngine::RenderPass_PostProcessing_HDR::InitPipelines()
-{
 
 	RendererStateSet _RendererStates = InitRenderStates(
 		TE_RENDERER_STATE_ENABLED_SHADER_HS_FALSE,
@@ -308,6 +255,56 @@ void TruthEngine::RenderPass_PostProcessing_HDR::InitPipelines()
 	PipelineGraphics::Factory(&mPipelineFinalPass, _RendererStates, _Shader, _countof(_RTVFormat), _RTVFormat, TE_RESOURCE_FORMAT::UNKNOWN, false);
 
 }
+
+void TruthEngine::RenderPass_PostProcessing_HDR::ReleaseRendererCommand()
+{
+	mRendererCommand_DownScaling_FirstPass.Release();
+	mRendererCommand_DownScaling_SecondPass.Release();
+	mRendererCommand_BloomPass.Release();
+	mRendererCommand_BlurPassHorz.Release();
+	mRendererCommand_BlurPassVert.Release();
+	mRendererCommand_FinalPass.Release();
+
+}
+
+void TruthEngine::RenderPass_PostProcessing_HDR::ReleaseTextures()
+{
+	mRendererCommand_FinalPass.ReleaseResource(mRWTextureDownScaledHDR);
+	mRendererCommand_FinalPass.ReleaseResource(mRWTextureBloom);
+	mRendererCommand_FinalPass.ReleaseResource(mRWTextureBluredBloom);
+	mRendererCommand_FinalPass.ReleaseResource(mRWTextureBluredBloomHorz);
+
+}
+
+void TruthEngine::RenderPass_PostProcessing_HDR::ReleaseBuffers()
+{
+	mRendererCommand_DownScaling_FirstPass.ReleaseResource(mConstantBufferDownScaling);
+	mRendererCommand_DownScaling_FirstPass.ReleaseResource(mConstantBufferFinalPass);
+	mRendererCommand_DownScaling_FirstPass.ReleaseResource(mBufferRWAverageLumFirstPass);
+	mRendererCommand_DownScaling_FirstPass.ReleaseResource(mBufferRWAverageLumSecondPass0);
+	mRendererCommand_DownScaling_FirstPass.ReleaseResource(mBufferRWAverageLumSecondPass1);
+}
+
+void TruthEngine::RenderPass_PostProcessing_HDR::ReleasePipelines()
+{
+}
+
+void TruthEngine::RenderPass_PostProcessing_HDR::RegisterEventListeners()
+{
+
+	auto _Lambda_OnTextureResize = [this](Event& _Event)
+	{
+		this->OnRendererViewportResize(static_cast<EventRendererViewportResize&>(_Event));
+	};
+
+	m_EventListenerList.push_back(TE_INSTANCE_APPLICATION->RegisterEventListener(EventType::RendererViewportResize, _Lambda_OnTextureResize));
+}
+
+void TruthEngine::RenderPass_PostProcessing_HDR::UnRegisterEventListeners()
+{
+	TE_INSTANCE_APPLICATION->UnRegisterEventListener(m_EventListenerList.data(), m_EventListenerList.size());
+}
+
 
 void TruthEngine::RenderPass_PostProcessing_HDR::ResizedViewport(uint32_t _Width, uint32_t Height)
 {

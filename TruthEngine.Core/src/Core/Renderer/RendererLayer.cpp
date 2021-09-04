@@ -337,7 +337,7 @@ namespace TruthEngine
 
 	TE_RESOURCE_FORMAT RendererLayer::GetFormatRenderTargetScene() const
 	{
-		return m_SceneRenderTargetFormat;
+		return m_SceneRenderTargetFormatCurrent;
 	}
 
 	TE_RESOURCE_FORMAT RendererLayer::GetFormatRenderTargetSceneHDR() const

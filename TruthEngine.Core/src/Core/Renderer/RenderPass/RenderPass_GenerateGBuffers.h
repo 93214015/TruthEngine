@@ -16,8 +16,6 @@ namespace TruthEngine
 		RenderPass_GenerateGBuffers(class RendererLayer* _RendererLayer);
 
 		// Inherited via RenderPass
-		void OnAttach() override;
-		void OnDetach() override;
 		void OnImGuiRender() override;
 		void OnUpdate(double _DeltaTime) override;
 		void BeginScene() override;

@@ -13,9 +13,6 @@ namespace TruthEngine
 	public:
 		RenderPass_GenerateCubeMap(RendererLayer* _RendererLayer);
 
-		void OnAttach() override;
-		void OnDetach() override;
-
 		void OnImGuiRender() override;
 		void OnUpdate(double _DeltaTime) override;
 

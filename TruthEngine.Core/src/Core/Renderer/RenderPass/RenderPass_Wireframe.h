@@ -14,9 +14,6 @@ namespace TruthEngine
 		RenderPass_Wireframe(class RendererLayer* _RendererLayer);
 
 		// Inherited via RenderPass
-		void OnAttach() override;
-
-		void OnDetach() override;
 
 		void OnImGuiRender() override;
 

@@ -211,9 +211,6 @@ namespace TruthEngine
 		TE_INSTANCE_APPLICATION->UnRegisterEventListener(m_EventListenerList.data(), m_EventListenerList.size());
 	}
 
-	void RenderPass_GenerateSSAO::ReleasePipelines()
-	{
-	}
 
 	void RenderPass_GenerateSSAO::OnEventRendererViewportResize(const EventRendererViewportResize& _Event)
 	{
