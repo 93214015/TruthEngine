@@ -232,10 +232,10 @@ namespace TruthEngine
 			return m_PipelineBlendMode;
 		}
 
-		static void Factory(PipelineGraphics* _outPipeline, RendererStateSet states, Shader* shader, uint32_t renderTargetNum, TE_RESOURCE_FORMAT* rtvFormat, TE_RESOURCE_FORMAT dsvFormat, bool enableMSAA, const PipelineBlendMode& pipelineBlendMode = PipelineBlendMode(), float depthBias = 0.0f, float depthBiasClamp = 0.0f, float slopeScaledDepthBias = 0.0f);
+		static void Factory(PipelineGraphics* _outPipeline, RendererStateSet states, Shader* shader, uint32_t renderTargetNum, const TE_RESOURCE_FORMAT* rtvFormat, TE_RESOURCE_FORMAT dsvFormat, bool enableMSAA, const PipelineBlendMode& pipelineBlendMode = PipelineBlendMode(), float depthBias = 0.0f, float depthBiasClamp = 0.0f, float slopeScaledDepthBias = 0.0f);
 
 	private:
-		PipelineGraphics(uint32_t ID, std::string_view _Name, RendererStateSet states, Shader* shader, uint32_t renderTargetNum, TE_RESOURCE_FORMAT* rtvFormat, TE_RESOURCE_FORMAT dsvFormat, bool enableMSAA, const PipelineBlendMode& pipelineBlendMode, float depthBias = 0.0f, float depthBiasClamp = 0.0f, float slopeScaledDepthBias = 0.0f);
+		PipelineGraphics(uint32_t ID, std::string_view _Name, RendererStateSet states, Shader* shader, uint32_t renderTargetNum, const TE_RESOURCE_FORMAT* rtvFormat, TE_RESOURCE_FORMAT dsvFormat, bool enableMSAA, const PipelineBlendMode& pipelineBlendMode, float depthBias = 0.0f, float depthBiasClamp = 0.0f, float slopeScaledDepthBias = 0.0f);
 
 	private:
 		uint32_t m_ID = -1;

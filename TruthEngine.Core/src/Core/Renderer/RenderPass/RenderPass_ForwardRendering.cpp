@@ -24,47 +24,12 @@ namespace TruthEngine
 	RenderPass_ForwardRendering::RenderPass_ForwardRendering(RendererLayer* _RendererLayer)
 		: RenderPass(TE_IDX_RENDERPASS::FORWARDRENDERING, _RendererLayer)
 		, m_TextureDepthStencil(nullptr)
-		, m_Viewport{ 0.0f, 0.0f, static_cast<float>(TE_INSTANCE_APPLICATION->GetClientWidth()), static_cast<float>(TE_INSTANCE_APPLICATION->GetClientHeight()), 0.0f, 1.0f }
-		, m_ViewRect{ static_cast<long>(0), static_cast<long>(0), static_cast<long>(TE_INSTANCE_APPLICATION->GetClientWidth()), static_cast<long>(TE_INSTANCE_APPLICATION->GetClientHeight()) }
 		, m_ConstantBufferDirect_PerMesh(nullptr)
-		, m_MaterialManager(MaterialManager::GetInstance())
 	{
 		//At the moment I've used vector as a container and referece to its element by pointers other places.
 		// so, for prevent from pointers being invalidated in case of vector relocations, I reserve vector space beforehand(the simplest and probably temporary solution).
 		m_ContainerPipelines.reserve(1000);
 	};
-
-
-	void RenderPass_ForwardRendering::OnAttach()
-	{
-		m_BufferMgr = TE_INSTANCE_BUFFERMANAGER;
-
-		m_ShaderMgr = TE_INSTANCE_SHADERMANAGER;
-
-		m_RendererCommand.Init(TE_IDX_RENDERPASS::FORWARDRENDERING, TE_IDX_SHADERCLASS::FORWARDRENDERING, m_BufferMgr, m_ShaderMgr);
-		m_RendererCommand_ResolveTextures.Init(TE_IDX_RENDERPASS::FORWARDRENDERING, TE_IDX_SHADERCLASS::NONE, m_BufferMgr, m_ShaderMgr);
-
-		InitTextures();
-		InitBuffers();
-
-
-		for (const auto* mat : m_MaterialManager->GetMaterials())
-		{
-			PreparePiplineMaterial(mat);
-		}
-
-		PreparePiplineEnvironment();
-
-		RegisterOnEvents();
-	}
-
-	void RenderPass_ForwardRendering::OnDetach()
-	{
-		m_MaterialPipelines.clear();
-		m_ContainerPipelines.clear();
-
-		m_RendererCommand.Release();
-	}
 
 	void RenderPass_ForwardRendering::OnImGuiRender()
 	{
@@ -110,7 +75,7 @@ namespace TruthEngine
 		m_RendererCommand.BeginGraphics();
 		m_RendererCommand_ResolveTextures.BeginGraphics();
 
-		m_RendererCommand.SetViewPort(&m_Viewport, &m_ViewRect);
+		m_RendererCommand.SetViewPort(&m_RendererLayer->GetViewportScene(), &m_RendererLayer->GetViewRectScene());
 		//m_RendererCommand.SetRenderTarget(TE_INSTANCE_SWAPCHAIN, m_RenderTartgetView);
 		m_RendererCommand.SetRenderTarget(m_RenderTartgetView);
 		m_RendererCommand.SetDepthStencil(m_DepthStencilView);
@@ -205,7 +170,7 @@ namespace TruthEngine
 		m_TimerRender.End();
 	}
 
-	void RenderPass_ForwardRendering::PreparePiplineMaterial(const Material* material)
+	void RenderPass_ForwardRendering::InitPipelines(const Material* material)
 	{
 		Shader* shader = nullptr;
 
@@ -241,7 +206,7 @@ namespace TruthEngine
 
 		const char* _ShaderFilePath = _LambdaGetShaderAddress();
 
-		auto result = m_ShaderMgr->AddShader(&shader, TE_IDX_SHADERCLASS::FORWARDRENDERING, material->GetMeshType(), _RendererState, _ShaderFilePath, "vs", "ps");
+		auto result = TE_INSTANCE_SHADERMANAGER->AddShader(&shader, TE_IDX_SHADERCLASS::FORWARDRENDERING, material->GetMeshType(), _RendererState, _ShaderFilePath, "vs", "ps");
 
 		PipelineGraphics* _Pipeline = nullptr;
 
@@ -262,7 +227,7 @@ namespace TruthEngine
 
 	}
 
-	void RenderPass_ForwardRendering::PreparePiplineEnvironment()
+	void RenderPass_ForwardRendering::InitPipelines_Environment()
 	{
 		std::string shaderName = std::string("renderer3D_EnvironmentCube");
 
@@ -283,12 +248,12 @@ namespace TruthEngine
 			rtvFormats[0] = TE_RESOURCE_FORMAT::R8G8B8A8_UNORM;
 		}
 
-		auto result = m_ShaderMgr->AddShader(&shader, TE_IDX_SHADERCLASS::RENDERENVIRONMENTMAP, TE_IDX_MESH_TYPE::MESH_NTT, states, "Assets/Shaders/RenderEnvironmentCube.hlsl", "vs", "ps");
+		auto result = TE_INSTANCE_SHADERMANAGER->AddShader(&shader, TE_IDX_SHADERCLASS::RENDERENVIRONMENTMAP, TE_IDX_MESH_TYPE::MESH_NTT, states, "Assets/Shaders/RenderEnvironmentCube.hlsl", "vs", "ps");
 
 		PipelineGraphics::Factory(&m_PipelineEnvironmentCube, states, shader, 1, rtvFormats, TE_RESOURCE_FORMAT::D32_FLOAT, true);
 	}
 
-	void RenderPass_ForwardRendering::RegisterOnEvents()
+	void RenderPass_ForwardRendering::RegisterEventListeners()
 	{
 		auto lambda_OnAddMaterial = [this](Event& event) {
 			this->OnAddMaterial(static_cast<EventEntityAddMaterial&>(event));
@@ -307,6 +272,10 @@ namespace TruthEngine
 		};
 		TE_INSTANCE_APPLICATION->RegisterEventListener(EventType::RendererViewportResize, lambda_OnSceneViewportResize);
 
+	}
+
+	void RenderPass_ForwardRendering::UnRegisterEventListeners()
+	{
 	}
 
 	void RenderPass_ForwardRendering::OnRendererViewportResize(const EventRendererViewportResize& _Event)
@@ -342,14 +311,11 @@ namespace TruthEngine
 			m_RendererCommand.CreateDepthStencilView(m_TextureDepthStencil, &m_DepthStencilView);
 		}
 
-
-		m_Viewport.Resize(width, height);
-		m_ViewRect = ViewRect{ 0, 0, static_cast<long>(width), static_cast<long>(height) };
 	}
 
 	void RenderPass_ForwardRendering::OnAddMaterial(EventEntityAddMaterial& event)
 	{
-		PreparePiplineMaterial(event.GetMaterial());
+		InitPipelines(event.GetMaterial());
 	}
 
 	void RenderPass_ForwardRendering::OnUpdateMaterial(const EventEntityUpdateMaterial& event)
@@ -363,7 +329,13 @@ namespace TruthEngine
 				return;
 		}
 
-		PreparePiplineMaterial(event.GetMaterial());
+		InitPipelines(event.GetMaterial());
+	}
+
+	void RenderPass_ForwardRendering::InitRendererCommand()
+	{
+		m_RendererCommand.Init(TE_IDX_RENDERPASS::FORWARDRENDERING, TE_IDX_SHADERCLASS::FORWARDRENDERING);
+		m_RendererCommand_ResolveTextures.Init(TE_IDX_RENDERPASS::FORWARDRENDERING, TE_IDX_SHADERCLASS::NONE);
 	}
 
 	void RenderPass_ForwardRendering::InitTextures()
@@ -423,7 +395,38 @@ namespace TruthEngine
 		m_ConstantBufferDirect_PerMesh = m_RendererCommand.CreateConstantBufferDirect<ConstantBuffer_Data_Per_Mesh>(TE_IDX_GRESOURCES::Constant_PerMesh);
 
 		//this constant buffer is created by RendererLayer
-		m_ConstantBufferDirect_EnvironmentMap = static_cast<ConstantBufferDirect<ConstantBuffer_Data_EnvironmentMap>*>(m_BufferMgr->GetConstantBufferDirect(TE_IDX_GRESOURCES::Constant_EnvironmentMap));
+		m_ConstantBufferDirect_EnvironmentMap = static_cast<ConstantBufferDirect<ConstantBuffer_Data_EnvironmentMap>*>(TE_INSTANCE_BUFFERMANAGER->GetConstantBufferDirect(TE_IDX_GRESOURCES::Constant_EnvironmentMap));
+	}
+
+	void RenderPass_ForwardRendering::InitPipelines()
+	{
+		for (const auto* mat : TE_INSTANCE_MATERIALMANAGER->GetMaterials())
+		{
+			InitPipelines(mat);
+		}
+
+		InitPipelines_Environment();
+
+	}
+
+	void RenderPass_ForwardRendering::ReleaseRendererCommand()
+	{
+		m_RendererCommand.Release();
+		m_RendererCommand_ResolveTextures.Release();
+	}
+
+	void RenderPass_ForwardRendering::ReleaseTextures()
+	{
+	}
+
+	void RenderPass_ForwardRendering::ReleaseBuffers()
+	{
+	}
+
+	void RenderPass_ForwardRendering::ReleasePipelines()
+	{
+		m_MaterialPipelines.clear();
+		m_ContainerPipelines.clear();
 	}
 
 

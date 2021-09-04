@@ -94,8 +94,19 @@ namespace TruthEngine
 
 		void RenderWireframe(const Mesh* _Mesh, const float4x4A& _Transform, const float4 _Color);
 
+		const RenderTargetView& GetRenderTargetViewBackBuffer() const;
+		const RenderTargetView& GetRenderTargetViewScene() const;
+		const RenderTargetView& GetRenderTargetViewSceneNoMS() const;
+		const RenderTargetView& GetRenderTargetViewSceneNoHDR() const;
+		const RenderTargetView& GetRenderTargetViewSceneLDR() const;
+		const RenderTargetView& GetRenderTargetViewSceneHDR() const;
+		const DepthStencilView& GetDepthStencilViewScene() const;
+		const DepthStencilView& GetDepthStencilViewSceneNoMS() const;
+
 		const Viewport& GetViewportScene() const;
 		const ViewRect& GetViewRectScene() const;
+		TE_RESOURCE_FORMAT GetDepthStencilFormatScene() const;
+		TE_RESOURCE_FORMAT GetRenderTargetFormatScene() const;
 
 	private:
 		void RegisterEvents();
@@ -121,7 +132,6 @@ namespace TruthEngine
 		RendererCommand m_RendererCommand;
 		RendererCommand m_RendererCommand_BackBuffer;
 
-
 		RenderPassStack m_RenderPassStack;
 
 		std::shared_ptr<ImGuiLayer> m_ImGuiLayer;
@@ -145,8 +155,11 @@ namespace TruthEngine
 
 		std::vector<const Model3D*> m_Model3DQueue;
 
-		RenderTargetView m_RTVBackBuffer, m_RTVSceneBuffer, m_RTVSceneBufferHDR;
-		DepthStencilView m_DSVSceneBuffer;
+		RenderTargetView *m_RTVSceneCurrent, * m_RTVSceneCurrentNoMS, * m_RTVSceneCurrentNoHDR, m_RTVBackBuffer, m_RTVSceneBuffer, m_RTVSceneBufferMS, m_RTVSceneBufferHDR, m_RTVSceneBufferHDRMS;
+		DepthStencilView m_DSVSceneBuffer, m_DSVSceneBufferMS;
+
+		TE_RESOURCE_FORMAT m_SceneDepthStencilFormat;
+		TE_RESOURCE_FORMAT m_SceneRenderTargetFormat;
 
 		ConstantBufferUpload<ConstantBuffer_Data_Per_Frame>* m_CB_PerFrame;
 		ConstantBufferUpload<ConstantBuffer_Data_LightData>* m_CB_LightData;

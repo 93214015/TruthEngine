@@ -17,8 +17,8 @@ namespace TruthEngine
 		RenderPass(RenderPass&&) noexcept = default;
 		RenderPass& operator=(RenderPass&&) noexcept = default;
 
-		virtual void OnAttach() = 0;
-		virtual void OnDetach() = 0;
+		virtual void OnAttach();
+		virtual void OnDetach();
 		virtual void OnImGuiRender() = 0;
 		virtual void OnUpdate(double _DeltaTime) = 0;
 
@@ -27,6 +27,20 @@ namespace TruthEngine
 		virtual void Render() = 0;
 
 	protected:
+
+		virtual void InitRendererCommand() = 0;
+		virtual void InitTextures() = 0;
+		virtual void InitBuffers() = 0;
+		virtual void InitPipelines() = 0;
+
+		virtual void ReleaseRendererCommand() = 0;
+		virtual void ReleaseTextures() = 0;
+		virtual void ReleaseBuffers() = 0;
+		virtual void ReleasePipelines() = 0;
+
+
+		virtual void RegisterEventListeners() = 0;
+		virtual void UnRegisterEventListeners() = 0;
 
 	protected:
 		TE_IDX_RENDERPASS m_RenderPassIDX = TE_IDX_RENDERPASS::NONE;

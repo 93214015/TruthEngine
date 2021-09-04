@@ -11,30 +11,8 @@ namespace TruthEngine
 {
 	RenderPass_DeferredShading::RenderPass_DeferredShading(RendererLayer* _RendererLayer)
 		: RenderPass(TE_IDX_RENDERPASS::DEFERREDSHADING, _RendererLayer)
-		, m_Viewport(.0f, .0f, static_cast<float>(TE_INSTANCE_APPLICATION->GetClientWidth()), static_cast<float>(TE_INSTANCE_APPLICATION->GetClientHeight()), .0f, 1.0f)
-		, m_ViewRect(0l, 0l, static_cast<long>(TE_INSTANCE_APPLICATION->GetClientWidth()), static_cast<long>(TE_INSTANCE_APPLICATION->GetClientHeight()))
 	{}
 
-	void RenderPass_DeferredShading::OnAttach()
-	{
-		m_RendererCommand.Init(
-			TE_IDX_RENDERPASS::DEFERREDSHADING,
-			TE_IDX_SHADERCLASS::DEFERREDSHADING,
-			TE_INSTANCE_BUFFERMANAGER,
-			TE_INSTANCE_SHADERMANAGER);
-
-		InitTexture();
-		//InitBuffer(); no buffer is created
-
-		RegisterEvents();
-
-		PreparePipeline();
-
-	}
-	void RenderPass_DeferredShading::OnDetach()
-	{
-		m_RendererCommand.Release();
-	}
 	void RenderPass_DeferredShading::OnImGuiRender()
 	{
 	}
@@ -45,8 +23,8 @@ namespace TruthEngine
 	{
 		m_RendererCommand.BeginGraphics(&m_Pipeline);
 
-		m_RendererCommand.SetViewPort(&m_Viewport, &m_ViewRect);
-		m_RendererCommand.SetRenderTarget(m_RTVSceneBuffer);
+		m_RendererCommand.SetViewPort(&m_RendererLayer->GetViewportScene(), &m_RendererLayer->GetViewRectScene());
+		m_RendererCommand.SetRenderTarget(m_RendererLayer->GetRenderTargetViewScene());
 		
 	}
 	void RenderPass_DeferredShading::EndScene()
@@ -59,21 +37,34 @@ namespace TruthEngine
 
 		m_RendererCommand.Draw(4, 0);
 	}
-	void RenderPass_DeferredShading::InitTexture()
+	void RenderPass_DeferredShading::InitRendererCommand()
 	{
-		TE_IDX_GRESOURCES _RT_IDX = TE_IDX_GRESOURCES::Texture_RT_SceneBuffer;
-
-		if (m_RendererLayer->IsEnabledHDR())
-		{
-			_RT_IDX = TE_IDX_GRESOURCES::Texture_RT_SceneBufferHDR;
-		}
-
-		m_RendererCommand.CreateRenderTargetView(_RT_IDX, &m_RTVSceneBuffer);
+		m_RendererCommand.Init(
+			TE_IDX_RENDERPASS::DEFERREDSHADING,
+			TE_IDX_SHADERCLASS::DEFERREDSHADING,
+			TE_INSTANCE_BUFFERMANAGER,
+			TE_INSTANCE_SHADERMANAGER);
 	}
-	void RenderPass_DeferredShading::InitBuffer()
+	void RenderPass_DeferredShading::InitTextures()
 	{
 	}
-	void RenderPass_DeferredShading::PreparePipeline()
+	void RenderPass_DeferredShading::InitBuffers()
+	{
+	}
+	void RenderPass_DeferredShading::ReleaseTextures()
+	{
+	}
+	void RenderPass_DeferredShading::ReleaseBuffers()
+	{
+	}
+	void RenderPass_DeferredShading::ReleasePipelines()
+	{
+	}
+	void RenderPass_DeferredShading::ReleaseRendererCommand()
+	{
+		m_RendererCommand.Release();
+	}
+	void RenderPass_DeferredShading::InitPipelines()
 	{
 		RendererStateSet _RendererStates = InitRenderStates(
 			TE_RENDERER_STATE_ENABLED_SHADER_HS_FALSE,
@@ -95,36 +86,19 @@ namespace TruthEngine
 			TE_RENDERER_STATE_COMPARISSON_FUNC_LESS,
 			TE_RENDERER_STATE_DEPTH_WRITE_MASK_ZERO
 		);
-
-		TE_RESOURCE_FORMAT rtvFormats[] = { TE_RESOURCE_FORMAT::R8G8B8A8_UNORM };
-
-		if (m_RendererLayer->IsEnabledHDR())
-		{
-			rtvFormats[0] = TE_RESOURCE_FORMAT::R16G16B16A16_FLOAT;
-			SET_RENDERER_STATE(_RendererStates, TE_RENDERER_STATE_ENABLED_HDR, TE_RENDERER_STATE_ENABLED_HDR_TRUE);
-		}
+		_RendererStates |= RendererLayer::GetSharedRendererStates();
 
 		Shader* shader = nullptr;
 		auto result = TE_INSTANCE_SHADERMANAGER->AddShader(&shader, TE_IDX_SHADERCLASS::DEFERREDSHADING, TE_IDX_MESH_TYPE::MESH_POINT, _RendererStates, "Assets/Shaders/DeferredShadingPBR.hlsl", "vs", "ps");
 
+		TE_RESOURCE_FORMAT _RTVFormat[] = { m_RendererLayer->GetRenderTargetFormatScene() };
 
-		PipelineGraphics::Factory(&m_Pipeline, _RendererStates, shader, _countof(rtvFormats), rtvFormats, TE_RESOURCE_FORMAT::D32_FLOAT, false);
+		PipelineGraphics::Factory(&m_Pipeline, _RendererStates, shader, _countof(_RTVFormat), _RTVFormat, m_RendererLayer->GetDepthStencilFormatScene(), false);
 	}
-	void RenderPass_DeferredShading::RegisterEvents()
+	void RenderPass_DeferredShading::RegisterEventListeners()
 	{
-		auto lambda_OnSceneViewportResize = [this](Event& _Event)
-		{
-			OnSceneViewportResize(static_cast<EventRendererViewportResize&>(_Event));
-		};
-
-		TE_INSTANCE_APPLICATION->RegisterEventListener(EventType::RendererViewportResize, lambda_OnSceneViewportResize);
 	}
-	void RenderPass_DeferredShading::OnSceneViewportResize(EventRendererViewportResize& _Event)
+	void RenderPass_DeferredShading::UnRegisterEventListeners()
 	{
-
-		m_Viewport.Resize(static_cast<float>(_Event.GetWidth()), static_cast<float>(_Event.GetHeight()));
-		m_ViewRect = ViewRect{ 0l, 0l, static_cast<long>(_Event.GetWidth()), static_cast<long>(_Event.GetHeight()) };
-
-		m_RendererCommand.CreateRenderTargetView(TE_IDX_GRESOURCES::Texture_RT_SceneBuffer, &m_RTVSceneBuffer);
 	}
 }

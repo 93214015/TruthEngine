@@ -71,7 +71,7 @@ namespace TruthEngine::API::DirectX12
 		TE_ASSERT_CORE(TE_SUCCEEDED(result), "DX12CommandList initialization failed!");
 
 		m_QueueClearRT.reserve(8);
-		m_QueueClearDS.reserve(1);
+		m_QueueClearDS.reserve(8);
 
 
 	}
@@ -414,18 +414,24 @@ namespace TruthEngine::API::DirectX12
 		_ResetContainers();
 	}
 
-	void DirectX12CommandList::ClearRenderTarget(const RenderTargetView RTV)
+	void DirectX12CommandList::ClearRenderTarget(const RenderTargetView& RTV)
 	{
+		_ChangeResourceState(RTV.Resource, TE_RESOURCE_STATES::RENDER_TARGET);
+
 		m_QueueClearRT.emplace_back(m_BufferManager->m_DescHeapRTV.GetCPUHandle(RTV.ViewIndex), RTV.Resource->GetClearValues(), D3D12_RECT{ static_cast<long>(0.0), static_cast <long>(0.0), static_cast<long>(RTV.Resource->GetWidth()), static_cast<long>(RTV.Resource->GetHeight()) });
 	}
 
-	void DirectX12CommandList::ClearRenderTarget(const SwapChain* swapChain, const RenderTargetView RTV)
+	void DirectX12CommandList::ClearRenderTarget(const SwapChain* swapChain, const RenderTargetView& RTV)
 	{
+		_ChangeResourceState(RTV.Resource, TE_RESOURCE_STATES::RENDER_TARGET);
+
 		m_QueueClearRT.emplace_back(m_BufferManager->m_DescHeapRTV.GetCPUHandle(RTV.ViewIndex + swapChain->GetCurrentFrameIndex()), swapChain->GetClearValues(), D3D12_RECT{ static_cast<long>(0.0), static_cast<long>(0.0), static_cast<long>(TE_INSTANCE_APPLICATION->GetClientWidth()), static_cast<long>(TE_INSTANCE_APPLICATION->GetClientHeight()) });
 	}
 
-	void DirectX12CommandList::ClearDepthStencil(const DepthStencilView DSV)
+	void DirectX12CommandList::ClearDepthStencil(const DepthStencilView& DSV)
 	{
+		_ChangeResourceState(DSV.Resource, TE_RESOURCE_STATES::DEPTH_WRITE);
+
 		m_QueueClearDS.emplace_back(m_BufferManager->m_DescHeapDSV.GetCPUHandle(DSV.ViewIndex), DSV.Resource->GetClearValues(), D3D12_RECT{ static_cast<long>(0.0), static_cast<long>(0.0), static_cast<long>(DSV.Resource->GetWidth()), static_cast<long>(DSV.Resource->GetHeight()) });
 	}
 

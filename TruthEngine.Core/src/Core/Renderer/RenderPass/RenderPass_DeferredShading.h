@@ -17,8 +17,6 @@ namespace TruthEngine
 		RenderPass_DeferredShading(class RendererLayer* _RendererLayer);
 
 		// Inherited via RenderPass
-		virtual void OnAttach() override;
-		virtual void OnDetach() override;
 		virtual void OnImGuiRender() override;
 		virtual void OnUpdate(double _DeltaTime) override;
 		virtual void BeginScene() override;
@@ -26,27 +24,25 @@ namespace TruthEngine
 		virtual void Render() override;
 
 	private:
+		void InitRendererCommand() override;
+		void InitTextures() override;
+		void InitBuffers() override;
+		void InitPipelines() override;
 
-		void InitTexture();
-		void InitBuffer();
+		void ReleaseRendererCommand() override;
+		void ReleaseTextures() override;
+		void ReleaseBuffers() override;
+		void ReleasePipelines() override;
 
-		void PreparePipeline();
 
-		void RegisterEvents();
-
-		//Event Listeners
-		void OnSceneViewportResize(EventRendererViewportResize& _Event);
+		void RegisterEventListeners() override;
+		void UnRegisterEventListeners() override;
 
 	private:
 
 		RendererCommand m_RendererCommand;
 
-		RenderTargetView m_RTVSceneBuffer;
-
 		PipelineGraphics m_Pipeline;
-
-		Viewport m_Viewport;
-		ViewRect m_ViewRect;
 		
 	};
 }

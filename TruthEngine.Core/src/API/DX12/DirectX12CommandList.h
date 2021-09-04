@@ -111,9 +111,9 @@ namespace TruthEngine
 			void Dispatch(uint32_t GroupNumX, uint32_t GroupNumY, uint32_t GroupNumZ) override;
 
 
-			void ClearRenderTarget(const RenderTargetView RTV);
-			void ClearRenderTarget(const SwapChain* swapChain, const RenderTargetView RTV);
-			void ClearDepthStencil(const DepthStencilView DSV);
+			void ClearRenderTarget(const RenderTargetView& RTV);
+			void ClearRenderTarget(const SwapChain* swapChain, const RenderTargetView& RTV);
+			void ClearDepthStencil(const DepthStencilView& DSV);
 
 
 			void SetViewport(const Viewport* viewport, const ViewRect* rect) override;

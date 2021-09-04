@@ -38,17 +38,27 @@ namespace TruthEngine
 
 
 	private:
-		void PreparePiplineMaterial(const Material* material);
-		void PreparePiplineEnvironment();
+		void InitRendererCommand() override;
+		void InitTextures() override;
+		void InitBuffers() override;
+		void InitPipelines() override;
 
-		void RegisterOnEvents();
+		void ReleaseRendererCommand() override;
+		void ReleaseTextures() override;
+		void ReleaseBuffers() override;
+		void ReleasePipelines() override;
+
+		void RegisterEventListeners() override;
+		void UnRegisterEventListeners() override;
+
+		void InitPipelines(const Material* material);
+		void InitPipelines_Environment();
 
 		void OnRendererViewportResize(const class EventRendererViewportResize& _Event);
 		void OnAddMaterial(EventEntityAddMaterial& event);
 		void OnUpdateMaterial(const EventEntityUpdateMaterial& event);
 
-		void InitTextures();
-		void InitBuffers();
+
 	private:
 
 		RendererCommand m_RendererCommand;
@@ -62,15 +72,6 @@ namespace TruthEngine
 		TextureRenderTarget* m_TextureRenderTargetHDRMS = nullptr;
 		TextureRenderTarget* m_TextureRenderTargetMS = nullptr;
 
-
-		Viewport m_Viewport;
-		ViewRect m_ViewRect;
-
-		ShaderManager* m_ShaderMgr;
-
-		BufferManager* m_BufferMgr;
-
-		class MaterialManager* m_MaterialManager;
 
 		std::vector<PipelineGraphics> m_ContainerPipelines;
 		std::unordered_map<uint32_t, PipelineGraphics*> m_MaterialPipelines;

@@ -7,4 +7,22 @@ namespace TruthEngine
         : m_RenderPassIDX(idx), m_RendererLayer(_RendererLayer)
     {
     }
+    void RenderPass::OnAttach()
+    {
+        InitRendererCommand();
+        InitTextures();
+        InitBuffers();
+        InitPipelines();
+
+        RegisterEventListeners();
+    }
+    void RenderPass::OnDetach()
+    {
+        ReleaseTextures();
+        ReleaseBuffers();
+        ReleasePipelines();
+        ReleaseRendererCommand();
+
+        UnRegisterEventListeners();
+    }
 }
