@@ -15,27 +15,6 @@ namespace TruthEngine
 	{
 	}
 
-	void RenderPass_GenerateCubeMap::OnAttach()
-	{
-		TE_ASSERT_CORE(m_IsInitialized, "The resources for RenderPass_GenerateCubeMap are not set");
-
-		m_RendererCommand_GenerateCubeMap.Init(TE_IDX_RENDERPASS::GENERATECUBEMAP, TE_IDX_SHADERCLASS::GENERATECUBEMAP);
-		//m_RendererCommand_GenerateIBL.Init(TE_IDX_RENDERPASS::GENERATECUBEMAP, TE_IDX_SHADERCLASS::GENERATEIBL);
-
-		InitTextures();
-		InitBuffers();
-
-		PreparePipline();
-	}
-
-	void RenderPass_GenerateCubeMap::OnDetach()
-	{
-		m_RendererCommand_GenerateCubeMap.Release();
-		//m_RendererCommand_GenerateIBL.Release();
-
-		m_IsInitialized = false;
-	}
-
 	void RenderPass_GenerateCubeMap::OnImGuiRender()
 	{
 	}
@@ -91,7 +70,7 @@ namespace TruthEngine
 		m_IsInitialized = true;
 	}
 
-	void RenderPass_GenerateCubeMap::PreparePipline()
+	void RenderPass_GenerateCubeMap::InitPipelines()
 	{
 		Shader* shader = nullptr;
 
@@ -121,12 +100,19 @@ namespace TruthEngine
 
 		TE_RESOURCE_FORMAT rtvFormats[] = { TE_RESOURCE_FORMAT::R16G16B16A16_FLOAT };
 
-		PipelineGraphics::Factory(&m_PipelineGenerateCubeMap, _RendererStates, shader, _countof(rtvFormats), rtvFormats, TE_RESOURCE_FORMAT::D32_FLOAT, false);
+		PipelineGraphics::Factory(&m_PipelineGenerateCubeMap, _RendererStates, shader, _countof(rtvFormats), rtvFormats, TE_RESOURCE_FORMAT::UNKNOWN, false);
 
 		//Generate IBL Shader
 		//result = TE_INSTANCE_SHADERMANAGER->AddShader(&shader, TE_IDX_SHADERCLASS::GENERATEIBL, TE_IDX_MESH_TYPE::MESH_POINT, _RendererStates, "Assets/Shaders/GenerateIBL.hlsl", "vs", "ps", "", "", "", "gs");
 
 		//PipelineGraphics::Factory(&m_PipelineGenerateIBL, _RendererStates, shader, _countof(rtvFormats), rtvFormats, TE_RESOURCE_FORMAT::D32_FLOAT, false);
+	}
+
+	void RenderPass_GenerateCubeMap::InitRendererCommand()
+	{
+		TE_ASSERT_CORE(m_IsInitialized, "The resources for RenderPass_GenerateCubeMap are not set");
+
+		m_RendererCommand_GenerateCubeMap.Init(TE_IDX_RENDERPASS::GENERATECUBEMAP, TE_IDX_SHADERCLASS::GENERATECUBEMAP);
 	}
 
 	void RenderPass_GenerateCubeMap::InitTextures()
@@ -142,6 +128,33 @@ namespace TruthEngine
 	}
 
 	void RenderPass_GenerateCubeMap::InitBuffers()
+	{
+	}
+
+	void RenderPass_GenerateCubeMap::ReleaseRendererCommand()
+	{
+		m_IsInitialized = false;
+
+		m_RendererCommand_GenerateCubeMap.Release();
+	}
+
+	void RenderPass_GenerateCubeMap::ReleaseTextures()
+	{
+	}
+
+	void RenderPass_GenerateCubeMap::ReleaseBuffers()
+	{
+	}
+
+	void RenderPass_GenerateCubeMap::ReleasePipelines()
+	{
+	}
+
+	void RenderPass_GenerateCubeMap::RegisterEventListeners()
+	{
+	}
+
+	void RenderPass_GenerateCubeMap::UnRegisterEventListeners()
 	{
 	}
 

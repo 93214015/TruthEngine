@@ -23,7 +23,6 @@ namespace TruthEngine
 
 	RenderPass_ForwardRendering::RenderPass_ForwardRendering(RendererLayer* _RendererLayer)
 		: RenderPass(TE_IDX_RENDERPASS::FORWARDRENDERING, _RendererLayer)
-		, m_TextureDepthStencil(nullptr)
 		, m_ConstantBufferDirect_PerMesh(nullptr)
 	{
 		//At the moment I've used vector as a container and referece to its element by pointers other places.
@@ -73,29 +72,10 @@ namespace TruthEngine
 		//m_TimerBegin.Start();
 
 		m_RendererCommand.BeginGraphics();
-		m_RendererCommand_ResolveTextures.BeginGraphics();
 
 		m_RendererCommand.SetViewPort(&m_RendererLayer->GetViewportScene(), &m_RendererLayer->GetViewRectScene());
-		//m_RendererCommand.SetRenderTarget(TE_INSTANCE_SWAPCHAIN, m_RenderTartgetView);
-		m_RendererCommand.SetRenderTarget(m_RenderTartgetView);
-		m_RendererCommand.SetDepthStencil(m_DepthStencilView);
-
-		if (Settings::IsMSAAEnabled())
-		{
-			m_RendererCommand.ClearRenderTarget(m_RenderTartgetView);
-			m_RendererCommand.ClearDepthStencil(m_DepthStencilView);
-
-			if (m_RendererLayer->IsEnabledHDR())
-			{
-				m_RendererCommand_ResolveTextures.ResolveMultiSampledTexture(m_TextureRenderTargetHDRMS, TE_IDX_GRESOURCES::Texture_RT_SceneBufferHDR);
-			}
-			else
-			{
-				m_RendererCommand_ResolveTextures.ResolveMultiSampledTexture(m_TextureRenderTargetMS, TE_IDX_GRESOURCES::Texture_RT_SceneBuffer);
-			}
-
-			m_RendererCommand_ResolveTextures.ResolveMultiSampledTexture(m_TextureDepthStencilMS, m_TextureDepthStencil);
-		}
+		m_RendererCommand.SetRenderTarget(m_RendererLayer->GetRenderTargetViewScene());
+		m_RendererCommand.SetDepthStencil(m_RendererLayer->GetDepthStencilViewScene());
 
 
 		//m_TimerBegin.End();
@@ -104,7 +84,6 @@ namespace TruthEngine
 	void RenderPass_ForwardRendering::EndScene()
 	{
 		m_RendererCommand.End();
-		m_RendererCommand_ResolveTextures.End();
 	}
 
 	void RenderPass_ForwardRendering::Render()
@@ -176,18 +155,6 @@ namespace TruthEngine
 
 		RendererStateSet _RendererState = material->GetRendererStates();
 
-		TE_RESOURCE_FORMAT rtvFormats[1];
-
-		if (m_RendererLayer->IsEnabledHDR())
-		{
-			SET_RENDERER_STATE(_RendererState, TE_RENDERER_STATE_ENABLED_HDR, TE_RENDERER_STATE_ENABLED_HDR_TRUE);
-			rtvFormats[0] = TE_RESOURCE_FORMAT::R16G16B16A16_FLOAT;
-		}
-		else
-		{
-			rtvFormats[0] = TE_RESOURCE_FORMAT::R8G8B8A8_UNORM;
-		}
-
 		RendererStateSet _ShadingModel = GET_RENDERER_STATE(_RendererState, TE_RENDERER_STATE_SHADING_MODEL);
 
 		auto _LambdaGetShaderAddress = [_ShadingModel]()
@@ -223,7 +190,9 @@ namespace TruthEngine
 			_Pipeline = _ItrPipeline->second;
 		}
 
-		PipelineGraphics::Factory(_Pipeline, _RendererState, shader, 1, rtvFormats, TE_RESOURCE_FORMAT::D32_FLOAT, true);
+		TE_RESOURCE_FORMAT rtvFormats[] = { m_RendererLayer->GetFormatRenderTargetScene() };
+
+		PipelineGraphics::Factory(_Pipeline, _RendererState, shader, _countof(rtvFormats), rtvFormats, m_RendererLayer->GetFormatDepthStencilScene(), true);
 
 	}
 
@@ -237,20 +206,15 @@ namespace TruthEngine
 		SET_RENDERER_STATE(states, TE_RENDERER_STATE_CULL_MODE, TE_RENDERER_STATE_CULL_MODE::TE_RENDERER_STATE_CULL_MODE_NONE);
 		SET_RENDERER_STATE(states, TE_RENDERER_STATE_DEPTH_WRITE_MASK, TE_RENDERER_STATE_DEPTH_WRITE_MASK::TE_RENDERER_STATE_DEPTH_WRITE_MASK_ZERO);
 
-		TE_RESOURCE_FORMAT rtvFormats[1];
+		TE_RESOURCE_FORMAT rtvFormats[] = { m_RendererLayer->GetFormatRenderTargetScene() };
 		if (m_RendererLayer->IsEnabledHDR())
 		{
 			SET_RENDERER_STATE(states, TE_RENDERER_STATE_ENABLED_HDR, TE_RENDERER_STATE_ENABLED_HDR_TRUE);
-			rtvFormats[0] = TE_RESOURCE_FORMAT::R16G16B16A16_FLOAT;
-		}
-		else
-		{
-			rtvFormats[0] = TE_RESOURCE_FORMAT::R8G8B8A8_UNORM;
 		}
 
 		auto result = TE_INSTANCE_SHADERMANAGER->AddShader(&shader, TE_IDX_SHADERCLASS::RENDERENVIRONMENTMAP, TE_IDX_MESH_TYPE::MESH_NTT, states, "Assets/Shaders/RenderEnvironmentCube.hlsl", "vs", "ps");
 
-		PipelineGraphics::Factory(&m_PipelineEnvironmentCube, states, shader, 1, rtvFormats, TE_RESOURCE_FORMAT::D32_FLOAT, true);
+		PipelineGraphics::Factory(&m_PipelineEnvironmentCube, states, shader, 1, rtvFormats, m_RendererLayer->GetFormatDepthStencilScene(), true);
 	}
 
 	void RenderPass_ForwardRendering::RegisterEventListeners()
@@ -258,59 +222,20 @@ namespace TruthEngine
 		auto lambda_OnAddMaterial = [this](Event& event) {
 			this->OnAddMaterial(static_cast<EventEntityAddMaterial&>(event));
 		};
-		TE_INSTANCE_APPLICATION->RegisterEventListener(EventType::EntityAddMaterial, lambda_OnAddMaterial);
+
+		m_EventListenerHandles.push_back(TE_INSTANCE_APPLICATION->RegisterEventListener(EventType::EntityAddMaterial, lambda_OnAddMaterial));
 
 
 		auto lambda_OnUpdateMaterial = [this](Event& event) {
 			this->OnUpdateMaterial(static_cast<const EventEntityUpdateMaterial&>(event));
 		};
-		TE_INSTANCE_APPLICATION->RegisterEventListener(EventType::EntityUpdatedMaterial, lambda_OnUpdateMaterial);
 
-		auto lambda_OnSceneViewportResize = [this](Event& event)
-		{
-			this->OnRendererViewportResize(static_cast<const EventRendererViewportResize&>(event));
-		};
-		TE_INSTANCE_APPLICATION->RegisterEventListener(EventType::RendererViewportResize, lambda_OnSceneViewportResize);
-
+		m_EventListenerHandles.push_back(TE_INSTANCE_APPLICATION->RegisterEventListener(EventType::EntityUpdatedMaterial, lambda_OnUpdateMaterial));
 	}
 
 	void RenderPass_ForwardRendering::UnRegisterEventListeners()
 	{
-	}
-
-	void RenderPass_ForwardRendering::OnRendererViewportResize(const EventRendererViewportResize& _Event)
-	{
-		uint32_t width = _Event.GetWidth();
-		uint32_t height = _Event.GetHeight();
-
-		if (Settings::IsMSAAEnabled())
-		{
-			m_RendererCommand.ResizeDepthStencil(m_TextureDepthStencilMS, width, height, nullptr, nullptr);
-			m_RendererCommand.CreateDepthStencilView(m_TextureDepthStencilMS, &m_DepthStencilView);
-
-			if (m_RendererLayer->IsEnabledHDR())
-			{
-				m_RendererCommand.ResizeRenderTarget(m_TextureRenderTargetHDRMS, width, height, &m_RenderTartgetView, nullptr);
-			}
-			else
-			{
-				m_RendererCommand.ResizeRenderTarget(m_TextureRenderTargetMS, width, height, &m_RenderTartgetView, nullptr);
-
-			}
-		}
-		else
-		{
-			if (m_RendererLayer->IsEnabledHDR())
-			{
-				m_RendererCommand.CreateRenderTargetView(TE_IDX_GRESOURCES::Texture_RT_SceneBufferHDR, &m_RenderTartgetView);
-			}
-			else
-			{
-				m_RendererCommand.CreateRenderTargetView(TE_IDX_GRESOURCES::Texture_RT_SceneBuffer, &m_RenderTartgetView);
-			}
-			m_RendererCommand.CreateDepthStencilView(m_TextureDepthStencil, &m_DepthStencilView);
-		}
-
+		TE_INSTANCE_APPLICATION->UnRegisterEventListener(m_EventListenerHandles.data(), m_EventListenerHandles.size());
 	}
 
 	void RenderPass_ForwardRendering::OnAddMaterial(EventEntityAddMaterial& event)
@@ -335,59 +260,10 @@ namespace TruthEngine
 	void RenderPass_ForwardRendering::InitRendererCommand()
 	{
 		m_RendererCommand.Init(TE_IDX_RENDERPASS::FORWARDRENDERING, TE_IDX_SHADERCLASS::FORWARDRENDERING);
-		m_RendererCommand_ResolveTextures.Init(TE_IDX_RENDERPASS::FORWARDRENDERING, TE_IDX_SHADERCLASS::NONE);
 	}
 
 	void RenderPass_ForwardRendering::InitTextures()
 	{
-		Application* _App = TE_INSTANCE_APPLICATION;
-
-		ClearValue_RenderTarget _ClearValue{ 0.0f, 0.0f, 0.0f, 1.0f };
-
-		m_TextureDepthStencil = m_RendererCommand.GetDepthStencil(TE_IDX_GRESOURCES::Texture_DS_SceneBuffer);
-
-		uint32_t _ViewportWidth = TE_INSTANCE_APPLICATION->GetSceneViewportWidth();
-		uint32_t _ViewportHeight = TE_INSTANCE_APPLICATION->GetSceneViewportHeight();
-
-		_ViewportWidth = _ViewportWidth != 0 ? _ViewportWidth : 1;
-		_ViewportHeight = _ViewportHeight != 0 ? _ViewportHeight : 1;
-
-		if (Settings::IsMSAAEnabled())
-		{
-			if (m_RendererLayer->IsEnabledHDR())
-			{
-				m_TextureRenderTargetHDRMS = m_RendererCommand.CreateRenderTarget(TE_IDX_GRESOURCES::Texture_RT_SceneBufferHDRMS, _ViewportWidth, _ViewportHeight, 1, TE_RESOURCE_FORMAT::R16G16B16A16_FLOAT, _ClearValue, false, true);
-				m_RendererCommand.CreateRenderTargetView(m_TextureRenderTargetHDRMS, &m_RenderTartgetView);
-			}
-			else
-			{
-				m_TextureRenderTargetMS = m_RendererCommand.CreateRenderTarget(TE_IDX_GRESOURCES::Texture_RT_SceneBufferMS, _ViewportWidth, _ViewportHeight, 1, TE_RESOURCE_FORMAT::R8G8B8A8_UNORM, _ClearValue, false, true);
-				m_RendererCommand.CreateRenderTargetView(m_TextureRenderTargetMS, &m_RenderTartgetView);
-			}
-
-			m_TextureDepthStencilMS = m_RendererCommand.CreateDepthStencil(TE_IDX_GRESOURCES::Texture_DS_SceneBufferMS, _ViewportWidth, _ViewportHeight, 1, TE_RESOURCE_FORMAT::R32_TYPELESS, ClearValue_DepthStencil{ 1.0f, 0 }, false, true);
-			m_RendererCommand.CreateDepthStencilView(m_TextureDepthStencilMS, &m_DepthStencilView);
-
-		}
-		else
-		{
-			m_RendererCommand.ReleaseResource(m_TextureRenderTargetMS);
-			m_RendererCommand.ReleaseResource(m_TextureRenderTargetHDRMS);
-			m_RendererCommand.ReleaseResource(m_TextureDepthStencilMS);
-
-			if (m_RendererLayer->IsEnabledHDR())
-			{
-				m_RendererCommand.CreateRenderTargetView(TE_IDX_GRESOURCES::Texture_RT_SceneBufferHDR, &m_RenderTartgetView);
-			}
-			else
-			{
-				m_RendererCommand.CreateRenderTargetView(TE_IDX_GRESOURCES::Texture_RT_SceneBuffer, &m_RenderTartgetView);
-			}
-
-			m_RendererCommand.CreateDepthStencilView(m_TextureDepthStencil, &m_DepthStencilView);
-		}
-
-
 	}
 
 	void RenderPass_ForwardRendering::InitBuffers()
@@ -412,7 +288,6 @@ namespace TruthEngine
 	void RenderPass_ForwardRendering::ReleaseRendererCommand()
 	{
 		m_RendererCommand.Release();
-		m_RendererCommand_ResolveTextures.Release();
 	}
 
 	void RenderPass_ForwardRendering::ReleaseTextures()

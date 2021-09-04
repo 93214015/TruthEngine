@@ -44,9 +44,14 @@ namespace TruthEngine {
 		inline const char* GetTitle() const noexcept { return m_Title.c_str(); }
 
 
-		inline void RegisterEventListener(EventType eventType, const EventListener& listener)
+		EventListenerHandle RegisterEventListener(EventType eventType, const EventListener& listener)
 		{
-			m_EventDispatcher.RegisterListener(eventType, listener);
+			return m_EventDispatcher.RegisterListener(eventType, listener);
+		}
+
+		void UnRegisterEventListener(EventListenerHandle* _EventListenerHandles, size_t _ListenerCount)
+		{
+			m_EventDispatcher.UnRegisterListener(_EventListenerHandles, _ListenerCount);
 		}
 
 

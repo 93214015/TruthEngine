@@ -22,11 +22,6 @@ namespace TruthEngine
 	public:
 		RenderPass_PostProcessing_HDR(RendererLayer* _RendererLayer);
 
-		void OnAttach() override;
-
-
-		void OnDetach() override;
-
 
 		void OnImGuiRender() override;
 
@@ -45,15 +40,22 @@ namespace TruthEngine
 
 	private:
 
-		void InitBuffers();
-		void InitTexture();
-		void InitPipeline();
-		void ReleaseResources();
+		void InitRendererCommand() override;
+		void InitTextures() override;
+		void InitBuffers() override;
+		void InitPipelines() override;
+
+		void ReleaseRendererCommand() override;
+		void ReleaseTextures() override;
+		void ReleaseBuffers() override;
+		void ReleasePipelines() override;
+
+		void RegisterEventListeners() override;
+		void UnRegisterEventListeners() override;
 
 		void ResizedViewport(uint32_t _Width, uint32_t Height);
 
 		void OnRendererViewportResize(const class EventRendererViewportResize& _Event);
-		void RegisterOnEvents();
 
 	private:
 
@@ -137,17 +139,12 @@ namespace TruthEngine
 		Texture* mRWTextureBluredBloomHorz;
 		Texture* mRWTextureBluredBloom;
 
-		RenderTargetView mRenderTargetView_SceneBuffer;
-
 		PipelineCompute mPipelineDownScalingFirstPass;
 		PipelineCompute mPipelineDownScalingSecondPass;
 		PipelineCompute mPipelineBloomPass;
 		PipelineCompute mPipelineBlurPassHorz;
 		PipelineCompute mPipelineBlurPassVert;
 		PipelineGraphics mPipelineFinalPass;
-
-		Viewport mViewPort;
-		ViewRect mViewRect;
 
 		uint32_t mSceneViewQuarterSize[2];
 		uint32_t mGroupNum = 0;
@@ -157,5 +154,7 @@ namespace TruthEngine
 		float mBloomThreshold = 1.0f;
 		float mDOFFarStart = 40.0f;
 		float mDOFFarRange = 60.0f;
+
+		std::vector<EventListenerHandle> m_EventListenerList;
 	};
 }

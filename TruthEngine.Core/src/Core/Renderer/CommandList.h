@@ -41,9 +41,9 @@ namespace TruthEngine
 		virtual void SetPipelineGraphics(PipelineGraphics* pipeline) = 0;
 		virtual void SetPipelineCompute(PipelineCompute* pipeline) = 0;
 //		virtual void SetRenderTarget(TextureRenderTarget* RenderTargets[], const uint32_t RenderTargetNum, const TextureDepthStencil* DepthStencil) = 0;
-		virtual void SetRenderTarget(const RenderTargetView RTV) = 0;
-		virtual void SetRenderTarget(SwapChain* swapChain, const RenderTargetView RTV) = 0;
-		virtual void SetDepthStencil(const DepthStencilView DSV) = 0;
+		virtual void SetRenderTarget(const RenderTargetView& RTV) = 0;
+		virtual void SetRenderTarget(SwapChain* swapChain, const RenderTargetView& RTV) = 0;
+		virtual void SetDepthStencil(const DepthStencilView& DSV) = 0;
 
 		virtual void ResolveMultiSampledTexture(Texture* _SourceTexture, Texture* _DestTexture) = 0;
 
@@ -68,9 +68,9 @@ namespace TruthEngine
 		virtual void SetVertexBuffer(VertexBufferBase* vertexBuffer) = 0;
 		virtual void SetIndexBuffer(IndexBuffer* indexBuffer) = 0;
 
-		virtual void ClearRenderTarget(const RenderTargetView RTV) = 0;
-		virtual void ClearRenderTarget(const SwapChain* swapChain, const RenderTargetView RTV) = 0;
-		virtual void ClearDepthStencil(const DepthStencilView DSV) = 0;
+		virtual void ClearRenderTarget(const RenderTargetView& RTV) = 0;
+		virtual void ClearRenderTarget(const SwapChain* swapChain, const RenderTargetView& RTV) = 0;
+		virtual void ClearDepthStencil(const DepthStencilView& DSV) = 0;
 
 		virtual void SetViewport(const Viewport* viewport, const ViewRect* rect) = 0;
 

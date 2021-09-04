@@ -27,10 +27,18 @@ namespace TruthEngine
 		void Initialize(TE_IDX_GRESOURCES _TextureCubeIDX, size_t _CubeMapSize, TE_RESOURCE_FORMAT _TextureCubeFormat, const char* _FilePath);
 
 	private:
-		void PreparePipline();
+		void InitRendererCommand() override;
+		void InitTextures() override;
+		void InitBuffers() override;
+		void InitPipelines() override;
 
-		void InitTextures();
-		void InitBuffers();
+		void ReleaseRendererCommand() override;
+		void ReleaseTextures() override;
+		void ReleaseBuffers() override;
+		void ReleasePipelines() override;
+
+		void RegisterEventListeners() override;
+		void UnRegisterEventListeners() override;
 	private:
 
 		bool m_IsInitialized = false;

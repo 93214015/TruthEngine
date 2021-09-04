@@ -19,9 +19,15 @@ namespace TruthEngine
 		RenderPassStack& operator=(RenderPassStack&&) noexcept;
 
 		void PushRenderPass(RenderPass* renderPass, uint32_t placeIndex = -1);
-		void PopRenderPass(RenderPass* renderPass);
+		void PushDelegate(std::function<void()> _Delegate);
 
 		void PopAll();
+
+		void OnUpdate(double _DeltaTime);
+		void BeginScene();
+		void RenderAsync();
+		void Render();
+		void EndScene();
 
 		std::vector<RenderPass*>::iterator begin();
 		std::vector<RenderPass*>::iterator end();
@@ -36,6 +42,8 @@ namespace TruthEngine
 		std::vector<RenderPass*>::const_reverse_iterator rend() const;
 	private:
 		std::vector<RenderPass*> m_Vector;
+
+		std::vector<std::function<void()>> m_DelegateList;
 
 	};
 

@@ -25,9 +25,6 @@ namespace TruthEngine
 
 		RenderPass_ForwardRendering(RendererLayer* _RendererLayer);
 
-		void OnAttach() override;
-		void OnDetach() override;
-
 		void OnImGuiRender() override;
 		void OnUpdate(double _DeltaTime) override;
 
@@ -54,7 +51,6 @@ namespace TruthEngine
 		void InitPipelines(const Material* material);
 		void InitPipelines_Environment();
 
-		void OnRendererViewportResize(const class EventRendererViewportResize& _Event);
 		void OnAddMaterial(EventEntityAddMaterial& event);
 		void OnUpdateMaterial(const EventEntityUpdateMaterial& event);
 
@@ -62,15 +58,15 @@ namespace TruthEngine
 	private:
 
 		RendererCommand m_RendererCommand;
-		RendererCommand m_RendererCommand_ResolveTextures;
+		//RendererCommand m_RendererCommand_ResolveTextures;
 
-		RenderTargetView m_RenderTartgetView;
+		/*RenderTargetView m_RenderTartgetView;
 		DepthStencilView m_DepthStencilView;
 
 		TextureDepthStencil* m_TextureDepthStencil = nullptr;
 		TextureDepthStencil* m_TextureDepthStencilMS = nullptr;
 		TextureRenderTarget* m_TextureRenderTargetHDRMS = nullptr;
-		TextureRenderTarget* m_TextureRenderTargetMS = nullptr;
+		TextureRenderTarget* m_TextureRenderTargetMS = nullptr;*/
 
 
 		std::vector<PipelineGraphics> m_ContainerPipelines;
@@ -97,6 +93,8 @@ namespace TruthEngine
 
 		uint32_t m_TotalMeshNum = 0;
 		uint32_t m_TotalVertexNum = 0;
+
+		std::vector<EventListenerHandle> m_EventListenerHandles;
 
 		TimerProfile_OneSecond m_TimerRender;
 	};

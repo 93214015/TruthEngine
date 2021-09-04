@@ -45,26 +45,22 @@ namespace TruthEngine
 
 	private:
 
-		void InitRendererCommand();
-		void InitTextures();
-		void InitBuffers();
-		void InitPipelines();
+		void InitRendererCommand() override;
+		void InitTextures() override;
+		void InitBuffers() override;
+		void InitPipelines() override;
 
-		void ReleaseTextures();
-		void ReleaseBuffers();
-		void ReleasePipelines();
-		void ReleaseRendererCommand();
+		void ReleaseRendererCommand() override;
+		void ReleaseTextures() override;
+		void ReleaseBuffers() override;
+		void ReleasePipelines() override;
 
-		void RegiterOnEvents();
-
-		void OnEventRendererViewportResize(class EventRendererViewportResize& _Event);
+		void RegisterEventListeners() override;
+		void UnRegisterEventListeners() override;
 
 	private:
 
 		RendererCommand m_RendererCommand;
-
-		RenderTargetView m_RTV;
-		DepthStencilView m_DSV;
 
 		PipelineGraphics m_Pipeline;
 
@@ -80,7 +76,6 @@ namespace TruthEngine
 		};
 
 		ConstantBufferDirect<ConstantBufferData_Wireframe>* m_ConstantBuffer;
-
 
 
 		std::vector<QueueItem> m_Queue;

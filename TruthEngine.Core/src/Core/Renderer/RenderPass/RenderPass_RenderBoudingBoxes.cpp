@@ -14,22 +14,6 @@ TruthEngine::RenderPass_RenderBoundingBoxes::RenderPass_RenderBoundingBoxes(Rend
 {
 }
 
-void TruthEngine::RenderPass_RenderBoundingBoxes::OnAttach()
-{
-	m_RendererCommand.Init(TE_IDX_RENDERPASS::RENDERBOUNDINGBOX, TE_IDX_SHADERCLASS::RENDERBOUNDINGBOX, TE_INSTANCE_BUFFERMANAGER, TE_INSTANCE_SHADERMANAGER);
-
-	InitTextures();
-	InitBuffers();
-	InitPipelines();
-
-	RegisterOnEvents();
-}
-
-void TruthEngine::RenderPass_RenderBoundingBoxes::OnDetach()
-{
-	m_RendererCommand.Release();
-}
-
 void TruthEngine::RenderPass_RenderBoundingBoxes::OnImGuiRender()
 {
 	
@@ -45,8 +29,8 @@ void TruthEngine::RenderPass_RenderBoundingBoxes::BeginScene()
 	m_RendererCommand.BeginGraphics(&m_Pipeline);
 
 	m_RendererCommand.SetViewPort(&m_RendererLayer->GetViewportScene(), &m_RendererLayer->GetViewRectScene());
-	m_RendererCommand.SetRenderTarget(m_RenderTargetView);
-	m_RendererCommand.SetDepthStencil(m_DepthStencilView);
+	m_RendererCommand.SetRenderTarget(m_RendererLayer->GetRenderTargetViewSceneSDR());
+	m_RendererCommand.SetDepthStencil(m_RendererLayer->GetDepthStencilViewSceneNoMS());
 }
 
 void TruthEngine::RenderPass_RenderBoundingBoxes::EndScene()
@@ -86,10 +70,13 @@ void TruthEngine::RenderPass_RenderBoundingBoxes::Queue(Entity _Entity)
 	m_Queue.push_back(_Entity);
 }
 
+void TruthEngine::RenderPass_RenderBoundingBoxes::InitRendererCommand()
+{
+	m_RendererCommand.Init(TE_IDX_RENDERPASS::RENDERBOUNDINGBOX, TE_IDX_SHADERCLASS::RENDERBOUNDINGBOX);
+}
+
 void TruthEngine::RenderPass_RenderBoundingBoxes::InitTextures()
 {
-	m_RendererCommand.CreateRenderTargetView(TE_IDX_GRESOURCES::Texture_RT_SceneBuffer, &m_RenderTargetView);
-	m_RendererCommand.CreateDepthStencilView(TE_IDX_GRESOURCES::Texture_DS_SceneBuffer, &m_DepthStencilView);
 }
 
 void TruthEngine::RenderPass_RenderBoundingBoxes::InitBuffers()
@@ -127,22 +114,34 @@ void TruthEngine::RenderPass_RenderBoundingBoxes::InitPipelines()
 
 	TE_RESOURCE_FORMAT rtvFormats[] =
 	{
-		rtvFormats[0] = TE_RESOURCE_FORMAT::R8G8B8A8_UNORM
+		m_RendererLayer->GetFormatRenderTargetSceneSDR()
 	};
 
-	PipelineGraphics::Factory(&m_Pipeline, _States, shader, _countof(rtvFormats), rtvFormats, TE_RESOURCE_FORMAT::D32_FLOAT, true);
+	PipelineGraphics::Factory(&m_Pipeline, _States, shader, _countof(rtvFormats), rtvFormats, m_RendererLayer->GetFormatDepthStencilScene(), true);
 }
 
-void TruthEngine::RenderPass_RenderBoundingBoxes::RegisterOnEvents()
+void TruthEngine::RenderPass_RenderBoundingBoxes::ReleaseRendererCommand()
 {
-	TE_INSTANCE_APPLICATION->RegisterEventListener(EventType::RendererViewportResize, [this](Event& _Event) 
-		{
-			OnEventRendererViewportResize(static_cast<EventRendererViewportResize&>(_Event));
-		});
+	m_RendererCommand.Release();
 }
 
-void TruthEngine::RenderPass_RenderBoundingBoxes::OnEventRendererViewportResize(EventRendererViewportResize& _Event)
+void TruthEngine::RenderPass_RenderBoundingBoxes::ReleaseTextures()
 {
-	InitTextures();
+}
+
+void TruthEngine::RenderPass_RenderBoundingBoxes::ReleaseBuffers()
+{
+}
+
+void TruthEngine::RenderPass_RenderBoundingBoxes::ReleasePipelines()
+{
+}
+
+void TruthEngine::RenderPass_RenderBoundingBoxes::RegisterEventListeners()
+{
+}
+
+void TruthEngine::RenderPass_RenderBoundingBoxes::UnRegisterEventListeners()
+{
 }
 

@@ -16,9 +16,6 @@ namespace TruthEngine
 		RenderPass_RenderEntityIcons(class RendererLayer* _RendererLayer);
 
 		// Inherited via RenderPass
-		void OnAttach() override;
-
-		void OnDetach() override;
 
 		void OnImGuiRender() override;
 
@@ -32,24 +29,22 @@ namespace TruthEngine
 
 	private:
 
-		void InitTextures();
-		void InitBuffers();
-		void InitPipeline();
+		void InitRendererCommand() override;
+		void InitTextures() override;
+		void InitBuffers() override;
+		void InitPipelines() override;
 
-		void ReleaseTextures();
-		void ReleaseBuffers();
-		void ReleasePipeline();
+		void ReleaseRendererCommand() override;
+		void ReleaseTextures() override;
+		void ReleaseBuffers() override;
+		void ReleasePipelines() override;
 
-		void RegisterOnEvents();
-
-		void OnEventRendererViewportResize(EventRendererViewportResize& _Event);
+		void RegisterEventListeners() override;
+		void UnRegisterEventListeners() override;
 
 	private:
 
 		RendererCommand m_RendererCommand;
-
-		RenderTargetView m_RTV;
-		DepthStencilView m_DSV;
 
 		PipelineGraphics m_Pipeline;
 

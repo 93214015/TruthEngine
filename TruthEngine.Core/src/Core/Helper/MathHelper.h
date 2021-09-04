@@ -151,12 +151,20 @@ namespace TruthEngine
 			return float3{ x * _f, y * _f, z * _f };
 		}
 
+		inline float3& operator*=(float _f)
+		{
+			x *= _f;
+			y *= _f;
+			z *= _f;
+			return *this;
+		}
+
 		inline float3& operator+=(const float3& _float3)
 		{
 			x += _float3.x;
 			y += _float3.y;
 			z += _float3.z;
-			
+
 			return *this;
 		}
 
@@ -199,7 +207,7 @@ namespace TruthEngine
 		{
 			return float4{ x * _f2.x, y * _f2.y, z * _f2.z, w * _f2.w };
 		}
-		
+
 	};
 
 	struct float4A : DirectX::XMFLOAT4A
@@ -297,14 +305,8 @@ namespace TruthEngine
 
 	struct uint2
 	{
-		union
-		{
-			struct
-			{
-				uint32_t x;
-				uint32_t y;
-			};
-		};
+		uint32_t x = 0;
+		uint32_t y = 0;
 
 		uint32_t& operator[](uint32_t i)
 		{
@@ -314,15 +316,9 @@ namespace TruthEngine
 
 	struct uint3
 	{
-		union
-		{
-			struct
-			{
-				uint32_t x;
-				uint32_t y;
-				uint32_t z;
-			};
-		};
+		uint32_t x = 0;
+		uint32_t y = 0;
+		uint32_t z = 0;
 
 		uint32_t& operator[](uint32_t i)
 		{
@@ -332,16 +328,11 @@ namespace TruthEngine
 
 	struct uint4
 	{
-		union
-		{
-			struct
-			{
-				uint32_t x;
-				uint32_t y;
-				uint32_t z;
-				uint32_t w;
-			};
-		};
+
+		uint32_t x = 0;
+		uint32_t y = 0;
+		uint32_t z = 0;
+		uint32_t w = 0;
 
 		uint32_t& operator[](uint32_t i)
 		{
@@ -351,14 +342,8 @@ namespace TruthEngine
 
 	struct int2
 	{
-		union
-		{
-			struct
-			{
-				int32_t x;
-				int32_t y;
-			};
-		};
+		int32_t x = 0;
+		int32_t y = 0;
 
 		int32_t& operator[](uint32_t i)
 		{
@@ -368,15 +353,9 @@ namespace TruthEngine
 
 	struct int3
 	{
-		union
-		{
-			struct
-			{
-				int32_t x;
-				int32_t y;
-				int32_t z;
-			};
-		};
+		int32_t x = 0;
+		int32_t y = 0;
+		int32_t z = 0;
 
 		int32_t& operator[](uint32_t i)
 		{
@@ -386,16 +365,10 @@ namespace TruthEngine
 
 	struct int4
 	{
-		union
-		{
-			struct
-			{
-				int32_t x;
-				int32_t y;
-				int32_t z;
-				int32_t w;
-			};
-		};
+		int32_t x = 0;
+		int32_t y = 0;
+		int32_t z = 0;
+		int32_t w = 0;
 
 		int32_t& operator[](uint32_t i)
 		{
@@ -422,7 +395,7 @@ namespace TruthEngine
 
 
 
-	
+
 
 	inline void CreateBoundingAABoxFromPoints(BoundingAABox& outBoundingBox, const size_t vertexNum, const float3* vertecies, size_t strideSize)
 	{

@@ -24,7 +24,7 @@ namespace TruthEngine
 		m_RendererCommand.BeginGraphics(&m_Pipeline);
 
 		m_RendererCommand.SetViewPort(&m_RendererLayer->GetViewportScene(), &m_RendererLayer->GetViewRectScene());
-		m_RendererCommand.SetRenderTarget(m_RendererLayer->GetRenderTargetViewScene());
+		m_RendererCommand.SetRenderTarget(m_RendererLayer->GetRenderTargetViewSceneNoMS());
 		
 	}
 	void RenderPass_DeferredShading::EndScene()
@@ -91,9 +91,9 @@ namespace TruthEngine
 		Shader* shader = nullptr;
 		auto result = TE_INSTANCE_SHADERMANAGER->AddShader(&shader, TE_IDX_SHADERCLASS::DEFERREDSHADING, TE_IDX_MESH_TYPE::MESH_POINT, _RendererStates, "Assets/Shaders/DeferredShadingPBR.hlsl", "vs", "ps");
 
-		TE_RESOURCE_FORMAT _RTVFormat[] = { m_RendererLayer->GetRenderTargetFormatScene() };
+		TE_RESOURCE_FORMAT _RTVFormat[] = { m_RendererLayer->GetFormatRenderTargetScene() };
 
-		PipelineGraphics::Factory(&m_Pipeline, _RendererStates, shader, _countof(_RTVFormat), _RTVFormat, m_RendererLayer->GetDepthStencilFormatScene(), false);
+		PipelineGraphics::Factory(&m_Pipeline, _RendererStates, shader, _countof(_RTVFormat), _RTVFormat, m_RendererLayer->GetFormatDepthStencilScene(), false);
 	}
 	void RenderPass_DeferredShading::RegisterEventListeners()
 	{

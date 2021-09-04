@@ -12,9 +12,6 @@ namespace TruthEngine
 	public:
 		RenderPass_GenerateIBLAmbient(RendererLayer* _RendererLayer);
 
-		void OnAttach() override;
-		void OnDetach() override;
-
 		void OnImGuiRender() override;
 		void OnUpdate(double _DeltaTime) override;
 
@@ -26,10 +23,18 @@ namespace TruthEngine
 		void Initialize(TE_IDX_GRESOURCES _TextureIBLIDX, size_t _TextureIBLSize, TE_RESOURCE_FORMAT _TextureIBLFormat, const char* _OutputFilePath);
 
 	private:
-		void PreparePipline();
+		void InitRendererCommand() override;
+		void InitTextures() override;
+		void InitBuffers() override;
+		void InitPipelines() override;
 
-		void InitTextures();
-		void InitBuffers();
+		void ReleaseRendererCommand() override;
+		void ReleaseTextures() override;
+		void ReleaseBuffers() override;
+		void ReleasePipelines() override;
+		
+		void RegisterEventListeners() override;
+		void UnRegisterEventListeners() override;
 	private:
 
 		bool m_IsInitialized = false;

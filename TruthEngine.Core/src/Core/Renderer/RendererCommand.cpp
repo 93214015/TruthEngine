@@ -57,17 +57,17 @@ namespace TruthEngine
 		m_CurrentCommandList->SetPipelineCompute(pipeline);
 	}
 
-	void RendererCommand::SetRenderTarget(const RenderTargetView RTV)
+	void RendererCommand::SetRenderTarget(const RenderTargetView& RTV)
 	{
 		m_CurrentCommandList->SetRenderTarget(RTV);
 	}
 
-	void RendererCommand::SetRenderTarget(SwapChain* swapChain, const RenderTargetView RTV)
+	void RendererCommand::SetRenderTarget(SwapChain* swapChain, const RenderTargetView& RTV)
 	{
 		m_CurrentCommandList->SetRenderTarget(swapChain, RTV);
 	}
 
-	void RendererCommand::SetDepthStencil(const DepthStencilView DSV)
+	void RendererCommand::SetDepthStencil(const DepthStencilView& DSV)
 	{
 		m_CurrentCommandList->SetDepthStencil(DSV);
 	}
@@ -218,17 +218,17 @@ namespace TruthEngine
 		m_CurrentCommandList->Dispatch(GroupNumX, GroupNumY, GroupNumZ);
 	}
 
-	void RendererCommand::ClearRenderTarget(const RenderTargetView RTV)
+	void RendererCommand::ClearRenderTarget(const RenderTargetView& RTV)
 	{
 		m_CurrentCommandList->ClearRenderTarget(RTV);
 	}
 
-	void RendererCommand::ClearRenderTarget(const SwapChain* swapChain, const RenderTargetView RTV)
+	void RendererCommand::ClearRenderTarget(const SwapChain* swapChain, const RenderTargetView& RTV)
 	{
 		m_CurrentCommandList->ClearRenderTarget(swapChain, RTV);
 	}
 
-	void RendererCommand::ClearDepthStencil(const DepthStencilView DSV)
+	void RendererCommand::ClearDepthStencil(const DepthStencilView& DSV)
 	{
 		m_CurrentCommandList->ClearDepthStencil(DSV);
 	}

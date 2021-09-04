@@ -13,23 +13,6 @@ namespace TruthEngine
 		, m_ViewRect(0l, 0l, 0l, 0l)
 	{
 	}
-	void RenderPass_GenerateIBLAmbient::OnAttach()
-	{
-		TE_ASSERT_CORE(m_IsInitialized, "The RenderPass_GenerateIBLAmbient is not initialized!");
-
-		m_RendererCommand.Init(TE_IDX_RENDERPASS::GENERATEIBLAMBIENT, TE_IDX_SHADERCLASS::GENERATEIBLAMBIENT);
-
-		InitTextures();
-		InitBuffers();
-
-		PreparePipline();
-	}
-	void RenderPass_GenerateIBLAmbient::OnDetach()
-	{
-		m_RendererCommand.ReleaseResource(m_TextureRenderTargetIBL);
-
-		m_RendererCommand.Release();
-	}
 	void RenderPass_GenerateIBLAmbient::OnImGuiRender()
 	{
 	}
@@ -69,7 +52,7 @@ namespace TruthEngine
 
 		m_IsInitialized = true;
 	}
-	void RenderPass_GenerateIBLAmbient::PreparePipline()
+	void RenderPass_GenerateIBLAmbient::InitPipelines()
 	{
 
 		constexpr RendererStateSet _RendererStates = InitRenderStates(
@@ -101,6 +84,12 @@ namespace TruthEngine
 
 		PipelineGraphics::Factory(&m_PipelineGenerateIBL, _RendererStates, shader, _countof(rtvFormats), rtvFormats, TE_RESOURCE_FORMAT::D32_FLOAT, false);
 	}
+	void RenderPass_GenerateIBLAmbient::InitRendererCommand()
+	{
+		TE_ASSERT_CORE(m_IsInitialized, "The RenderPass_GenerateIBLAmbient is not initialized!");
+
+		m_RendererCommand.Init(TE_IDX_RENDERPASS::GENERATEIBLAMBIENT, TE_IDX_SHADERCLASS::GENERATEIBLAMBIENT);
+	}
 	void RenderPass_GenerateIBLAmbient::InitTextures()
 	{
 		m_TextureRenderTargetIBL = m_RendererCommand.CreateRenderTargetCubeMap(m_TextureIBLIDX, static_cast<uint32_t>(m_TextureIBLSize), static_cast<uint32_t>(m_TextureIBLSize), 1, m_TextureIBLFormat, ClearValue_RenderTarget{ 0.0f, 0.0f, 0.0f, 0.0f }, true, false);
@@ -109,6 +98,28 @@ namespace TruthEngine
 
 	}
 	void RenderPass_GenerateIBLAmbient::InitBuffers()
+	{
+	}
+	void RenderPass_GenerateIBLAmbient::ReleaseRendererCommand()
+	{
+		m_RendererCommand.Release();
+
+		m_IsInitialized = false;
+	}
+	void RenderPass_GenerateIBLAmbient::ReleaseTextures()
+	{
+		m_RendererCommand.ReleaseResource(m_TextureRenderTargetIBL);
+	}
+	void RenderPass_GenerateIBLAmbient::ReleaseBuffers()
+	{
+	}
+	void RenderPass_GenerateIBLAmbient::ReleasePipelines()
+	{
+	}
+	void RenderPass_GenerateIBLAmbient::RegisterEventListeners()
+	{
+	}
+	void RenderPass_GenerateIBLAmbient::UnRegisterEventListeners()
 	{
 	}
 }

@@ -20,26 +20,6 @@ namespace TruthEngine
 		: RenderPass(TE_IDX_RENDERPASS::WIREFRAME, _RendererLayer)
 	{}
 
-	void RenderPass_Wireframe::OnAttach()
-	{
-		InitRendererCommand();
-
-		InitTextures();
-		InitBuffers();
-		InitPipelines();
-
-		RegiterOnEvents();
-	}
-
-	void RenderPass_Wireframe::OnDetach()
-	{
-		ReleaseTextures();
-		ReleaseBuffers();
-		ReleasePipelines();
-
-		ReleaseRendererCommand();
-	}
-
 	void RenderPass_Wireframe::OnImGuiRender()
 	{
 	}
@@ -53,8 +33,8 @@ namespace TruthEngine
 		m_RendererCommand.BeginGraphics(&m_Pipeline);
 
 		m_RendererCommand.SetViewPort(&m_RendererLayer->GetViewportScene(), &m_RendererLayer->GetViewRectScene());
-		m_RendererCommand.SetRenderTarget(m_RTV);
-		m_RendererCommand.SetDepthStencil(m_DSV);
+		m_RendererCommand.SetRenderTarget(m_RendererLayer->GetRenderTargetViewSceneSDR());
+		m_RendererCommand.SetDepthStencil(m_RendererLayer->GetDepthStencilViewSceneNoMS());
 	}
 
 	void RenderPass_Wireframe::EndScene()
@@ -118,8 +98,6 @@ namespace TruthEngine
 
 	void RenderPass_Wireframe::InitTextures()
 	{
-		m_RendererCommand.CreateRenderTargetView(TE_IDX_GRESOURCES::Texture_RT_SceneBuffer, &m_RTV);
-		m_RendererCommand.CreateDepthStencilView(TE_IDX_GRESOURCES::Texture_DS_SceneBuffer, &m_DSV);
 	}
 
 	void RenderPass_Wireframe::InitBuffers()
@@ -157,9 +135,9 @@ namespace TruthEngine
 		Shader* shader = nullptr;
 		auto result = TE_INSTANCE_SHADERMANAGER->AddShader(&shader, TE_IDX_SHADERCLASS::WIREFRAME, TE_IDX_MESH_TYPE::MESH_SIMPLE, _States, "Assets/Shaders/RenderWireframe.hlsl", "vs", "ps");
 
-		TE_RESOURCE_FORMAT rtvFormats[] = { TE_RESOURCE_FORMAT::R8G8B8A8_UNORM };
+		TE_RESOURCE_FORMAT rtvFormats[] = { m_RendererLayer->GetFormatRenderTargetSceneSDR() };
 
-		PipelineGraphics::Factory(&m_Pipeline, _States, shader, _countof(rtvFormats), rtvFormats, TE_RESOURCE_FORMAT::D32_FLOAT, false);
+		PipelineGraphics::Factory(&m_Pipeline, _States, shader, _countof(rtvFormats), rtvFormats, m_RendererLayer->GetFormatDepthStencilScene(), false);
 	}
 
 	void RenderPass_Wireframe::ReleaseTextures()
@@ -174,23 +152,17 @@ namespace TruthEngine
 	{
 	}
 
+	void RenderPass_Wireframe::RegisterEventListeners()
+	{
+	}
+
+	void RenderPass_Wireframe::UnRegisterEventListeners()
+	{
+	}
+
 	void RenderPass_Wireframe::ReleaseRendererCommand()
 	{
 		m_RendererCommand.Release();
-	}
-
-	void RenderPass_Wireframe::RegiterOnEvents()
-	{
-		TE_INSTANCE_APPLICATION->RegisterEventListener(EventType::RendererViewportResize, [this](Event& _Event)
-			{
-				OnEventRendererViewportResize(static_cast<EventRendererViewportResize&>(_Event));
-			}
-		);
-	}
-
-	void RenderPass_Wireframe::OnEventRendererViewportResize(EventRendererViewportResize& _Event)
-	{
-		InitTextures();
 	}
 
 }

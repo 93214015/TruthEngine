@@ -11,31 +11,9 @@
 namespace TruthEngine
 {
 
-
-
 	RenderPass_RenderEntityIcons::RenderPass_RenderEntityIcons(RendererLayer* _RendererLayer)
 		: RenderPass(TE_IDX_RENDERPASS::RENDERENTITYICON, _RendererLayer)
 	{
-	}
-
-	void RenderPass_RenderEntityIcons::OnAttach()
-	{
-		m_RendererCommand.Init(TE_IDX_RENDERPASS::RENDERENTITYICON, TE_IDX_SHADERCLASS::RENDERENTITYICON);
-
-		InitTextures();
-		InitBuffers();
-		InitPipeline();
-
-		RegisterOnEvents();
-	}
-
-	void RenderPass_RenderEntityIcons::OnDetach()
-	{
-		ReleaseTextures();
-		ReleaseBuffers();
-		ReleasePipeline();
-
-		m_RendererCommand.Release();
 	}
 
 	void RenderPass_RenderEntityIcons::OnImGuiRender()
@@ -50,8 +28,8 @@ namespace TruthEngine
 	{
 		m_RendererCommand.BeginGraphics(&m_Pipeline);
 
-		m_RendererCommand.SetRenderTarget(m_RTV);
-		m_RendererCommand.SetDepthStencil(m_DSV);
+		m_RendererCommand.SetRenderTarget(m_RendererLayer->GetRenderTargetViewSceneSDR());
+		m_RendererCommand.SetDepthStencil(m_RendererLayer->GetDepthStencilViewSceneNoMS());
 		m_RendererCommand.SetViewPort(&m_RendererLayer->GetViewportScene(), &m_RendererLayer->GetViewRectScene());
 	}
 
@@ -87,10 +65,13 @@ namespace TruthEngine
 		}
 	}
 
+	void RenderPass_RenderEntityIcons::InitRendererCommand()
+	{
+		m_RendererCommand.Init(TE_IDX_RENDERPASS::RENDERENTITYICON, TE_IDX_SHADERCLASS::RENDERENTITYICON);
+	}
+
 	void RenderPass_RenderEntityIcons::InitTextures()
 	{
-		m_RendererCommand.CreateRenderTargetView(TE_IDX_GRESOURCES::Texture_RT_SceneBuffer, &m_RTV);
-		m_RendererCommand.CreateDepthStencilView(TE_IDX_GRESOURCES::Texture_DS_SceneBuffer, &m_DSV);
 	}
 
 	void RenderPass_RenderEntityIcons::InitBuffers()
@@ -98,7 +79,7 @@ namespace TruthEngine
 		m_ConstantBuffer = m_RendererCommand.CreateConstantBufferDirect<ConstantBufferData_RenderEntityIcon>(TE_IDX_GRESOURCES::Constant_RenderEntityIcon);
 	}
 
-	void RenderPass_RenderEntityIcons::InitPipeline()
+	void RenderPass_RenderEntityIcons::InitPipelines()
 	{
 		RendererStateSet _RendererStates = InitRenderStates(
 			TE_RENDERER_STATE_ENABLED_SHADER_HS_FALSE,
@@ -127,11 +108,16 @@ namespace TruthEngine
 		Shader* shader = nullptr;
 		auto result = TE_INSTANCE_SHADERMANAGER->AddShader(&shader, TE_IDX_SHADERCLASS::RENDERENTITYICON, TE_IDX_MESH_TYPE::MESH_POINT, _RendererStates, "Assets/Shaders/RenderEntityIcon.hlsl", "vs", "ps", "", "", "", "gs");
 
-		TE_RESOURCE_FORMAT rtvFormats[] = { TE_RESOURCE_FORMAT::R8G8B8A8_UNORM };
+		TE_RESOURCE_FORMAT rtvFormats[] = { m_RendererLayer->GetFormatRenderTargetSceneSDR() };
 
 		PipelineBlendMode _BlendMode{TE_BLEND::SRC_ALPHA, TE_BLEND::INV_SRC_ALPHA, TE_BLEND_OP::ADD, TE_BLEND::ZERO, TE_BLEND::ONE, TE_BLEND_OP::ADD, TE_COLOR_WRITE_ENABLE_ALL };
 
-		PipelineGraphics::Factory(&m_Pipeline, _RendererStates, shader, _countof(rtvFormats), rtvFormats, TE_RESOURCE_FORMAT::D32_FLOAT, false, _BlendMode);
+		PipelineGraphics::Factory(&m_Pipeline, _RendererStates, shader, _countof(rtvFormats), rtvFormats, m_RendererLayer->GetFormatDepthStencilScene(), false, _BlendMode);
+	}
+
+	void RenderPass_RenderEntityIcons::ReleaseRendererCommand()
+	{
+		m_RendererCommand.Release();
 	}
 
 	void RenderPass_RenderEntityIcons::ReleaseTextures()
@@ -142,22 +128,16 @@ namespace TruthEngine
 	{
 	}
 
-	void RenderPass_RenderEntityIcons::ReleasePipeline()
+	void RenderPass_RenderEntityIcons::ReleasePipelines()
 	{
 	}
 
-	void RenderPass_RenderEntityIcons::RegisterOnEvents()
+	void RenderPass_RenderEntityIcons::RegisterEventListeners()
 	{
-		TE_INSTANCE_APPLICATION->RegisterEventListener(EventType::RendererViewportResize, [this](Event& _Event) 
-			{
-				OnEventRendererViewportResize(static_cast<EventRendererViewportResize&>(_Event));
-			}
-		);
 	}
 
-	void RenderPass_RenderEntityIcons::OnEventRendererViewportResize(EventRendererViewportResize& _Event)
+	void RenderPass_RenderEntityIcons::UnRegisterEventListeners()
 	{
-		InitTextures();
 	}
 
 }

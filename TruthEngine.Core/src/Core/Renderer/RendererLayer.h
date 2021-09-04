@@ -98,15 +98,18 @@ namespace TruthEngine
 		const RenderTargetView& GetRenderTargetViewScene() const;
 		const RenderTargetView& GetRenderTargetViewSceneNoMS() const;
 		const RenderTargetView& GetRenderTargetViewSceneNoHDR() const;
-		const RenderTargetView& GetRenderTargetViewSceneLDR() const;
+		const RenderTargetView& GetRenderTargetViewSceneSDR() const;
 		const RenderTargetView& GetRenderTargetViewSceneHDR() const;
 		const DepthStencilView& GetDepthStencilViewScene() const;
 		const DepthStencilView& GetDepthStencilViewSceneNoMS() const;
 
 		const Viewport& GetViewportScene() const;
 		const ViewRect& GetViewRectScene() const;
-		TE_RESOURCE_FORMAT GetDepthStencilFormatScene() const;
-		TE_RESOURCE_FORMAT GetRenderTargetFormatScene() const;
+
+		TE_RESOURCE_FORMAT GetFormatDepthStencilScene() const;
+		TE_RESOURCE_FORMAT GetFormatRenderTargetScene() const;
+		TE_RESOURCE_FORMAT GetFormatRenderTargetSceneHDR() const;
+		TE_RESOURCE_FORMAT GetFormatRenderTargetSceneSDR() const;
 
 	private:
 		void RegisterEvents();
@@ -121,6 +124,7 @@ namespace TruthEngine
 		void _ChangeUnfrequentBuffer_LightDirectionalCount(uint32_t _LightDirectionalCount);
 		void _ChangeUnfrequentBuffer_LightSpotCount(uint32_t _LightSpotCount);
 		void _ChangeUnfrequentBuffer_LightPointCount(uint32_t _LightPointCount);
+
 
 		void InitRenderPasses();
 		void InitTextures();
@@ -155,11 +159,16 @@ namespace TruthEngine
 
 		std::vector<const Model3D*> m_Model3DQueue;
 
-		RenderTargetView *m_RTVSceneCurrent, * m_RTVSceneCurrentNoMS, * m_RTVSceneCurrentNoHDR, m_RTVBackBuffer, m_RTVSceneBuffer, m_RTVSceneBufferMS, m_RTVSceneBufferHDR, m_RTVSceneBufferHDRMS;
+		RenderTargetView *m_RTVSceneCurrent, *m_RTVSceneCurrentNoMS, *m_RTVSceneCurrentNoHDR, m_RTVBackBuffer, m_RTVSceneBuffer, m_RTVSceneBufferMS, m_RTVSceneBufferHDR, m_RTVSceneBufferHDRMS;
 		DepthStencilView m_DSVSceneBuffer, m_DSVSceneBufferMS;
 
+		TextureRenderTarget *m_TextureRTSceneBuffer, *m_TextureRTSceneBufferMS, *m_TextureRTSceneBufferHDR, *m_TextureRTSceneBufferHDRMS;
+		TextureDepthStencil *m_TextureDSScene, *m_TextureDSSceneMS;
+
 		TE_RESOURCE_FORMAT m_SceneDepthStencilFormat;
-		TE_RESOURCE_FORMAT m_SceneRenderTargetFormat;
+		TE_RESOURCE_FORMAT m_SceneRenderTargetFormatHDR;
+		TE_RESOURCE_FORMAT m_SceneRenderTargetFormatSDR;
+		TE_RESOURCE_FORMAT m_SceneRenderTargetFormatCurrent;
 
 		ConstantBufferUpload<ConstantBuffer_Data_Per_Frame>* m_CB_PerFrame;
 		ConstantBufferUpload<ConstantBuffer_Data_LightData>* m_CB_LightData;

@@ -11,41 +11,6 @@ namespace TruthEngine
 		, m_ViewRect{ 0l,0l,0l,0l }
 	{
 	}
-	void RenderPass_GenerateIBLSpecular::OnAttach()
-	{
-		TE_ASSERT_CORE(m_IsInitialized, "The RenderPass_GenerateIBLSpecular is not initialized!");
-
-		std::for_each(
-			m_ContainerRendererCommand_Prefilter.begin(),
-			m_ContainerRendererCommand_Prefilter.end(),
-			[](RendererCommand& _RendererCommand)
-			{
-				_RendererCommand.Init(TE_IDX_RENDERPASS::GENERATEIBLSPECULAR, TE_IDX_SHADERCLASS::GENERATEIBLSPECULAR_PREFILTER);
-			}
-		);
-
-		m_RendererCommand_BRDF.Init(TE_IDX_RENDERPASS::GENERATEIBLSPECULAR, TE_IDX_SHADERCLASS::GENERATEIBLSPECULAR_BRDF);
-
-		InitTextures();
-		InitBuffers();
-
-		InitPipeline();
-	}
-	void RenderPass_GenerateIBLSpecular::OnDetach()
-	{
-		std::for_each(
-			m_ContainerRendererCommand_Prefilter.begin(),
-			m_ContainerRendererCommand_Prefilter.end(),
-			[](RendererCommand& _RendererCommand)
-			{
-				_RendererCommand.Release();
-			}
-		);
-
-		m_RendererCommand_BRDF.Release();
-
-		m_IsInitialized = false;
-	}
 	void RenderPass_GenerateIBLSpecular::OnImGuiRender()
 	{
 	}
@@ -74,7 +39,7 @@ namespace TruthEngine
 
 		m_RendererCommand_BRDF.BeginGraphics(&m_PipelineBRDF);
 
-		Viewport _ViewportBRDF{ 0.0f, 0.0f, static_cast<float>(m_TextureIBLPrecomputeBRDFSize), static_cast<float>(m_TextureIBLPrecomputeBRDFSize) , 0.0f, 1.0f};
+		Viewport _ViewportBRDF{ 0.0f, 0.0f, static_cast<float>(m_TextureIBLPrecomputeBRDFSize), static_cast<float>(m_TextureIBLPrecomputeBRDFSize) , 0.0f, 1.0f };
 		ViewRect _ViewRectBRDF{ 0l, 0l, static_cast<long>(m_TextureIBLPrecomputeBRDFSize), static_cast<long>(m_TextureIBLPrecomputeBRDFSize) };
 
 		m_RendererCommand_BRDF.SetViewPort(&_ViewportBRDF, &_ViewRectBRDF);
@@ -105,16 +70,16 @@ namespace TruthEngine
 			m_ContainerRendererCommand_Prefilter.begin(),
 			m_ContainerRendererCommand_Prefilter.end(),
 			[this, _CBData, _MipLevel = 0.0f](RendererCommand& _RendererCommand) mutable
-			{
-				_RendererCommand.ExecutePendingCommands();
+		{
+			_RendererCommand.ExecutePendingCommands();
 
-				_CBData->Roughness = _MipLevel / static_cast<float>(m_MipMapLevels - 1);
-				_RendererCommand.SetDirectConstantGraphics(m_ConstantBufferDirect);
+			_CBData->Roughness = _MipLevel / static_cast<float>(m_MipMapLevels - 1);
+			_RendererCommand.SetDirectConstantGraphics(m_ConstantBufferDirect);
 
-				_RendererCommand.Draw(1, 0);
+			_RendererCommand.Draw(1, 0);
 
-				_MipLevel++;
-			}
+			_MipLevel++;
+		}
 		);
 
 
@@ -130,12 +95,27 @@ namespace TruthEngine
 		m_TextureIBLFormat = _TextureIBLFormat;
 
 		m_Viewport.Resize(static_cast<float>(_TextureIBLPrefilterEnvironmentSize), static_cast<float>(_TextureIBLPrefilterEnvironmentSize));
-		m_ViewRect = ViewRect{0l, 0l, static_cast<long>(_TextureIBLPrefilterEnvironmentSize) , static_cast<long>(_TextureIBLPrefilterEnvironmentSize) };
+		m_ViewRect = ViewRect{ 0l, 0l, static_cast<long>(_TextureIBLPrefilterEnvironmentSize) , static_cast<long>(_TextureIBLPrefilterEnvironmentSize) };
 
 		m_ContainerRendererCommand_Prefilter.resize(_MipLevels);
 		m_ContainerRTVPrefilter.resize(_MipLevels);
 
 		m_IsInitialized = true;
+	}
+	void TruthEngine::RenderPass_GenerateIBLSpecular::InitRendererCommand()
+	{
+		TE_ASSERT_CORE(m_IsInitialized, "The RenderPass_GenerateIBLSpecular is not initialized!");
+
+		std::for_each(
+			m_ContainerRendererCommand_Prefilter.begin(),
+			m_ContainerRendererCommand_Prefilter.end(),
+			[](RendererCommand& _RendererCommand)
+			{
+				_RendererCommand.Init(TE_IDX_RENDERPASS::GENERATEIBLSPECULAR, TE_IDX_SHADERCLASS::GENERATEIBLSPECULAR_PREFILTER);
+			}
+		);
+
+		m_RendererCommand_BRDF.Init(TE_IDX_RENDERPASS::GENERATEIBLSPECULAR, TE_IDX_SHADERCLASS::GENERATEIBLSPECULAR_BRDF);
 	}
 	void RenderPass_GenerateIBLSpecular::InitTextures()
 	{
@@ -157,7 +137,7 @@ namespace TruthEngine
 	{
 		m_ConstantBufferDirect = m_ContainerRendererCommand_Prefilter[0].CreateConstantBufferDirect<ConstantBuffer_Data>(TE_IDX_GRESOURCES::Constant_IBL_Specular);
 	}
-	void RenderPass_GenerateIBLSpecular::InitPipeline()
+	void TruthEngine::RenderPass_GenerateIBLSpecular::InitPipelines()
 	{
 		// Prefilter Environment Map
 		{
@@ -223,4 +203,35 @@ namespace TruthEngine
 			PipelineGraphics::Factory(&m_PipelineBRDF, _RendererStatesBRDF, shader, _countof(rtvFormats), rtvFormats, TE_RESOURCE_FORMAT::D32_FLOAT, false);
 		}
 	}
+	void TruthEngine::RenderPass_GenerateIBLSpecular::ReleaseRendererCommand()
+	{
+		std::for_each(
+			m_ContainerRendererCommand_Prefilter.begin(),
+			m_ContainerRendererCommand_Prefilter.end(),
+			[](RendererCommand& _RendererCommand)
+			{
+				_RendererCommand.Release();
+			}
+		);
+
+		m_RendererCommand_BRDF.Release();
+
+		m_IsInitialized = false;
+	}
+	void TruthEngine::RenderPass_GenerateIBLSpecular::ReleaseTextures()
+	{
+	}
+	void TruthEngine::RenderPass_GenerateIBLSpecular::ReleaseBuffers()
+	{
+	}
+	void TruthEngine::RenderPass_GenerateIBLSpecular::ReleasePipelines()
+	{
+	}
+	void TruthEngine::RenderPass_GenerateIBLSpecular::RegisterEventListeners()
+	{
+	}
+	void TruthEngine::RenderPass_GenerateIBLSpecular::UnRegisterEventListeners()
+	{
+	}
+	
 }

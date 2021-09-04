@@ -23,12 +23,6 @@ namespace TruthEngine
 		RenderPass_GenerateShadowMap(RendererLayer* _RendererLayer, uint32_t ShadowMapSize);
 
 
-		void OnAttach() override;
-
-
-		void OnDetach() override;
-
-
 		void OnImGuiRender() override;
 
 
@@ -45,8 +39,18 @@ namespace TruthEngine
 
 
 	private:
+		void InitRendererCommand() override;
+		void InitTextures() override;
+		void InitBuffers() override;
+		void InitPipelines() override;
 
-		void InitPipeline();
+		void ReleaseRendererCommand() override;
+		void ReleaseTextures() override;
+		void ReleaseBuffers() override;
+		void ReleasePipelines() override;
+
+		void RegisterEventListeners() override;
+		void UnRegisterEventListeners() override;
 
 		void RenderSpotLightShadowMap();
 
@@ -69,10 +73,6 @@ namespace TruthEngine
 
 		std::unordered_map<TE_IDX_MESH_TYPE, PipelineGraphics*> m_PipelinesForwardDepth;
 		std::unordered_map<TE_IDX_MESH_TYPE, PipelineGraphics*> m_PipelinesReveresedDepth;
-
-		ShaderManager* m_ShaderManager;
-		BufferManager* m_BufferManager;
-		LightManager* m_LightManager;
 
 		struct alignas(16) ConstantBuffer_Data_Per_Mesh
 		{

@@ -25,14 +25,21 @@ namespace TruthEngine
 		void Render() override;
 
 	private:
-		void InitTextures();
-		void InitBuffers();
+		void InitRendererCommand() override;
+		void InitTextures() override;
+		void InitBuffers() override;
+		void InitPipelines() override;
 
-		void ReleaseResources();
 
-		void PreparePipelines(const class Material* _Material);
+		void ReleaseRendererCommand() override;
+		void ReleaseTextures() override;
+		void ReleaseBuffers() override;
+		void ReleasePipelines() override;
 
-		void RegisterEvents();
+		void RegisterEventListeners() override;
+		void UnRegisterEventListeners() override;
+
+		void InitPipelines(const class Material* _Material);
 
 		void OnRendererViewportResize(const class EventRendererViewportResize& _Event);
 		void OnAddMaterial(const class EventEntityAddMaterial& _Event);
@@ -45,19 +52,10 @@ namespace TruthEngine
 		RenderTargetView m_RenderTargetViewGBufferNormal;
 		RenderTargetView m_RenderTargetViewGBufferSpecular;
 
-		DepthStencilView m_DepthStencilView;
-
 		TextureRenderTarget* m_TextureGBufferColor;
 		TextureRenderTarget* m_TextureGBufferNormal;
 		TextureRenderTarget* m_TextureGBufferSpecular;
 
-		Viewport m_Viewport;
-		ViewRect m_ViewRect;
-
-		BufferManager* m_BufferManager;
-		ShaderManager* m_ShaderManager;
-
-		
 		std::vector<PipelineGraphics> m_ContainerPipelines;
 		std::unordered_map<uint32_t, PipelineGraphics*> m_MapMaterialPipeline;
 
@@ -78,6 +76,8 @@ namespace TruthEngine
 		};
 
 		ConstantBufferDirect<ConstantBuffer_Data_Per_Mesh>* m_ConstantBufferDirect_PerMesh;
+
+		std::vector<EventListenerHandle> m_EventListeners;
 
 	};
 }

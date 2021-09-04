@@ -9,14 +9,12 @@
 
 namespace TruthEngine
 {
-	class RenderPass_GenerateIBLSpecular : public RenderPass
+	class RenderPass_GenerateIBLSpecular final : public RenderPass
 	{
 	public:
 		RenderPass_GenerateIBLSpecular(RendererLayer* _RendererLayer);
 
 		// Inherited via RenderPass
-		virtual void OnAttach() override;
-		virtual void OnDetach() override;
 		virtual void OnImGuiRender() override;
 		virtual void OnUpdate(double _DeltaTime) override;
 		virtual void BeginScene() override;
@@ -26,10 +24,18 @@ namespace TruthEngine
 		void Initialize(size_t _TextureIBLPrefilterEnvironmentSize, size_t _TextureIBLPrecomputeBRDFSize, size_t _MipMapLevels, TE_RESOURCE_FORMAT _TextureIBLFormat);
 
 	private:
-		void InitTextures();
-		void InitBuffers();
-		void InitPipeline();
+		void InitRendererCommand() override;
+		void InitTextures() override;
+		void InitBuffers() override;
+		void InitPipelines() override;
 
+		void ReleaseRendererCommand() override;
+		void ReleaseTextures() override;
+		void ReleaseBuffers() override;
+		void ReleasePipelines() override;
+
+		void RegisterEventListeners() override;
+		void UnRegisterEventListeners() override;
 	private:
 		bool m_IsInitialized = false;
 		uint32_t m_TextureIBLPrefilterEnvironmentSize;

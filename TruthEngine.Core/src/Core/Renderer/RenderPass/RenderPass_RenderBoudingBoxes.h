@@ -18,12 +18,6 @@ namespace TruthEngine
 		RenderPass_RenderBoundingBoxes(RendererLayer* _RendererLayer);
 
 
-		void OnAttach() override;
-
-
-		void OnDetach() override;
-
-
 		void OnImGuiRender() override;
 
 
@@ -43,18 +37,21 @@ namespace TruthEngine
 
 
 	private:
-		void InitTextures();
-		void InitBuffers();
-		void InitPipelines();
-		void RegisterOnEvents();
+		void InitRendererCommand() override;
+		void InitTextures() override;
+		void InitBuffers() override;
+		void InitPipelines() override;
 
-		void OnEventRendererViewportResize(class EventRendererViewportResize& _Event);
+		void ReleaseRendererCommand() override;
+		void ReleaseTextures() override;
+		void ReleaseBuffers() override;
+		void ReleasePipelines() override;
+
+		void RegisterEventListeners() override;
+		void UnRegisterEventListeners() override;
 
 	private:
 		RendererCommand m_RendererCommand;
-
-		RenderTargetView m_RenderTargetView;
-		DepthStencilView m_DepthStencilView;
 
 		PipelineGraphics m_Pipeline;
 

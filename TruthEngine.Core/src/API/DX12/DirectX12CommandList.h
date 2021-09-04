@@ -61,11 +61,11 @@ namespace TruthEngine
 
 
 			//void SetRenderTarget(TextureRenderTarget* RenderTargets[], const uint32_t RenderTargetNum, const TextureDepthStencil* DepthStencil) override;
-			void SetRenderTarget(const RenderTargetView RTV) override;
-			void SetRenderTarget(SwapChain* swapChain, const RenderTargetView RTV) override;
+			void SetRenderTarget(const RenderTargetView& RTV) override;
+			void SetRenderTarget(SwapChain* swapChain, const RenderTargetView& RTV) override;
 
 
-			void SetDepthStencil(const DepthStencilView DSV) override;
+			void SetDepthStencil(const DepthStencilView& DSV) override;
 
 			void ResolveMultiSampledTexture(Texture* _SourceTexture, Texture* _DestTexture) override;
 

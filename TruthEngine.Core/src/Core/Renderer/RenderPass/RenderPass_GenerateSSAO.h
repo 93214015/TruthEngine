@@ -12,15 +12,12 @@
 
 namespace TruthEngine
 {
-	class RenderPass_GenerateSSAO : public RenderPass
+	class RenderPass_GenerateSSAO final : public RenderPass
 	{
 	public:
 		RenderPass_GenerateSSAO(RendererLayer* _RendererLayer);
 
 		// Inherited via RenderPass
-		virtual void OnAttach() override;
-
-		virtual void OnDetach() override;
 
 		virtual void OnImGuiRender() override;
 
@@ -34,14 +31,18 @@ namespace TruthEngine
 
 	private:
 
-		void InitTextures();
-		void InitBuffers();
-		void InitPipeline();
-		void ReleaseTextures();
-		void ReleaseBuffers();
-		void ReleasePipeline();
+		void InitRendererCommand() override;
+		void InitTextures() override;
+		void InitBuffers() override;
+		void InitPipelines() override;
 
-		void RegisterEvents();
+		void ReleaseRendererCommand() override;
+		void ReleaseTextures() override;
+		void ReleaseBuffers() override;
+		void ReleasePipelines() override;
+
+		void RegisterEventListeners() override;
+		void UnRegisterEventListeners() override;
 
 		void OnEventRendererViewportResize(const EventRendererViewportResize& _Event);
 
@@ -61,7 +62,7 @@ namespace TruthEngine
 		PipelineGraphics m_Pipeline;
 		PipelineGraphics m_PipelineBlurring;
 
-		float3A m_KernelSamples[64];
+		float3 m_KernelSamples[64];
 
 		struct alignas(16) ConstantBufferData_SSAO
 		{
@@ -69,12 +70,14 @@ namespace TruthEngine
 			float SSAODepthBias = 0.025f;
 			float2 _Pad0;
 
-			float3A KernelSamples[64];
+			float3 KernelSamples[64];
 		};
 
 		ConstantBufferUpload<ConstantBufferData_SSAO>* m_ConstantBufferSSAO;
 
 		float3A m_Noises[16];
+
+		std::vector<EventListenerHandle> m_EventListenerList;
 
 	};
 }

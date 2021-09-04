@@ -174,7 +174,7 @@ namespace TruthEngine::API::DirectX12
 		mD3D12CommandList->SetPipelineState(TE_INSTANCE_API_DX12_PIPELINEMANAGER->GetComputePipeline(pipeline).Get());
 	}
 
-	void DirectX12CommandList::SetRenderTarget(SwapChain* swapChain, const RenderTargetView RTV)
+	void DirectX12CommandList::SetRenderTarget(SwapChain* swapChain, const RenderTargetView& RTV)
 	{
 		auto sc = static_cast<DirectX12SwapChain*>(swapChain);
 
@@ -195,7 +195,7 @@ namespace TruthEngine::API::DirectX12
 
 	}
 
-	void DirectX12CommandList::SetRenderTarget(const RenderTargetView RTV)
+	void DirectX12CommandList::SetRenderTarget(const RenderTargetView& RTV)
 	{
 		_ChangeResourceState(RTV.Resource, TE_RESOURCE_STATES::RENDER_TARGET);
 
@@ -204,7 +204,7 @@ namespace TruthEngine::API::DirectX12
 		m_RTVHandleNum++;
 	}
 
-	void DirectX12CommandList::SetDepthStencil(const DepthStencilView DSV)
+	void DirectX12CommandList::SetDepthStencil(const DepthStencilView& DSV)
 	{
 		_ChangeResourceState(DSV.Resource, TE_RESOURCE_STATES::DEPTH_WRITE);
 

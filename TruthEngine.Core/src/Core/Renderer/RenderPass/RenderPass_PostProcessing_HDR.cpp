@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "RenderPass_PostProcessing_HDR.h"
 
+#include "Core/Renderer/RendererLayer.h"
 #include "Core/Renderer/ShaderManager.h"
 
 #include "Core/Event/EventRenderer.h"
@@ -9,35 +10,8 @@
 
 TruthEngine::RenderPass_PostProcessing_HDR::RenderPass_PostProcessing_HDR(RendererLayer* _RendererLayer)
 	: RenderPass(TE_IDX_RENDERPASS::POSTPROCESSING_HDR, _RendererLayer)
-	, mViewPort(0, 0, static_cast<float>(TE_INSTANCE_APPLICATION->GetClientWidth()), static_cast<float>(TE_INSTANCE_APPLICATION->GetClientHeight()), .0f, 1.0f)
-	, mViewRect(static_cast<long>(0), static_cast<long>(0), static_cast<long>(TE_INSTANCE_APPLICATION->GetClientWidth()), static_cast<long>(TE_INSTANCE_APPLICATION->GetClientHeight()))
 	, mAdaptationPercentage(1.0)
 {
-}
-
-void TruthEngine::RenderPass_PostProcessing_HDR::OnAttach()
-{
-	Application* _App = TE_INSTANCE_APPLICATION;
-
-	mRendererCommand_DownScaling_FirstPass.Init(TE_IDX_RENDERPASS::POSTPROCESSING_HDR, TE_IDX_SHADERCLASS::POSTPROCESSING_HDR_DOWNSACLING_FIRSTPASS);
-	mRendererCommand_DownScaling_SecondPass.Init(TE_IDX_RENDERPASS::POSTPROCESSING_HDR, TE_IDX_SHADERCLASS::POSTPROCESSING_HDR_DOWNSACLING_SECONDPASS);
-	mRendererCommand_BloomPass.Init(TE_IDX_RENDERPASS::POSTPROCESSING_HDR, TE_IDX_SHADERCLASS::POSTPROCESSING_HDR_BLOOMPASS);
-	mRendererCommand_BlurPassHorz.Init(TE_IDX_RENDERPASS::POSTPROCESSING_HDR, TE_IDX_SHADERCLASS::POSTPROCESSING_GAUSSIANBLUR_HORZ);
-	mRendererCommand_BlurPassVert.Init(TE_IDX_RENDERPASS::POSTPROCESSING_HDR, TE_IDX_SHADERCLASS::POSTPROCESSING_GAUSSIANBLUR_VERT);
-	mRendererCommand_FinalPass.Init(TE_IDX_RENDERPASS::POSTPROCESSING_HDR, TE_IDX_SHADERCLASS::POSTPROCESSING_HDR_FINALPASS);
-
-	InitBuffers();
-	InitTexture();
-	InitPipeline();
-	RegisterOnEvents();
-
-
-	ResizedViewport(_App->GetSceneViewportWidth(), _App->GetSceneViewportHeight());
-}
-
-void TruthEngine::RenderPass_PostProcessing_HDR::OnDetach()
-{
-	ReleaseResources();
 }
 
 void TruthEngine::RenderPass_PostProcessing_HDR::OnImGuiRender()
@@ -107,8 +81,9 @@ void TruthEngine::RenderPass_PostProcessing_HDR::BeginScene()
 
 
 	mRendererCommand_FinalPass.BeginGraphics(&mPipelineFinalPass);
-	mRendererCommand_FinalPass.SetRenderTarget(mRenderTargetView_SceneBuffer);
-	mRendererCommand_FinalPass.SetViewPort(&mViewPort, &mViewRect);
+	mRendererCommand_FinalPass.SetRenderTarget(m_RendererLayer->GetRenderTargetViewSceneSDR());
+	mRendererCommand_FinalPass.SetViewPort(&m_RendererLayer->GetViewportScene(), &m_RendererLayer->GetViewRectScene());
+
 
 }
 
@@ -152,7 +127,7 @@ void TruthEngine::RenderPass_PostProcessing_HDR::Render()
 
 	uint32_t horz = static_cast<uint32_t>(ceil(mSceneViewQuarterSize[0] / (128.0f - 12.0f)));
 	uint32_t vert = static_cast<uint32_t>(ceil(mSceneViewQuarterSize[1] / (128.0f - 12.0f)));
-	
+
 	//Horz Pipeline is set in BeginScene() Stage
 	mRendererCommand_BlurPassHorz.ExecutePendingCommands();
 	mRendererCommand_BlurPassHorz.Dispatch(horz, mSceneViewQuarterSize[1], 1);
@@ -168,6 +143,36 @@ void TruthEngine::RenderPass_PostProcessing_HDR::Render()
 	_BufferIndex = (_BufferIndex + 1) % 2;
 }
 
+
+void TruthEngine::RenderPass_PostProcessing_HDR::InitRendererCommand()
+{
+	mRendererCommand_DownScaling_FirstPass.Init(TE_IDX_RENDERPASS::POSTPROCESSING_HDR, TE_IDX_SHADERCLASS::POSTPROCESSING_HDR_DOWNSACLING_FIRSTPASS);
+	mRendererCommand_DownScaling_SecondPass.Init(TE_IDX_RENDERPASS::POSTPROCESSING_HDR, TE_IDX_SHADERCLASS::POSTPROCESSING_HDR_DOWNSACLING_SECONDPASS);
+	mRendererCommand_BloomPass.Init(TE_IDX_RENDERPASS::POSTPROCESSING_HDR, TE_IDX_SHADERCLASS::POSTPROCESSING_HDR_BLOOMPASS);
+	mRendererCommand_BlurPassHorz.Init(TE_IDX_RENDERPASS::POSTPROCESSING_HDR, TE_IDX_SHADERCLASS::POSTPROCESSING_GAUSSIANBLUR_HORZ);
+	mRendererCommand_BlurPassVert.Init(TE_IDX_RENDERPASS::POSTPROCESSING_HDR, TE_IDX_SHADERCLASS::POSTPROCESSING_GAUSSIANBLUR_VERT);
+	mRendererCommand_FinalPass.Init(TE_IDX_RENDERPASS::POSTPROCESSING_HDR, TE_IDX_SHADERCLASS::POSTPROCESSING_HDR_FINALPASS);
+}
+
+void TruthEngine::RenderPass_PostProcessing_HDR::InitTextures()
+{
+	const Application* _App = TE_INSTANCE_APPLICATION;
+
+	uint32_t _ViewportWidth = _App->GetSceneViewportWidth();
+	uint32_t _ViewportHeight = _App->GetSceneViewportHeight();
+
+	{
+		uint32_t _Width = ceil(static_cast<float>(_ViewportWidth) / 4.0f);
+		uint32_t _Height = ceil(static_cast<float>(_ViewportHeight) / 4.0f);
+		mRWTextureDownScaledHDR = mRendererCommand_DownScaling_FirstPass.CreateTextureRW(TE_IDX_GRESOURCES::Texture_RW_DownScaledHDR, _Width, _Height, TE_RESOURCE_FORMAT::R16G16B16A16_FLOAT, true, false);
+		mRWTextureBloom = mRendererCommand_DownScaling_FirstPass.CreateTextureRW(TE_IDX_GRESOURCES::Texture_RW_Bloom, _Width, _Height, TE_RESOURCE_FORMAT::R16G16B16A16_FLOAT, true, false);
+		mRWTextureBluredBloom = mRendererCommand_DownScaling_FirstPass.CreateTextureRW(TE_IDX_GRESOURCES::Texture_RW_BloomBlured, _Width, _Height, TE_RESOURCE_FORMAT::R16G16B16A16_FLOAT, true, false);
+		mRWTextureBluredBloomHorz = mRendererCommand_DownScaling_FirstPass.CreateTextureRW(TE_IDX_GRESOURCES::Texture_RW_BloomBluredHorz, _Width, _Height, TE_RESOURCE_FORMAT::R16G16B16A16_FLOAT, true, false);
+	}
+
+
+	ResizedViewport(_ViewportWidth, _App->GetSceneViewportHeight());
+}
 
 void TruthEngine::RenderPass_PostProcessing_HDR::InitBuffers()
 {
@@ -188,24 +193,60 @@ void TruthEngine::RenderPass_PostProcessing_HDR::InitBuffers()
 	mRendererCommand_FinalPass.AddUpdateTask([=]() {*mConstantBufferFinalPass->GetData() = ConstantBuffer_Data_FinalPass(0.003f, 1.5f, 0.0f, _ProjectionValues, float2{ 1000.0f, 1 / mDOFFarRange }); });
 }
 
-void TruthEngine::RenderPass_PostProcessing_HDR::InitTexture()
+void TruthEngine::RenderPass_PostProcessing_HDR::InitPipelines()
 {
-	mRendererCommand_DownScaling_FirstPass.CreateRenderTargetView(TE_IDX_GRESOURCES::Texture_RT_SceneBuffer, &mRenderTargetView_SceneBuffer);
-
-	uint32_t _ViewportWidth = TE_INSTANCE_APPLICATION->GetSceneViewportWidth();
-	uint32_t _ViewportHeight = TE_INSTANCE_APPLICATION->GetSceneViewportHeight();
-
-	{
-		uint32_t _Width = ceil(static_cast<float>(_ViewportWidth) / 4.0f);
-		uint32_t _Height = ceil(static_cast<float>(_ViewportHeight) / 4.0f);
-		mRWTextureDownScaledHDR = mRendererCommand_DownScaling_FirstPass.CreateTextureRW(TE_IDX_GRESOURCES::Texture_RW_DownScaledHDR, _Width, _Height, TE_RESOURCE_FORMAT::R16G16B16A16_FLOAT, true, false);
-		mRWTextureBloom = mRendererCommand_DownScaling_FirstPass.CreateTextureRW(TE_IDX_GRESOURCES::Texture_RW_Bloom, _Width, _Height, TE_RESOURCE_FORMAT::R16G16B16A16_FLOAT, true, false);
-		mRWTextureBluredBloom = mRendererCommand_DownScaling_FirstPass.CreateTextureRW(TE_IDX_GRESOURCES::Texture_RW_BloomBlured, _Width, _Height, TE_RESOURCE_FORMAT::R16G16B16A16_FLOAT, true, false);
-		mRWTextureBluredBloomHorz = mRendererCommand_DownScaling_FirstPass.CreateTextureRW(TE_IDX_GRESOURCES::Texture_RW_BloomBluredHorz, _Width, _Height, TE_RESOURCE_FORMAT::R16G16B16A16_FLOAT, true, false);
-	}
 }
 
-void TruthEngine::RenderPass_PostProcessing_HDR::InitPipeline()
+void TruthEngine::RenderPass_PostProcessing_HDR::ReleaseRendererCommand()
+{
+	mRendererCommand_DownScaling_FirstPass.Release();
+	mRendererCommand_DownScaling_SecondPass.Release();
+	mRendererCommand_BloomPass.Release();
+	mRendererCommand_BlurPassHorz.Release();
+	mRendererCommand_BlurPassVert.Release();
+	mRendererCommand_FinalPass.Release();
+
+}
+
+void TruthEngine::RenderPass_PostProcessing_HDR::ReleaseTextures()
+{
+	mRendererCommand_FinalPass.ReleaseResource(mRWTextureDownScaledHDR);
+	mRendererCommand_FinalPass.ReleaseResource(mRWTextureBloom);
+	mRendererCommand_FinalPass.ReleaseResource(mRWTextureBluredBloom);
+	mRendererCommand_FinalPass.ReleaseResource(mRWTextureBluredBloomHorz);
+
+}
+
+void TruthEngine::RenderPass_PostProcessing_HDR::ReleaseBuffers()
+{
+	mRendererCommand_DownScaling_FirstPass.ReleaseResource(mConstantBufferDownScaling);
+	mRendererCommand_DownScaling_FirstPass.ReleaseResource(mConstantBufferFinalPass);
+	mRendererCommand_DownScaling_FirstPass.ReleaseResource(mBufferRWAverageLumFirstPass);
+	mRendererCommand_DownScaling_FirstPass.ReleaseResource(mBufferRWAverageLumSecondPass0);
+	mRendererCommand_DownScaling_FirstPass.ReleaseResource(mBufferRWAverageLumSecondPass1);
+}
+
+void TruthEngine::RenderPass_PostProcessing_HDR::ReleasePipelines()
+{
+}
+
+void TruthEngine::RenderPass_PostProcessing_HDR::RegisterEventListeners()
+{
+
+	auto _Lambda_OnTextureResize = [this](Event& _Event)
+	{
+		this->OnRendererViewportResize(static_cast<EventRendererViewportResize&>(_Event));
+	};
+
+	m_EventListenerList.push_back(TE_INSTANCE_APPLICATION->RegisterEventListener(EventType::RendererViewportResize, _Lambda_OnTextureResize));
+}
+
+void TruthEngine::RenderPass_PostProcessing_HDR::UnRegisterEventListeners()
+{
+	TE_INSTANCE_APPLICATION->UnRegisterEventListener(m_EventListenerList.data(), m_EventListenerList.size());
+}
+
+void TruthEngine::RenderPass_PostProcessing_HDR::InitPipelines()
 {
 
 	RendererStateSet _RendererStates = InitRenderStates(
@@ -262,25 +303,14 @@ void TruthEngine::RenderPass_PostProcessing_HDR::InitPipeline()
 	//
 	ShaderManager::GetInstance()->AddShader(&_Shader, TE_IDX_SHADERCLASS::POSTPROCESSING_HDR_FINALPASS, TE_IDX_MESH_TYPE::MESH_SIMPLE, _RendererStates, "Assets/Shaders/HDR_PostProcessing.hlsl", "FullScreenQuadVS", "FinalPassPS");
 
-	TE_RESOURCE_FORMAT _RTVFormat[1] = { TE_RESOURCE_FORMAT::R8G8B8A8_UNORM };
+	TE_RESOURCE_FORMAT _RTVFormat[1] = { m_RendererLayer->GetFormatRenderTargetSceneSDR() };
 
 	PipelineGraphics::Factory(&mPipelineFinalPass, _RendererStates, _Shader, _countof(_RTVFormat), _RTVFormat, TE_RESOURCE_FORMAT::UNKNOWN, false);
 
 }
 
-void TruthEngine::RenderPass_PostProcessing_HDR::ReleaseResources()
-{
-	mRendererCommand_DownScaling_FirstPass.ReleaseResource(mConstantBufferDownScaling);
-	mRendererCommand_DownScaling_FirstPass.ReleaseResource(mConstantBufferFinalPass);
-	mRendererCommand_DownScaling_FirstPass.ReleaseResource(mBufferRWAverageLumFirstPass);
-	mRendererCommand_DownScaling_FirstPass.ReleaseResource(mBufferRWAverageLumSecondPass0);
-	mRendererCommand_DownScaling_FirstPass.ReleaseResource(mBufferRWAverageLumSecondPass1);
-}
-
 void TruthEngine::RenderPass_PostProcessing_HDR::ResizedViewport(uint32_t _Width, uint32_t Height)
 {
-	mViewPort.Resize(_Width, Height);
-	mViewRect = ViewRect{ 0, 0, static_cast<long>(_Width), static_cast<long>(Height) };
 
 	mGroupNum = static_cast<uint32_t>(std::ceilf(static_cast<float>(_Width * Height) / (1024.0f * 16.0f)));
 	mBufferRWAverageLumFirstPass = mRendererCommand_DownScaling_FirstPass.CreateBufferStructuredRW(TE_IDX_GRESOURCES::Buffer_HDRAverageLumFirstPass, 4, mGroupNum, false);
@@ -298,24 +328,13 @@ void TruthEngine::RenderPass_PostProcessing_HDR::ResizedViewport(uint32_t _Width
 			*mConstantBufferBlurPass->GetData() = ConstantBuffer_Data_BlurPass(mSceneViewQuarterSize[0], mSceneViewQuarterSize[1]);
 		});
 
-	mRendererCommand_DownScaling_FirstPass.CreateRenderTargetView(TE_IDX_GRESOURCES::Texture_RT_SceneBuffer, &mRenderTargetView_SceneBuffer);
-
 	mRWTextureDownScaledHDR = mRendererCommand_DownScaling_FirstPass.CreateTextureRW(TE_IDX_GRESOURCES::Texture_RW_DownScaledHDR, mSceneViewQuarterSize[0], mSceneViewQuarterSize[1], TE_RESOURCE_FORMAT::R16G16B16A16_FLOAT, true, false);
 	mRWTextureBloom = mRendererCommand_DownScaling_FirstPass.CreateTextureRW(TE_IDX_GRESOURCES::Texture_RW_Bloom, mSceneViewQuarterSize[0], mSceneViewQuarterSize[1], TE_RESOURCE_FORMAT::R16G16B16A16_FLOAT, true, false);
 	mRWTextureBluredBloom = mRendererCommand_DownScaling_FirstPass.CreateTextureRW(TE_IDX_GRESOURCES::Texture_RW_BloomBlured, mSceneViewQuarterSize[0], mSceneViewQuarterSize[1], TE_RESOURCE_FORMAT::R16G16B16A16_FLOAT, true, false);
 	mRWTextureBluredBloomHorz = mRendererCommand_DownScaling_FirstPass.CreateTextureRW(TE_IDX_GRESOURCES::Texture_RW_BloomBluredHorz, mSceneViewQuarterSize[0], mSceneViewQuarterSize[1], TE_RESOURCE_FORMAT::R16G16B16A16_FLOAT, true, false);
 }
 
-void TruthEngine::RenderPass_PostProcessing_HDR::OnRendererViewportResize(const EventRendererViewportResize & _Event)
+void TruthEngine::RenderPass_PostProcessing_HDR::OnRendererViewportResize(const EventRendererViewportResize& _Event)
 {
 	ResizedViewport(_Event.GetWidth(), _Event.GetHeight());
-}
-
-void TruthEngine::RenderPass_PostProcessing_HDR::RegisterOnEvents()
-{
-	auto _Lambda_OnTextureResize = [this](Event& _Event)
-	{
-		this->OnRendererViewportResize(static_cast<EventRendererViewportResize&>(_Event));
-	};
-	TE_INSTANCE_APPLICATION->RegisterEventListener(EventType::RendererViewportResize, _Lambda_OnTextureResize);
 }

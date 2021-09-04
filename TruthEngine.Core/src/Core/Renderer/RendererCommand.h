@@ -77,9 +77,9 @@ namespace TruthEngine
 
 			void SetPipelineGraphics(PipelineGraphics* pipeline);
 			void SetPipelineCompute(PipelineCompute* pipeline);
-			void SetRenderTarget(const RenderTargetView RTV);
-			void SetRenderTarget(SwapChain* swapChain, const RenderTargetView RTV);
-			void SetDepthStencil(const DepthStencilView DSV);
+			void SetRenderTarget(const RenderTargetView& RTV);
+			void SetRenderTarget(SwapChain* swapChain, const RenderTargetView& RTV);
+			void SetDepthStencil(const DepthStencilView& DSV);
 			void SetDirectConstantGraphics(ConstantBufferDirectBase* cb);
 			void SetDirectConstantCompute(ConstantBufferDirectBase* cb);
 			void SetDirectShaderResourceViewGraphics(GraphicResource* _GraphicResource, uint32_t _ShaderRegisterSlot);
@@ -122,9 +122,9 @@ namespace TruthEngine
 
 			void Dispatch(uint32_t GroupNumX, uint32_t GroupNumY, uint32_t GroupNumZ);
 
-			void ClearRenderTarget(const RenderTargetView RTV);
-			void ClearRenderTarget(const SwapChain* swapChain, const RenderTargetView RTV);
-			void ClearDepthStencil(const DepthStencilView DSV);
+			void ClearRenderTarget(const RenderTargetView& RTV);
+			void ClearRenderTarget(const SwapChain* swapChain, const RenderTargetView& RTV);
+			void ClearDepthStencil(const DepthStencilView& DSV);
 
 			void ResizeRenderTarget(TextureRenderTarget* texture, uint32_t width, uint32_t height, RenderTargetView* RTV, ShaderResourceView* SRV);
 			void ResizeRenderTarget(TE_IDX_GRESOURCES idx, uint32_t width, uint32_t height, RenderTargetView* RTV, ShaderResourceView* SRV);
