@@ -274,8 +274,8 @@ namespace TruthEngine
 
 	void RenderPass_GenerateShadowMap::InitTextures()
 	{
-		m_TextureDepthStencil_SunLight = m_RendererCommand.CreateDepthStencil(TE_IDX_GRESOURCES::Texture_DS_ShadowMap_SunLight, m_ShadoWMapSize, m_ShadoWMapSize, 1, TE_RESOURCE_FORMAT::R32_TYPELESS, ClearValue_DepthStencil{ 1.0f, 0 }, true, false);
-		m_TextureDepthStencil_SpotLight = m_RendererCommand_SpotLights.CreateDepthStencil(TE_IDX_GRESOURCES::Texture_DS_ShadowMap_SpotLight, m_ShadoWMapSize, m_ShadoWMapSize, 1, TE_RESOURCE_FORMAT::R32_TYPELESS, ClearValue_DepthStencil{ 1.0f, 0 }, true, false);
+		m_TextureDepthStencil_SunLight = m_RendererCommand.CreateDepthStencil(TE_IDX_GRESOURCES::Texture_DS_ShadowMap_SunLight, m_ShadoWMapSize, m_ShadoWMapSize, 1, TE_RESOURCE_FORMAT::R32_TYPELESS, ClearValue_DepthStencil{ 1.0f, 0, TE_CLEAR_DEPTH_STENCIL_FLAGS::CLEAR_DEPTH }, true, false);
+		m_TextureDepthStencil_SpotLight = m_RendererCommand_SpotLights.CreateDepthStencil(TE_IDX_GRESOURCES::Texture_DS_ShadowMap_SpotLight, m_ShadoWMapSize, m_ShadoWMapSize, 1, TE_RESOURCE_FORMAT::R32_TYPELESS, ClearValue_DepthStencil{ 1.0f, 0, TE_CLEAR_DEPTH_STENCIL_FLAGS::CLEAR_DEPTH }, true, false);
 
 		m_RendererCommand.CreateDepthStencilView(m_TextureDepthStencil_SunLight, &m_DepthStencilView_SunLight);
 		m_RendererCommand_SpotLights.CreateDepthStencilView(m_TextureDepthStencil_SpotLight, &m_DepthStencilView_SpotLight);
@@ -290,7 +290,7 @@ namespace TruthEngine
 
 	void RenderPass_GenerateShadowMap::InitPipelines()
 	{
-		static RendererStateSet _rendererStateReversedDepth = InitRenderStates(
+		const RendererStateSet _rendererStateReversedDepth = InitRenderStates(
 			TE_RENDERER_STATE_ENABLED_SHADER_HS_FALSE,
 			TE_RENDERER_STATE_ENABLED_SHADER_DS_FALSE,
 			TE_RENDERER_STATE_ENABLED_SHADER_GS_FALSE,
@@ -306,11 +306,10 @@ namespace TruthEngine
 			TE_RENDERER_STATE_ENABLED_STENCIL_FALSE,
 			TE_RENDERER_STATE_FILL_MODE_SOLID,
 			TE_RENDERER_STATE_CULL_MODE_BACK,
-			TE_RENDERER_STATE_PRIMITIVE_TOPOLOGY_TRIANGLELIST,
-			TE_RENDERER_STATE_COMPARISSON_FUNC_GREATER
+			TE_RENDERER_STATE_PRIMITIVE_TOPOLOGY_TRIANGLELIST
 		);
 
-		static RendererStateSet _rendererStateForwardDepth = InitRenderStates(
+		const RendererStateSet _rendererStateForwardDepth = InitRenderStates(
 			TE_RENDERER_STATE_ENABLED_SHADER_HS_FALSE,
 			TE_RENDERER_STATE_ENABLED_SHADER_DS_FALSE,
 			TE_RENDERER_STATE_ENABLED_SHADER_GS_FALSE,
@@ -326,8 +325,7 @@ namespace TruthEngine
 			TE_RENDERER_STATE_ENABLED_STENCIL_FALSE,
 			TE_RENDERER_STATE_FILL_MODE_SOLID,
 			TE_RENDERER_STATE_CULL_MODE_BACK,
-			TE_RENDERER_STATE_PRIMITIVE_TOPOLOGY_TRIANGLELIST,
-			TE_RENDERER_STATE_COMPARISSON_FUNC_LESS
+			TE_RENDERER_STATE_PRIMITIVE_TOPOLOGY_TRIANGLELIST
 		);
 
 
@@ -350,26 +348,10 @@ namespace TruthEngine
 		{
 			_Pipeline = _ItrPipeline->second;
 		}
-		PipelineGraphics::Factory(_Pipeline, _rendererStateReversedDepth, shader, 0, nullptr, TE_RESOURCE_FORMAT::D32_FLOAT, false, PipelineBlendMode(), -30.0, 0.0f, -4.0f);
 
-		//Forward Depth Pipeline
+		PipelineDepthStencilDesc _PipelineDepthStencilDesc{ TE_DEPTH_WRITE_MASK::ALL, TE_COMPARISON_FUNC::GREATER };
 
-		TE_INSTANCE_SHADERMANAGER->AddShader(&shader, TE_IDX_SHADERCLASS::GENERATEBASICSHADOWMAP, TE_IDX_MESH_TYPE::MESH_NTT, _rendererStateForwardDepth, "Assets/Shaders/generateShadowMap.hlsl", "vs", "");
-
-		_ItrPipeline = m_PipelinesForwardDepth.find(TE_IDX_MESH_TYPE::MESH_NTT);
-
-		if (_ItrPipeline == m_PipelinesForwardDepth.end())
-		{
-			_Pipeline = &m_ContainerPipelines.emplace_back();
-			m_PipelinesForwardDepth[TE_IDX_MESH_TYPE::MESH_NTT] = _Pipeline;
-		}
-		else
-		{
-			_Pipeline = _ItrPipeline->second;
-		}
-
-		PipelineGraphics::Factory(_Pipeline, _rendererStateForwardDepth, shader, 0, nullptr, TE_RESOURCE_FORMAT::D32_FLOAT, false, PipelineBlendMode(), 30.0, 0.0f, 4.0f);
-
+		PipelineGraphics::Factory(_Pipeline, _rendererStateReversedDepth, shader, 0, nullptr, TE_RESOURCE_FORMAT::D32_FLOAT, false, PipelineBlendDesc(), _PipelineDepthStencilDesc, -30.0, 0.0f, -4.0f);
 
 
 
@@ -387,9 +369,29 @@ namespace TruthEngine
 			_Pipeline = _ItrPipeline->second;
 		}
 
-		PipelineGraphics::Factory(_Pipeline, _rendererStateReversedDepth, shader, 0, nullptr, TE_RESOURCE_FORMAT::D32_FLOAT, false, PipelineBlendMode(), -30.0, 0.0f, -4.0f);
+		PipelineGraphics::Factory(_Pipeline, _rendererStateReversedDepth, shader, 0, nullptr, TE_RESOURCE_FORMAT::D32_FLOAT, false, PipelineBlendDesc(), _PipelineDepthStencilDesc, -30.0, 0.0f, -4.0f);
 
 
+
+		//Forward Depth Pipeline
+
+		TE_INSTANCE_SHADERMANAGER->AddShader(&shader, TE_IDX_SHADERCLASS::GENERATEBASICSHADOWMAP, TE_IDX_MESH_TYPE::MESH_NTT, _rendererStateForwardDepth, "Assets/Shaders/generateShadowMap.hlsl", "vs", "");
+
+		_ItrPipeline = m_PipelinesForwardDepth.find(TE_IDX_MESH_TYPE::MESH_NTT);
+
+		if (_ItrPipeline == m_PipelinesForwardDepth.end())
+		{
+			_Pipeline = &m_ContainerPipelines.emplace_back();
+			m_PipelinesForwardDepth[TE_IDX_MESH_TYPE::MESH_NTT] = _Pipeline;
+		}
+		else
+		{
+			_Pipeline = _ItrPipeline->second;
+		}
+
+		_PipelineDepthStencilDesc.DepthFunc = TE_COMPARISON_FUNC::LESS;
+
+		PipelineGraphics::Factory(_Pipeline, _rendererStateForwardDepth, shader, 0, nullptr, TE_RESOURCE_FORMAT::D32_FLOAT, false, PipelineBlendDesc(), _PipelineDepthStencilDesc, 30.0, 0.0f, 4.0f);
 
 
 		TE_INSTANCE_SHADERMANAGER->AddShader(&shader, TE_IDX_SHADERCLASS::GENERATEBASICSHADOWMAP, TE_IDX_MESH_TYPE::MESH_SKINNED, _rendererStateForwardDepth, "Assets/Shaders/generateShadowMap.hlsl", "vs", "");
@@ -406,7 +408,14 @@ namespace TruthEngine
 			_Pipeline = _ItrPipeline->second;
 		}
 
-		PipelineGraphics::Factory(_Pipeline, _rendererStateForwardDepth, shader, 0, nullptr, TE_RESOURCE_FORMAT::D32_FLOAT, false, PipelineBlendMode(), 30.0, 0.0f, 4.0f);
+		PipelineGraphics::Factory(_Pipeline, _rendererStateForwardDepth, shader, 0, nullptr, TE_RESOURCE_FORMAT::D32_FLOAT, false, PipelineBlendDesc(), _PipelineDepthStencilDesc, 30.0, 0.0f, 4.0f);
+
+
+
+
+
+
+		
 	}
 
 	void RenderPass_GenerateShadowMap::ReleaseRendererCommand()

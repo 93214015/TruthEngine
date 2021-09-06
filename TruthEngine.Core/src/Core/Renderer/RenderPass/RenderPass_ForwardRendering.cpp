@@ -210,7 +210,6 @@ namespace TruthEngine
 
 		RendererStateSet states = InitRenderStates();
 		SET_RENDERER_STATE(states, TE_RENDERER_STATE_CULL_MODE, TE_RENDERER_STATE_CULL_MODE::TE_RENDERER_STATE_CULL_MODE_NONE);
-		SET_RENDERER_STATE(states, TE_RENDERER_STATE_DEPTH_WRITE_MASK, TE_RENDERER_STATE_DEPTH_WRITE_MASK::TE_RENDERER_STATE_DEPTH_WRITE_MASK_ZERO);
 
 		TE_RESOURCE_FORMAT rtvFormats[] = { m_RendererLayer->IsEnabledHDR() ? m_RendererLayer->GetFormatRenderTargetSceneHDR() : m_RendererLayer->GetFormatRenderTargetSceneSDR() };
 		if (m_RendererLayer->IsEnabledHDR())
@@ -220,7 +219,9 @@ namespace TruthEngine
 
 		auto result = TE_INSTANCE_SHADERMANAGER->AddShader(&shader, TE_IDX_SHADERCLASS::RENDERENVIRONMENTMAP, TE_IDX_MESH_TYPE::MESH_NTT, states, "Assets/Shaders/RenderEnvironmentCube.hlsl", "vs", "ps");
 
-		PipelineGraphics::Factory(&m_PipelineEnvironmentCube, states, shader, 1, rtvFormats, m_RendererLayer->GetFormatDepthStencilSceneDSV(), true);
+		PipelineDepthStencilDesc _PipelineDSDesc{TE_DEPTH_WRITE_MASK::ZERO, TE_COMPARISON_FUNC::LESS};
+
+		PipelineGraphics::Factory(&m_PipelineEnvironmentCube, states, shader, 1, rtvFormats, m_RendererLayer->GetFormatDepthStencilSceneDSV(), true, PipelineBlendDesc{}, _PipelineDSDesc);
 	}
 
 	void RenderPass_ForwardRendering::RegisterEventListeners()

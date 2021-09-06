@@ -15,10 +15,21 @@ namespace TruthEngine
 namespace TruthEngine
 {
 
+	/*used D3D12_CLEAR_FLAGS as referece*/
+	enum class TE_CLEAR_DEPTH_STENCIL_FLAGS : uint8_t
+	{
+		CLEAR_DEPTH = 0x1,
+		CLEAR_STENCIL = 0x2,
+		CLEAR_BOTH = 0x3
+	};
+
 	struct ClearValue_DepthStencil
 	{
+
 		float depthValue;
 		uint8_t stencilValue;
+		TE_CLEAR_DEPTH_STENCIL_FLAGS flags = TE_CLEAR_DEPTH_STENCIL_FLAGS::CLEAR_DEPTH;
+
 	};
 
 	class TextureDepthStencil : public Texture

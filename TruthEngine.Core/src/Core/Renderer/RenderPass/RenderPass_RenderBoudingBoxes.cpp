@@ -114,9 +114,7 @@ void TruthEngine::RenderPass_RenderBoundingBoxes::InitPipelines()
 		TE_RENDERER_STATE_ENABLED_STENCIL_FALSE,
 		TE_RENDERER_STATE_FILL_MODE_SOLID,
 		TE_RENDERER_STATE_CULL_MODE_BACK,
-		TE_RENDERER_STATE_PRIMITIVE_TOPOLOGY_POINTLIST,
-		TE_RENDERER_STATE_COMPARISSON_FUNC_LESS,
-		TE_RENDERER_STATE_DEPTH_WRITE_MASK_ZERO
+		TE_RENDERER_STATE_PRIMITIVE_TOPOLOGY_POINTLIST
 	);
 
 	Shader* shader;
@@ -128,7 +126,9 @@ void TruthEngine::RenderPass_RenderBoundingBoxes::InitPipelines()
 		m_RendererLayer->GetFormatRenderTargetSceneSDR()
 	};
 
-	PipelineGraphics::Factory(&m_Pipeline, _States, shader, _countof(rtvFormats), rtvFormats, m_RendererLayer->GetFormatDepthStencilSceneDSV(), true);
+	PipelineDepthStencilDesc _PipelineDSDesc{TE_DEPTH_WRITE_MASK::ZERO, TE_COMPARISON_FUNC::LESS};
+
+	PipelineGraphics::Factory(&m_Pipeline, _States, shader, _countof(rtvFormats), rtvFormats, m_RendererLayer->GetFormatDepthStencilSceneDSV(), true, PipelineBlendDesc{}, _PipelineDSDesc);
 }
 
 void TruthEngine::RenderPass_RenderBoundingBoxes::ReleaseRendererCommand()

@@ -35,12 +35,6 @@ namespace TruthEngine::API::DirectX12
 		TE_ASSERT_CORE(false, "Wrong Cull Mode!");
 	}
 
-	constexpr D3D12_DEPTH_WRITE_MASK DX12_GET_DEPTH_WRITE_MASK(RendererStateSet states)
-	{
-		TE_RENDERER_STATE_DEPTH_WRITE_MASK _DepthWrite = static_cast<TE_RENDERER_STATE_DEPTH_WRITE_MASK>(GET_RENDERER_STATE(states, TE_RENDERER_STATE_DEPTH_WRITE_MASK));
-
-		return static_cast<D3D12_DEPTH_WRITE_MASK>(_DepthWrite);
-	}
 
 	D3D12_FILL_MODE DX12_GET_FILL_MODE(RendererStateSet states)
 	{
@@ -69,6 +63,11 @@ namespace TruthEngine::API::DirectX12
 		return static_cast<bool>(GET_RENDERER_STATE(states, TE_RENDERER_STATE_ENABLED_DEPTH));
 	}
 
+	bool DX12_GET_ENABLED_STENCIL(RendererStateSet states)
+	{
+		return static_cast<bool>(GET_RENDERER_STATE(states, TE_RENDERER_STATE_ENABLED_STENCIL));
+	}
+
 	void DX12_GET_RTV_FORMATS(const TE_RESOURCE_FORMAT* inFormats, DXGI_FORMAT outFormats[8])
 	{
 		memcpy(outFormats, inFormats, sizeof(DXGI_FORMAT) * 8);
@@ -95,11 +94,6 @@ namespace TruthEngine::API::DirectX12
 		default:
 			return D3D12_PRIMITIVE_TOPOLOGY_TYPE_UNDEFINED;
 		}
-	}
-
-	D3D12_COMPARISON_FUNC DX12_GET_COMPARISON_FUNC(RendererStateSet states)
-	{
-		return static_cast<D3D12_COMPARISON_FUNC>(GET_RENDERER_STATE(states, TE_RENDERER_STATE_COMPARISSON_FUNC));
 	}
 
 	inline D3D12_INPUT_CLASSIFICATION DX12_GET_INPUT_CLASSIFICATION(TE_RENDERER_SHADER_INPUT_CLASSIFICATION inputClass)
@@ -147,7 +141,7 @@ namespace TruthEngine::API::DirectX12
 		return COMPARE_RENDERER_STATE(_States, TE_RENDERER_STATE_ENABLED_BLEND, TE_RENDERER_STATE_ENABLED_BLEND_TRUE);
 	}
 
-	D3D12_BLEND_DESC DX12_GET_BLEND_DESC(RendererStateSet _States, const PipelineBlendMode& _BlendMode)
+	D3D12_BLEND_DESC DX12_GET_BLEND_DESC(RendererStateSet _States, const PipelineBlendDesc& _BlendMode)
 	{
 		CD3DX12_BLEND_DESC DX12Blend{ CD3DX12_DEFAULT() };
 
@@ -203,11 +197,13 @@ namespace TruthEngine::API::DirectX12
 			D3D12Desc.RasterizerState.ConservativeRaster = D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF;
 
 			//DepthStencil Desc
+			D3D12Desc.DepthStencilState = static_cast<D3D12_DEPTH_STENCIL_DESC>(_Pipeline->GetDepthStencilDesc());
 			auto depthEnabled = DX12_GET_ENABLED_DEPTH(states);
 			D3D12Desc.DepthStencilState.DepthEnable = depthEnabled;
-			D3D12Desc.DepthStencilState.DepthWriteMask = DX12_GET_DEPTH_WRITE_MASK(states);
+			auto stencilEnabled = DX12_GET_ENABLED_STENCIL(states);
+			D3D12Desc.DepthStencilState.StencilEnable = stencilEnabled;
+			/*D3D12Desc.DepthStencilState.DepthWriteMask = DX12_GET_DEPTH_WRITE_MASK(states);
 			D3D12Desc.DepthStencilState.DepthFunc = depthEnabled ? DX12_GET_COMPARISON_FUNC(states) : D3D12_COMPARISON_FUNC_ALWAYS;
-			D3D12Desc.DepthStencilState.StencilEnable = false;
 			D3D12Desc.DepthStencilState.StencilReadMask = D3D12_DEFAULT_STENCIL_READ_MASK;
 			D3D12Desc.DepthStencilState.StencilWriteMask = D3D12_DEFAULT_STENCIL_WRITE_MASK;
 			D3D12Desc.DepthStencilState.FrontFace.StencilFailOp = D3D12_STENCIL_OP_KEEP;
@@ -217,7 +213,7 @@ namespace TruthEngine::API::DirectX12
 			D3D12Desc.DepthStencilState.BackFace.StencilFailOp = D3D12_STENCIL_OP_KEEP;
 			D3D12Desc.DepthStencilState.BackFace.StencilDepthFailOp = D3D12_STENCIL_OP_KEEP;
 			D3D12Desc.DepthStencilState.BackFace.StencilPassOp = D3D12_STENCIL_OP_KEEP;
-			D3D12Desc.DepthStencilState.BackFace.StencilFunc = D3D12_COMPARISON_FUNC_ALWAYS;
+			D3D12Desc.DepthStencilState.BackFace.StencilFunc = D3D12_COMPARISON_FUNC_ALWAYS;*/
 
 			//Input Layout
 			DX12_GET_INPUT_ELEMENTS(*shader->GetInputElements(), m_InputElements);

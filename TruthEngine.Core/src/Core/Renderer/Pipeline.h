@@ -1,6 +1,7 @@
 #pragma once
 #include "PipelineState.h"
-#include "PipelineBlendMode.h"
+#include "PipelineBlendDesc.h"
+#include "PipelineDepthStencilDesc.h"
 
 namespace TruthEngine
 {
@@ -227,15 +228,20 @@ namespace TruthEngine
 			return m_EnableMSAA;
 		}
 
-		const PipelineBlendMode& GetBlendMode() const noexcept
+		const PipelineBlendDesc& GetBlendMode() const noexcept
 		{
 			return m_PipelineBlendMode;
 		}
 
-		static void Factory(PipelineGraphics* _outPipeline, RendererStateSet states, Shader* shader, uint32_t renderTargetNum, const TE_RESOURCE_FORMAT* rtvFormat, TE_RESOURCE_FORMAT dsvFormat, bool enableMSAA, const PipelineBlendMode& pipelineBlendMode = PipelineBlendMode(), float depthBias = 0.0f, float depthBiasClamp = 0.0f, float slopeScaledDepthBias = 0.0f);
+		const PipelineDepthStencilDesc& GetDepthStencilDesc() const noexcept
+		{
+			return m_PipelineDepthStencilDesc;
+		}
+
+		static void Factory(PipelineGraphics* _outPipeline, RendererStateSet states, Shader* shader, uint32_t renderTargetNum, const TE_RESOURCE_FORMAT* rtvFormat, TE_RESOURCE_FORMAT dsvFormat, bool enableMSAA, const PipelineBlendDesc& pipelineBlendMode = PipelineBlendDesc{}, const PipelineDepthStencilDesc& _PipelineDepthStencilDesc = PipelineDepthStencilDesc{}, float depthBias = 0.0f, float depthBiasClamp = 0.0f, float slopeScaledDepthBias = 0.0f);
 
 	private:
-		PipelineGraphics(uint32_t ID, std::string_view _Name, RendererStateSet states, Shader* shader, uint32_t renderTargetNum, const TE_RESOURCE_FORMAT* rtvFormat, TE_RESOURCE_FORMAT dsvFormat, bool enableMSAA, const PipelineBlendMode& pipelineBlendMode, float depthBias = 0.0f, float depthBiasClamp = 0.0f, float slopeScaledDepthBias = 0.0f);
+		PipelineGraphics(uint32_t ID, std::string_view _Name, RendererStateSet states, Shader* shader, uint32_t renderTargetNum, const TE_RESOURCE_FORMAT* rtvFormat, TE_RESOURCE_FORMAT dsvFormat, bool enableMSAA, const PipelineBlendDesc& pipelineBlendDesc, const PipelineDepthStencilDesc& _PipelineDepthStencilDesc, float depthBias = 0.0f, float depthBiasClamp = 0.0f, float slopeScaledDepthBias = 0.0f);
 
 	private:
 		uint32_t m_ID = -1;
@@ -252,7 +258,8 @@ namespace TruthEngine
 		TE_RESOURCE_FORMAT m_RTVFormats[8] = { TE_RESOURCE_FORMAT::UNKNOWN, TE_RESOURCE_FORMAT::UNKNOWN , TE_RESOURCE_FORMAT::UNKNOWN , TE_RESOURCE_FORMAT::UNKNOWN , TE_RESOURCE_FORMAT::UNKNOWN, TE_RESOURCE_FORMAT::UNKNOWN, TE_RESOURCE_FORMAT::UNKNOWN, TE_RESOURCE_FORMAT::UNKNOWN };
 		TE_RESOURCE_FORMAT m_DSVFormat = TE_RESOURCE_FORMAT::D32_FLOAT;
 
-		PipelineBlendMode m_PipelineBlendMode;
+		PipelineBlendDesc m_PipelineBlendMode;
+		PipelineDepthStencilDesc m_PipelineDepthStencilDesc;
 
 		bool m_EnableMSAA = false;
 

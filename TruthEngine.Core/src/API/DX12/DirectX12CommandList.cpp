@@ -462,7 +462,7 @@ namespace TruthEngine::API::DirectX12
 
 		for (auto& c : m_QueueClearDS)
 		{
-			mD3D12CommandList->ClearDepthStencilView(c.DSV, D3D12_CLEAR_FLAG_DEPTH, c.ClearValue.depthValue, c.ClearValue.stencilValue, 1, &c.mRect);
+			mD3D12CommandList->ClearDepthStencilView(c.DSV, static_cast<D3D12_CLEAR_FLAGS>(c.ClearValue.flags), c.ClearValue.depthValue, c.ClearValue.stencilValue, 1, &c.mRect);
 		}
 		m_QueueClearDS.clear();
 

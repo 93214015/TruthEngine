@@ -268,7 +268,8 @@
     <ClInclude Include="src\Core\Renderer\Material.h" />
     <ClInclude Include="src\Core\Renderer\MaterialManager.h" />
     <ClInclude Include="src\Core\Renderer\Pipeline.h" />
-    <ClInclude Include="src\Core\Renderer\PipelineBlendMode.h" />
+    <ClInclude Include="src\Core\Renderer\PipelineBlendDesc.h" />
+    <ClInclude Include="src\Core\Renderer\PipelineDepthStencilDesc.h" />
     <ClInclude Include="src\Core\Renderer\PipelineState.h" />
     <ClInclude Include="src\Core\Renderer\RenderPass.h" />
     <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_DeferredShading.h" />
@@ -415,7 +416,8 @@
     <ClCompile Include="src\Core\Renderer\Material.cpp" />
     <ClCompile Include="src\Core\Renderer\MaterialManager.cpp" />
     <ClCompile Include="src\Core\Renderer\Pipeline.cpp" />
-    <ClCompile Include="src\Core\Renderer\PipelineBlendMode.cpp" />
+    <ClCompile Include="src\Core\Renderer\PipelineBlendDesc.cpp" />
+    <ClCompile Include="src\Core\Renderer\PipelineDepthStencilDesc.cpp" />
     <ClCompile Include="src\Core\Renderer\PipelineState.cpp" />
     <ClCompile Include="src\Core\Renderer\RenderPass.cpp" />
     <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_DeferredShading.cpp" />

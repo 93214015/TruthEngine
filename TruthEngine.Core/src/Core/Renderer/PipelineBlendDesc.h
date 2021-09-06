@@ -43,11 +43,11 @@ namespace TruthEngine
 	};
 
 
-	struct PipelineBlendMode
+	struct PipelineBlendDesc
 	{
-		PipelineBlendMode() = default;
+		PipelineBlendDesc() = default;
 
-		PipelineBlendMode(TE_BLEND _SourceBlend, TE_BLEND _DestinationBlend, TE_BLEND_OP _BlendingOperation
+		PipelineBlendDesc(TE_BLEND _SourceBlend, TE_BLEND _DestinationBlend, TE_BLEND_OP _BlendingOperation
 		, TE_BLEND _SourceBlendAlpha, TE_BLEND _DestinationBlendAlpha, TE_BLEND_OP _BlendingOperationAlpha
 		, TE_COLOR_WRITE_ENABLE _RenderTargetWriteMask)
 			: SourceBlend(_SourceBlend), DestinationBlend(_DestinationBlend), BlendingOperation(_BlendingOperation)

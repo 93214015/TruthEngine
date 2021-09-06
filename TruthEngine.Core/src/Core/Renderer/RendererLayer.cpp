@@ -816,7 +816,7 @@ namespace TruthEngine
 
 		// Create Depth Stencil Scene
 		{
-			m_TextureDSScene = m_RendererCommand.CreateDepthStencil(TE_IDX_GRESOURCES::Texture_DS_SceneBuffer, _ViewportWidth, _ViewportHeight, 1, m_FormatDepthStencilSceneTexture, ClearValue_DepthStencil{ 1.0f, 0 }, true, false);
+			m_TextureDSScene = m_RendererCommand.CreateDepthStencil(TE_IDX_GRESOURCES::Texture_DS_SceneBuffer, _ViewportWidth, _ViewportHeight, 1, m_FormatDepthStencilSceneTexture, ClearValue_DepthStencil{ 1.0f, 0, TE_CLEAR_DEPTH_STENCIL_FLAGS::CLEAR_BOTH }, true, false);
 			m_RendererCommand.CreateDepthStencilView(m_TextureDSScene, &m_DSVSceneBuffer);
 		}
 
@@ -836,7 +836,7 @@ namespace TruthEngine
 
 		// Create DepthStencil Multi Sample Enabled
 		{
-			m_TextureDSSceneMS = m_RendererCommand.CreateDepthStencil(TE_IDX_GRESOURCES::Texture_DS_SceneBufferMS, _ViewportWidth, _ViewportHeight, 1, m_FormatDepthStencilSceneTexture, ClearValue_DepthStencil{ 1.0f, 0 }, true, true);
+			m_TextureDSSceneMS = m_RendererCommand.CreateDepthStencil(TE_IDX_GRESOURCES::Texture_DS_SceneBufferMS, _ViewportWidth, _ViewportHeight, 1, m_FormatDepthStencilSceneTexture, ClearValue_DepthStencil{ 1.0f, 0, TE_CLEAR_DEPTH_STENCIL_FLAGS::CLEAR_BOTH }, true, true);
 			m_RendererCommand.CreateDepthStencilView(m_TextureDSSceneMS, &m_DSVSceneBufferMS);
 		}
 

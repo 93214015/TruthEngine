@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "PipelineBlendMode.h"
+#include "PipelineBlendDesc.h"
 
 namespace TruthEngine
 {

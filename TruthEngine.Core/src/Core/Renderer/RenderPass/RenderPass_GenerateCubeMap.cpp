@@ -90,9 +90,7 @@ namespace TruthEngine
 			TE_RENDERER_STATE_ENABLED_STENCIL_FALSE,
 			TE_RENDERER_STATE_FILL_MODE_SOLID,
 			TE_RENDERER_STATE_CULL_MODE_NONE,
-			TE_RENDERER_STATE_PRIMITIVE_TOPOLOGY_POINTLIST,
-			TE_RENDERER_STATE_COMPARISSON_FUNC_LESS,
-			TE_RENDERER_STATE_DEPTH_WRITE_MASK_ZERO
+			TE_RENDERER_STATE_PRIMITIVE_TOPOLOGY_POINTLIST
 		);
 
 		//Generate Cube Map Shader
@@ -100,7 +98,9 @@ namespace TruthEngine
 
 		TE_RESOURCE_FORMAT rtvFormats[] = { TE_RESOURCE_FORMAT::R16G16B16A16_FLOAT };
 
-		PipelineGraphics::Factory(&m_PipelineGenerateCubeMap, _RendererStates, shader, _countof(rtvFormats), rtvFormats, TE_RESOURCE_FORMAT::UNKNOWN, false);
+		PipelineDepthStencilDesc _PipelineDSDesc{TE_DEPTH_WRITE_MASK::ZERO, TE_COMPARISON_FUNC::LESS};
+
+		PipelineGraphics::Factory(&m_PipelineGenerateCubeMap, _RendererStates, shader, _countof(rtvFormats), rtvFormats, TE_RESOURCE_FORMAT::UNKNOWN, false, PipelineBlendDesc{}, _PipelineDSDesc);
 
 		//Generate IBL Shader
 		//result = TE_INSTANCE_SHADERMANAGER->AddShader(&shader, TE_IDX_SHADERCLASS::GENERATEIBL, TE_IDX_MESH_TYPE::MESH_POINT, _RendererStates, "Assets/Shaders/GenerateIBL.hlsl", "vs", "ps", "", "", "", "gs");

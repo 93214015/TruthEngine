@@ -82,9 +82,7 @@ namespace TruthEngine
 			TE_RENDERER_STATE_ENABLED_STENCIL_FALSE,
 			TE_RENDERER_STATE_FILL_MODE_SOLID,
 			TE_RENDERER_STATE_CULL_MODE_BACK,
-			TE_RENDERER_STATE_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP,
-			TE_RENDERER_STATE_COMPARISSON_FUNC_LESS,
-			TE_RENDERER_STATE_DEPTH_WRITE_MASK_ZERO
+			TE_RENDERER_STATE_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP
 		);
 		_RendererStates |= RendererLayer::GetSharedRendererStates();
 
@@ -93,7 +91,9 @@ namespace TruthEngine
 
 		TE_RESOURCE_FORMAT _RTVFormat[] = { m_RendererLayer->IsEnabledHDR() ? m_RendererLayer->GetFormatRenderTargetSceneHDR() : m_RendererLayer->GetFormatRenderTargetSceneSDR() };
 
-		PipelineGraphics::Factory(&m_Pipeline, _RendererStates, shader, _countof(_RTVFormat), _RTVFormat, TE_RESOURCE_FORMAT::UNKNOWN, false);
+		PipelineDepthStencilDesc _PipelineDSDesc{ TE_DEPTH_WRITE_MASK::ZERO, TE_COMPARISON_FUNC::LESS };
+
+		PipelineGraphics::Factory(&m_Pipeline, _RendererStates, shader, _countof(_RTVFormat), _RTVFormat, TE_RESOURCE_FORMAT::UNKNOWN, false, PipelineBlendDesc{}, _PipelineDSDesc);
 	}
 	void RenderPass_DeferredShading::RegisterEventListeners()
 	{
