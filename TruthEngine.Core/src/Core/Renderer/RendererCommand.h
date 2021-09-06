@@ -80,6 +80,7 @@ namespace TruthEngine
 			void SetRenderTarget(const RenderTargetView& RTV);
 			void SetRenderTarget(SwapChain* swapChain, const RenderTargetView& RTV);
 			void SetDepthStencil(const DepthStencilView& DSV);
+			void SetDepthStencil(const DepthStencilView& DSV, uint32_t _StencilRefValue);
 			void SetDirectConstantGraphics(ConstantBufferDirectBase* cb);
 			void SetDirectConstantCompute(ConstantBufferDirectBase* cb);
 			void SetDirectShaderResourceViewGraphics(GraphicResource* _GraphicResource, uint32_t _ShaderRegisterSlot);

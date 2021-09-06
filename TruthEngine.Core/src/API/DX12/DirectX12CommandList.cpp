@@ -191,6 +191,12 @@ namespace TruthEngine::API::DirectX12
 		m_DSVHandleNum = 1;
 	}
 
+	void DirectX12CommandList::SetDepthStencil(const DepthStencilView& DSV, uint32_t _StencilRefValue)
+	{
+		SetDepthStencil(DSV);
+		mD3D12CommandList->OMSetStencilRef(_StencilRefValue);
+	}
+
 	void DirectX12CommandList::ResolveMultiSampledTexture(Texture* _SourceTexture, Texture* _DestTexture)
 	{
 		_ChangeResourceState(_SourceTexture, TE_RESOURCE_STATES::RESOLVE_SOURCE);

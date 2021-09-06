@@ -72,6 +72,11 @@ namespace TruthEngine
 		m_CurrentCommandList->SetDepthStencil(DSV);
 	}
 
+	void RendererCommand::SetDepthStencil(const DepthStencilView& DSV, uint32_t _StencilRefValue)
+	{
+		m_CurrentCommandList->SetDepthStencil(DSV, _StencilRefValue);
+	}
+
 	void RendererCommand::SetDirectConstantGraphics(ConstantBufferDirectBase* cb)
 	{
 		m_CurrentCommandList->SetDirectConstantGraphics(cb);

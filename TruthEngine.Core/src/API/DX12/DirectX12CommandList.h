@@ -66,6 +66,7 @@ namespace TruthEngine
 
 
 			void SetDepthStencil(const DepthStencilView& DSV) override;
+			void SetDepthStencil(const DepthStencilView& DSV, uint32_t _StencilRefValue) override;
 
 			void ResolveMultiSampledTexture(Texture* _SourceTexture, Texture* _DestTexture) override;
 

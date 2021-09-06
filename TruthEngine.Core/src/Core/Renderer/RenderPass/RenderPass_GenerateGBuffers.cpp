@@ -228,7 +228,9 @@ namespace TruthEngine
 		Shader* shader = nullptr;
 
 		RendererStateSet _RendererState = _Material->GetRendererStates();
+		SET_RENDERER_STATE(_RendererState, TE_RENDERER_STATE_ENABLED_STENCIL, TE_RENDERER_STATE_ENABLED_STENCIL_TRUE);
 		auto _ShadingModel = GET_RENDERER_STATE(_RendererState, TE_RENDERER_STATE_SHADING_MODEL);
+
 
 
 
