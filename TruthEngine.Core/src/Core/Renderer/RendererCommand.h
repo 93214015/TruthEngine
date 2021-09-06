@@ -123,7 +123,7 @@ namespace TruthEngine
 			void Dispatch(uint32_t GroupNumX, uint32_t GroupNumY, uint32_t GroupNumZ);
 
 			void ClearRenderTarget(const RenderTargetView& RTV);
-			void ClearRenderTarget(const SwapChain* swapChain, const RenderTargetView& RTV);
+			void ClearRenderTarget(SwapChain* swapChain, const RenderTargetView& RTV);
 			void ClearDepthStencil(const DepthStencilView& DSV);
 
 			void ResizeRenderTarget(TextureRenderTarget* texture, uint32_t width, uint32_t height, RenderTargetView* RTV, ShaderResourceView* SRV);

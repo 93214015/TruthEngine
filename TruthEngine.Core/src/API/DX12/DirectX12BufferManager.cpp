@@ -54,27 +54,6 @@ namespace TruthEngine::API::DirectX12
 	}
 
 
-	static DXGI_FORMAT GetDepthStencilSRVFormat(const TE_RESOURCE_FORMAT format)
-	{
-		switch (format)
-		{
-		case TE_RESOURCE_FORMAT::R32_TYPELESS:
-			return DXGI_FORMAT_R32_FLOAT;
-		case TE_RESOURCE_FORMAT::R24_UNORM_X8_TYPELESS:
-			return DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
-		case TE_RESOURCE_FORMAT::R24G8_TYPELESS:
-			return DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
-		case TE_RESOURCE_FORMAT::R32_FLOAT_X8X24_TYPELESS:
-			return DXGI_FORMAT_R32_FLOAT_X8X24_TYPELESS;
-		default:
-			TE_ASSERT_CORE(false, "wrong depth stecil format");
-			throw;
-			return DXGI_FORMAT_UNKNOWN;
-		}
-
-	}
-
-
 	D3D12_RESOURCE_FLAGS GetResourceFlags(TE_RESOURCE_USAGE usage)
 	{
 		D3D12_RESOURCE_FLAGS resourceFlags = D3D12_RESOURCE_FLAG_NONE;
@@ -764,7 +743,7 @@ namespace TruthEngine::API::DirectX12
 
 		if (texture->m_Usage & TE_RESOURCE_USAGE_DEPTHSTENCIL)
 		{
-			_SRVDesc.Format = GetDepthStencilSRVFormat(static_cast<TE_RESOURCE_FORMAT>(_SRVDesc.Format));
+			_SRVDesc.Format = static_cast<DXGI_FORMAT>(GetDepthStencilSRVFormat(static_cast<TE_RESOURCE_FORMAT>(_SRVDesc.Format)));
 		}
 
 		if (SRV->ViewIndex == -1)

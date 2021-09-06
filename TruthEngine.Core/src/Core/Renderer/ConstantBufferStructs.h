@@ -192,7 +192,7 @@ namespace TruthEngine {
 			uint32_t MapIndexRoughness = -1;
 			uint32_t MapIndexMetallic = -1;
 			uint32_t MapIndexAmbientOcclusion = -1;
-			uint32_t _Pad1 = .0f;
+			uint32_t _Pad1 = 0;
 			
 		};
 

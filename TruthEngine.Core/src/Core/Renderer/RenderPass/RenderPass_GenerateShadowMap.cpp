@@ -77,8 +77,8 @@ namespace TruthEngine
 		if (_SunLight)
 		{
 			auto cameraCascaded = _SunLight->GetCamera();
-			auto scene = GetActiveScene();
-			auto camera = scene->GetActiveCamera();
+			const auto scene = GetActiveScene();
+			const auto camera = scene->GetActiveCamera();
 
 
 			auto data_perMesh = m_ConstantBufferDirect_PerMesh->GetData();
@@ -119,7 +119,7 @@ namespace TruthEngine
 				v.clear();
 			}
 
-			auto EntityMeshView = scene->ViewEntities<MeshComponent>();
+			const auto EntityMeshView = scene->ViewEntities<MeshComponent>();
 
 			/*for (auto _EntityModel : EntityModelView)
 			{

@@ -56,6 +56,7 @@ namespace TruthEngine
 		void UnRegisterEventListeners() override;
 
 	private:
+		std::vector<QueueItem> m_Queue;
 
 		RendererCommand m_RendererCommand;
 
@@ -75,7 +76,6 @@ namespace TruthEngine
 		ConstantBufferDirect<ConstantBufferData_Wireframe>* m_ConstantBuffer;
 
 
-		std::vector<QueueItem> m_Queue;
 
 	};
 

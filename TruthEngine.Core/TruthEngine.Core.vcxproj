@@ -223,8 +223,10 @@
     <ClInclude Include="src\Core\EntryPoint.h" />
     <ClInclude Include="src\Core\Event\Event.h" />
     <ClInclude Include="src\Core\Event\EventApplication.h" />
+    <ClInclude Include="src\Core\Event\EventDispatcher.h" />
     <ClInclude Include="src\Core\Event\EventEntity.h" />
     <ClInclude Include="src\Core\Event\EventKey.h" />
+    <ClInclude Include="src\Core\Event\EventListenerCollector.h" />
     <ClInclude Include="src\Core\Event\EventMouse.h" />
     <ClInclude Include="src\Core\Event\EventRenderer.h" />
     <ClInclude Include="src\Core\Helper\HardwareInfo.h" />
@@ -284,6 +286,7 @@
     <ClInclude Include="src\Core\Renderer\RendererIDX.h" />
     <ClInclude Include="src\Core\Renderer\RendererLayer.h" />
     <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_RenderEntityIcons.h" />
+    <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_ScreenSpaceReflection.h" />
     <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_Wireframe.h" />
     <ClInclude Include="src\Core\Renderer\Shader.h" />
     <ClInclude Include="src\Core\Renderer\ShaderInputLayout.h" />
@@ -373,8 +376,10 @@
     <ClCompile Include="src\Core\Entity\Systems\SystemUpdateTransform.cpp" />
     <ClCompile Include="src\Core\Event\Event.cpp" />
     <ClCompile Include="src\Core\Event\EventApplication.cpp" />
+    <ClCompile Include="src\Core\Event\EventDispatcher.cpp" />
     <ClCompile Include="src\Core\Event\EventEntity.cpp" />
     <ClCompile Include="src\Core\Event\EventKey.cpp" />
+    <ClCompile Include="src\Core\Event\EventListenerCollector.cpp" />
     <ClCompile Include="src\Core\Event\EventMouse.cpp" />
     <ClCompile Include="src\Core\Event\EventRenderer.cpp" />
     <ClCompile Include="src\Core\Helper\HardwareInfo.cpp" />
@@ -427,6 +432,7 @@
     <ClCompile Include="src\Core\Renderer\RendererCommand.cpp" />
     <ClCompile Include="src\Core\Renderer\RendererLayer.cpp" />
     <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_RenderEntityIcons.cpp" />
+    <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_ScreenSpaceReflection.cpp" />
     <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_Wireframe.cpp" />
     <ClCompile Include="src\Core\Renderer\Shader.cpp" />
     <ClCompile Include="src\Core\Renderer\ShaderInputLayout.cpp" />

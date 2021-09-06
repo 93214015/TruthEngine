@@ -30,20 +30,31 @@ namespace TruthEngine
 
 	void RenderPass_Wireframe::BeginScene()
 	{
+		if (m_Queue.size() == 0)
+			return;
+
 		m_RendererCommand.BeginGraphics(&m_Pipeline);
 
 		m_RendererCommand.SetViewPort(&m_RendererLayer->GetViewportScene(), &m_RendererLayer->GetViewRectScene());
 		m_RendererCommand.SetRenderTarget(m_RendererLayer->GetRenderTargetViewSceneSDR());
-		m_RendererCommand.SetDepthStencil(m_RendererLayer->GetDepthStencilViewSceneNoMS());
+		m_RendererCommand.SetDepthStencil(m_RendererLayer->GetDepthStencilViewScene());
 	}
 
 	void RenderPass_Wireframe::EndScene()
 	{
+		if (m_Queue.size() == 0)
+			return;
+
 		m_RendererCommand.End();
+
+		m_Queue.clear();
 	}
 
 	void RenderPass_Wireframe::Render()
 	{
+		if (m_Queue.size() == 0)
+			return;
+
 		m_RendererCommand.ExecutePendingCommands();
 
 		/*if (Entity _Entity = _Scene->GetSelectedEntity(); _Entity && _Scene->HasComponent<LightComponent>(_Entity))
@@ -82,7 +93,6 @@ namespace TruthEngine
 			m_RendererCommand.DrawIndexed(_QueueItem.Mesh);
 		}
 
-		m_Queue.clear();
 
 	}
 
@@ -137,7 +147,7 @@ namespace TruthEngine
 
 		TE_RESOURCE_FORMAT rtvFormats[] = { m_RendererLayer->GetFormatRenderTargetSceneSDR() };
 
-		PipelineGraphics::Factory(&m_Pipeline, _States, shader, _countof(rtvFormats), rtvFormats, m_RendererLayer->GetFormatDepthStencilScene(), false);
+		PipelineGraphics::Factory(&m_Pipeline, _States, shader, _countof(rtvFormats), rtvFormats, m_RendererLayer->GetFormatDepthStencilSceneDSV(), false);
 	}
 
 	void RenderPass_Wireframe::ReleaseTextures()

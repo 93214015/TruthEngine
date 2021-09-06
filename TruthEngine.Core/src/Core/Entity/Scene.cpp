@@ -605,7 +605,7 @@ namespace TruthEngine
 
 		const float4x4A* _Transform = nullptr;
 
-		if (m_Registery.has<PhysicsDynamicComponent>(entityHandler))
+		if (m_Registery.all_of<PhysicsDynamicComponent>(entityHandler))
 		{
 			_Transform = &m_Registery.get<PhysicsDynamicComponent>(entityHandler).GetTranform();
 		}
@@ -650,7 +650,7 @@ namespace TruthEngine
 
 		const float4x4A* _Transform = nullptr;
 
-		if (m_Registery.has<PhysicsDynamicComponent>(entityHandler))
+		if (m_Registery.all_of<PhysicsDynamicComponent>(entityHandler))
 		{
 			_Transform = &m_Registery.get<PhysicsDynamicComponent>(entityHandler).GetTranform();
 		}

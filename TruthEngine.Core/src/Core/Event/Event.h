@@ -58,30 +58,6 @@ namespace TruthEngine {
 	}
 
 
-	using EventListener = std::function<void(Event&)>;
-
-	class EventListenerHandle
-	{
-		EventListenerHandle(uint2 _Indecies)
-			: m_Indecies(_Indecies)
-		{}
-	private:
-		uint2 m_Indecies;
-
-		friend class EventDispatcher;
-	};
-
-	class EventDispatcher
-	{
-	public:
-
-		EventListenerHandle RegisterListener(const EventType eventType, const EventListener& eventFunc);
-		void UnRegisterListener(EventListenerHandle* _Handles, size_t _HandleCount);
-		void OnEvent(Event& event);
-
-	protected:
-		std::vector<EventListener> m_EventListerns[static_cast<uint8_t>(EventType::EventTypeNum)];
-
-	};
+	
 
 }

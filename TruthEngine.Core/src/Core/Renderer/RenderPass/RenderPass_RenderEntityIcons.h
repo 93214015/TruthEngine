@@ -44,6 +44,8 @@ namespace TruthEngine
 
 	private:
 
+		bool m_IsDrawListEmpty = true;
+
 		RendererCommand m_RendererCommand;
 
 		PipelineGraphics m_Pipeline;

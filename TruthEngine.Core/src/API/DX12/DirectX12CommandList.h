@@ -112,7 +112,7 @@ namespace TruthEngine
 
 
 			void ClearRenderTarget(const RenderTargetView& RTV);
-			void ClearRenderTarget(const SwapChain* swapChain, const RenderTargetView& RTV);
+			void ClearRenderTarget(SwapChain* swapChain, const RenderTargetView& RTV);
 			void ClearDepthStencil(const DepthStencilView& DSV);
 
 
@@ -143,6 +143,7 @@ namespace TruthEngine
 			void _SetRootSignatureCompute(bool _NewShaderClass);
 
 			void _ChangeResourceState(GraphicResource* resource, TE_RESOURCE_STATES newState);
+			void _ChangeResourceState(class DirectX12SwapChain* swapChain, TE_RESOURCE_STATES newState);
 
 
 			inline void _QueueBarrierTransition(ID3D12Resource* resource, D3D12_RESOURCE_STATES before, D3D12_RESOURCE_STATES after)

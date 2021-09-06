@@ -26,20 +26,32 @@ void TruthEngine::RenderPass_RenderBoundingBoxes::OnUpdate(double _DeltaTime)
 void TruthEngine::RenderPass_RenderBoundingBoxes::BeginScene()
 {
 
+	if (m_Queue.size() == 0)
+		return;
+
 	m_RendererCommand.BeginGraphics(&m_Pipeline);
 
 	m_RendererCommand.SetViewPort(&m_RendererLayer->GetViewportScene(), &m_RendererLayer->GetViewRectScene());
 	m_RendererCommand.SetRenderTarget(m_RendererLayer->GetRenderTargetViewSceneSDR());
-	m_RendererCommand.SetDepthStencil(m_RendererLayer->GetDepthStencilViewSceneNoMS());
+	m_RendererCommand.SetDepthStencil(m_RendererLayer->GetDepthStencilViewScene());
 }
 
 void TruthEngine::RenderPass_RenderBoundingBoxes::EndScene()
-{
+{	
+	if (m_Queue.size() == 0)
+		return;
+
 	m_RendererCommand.End();
+
+	m_Queue.clear();
+
 }
 
 void TruthEngine::RenderPass_RenderBoundingBoxes::Render()
 {
+	if (m_Queue.size() == 0)
+		return;
+
 	m_RendererCommand.ExecutePendingCommands();
 
 	Scene* _ActiveScene = GetActiveScene();
@@ -62,7 +74,6 @@ void TruthEngine::RenderPass_RenderBoundingBoxes::Render()
 		m_RendererCommand.Draw(1, 0);
 	}
 
-	m_Queue.clear();
 }
 
 void TruthEngine::RenderPass_RenderBoundingBoxes::Queue(Entity _Entity)
@@ -117,7 +128,7 @@ void TruthEngine::RenderPass_RenderBoundingBoxes::InitPipelines()
 		m_RendererLayer->GetFormatRenderTargetSceneSDR()
 	};
 
-	PipelineGraphics::Factory(&m_Pipeline, _States, shader, _countof(rtvFormats), rtvFormats, m_RendererLayer->GetFormatDepthStencilScene(), true);
+	PipelineGraphics::Factory(&m_Pipeline, _States, shader, _countof(rtvFormats), rtvFormats, m_RendererLayer->GetFormatDepthStencilSceneDSV(), true);
 }
 
 void TruthEngine::RenderPass_RenderBoundingBoxes::ReleaseRendererCommand()

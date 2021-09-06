@@ -15,6 +15,7 @@
 #include "Core/Entity/Components/TransformComponent.h"
 #include "Core/Entity/Components/BoundingBoxComponent.h"
 #include "Core/Entity/Components/MaterialComponent.h"
+#include <iostream>
 
 namespace TruthEngine
 {
@@ -48,7 +49,7 @@ namespace TruthEngine
 		m_RendererCommand.ClearRenderTarget(m_RenderTargetViewGBufferNormal);
 		m_RendererCommand.ClearRenderTarget(m_RenderTargetViewGBufferSpecular);
 
-		m_RendererCommand.SetDepthStencil(m_RendererLayer->GetDepthStencilViewSceneNoMS());
+		m_RendererCommand.SetDepthStencil(m_RendererLayer->GetDepthStencilViewScene());
 	}
 
 	void RenderPass_GenerateGBuffers::EndScene()
@@ -62,11 +63,37 @@ namespace TruthEngine
 
 		auto _CBData_PerMesh = m_ConstantBufferDirect_PerMesh->GetData();
 
-		Scene* _ActiveScene = GetActiveScene();
+		const Scene* _ActiveScene = GetActiveScene();
 
 		const BoundingFrustum& _CameraBoundingFrustum = TE_INSTANCE_CAMERAMANAGER->GetActiveCamera()->GetBoundingFrustumWorldSpace();
 
-		auto _EntityMeshView = _ActiveScene->ViewEntities<MeshComponent>();
+		const auto _EntityMeshView = _ActiveScene->ViewEntities<MeshComponent>();
+
+		/*_EntityMeshView.each([&, _ActiveScene](entt::entity _Entity, MeshComponent& _Component) 
+			{
+				const auto& _Transform = _ActiveScene->GetComponent<TransformComponent>(_Entity).GetTransform();
+				const auto _XMTransform = Math::ToXM(_Transform);
+
+				const auto& _BoundingBoxLocal = _ActiveScene->GetComponent<BoundingBoxComponent>(_Entity).GetBoundingBox();
+				const auto _BoundingBoxWorld = Math::XMTransformBoundingBox(_BoundingBoxLocal, _XMTransform);
+
+				if (_CameraBoundingFrustum.Contains(_BoundingBoxWorld) == ContainmentType::DISJOINT)
+				{
+					return;
+				}
+
+				auto _MaterialID = _ActiveScene->GetComponent<MaterialComponent>(_Entity).GetMaterial()->GetID();
+
+				*_CBData_PerMesh = ConstantBuffer_Data_Per_Mesh(_Transform, Math::InverseTranspose(_XMTransform), _MaterialID);
+
+				m_RendererCommand.SetPipelineGraphics(m_MapMaterialPipeline[_MaterialID]);
+				m_RendererCommand.SetDirectConstantGraphics(m_ConstantBufferDirect_PerMesh);
+
+				const Mesh* _Mesh = &_ActiveScene->GetComponent<MeshComponent>(_Entity).GetMesh();
+				m_RendererCommand.DrawIndexed(_Mesh);
+			}
+		);*/
+
 		for (const auto _Entity : _EntityMeshView)
 		{
 			const auto& _Transform = _ActiveScene->GetComponent<TransformComponent>(_Entity).GetTransform();
@@ -204,7 +231,6 @@ namespace TruthEngine
 		auto _ShadingModel = GET_RENDERER_STATE(_RendererState, TE_RENDERER_STATE_SHADING_MODEL);
 
 
-		TE_RESOURCE_FORMAT rtvFormats[] = { m_RendererLayer->GetFormatRenderTargetScene(), TE_RESOURCE_FORMAT::R11G11B10_FLOAT, TE_RESOURCE_FORMAT::R16G16B16A16_FLOAT };
 
 		
 		auto _LambdaGetShaderFilePath = [_ShadingModel]() 
@@ -236,7 +262,11 @@ namespace TruthEngine
 			_Pipeline = _ItrPipeline->second;
 		}
 
-		PipelineGraphics::Factory(_Pipeline, _RendererState, shader, static_cast<uint32_t>(_countof(rtvFormats)), rtvFormats, m_RendererLayer->GetFormatDepthStencilScene(), false);
+		TE_RESOURCE_FORMAT _ColorFormat = m_RendererLayer->IsEnabledHDR() ? m_RendererLayer->GetFormatRenderTargetSceneHDR() : m_RendererLayer->GetFormatRenderTargetSceneSDR();
+
+		TE_RESOURCE_FORMAT rtvFormats[] = { _ColorFormat , TE_RESOURCE_FORMAT::R11G11B10_FLOAT, TE_RESOURCE_FORMAT::R16G16B16A16_FLOAT };
+
+		PipelineGraphics::Factory(_Pipeline, _RendererState, shader, static_cast<uint32_t>(_countof(rtvFormats)), rtvFormats, m_RendererLayer->GetFormatDepthStencilSceneDSV(), false);
 	}
 
 	void RenderPass_GenerateGBuffers::OnRendererViewportResize(const EventRendererViewportResize& _Event)

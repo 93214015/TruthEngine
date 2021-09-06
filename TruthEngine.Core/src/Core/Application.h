@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Core/Window.h"
-#include "Core/Event/Event.h"
+#include "Core/Event/EventDispatcher.h"
 #include "Core/LayerStack.h"
 #include "Core/TimerEngine.h"
 

@@ -195,3 +195,76 @@ enum class TE_RENDERER_COMMANDLIST_TYPE
 };
 
 #define DXGIFORMAT(x) static_cast<DXGI_FORMAT>(x)
+
+constexpr TE_RESOURCE_FORMAT GetDepthStencilDSVFormat(TE_RESOURCE_FORMAT _TextureFormat)
+{
+	switch (_TextureFormat)
+	{
+	case TE_RESOURCE_FORMAT::R32G8X24_TYPELESS:
+	case TE_RESOURCE_FORMAT::R32_FLOAT_X8X24_TYPELESS:
+	case TE_RESOURCE_FORMAT::X32_TYPELESS_G8X24_UINT:
+		return TE_RESOURCE_FORMAT::D32_FLOAT_S8X24_UINT;
+		break;
+	case TE_RESOURCE_FORMAT::R32_TYPELESS:
+	case TE_RESOURCE_FORMAT::R32_FLOAT:
+		return TE_RESOURCE_FORMAT::D32_FLOAT;
+		break;
+	case TE_RESOURCE_FORMAT::R24G8_TYPELESS:
+	case TE_RESOURCE_FORMAT::R24_UNORM_X8_TYPELESS:
+	case TE_RESOURCE_FORMAT::X24_TYPELESS_G8_UINT:
+		return  TE_RESOURCE_FORMAT::D24_UNORM_S8_UINT;
+		break;
+	case TE_RESOURCE_FORMAT::R16_TYPELESS:
+	case TE_RESOURCE_FORMAT::R16_UNORM:
+	case TE_RESOURCE_FORMAT::R16_FLOAT:
+		return TE_RESOURCE_FORMAT::D16_UNORM;
+		break;
+	default:
+		throw new std::exception("GetDepthStencilDSVFormat() : The Texture Format is not valid for a Depth Stencil Texture");
+		break;
+	}
+}
+
+constexpr TE_RESOURCE_FORMAT GetDepthStencilSRVFormat(TE_RESOURCE_FORMAT _DSVFormat)
+{
+	switch (_DSVFormat)
+	{
+	case TE_RESOURCE_FORMAT::R32G8X24_TYPELESS:
+		return TE_RESOURCE_FORMAT::R32_FLOAT_X8X24_TYPELESS;
+		break;
+	case TE_RESOURCE_FORMAT::R32_TYPELESS:
+		return TE_RESOURCE_FORMAT::R32_FLOAT;
+		break;
+	case  TE_RESOURCE_FORMAT::R24G8_TYPELESS:
+		return TE_RESOURCE_FORMAT::R24_UNORM_X8_TYPELESS;
+		break;
+	case TE_RESOURCE_FORMAT::R16_TYPELESS:
+		return TE_RESOURCE_FORMAT::R16_UNORM;
+		break;
+	default:
+		throw new std::exception("GetDepthStencilSRVFormat() : The DSV Format is not valid");
+		break;
+	}
+}
+
+constexpr TE_RESOURCE_FORMAT GetDepthStencilTextureFormat(TE_RESOURCE_FORMAT _DSVFormat)
+{
+	switch (_DSVFormat)
+	{
+	case TE_RESOURCE_FORMAT::D32_FLOAT_S8X24_UINT:
+		return TE_RESOURCE_FORMAT::R32G8X24_TYPELESS;
+		break;
+	case TE_RESOURCE_FORMAT::D32_FLOAT:
+		return TE_RESOURCE_FORMAT::R32_TYPELESS;
+		break;
+	case  TE_RESOURCE_FORMAT::D24_UNORM_S8_UINT:
+		return TE_RESOURCE_FORMAT::R24G8_TYPELESS;
+		break;
+	case TE_RESOURCE_FORMAT::D16_UNORM:
+		return TE_RESOURCE_FORMAT::R16_TYPELESS;
+		break;
+	default:
+		throw new std::exception("GetDepthStencilTextureFormat() : The DSV Format is not valid");
+		break;
+	}
+}

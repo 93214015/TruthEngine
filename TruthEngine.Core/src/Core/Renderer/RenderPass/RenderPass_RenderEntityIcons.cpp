@@ -26,20 +26,31 @@ namespace TruthEngine
 
 	void RenderPass_RenderEntityIcons::BeginScene()
 	{
+		m_IsDrawListEmpty = GetActiveScene()->ViewEntities<EditorEntityIconComponent>().empty();
+
+		if (m_IsDrawListEmpty)
+			return;
+
 		m_RendererCommand.BeginGraphics(&m_Pipeline);
 
 		m_RendererCommand.SetRenderTarget(m_RendererLayer->GetRenderTargetViewSceneSDR());
-		m_RendererCommand.SetDepthStencil(m_RendererLayer->GetDepthStencilViewSceneNoMS());
+		m_RendererCommand.SetDepthStencil(m_RendererLayer->GetDepthStencilViewScene());
 		m_RendererCommand.SetViewPort(&m_RendererLayer->GetViewportScene(), &m_RendererLayer->GetViewRectScene());
 	}
 
 	void RenderPass_RenderEntityIcons::EndScene()
 	{
+		if (m_IsDrawListEmpty)
+			return;
+
 		m_RendererCommand.End();
 	}
 
 	void RenderPass_RenderEntityIcons::Render()
 	{
+		if (m_IsDrawListEmpty)
+			return;
+
 		m_RendererCommand.ExecutePendingCommands();
 
 		Scene* _ActiveScene = GetActiveScene();
@@ -112,7 +123,7 @@ namespace TruthEngine
 
 		PipelineBlendMode _BlendMode{TE_BLEND::SRC_ALPHA, TE_BLEND::INV_SRC_ALPHA, TE_BLEND_OP::ADD, TE_BLEND::ZERO, TE_BLEND::ONE, TE_BLEND_OP::ADD, TE_COLOR_WRITE_ENABLE_ALL };
 
-		PipelineGraphics::Factory(&m_Pipeline, _RendererStates, shader, _countof(rtvFormats), rtvFormats, m_RendererLayer->GetFormatDepthStencilScene(), false, _BlendMode);
+		PipelineGraphics::Factory(&m_Pipeline, _RendererStates, shader, _countof(rtvFormats), rtvFormats, m_RendererLayer->GetFormatDepthStencilSceneDSV(), false, _BlendMode);
 	}
 
 	void RenderPass_RenderEntityIcons::ReleaseRendererCommand()

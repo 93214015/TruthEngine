@@ -74,8 +74,11 @@ namespace TruthEngine
 		m_RendererCommand.BeginGraphics();
 
 		m_RendererCommand.SetViewPort(&m_RendererLayer->GetViewportScene(), &m_RendererLayer->GetViewRectScene());
-		m_RendererCommand.SetRenderTarget(m_RendererLayer->GetRenderTargetViewScene());
-		m_RendererCommand.SetDepthStencil(m_RendererLayer->GetDepthStencilViewScene());
+
+		const RenderTargetView& _RTV = Settings::IsMSAAEnabled() ? (m_RendererLayer->IsEnabledHDR() ? m_RendererLayer->GetRenderTargetViewSceneHDRMS() : m_RendererLayer->GetRenderTargetViewSceneSDRMS())	: (m_RendererLayer->IsEnabledHDR() ? m_RendererLayer->GetRenderTargetViewSceneHDR() : m_RendererLayer->GetRenderTargetViewSceneSDR());
+		const DepthStencilView& _DSV = Settings::IsMSAAEnabled() ? m_RendererLayer->GetDepthStencilViewSceneMS() : m_RendererLayer->GetDepthStencilViewScene();
+		m_RendererCommand.SetRenderTarget(_RTV);
+		m_RendererCommand.SetDepthStencil(_DSV);
 
 
 		//m_TimerBegin.End();
@@ -99,13 +102,16 @@ namespace TruthEngine
 
 		auto _CBData = m_ConstantBufferDirect_PerMesh->GetData();
 
-		Scene* _ActiveScene = GetActiveScene();
+		const Scene* _ActiveScene = GetActiveScene();
 
 		Camera* _ActiveCamera = CameraManager::GetInstance()->GetActiveCamera();
 		const BoundingFrustum& _CameraBoundingFrustum = _ActiveCamera->GetBoundingFrustumWorldSpace();
 
 
-		auto& EntityMeshView = _ActiveScene->ViewEntities<MeshComponent>();
+		const auto EntityMeshView = _ActiveScene->ViewEntities<MeshComponent>();
+
+		size_t s = sizeof(EntityMeshView);
+
 		for (auto entity_mesh : EntityMeshView)
 		{
 			const float4x4A& _transform = _ActiveScene->GetComponent<TransformComponent>(entity_mesh).GetTransform();
@@ -132,7 +138,7 @@ namespace TruthEngine
 
 		if (m_RendererLayer->IsEnvironmentMapEnabled())
 		{
-			auto _EntityViewEnv = _ActiveScene->ViewEntities<EnvironmentComponent>();
+			const auto _EntityViewEnv = _ActiveScene->ViewEntities<EnvironmentComponent>();
 
 			m_RendererCommand.SetPipelineGraphics(&m_PipelineEnvironmentCube);
 			m_RendererCommand.SetDirectConstantGraphics(m_ConstantBufferDirect_EnvironmentMap);
@@ -190,9 +196,9 @@ namespace TruthEngine
 			_Pipeline = _ItrPipeline->second;
 		}
 
-		TE_RESOURCE_FORMAT rtvFormats[] = { m_RendererLayer->GetFormatRenderTargetScene() };
+		TE_RESOURCE_FORMAT rtvFormats[] = { m_RendererLayer->IsEnabledHDR() ? m_RendererLayer->GetFormatRenderTargetSceneHDR() : m_RendererLayer->GetFormatRenderTargetSceneSDR() };
 
-		PipelineGraphics::Factory(_Pipeline, _RendererState, shader, _countof(rtvFormats), rtvFormats, m_RendererLayer->GetFormatDepthStencilScene(), true);
+		PipelineGraphics::Factory(_Pipeline, _RendererState, shader, _countof(rtvFormats), rtvFormats, m_RendererLayer->GetFormatDepthStencilSceneDSV(), true);
 
 	}
 
@@ -206,7 +212,7 @@ namespace TruthEngine
 		SET_RENDERER_STATE(states, TE_RENDERER_STATE_CULL_MODE, TE_RENDERER_STATE_CULL_MODE::TE_RENDERER_STATE_CULL_MODE_NONE);
 		SET_RENDERER_STATE(states, TE_RENDERER_STATE_DEPTH_WRITE_MASK, TE_RENDERER_STATE_DEPTH_WRITE_MASK::TE_RENDERER_STATE_DEPTH_WRITE_MASK_ZERO);
 
-		TE_RESOURCE_FORMAT rtvFormats[] = { m_RendererLayer->GetFormatRenderTargetScene() };
+		TE_RESOURCE_FORMAT rtvFormats[] = { m_RendererLayer->IsEnabledHDR() ? m_RendererLayer->GetFormatRenderTargetSceneHDR() : m_RendererLayer->GetFormatRenderTargetSceneSDR() };
 		if (m_RendererLayer->IsEnabledHDR())
 		{
 			SET_RENDERER_STATE(states, TE_RENDERER_STATE_ENABLED_HDR, TE_RENDERER_STATE_ENABLED_HDR_TRUE);
@@ -214,7 +220,7 @@ namespace TruthEngine
 
 		auto result = TE_INSTANCE_SHADERMANAGER->AddShader(&shader, TE_IDX_SHADERCLASS::RENDERENVIRONMENTMAP, TE_IDX_MESH_TYPE::MESH_NTT, states, "Assets/Shaders/RenderEnvironmentCube.hlsl", "vs", "ps");
 
-		PipelineGraphics::Factory(&m_PipelineEnvironmentCube, states, shader, 1, rtvFormats, m_RendererLayer->GetFormatDepthStencilScene(), true);
+		PipelineGraphics::Factory(&m_PipelineEnvironmentCube, states, shader, 1, rtvFormats, m_RendererLayer->GetFormatDepthStencilSceneDSV(), true);
 	}
 
 	void RenderPass_ForwardRendering::RegisterEventListeners()

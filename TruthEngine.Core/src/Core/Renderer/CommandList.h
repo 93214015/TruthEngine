@@ -69,7 +69,7 @@ namespace TruthEngine
 		virtual void SetIndexBuffer(IndexBuffer* indexBuffer) = 0;
 
 		virtual void ClearRenderTarget(const RenderTargetView& RTV) = 0;
-		virtual void ClearRenderTarget(const SwapChain* swapChain, const RenderTargetView& RTV) = 0;
+		virtual void ClearRenderTarget(SwapChain* swapChain, const RenderTargetView& RTV) = 0;
 		virtual void ClearDepthStencil(const DepthStencilView& DSV) = 0;
 
 		virtual void SetViewport(const Viewport* viewport, const ViewRect* rect) = 0;

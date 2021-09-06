@@ -96,6 +96,12 @@ namespace TruthEngine
 			return m_Registery.view<Ts...>();
 		}
 
+		template<class... Ts>
+		auto ViewEntities() const
+		{
+			return m_Registery.view<Ts...>();
+		}
+
 		template<class T>
 		T& GetComponent(entt::entity entityHandler)
 		{
@@ -144,10 +150,10 @@ namespace TruthEngine
 			m_Registery.remove<T>(_Entity.m_EntityHandle);
 		}
 
-		template<typename T>
+		template<typename... ARGS>
 		bool HasComponent(entt::entity entityHandler) const
 		{
-			return m_Registery.has<T>(entityHandler);
+			return m_Registery.all_of<ARGS...>(entityHandler);
 		}
 
 		entt::registry& GetEntityRegistery()

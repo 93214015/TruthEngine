@@ -34,10 +34,10 @@ namespace TruthEngine
 		, m_ViewportScene(0.0f, 0.0f, static_cast<float>(TE_INSTANCE_APPLICATION->GetClientWidth()), static_cast<float>(TE_INSTANCE_APPLICATION->GetClientHeight()), 0.0f, 1.0f)
 		, m_ViewRectScene(0l, 0l, static_cast<long>(TE_INSTANCE_APPLICATION->GetClientWidth()), static_cast<long>(TE_INSTANCE_APPLICATION->GetClientHeight()))
 		, m_IsEnabledHDR(false)
-		, m_SceneRenderTargetFormatHDR(TE_RESOURCE_FORMAT::R16G16B16A16_FLOAT)
-		, m_SceneRenderTargetFormatSDR(TE_RESOURCE_FORMAT::R8G8B8A8_UNORM)
-		, m_SceneRenderTargetFormatCurrent(m_IsEnabledHDR ? m_SceneRenderTargetFormatHDR : m_SceneRenderTargetFormatSDR)
-		, m_SceneDepthStencilFormat(TE_RESOURCE_FORMAT::D32_FLOAT)
+		, m_FormatRenderTargetSceneHDR(TE_RESOURCE_FORMAT::R16G16B16A16_FLOAT)
+		, m_FormatRenderTargetSceneSDR(TE_RESOURCE_FORMAT::R8G8B8A8_UNORM)
+		, m_FormatDepthStencilSceneTexture(TE_RESOURCE_FORMAT::R24G8_TYPELESS)
+		, m_FormatDepthStencilSceneDSV(GetDepthStencilDSVFormat(m_FormatDepthStencilSceneTexture))
 		, m_RenderPass_ForwardRendering(std::make_shared<RenderPass_ForwardRendering>(this))
 		, m_RenderPass_GenerateShadowMap(std::make_shared<RenderPass_GenerateShadowMap>(this, 4096))
 		, m_RenderPass_PostProcessing_HDR(std::make_shared<RenderPass_PostProcessing_HDR>(this))
@@ -143,25 +143,26 @@ namespace TruthEngine
 		m_RenderPassStack.RenderAsync();
 		m_RenderPassStack.EndScene();
 
-		/*static std::vector<std::future<void>> m_futures;
-		m_futures.clear();
-		for (auto renderPass : m_RenderPassStack)
-		{
-			renderPass->OnUpdate(deltaFrameTime);
-			renderPass->BeginScene();
-			auto f = [renderPass]() { renderPass->Render(); };
-			m_futures.emplace_back(std::move(ThreadPool::GetInstance()->Queue(f)));
-		}
+		//static std::vector<std::future<void>> m_futures;
+		//m_futures.clear();
+		//for (auto renderPass : m_RenderPassStack)
+		//{
+		//	renderPass->OnUpdate(deltaFrameTime);
+		//	renderPass->BeginScene();
+		//	renderPass->Render();
+		//	/*auto f = [renderPass]() { renderPass->Render(); };
+		//	m_futures.emplace_back(std::move(ThreadPool::GetInstance()->Queue(f)));*/
+		//}
 
-		for (auto& f : m_futures)
-		{
-			f.wait();
-		}
+		///*for (auto& f : m_futures)
+		//{
+		//	f.wait();
+		//}*/
 
-		for (auto renderPass : m_RenderPassStack)
-		{
-			renderPass->EndScene();
-		}*/
+		//for (auto renderPass : m_RenderPassStack)
+		//{
+		//	renderPass->EndScene();
+		//}
 
 
 		//
@@ -256,14 +257,10 @@ namespace TruthEngine
 
 		if (_EnableHDR)
 		{
-			m_SceneRenderTargetFormatCurrent = m_SceneRenderTargetFormatHDR;
-			m_RTVSceneCurrent = Settings::IsMSAAEnabled() ? &m_RTVSceneBufferHDRMS : &m_RTVSceneBufferHDR;
 			SET_RENDERER_STATE(SharedRendererStates, TE_RENDERER_STATE_ENABLED_HDR, TE_RENDERER_STATE_ENABLED_HDR_TRUE);
 		}
 		else
 		{
-			m_SceneRenderTargetFormatCurrent = m_SceneRenderTargetFormatSDR;
-			m_RTVSceneCurrent = Settings::IsMSAAEnabled() ? &m_RTVSceneBufferMS : &m_RTVSceneBuffer;
 			SET_RENDERER_STATE(SharedRendererStates, TE_RENDERER_STATE_ENABLED_HDR, TE_RENDERER_STATE_ENABLED_HDR_FALSE);
 		}
 
@@ -285,24 +282,14 @@ namespace TruthEngine
 		return m_RTVBackBuffer;
 	}
 
-	const RenderTargetView& RendererLayer::GetRenderTargetViewScene() const
-	{
-		return *m_RTVSceneCurrent;
-	}
-
-	const RenderTargetView& RendererLayer::GetRenderTargetViewSceneNoMS() const
-	{
-		return *m_RTVSceneCurrentNoMS;
-	}
-
-	const RenderTargetView& RendererLayer::GetRenderTargetViewSceneNoHDR() const
-	{
-		return *m_RTVSceneCurrentNoHDR;
-	}
-
 	const RenderTargetView& RendererLayer::GetRenderTargetViewSceneSDR() const
 	{
 		return m_RTVSceneBuffer;
+	}
+
+	const RenderTargetView& RendererLayer::GetRenderTargetViewSceneSDRMS() const
+	{
+		return m_RTVSceneBufferMS;
 	}
 
 	const RenderTargetView& RendererLayer::GetRenderTargetViewSceneHDR() const
@@ -310,14 +297,19 @@ namespace TruthEngine
 		return m_RTVSceneBufferHDR;
 	}
 
+	const RenderTargetView& RendererLayer::GetRenderTargetViewSceneHDRMS() const
+	{
+		return m_RTVSceneBufferHDRMS;
+	}
+
 	const DepthStencilView& RendererLayer::GetDepthStencilViewScene() const
 	{
 		return m_DSVSceneBuffer;
 	}
 
-	const DepthStencilView& RendererLayer::GetDepthStencilViewSceneNoMS() const
+	const DepthStencilView& RendererLayer::GetDepthStencilViewSceneMS() const
 	{
-		return m_DSVSceneBuffer;
+		return m_DSVSceneBufferMS;
 	}
 
 	const Viewport& RendererLayer::GetViewportScene() const
@@ -330,24 +322,24 @@ namespace TruthEngine
 		return m_ViewRectScene;
 	}
 
-	TE_RESOURCE_FORMAT RendererLayer::GetFormatDepthStencilScene() const
+	TE_RESOURCE_FORMAT RendererLayer::GetFormatDepthStencilSceneDSV() const
 	{
-		return m_SceneDepthStencilFormat;
+		return m_FormatDepthStencilSceneDSV;
 	}
 
-	TE_RESOURCE_FORMAT RendererLayer::GetFormatRenderTargetScene() const
+	TE_RESOURCE_FORMAT RendererLayer::GetFormatDepthStencilSceneTexture() const
 	{
-		return m_SceneRenderTargetFormatCurrent;
+		return m_FormatDepthStencilSceneTexture;
 	}
 
 	TE_RESOURCE_FORMAT RendererLayer::GetFormatRenderTargetSceneHDR() const
 	{
-		return m_SceneRenderTargetFormatHDR;
+		return m_FormatRenderTargetSceneHDR;
 	}
 
 	TE_RESOURCE_FORMAT RendererLayer::GetFormatRenderTargetSceneSDR() const
 	{
-		return m_SceneRenderTargetFormatSDR;
+		return m_FormatRenderTargetSceneSDR;
 	}
 
 	void RendererLayer::RegisterEvents()
@@ -812,48 +804,45 @@ namespace TruthEngine
 
 		// Create Render Target Scene
 		{
-			m_TextureRTSceneBuffer = m_RendererCommand.CreateRenderTarget(TE_IDX_GRESOURCES::Texture_RT_SceneBuffer, _ViewportWidth, _ViewportHeight, 1, TE_RESOURCE_FORMAT::R8G8B8A8_UNORM, ClearValue_RenderTarget{ 1.0f, 1.0f, 1.0f, 1.0f }, true, false);
+			m_TextureRTSceneBuffer = m_RendererCommand.CreateRenderTarget(TE_IDX_GRESOURCES::Texture_RT_SceneBuffer, _ViewportWidth, _ViewportHeight, 1, m_FormatRenderTargetSceneSDR, ClearValue_RenderTarget{ 1.0f, 1.0f, 1.0f, 1.0f }, true, false);
 			m_RendererCommand.CreateRenderTargetView(m_TextureRTSceneBuffer, &m_RTVSceneBuffer);
 		}
 
 		// Create Render Target Scene HDR
 		{
-			m_TextureRTSceneBufferHDR = m_RendererCommand.CreateRenderTarget(TE_IDX_GRESOURCES::Texture_RT_SceneBufferHDR, _ViewportWidth, _ViewportHeight, 1, TE_RESOURCE_FORMAT::R16G16B16A16_FLOAT, ClearValue_RenderTarget{ 0.0f, 0.0f, 0.0f, 1.0f }, true, false);
+			m_TextureRTSceneBufferHDR = m_RendererCommand.CreateRenderTarget(TE_IDX_GRESOURCES::Texture_RT_SceneBufferHDR, _ViewportWidth, _ViewportHeight, 1, m_FormatRenderTargetSceneHDR, ClearValue_RenderTarget{ 0.0f, 0.0f, 0.0f, 1.0f }, true, false);
 			m_RendererCommand.CreateRenderTargetView(m_TextureRTSceneBufferHDR, &m_RTVSceneBufferHDR);
 		}
 
 		// Create Depth Stencil Scene
 		{
-			m_TextureDSScene = m_RendererCommand.CreateDepthStencil(TE_IDX_GRESOURCES::Texture_DS_SceneBuffer, _ViewportWidth, _ViewportHeight, 1, TE_RESOURCE_FORMAT::R32_TYPELESS, ClearValue_DepthStencil{ 1.0f, 0 }, true, false);
+			m_TextureDSScene = m_RendererCommand.CreateDepthStencil(TE_IDX_GRESOURCES::Texture_DS_SceneBuffer, _ViewportWidth, _ViewportHeight, 1, m_FormatDepthStencilSceneTexture, ClearValue_DepthStencil{ 1.0f, 0 }, true, false);
 			m_RendererCommand.CreateDepthStencilView(m_TextureDSScene, &m_DSVSceneBuffer);
 		}
 
 		// Create Render Target Multi Sample Enabled
 		{
-			m_TextureRTSceneBufferMS = m_RendererCommand.CreateRenderTarget(TE_IDX_GRESOURCES::Texture_RT_SceneBufferMS, _ViewportWidth, _ViewportHeight, 1, TE_RESOURCE_FORMAT::R8G8B8A8_UNORM, ClearValue_RenderTarget{ 1.0f, 1.0f, 1.0f, 1.0f }, true, true);
+			m_TextureRTSceneBufferMS = m_RendererCommand.CreateRenderTarget(TE_IDX_GRESOURCES::Texture_RT_SceneBufferMS, _ViewportWidth, _ViewportHeight, 1, m_FormatRenderTargetSceneSDR, ClearValue_RenderTarget{ 1.0f, 1.0f, 1.0f, 1.0f }, true, true);
 			m_RendererCommand.CreateRenderTargetView(m_TextureRTSceneBufferMS, &m_RTVSceneBufferMS);
 		}
 
 
 		// Create Render Target HDR Multi Sample Enabled
 		{
-			m_TextureRTSceneBufferHDRMS = m_RendererCommand.CreateRenderTarget(TE_IDX_GRESOURCES::Texture_RT_SceneBufferHDRMS, _ViewportWidth, _ViewportHeight, 1, TE_RESOURCE_FORMAT::R16G16B16A16_FLOAT, ClearValue_RenderTarget{ 0.0f, 0.0f, 0.0f, 1.0f }, true, true);
+			m_TextureRTSceneBufferHDRMS = m_RendererCommand.CreateRenderTarget(TE_IDX_GRESOURCES::Texture_RT_SceneBufferHDRMS, _ViewportWidth, _ViewportHeight, 1, m_FormatRenderTargetSceneHDR, ClearValue_RenderTarget{ 0.0f, 0.0f, 0.0f, 1.0f }, true, true);
 			m_RendererCommand.CreateRenderTargetView(m_TextureRTSceneBufferHDRMS, &m_RTVSceneBufferHDRMS);
 		}
 
+
 		// Create DepthStencil Multi Sample Enabled
 		{
-			m_TextureDSSceneMS = m_RendererCommand.CreateDepthStencil(TE_IDX_GRESOURCES::Texture_DS_SceneBufferMS, _ViewportWidth, _ViewportHeight, 1, TE_RESOURCE_FORMAT::R32_TYPELESS, ClearValue_DepthStencil{ 1.0f, 0 }, true, true);
+			m_TextureDSSceneMS = m_RendererCommand.CreateDepthStencil(TE_IDX_GRESOURCES::Texture_DS_SceneBufferMS, _ViewportWidth, _ViewportHeight, 1, m_FormatDepthStencilSceneTexture, ClearValue_DepthStencil{ 1.0f, 0 }, true, true);
 			m_RendererCommand.CreateDepthStencilView(m_TextureDSSceneMS, &m_DSVSceneBufferMS);
 		}
 
 
 		// Create Render Target Back Buffer
 		{
-			m_RTVSceneCurrentNoMS = m_IsEnabledHDR ? &m_RTVSceneBufferHDR : &m_RTVSceneBuffer;
-			m_RTVSceneCurrentNoHDR = Settings::IsMSAAEnabled() ? &m_RTVSceneBufferMS : &m_RTVSceneBuffer;
-			m_RTVSceneCurrent = Settings::IsMSAAEnabled() ? (m_IsEnabledHDR ? &m_RTVSceneBufferHDRMS : &m_RTVSceneBufferMS) : m_RTVSceneCurrentNoMS;
-
 			m_RendererCommand.CreateRenderTargetView(TE_INSTANCE_SWAPCHAIN, &m_RTVBackBuffer);
 		}
 

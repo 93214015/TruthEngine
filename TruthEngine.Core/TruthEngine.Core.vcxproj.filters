@@ -506,6 +506,9 @@
     <ClInclude Include="src\Core\Renderer\IconsIDX.h" />
     <ClInclude Include="src\Core\Renderer\PipelineBlendMode.h" />
     <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_Wireframe.h" />
+    <ClInclude Include="src\Core\Event\EventListenerCollector.h" />
+    <ClInclude Include="src\Core\Event\EventDispatcher.h" />
+    <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_ScreenSpaceReflection.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\API\DX12\DirectX12BufferManager.cpp">
@@ -898,5 +901,8 @@
     <ClCompile Include="src\Core\Renderer\IconsIDX.cpp" />
     <ClCompile Include="src\Core\Renderer\PipelineBlendMode.cpp" />
     <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_Wireframe.cpp" />
+    <ClCompile Include="src\Core\Event\EventListenerCollector.cpp" />
+    <ClCompile Include="src\Core\Event\EventDispatcher.cpp" />
+    <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_ScreenSpaceReflection.cpp" />
   </ItemGroup>
 </Project>

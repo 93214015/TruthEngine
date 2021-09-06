@@ -223,7 +223,7 @@ namespace TruthEngine
 		m_CurrentCommandList->ClearRenderTarget(RTV);
 	}
 
-	void RendererCommand::ClearRenderTarget(const SwapChain* swapChain, const RenderTargetView& RTV)
+	void RendererCommand::ClearRenderTarget(SwapChain* swapChain, const RenderTargetView& RTV)
 	{
 		m_CurrentCommandList->ClearRenderTarget(swapChain, RTV);
 	}
