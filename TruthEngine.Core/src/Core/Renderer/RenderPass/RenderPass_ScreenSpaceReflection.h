@@ -9,6 +9,8 @@ namespace TruthEngine
 	class RenderPass_ScreenSpaceReflection final : public RenderPass
 	{
 	public:
+		RenderPass_ScreenSpaceReflection(class RendererLayer* _RendererLayer);
+
 		// Inherited via RenderPass
 		virtual void OnImGuiRender() override;
 

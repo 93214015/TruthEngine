@@ -17,6 +17,7 @@ enum class TE_IDX_GRESOURCES : IDX
 	CBuffer_GaussianBlur,
 	CBuffer_Bones,
 	CBuffer_SSAO,
+	CBuffer_SSReflection,
 
 	Buffer_HDRAverageLumFirstPass,
 	Buffer_HDRAverageLumSecondPass0,
@@ -32,7 +33,6 @@ enum class TE_IDX_GRESOURCES : IDX
 	Constant_RenderBoundingBox,
 	Constant_RenderEntityIcon,
 	Constant_Wireframe,
-	Constant_SSReflection,
 
 	Texture_MaterialTextures,
 	Texture_CubeMap_Environment,

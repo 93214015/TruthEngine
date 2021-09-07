@@ -28,7 +28,7 @@
 
 namespace TruthEngine
 {
-	RendererStateSet SharedRendererStates = InitRenderStates();
+	RendererStateSet SharedRendererStates = 0;
 
 	RendererLayer::RendererLayer() : m_ImGuiLayer(ImGuiLayer::Factory())
 		, m_ViewportScene(0.0f, 0.0f, static_cast<float>(TE_INSTANCE_APPLICATION->GetClientWidth()), static_cast<float>(TE_INSTANCE_APPLICATION->GetClientHeight()), 0.0f, 1.0f)
@@ -50,6 +50,7 @@ namespace TruthEngine
 		, m_RenderPass_RenderBoundingBoxes(std::make_shared<RenderPass_RenderBoundingBoxes>(this))
 		, m_RenderPass_RenderEntityIcons(std::make_shared<RenderPass_RenderEntityIcons>(this))
 		, m_RenderPass_Wireframe(std::make_shared<RenderPass_Wireframe>(this))
+		, m_RenderPass_SSReflection(std::make_shared<RenderPass_ScreenSpaceReflection>(this))
 	{
 	}
 	RendererLayer::~RendererLayer() = default;
@@ -790,7 +791,10 @@ namespace TruthEngine
 		m_RenderPassStack.PushRenderPass(m_RenderPass_DeferredShading.get());
 
 		if (m_IsEnabledHDR)
+		{
+			m_RenderPassStack.PushRenderPass(m_RenderPass_SSReflection.get());
 			m_RenderPassStack.PushRenderPass(m_RenderPass_PostProcessing_HDR.get());
+		}
 
 		m_RenderPassStack.PushRenderPass(m_RenderPass_RenderBoundingBoxes.get());
 		m_RenderPassStack.PushRenderPass(m_RenderPass_RenderEntityIcons.get());

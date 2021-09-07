@@ -152,9 +152,6 @@ void TruthEngine::RenderPass_PostProcessing_HDR::InitRendererCommand()
 	mRendererCommand_BlurPassHorz.Init(TE_IDX_RENDERPASS::POSTPROCESSING_HDR, TE_IDX_SHADERCLASS::POSTPROCESSING_GAUSSIANBLUR_HORZ);
 	mRendererCommand_BlurPassVert.Init(TE_IDX_RENDERPASS::POSTPROCESSING_HDR, TE_IDX_SHADERCLASS::POSTPROCESSING_GAUSSIANBLUR_VERT);
 	mRendererCommand_FinalPass.Init(TE_IDX_RENDERPASS::POSTPROCESSING_HDR, TE_IDX_SHADERCLASS::POSTPROCESSING_HDR_FINALPASS);
-
-	m_RendererCommand_Reflection.Init(TE_IDX_RENDERPASS::SSREFLECTION, TE_IDX_SHADERCLASS::SSREFLECTION);
-	m_RendererCommand_Blend.Init(TE_IDX_RENDERPASS::SSREFLECTION, TE_IDX_SHADERCLASS::BLENDREFLECTION);
 }
 
 void TruthEngine::RenderPass_PostProcessing_HDR::InitTextures()
@@ -195,9 +192,6 @@ void TruthEngine::RenderPass_PostProcessing_HDR::InitBuffers()
 	//mRendererCommand_FinalPass.AddUpdateTask([=]() {*mConstantBufferFinalPass->GetData() = ConstantBuffer_Data_FinalPass(0.0025f, 1.5f, 1.0f, _ProjectionValues, float2{mDOFFarStart, 1/mDOFFarRange}); });
 	mRendererCommand_FinalPass.AddUpdateTask([=]() {*mConstantBufferFinalPass->GetData() = ConstantBuffer_Data_FinalPass(0.003f, 1.5f, 0.0f, _ProjectionValues, float2{ 1000.0f, 1 / mDOFFarRange }); });
 
-
-	m_ConstantBuffer_Reflection = m_RendererCommand_Reflection.CreateConstantBufferUpload<ConstantBufferData_SSReflection>(TE_IDX_GRESOURCES::Constant_SSReflection);
-	m_RendererCommand_Reflection.AddUpdateTask([this]() { *m_ConstantBuffer_Reflection->GetData() = ConstantBufferData_SSReflection(); });
 }
 
 void TruthEngine::RenderPass_PostProcessing_HDR::InitPipelines()
@@ -260,85 +254,6 @@ void TruthEngine::RenderPass_PostProcessing_HDR::InitPipelines()
 
 	PipelineGraphics::Factory(&mPipelineFinalPass, _RendererStates, _Shader, _countof(_RTVFormat), _RTVFormat, TE_RESOURCE_FORMAT::UNKNOWN, false);
 
-
-
-
-	//Init Screen Space Reflection Pipeline
-	{
-		const RendererStateSet _States_Reflection = InitRenderStates
-		(
-			TE_RENDERER_STATE_ENABLED_SHADER_HS_FALSE,
-			TE_RENDERER_STATE_ENABLED_SHADER_DS_FALSE,
-			TE_RENDERER_STATE_ENABLED_SHADER_GS_FALSE,
-			TE_RENDERER_STATE_ENABLED_MAP_DIFFUSE_FALSE,
-			TE_RENDERER_STATE_ENABLED_MAP_NORMAL_FALSE,
-			TE_RENDERER_STATE_ENABLED_MAP_DISPLACEMENT_FALSE,
-			TE_RENDERER_STATE_ENABLED_MAP_SPECULAR_FALSE,
-			TE_RENDERER_STATE_ENABLED_MAP_ROUGHNESS_FALSE,
-			TE_RENDERER_STATE_ENABLED_MAP_METALLIC_FALSE,
-			TE_RENDERER_STATE_ENABLED_MAP_AMBIENTOCCLUSION_FALSE,
-			TE_RENDERER_STATE_FRONTCOUNTERCLOCKWISE_FALSE,
-			TE_RENDERER_STATE_ENABLED_DEPTH_FALSE,
-			TE_RENDERER_STATE_ENABLED_STENCIL_FALSE,
-			TE_RENDERER_STATE_FILL_MODE_SOLID,
-			TE_RENDERER_STATE_CULL_MODE_BACK,
-			TE_RENDERER_STATE_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP,
-			TE_RENDERER_STATE_ENABLED_HDR_FALSE,
-			TE_RENDERER_STATE_SHADING_MODEL_NONE,
-			TE_RENDERER_STATE_ENABLED_BLEND_FALSE
-		);
-
-		Shader* shader = nullptr;
-		auto result = TE_INSTANCE_SHADERMANAGER->AddShader(&shader, TE_IDX_SHADERCLASS::SSREFLECTION, TE_IDX_MESH_TYPE::MESH_POINT, _States_Reflection, "Assets/Shaders/ScreenSpaceReflection.hlsl", "vs", "ps");
-
-		TE_RESOURCE_FORMAT rtvFormats[] = { m_RendererLayer->GetFormatRenderTargetSceneHDR() };
-
-		PipelineGraphics::Factory(&m_Pipeline_Reflection, _States_Reflection, shader, _countof(rtvFormats), rtvFormats, m_RendererLayer->GetFormatDepthStencilSceneDSV(), false);
-	}
-
-	//Init Blending Reflection's Pipeline
-	{
-		const RendererStateSet _States_Blend = InitRenderStates
-		(
-			TE_RENDERER_STATE_ENABLED_SHADER_HS_FALSE,
-			TE_RENDERER_STATE_ENABLED_SHADER_DS_FALSE,
-			TE_RENDERER_STATE_ENABLED_SHADER_GS_FALSE,
-			TE_RENDERER_STATE_ENABLED_MAP_DIFFUSE_FALSE,
-			TE_RENDERER_STATE_ENABLED_MAP_NORMAL_FALSE,
-			TE_RENDERER_STATE_ENABLED_MAP_DISPLACEMENT_FALSE,
-			TE_RENDERER_STATE_ENABLED_MAP_SPECULAR_FALSE,
-			TE_RENDERER_STATE_ENABLED_MAP_ROUGHNESS_FALSE,
-			TE_RENDERER_STATE_ENABLED_MAP_METALLIC_FALSE,
-			TE_RENDERER_STATE_ENABLED_MAP_AMBIENTOCCLUSION_FALSE,
-			TE_RENDERER_STATE_FRONTCOUNTERCLOCKWISE_FALSE,
-			TE_RENDERER_STATE_ENABLED_DEPTH_FALSE,
-			TE_RENDERER_STATE_ENABLED_STENCIL_FALSE,
-			TE_RENDERER_STATE_FILL_MODE_SOLID,
-			TE_RENDERER_STATE_CULL_MODE_BACK,
-			TE_RENDERER_STATE_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP,
-			TE_RENDERER_STATE_ENABLED_HDR_FALSE,
-			TE_RENDERER_STATE_SHADING_MODEL_NONE,
-			TE_RENDERER_STATE_ENABLED_BLEND_TRUE
-		);
-
-		Shader* shader = nullptr;
-		auto result = TE_INSTANCE_SHADERMANAGER->AddShader(&shader, TE_IDX_SHADERCLASS::SSREFLECTION, TE_IDX_MESH_TYPE::MESH_POINT, _States_Blend, "Assets/Shaders/BlendReflection.hlsl", "vs", "ps");
-
-		TE_RESOURCE_FORMAT rtvFormats[] = { m_RendererLayer->GetFormatRenderTargetSceneHDR() };
-
-		PipelineBlendDesc _BlendDesc
-		{
-			TE_BLEND::SRC_COLOR,
-			TE_BLEND::DEST_COLOR,
-			TE_BLEND_OP::ADD,
-			TE_BLEND::SRC_ALPHA,
-			TE_BLEND::INV_SRC_ALPHA,
-			TE_BLEND_OP::ADD,
-			TE_COLOR_WRITE_ENABLE::TE_COLOR_WRITE_ENABLE_ALL
-		};
-
-		PipelineGraphics::Factory(&m_Pipeline_Reflection, _States_Blend, shader, _countof(rtvFormats), rtvFormats, m_RendererLayer->GetFormatDepthStencilSceneDSV(), false, _BlendDesc);
-	}
 }
 
 void TruthEngine::RenderPass_PostProcessing_HDR::ReleaseRendererCommand()
@@ -350,9 +265,6 @@ void TruthEngine::RenderPass_PostProcessing_HDR::ReleaseRendererCommand()
 	mRendererCommand_BlurPassVert.Release();
 	mRendererCommand_FinalPass.Release();
 
-	m_RendererCommand_Reflection.Release();
-	m_RendererCommand_Blend.Release();
-
 }
 
 void TruthEngine::RenderPass_PostProcessing_HDR::ReleaseTextures()
@@ -361,9 +273,6 @@ void TruthEngine::RenderPass_PostProcessing_HDR::ReleaseTextures()
 	mRendererCommand_FinalPass.ReleaseResource(mRWTextureBloom);
 	mRendererCommand_FinalPass.ReleaseResource(mRWTextureBluredBloom);
 	mRendererCommand_FinalPass.ReleaseResource(mRWTextureBluredBloomHorz);
-
-	m_RendererCommand_Reflection.ReleaseResource(m_RenderTarget_Reflection);
-
 }
 
 void TruthEngine::RenderPass_PostProcessing_HDR::ReleaseBuffers()
@@ -373,8 +282,6 @@ void TruthEngine::RenderPass_PostProcessing_HDR::ReleaseBuffers()
 	mRendererCommand_DownScaling_FirstPass.ReleaseResource(mBufferRWAverageLumFirstPass);
 	mRendererCommand_DownScaling_FirstPass.ReleaseResource(mBufferRWAverageLumSecondPass0);
 	mRendererCommand_DownScaling_FirstPass.ReleaseResource(mBufferRWAverageLumSecondPass1);
-
-	m_RendererCommand_Reflection.ReleaseResource(m_ConstantBuffer_Reflection);
 }
 
 void TruthEngine::RenderPass_PostProcessing_HDR::ReleasePipelines()
@@ -421,8 +328,6 @@ void TruthEngine::RenderPass_PostProcessing_HDR::ResizedViewport(uint32_t _Width
 	mRWTextureBloom = mRendererCommand_DownScaling_FirstPass.CreateTextureRW(TE_IDX_GRESOURCES::Texture_RW_Bloom, mSceneViewQuarterSize[0], mSceneViewQuarterSize[1], TE_RESOURCE_FORMAT::R16G16B16A16_FLOAT, true, false);
 	mRWTextureBluredBloom = mRendererCommand_DownScaling_FirstPass.CreateTextureRW(TE_IDX_GRESOURCES::Texture_RW_BloomBlured, mSceneViewQuarterSize[0], mSceneViewQuarterSize[1], TE_RESOURCE_FORMAT::R16G16B16A16_FLOAT, true, false);
 	mRWTextureBluredBloomHorz = mRendererCommand_DownScaling_FirstPass.CreateTextureRW(TE_IDX_GRESOURCES::Texture_RW_BloomBluredHorz, mSceneViewQuarterSize[0], mSceneViewQuarterSize[1], TE_RESOURCE_FORMAT::R16G16B16A16_FLOAT, true, false);
-
-	m_RenderTarget_Reflection = m_RendererCommand_Reflection.CreateRenderTarget(TE_IDX_GRESOURCES::Texture_RT_SSReflection, _Width, Height, 1, m_RendererLayer->GetFormatRenderTargetSceneHDR(), ClearValue_RenderTarget{ 0.0f, 0.0f, 0.0f, 0.0f }, true, false);
 }
 
 void TruthEngine::RenderPass_PostProcessing_HDR::OnRendererViewportResize(const EventRendererViewportResize& _Event)

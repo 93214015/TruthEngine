@@ -65,10 +65,6 @@ namespace TruthEngine
 		RendererCommand mRendererCommand_BlurPassHorz;
 		RendererCommand mRendererCommand_BlurPassVert;
 		RendererCommand mRendererCommand_FinalPass;
-
-		//ScreenSpace Reflection
-		RendererCommand m_RendererCommand_Reflection;
-		RendererCommand m_RendererCommand_Blend;
 		
 
 		struct alignas(16) ConstantBuffer_Data_DownScaling
@@ -163,22 +159,6 @@ namespace TruthEngine
 		float mBloomThreshold = 1.0f;
 		float mDOFFarStart = 40.0f;
 		float mDOFFarRange = 60.0f;
-
-
-		//ScreenSpace Reflection
-
-		TextureRenderTarget* m_RenderTarget_Reflection;
-		RenderTargetView m_RTV_Reflection;
-
-		struct ConstantBufferData_SSReflection
-		{
-			float gViewAngleThreshold;
-			float gEdgeDistThreshold;
-			float gDepthBias;
-			float gReflectionScale;
-		};
-
-		ConstantBufferUpload<ConstantBufferData_SSReflection>* m_ConstantBuffer_Reflection;
 
 
 		std::vector<EventListenerHandle> m_EventListenerList;

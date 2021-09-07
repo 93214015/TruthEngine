@@ -57,6 +57,7 @@ namespace TruthEngine
 	{
 		auto _CurrentShadingModel = GET_RENDERER_STATE(m_RendererStates, TE_RENDERER_STATE_SHADING_MODEL);
 
+
 		if (_CurrentShadingModel == _ShadingModel)
 			return;
 

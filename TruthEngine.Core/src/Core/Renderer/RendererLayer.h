@@ -17,6 +17,7 @@
 #include "RenderPass/RenderPass_RenderBoudingBoxes.h"
 #include "RenderPass/RenderPass_RenderEntityIcons.h"
 #include "RenderPass/RenderPass_Wireframe.h"
+#include "RenderPass/RenderPass_ScreenSpaceReflection.h"
 
 #include "Core/Entity/Model/MeshHandle.h"
 
@@ -151,6 +152,7 @@ namespace TruthEngine
 		std::shared_ptr<RenderPass_RenderBoundingBoxes> m_RenderPass_RenderBoundingBoxes;
 		std::shared_ptr<RenderPass_RenderEntityIcons> m_RenderPass_RenderEntityIcons;
 		std::shared_ptr<RenderPass_Wireframe> m_RenderPass_Wireframe;
+		std::shared_ptr<RenderPass_ScreenSpaceReflection> m_RenderPass_SSReflection;
 
 		ModelManager* m_ModelManagers;
 

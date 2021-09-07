@@ -8,11 +8,7 @@
 #define REGISTER_CBPerFrame b0
 #include "CBPerFrame.hlsli"
 
-#define REGISTER_CBUnfrequent b1
-#include "CBUnfrequent.hlsli"
-
-
-cbuffer ConstantBuffer_SSReflection : register(b2)
+cbuffer ConstantBuffer_SSReflection : register(b1)
 {
     float gViewAngleThreshold : packoffset(c0.x);
     float gEdgeDistThreshold : packoffset(c0.y);
@@ -92,6 +88,7 @@ float4 ps(VertexOut _PixelIn) : SV_Target
     float4 _PosV = ReconstructViewPosition(_PixelIn.PosCS, _DepthView, ProjectionValues);
     
     float3 _NormalW = tNormal.Sample(sampler_point_wrap, _PixelIn.UV).xyz;
+    _NormalW = _NormalW * 2.0f - 1.0f;
     float3 _NormalV = normalize(mul(_NormalW, (float3x3)View));
     
     float3 _EyeToPixel = normalize(_PosV.xyz);
@@ -126,17 +123,23 @@ float4 ps(VertexOut _PixelIn) : SV_Target
         for (uint _CurrStep = 0; _CurrStep < gNumSteps; ++_CurrStep)
         {
             float _SampleDepthProj = tDepth.Sample(sampler_point_wrap, _SampleUV).x;
+
+            if(_SampleDepthProj > 0.9999f)
+            {
+                continue;
+            }
+
             float _SampleDepthView = ConvertToLinearDepth(_SampleDepthProj, ProjectionValues.z, ProjectionValues.w);
             
-            float3 _SamplePosView = ReconstructViewPosition(_PixelIn.PosCS + _ReflectCS.xy * (_CurrStep + 1.0f), _SampleDepthView, ProjectionValues);
+            float3 _SamplePosView = ReconstructViewPosition(_PixelIn.PosCS + _ReflectCS.xy * (_CurrStep + 1.0f), _SampleDepthView, ProjectionValues).xyz;
 
-            if(_RayPlane >= dot(_RayPlane.xyz, _SamplePosView) + gDepthBias)
+            if(_RayPlane.w >= dot(_RayPlane.xyz, _SamplePosView) + gDepthBias)
             {
                 float3 _FinalPosView = _PosV.xyz + (_ReflectV / abs(_ReflectV.z)) * abs(_SampleDepthView - _PosV.z + gDepthBias);
                 float2 _FinalPosCS = _FinalPosView.xy / ProjectionValues.xy / _FinalPosView.z;
                 _SampleUV = _FinalPosCS.xy * float2(0.5f, -0.5f) + 0.5f;
                 
-                _ReflectColor.xyz = tHDR.SampleLevel(sampler_point_wrap, _SampleUV, 0.0f);
+                _ReflectColor.xyz = tHDR.SampleLevel(sampler_point_wrap, _SampleUV, 0.0f).xyz;
                 
                 float _EdgeFade = saturate(distance(_SampleUV, float2(0.5f, 0.5f)) * 2.0 - gEdgeDistThreshold);
                 

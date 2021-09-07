@@ -243,6 +243,8 @@ namespace TruthEngine
 				return "Assets/Shaders/GenerateGBuffers.hlsl";
 			case TE_RENDERER_STATE_SHADING_MODEL_PBR:
 				return "Assets/Shaders/GenerateGBuffersPBR.hlsl";
+			default:
+				TE_LOG_CORE_ERROR("GenerateGBuffer pass: the shading model is invalid!");
 			}
 		};
 
