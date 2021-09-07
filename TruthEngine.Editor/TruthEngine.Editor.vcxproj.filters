@@ -41,5 +41,6 @@
     <FxCompile Include="Assets\Shaders\RenderEntityIcon.hlsl" />
     <FxCompile Include="Assets\Shaders\RenderWireframe.hlsl" />
     <FxCompile Include="Assets\Shaders\ScreenSpaceReflection.hlsl" />
+    <FxCompile Include="Assets\Shaders\BlendReflection.hlsl" />
   </ItemGroup>
 </Project>

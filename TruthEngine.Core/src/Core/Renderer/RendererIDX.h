@@ -32,6 +32,7 @@ enum class TE_IDX_GRESOURCES : IDX
 	Constant_RenderBoundingBox,
 	Constant_RenderEntityIcon,
 	Constant_Wireframe,
+	Constant_SSReflection,
 
 	Texture_MaterialTextures,
 	Texture_CubeMap_Environment,
@@ -56,6 +57,7 @@ enum class TE_IDX_GRESOURCES : IDX
 	Texture_RT_IBL_Specular_BRDF,
 	Texture_RT_SSAO,
 	Texture_RT_SSAOBlurred,
+	Texture_RT_SSReflection,
 	Texture_DS_SceneBuffer,
 	Texture_DS_SceneBufferMS,
 	Texture_DS_ShadowMap_SunLight,
@@ -107,6 +109,8 @@ enum class TE_IDX_SHADERCLASS : IDX
 	SSAOBLURRING,
 	RENDERENTITYICON,
 	WIREFRAME,
+	SSREFLECTION,
+	BLENDREFLECTION,
 	TOTALNUM
 };
 
@@ -124,7 +128,8 @@ enum class TE_IDX_RENDERPASS : IDX
 	GENERATEIBLSPECULAR,
 	GENERATESSAO,
 	RENDERENTITYICON,
-	WIREFRAME
+	WIREFRAME,
+	SSREFLECTION
 };
 
 enum class TE_IDX_MESH_TYPE : IDX

@@ -34,6 +34,11 @@ namespace TruthEngine
 
 	struct TE_DEPTH_STENCIL_OP_DESC
 	{
+		TE_DEPTH_STENCIL_OP_DESC() = default;
+		TE_DEPTH_STENCIL_OP_DESC(TE_STENCIL_OP _FailOp, TE_STENCIL_OP _DepthFailOp, TE_STENCIL_OP _PassOp, TE_COMPARISON_FUNC _StencilFunc)
+			: StencilFailOp(_FailOp), StencilDepthFailOp(_DepthFailOp), StencilPassOp(_PassOp), StencilFunc(_StencilFunc)
+		{}
+
 		TE_STENCIL_OP StencilFailOp = TE_STENCIL_OP::KEEP;
 		TE_STENCIL_OP StencilDepthFailOp = TE_STENCIL_OP::KEEP;
 		TE_STENCIL_OP StencilPassOp = TE_STENCIL_OP::KEEP;

@@ -1,6 +1,8 @@
 #pragma once
 
 #include "Core/Renderer/RenderPass.h"
+#include "Core/Renderer/RendererCommand.h"
+#include "Core/Renderer/Pipeline.h"
 
 namespace TruthEngine
 {
@@ -40,10 +42,34 @@ namespace TruthEngine
 
 		virtual void UnRegisterEventListeners() override;
 
+		void OnEventRendererViewportResize(class EventRendererViewportResize& _Event);
+
 	private:
 
+		RendererCommand m_RendererCommand_Reflection;
+		RendererCommand m_RendererCommand_Blend;
 
+		PipelineGraphics m_Pipeline_Reflection;
+		PipelineGraphics m_Pipeline_Blend;
 
+		TextureRenderTarget* m_RenderTarget_Reflection;
+		RenderTargetView m_RTV_Reflection;
 
+		struct ConstantBufferData_SSReflection
+		{
+			ConstantBufferData_SSReflection() = default;
+			ConstantBufferData_SSReflection(float _ViewAngleThreshold, float _EdgeDistThreshold, float _DepthBias, float _ReflectionScale)
+				: ViewAngleThreshold(_ViewAngleThreshold), EdgeDistThreshold(_EdgeDistThreshold), DepthBias(_DepthBias), ReflectionScale(_ReflectionScale)
+			{}
+
+			float ViewAngleThreshold;
+			float EdgeDistThreshold;
+			float DepthBias;
+			float ReflectionScale;
+		};
+
+		ConstantBufferUpload<ConstantBufferData_SSReflection>* m_ConstantBuffer_Reflection;
+
+		std::vector<EventListenerHandle> m_EventListenerList;
 	};
 }
