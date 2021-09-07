@@ -158,3 +158,75 @@ float4 ps(VertexOut _PixelIn) : SV_Target
     return _ReflectColor;
     
 }
+
+float4 ps_Book(VertexOut _PixelIn) : SV_Target
+{
+    float _Metallness = tSpecular.Sample(sampler_point_wrap, _PixelIn.UV).y;
+    
+    clip(_Metallness - 0.8f);
+    
+    float _DepthProj = tDepth.Sample(sampler_point_wrap, _PixelIn.UV).x;
+    float _DepthView = ConvertToLinearDepth(_DepthProj, ProjectionValues.z, ProjectionValues.w);
+    float4 _PosV = ReconstructViewPosition(_PixelIn.PosCS, _DepthView, ProjectionValues);
+    float3 _PosCS = float3(_PixelIn.PosCS, _DepthProj);
+    
+    float3 _NormalW = tNormal.Sample(sampler_point_wrap, _PixelIn.UV).xyz;
+    _NormalW = _NormalW * 2.0f - 1.0f;
+    float3 _NormalV = normalize(mul(_NormalW, (float3x3) View));
+    
+    float3 _EyeToPixel = normalize(_PosV.xyz);
+    
+    float3 _ReflectV = reflect(_EyeToPixel, _NormalV);
+    
+    float4 _ReflectColor = float4(0.0f, 0.0f, 0.0f, 0.0f);
+    
+    if (_ReflectV.z > gViewAngleThreshold)
+    {
+        
+        float _ViewAngleThresholdInv = 1.0f - gViewAngleThreshold;
+        float _ViewAngleFade = (_ReflectV.z - gViewAngleThreshold) / _ViewAngleThresholdInv;
+        
+        float3 _ReflectPosV = _PosV.xyz + _ReflectV;
+        float3 _ReflectPosCS = mul(float4(_ReflectPosV, 1.0f), Projection).xyz / _ReflectPosV.z;
+        float3 _ReflectCS = _ReflectPosCS - _PosCS;
+        
+        float _ReflectScale = gPixelSize / length(_ReflectCS.xy);
+        _ReflectCS *= _ReflectScale;
+        
+        float3 _SampleOffset = _PosCS + _ReflectCS;
+        _SampleOffset.xy = _SampleOffset.xy * float2(0.5f, -0.5f) + 0.5f;
+        
+        float3 _LastOffset = _PosCS;
+        _LastOffset.xy = _LastOffset.xy * float2(0.5, -5.0f) + 0.5f;
+        
+        _ReflectCS *= float3(0.5, -0.5f, 1.0f);
+        
+        for (uint _CurrStep = 0; _CurrStep < gNumSteps; ++_CurrStep)
+        {
+            float _SampleDepthProj = tDepth.Sample(sampler_point_wrap, _SampleOffset.xy).x + gDepthBias;
+            
+            if (_SampleDepthProj < _SampleOffset.z)
+            {
+                _SampleOffset.xy = _LastOffset.xy + _ReflectCS.xy * (_SampleOffset.z - _SampleDepthProj);
+
+                _ReflectColor.xyz = tHDR.Sample(sampler_point_wrap, _SampleOffset.xy).xyz;
+
+                float _EdgeFade = saturate(distance(_SampleOffset.xy, float2(0.5f, 0.5f)) * 2.0 - gEdgeDistThreshold);
+
+                _ReflectColor.w = min(_ViewAngleFade, 1.0f - _EdgeFade * _EdgeFade);
+                _ReflectColor.w *= gReflectionScale;
+
+
+                _CurrStep = gNumSteps;
+            }
+            
+            _LastOffset = _SampleOffset;
+            _SampleOffset += _ReflectCS;            
+
+        }
+
+    }
+    
+    return _ReflectColor;
+    
+}
