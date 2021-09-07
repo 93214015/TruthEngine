@@ -24,6 +24,27 @@ void TruthEngine::RenderPass_PostProcessing_HDR::OnImGuiRender()
 
 	if (ImGui::Begin("PostProcessing HDR RenderPass"))
 	{
+
+		static const char* _ToneMappingsListStr[] = { "Reinhard", "ACES" };
+		static const char* _CurrentToneMappingItem = _ToneMappingsListStr[0];
+
+		if (ImGui::BeginCombo("Tone Mapping: ", _CurrentToneMappingItem))
+		{
+			if (ImGui::Selectable(_ToneMappingsListStr[0], mPipelineFinalPass_Selected == &mPipelineFinalPass_ReinhardToneMapping))
+			{
+				mPipelineFinalPass_Selected = &mPipelineFinalPass_ReinhardToneMapping;
+				_CurrentToneMappingItem = _ToneMappingsListStr[0];
+			}
+			if (ImGui::Selectable(_ToneMappingsListStr[1], mPipelineFinalPass_Selected == &mPipelineFinalPass_ACESToneMapping))
+			{
+				mPipelineFinalPass_Selected = &mPipelineFinalPass_ACESToneMapping;
+				_CurrentToneMappingItem = _ToneMappingsListStr[1];
+			}
+
+			ImGui::EndCombo();
+		}
+
+
 		if (ImGui::DragFloat("Middle Grey:", &_MiddleGrey, 0.00001, 0.0f, 1.0f, "%.5f"))
 		{
 			mRendererCommand_FinalPass.AddUpdateTask([this]() { mConstantBufferFinalPass->GetData()->mMiddleGrey = _MiddleGrey; });
@@ -80,7 +101,7 @@ void TruthEngine::RenderPass_PostProcessing_HDR::BeginScene()
 	mRendererCommand_BlurPassVert.BeginCompute(&mPipelineBlurPassVert);
 
 
-	mRendererCommand_FinalPass.BeginGraphics(&mPipelineFinalPass);
+	mRendererCommand_FinalPass.BeginGraphics(mPipelineFinalPass_Selected);
 	mRendererCommand_FinalPass.SetRenderTarget(m_RendererLayer->GetRenderTargetViewSceneSDR());
 	mRendererCommand_FinalPass.SetViewPort(&m_RendererLayer->GetViewportScene(), &m_RendererLayer->GetViewRectScene());
 
@@ -136,7 +157,7 @@ void TruthEngine::RenderPass_PostProcessing_HDR::Render()
 	mRendererCommand_BlurPassVert.Dispatch(mSceneViewQuarterSize[0], vert, 1);
 
 	mRendererCommand_FinalPass.SetDirectShaderResourceViewGraphics(_CurrentBuffer, 4);
-	//mRendererCommand_FinalPass.SetPipelineGraphics(mPipelineFinalPass);
+	//mRendererCommand_FinalPass.SetPipelineGraphics(mPipelineFinalPass_ReinhardToneMapping);
 	mRendererCommand_FinalPass.ExecutePendingCommands();
 	mRendererCommand_FinalPass.Draw(4, 0);
 
@@ -248,11 +269,17 @@ void TruthEngine::RenderPass_PostProcessing_HDR::InitPipelines()
 	//
 	//Final Pass Pipeline
 	//
+	//Reinhard Tone Mapping
 	ShaderManager::GetInstance()->AddShader(&_Shader, TE_IDX_SHADERCLASS::POSTPROCESSING_HDR_FINALPASS, TE_IDX_MESH_TYPE::MESH_SIMPLE, _RendererStates, "Assets/Shaders/HDR_PostProcessing.hlsl", "FullScreenQuadVS", "FinalPassPS");
 
 	TE_RESOURCE_FORMAT _RTVFormat[1] = { m_RendererLayer->GetFormatRenderTargetSceneSDR() };
 
-	PipelineGraphics::Factory(&mPipelineFinalPass, _RendererStates, _Shader, _countof(_RTVFormat), _RTVFormat, TE_RESOURCE_FORMAT::UNKNOWN, false);
+	PipelineGraphics::Factory(&mPipelineFinalPass_ReinhardToneMapping, _RendererStates, _Shader, _countof(_RTVFormat), _RTVFormat, TE_RESOURCE_FORMAT::UNKNOWN, false);
+
+	//ACES Tone Mapping
+	ShaderManager::GetInstance()->AddShader(&_Shader, TE_IDX_SHADERCLASS::POSTPROCESSING_HDR_FINALPASS, TE_IDX_MESH_TYPE::MESH_SIMPLE, _RendererStates, "Assets/Shaders/HDR_PostProcessing.hlsl", "FullScreenQuadVS", "FinalPassPS", "", "", "", "", {L"TONE_MAPPING_ACES"});
+
+	PipelineGraphics::Factory(&mPipelineFinalPass_ACESToneMapping, _RendererStates, _Shader, _countof(_RTVFormat), _RTVFormat, TE_RESOURCE_FORMAT::UNKNOWN, false);
 
 }
 

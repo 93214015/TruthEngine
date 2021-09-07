@@ -14,7 +14,7 @@ namespace TruthEngine
 		ShaderManager() = default;
 		virtual ~ShaderManager() = default;
 
-		virtual TE_RESULT AddShader(Shader** outShader, TE_IDX_SHADERCLASS shaderClassID, TE_IDX_MESH_TYPE meshType, RendererStateSet states, std::string_view filePath, std::string_view vsEntry, std::string_view psEntry, std::string_view csEntry = "", std::string_view dsEntry = "", std::string_view hsEntry = "", std::string_view gsEntry = "") = 0;
+		virtual TE_RESULT AddShader(Shader** outShader, TE_IDX_SHADERCLASS shaderClassID, TE_IDX_MESH_TYPE meshType, RendererStateSet states, std::string_view filePath, std::string_view vsEntry, std::string_view psEntry, std::string_view csEntry = "", std::string_view dsEntry = "", std::string_view hsEntry = "", std::string_view gsEntry = "", const std::vector<const wchar_t*> _DefinedMacros = {}) = 0;
 
 		ShaderSignature* GetShaderSignature(const TE_IDX_SHADERCLASS shaderClassIDX);
 		const ShaderRequiredResources* GetShaderRequiredResources(const TE_IDX_SHADERCLASS _ShaderClassIDX) const;

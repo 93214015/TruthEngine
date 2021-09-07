@@ -31,7 +31,7 @@ namespace TruthEngine
 			{
 			}
 
-			TE_RESULT DirectX12ShaderManager::AddShader(Shader** outShader, TE_IDX_SHADERCLASS shaderClassID, TE_IDX_MESH_TYPE meshType, RendererStateSet states, std::string_view filePath, std::string_view vsEntry, std::string_view psEntry, std::string_view csEntry, std::string_view dsEntry, std::string_view hsEntry, std::string_view gsEntry)
+			TE_RESULT DirectX12ShaderManager::AddShader(Shader** outShader, TE_IDX_SHADERCLASS shaderClassID, TE_IDX_MESH_TYPE meshType, RendererStateSet states, std::string_view filePath, std::string_view vsEntry, std::string_view psEntry, std::string_view csEntry, std::string_view dsEntry, std::string_view hsEntry, std::string_view gsEntry, const std::vector<const wchar_t*> _DefinedMacros)
 			{
 				states &= m_StateMask;
 
@@ -48,6 +48,8 @@ namespace TruthEngine
 				}
 
 				_GetShaderDefines(states, meshType);
+
+				m_Defines.emplace_back(_DefinedMacros.begin(), _DefinedMacros.end());
 
 				std::string name = "shader" + std::to_string(map.size());
 
