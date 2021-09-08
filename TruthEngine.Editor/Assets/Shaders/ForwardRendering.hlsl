@@ -285,7 +285,6 @@ float4 ps(vertexOut pin) : SV_Target
     litColor += (_MaterialAlbedo * gAmbientLightStrength) + (_MaterialAlbedo * _material.Emission);
     
 #ifndef ENABLE_HDR
-    litColor /= (litColor + 1.0f.xxx);
     //Gamma Correction
     litColor = pow(litColor, (1.0f / 2.2f).xxx);
 #endif

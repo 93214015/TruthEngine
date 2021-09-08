@@ -49,7 +49,8 @@ namespace TruthEngine
 
 				_GetShaderDefines(states, meshType);
 
-				m_Defines.emplace_back(_DefinedMacros.begin(), _DefinedMacros.end());
+				for (auto _Def : _DefinedMacros)
+					m_Defines.emplace_back(_Def);
 
 				std::string name = "shader" + std::to_string(map.size());
 
@@ -101,7 +102,7 @@ namespace TruthEngine
 				for (const auto& d : m_Defines)
 				{
 					std::string name = std::string(d.begin(), d.end());
-					D3D_SHADER_MACRO m{  name.c_str() , "" };
+					D3D_SHADER_MACRO m{ name.c_str() , "" };
 					macros.emplace_back(m);
 				}
 
@@ -146,14 +147,14 @@ namespace TruthEngine
 				auto binaryOutput = (name + L".bin");
 				auto debugOutput = (L"./" + name + L".pdb");
 
-				std::vector<LPCWSTR> vargs{ 
+				std::vector<LPCWSTR> vargs{
 					name.c_str(),
 					L"-E", entryL.c_str(),
 					L"-T", target.c_str(),
 					L"-I", L"/Assets/Shaders", //Include File Path
 					/*L"-Fo",binaryOutput.c_str(),
 					/*L"-Fd", debugOutput.c_str(),
-					L"-Qstrip_reflect"*/};
+					L"-Qstrip_reflect"*/ };
 
 #ifdef TE_DEBUG
 				vargs.emplace_back(L"-Od");

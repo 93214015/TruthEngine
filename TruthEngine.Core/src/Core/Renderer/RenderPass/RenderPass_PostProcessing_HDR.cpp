@@ -277,7 +277,7 @@ void TruthEngine::RenderPass_PostProcessing_HDR::InitPipelines()
 	PipelineGraphics::Factory(&mPipelineFinalPass_ReinhardToneMapping, _RendererStates, _Shader, _countof(_RTVFormat), _RTVFormat, TE_RESOURCE_FORMAT::UNKNOWN, false);
 
 	//ACES Tone Mapping
-	ShaderManager::GetInstance()->AddShader(&_Shader, TE_IDX_SHADERCLASS::POSTPROCESSING_HDR_FINALPASS, TE_IDX_MESH_TYPE::MESH_SIMPLE, _RendererStates, "Assets/Shaders/HDR_PostProcessing.hlsl", "FullScreenQuadVS", "FinalPassPS", "", "", "", "", {L"TONE_MAPPING_ACES"});
+	ShaderManager::GetInstance()->AddShader(&_Shader, TE_IDX_SHADERCLASS::POSTPROCESSING_HDR_FINALPASS, TE_IDX_MESH_TYPE::MESH_NTT, _RendererStates, "Assets/Shaders/HDR_PostProcessing.hlsl", "FullScreenQuadVS", "FinalPassPS", "", "", "", "", {L"TONE_MAPPING_ACES"});
 
 	PipelineGraphics::Factory(&mPipelineFinalPass_ACESToneMapping, _RendererStates, _Shader, _countof(_RTVFormat), _RTVFormat, TE_RESOURCE_FORMAT::UNKNOWN, false);
 

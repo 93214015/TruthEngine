@@ -216,7 +216,6 @@ float4 ps(vertexOut pin) : SV_Target
     litColor += _Ambient + _Emission;
     
 #ifndef ENABLE_HDR
-    litColor /= litColor + float3(1.0f, 1.0f, 1.0f); //clamp values for LDR lighting
     litColor = pow(litColor, (1.0f / 2.2f).xxx);
 #endif
 

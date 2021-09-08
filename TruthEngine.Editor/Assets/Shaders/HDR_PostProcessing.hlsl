@@ -109,17 +109,17 @@ float3 RRTAndODTFit(float3 v)
 
 float3 ToneMapping(float3 HDRColor)
 {
-    color = mul(ACESInputMat, color);
+    HDRColor = mul(ACESInputMat, HDRColor);
 
     // Apply RRT and ODT
-    color = RRTAndODTFit(color);
+    HDRColor = RRTAndODTFit(HDRColor);
 
-    color = mul(ACESOutputMat, color);
+    HDRColor = mul(ACESOutputMat, HDRColor);
 
     // Clamp to [0, 1]
-    color = saturate(color);
+    HDRColor = saturate(HDRColor);
 
-    return color;
+    return HDRColor;
 }
 
 #else

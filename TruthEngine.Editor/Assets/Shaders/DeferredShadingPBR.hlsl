@@ -225,7 +225,6 @@ float4 ps(VertexOut _VOut) : SV_Target
     //_LitColor += (_Albedo.xyz * gAmbientLightStrength);
     
 #ifndef ENABLE_HDR
-    _LitColor /= _LitColor + float3(1.0f, 1.0f, 1.0f); //clamp values for LDR lighting
     _LitColor = pow(_LitColor, (1.0f / 2.2f).xxx);
 #endif
     

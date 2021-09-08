@@ -36,7 +36,7 @@ namespace TruthEngine
 		, m_IsEnabledHDR(false)
 		, m_FormatRenderTargetSceneHDR(TE_RESOURCE_FORMAT::R16G16B16A16_FLOAT)
 		, m_FormatRenderTargetSceneSDR(TE_RESOURCE_FORMAT::R8G8B8A8_UNORM)
-		, m_FormatDepthStencilSceneTexture(TE_RESOURCE_FORMAT::R24G8_TYPELESS)
+		, m_FormatDepthStencilSceneTexture(TE_RESOURCE_FORMAT::R32_TYPELESS)
 		, m_FormatDepthStencilSceneDSV(GetDepthStencilDSVFormat(m_FormatDepthStencilSceneTexture))
 		, m_RenderPass_ForwardRendering(std::make_shared<RenderPass_ForwardRendering>(this))
 		, m_RenderPass_GenerateShadowMap(std::make_shared<RenderPass_GenerateShadowMap>(this, 4096))
