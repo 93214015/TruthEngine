@@ -4,26 +4,28 @@
 //////////////// Constant Buffers
 /////////////////////////////////////////////////////////////////
 
-
 #define REGISTER_CBPerFrame b0
 #include "CBPerFrame.hlsli"
 
-cbuffer ConstantBuffer_SSReflection : register(b1)
+#define REGISTER_CBUnfrequent b1
+#include "CBUnfrequent.hlsli"
+
+cbuffer ConstantBuffer_ScreenSpaceReflection : register(b2)
 {
-    float gViewAngleThreshold : packoffset(c0.x);
-    float gEdgeDistThreshold : packoffset(c0.y);
-    float gDepthBias : packoffset(c0.z);
-    float gReflectionScale : packoffset(c0.w);
-};
+    float gMaxDistance; // The maximum distance for marching ray (in view space coordinates) 
+    float gResolution; // The factor for specifying the fraction of pixels along the ray we'll go through in the first step 
+    float gThickness; // The acceptable distance between screen sample and point on the ray (to be taken into account as a ray hit point)
+    float gSteps;
+}
 
 ///////////////////////////////////////////////////
 //////////////// Textures
 ///////////////////////////////////////////////////
 
-Texture2D tSpecular : register(t0);
-Texture2D tNormal : register(t1);
-Texture2D tDepth : register(t2);
-Texture2D tHDR : register(t3);
+Texture2D<float4> tSpecular : register(t0);
+Texture2D<float3> tNormal : register(t1);
+Texture2D<float> tDepth : register(t2);
+Texture2D<float4> tHDR : register(t3);
 
 
 /////////////////////////////////////////////////////////////////
@@ -32,9 +34,9 @@ Texture2D tHDR : register(t3);
 #include "Samplers.hlsli"
 
 
-///////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////
 //////////////// Vertex Shader
-///////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////
 
 //Defined For TriangleStrip Topology
 static const float2 VertexPositions[4] =
@@ -62,171 +64,129 @@ VertexOut vs(uint vertexID : SV_VertexID)
     return _VOut;
 }
 
-///////////////////////////////////////////////////
-//////////////// Pixel Shader
-///////////////////////////////////////////////////
-
-// Pixel size in clip-space
-// This is resulotion dependent
-// Pick the minimum of the HDR width and height
-static const float gPixelSize = 2.0 / 768.0f;
-
-// Number of sampling steps
-// This is resulotion dependent
-// Pick the maximum of the HDR width and height
-static const int gNumSteps = 1024;
-
-
-float4 ps(VertexOut _PixelIn) : SV_Target
+float4 ps(VertexOut _PixelIn) : SV_Taregt
 {
-    float _Metallness = tSpecular.Sample(sampler_point_wrap, _PixelIn.UV).y;
+    float3 _SpecularValues = tSpecular.Sample(sampler_point_wrap, _PixelIn.UV).xyz;
     
-    clip(_Metallness - 0.8f);
+    // SpecularValues.y is "Metalness" and we determine reflective surface according to their metalness factor
+    // if their metalness is less than refernce numebr (0.8f here) we don't move forward anymore.(clipping pixel)
+    clip(_SpecularValues.y - 0.8f);
     
-    float _DepthProj = tDepth.Sample(sampler_point_wrap, _PixelIn.UV).x;
-    float _DepthView = ConvertToLinearDepth(_DepthProj, ProjectionValues.z, ProjectionValues.w);
-    float4 _PosV = ReconstructViewPosition(_PixelIn.PosCS, _DepthView, ProjectionValues);
-    
-    float3 _NormalW = tNormal.Sample(sampler_point_wrap, _PixelIn.UV).xyz;
-    _NormalW = _NormalW * 2.0f - 1.0f;
-    float3 _NormalV = normalize(mul(_NormalW, (float3x3)View));
-    
-    float3 _EyeToPixel = normalize(_PosV.xyz);
-    
-    float3 _ReflectV = reflect(_EyeToPixel, _NormalV);
-    
-    float4 _ReflectColor = float4(0.0f, 0.0f, 0.0f, 0.0f);
-    
-    if(_ReflectV.z >= gViewAngleThreshold)
-    {
-        
-        float _ViewAngleThresholdInv = 1.0f - gViewAngleThreshold;
-        float _ViewAngleFade = saturate(3.0f * (_ReflectV.z - gViewAngleThreshold) / _ViewAngleThresholdInv);
-        
-        float3 _ReflectPosV = _PosV.xyz + _ReflectV;
-        float3 _ReflectPosCS = mul(float4(_ReflectPosV, 1.0f), Projection).xyz / _ReflectPosV.z;
-        float3 _ReflectCS = _ReflectPosCS - float3(_PixelIn.PosCS, _DepthProj);
-        
-        float _ReflectScale = gPixelSize / length(_ReflectCS.xy);
-        _ReflectCS *= _ReflectScale;
-        
-        float2 _UVStepSize = _ReflectCS.xy * float2(0.5f, -0.5f);
-
-        float4 _RayPlane;
-        float3 _VRight = cross(_EyeToPixel, _ReflectV);
-        _RayPlane.xyz = normalize(cross(_ReflectV, _VRight));
-        _RayPlane.w = dot(_RayPlane.xyz, _PosV.xyz);
-        
-        float2 _SampleUV = _PixelIn.PosCS.xy + _ReflectCS.xy;
-        _SampleUV = _SampleUV * float2(0.5f, -0.5f) + 0.5f;
-        
-        for (uint _CurrStep = 0; _CurrStep < gNumSteps; ++_CurrStep)
-        {
-            float _SampleDepthProj = tDepth.Sample(sampler_point_wrap, _SampleUV).x;
-
-            if(_SampleDepthProj > 0.9999f)
-            {
-                continue;
-            }
-
-            float _SampleDepthView = ConvertToLinearDepth(_SampleDepthProj, ProjectionValues.z, ProjectionValues.w);
-            
-            float3 _SamplePosView = ReconstructViewPosition(_PixelIn.PosCS + _ReflectCS.xy * (_CurrStep + 1.0f), _SampleDepthView, ProjectionValues).xyz;
-
-            if(_RayPlane.w >= dot(_RayPlane.xyz, _SamplePosView) + gDepthBias)
-            {
-                float3 _FinalPosView = _PosV.xyz + (_ReflectV / abs(_ReflectV.z)) * abs(_SampleDepthView - _PosV.z + gDepthBias);
-                float2 _FinalPosCS = _FinalPosView.xy / ProjectionValues.xy / _FinalPosView.z;
-                _SampleUV = _FinalPosCS.xy * float2(0.5f, -0.5f) + 0.5f;
-                
-                _ReflectColor.xyz = tHDR.SampleLevel(sampler_point_wrap, _SampleUV, 0.0f).xyz;
-                
-                float _EdgeFade = saturate(distance(_SampleUV, float2(0.5f, 0.5f)) * 2.0 - gEdgeDistThreshold);
-                
-                _ReflectColor.w = min(_ViewAngleFade, 1.0f - _EdgeFade * _EdgeFade);
-                _ReflectColor.w *= gReflectionScale;
-                
-                _CurrStep = gNumSteps;
-            }
-            
-            _SampleUV += _UVStepSize;
-
-        }
-
-    }
-    
-    return _ReflectColor;
-    
-}
-
-float4 ps_Book(VertexOut _PixelIn) : SV_Target
-{
-    float _Metallness = tSpecular.Sample(sampler_point_wrap, _PixelIn.UV).y;
-    
-    clip(_Metallness - 0.8f);
-    
-    float _DepthProj = tDepth.Sample(sampler_point_wrap, _PixelIn.UV).x;
-    float _DepthView = ConvertToLinearDepth(_DepthProj, ProjectionValues.z, ProjectionValues.w);
-    float4 _PosV = ReconstructViewPosition(_PixelIn.PosCS, _DepthView, ProjectionValues);
-    float3 _PosCS = float3(_PixelIn.PosCS, _DepthProj);
-    
-    float3 _NormalW = tNormal.Sample(sampler_point_wrap, _PixelIn.UV).xyz;
-    _NormalW = _NormalW * 2.0f - 1.0f;
+    float3 _NormalW = tNormal.Sample(sampler_point_wrap, _PixelIn.UV).xyz * 2.0f - 1.0f;
     float3 _NormalV = normalize(mul(_NormalW, (float3x3) View));
     
-    float3 _EyeToPixel = normalize(_PosV.xyz);
+    float _DepthP = tDepth.Sample(sampler_point_wrap, _PixelIn.UV).x;
+    float _DepthV = ConvertToLinearDepth(_DepthP, ProjectionValues.z, ProjectionValues.w);
+    float4 _PosV = ReconstructViewPosition(_PixelIn.PosCS, _DepthV, ProjectionValues);
+    float3 _VectorPosV = normalize(_PosV.xyz);
     
-    float3 _ReflectV = reflect(_EyeToPixel, _NormalV);
+    float3 _ReflectV = reflect(_VectorPosV, _NormalV);
     
-    float4 _ReflectColor = float4(0.0f, 0.0f, 0.0f, 0.0f);
+    float4 _StartV = _PosV;
+    float4 _EndV = float4(_StartV.xyz + (_ReflectV * gMaxDistance), 1.0f);
     
-    if (_ReflectV.z > gViewAngleThreshold)
+    float4 _StartPixel = mul(_StartV, Projection);
+    _StartPixel.xyz /= _StartPixel.w;
+    _StartPixel.xy *= 0.5f;
+    _StartPixel.xy += 0.5f;
+    _StartPixel.xy *= gSceneViewportSize;
+    
+    float4 _EndPixel = mul(_EndV, Projection);
+    _EndPixel.xyz /= _EndPixel.w;
+    _EndPixel *= 0.5f;
+    _EndPixel += 0.5f;
+    _EndPixel *= gSceneViewportSize;
+    
+    float _DeltaX = _EndPixel.x - _StartPixel.x;
+    float _DeltaY = _EndPixel.y - _StartPixel.y;
+    
+    float _UseX = abs(_DeltaX) >= abs(_DeltaY) ? 1.0f : 0.0f;
+    float _Delta = lerp(abs(_DeltaX), abs(_DeltaY), _UseX) * clamp(gResolution, 0.0f, 1.0f);
+    float2 _Increment = float2(_DeltaX, _DeltaY) / max(_Delta, 0.001f);
+    
+    float _Search0 = 0;
+    float _Search1 = 0;
+    
+    uint _Hit0 = 0;
+    uint _Hit1 = 0;
+    
+    float _ViewDistance = _StartV.z;
+    float _Depth = gThickness;
+    float _SampleDepthV = 0.0f;
+    
+    float2 _Pixel = _StartPixel.xy;
+    float4 _UV = float4(_PixelIn.UV, 0.0f, 0.0f);
+    
+    float i = 0;
+    
+    for (i = 0; i < _Delta; ++i)
     {
+        _Pixel.xy += _Increment;
+        _UV.xy = _Pixel.xy / gSceneViewportSize;
         
-        float _ViewAngleThresholdInv = 1.0f - gViewAngleThreshold;
-        float _ViewAngleFade = (_ReflectV.z - gViewAngleThreshold) / _ViewAngleThresholdInv;
+        float _SampleDepthP = tDepth.Sample(sampler_point_wrap, _UV.xy).x;
+        _SampleDepthV = ConvertToLinearDepth(_SampleDepthP, ProjectionValues.z, ProjectionValues.w);
         
-        float3 _ReflectPosV = _PosV.xyz + _ReflectV;
-        float3 _ReflectPosCS = mul(float4(_ReflectPosV, 1.0f), Projection).xyz / _ReflectPosV.z;
-        float3 _ReflectCS = _ReflectPosCS - _PosCS;
+        _Search1 = lerp
+        (
+            (_Pixel.y - _StartPixel.y) / _DeltaY,
+            (_Pixel.x - _StartPixel.x) / _DeltaX,
+            _UseX
+        );
         
-        float _ReflectScale = gPixelSize / length(_ReflectCS.xy);
-        _ReflectCS *= _ReflectScale;
+        _Search1 = saturate(_Search1);
         
-        float3 _SampleOffset = _PosCS + _ReflectCS;
-        _SampleOffset.xy = _SampleOffset.xy * float2(0.5f, -0.5f) + 0.5f;
+        _ViewDistance = (_StartV.z * _EndV.z) / lerp(_EndV.z, _StartV.z, _Search1);
+        _Depth = _ViewDistance - _SampleDepthV;
         
-        float3 _LastOffset = _PosCS;
-        _LastOffset.xy = _LastOffset.xy * float2(0.5, -5.0f) + 0.5f;
-        
-        _ReflectCS *= float3(0.5, -0.5f, 1.0f);
-        
-        for (uint _CurrStep = 0; _CurrStep < gNumSteps; ++_CurrStep)
+        if (_Depth > 0.0f && _Depth < gThickness)
         {
-            float _SampleDepthProj = tDepth.Sample(sampler_point_wrap, _SampleOffset.xy).x + gDepthBias;
-            
-            if (_SampleDepthProj < _SampleOffset.z)
-            {
-                _SampleOffset.xy = _LastOffset.xy + _ReflectCS.xy * (_SampleOffset.z - _SampleDepthProj);
-
-                _ReflectColor.xyz = tHDR.Sample(sampler_point_wrap, _SampleOffset.xy).xyz;
-
-                float _EdgeFade = saturate(distance(_SampleOffset.xy, float2(0.5f, 0.5f)) * 2.0 - gEdgeDistThreshold);
-
-                _ReflectColor.w = min(_ViewAngleFade, 1.0f - _EdgeFade * _EdgeFade);
-                _ReflectColor.w *= gReflectionScale;
-
-
-                _CurrStep = gNumSteps;
-            }
-            
-            _LastOffset = _SampleOffset;
-            _SampleOffset += _ReflectCS;            
-
+            _Hit0 = 1;
+            break;
         }
-
+        else
+        {
+            _Search0 = _Search1;
+        }
     }
     
-    return _ReflectColor;
+    _Search1 = _Search0 + ((_Search1 - _Search0) / 2.0f);
     
+    float _Steps = gSteps * _Hit0;
+    
+    for (i = 0.0f; i < _Steps; ++i)
+    {
+        _Pixel = lerp(_StartPixel.xy, _EndPixel.xy, _Search1);
+        _UV.xy = _Pixel / gSceneViewportSize;
+        float _SampleDepthP = tDepth.Sample(sampler_point_wrap, _UV.xy);
+        _SampleDepthV = ConvertToLinearDepth(_SampleDepthP, ProjectionValues.z, ProjectionValues.w);
+        
+        _ViewDistance = _StartV.z * _EndV.z / lerp(_EndV.z, _StartV.z, _Search1);
+        _Depth = _ViewDistance - _SampleDepthV;
+        
+        if (_Depth < 0 && _Depth < gThickness)
+        {
+            _Hit1 = 1;
+            _Search1 = _Search0 + ((_Search1 - _Search0) / 2.0f);
+        }
+        else
+        {
+            float _Temp = _Search1;
+            float _Search1 = _Search1 + ((_Search1 - _Search0) / 2.0f);
+            _Search0 = _Temp;
+        }
+    }
+    
+    float4 _HitPosV = ReconstructViewPosition(_UV.xy * 2.0f - 1.0f, _SampleDepthV, ProjectionValues);
+    
+    float _Visibility = _Hit1
+    * (1.0f - max(dot(_ReflectV, _NormalV), 0.0f))
+    * (1.0f - saturate(_Depth / gThickness))
+    * (1.0f - saturate(distance(_HitPosV.xyz, _PosV.xyz) / gMaxDistance))
+    * (_UV.x > 0.0f && _UV.x < 1.0f ? 1.0f : 0.0f)
+    * (_UV.y > 0.0f && _UV.y <1.0f ? 1.0f : 0.0f);
+
+    _Visibility = saturate(_Visibility);
+    
+    return float4(tHDR.Sample(sampler_point_borderBlack, _UV.xy).xyz, _Visibility);
 }

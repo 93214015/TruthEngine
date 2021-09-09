@@ -57,7 +57,7 @@ namespace TruthEngine
 		TextureRenderTarget* m_RenderTarget_Reflection;
 		RenderTargetView m_RTV_Reflection;
 
-		struct ConstantBufferData_SSReflection
+		/*struct ConstantBufferData_SSReflection
 		{
 			ConstantBufferData_SSReflection() = default;
 			ConstantBufferData_SSReflection(float _ViewAngleThreshold, float _EdgeDistThreshold, float _DepthBias, float _ReflectionScale)
@@ -68,6 +68,19 @@ namespace TruthEngine
 			float EdgeDistThreshold;
 			float DepthBias;
 			float ReflectionScale;
+		};*/
+
+		struct ConstantBufferData_SSReflection
+		{
+			ConstantBufferData_SSReflection() = default;
+			ConstantBufferData_SSReflection(float _MaxDistance, float _Resolution, float _Thichness, float _Steps)
+				: MaxDistance(_MaxDistance), Resolution(_Resolution), Thickness(_Thichness), Steps(_Steps)
+			{}
+
+			float MaxDistance;
+			float Resolution;
+			float Thickness;
+			float Steps;
 		};
 
 		ConstantBufferUpload<ConstantBufferData_SSReflection>* m_ConstantBuffer_Reflection;

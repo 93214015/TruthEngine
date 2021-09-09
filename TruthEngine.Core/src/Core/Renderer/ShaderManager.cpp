@@ -712,6 +712,7 @@ namespace TruthEngine
 						ShaderSignature::ShaderRange(0, 0, ShaderSignature::EShaderRangeType::CBV, ShaderSignature::EShaderRangeFlags::EShaderRangeFlags_NONE,
 						{
 							ShaderSignature::ShaderRangeView(TE_IDX_GRESOURCES::CBuffer_PerFrame, ShaderSignature::EShaderRangeType::CBV),
+							ShaderSignature::ShaderRangeView(TE_IDX_GRESOURCES::CBuffer_UnFrequent, ShaderSignature::EShaderRangeType::CBV),
 							ShaderSignature::ShaderRangeView(TE_IDX_GRESOURCES::CBuffer_SSReflection, ShaderSignature::EShaderRangeType::CBV),
 						}),
 						ShaderSignature::ShaderRange(0, 0, ShaderSignature::EShaderRangeType::SRV, ShaderSignature::EShaderRangeFlags::EShaderRangeFlags_NONE,
