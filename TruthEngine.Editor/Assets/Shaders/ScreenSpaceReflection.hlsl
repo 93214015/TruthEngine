@@ -16,6 +16,10 @@ cbuffer ConstantBuffer_ScreenSpaceReflection : register(b2)
     float gResolution; // The factor for specifying the fraction of pixels along the ray we'll go through in the first step 
     float gThickness; // The acceptable distance between screen sample and point on the ray (to be taken into account as a ray hit point)
     float gSteps;
+    
+    float gViewAngleThreshold;
+    float gReflectionScale;
+    float2 CBSSR_pad0;
 }
 
 ///////////////////////////////////////////////////
@@ -76,6 +80,7 @@ float4 ps(VertexOut _PixelIn) : SV_Target
     float3 _NormalW = tNormal.Sample(sampler_point_wrap, _PixelIn.UV).xyz * 2.0f - 1.0f;
     float3 _NormalV = normalize(mul(_NormalW, (float3x3) View));
     
+    
     //float _DepthP = tDepth.Sample(sampler_point_wrap, _PixelIn.UV).x;
     //float _DepthV = ConvertToLinearDepth(_DepthP, ProjectionValues.z, ProjectionValues.w);
     //float4 _PosV = ReconstructViewPosition(_PixelIn.PosCS, _DepthV, ProjectionValues);
@@ -83,19 +88,21 @@ float4 ps(VertexOut _PixelIn) : SV_Target
     float3 _VectorPosV = normalize(_PosV.xyz);
     
     float3 _ReflectV = reflect(_VectorPosV, _NormalV);
+
+    clip(_ReflectV.z - gViewAngleThreshold);
     
     float4 _StartV = _PosV;
     float4 _EndV = float4(_StartV.xyz + (_ReflectV * gMaxDistance), 1.0f);
     
     float4 _StartPixel = mul(_StartV, Projection);
     _StartPixel.xyz /= _StartPixel.w;
-    _StartPixel.xy *= 0.5f;
+    _StartPixel.xy *= float2(0.5f, -0.5f);
     _StartPixel.xy += 0.5f;
     _StartPixel.xy *= gSceneViewportSize;
     
     float4 _EndPixel = mul(_EndV, Projection);
     _EndPixel.xyz /= _EndPixel.w;
-    _EndPixel.xy *= 0.5f;
+    _EndPixel.xy *= float2(0.5f, -0.5f);
     _EndPixel.xy += 0.5f;
     _EndPixel.xy *= gSceneViewportSize;
     
@@ -117,6 +124,8 @@ float4 ps(VertexOut _PixelIn) : SV_Target
     //float _SampleDepthV = 0.0f;
     float3 _SamplePosV = float3(0.0f, 0.0f, 0.0f);
     float3 _HitPosV = float3(0.0f, 0.0f, 0.0f);
+    float _HitDepth = 0.0f;
+    
     
     
     float2 _Pixel = _StartPixel.xy;
@@ -148,6 +157,7 @@ float4 ps(VertexOut _PixelIn) : SV_Target
         if (_Depth > 0.0f && _Depth < gThickness)
         {
             _Hit0 = 1.0f;
+            _HitDepth = _Depth;
             _HitPosV = _SamplePosV;
             break;
         }
@@ -177,8 +187,9 @@ float4 ps(VertexOut _PixelIn) : SV_Target
         if (_Depth > 0.0f && _Depth < gThickness)
         {
             _Hit1 = 1.0f;
-            _Search1 = _Search0 + ((_Search1 - _Search0) / 2.0f);
+            _HitDepth = _Depth;
             _HitPosV = _SamplePosV;
+            _Search1 = _Search0 + ((_Search1 - _Search0) / 2.0f);
         }
         else
         {
@@ -193,21 +204,28 @@ float4 ps(VertexOut _PixelIn) : SV_Target
     //float _Visibility = _Hit1
     //* (1.0f - max(dot(_ReflectV, _NormalV), 0.0f))
     //* (1.0f - saturate(_Depth / gThickness))
-    //* (1.0f - saturate(distance(/*_HitPosV.xyz*/ _SamplePosV, _PosV.xyz) / gMaxDistance))
+    //* (1.0f - saturate(distance( /*_HitPosV.xyz*/_SamplePosV, _PosV.xyz) / gMaxDistance))
     //* (_UV.x > 0.0f && _UV.x < 1.0f ? 1.0f : 0.0f)
-    //* (_UV.y > 0.0f && _UV.y <1.0f ? 1.0f : 0.0f);
+    //* (_UV.y > 0.0f && _UV.y < 1.0f ? 1.0f : 0.0f);
     
     //float _Visibility = _Hit1;
+
     float _Visibility = saturate(_Hit1 + _Hit0);
-    float _f1 = (1.0f - max(dot(_ReflectV, _NormalV), 0.0f));
+    _Visibility *= (1.0f - saturate(distance(_HitPosV.xyz, _PosV.xyz) / gMaxDistance));
+    _Visibility *= (1.0f - saturate(_HitDepth / gThickness));
+    _Visibility *= (_UV.x > 0.0f && _UV.x < 1.0f ? 1.0f : 0.0f);
+    _Visibility *= (_UV.y > 0.0f && _UV.y < 1.0f ? 1.0f : 0.0f);
     //float _f2 = (1.0f - saturate(_Depth / gThickness));
     //float _f3 = (1.0f - saturate(distance( /*_HitPosV.xyz*/_HitPosV, _PosV.xyz) / gMaxDistance));
-    float _f4 = (_UV.x > 0.0f && _UV.x < 1.0f ? 1.0f : 0.0f);
-    float _f5 = (_UV.y > 0.0f && _UV.y < 1.0f ? 1.0f : 0.0f);
+    //float _f4 = (_UV.x > 0.0f && _UV.x < 1.0f ? 1.0f : 0.0f);
+    //float _f5 = (_UV.y > 0.0f && _UV.y < 1.0f ? 1.0f : 0.0f);
+    //_Visibility = _Visibility * _f1 * _f4 * _f5;
     
-    _Visibility = _Visibility * _f1 * _f4 * _f5;
+    float _ViewAngleThresholdInv = 1.0f - gViewAngleThreshold;
+    float _ViewAngleFade = (_ReflectV.z - gViewAngleThreshold) / _ViewAngleThresholdInv;
+    _Visibility *= _ViewAngleFade;
 
     _Visibility = saturate(_Visibility);
     
-    return float4(tHDR.Sample(sampler_point_borderBlack, _UV.xy).xyz, _Visibility);
+    return float4(tHDR.Sample(sampler_point_borderBlack, _UV.xy).xyz * _Visibility, 1.0f);
 }
