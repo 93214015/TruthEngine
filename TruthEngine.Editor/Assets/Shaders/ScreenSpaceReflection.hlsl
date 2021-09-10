@@ -22,10 +22,11 @@ cbuffer ConstantBuffer_ScreenSpaceReflection : register(b2)
 //////////////// Textures
 ///////////////////////////////////////////////////
 
-Texture2D<float4> tSpecular : register(t0);
-Texture2D<float3> tNormal : register(t1);
-Texture2D<float> tDepth : register(t2);
-Texture2D<float4> tHDR : register(t3);
+Texture2D<float4> tPosView : register(t0);
+Texture2D<float4> tSpecular : register(t1);
+Texture2D<float3> tNormal : register(t2);
+Texture2D<float> tDepth : register(t3);
+Texture2D<float4> tHDR : register(t4);
 
 
 /////////////////////////////////////////////////////////////////
@@ -64,7 +65,7 @@ VertexOut vs(uint vertexID : SV_VertexID)
     return _VOut;
 }
 
-float4 ps(VertexOut _PixelIn) : SV_Taregt
+float4 ps(VertexOut _PixelIn) : SV_Target
 {
     float3 _SpecularValues = tSpecular.Sample(sampler_point_wrap, _PixelIn.UV).xyz;
     
@@ -75,9 +76,10 @@ float4 ps(VertexOut _PixelIn) : SV_Taregt
     float3 _NormalW = tNormal.Sample(sampler_point_wrap, _PixelIn.UV).xyz * 2.0f - 1.0f;
     float3 _NormalV = normalize(mul(_NormalW, (float3x3) View));
     
-    float _DepthP = tDepth.Sample(sampler_point_wrap, _PixelIn.UV).x;
-    float _DepthV = ConvertToLinearDepth(_DepthP, ProjectionValues.z, ProjectionValues.w);
-    float4 _PosV = ReconstructViewPosition(_PixelIn.PosCS, _DepthV, ProjectionValues);
+    //float _DepthP = tDepth.Sample(sampler_point_wrap, _PixelIn.UV).x;
+    //float _DepthV = ConvertToLinearDepth(_DepthP, ProjectionValues.z, ProjectionValues.w);
+    //float4 _PosV = ReconstructViewPosition(_PixelIn.PosCS, _DepthV, ProjectionValues);
+    float4 _PosV = tPosView.Sample(sampler_point_wrap, _PixelIn.UV);
     float3 _VectorPosV = normalize(_PosV.xyz);
     
     float3 _ReflectV = reflect(_VectorPosV, _NormalV);
@@ -93,26 +95,29 @@ float4 ps(VertexOut _PixelIn) : SV_Taregt
     
     float4 _EndPixel = mul(_EndV, Projection);
     _EndPixel.xyz /= _EndPixel.w;
-    _EndPixel *= 0.5f;
-    _EndPixel += 0.5f;
-    _EndPixel *= gSceneViewportSize;
+    _EndPixel.xy *= 0.5f;
+    _EndPixel.xy += 0.5f;
+    _EndPixel.xy *= gSceneViewportSize;
     
     float _DeltaX = _EndPixel.x - _StartPixel.x;
     float _DeltaY = _EndPixel.y - _StartPixel.y;
     
     float _UseX = abs(_DeltaX) >= abs(_DeltaY) ? 1.0f : 0.0f;
-    float _Delta = lerp(abs(_DeltaX), abs(_DeltaY), _UseX) * clamp(gResolution, 0.0f, 1.0f);
+    float _Delta = lerp(abs(_DeltaY), abs(_DeltaX), _UseX) * clamp(gResolution, 0.0f, 1.0f);
     float2 _Increment = float2(_DeltaX, _DeltaY) / max(_Delta, 0.001f);
     
     float _Search0 = 0;
     float _Search1 = 0;
     
-    uint _Hit0 = 0;
-    uint _Hit1 = 0;
+    float _Hit0 = 0;
+    float _Hit1 = 0;
     
     float _ViewDistance = _StartV.z;
     float _Depth = gThickness;
-    float _SampleDepthV = 0.0f;
+    //float _SampleDepthV = 0.0f;
+    float3 _SamplePosV = float3(0.0f, 0.0f, 0.0f);
+    float3 _HitPosV = float3(0.0f, 0.0f, 0.0f);
+    
     
     float2 _Pixel = _StartPixel.xy;
     float4 _UV = float4(_PixelIn.UV, 0.0f, 0.0f);
@@ -124,8 +129,9 @@ float4 ps(VertexOut _PixelIn) : SV_Taregt
         _Pixel.xy += _Increment;
         _UV.xy = _Pixel.xy / gSceneViewportSize;
         
-        float _SampleDepthP = tDepth.Sample(sampler_point_wrap, _UV.xy).x;
-        _SampleDepthV = ConvertToLinearDepth(_SampleDepthP, ProjectionValues.z, ProjectionValues.w);
+        //float _SampleDepthP = tDepth.Sample(sampler_point_wrap, _UV.xy).x;
+        //_SampleDepthV = ConvertToLinearDepth(_SampleDepthP, ProjectionValues.z, ProjectionValues.w);
+        _SamplePosV = tPosView.Sample(sampler_point_wrap, _UV.xy).xyz;
         
         _Search1 = lerp
         (
@@ -137,11 +143,12 @@ float4 ps(VertexOut _PixelIn) : SV_Taregt
         _Search1 = saturate(_Search1);
         
         _ViewDistance = (_StartV.z * _EndV.z) / lerp(_EndV.z, _StartV.z, _Search1);
-        _Depth = _ViewDistance - _SampleDepthV;
+        _Depth = _ViewDistance - _SamplePosV.z;
         
         if (_Depth > 0.0f && _Depth < gThickness)
         {
-            _Hit0 = 1;
+            _Hit0 = 1.0f;
+            _HitPosV = _SamplePosV;
             break;
         }
         else
@@ -158,16 +165,20 @@ float4 ps(VertexOut _PixelIn) : SV_Taregt
     {
         _Pixel = lerp(_StartPixel.xy, _EndPixel.xy, _Search1);
         _UV.xy = _Pixel / gSceneViewportSize;
-        float _SampleDepthP = tDepth.Sample(sampler_point_wrap, _UV.xy);
-        _SampleDepthV = ConvertToLinearDepth(_SampleDepthP, ProjectionValues.z, ProjectionValues.w);
         
-        _ViewDistance = _StartV.z * _EndV.z / lerp(_EndV.z, _StartV.z, _Search1);
-        _Depth = _ViewDistance - _SampleDepthV;
+        //float _SampleDepthP = tDepth.Sample(sampler_point_wrap, _UV.xy);
+        //_SampleDepthV = ConvertToLinearDepth(_SampleDepthP, ProjectionValues.z, ProjectionValues.w);
         
-        if (_Depth < 0 && _Depth < gThickness)
+        _SamplePosV = tPosView.Sample(sampler_point_wrap, _UV.xy).xyz;
+        
+        _ViewDistance = (_StartV.z * _EndV.z) / lerp(_EndV.z, _StartV.z, _Search1);
+        _Depth = _ViewDistance - _SamplePosV.z;
+        
+        if (_Depth > 0.0f && _Depth < gThickness)
         {
-            _Hit1 = 1;
+            _Hit1 = 1.0f;
             _Search1 = _Search0 + ((_Search1 - _Search0) / 2.0f);
+            _HitPosV = _SamplePosV;
         }
         else
         {
@@ -177,14 +188,24 @@ float4 ps(VertexOut _PixelIn) : SV_Taregt
         }
     }
     
-    float4 _HitPosV = ReconstructViewPosition(_UV.xy * 2.0f - 1.0f, _SampleDepthV, ProjectionValues);
+    //float4 _HitPosV = ReconstructViewPosition(_UV.xy * 2.0f - 1.0f, _SampleDepthV, ProjectionValues);
     
-    float _Visibility = _Hit1
-    * (1.0f - max(dot(_ReflectV, _NormalV), 0.0f))
-    * (1.0f - saturate(_Depth / gThickness))
-    * (1.0f - saturate(distance(_HitPosV.xyz, _PosV.xyz) / gMaxDistance))
-    * (_UV.x > 0.0f && _UV.x < 1.0f ? 1.0f : 0.0f)
-    * (_UV.y > 0.0f && _UV.y <1.0f ? 1.0f : 0.0f);
+    //float _Visibility = _Hit1
+    //* (1.0f - max(dot(_ReflectV, _NormalV), 0.0f))
+    //* (1.0f - saturate(_Depth / gThickness))
+    //* (1.0f - saturate(distance(/*_HitPosV.xyz*/ _SamplePosV, _PosV.xyz) / gMaxDistance))
+    //* (_UV.x > 0.0f && _UV.x < 1.0f ? 1.0f : 0.0f)
+    //* (_UV.y > 0.0f && _UV.y <1.0f ? 1.0f : 0.0f);
+    
+    //float _Visibility = _Hit1;
+    float _Visibility = saturate(_Hit1 + _Hit0);
+    float _f1 = (1.0f - max(dot(_ReflectV, _NormalV), 0.0f));
+    //float _f2 = (1.0f - saturate(_Depth / gThickness));
+    //float _f3 = (1.0f - saturate(distance( /*_HitPosV.xyz*/_HitPosV, _PosV.xyz) / gMaxDistance));
+    float _f4 = (_UV.x > 0.0f && _UV.x < 1.0f ? 1.0f : 0.0f);
+    float _f5 = (_UV.y > 0.0f && _UV.y < 1.0f ? 1.0f : 0.0f);
+    
+    _Visibility = _Visibility * _f1 * _f4 * _f5;
 
     _Visibility = saturate(_Visibility);
     

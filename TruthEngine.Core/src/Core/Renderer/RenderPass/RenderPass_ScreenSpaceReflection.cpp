@@ -15,40 +15,39 @@ namespace TruthEngine
 	{
 		if (ImGui::Begin("Screen Space Reflection"))
 		{
-			auto _CB = m_ConstantBuffer_Reflection->GetData();
-			static float s_ViewAngleThreshold = _CB->ViewAngleThreshold;
-			if (ImGui::DragFloat("View Angle Threshold", &s_ViewAngleThreshold, 0.1f))
+			static float _MaxDistance = m_ConstantBuffer_Reflection->GetData()->MaxDistance;
+			if (ImGui::DragFloat("Ray Max Distance", &_MaxDistance, 0.1f, 0.0f, 100.0f))
 			{
 				m_RendererCommand_Reflection.AddUpdateTask([=]() 
 					{
-						_CB->ViewAngleThreshold = s_ViewAngleThreshold;
+						m_ConstantBuffer_Reflection->GetData()->MaxDistance = _MaxDistance;
 					}
 				);
 			}
-			static float s_EdgeDistanceThreshold = _CB->EdgeDistThreshold;
-			if (ImGui::DragFloat("Edge Distance Threshold", &s_EdgeDistanceThreshold, 0.01f))
+			static float _Resolution = m_ConstantBuffer_Reflection->GetData()->Resolution;
+			if (ImGui::DragFloat("Resolution", &_Resolution, 0.1f, 0.0f, 1.0f))
 			{
 				m_RendererCommand_Reflection.AddUpdateTask([=]()
 					{
-						_CB->EdgeDistThreshold = s_EdgeDistanceThreshold;
+						m_ConstantBuffer_Reflection->GetData()->Resolution = _Resolution;
 					}
 				);
 			}
-			static float s_DepthBias = _CB->DepthBias;
-			if (ImGui::DragFloat("Depth Bias", &s_DepthBias, 0.001f, 0.001f, 0.5f, "%.3f"))
+			static float _Thickness = m_ConstantBuffer_Reflection->GetData()->Thickness;
+			if (ImGui::DragFloat("Thickness", &_Thickness, 0.1f, 0.0f, 100.0f))
 			{
 				m_RendererCommand_Reflection.AddUpdateTask([=]()
 					{
-						_CB->DepthBias = s_DepthBias;
+						m_ConstantBuffer_Reflection->GetData()->Thickness = _Thickness;
 					}
 				);
 			}
-			static float s_ReflectionScale = _CB->ReflectionScale;
-			if (ImGui::DragFloat("Reflection Scale", &s_ReflectionScale, 0.1f, 0.0f, 1.0f, "%.1f"))
+			static float _Steps = m_ConstantBuffer_Reflection->GetData()->Steps;
+			if (ImGui::DragFloat("Resolve Steps", &_Steps, 1.0f, 1.0f, 20.0f, "%.1f"))
 			{
 				m_RendererCommand_Reflection.AddUpdateTask([=]()
 					{
-						_CB->ReflectionScale = s_ReflectionScale;
+						m_ConstantBuffer_Reflection->GetData()->Steps = _Steps;
 					}
 				);
 			}
@@ -111,8 +110,6 @@ namespace TruthEngine
 	void RenderPass_ScreenSpaceReflection::InitBuffers()
 	{
 		m_ConstantBuffer_Reflection = m_RendererCommand_Reflection.CreateConstantBufferUpload<ConstantBufferData_SSReflection>(TE_IDX_GRESOURCES::CBuffer_SSReflection);
-
-		m_RendererCommand_Reflection.AddUpdateTask([this]() { *m_ConstantBuffer_Reflection->GetData() = ConstantBufferData_SSReflection(0.5f, 0.45f, 0.005f, 1.0f); });
 	}
 	void RenderPass_ScreenSpaceReflection::InitPipelines()
 	{
@@ -142,7 +139,7 @@ namespace TruthEngine
 			);
 
 			Shader* shader = nullptr;
-			auto result = TE_INSTANCE_SHADERMANAGER->AddShader(&shader, TE_IDX_SHADERCLASS::SSREFLECTION, TE_IDX_MESH_TYPE::MESH_POINT, _States_Reflection, "Assets/Shaders/ScreenSpaceReflection.hlsl", "vs", "ps_Book");
+			auto result = TE_INSTANCE_SHADERMANAGER->AddShader(&shader, TE_IDX_SHADERCLASS::SSREFLECTION, TE_IDX_MESH_TYPE::MESH_POINT, _States_Reflection, "Assets/Shaders/ScreenSpaceReflection.hlsl", "vs", "ps");
 
 			TE_RESOURCE_FORMAT rtvFormats[] = { m_RendererLayer->GetFormatRenderTargetSceneHDR() };
 

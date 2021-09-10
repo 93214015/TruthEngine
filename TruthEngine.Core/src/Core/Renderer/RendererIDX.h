@@ -47,6 +47,7 @@ enum class TE_IDX_GRESOURCES : IDX
 	Texture_RT_GBuffer_Color,
 	Texture_RT_GBuffer_Normal,
 	Texture_RT_GBuffer_Specular,
+	Texture_RT_GBuffer_PosView,
 	Texture_RT_SceneBuffer,
 	Texture_RT_SceneBufferMS,
 	Texture_RT_SceneBufferHDR,

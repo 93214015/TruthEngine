@@ -62,6 +62,7 @@ struct vertexOut
 {
     float4 pos : SV_Position;
     float3 posW : POSITION0;
+    float3 posV : POSITION1;
     //float4 posLight : POSITION1;
     float3 normalW : NORMAL;
     float3 tangentW : TANGENT;
@@ -91,7 +92,8 @@ vertexOut vs(vertexInput vin)
 #endif
     
     float4 posW = mul(pos, gWorld);
-    vout.pos = mul(posW, viewProj);
+    vout.posV = mul(posW, View).xyz;
+    vout.pos = mul(float4(vout.posV, 1.0f), Projection);
     vout.posW = posW.xyz;
     //vout.posLight = mul(posW, shadowTransform);
     vout.normalW = mul(vin.normal, (float3x3) gWorldInverseTranspose);
@@ -108,6 +110,7 @@ struct PixelOut
     float4 Color : SV_Target0;
     float3 Normal : SV_Target1;
     float4 Specular : SV_Target2;
+    float4 PosView : SV_Target3;
 };
 
 
@@ -161,6 +164,8 @@ PixelOut ps(vertexOut pin)
 //    _PixelOut.Specular.z = _material.AmbientOcclusion;
 //#endif
     _PixelOut.Specular.z = 1.0f;
+    
+    _PixelOut.PosView = float4(pin.posV, 1.0f);
     
     return _PixelOut;
 }

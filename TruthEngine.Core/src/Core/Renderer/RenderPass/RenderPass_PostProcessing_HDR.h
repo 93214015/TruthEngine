@@ -118,6 +118,7 @@ namespace TruthEngine
 
 		struct alignas(16) ConstantBuffer_Data_BlurPass
 		{
+			ConstantBuffer_Data_BlurPass() = default;
 			ConstantBuffer_Data_BlurPass(uint32_t _InputResWidth, uint32_t _InputResHeight)
 				: mInputResWidth(_InputResWidth), mInputResHeight(_InputResHeight)
 			{}

@@ -49,10 +49,12 @@ namespace TruthEngine
 		RenderTargetView m_RenderTargetViewGBufferColor;
 		RenderTargetView m_RenderTargetViewGBufferNormal;
 		RenderTargetView m_RenderTargetViewGBufferSpecular;
+		RenderTargetView m_RenderTargetViewGBufferPosView;
 
 		TextureRenderTarget* m_TextureGBufferColor;
 		TextureRenderTarget* m_TextureGBufferNormal;
 		TextureRenderTarget* m_TextureGBufferSpecular;
+		TextureRenderTarget* m_TextureGBufferPosView;
 
 		std::vector<PipelineGraphics> m_ContainerPipelines;
 		std::unordered_map<uint32_t, PipelineGraphics*> m_MapMaterialPipeline;

@@ -117,6 +117,12 @@ namespace TruthEngine
 			m_Map_GraphicResources[cbIDX] = cb.get();
 
 			CreateResource(cb.get());
+			
+			for (auto _DataPtr : cb->m_MappedData)
+			{
+				*static_cast<T*>(_DataPtr) = T();
+			}
+
 
 			return cb.get();
 		}
