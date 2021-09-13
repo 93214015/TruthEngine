@@ -94,7 +94,7 @@ struct GSOut
     float4 Position : SV_Position;
 };
 
-[maxVertexcount(16)]
+[maxvertexcount(16)]
 void gs(
     point VertexOut input[1],
     inout LineStream<GSOut> output

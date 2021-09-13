@@ -72,17 +72,20 @@ namespace TruthEngine
 
 		struct ConstantBufferData_SSReflection
 		{
-			ConstantBufferData_SSReflection()
-				: MaxDistance(15.0f), Resolution(0.3f), Thickness(0.5f), Steps(10.0f)
-			{}
-			ConstantBufferData_SSReflection(float _MaxDistance, float _Resolution, float _Thichness, float _Steps)
-				: MaxDistance(_MaxDistance), Resolution(_Resolution), Thickness(_Thichness), Steps(_Steps)
+			ConstantBufferData_SSReflection() {};
+			ConstantBufferData_SSReflection(float _MaxDistance, float _Resolution, float _Thichness, float _Steps, float _ViewAngleThreshold, float _ReflectionScale, float _DepthBias)
+				: MaxDistance(_MaxDistance), Resolution(_Resolution), Thickness(_Thichness), Steps(_Steps), ViewAngleThreshold(_ViewAngleThreshold), ReflectionScale(_ReflectionScale), DepthBias(_DepthBias)
 			{}
 
-			float MaxDistance = 15.0f;
+			float MaxDistance = 30.0;
 			float Resolution = 0.3f;
-			float Thickness = 0.5f;
+			float Thickness = 1.0f;
 			float Steps = 10.0f;
+
+			float ViewAngleThreshold = 0.5f;
+			float ReflectionScale = 1.0f;
+			float DepthBias = 1.0f;
+			float _pad0 = 0.0f;
 		};
 
 		ConstantBufferUpload<ConstantBufferData_SSReflection>* m_ConstantBuffer_Reflection;

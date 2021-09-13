@@ -168,7 +168,5 @@ PixelOut ps(vertexOut pin)
     
     _PixelOut.Specular.w = 1.0f;
     
-    _PixelOut.PosView = float4(pin.posV, 1.0f);
-    
     return _PixelOut;
 }

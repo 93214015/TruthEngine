@@ -43,11 +43,38 @@ namespace TruthEngine
 				);
 			}
 			static float _Steps = m_ConstantBuffer_Reflection->GetData()->Steps;
-			if (ImGui::DragFloat("Resolve Steps", &_Steps, 1.0f, 1.0f, 20.0f, "%.1f"))
+			if (ImGui::DragFloat("Resolve Steps", &_Steps, 1.0f, 1.0f, 100.0f, "%.1f"))
 			{
 				m_RendererCommand_Reflection.AddUpdateTask([=]()
 					{
 						m_ConstantBuffer_Reflection->GetData()->Steps = _Steps;
+					}
+				);
+			}
+			static float _ViewAngleThreshold = m_ConstantBuffer_Reflection->GetData()->ViewAngleThreshold;
+			if (ImGui::DragFloat("View Angle Threshold", &_ViewAngleThreshold, 0.1f, 0.1f, 1.0f, "%.1f"))
+			{
+				m_RendererCommand_Reflection.AddUpdateTask([=]()
+					{
+						m_ConstantBuffer_Reflection->GetData()->ViewAngleThreshold = _ViewAngleThreshold;
+					}
+				);
+			}
+			static float _ReflectionScale = m_ConstantBuffer_Reflection->GetData()->ReflectionScale;
+			if (ImGui::DragFloat("Reflection Scale", &_ReflectionScale, 0.1f, 0.1f, 1.0f, "%.1f"))
+			{
+				m_RendererCommand_Reflection.AddUpdateTask([=]()
+					{
+						m_ConstantBuffer_Reflection->GetData()->ReflectionScale = _ReflectionScale;
+					}
+				);
+			}
+			static float _DepthBias = m_ConstantBuffer_Reflection->GetData()->DepthBias;
+			if (ImGui::DragFloat("Depth Bias", &_DepthBias, 0.001f, 0.0f, 5.0f, "%.3f"))
+			{
+				m_RendererCommand_Reflection.AddUpdateTask([=]()
+					{
+						m_ConstantBuffer_Reflection->GetData()->DepthBias = _DepthBias;
 					}
 				);
 			}
@@ -139,7 +166,7 @@ namespace TruthEngine
 			);
 
 			Shader* shader = nullptr;
-			auto result = TE_INSTANCE_SHADERMANAGER->AddShader(&shader, TE_IDX_SHADERCLASS::SSREFLECTION, TE_IDX_MESH_TYPE::MESH_POINT, _States_Reflection, "Assets/Shaders/ScreenSpaceReflection.hlsl", "vs", "ps");
+			auto result = TE_INSTANCE_SHADERMANAGER->AddShader(&shader, TE_IDX_SHADERCLASS::SSREFLECTION, TE_IDX_MESH_TYPE::MESH_POINT, _States_Reflection, "Assets/Shaders/ScreenSpaceReflection_ThirdEdition.hlsl", "vs", "ps");
 
 			TE_RESOURCE_FORMAT rtvFormats[] = { m_RendererLayer->GetFormatRenderTargetSceneHDR() };
 
