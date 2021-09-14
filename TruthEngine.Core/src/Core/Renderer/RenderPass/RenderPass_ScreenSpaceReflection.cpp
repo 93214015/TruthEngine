@@ -98,11 +98,18 @@ namespace TruthEngine
 			m_RendererCommand_Blend.SetViewPort(&m_RendererLayer->GetViewportScene(), &m_RendererLayer->GetViewRectScene());
 			m_RendererCommand_Blend.SetRenderTarget(m_RendererLayer->GetRenderTargetViewSceneHDR());
 		}
+
+		{
+			m_RendererCommand_BlurHorz.BeginCompute(&m_Pipeline_BlurHorz);
+			m_RendererCommand_BlurVert.BeginCompute(&m_Pipeline_BlurVert);
+		}
 	}
 	void RenderPass_ScreenSpaceReflection::EndScene()
 	{
 		m_RendererCommand_Reflection.End();
 		m_RendererCommand_Blend.End();
+		m_RendererCommand_BlurHorz.End();
+		m_RendererCommand_BlurVert.End();
 	}
 	void RenderPass_ScreenSpaceReflection::Render()
 	{
@@ -116,11 +123,32 @@ namespace TruthEngine
 			m_RendererCommand_Blend.Draw(4, 0);
 		}
 
+		auto _CBData = m_ConstantBuffer_Blur->GetData();
+		_CBData->InputResolution = uint2{ m_Texture_ReflectionBlur->GetWidth(), m_Texture_ReflectionBlur->GetHeight() };
+
+		{
+			auto _ThreadsX = static_cast<uint32_t>(ceilf((float)m_Texture_ReflectionBlur->GetWidth() / 64.0f));
+
+			m_RendererCommand_BlurHorz.ExecutePendingCommands();
+			m_RendererCommand_BlurHorz.SetDirectConstantCompute(m_ConstantBuffer_Blur);
+			m_RendererCommand_BlurHorz.Dispatch(_ThreadsX, m_Texture_ReflectionBlur->GetHeight(), 1);
+		}
+
+		{
+			auto _ThreadsY = static_cast<uint32_t>(ceilf((float)m_Texture_ReflectionBlur->GetHeight() / 64.0f));
+
+			m_RendererCommand_BlurVert.ExecutePendingCommands();
+			m_RendererCommand_BlurVert.SetDirectConstantCompute(m_ConstantBuffer_Blur);
+			m_RendererCommand_BlurVert.Dispatch(m_Texture_ReflectionBlur->GetWidth(), _ThreadsY, 1);
+		}
+
 	}
 	void RenderPass_ScreenSpaceReflection::InitRendererCommand()
 	{
 		m_RendererCommand_Reflection.Init(TE_IDX_RENDERPASS::SSREFLECTION, TE_IDX_SHADERCLASS::SSREFLECTION);
 		m_RendererCommand_Blend.Init(TE_IDX_RENDERPASS::SSREFLECTION, TE_IDX_SHADERCLASS::BLENDREFLECTION);
+		m_RendererCommand_BlurHorz.Init(TE_IDX_RENDERPASS::SSREFLECTION, TE_IDX_SHADERCLASS::BLURHORZREFLECTION);
+		m_RendererCommand_BlurVert.Init(TE_IDX_RENDERPASS::SSREFLECTION, TE_IDX_SHADERCLASS::BLURVERTREFLECTION);
 	}
 	void RenderPass_ScreenSpaceReflection::InitTextures()
 	{
@@ -130,6 +158,9 @@ namespace TruthEngine
 		_Height = _Height != 0 ? _Height : 1;
 
 		m_RenderTarget_Reflection = m_RendererCommand_Reflection.CreateRenderTarget(TE_IDX_GRESOURCES::Texture_RT_SSReflection, _Width, _Height, 1, m_RendererLayer->GetFormatRenderTargetSceneHDR(), ClearValue_RenderTarget{ 0.0f, 0.0f, 0.0f, 0.0f }, true, false);
+		m_Texture_ReflectionBlur = m_RendererCommand_Reflection.CreateTextureRW(TE_IDX_GRESOURCES::Texture_RW_SSReflectionBlur, _Width, _Height, m_RendererLayer->GetFormatRenderTargetSceneHDR(), true, false);
+		m_Texture_ReflectionBlur_Temp = m_RendererCommand_Reflection.CreateTextureRW(TE_IDX_GRESOURCES::Texture_RW_SSReflectionBlur_Temp, _Width, _Height, m_RendererLayer->GetFormatRenderTargetSceneHDR(), true, false);
+
 
 		m_RendererCommand_Reflection.CreateRenderTargetView(m_RenderTarget_Reflection, &m_RTV_Reflection);
 
@@ -137,6 +168,8 @@ namespace TruthEngine
 	void RenderPass_ScreenSpaceReflection::InitBuffers()
 	{
 		m_ConstantBuffer_Reflection = m_RendererCommand_Reflection.CreateConstantBufferUpload<ConstantBufferData_SSReflection>(TE_IDX_GRESOURCES::CBuffer_SSReflection);
+
+		m_ConstantBuffer_Blur = m_RendererCommand_Reflection.CreateConstantBufferDirect<ConstantBufferData_Blur>(TE_IDX_GRESOURCES::Constant_ReflectionBlur);
 	}
 	void RenderPass_ScreenSpaceReflection::InitPipelines()
 	{
@@ -169,8 +202,11 @@ namespace TruthEngine
 			auto result = TE_INSTANCE_SHADERMANAGER->AddShader(&shader, TE_IDX_SHADERCLASS::SSREFLECTION, TE_IDX_MESH_TYPE::MESH_POINT, _States_Reflection, "Assets/Shaders/ScreenSpaceReflection_ThirdEdition.hlsl", "vs", "ps");
 
 			TE_RESOURCE_FORMAT rtvFormats[] = { m_RendererLayer->GetFormatRenderTargetSceneHDR() };
-
 			PipelineGraphics::Factory(&m_Pipeline_Reflection, _States_Reflection, shader, _countof(rtvFormats), rtvFormats, m_RendererLayer->GetFormatDepthStencilSceneDSV(), false);
+
+
+			
+
 		}
 
 		//Init Blending Reflection's Pipeline
@@ -216,15 +252,33 @@ namespace TruthEngine
 
 			PipelineGraphics::Factory(&m_Pipeline_Blend, _States_Blend, shader, _countof(rtvFormats), rtvFormats, m_RendererLayer->GetFormatDepthStencilSceneDSV(), false, _BlendDesc);
 		}
+
+		//Init Blurring Reflection's Pipelines
+		{
+			const RendererStateSet _States = InitRenderStates();
+
+			Shader* shader = nullptr;
+			auto result = TE_INSTANCE_SHADERMANAGER->AddShader(&shader, TE_IDX_SHADERCLASS::BLURHORZREFLECTION, TE_IDX_MESH_TYPE::MESH_POINT, _States, "Assets/Shaders/CSGaussianBlur.hlsl", "", "", "HorizontalFilter", "", "", "", { L"KernelHalf=6" });
+			PipelineCompute::Factory(&m_Pipeline_BlurHorz, shader);
+
+			result = TE_INSTANCE_SHADERMANAGER->AddShader(&shader, TE_IDX_SHADERCLASS::BLURHORZREFLECTION, TE_IDX_MESH_TYPE::MESH_POINT, _States, "Assets/Shaders/CSGaussianBlur.hlsl", "", "", "VerticalFilter", "", "", "", { L"KernelHalf=6" });
+			PipelineCompute::Factory(&m_Pipeline_BlurVert, shader);
+		}
+
+
 	}
 	void RenderPass_ScreenSpaceReflection::ReleaseRendererCommand()
 	{
 		m_RendererCommand_Reflection.Release();
 		m_RendererCommand_Blend.Release();
+		m_RendererCommand_BlurHorz.Release();
+		m_RendererCommand_BlurVert.Release();
 	}
 	void RenderPass_ScreenSpaceReflection::ReleaseTextures()
 	{
 		m_RendererCommand_Reflection.ReleaseResource(m_RenderTarget_Reflection);
+		m_RendererCommand_Reflection.ReleaseResource(m_Texture_ReflectionBlur);
+		m_RendererCommand_Reflection.ReleaseResource(m_Texture_ReflectionBlur_Temp);
 	}
 	void RenderPass_ScreenSpaceReflection::ReleaseBuffers()
 	{

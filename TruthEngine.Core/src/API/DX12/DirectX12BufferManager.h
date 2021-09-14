@@ -131,11 +131,6 @@ namespace TruthEngine::API::DirectX12 {
 
 	private:
 
-		uint32_t m_OffsetSRVMaterialTexture = 50;
-		uint32_t m_IndexSRVMaterialTexture_Diffuse = 0;
-		uint32_t m_IndexSRVMaterialTexture_Normal = 0;
-		uint32_t m_IndexSRVMaterialTexture_Displacement = 0;
-
 		std::vector<COMPTR<ID3D12Resource>> m_Resources;
 
 		DescriptorHeapSRV m_DescHeapSRV;

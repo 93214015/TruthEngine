@@ -33,6 +33,7 @@ enum class TE_IDX_GRESOURCES : IDX
 	Constant_RenderBoundingBox,
 	Constant_RenderEntityIcon,
 	Constant_Wireframe,
+	Constant_ReflectionBlur,
 
 	Texture_MaterialTextures,
 	Texture_CubeMap_Environment,
@@ -67,6 +68,8 @@ enum class TE_IDX_GRESOURCES : IDX
 	Texture_RW_Bloom,
 	Texture_RW_BloomBlured,
 	Texture_RW_BloomBluredHorz,
+	Texture_RW_SSReflectionBlur,
+	Texture_RW_SSReflectionBlur_Temp,
 };
 
 
@@ -112,6 +115,8 @@ enum class TE_IDX_SHADERCLASS : IDX
 	WIREFRAME,
 	SSREFLECTION,
 	BLENDREFLECTION,
+	BLURHORZREFLECTION,
+	BLURVERTREFLECTION,
 	TOTALNUM
 };
 

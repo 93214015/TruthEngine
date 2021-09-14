@@ -71,7 +71,7 @@ namespace TruthEngine
 
 		m_BufferManager = TE_INSTANCE_BUFFERMANAGER;
 
-		m_BufferManager->Init(1000, 1000, 30, 10);
+		m_BufferManager->Init(1000, 1000, 50, 20);
 
 		// init singleton object of dx12 swap chain
 		TE_INSTANCE_SWAPCHAIN->Init(TE_INSTANCE_APPLICATION->GetClientWidth(), TE_INSTANCE_APPLICATION->GetClientHeight(), TE_INSTANCE_APPLICATION->GetWindow(), TE_INSTANCE_APPLICATION->GetFramesOnTheFlyNum());

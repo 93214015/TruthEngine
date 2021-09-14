@@ -45,5 +45,6 @@
     <FxCompile Include="Assets\Shaders\ScreenSpaceReflection_Old.hlsl" />
     <FxCompile Include="Assets\Shaders\ScreenSpaceReflection_SecondEdition.hlsl" />
     <FxCompile Include="Assets\Shaders\ScreenSpaceReflection_ThirdEdition.hlsl" />
+    <FxCompile Include="Assets\Shaders\CSGaussianBlur.hlsl" />
   </ItemGroup>
 </Project>

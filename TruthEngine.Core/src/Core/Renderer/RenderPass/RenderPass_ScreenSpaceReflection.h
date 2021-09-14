@@ -50,12 +50,21 @@ namespace TruthEngine
 
 		RendererCommand m_RendererCommand_Reflection;
 		RendererCommand m_RendererCommand_Blend;
+		RendererCommand m_RendererCommand_BlurHorz;
+		RendererCommand m_RendererCommand_BlurVert;
 
 		PipelineGraphics m_Pipeline_Reflection;
 		PipelineGraphics m_Pipeline_Blend;
+		PipelineCompute m_Pipeline_BlurHorz;
+		PipelineCompute m_Pipeline_BlurVert;
 
 		TextureRenderTarget* m_RenderTarget_Reflection;
+
 		RenderTargetView m_RTV_Reflection;
+
+		Texture* m_Texture_ReflectionBlur;
+		Texture* m_Texture_ReflectionBlur_Temp;
+
 
 		/*struct ConstantBufferData_SSReflection
 		{
@@ -87,8 +96,15 @@ namespace TruthEngine
 			float DepthBias = 1.0f;
 			float _pad0 = 0.0f;
 		};
-
 		ConstantBufferUpload<ConstantBufferData_SSReflection>* m_ConstantBuffer_Reflection;
+
+		struct ConstantBufferData_Blur
+		{
+			uint2 InputResolution;
+			uint2 _pad;
+		};
+		ConstantBufferDirect<ConstantBufferData_Blur>* m_ConstantBuffer_Blur;
+
 
 		std::vector<EventListenerHandle> m_EventListenerList;
 	};

@@ -750,6 +750,65 @@ namespace TruthEngine
 
 			break;
 		}
+		case TE_IDX_SHADERCLASS::BLURHORZREFLECTION:
+		{
+			_ShaderSignature->mShaderSignatureFlags =
+				ShaderSignature::EShaderSignatureFlags_DENY_DOMAIN_SHADER_ROOT_ACCESS
+				| ShaderSignature::EShaderSignatureFlags_DENY_GEOMETRY_SHADER_ROOT_ACCESS
+				| ShaderSignature::EShaderSignatureFlags_DENY_HULL_SHADER_ROOT_ACCESS
+				| ShaderSignature::EShaderSignatureFlags_DENY_MESH_SHADER_ROOT_ACCESS;
+
+			ShaderSignature::ShaderParameter* _ShaderParam = &_ShaderSignature->AddParameter();
+			_ShaderParam->mParameter = ShaderSignature::ShaderConstant(TE_IDX_GRESOURCES::Constant_ReflectionBlur, 0, 0, static_cast<ShaderSignature::EShaderVisibility>(ShaderSignature::EShaderVisibility_ALL));
+
+
+			_ShaderParam = &_ShaderSignature->AddParameter();
+			_ShaderParam->mParameter = ShaderSignature::ShaderTable
+			(
+				ShaderSignature::EShaderVisibility_ALL
+				, {
+						ShaderSignature::ShaderRange(0, 0, ShaderSignature::EShaderRangeType::SRV, ShaderSignature::EShaderRangeFlags::EShaderRangeFlags_NONE,
+						{
+							ShaderSignature::ShaderRangeView(TE_IDX_GRESOURCES::Texture_RT_SSReflection, ShaderSignature::EShaderRangeType::SRV),
+						}),
+						ShaderSignature::ShaderRange(0, 0, ShaderSignature::EShaderRangeType::UAV, ShaderSignature::EShaderRangeFlags::EShaderRangeFlags_NONE,
+						{
+							ShaderSignature::ShaderRangeView(TE_IDX_GRESOURCES::Texture_RW_SSReflectionBlur_Temp, ShaderSignature::EShaderRangeType::UAV),
+						})
+				}
+			);
+			break;
+		}
+		case TE_IDX_SHADERCLASS::BLURVERTREFLECTION:
+		{
+			_ShaderSignature->mShaderSignatureFlags =
+				ShaderSignature::EShaderSignatureFlags_DENY_DOMAIN_SHADER_ROOT_ACCESS
+				| ShaderSignature::EShaderSignatureFlags_DENY_GEOMETRY_SHADER_ROOT_ACCESS
+				| ShaderSignature::EShaderSignatureFlags_DENY_HULL_SHADER_ROOT_ACCESS
+				| ShaderSignature::EShaderSignatureFlags_DENY_MESH_SHADER_ROOT_ACCESS;
+
+			ShaderSignature::ShaderParameter* _ShaderParam = &_ShaderSignature->AddParameter();
+			_ShaderParam->mParameter = ShaderSignature::ShaderConstant(TE_IDX_GRESOURCES::Constant_ReflectionBlur, 0, 0, static_cast<ShaderSignature::EShaderVisibility>(ShaderSignature::EShaderVisibility_ALL));
+
+
+
+			_ShaderParam = &_ShaderSignature->AddParameter();
+			_ShaderParam->mParameter = ShaderSignature::ShaderTable
+			(
+				ShaderSignature::EShaderVisibility_ALL
+				, {
+						ShaderSignature::ShaderRange(0, 0, ShaderSignature::EShaderRangeType::SRV, ShaderSignature::EShaderRangeFlags::EShaderRangeFlags_NONE,
+						{
+							ShaderSignature::ShaderRangeView(TE_IDX_GRESOURCES::Texture_RW_SSReflectionBlur_Temp, ShaderSignature::EShaderRangeType::SRV),
+						}),
+						ShaderSignature::ShaderRange(0, 0, ShaderSignature::EShaderRangeType::UAV, ShaderSignature::EShaderRangeFlags::EShaderRangeFlags_NONE,
+						{
+							ShaderSignature::ShaderRangeView(TE_IDX_GRESOURCES::Texture_RW_SSReflectionBlur, ShaderSignature::EShaderRangeType::UAV),
+						})
+				}
+			);
+			break;
+		}
 		default:
 			TE_ASSERT_CORE(false, "There is no Shader Signature for specifid shader idx");
 			break;

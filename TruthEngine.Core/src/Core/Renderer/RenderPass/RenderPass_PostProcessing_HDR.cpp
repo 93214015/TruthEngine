@@ -103,6 +103,7 @@ void TruthEngine::RenderPass_PostProcessing_HDR::BeginScene()
 
 	mRendererCommand_FinalPass.BeginGraphics(mPipelineFinalPass_Selected);
 	mRendererCommand_FinalPass.SetRenderTarget(m_RendererLayer->GetRenderTargetViewSceneSDR());
+	mRendererCommand_FinalPass.ClearRenderTarget(m_RendererLayer->GetRenderTargetViewSceneSDR());
 	mRendererCommand_FinalPass.SetViewPort(&m_RendererLayer->GetViewportScene(), &m_RendererLayer->GetViewRectScene());
 
 
@@ -146,8 +147,10 @@ void TruthEngine::RenderPass_PostProcessing_HDR::Render()
 	mRendererCommand_BloomPass.ExecutePendingCommands();
 	mRendererCommand_BloomPass.Dispatch(mGroupNum, 1, 1);
 
-	uint32_t horz = static_cast<uint32_t>(ceil(mSceneViewQuarterSize[0] / (128.0f - 12.0f)));
-	uint32_t vert = static_cast<uint32_t>(ceil(mSceneViewQuarterSize[1] / (128.0f - 12.0f)));
+	//uint32_t horz = static_cast<uint32_t>(ceil(mSceneViewQuarterSize[0] / (128.0f - 12.0f)));
+	//uint32_t vert = static_cast<uint32_t>(ceil(mSceneViewQuarterSize[1] / (128.0f - 12.0f)));
+	uint32_t horz = static_cast<uint32_t>(ceil((float)mSceneViewQuarterSize[0] / 64.0f));
+	uint32_t vert = static_cast<uint32_t>(ceil((float)mSceneViewQuarterSize[1] / 64.0f));
 
 	//Horz Pipeline is set in BeginScene() Stage
 	mRendererCommand_BlurPassHorz.ExecutePendingCommands();
@@ -260,9 +263,9 @@ void TruthEngine::RenderPass_PostProcessing_HDR::InitPipelines()
 	//
 	//Blur Pass Pipeline
 	//
-	ShaderManager::GetInstance()->AddShader(&_Shader, TE_IDX_SHADERCLASS::POSTPROCESSING_GAUSSIANBLUR_HORZ, TE_IDX_MESH_TYPE::MESH_SIMPLE, _RendererStates, "Assets/Shaders/GaussianBlur.hlsl", "", "", "HorizFilter");
+	ShaderManager::GetInstance()->AddShader(&_Shader, TE_IDX_SHADERCLASS::POSTPROCESSING_GAUSSIANBLUR_HORZ, TE_IDX_MESH_TYPE::MESH_SIMPLE, _RendererStates, "Assets/Shaders/CSGaussianBlur.hlsl", "", "", "HorizontalFilter", "", "", "", {L"KernelHalf=6"});
 	PipelineCompute::Factory(&mPipelineBlurPassHorz, _Shader);
-	ShaderManager::GetInstance()->AddShader(&_Shader, TE_IDX_SHADERCLASS::POSTPROCESSING_GAUSSIANBLUR_VERT, TE_IDX_MESH_TYPE::MESH_SIMPLE, _RendererStates, "Assets/Shaders/GaussianBlur.hlsl", "", "", "VerticalFilter");
+	ShaderManager::GetInstance()->AddShader(&_Shader, TE_IDX_SHADERCLASS::POSTPROCESSING_GAUSSIANBLUR_VERT, TE_IDX_MESH_TYPE::MESH_SIMPLE, _RendererStates, "Assets/Shaders/CSGaussianBlur.hlsl", "", "", "VerticalFilter", "", "", "", { L"KernelHalf=6" });
 	PipelineCompute::Factory(&mPipelineBlurPassVert, _Shader);
 
 

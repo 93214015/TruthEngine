@@ -911,9 +911,9 @@ namespace TruthEngine::API::DirectX12
 
 	void DirectX12BufferManager::Init(uint32_t resourceNum, uint32_t shaderResourceViewNum, uint32_t renderTargetViewNum, uint32_t depthBufferViewNum)
 	{
-		m_TexturesRenderTarget.reserve(20);
-		m_TexturesDepthStencil.reserve(20);
-		m_TexturesCubeMap.reserve(10);
+		m_TexturesRenderTarget.reserve(50);
+		m_TexturesDepthStencil.reserve(50);
+		m_TexturesCubeMap.reserve(20);
 
 
 		m_DescHeapSRV = DescriptorHeapSRV(1);
