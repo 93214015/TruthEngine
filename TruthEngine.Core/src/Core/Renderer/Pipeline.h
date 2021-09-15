@@ -2,6 +2,8 @@
 #include "PipelineState.h"
 #include "PipelineBlendDesc.h"
 #include "PipelineDepthStencilDesc.h"
+#include "ShaderInputLayout.h"
+#include "ShaderManager.h"
 
 namespace TruthEngine
 {
@@ -168,20 +170,14 @@ namespace TruthEngine
 			return m_ID;
 		}
 
-		inline const Shader* GetShader()const noexcept
-		{
-			return m_Shader;
-		}
+		const Shader* GetShader()const noexcept;		
 
 		inline TE_IDX_SHADERCLASS GetShaderClassIDX()const noexcept
 		{
 			return m_ShaderClassIDX;
 		}
 
-		inline void SetShader(Shader* shader) noexcept
-		{
-			m_Shader = shader;
-		}
+		void SetShader(const ShaderHandle& shaderHandle) noexcept;
 
 		inline void SetRendererStates(RendererStateSet states) noexcept
 		{
@@ -238,14 +234,15 @@ namespace TruthEngine
 			return m_PipelineDepthStencilDesc;
 		}
 
-		static void Factory(PipelineGraphics* _outPipeline, RendererStateSet states, Shader* shader, uint32_t renderTargetNum, const TE_RESOURCE_FORMAT* rtvFormat, TE_RESOURCE_FORMAT dsvFormat, bool enableMSAA, const PipelineBlendDesc& pipelineBlendMode = PipelineBlendDesc{}, const PipelineDepthStencilDesc& _PipelineDepthStencilDesc = PipelineDepthStencilDesc{}, float depthBias = 0.0f, float depthBiasClamp = 0.0f, float slopeScaledDepthBias = 0.0f);
+		const std::vector<ShaderInputElement>& GetShaderInputElements() const;
+
+		static void Factory(PipelineGraphics* _outPipeline, RendererStateSet states, const class ShaderHandle& shaderHandle, uint32_t renderTargetNum, const TE_RESOURCE_FORMAT* rtvFormat, TE_RESOURCE_FORMAT dsvFormat, const std::vector<ShaderInputElement>& inputElements, bool enableMSAA, const PipelineBlendDesc& pipelineBlendMode = PipelineBlendDesc{}, const PipelineDepthStencilDesc& _PipelineDepthStencilDesc = PipelineDepthStencilDesc{}, float depthBias = 0.0f, float depthBiasClamp = 0.0f, float slopeScaledDepthBias = 0.0f);
 
 	private:
-		PipelineGraphics(uint32_t ID, std::string_view _Name, RendererStateSet states, Shader* shader, uint32_t renderTargetNum, const TE_RESOURCE_FORMAT* rtvFormat, TE_RESOURCE_FORMAT dsvFormat, bool enableMSAA, const PipelineBlendDesc& pipelineBlendDesc, const PipelineDepthStencilDesc& _PipelineDepthStencilDesc, float depthBias = 0.0f, float depthBiasClamp = 0.0f, float slopeScaledDepthBias = 0.0f);
+		PipelineGraphics(uint32_t ID, std::string_view _Name, RendererStateSet states, const class ShaderHandle& shaderHandle, uint32_t renderTargetNum, const TE_RESOURCE_FORMAT* rtvFormat, TE_RESOURCE_FORMAT dsvFormat, const std::vector<ShaderInputElement>& inputElements, bool enableMSAA, const PipelineBlendDesc& pipelineBlendDesc, const PipelineDepthStencilDesc& _PipelineDepthStencilDesc, float depthBias = 0.0f, float depthBiasClamp = 0.0f, float slopeScaledDepthBias = 0.0f);
 
 	private:
 		uint32_t m_ID = -1;
-
 
 		RendererStateSet m_States;
 
@@ -263,8 +260,10 @@ namespace TruthEngine
 
 		bool m_EnableMSAA = false;
 
-		Shader* m_Shader;
+		ShaderHandle m_ShaderHandle;
 		TE_IDX_SHADERCLASS m_ShaderClassIDX = TE_IDX_SHADERCLASS::NONE;
+
+		std::vector<ShaderInputElement> m_ShaderInputElements;
 
 		std::string m_Name = "PSO_";
 
@@ -290,26 +289,23 @@ namespace TruthEngine
 			return m_ID;
 		}
 
-		inline Shader* GetShader() const noexcept
-		{
-			return m_Shader;
-		}
+		const Shader* GetShader() const noexcept;
 
 		inline TE_IDX_SHADERCLASS GetShaderClassIDX() const noexcept
 		{
 			return m_ShaderClassIDX;
 		}
 
-		static void Factory(PipelineCompute* _outPipeline, Shader* _Shader);
+		static void Factory(PipelineCompute* _outPipeline, const ShaderHandle& _Shader);
 
 	private:
-		PipelineCompute(uint32_t _ID, std::string_view _Name, Shader* _Shader);
+		PipelineCompute(uint32_t _ID, std::string_view _Name, const ShaderHandle& _ShaderHandle);
 
 
 	private:
 		uint32_t m_ID = -1;
 
-		Shader* m_Shader;
+		ShaderHandle m_ShaderHandle;
 		TE_IDX_SHADERCLASS m_ShaderClassIDX;
 
 		std::string m_Name = "";

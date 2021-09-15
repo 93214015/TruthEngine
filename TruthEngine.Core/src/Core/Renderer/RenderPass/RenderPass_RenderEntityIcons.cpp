@@ -114,14 +114,14 @@ namespace TruthEngine
 			TE_RENDERER_STATE_ENABLED_BLEND_TRUE
 		);
 
-		Shader* shader = nullptr;
-		auto result = TE_INSTANCE_SHADERMANAGER->AddShader(&shader, TE_IDX_SHADERCLASS::RENDERENTITYICON, TE_IDX_MESH_TYPE::MESH_POINT, _RendererStates, "Assets/Shaders/RenderEntityIcon.hlsl", "vs", "ps", "", "", "", "gs");
+		
+		const auto _ShaderHandle = TE_INSTANCE_SHADERMANAGER->AddShader(TE_IDX_SHADERCLASS::RENDERENTITYICON, 0, "Assets/Shaders/RenderEntityIcon.hlsl", "vs", "ps", "", "", "", "gs");
 
 		TE_RESOURCE_FORMAT rtvFormats[] = { m_RendererLayer->GetFormatRenderTargetSceneSDR() };
 
 		PipelineBlendDesc _BlendMode{TE_BLEND::SRC_ALPHA, TE_BLEND::INV_SRC_ALPHA, TE_BLEND_OP::ADD, TE_BLEND::ZERO, TE_BLEND::ONE, TE_BLEND_OP::ADD, TE_COLOR_WRITE_ENABLE_ALL };
 
-		PipelineGraphics::Factory(&m_Pipeline, _RendererStates, shader, _countof(rtvFormats), rtvFormats, m_RendererLayer->GetFormatDepthStencilSceneDSV(), false, _BlendMode);
+		PipelineGraphics::Factory(&m_Pipeline, _RendererStates, _ShaderHandle, _countof(rtvFormats), rtvFormats, m_RendererLayer->GetFormatDepthStencilSceneDSV(), {}, false, _BlendMode);
 	}
 
 	void RenderPass_RenderEntityIcons::ReleaseRendererCommand()

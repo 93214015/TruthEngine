@@ -9,6 +9,24 @@
 
 namespace TruthEngine
 {
+	enum DeferredShading_Shader_SettingMask : uint64_t
+	{
+		DeferredShading_SettingMask_HDR = 1 << 0,
+	};
+
+	static std::pair<uint64_t, std::vector<const wchar_t*>>  GenerateShaderID()
+	{
+		std::pair<uint64_t, std::vector<const wchar_t*>> _Pair;
+
+		if (Settings::Graphics::IsEnabledHDR())
+		{
+			_Pair.first | DeferredShading_SettingMask_HDR;
+			_Pair.second.emplace_back(L"ENABLE_HDR");
+		}
+
+		return _Pair;
+	}
+
 	RenderPass_DeferredShading::RenderPass_DeferredShading(RendererLayer* _RendererLayer)
 		: RenderPass(TE_IDX_RENDERPASS::DEFERREDSHADING, _RendererLayer)
 	{}
@@ -24,7 +42,7 @@ namespace TruthEngine
 		m_RendererCommand.BeginGraphics(&m_Pipeline);
 
 		m_RendererCommand.SetViewPort(&m_RendererLayer->GetViewportScene(), &m_RendererLayer->GetViewRectScene());
-		m_RendererCommand.SetRenderTarget(m_RendererLayer->IsEnabledHDR() ? m_RendererLayer->GetRenderTargetViewSceneHDR() : m_RendererLayer->GetRenderTargetViewSceneSDR());
+		m_RendererCommand.SetRenderTarget(Settings::Graphics::IsEnabledHDR() ? m_RendererLayer->GetRenderTargetViewSceneHDR() : m_RendererLayer->GetRenderTargetViewSceneSDR());
 		
 	}
 	void RenderPass_DeferredShading::EndScene()
@@ -85,15 +103,16 @@ namespace TruthEngine
 			TE_RENDERER_STATE_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP
 		);
 		_RendererStates |= RendererLayer::GetSharedRendererStates();
+		
+		auto [_UniqueID, _Macros] = GenerateShaderID();
 
-		Shader* shader = nullptr;
-		auto result = TE_INSTANCE_SHADERMANAGER->AddShader(&shader, TE_IDX_SHADERCLASS::DEFERREDSHADING, TE_IDX_MESH_TYPE::MESH_POINT, _RendererStates, "Assets/Shaders/DeferredShadingPBR.hlsl", "vs", "ps");
+		auto _ShaderHandle = TE_INSTANCE_SHADERMANAGER->AddShader(TE_IDX_SHADERCLASS::DEFERREDSHADING, _UniqueID, "Assets/Shaders/DeferredShadingPBR.hlsl", "vs", "ps", "", "", "", "", _Macros);
 
-		TE_RESOURCE_FORMAT _RTVFormat[] = { m_RendererLayer->IsEnabledHDR() ? m_RendererLayer->GetFormatRenderTargetSceneHDR() : m_RendererLayer->GetFormatRenderTargetSceneSDR() };
+		TE_RESOURCE_FORMAT _RTVFormat[] = { Settings::Graphics::IsEnabledHDR() ? m_RendererLayer->GetFormatRenderTargetSceneHDR() : m_RendererLayer->GetFormatRenderTargetSceneSDR() };
 
 		PipelineDepthStencilDesc _PipelineDSDesc{ TE_DEPTH_WRITE_MASK::ZERO, TE_COMPARISON_FUNC::LESS };
 
-		PipelineGraphics::Factory(&m_Pipeline, _RendererStates, shader, _countof(_RTVFormat), _RTVFormat, TE_RESOURCE_FORMAT::UNKNOWN, false, PipelineBlendDesc{}, _PipelineDSDesc);
+		PipelineGraphics::Factory(&m_Pipeline, _RendererStates, _ShaderHandle, _countof(_RTVFormat), _RTVFormat, TE_RESOURCE_FORMAT::UNKNOWN, {}, false, PipelineBlendDesc{}, _PipelineDSDesc);
 	}
 	void RenderPass_DeferredShading::RegisterEventListeners()
 	{

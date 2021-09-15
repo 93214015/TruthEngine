@@ -21,6 +21,104 @@
 namespace TruthEngine
 {
 
+
+	enum ForwardRendering_Shader_SettingMask : uint64_t
+	{
+		ForwardRendering_Shader_SettingMask_ShadingModel_PBR = 1 << 0,
+		ForwardRendering_Shader_SettingMask_MeshType_Skinned = 1 << 1,
+		ForwardRendering_Shader_SettingMask_Enabled_NormalMap = 1 << 2,
+		ForwardRendering_Shader_SettingMask_Enabled_DiffueMap = 1 << 3,
+		ForwardRendering_Shader_SettingMask_Enabled_RoughnessMap = 1 << 4,
+		ForwardRendering_Shader_SettingMask_Enabled_MetallicMap = 1 << 5,
+		ForwardRendering_Shader_SettingMask_Enabled_AmbientOcclusionMap = 1 << 6,
+		ForwardRendering_Shader_SettingMask_Enabled_SpecularMap = 1 << 7,
+		ForwardRendering_Shader_SettingMask_HDR = 1 << 8,
+	};
+
+	static std::pair<uint64_t, std::vector<const wchar_t*>>  GenerateShaderID(const Material* _Material)
+	{
+		std::pair<uint64_t, std::vector<const wchar_t*>> _Pair;
+
+		if (_Material->GetShadingModel() == TE_RENDERER_STATE_SHADING_MODEL::TE_RENDERER_STATE_SHADING_MODEL_PBR)
+		{
+			_Pair.first | ForwardRendering_Shader_SettingMask_ShadingModel_PBR;
+		}
+		if (_Material->GetMeshType() == TE_IDX_MESH_TYPE::MESH_SKINNED)
+		{
+			_Pair.first | ForwardRendering_Shader_SettingMask_MeshType_Skinned;
+			_Pair.second.emplace_back(L"MESH_TYPE_SKINNED");
+		}
+		if (_Material->GetMapIndexNormal() != -1)
+		{
+			_Pair.first | ForwardRendering_Shader_SettingMask_Enabled_NormalMap;
+			_Pair.second.emplace_back(L"ENABLE_MAP_NORMAL");
+		}
+		if (_Material->GetMapIndexDiffuse() != -1)
+		{
+			_Pair.first | ForwardRendering_Shader_SettingMask_Enabled_DiffueMap;
+			_Pair.second.emplace_back(L"ENABLE_MAP_DIFFUSE");
+		}
+		if (_Material->GetMapIndexRoughness() != -1)
+		{
+			_Pair.first | ForwardRendering_Shader_SettingMask_Enabled_RoughnessMap;
+			_Pair.second.emplace_back(L"ENABLE_MAP_ROUGHNESS");
+		}
+		if (_Material->GetMapIndexMetallic() != -1)
+		{
+			_Pair.first | ForwardRendering_Shader_SettingMask_Enabled_MetallicMap;
+			_Pair.second.emplace_back(L"ENABLE_MAP_METALLIC");
+		}
+		if (_Material->GetMapIndexAmbientOcclusion() != -1)
+		{
+			_Pair.first | ForwardRendering_Shader_SettingMask_Enabled_AmbientOcclusionMap;
+			_Pair.second.emplace_back(L"ENABLE_MAP_AMBIENTOCCLUSION");
+		}
+		if (Settings::Graphics::IsEnabledHDR())
+		{
+			_Pair.first | ForwardRendering_Shader_SettingMask_HDR;
+			_Pair.second.emplace_back(L"ENABLE_HDR");
+		}
+
+		return _Pair;
+	}
+
+
+	static const std::vector<ShaderInputElement>& GetInputElements(TE_IDX_MESH_TYPE _MeshType)
+	{
+		static const std::vector<ShaderInputElement> _ArrayInputElements[] =
+		{
+			{
+				{"POSITION", 0, TE_RESOURCE_FORMAT::R32G32B32_FLOAT, 0, 0, TE_RENDERER_SHADER_INPUT_CLASSIFICATION::PER_VERTEX, 0},
+				{"NORMAL", 0, TE_RESOURCE_FORMAT::R32G32B32_FLOAT, 1, 0, TE_RENDERER_SHADER_INPUT_CLASSIFICATION::PER_VERTEX, 0},
+				{"TANGENT", 0, TE_RESOURCE_FORMAT::R32G32B32_FLOAT, 1, 12, TE_RENDERER_SHADER_INPUT_CLASSIFICATION::PER_VERTEX, 0},
+				{"TEXCOORD", 0, TE_RESOURCE_FORMAT::R32G32_FLOAT, 1, 24, TE_RENDERER_SHADER_INPUT_CLASSIFICATION::PER_VERTEX, 0},
+			},
+			{
+				{"POSITION", 0, TE_RESOURCE_FORMAT::R32G32B32_FLOAT, 0, 0, TE_RENDERER_SHADER_INPUT_CLASSIFICATION::PER_VERTEX, 0},
+				{"NORMAL", 0, TE_RESOURCE_FORMAT::R32G32B32_FLOAT, 1, 0, TE_RENDERER_SHADER_INPUT_CLASSIFICATION::PER_VERTEX, 0},
+				{"TANGENT", 0, TE_RESOURCE_FORMAT::R32G32B32_FLOAT, 1, 12, TE_RENDERER_SHADER_INPUT_CLASSIFICATION::PER_VERTEX, 0},
+				{"TEXCOORD", 0, TE_RESOURCE_FORMAT::R32G32_FLOAT, 1, 24, TE_RENDERER_SHADER_INPUT_CLASSIFICATION::PER_VERTEX, 0},
+				{"BONEWEIGHT", 0, TE_RESOURCE_FORMAT::R32G32B32_FLOAT, 2, 0, TE_RENDERER_SHADER_INPUT_CLASSIFICATION::PER_VERTEX, 0},
+				{"BONEINDEX", 0, TE_RESOURCE_FORMAT::R8G8B8A8_UINT, 2, 12, TE_RENDERER_SHADER_INPUT_CLASSIFICATION::PER_VERTEX, 0}
+			}
+		};
+
+		switch (_MeshType)
+		{
+		case TE_IDX_MESH_TYPE::MESH_NTT:
+			return _ArrayInputElements[0];
+			break;
+		case TE_IDX_MESH_TYPE::MESH_SKINNED:
+			return _ArrayInputElements[1];
+			break;
+		default:
+			TE_ASSERT_CORE(false, "RenderPass ForwardRendering: Mesh Type is not identified");
+			break;
+		}
+
+	}
+
+
 	RenderPass_ForwardRendering::RenderPass_ForwardRendering(RendererLayer* _RendererLayer)
 		: RenderPass(TE_IDX_RENDERPASS::FORWARDRENDERING, _RendererLayer)
 		, m_ConstantBufferDirect_PerMesh(nullptr)
@@ -75,8 +173,8 @@ namespace TruthEngine
 
 		m_RendererCommand.SetViewPort(&m_RendererLayer->GetViewportScene(), &m_RendererLayer->GetViewRectScene());
 
-		const RenderTargetView& _RTV = Settings::IsMSAAEnabled() ? (m_RendererLayer->IsEnabledHDR() ? m_RendererLayer->GetRenderTargetViewSceneHDRMS() : m_RendererLayer->GetRenderTargetViewSceneSDRMS())	: (m_RendererLayer->IsEnabledHDR() ? m_RendererLayer->GetRenderTargetViewSceneHDR() : m_RendererLayer->GetRenderTargetViewSceneSDR());
-		const DepthStencilView& _DSV = Settings::IsMSAAEnabled() ? m_RendererLayer->GetDepthStencilViewSceneMS() : m_RendererLayer->GetDepthStencilViewScene();
+		const RenderTargetView& _RTV = Settings::Graphics::IsEnabledMSAA() ? (Settings::Graphics::IsEnabledHDR() ? m_RendererLayer->GetRenderTargetViewSceneHDRMS() : m_RendererLayer->GetRenderTargetViewSceneSDRMS()) : (Settings::Graphics::IsEnabledHDR() ? m_RendererLayer->GetRenderTargetViewSceneHDR() : m_RendererLayer->GetRenderTargetViewSceneSDR());
+		const DepthStencilView& _DSV = Settings::Graphics::IsEnabledMSAA() ? m_RendererLayer->GetDepthStencilViewSceneMS() : m_RendererLayer->GetDepthStencilViewScene();
 		m_RendererCommand.SetRenderTarget(_RTV);
 		m_RendererCommand.SetDepthStencil(_DSV);
 
@@ -157,8 +255,6 @@ namespace TruthEngine
 
 	void RenderPass_ForwardRendering::InitPipelines(const Material* material)
 	{
-		Shader* shader = nullptr;
-
 		RendererStateSet _RendererState = material->GetRendererStates();
 
 		RendererStateSet _ShadingModel = GET_RENDERER_STATE(_RendererState, TE_RENDERER_STATE_SHADING_MODEL);
@@ -179,7 +275,9 @@ namespace TruthEngine
 
 		const char* _ShaderFilePath = _LambdaGetShaderAddress();
 
-		auto result = TE_INSTANCE_SHADERMANAGER->AddShader(&shader, TE_IDX_SHADERCLASS::FORWARDRENDERING, material->GetMeshType(), _RendererState, _ShaderFilePath, "vs", "ps");
+		auto [_UniqueShaderID, _Macros] = GenerateShaderID(material);
+
+		auto _ShaderHandle = TE_INSTANCE_SHADERMANAGER->AddShader(TE_IDX_SHADERCLASS::FORWARDRENDERING, _UniqueShaderID, _ShaderFilePath, "vs", "ps", "", "", "", "", _Macros);
 
 		PipelineGraphics* _Pipeline = nullptr;
 
@@ -196,32 +294,28 @@ namespace TruthEngine
 			_Pipeline = _ItrPipeline->second;
 		}
 
-		TE_RESOURCE_FORMAT rtvFormats[] = { m_RendererLayer->IsEnabledHDR() ? m_RendererLayer->GetFormatRenderTargetSceneHDR() : m_RendererLayer->GetFormatRenderTargetSceneSDR() };
+		const auto& _InputElements = GetInputElements(material->GetMeshType());
 
-		PipelineGraphics::Factory(_Pipeline, _RendererState, shader, _countof(rtvFormats), rtvFormats, m_RendererLayer->GetFormatDepthStencilSceneDSV(), true);
+		TE_RESOURCE_FORMAT rtvFormats[] = { Settings::Graphics::IsEnabledHDR() ? m_RendererLayer->GetFormatRenderTargetSceneHDR() : m_RendererLayer->GetFormatRenderTargetSceneSDR() };
+
+		PipelineGraphics::Factory(_Pipeline, _RendererState, _ShaderHandle, _countof(rtvFormats), rtvFormats, m_RendererLayer->GetFormatDepthStencilSceneDSV(), _InputElements, true);
 
 	}
 
 	void RenderPass_ForwardRendering::InitPipelines_Environment()
 	{
-		std::string shaderName = std::string("renderer3D_EnvironmentCube");
-
-		Shader* shader = nullptr;
-
 		RendererStateSet states = InitRenderStates();
 		SET_RENDERER_STATE(states, TE_RENDERER_STATE_CULL_MODE, TE_RENDERER_STATE_CULL_MODE::TE_RENDERER_STATE_CULL_MODE_NONE);
 
-		TE_RESOURCE_FORMAT rtvFormats[] = { m_RendererLayer->IsEnabledHDR() ? m_RendererLayer->GetFormatRenderTargetSceneHDR() : m_RendererLayer->GetFormatRenderTargetSceneSDR() };
-		if (m_RendererLayer->IsEnabledHDR())
-		{
-			SET_RENDERER_STATE(states, TE_RENDERER_STATE_ENABLED_HDR, TE_RENDERER_STATE_ENABLED_HDR_TRUE);
-		}
+		const TE_RESOURCE_FORMAT rtvFormats[] = { Settings::Graphics::IsEnabledHDR() ? m_RendererLayer->GetFormatRenderTargetSceneHDR() : m_RendererLayer->GetFormatRenderTargetSceneSDR() };
 
-		auto result = TE_INSTANCE_SHADERMANAGER->AddShader(&shader, TE_IDX_SHADERCLASS::RENDERENVIRONMENTMAP, TE_IDX_MESH_TYPE::MESH_NTT, states, "Assets/Shaders/RenderEnvironmentCube.hlsl", "vs", "ps");
+		const auto _ShaderHandle = TE_INSTANCE_SHADERMANAGER->AddShader(TE_IDX_SHADERCLASS::RENDERENVIRONMENTMAP, 0, "Assets/Shaders/RenderEnvironmentCube.hlsl", "vs", "ps");
 
-		PipelineDepthStencilDesc _PipelineDSDesc{TE_DEPTH_WRITE_MASK::ZERO, TE_COMPARISON_FUNC::LESS};
+		const PipelineDepthStencilDesc _PipelineDSDesc{ TE_DEPTH_WRITE_MASK::ZERO, TE_COMPARISON_FUNC::LESS };
 
-		PipelineGraphics::Factory(&m_PipelineEnvironmentCube, states, shader, 1, rtvFormats, m_RendererLayer->GetFormatDepthStencilSceneDSV(), true, PipelineBlendDesc{}, _PipelineDSDesc);
+		const std::vector<ShaderInputElement> _InputElements{ {"POSITION", 0, TE_RESOURCE_FORMAT::R32G32B32_FLOAT, 0, 0, TE_RENDERER_SHADER_INPUT_CLASSIFICATION::PER_VERTEX, 0 } };
+
+		PipelineGraphics::Factory(&m_PipelineEnvironmentCube, states, _ShaderHandle, 1, rtvFormats, m_RendererLayer->GetFormatDepthStencilSceneDSV(), _InputElements, true, PipelineBlendDesc{}, _PipelineDSDesc);
 	}
 
 	void RenderPass_ForwardRendering::RegisterEventListeners()

@@ -101,7 +101,7 @@ namespace TruthEngine::API::DirectX12
 		if (_Texture->IsMultiSample())
 		{
 			desc.MipLevels = 1;
-			desc.SampleDesc.Count = static_cast<int>(Settings::GetMSAA());
+			desc.SampleDesc.Count = static_cast<int>(Settings::Graphics::GetMSAA());
 			desc.SampleDesc.Quality = 0;
 		}
 

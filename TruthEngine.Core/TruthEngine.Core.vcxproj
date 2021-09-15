@@ -229,6 +229,7 @@
     <ClInclude Include="src\Core\Event\EventListenerCollector.h" />
     <ClInclude Include="src\Core\Event\EventMouse.h" />
     <ClInclude Include="src\Core\Event\EventRenderer.h" />
+    <ClInclude Include="src\Core\Event\EventSettings.h" />
     <ClInclude Include="src\Core\Helper\HardwareInfo.h" />
     <ClInclude Include="src\Core\Helper\Macros.h" />
     <ClInclude Include="src\Core\Helper\MathHelper.h" />
@@ -292,6 +293,7 @@
     <ClInclude Include="src\Core\Renderer\Shader.h" />
     <ClInclude Include="src\Core\Renderer\ShaderInputLayout.h" />
     <ClInclude Include="src\Core\Renderer\ShaderManager.h" />
+    <ClInclude Include="src\Core\Renderer\ShaderSignature.h" />
     <ClInclude Include="src\Core\Renderer\SwapChain.h" />
     <ClInclude Include="src\Core\Renderer\Texture.h" />
     <ClInclude Include="src\Core\Renderer\TextureCubeMap.h" />
@@ -383,6 +385,7 @@
     <ClCompile Include="src\Core\Event\EventListenerCollector.cpp" />
     <ClCompile Include="src\Core\Event\EventMouse.cpp" />
     <ClCompile Include="src\Core\Event\EventRenderer.cpp" />
+    <ClCompile Include="src\Core\Event\EventSettings.cpp" />
     <ClCompile Include="src\Core\Helper\HardwareInfo.cpp" />
     <ClCompile Include="src\Core\Helper\MathHelper.cpp" />
     <ClCompile Include="src\Core\Helper\MeshGenerator.cpp" />
@@ -439,6 +442,7 @@
     <ClCompile Include="src\Core\Renderer\Shader.cpp" />
     <ClCompile Include="src\Core\Renderer\ShaderInputLayout.cpp" />
     <ClCompile Include="src\Core\Renderer\ShaderManager.cpp" />
+    <ClCompile Include="src\Core\Renderer\ShaderSignature.cpp" />
     <ClCompile Include="src\Core\Renderer\SwapChain.cpp" />
     <ClCompile Include="src\Core\Renderer\Texture.cpp" />
     <ClCompile Include="src\Core\Renderer\TextureCubeMap.cpp" />

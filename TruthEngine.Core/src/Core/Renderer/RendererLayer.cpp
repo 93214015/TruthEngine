@@ -33,7 +33,6 @@ namespace TruthEngine
 	RendererLayer::RendererLayer() : m_ImGuiLayer(ImGuiLayer::Factory())
 		, m_ViewportScene(0.0f, 0.0f, static_cast<float>(TE_INSTANCE_APPLICATION->GetClientWidth()), static_cast<float>(TE_INSTANCE_APPLICATION->GetClientHeight()), 0.0f, 1.0f)
 		, m_ViewRectScene(0l, 0l, static_cast<long>(TE_INSTANCE_APPLICATION->GetClientWidth()), static_cast<long>(TE_INSTANCE_APPLICATION->GetClientHeight()))
-		, m_IsEnabledHDR(false)
 		, m_FormatRenderTargetSceneHDR(TE_RESOURCE_FORMAT::R16G16B16A16_FLOAT)
 		, m_FormatRenderTargetSceneSDR(TE_RESOURCE_FORMAT::R8G8B8A8_UNORM)
 		, m_FormatDepthStencilSceneTexture(TE_RESOURCE_FORMAT::R32_TYPELESS)
@@ -66,7 +65,7 @@ namespace TruthEngine
 
 	void RendererLayer::OnAttach()
 	{
-		//Settings::SetMSAA(TE_SETTING_MSAA::X4);
+		//Settings::Graphics::SetMSAA(TE_SETTING_MSAA::X4);
 
 
 		m_BufferManager = TE_INSTANCE_BUFFERMANAGER;
@@ -252,11 +251,9 @@ namespace TruthEngine
 		ImGui::End();
 	}
 
-	void RendererLayer::SetHDR(bool _EnableHDR)
+	void RendererLayer::OnEventSettingsGraphicsHDR()
 	{
-		m_IsEnabledHDR = _EnableHDR;
-
-		if (_EnableHDR)
+		if (Settings::Graphics::IsEnabledHDR())
 		{
 			SET_RENDERER_STATE(SharedRendererStates, TE_RENDERER_STATE_ENABLED_HDR, TE_RENDERER_STATE_ENABLED_HDR_TRUE);
 		}
@@ -368,6 +365,12 @@ namespace TruthEngine
 			OnAddLight(static_cast<EventEntityAddLight&>(event));
 		};
 		TE_INSTANCE_APPLICATION->RegisterEventListener(EventType::EntityAddLight, _Listener_AddLight);
+
+		auto _Listener_SettingsGraphicsHDR = [this](Event& _Event) 
+		{
+			OnEventSettingsGraphicsHDR();
+		};
+		TE_INSTANCE_APPLICATION->RegisterEventListener(EventType::SettingsGraphicsHDR, _Listener_SettingsGraphicsHDR);
 	}
 
 	void RendererLayer::OnWindowResize(const EventWindowResize& event)
@@ -790,7 +793,7 @@ namespace TruthEngine
 		m_RenderPassStack.PushRenderPass(m_RenderPass_GenerateSSAO.get());
 		m_RenderPassStack.PushRenderPass(m_RenderPass_DeferredShading.get());
 
-		if (m_IsEnabledHDR)
+		if (Settings::Graphics::IsEnabledHDR())
 		{
 			m_RenderPassStack.PushRenderPass(m_RenderPass_SSReflection.get());
 			m_RenderPassStack.PushRenderPass(m_RenderPass_PostProcessing_HDR.get());

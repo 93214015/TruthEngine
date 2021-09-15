@@ -370,10 +370,10 @@ namespace TruthEngine
 				}
 
 
-				static bool _IsEnabledHDR = m_RendererLayer->IsEnabledHDR();
+				static bool _IsEnabledHDR = Settings::Graphics::IsEnabledHDR();
 				if (ImGui::Checkbox("HDR", &_IsEnabledHDR))
 				{
-					m_RendererLayer->SetHDR(_IsEnabledHDR);
+					Settings::Graphics::SetHDR(_IsEnabledHDR);
 				}
 				
 
@@ -446,7 +446,7 @@ namespace TruthEngine
 						ImGui::TableNextColumn();
 
 						std::string api = "";
-						switch (Settings::GetRendererAPI())
+						switch (Settings::Graphics::GetRendererAPI())
 						{
 						case TE_RENDERER_API::DirectX12:
 							api = "DirectX 12";

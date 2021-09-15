@@ -12,6 +12,53 @@
 namespace TruthEngine
 {
 
+	enum GenerateShadowMap_Shader_SettingMask : uint64_t
+	{
+		GenerateShadowMap_Shader_SettingMask_MeshType_Skinned = 1 << 0,
+	};
+
+	static std::pair<uint64_t, std::vector<const wchar_t*>>  GenerateShaderID(TE_IDX_MESH_TYPE _MeshType)
+	{
+		std::pair<uint64_t, std::vector<const wchar_t*>> _Pair;
+
+		if (_MeshType == TE_IDX_MESH_TYPE::MESH_SKINNED)
+		{
+			_Pair.first | GenerateShadowMap_Shader_SettingMask_MeshType_Skinned;
+			_Pair.second.emplace_back(L"MESH_TYPE_SKINNED");
+		}
+
+		return _Pair;
+	}
+
+	static const std::vector<ShaderInputElement>& GetInputElements(TE_IDX_MESH_TYPE _MeshType)
+	{
+		static const std::vector<ShaderInputElement> _ArrayInputElements[] =
+		{
+			{
+				{"POSITION", 0, TE_RESOURCE_FORMAT::R32G32B32_FLOAT, 0, 0, TE_RENDERER_SHADER_INPUT_CLASSIFICATION::PER_VERTEX, 0},
+			},
+			{
+				{"POSITION", 0, TE_RESOURCE_FORMAT::R32G32B32_FLOAT, 0, 0, TE_RENDERER_SHADER_INPUT_CLASSIFICATION::PER_VERTEX, 0},
+				{"BONEWEIGHT", 0, TE_RESOURCE_FORMAT::R32G32B32_FLOAT, 2, 0, TE_RENDERER_SHADER_INPUT_CLASSIFICATION::PER_VERTEX, 0},
+				{"BONEINDEX", 0, TE_RESOURCE_FORMAT::R8G8B8A8_UINT, 2, 12, TE_RENDERER_SHADER_INPUT_CLASSIFICATION::PER_VERTEX, 0}
+			}
+		};
+
+		switch (_MeshType)
+		{
+		case TE_IDX_MESH_TYPE::MESH_NTT:
+			return _ArrayInputElements[0];
+			break;
+		case TE_IDX_MESH_TYPE::MESH_SKINNED:
+			return _ArrayInputElements[1];
+			break;
+		default:
+			TE_ASSERT_CORE(false, "RenderPass ForwardRendering: Mesh Type is not identified");
+			break;
+		}
+
+	}
+
 
 	RenderPass_GenerateShadowMap::RenderPass_GenerateShadowMap(RendererLayer* _RendererLayer, uint32_t _ShadowMapSize)
 		: RenderPass(TE_IDX_RENDERPASS::GENERATEBASICSHADOWMAP, _RendererLayer)
@@ -328,94 +375,122 @@ namespace TruthEngine
 			TE_RENDERER_STATE_PRIMITIVE_TOPOLOGY_TRIANGLELIST
 		);
 
-
-		Shader* shader = nullptr;
-
-		TE_INSTANCE_SHADERMANAGER->AddShader(&shader, TE_IDX_SHADERCLASS::GENERATEBASICSHADOWMAP, TE_IDX_MESH_TYPE::MESH_NTT, _rendererStateReversedDepth, "Assets/Shaders/generateShadowMap.hlsl", "vs", "");
-
 		PipelineGraphics* _Pipeline = nullptr;
 
-		//Reversed Depth Pipeline
-
-		auto _ItrPipeline = m_PipelinesReveresedDepth.find(TE_IDX_MESH_TYPE::MESH_NTT);
-
-		if (_ItrPipeline == m_PipelinesReveresedDepth.end())
+		/////////////////////////////////////////
+		//Reversed Depth Pipeline - Static Mesh
+		/////////////////////////////////////////
 		{
-			_Pipeline = &m_ContainerPipelines.emplace_back();
-			m_PipelinesReveresedDepth[TE_IDX_MESH_TYPE::MESH_NTT] = _Pipeline;
-		}
-		else
-		{
-			_Pipeline = _ItrPipeline->second;
-		}
+			const auto [_ShaderUniqueID, _Macros] = GenerateShaderID(TE_IDX_MESH_TYPE::MESH_NTT);
 
-		PipelineDepthStencilDesc _PipelineDepthStencilDesc{ TE_DEPTH_WRITE_MASK::ALL, TE_COMPARISON_FUNC::GREATER };
-
-		PipelineGraphics::Factory(_Pipeline, _rendererStateReversedDepth, shader, 0, nullptr, TE_RESOURCE_FORMAT::D32_FLOAT, false, PipelineBlendDesc(), _PipelineDepthStencilDesc, -30.0, 0.0f, -4.0f);
+			const auto _ShaderHandle = TE_INSTANCE_SHADERMANAGER->AddShader(TE_IDX_SHADERCLASS::GENERATEBASICSHADOWMAP, _ShaderUniqueID, "Assets/Shaders/generateShadowMap.hlsl", "vs", "", "", "", "", "", _Macros);
 
 
+			auto _ItrPipeline = m_PipelinesReveresedDepth.find(TE_IDX_MESH_TYPE::MESH_NTT);
 
-		TE_INSTANCE_SHADERMANAGER->AddShader(&shader, TE_IDX_SHADERCLASS::GENERATEBASICSHADOWMAP, TE_IDX_MESH_TYPE::MESH_SKINNED, _rendererStateReversedDepth, "Assets/Shaders/generateShadowMap.hlsl", "vs", "");
+			if (_ItrPipeline == m_PipelinesReveresedDepth.end())
+			{
+				_Pipeline = &m_ContainerPipelines.emplace_back();
+				m_PipelinesReveresedDepth[TE_IDX_MESH_TYPE::MESH_NTT] = _Pipeline;
+			}
+			else
+			{
+				_Pipeline = _ItrPipeline->second;
+			}
 
-		_ItrPipeline = m_PipelinesReveresedDepth.find(TE_IDX_MESH_TYPE::MESH_SKINNED);
+			const PipelineDepthStencilDesc _PipelineDepthStencilDesc{ TE_DEPTH_WRITE_MASK::ALL, TE_COMPARISON_FUNC::GREATER };
 
-		if (_ItrPipeline == m_PipelinesReveresedDepth.end())
-		{
-			_Pipeline = &m_ContainerPipelines.emplace_back();
-			m_PipelinesReveresedDepth[TE_IDX_MESH_TYPE::MESH_SKINNED] = _Pipeline;
-		}
-		else
-		{
-			_Pipeline = _ItrPipeline->second;
+			const auto& _InputElements = GetInputElements(TE_IDX_MESH_TYPE::MESH_NTT);
+
+			PipelineGraphics::Factory(_Pipeline, _rendererStateReversedDepth, _ShaderHandle, 0, nullptr, TE_RESOURCE_FORMAT::D32_FLOAT, _InputElements, false, PipelineBlendDesc{}, _PipelineDepthStencilDesc, -30.0, 0.0f, -4.0f);
 		}
 
-		PipelineGraphics::Factory(_Pipeline, _rendererStateReversedDepth, shader, 0, nullptr, TE_RESOURCE_FORMAT::D32_FLOAT, false, PipelineBlendDesc(), _PipelineDepthStencilDesc, -30.0, 0.0f, -4.0f);
-
-
-
-		//Forward Depth Pipeline
-
-		TE_INSTANCE_SHADERMANAGER->AddShader(&shader, TE_IDX_SHADERCLASS::GENERATEBASICSHADOWMAP, TE_IDX_MESH_TYPE::MESH_NTT, _rendererStateForwardDepth, "Assets/Shaders/generateShadowMap.hlsl", "vs", "");
-
-		_ItrPipeline = m_PipelinesForwardDepth.find(TE_IDX_MESH_TYPE::MESH_NTT);
-
-		if (_ItrPipeline == m_PipelinesForwardDepth.end())
+		/////////////////////////////////////////
+		//Reversed Depth Pipeline - Skinned Mesh
+		/////////////////////////////////////////
 		{
-			_Pipeline = &m_ContainerPipelines.emplace_back();
-			m_PipelinesForwardDepth[TE_IDX_MESH_TYPE::MESH_NTT] = _Pipeline;
-		}
-		else
-		{
-			_Pipeline = _ItrPipeline->second;
-		}
+			const auto [_ShaderUniqueID, _Macros] = GenerateShaderID(TE_IDX_MESH_TYPE::MESH_SKINNED);
 
-		_PipelineDepthStencilDesc.DepthFunc = TE_COMPARISON_FUNC::LESS;
+			const auto _ShaderHandle = TE_INSTANCE_SHADERMANAGER->AddShader(TE_IDX_SHADERCLASS::GENERATEBASICSHADOWMAP, _ShaderUniqueID, "Assets/Shaders/generateShadowMap.hlsl", "vs", "", "", "", "", "", _Macros);
 
-		PipelineGraphics::Factory(_Pipeline, _rendererStateForwardDepth, shader, 0, nullptr, TE_RESOURCE_FORMAT::D32_FLOAT, false, PipelineBlendDesc(), _PipelineDepthStencilDesc, 30.0, 0.0f, 4.0f);
+			auto _ItrPipeline = m_PipelinesReveresedDepth.find(TE_IDX_MESH_TYPE::MESH_SKINNED);
 
+			if (_ItrPipeline == m_PipelinesReveresedDepth.end())
+			{
+				_Pipeline = &m_ContainerPipelines.emplace_back();
+				m_PipelinesReveresedDepth[TE_IDX_MESH_TYPE::MESH_SKINNED] = _Pipeline;
+			}
+			else
+			{
+				_Pipeline = _ItrPipeline->second;
+			}
 
-		TE_INSTANCE_SHADERMANAGER->AddShader(&shader, TE_IDX_SHADERCLASS::GENERATEBASICSHADOWMAP, TE_IDX_MESH_TYPE::MESH_SKINNED, _rendererStateForwardDepth, "Assets/Shaders/generateShadowMap.hlsl", "vs", "");
+			const PipelineDepthStencilDesc _PipelineDepthStencilDesc{ TE_DEPTH_WRITE_MASK::ALL, TE_COMPARISON_FUNC::GREATER };
 
-		_ItrPipeline = m_PipelinesForwardDepth.find(TE_IDX_MESH_TYPE::MESH_SKINNED);
+			const auto& _InputElements = GetInputElements(TE_IDX_MESH_TYPE::MESH_SKINNED);
 
-		if (_ItrPipeline == m_PipelinesForwardDepth.end())
-		{
-			_Pipeline = &m_ContainerPipelines.emplace_back();
-			m_PipelinesForwardDepth[TE_IDX_MESH_TYPE::MESH_SKINNED] = _Pipeline;
-		}
-		else
-		{
-			_Pipeline = _ItrPipeline->second;
+			PipelineGraphics::Factory(_Pipeline, _rendererStateReversedDepth, _ShaderHandle, 0, nullptr, TE_RESOURCE_FORMAT::D32_FLOAT, _InputElements, false, PipelineBlendDesc(), _PipelineDepthStencilDesc, -30.0, 0.0f, -4.0f);
+
 		}
 
-		PipelineGraphics::Factory(_Pipeline, _rendererStateForwardDepth, shader, 0, nullptr, TE_RESOURCE_FORMAT::D32_FLOAT, false, PipelineBlendDesc(), _PipelineDepthStencilDesc, 30.0, 0.0f, 4.0f);
+		/////////////////////////////////////////
+		//Forward Depth Pipeline - Static Mesh
+		/////////////////////////////////////////
+		{
+
+			const auto [_ShaderUniqueID, _Macros] = GenerateShaderID(TE_IDX_MESH_TYPE::MESH_NTT);
+
+			const auto _ShaderHandle = TE_INSTANCE_SHADERMANAGER->AddShader(TE_IDX_SHADERCLASS::GENERATEBASICSHADOWMAP, _ShaderUniqueID, "Assets/Shaders/generateShadowMap.hlsl", "vs", "", "", "", "", "", _Macros);
+
+			auto _ItrPipeline = m_PipelinesForwardDepth.find(TE_IDX_MESH_TYPE::MESH_NTT);
+
+			if (_ItrPipeline == m_PipelinesForwardDepth.end())
+			{
+				_Pipeline = &m_ContainerPipelines.emplace_back();
+				m_PipelinesForwardDepth[TE_IDX_MESH_TYPE::MESH_NTT] = _Pipeline;
+			}
+			else
+			{
+				_Pipeline = _ItrPipeline->second;
+			}
 
 
+			const PipelineDepthStencilDesc _PipelineDepthStencilDesc{ TE_DEPTH_WRITE_MASK::ALL, TE_COMPARISON_FUNC::LESS };
+
+			const auto& _InputElements = GetInputElements(TE_IDX_MESH_TYPE::MESH_NTT);
+
+			PipelineGraphics::Factory(_Pipeline, _rendererStateForwardDepth, _ShaderHandle, 0, nullptr, TE_RESOURCE_FORMAT::D32_FLOAT, _InputElements, false, PipelineBlendDesc(), _PipelineDepthStencilDesc, 30.0, 0.0f, 4.0f);
+		}
+
+		/////////////////////////////////////////
+		//Forward Depth Pipeline - Skinned Mesh
+		/////////////////////////////////////////
+		{
+			const auto [_ShaderUniqueID, _Macros] = GenerateShaderID(TE_IDX_MESH_TYPE::MESH_SKINNED);
+
+			const auto _ShaderHandle = TE_INSTANCE_SHADERMANAGER->AddShader(TE_IDX_SHADERCLASS::GENERATEBASICSHADOWMAP, _ShaderUniqueID, "Assets/Shaders/generateShadowMap.hlsl", "vs", "", "", "", "", "", _Macros);
+
+			auto _ItrPipeline = m_PipelinesForwardDepth.find(TE_IDX_MESH_TYPE::MESH_SKINNED);
+
+			if (_ItrPipeline == m_PipelinesForwardDepth.end())
+			{
+				_Pipeline = &m_ContainerPipelines.emplace_back();
+				m_PipelinesForwardDepth[TE_IDX_MESH_TYPE::MESH_SKINNED] = _Pipeline;
+			}
+			else
+			{
+				_Pipeline = _ItrPipeline->second;
+			}
+
+			const PipelineDepthStencilDesc _PipelineDepthStencilDesc{ TE_DEPTH_WRITE_MASK::ALL, TE_COMPARISON_FUNC::LESS };
+
+			const auto& _InputElements = GetInputElements(TE_IDX_MESH_TYPE::MESH_SKINNED);
+
+			PipelineGraphics::Factory(_Pipeline, _rendererStateForwardDepth, _ShaderHandle, 0, nullptr, TE_RESOURCE_FORMAT::D32_FLOAT, _InputElements, false, PipelineBlendDesc(), _PipelineDepthStencilDesc, 30.0, 0.0f, 4.0f);
+
+		}
 
 
-
-
-		
 	}
 
 	void RenderPass_GenerateShadowMap::ReleaseRendererCommand()

@@ -84,12 +84,6 @@ namespace TruthEngine
 			return m_EnabledEnvironmentMap;
 		}
 
-		inline bool IsEnabledHDR()const noexcept
-		{
-			return m_IsEnabledHDR;
-		}
-
-		void SetHDR(bool _EnableHDR);
 
 		void RenderBoundingBox(Entity _Entity);
 
@@ -120,6 +114,7 @@ namespace TruthEngine
 		void OnUpdateMaterial(const EventEntityUpdateMaterial& event);
 		void OnUpdateLight(const EventEntityUpdateLight& event);
 		void OnAddLight(const EventEntityAddLight& event);
+		void OnEventSettingsGraphicsHDR();
 
 		void _ChangeUnfrequentBuffer_LightDirectionalCount(uint32_t _LightDirectionalCount);
 		void _ChangeUnfrequentBuffer_LightSpotCount(uint32_t _LightSpotCount);
@@ -187,7 +182,6 @@ namespace TruthEngine
 
 		bool m_EnabledImGuiLayer = true;
 		bool m_EnabledEnvironmentMap = false;
-		bool m_IsEnabledHDR = false;
 
 		TimerProfile_OneSecond m_TimerRenderLayerUpdate;
 

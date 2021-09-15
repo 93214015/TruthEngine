@@ -1,57 +1,43 @@
 #pragma once
 
 
-enum class TE_RENDERER_API
-{
-	DirectX12,
-	DirectX11,
-	OpenGL,
-	Vulkan
-};
 
-enum class TE_SETTING_MSAA
-{
-	X1 = 1,
-	X2 = 2,
-	X4 = 4,
-	X8 = 8
-};
 
 namespace TruthEngine
 {
-
-	class Settings
+	namespace Settings
 	{
-	public:
-
-		inline static bool IsMSAAEnabled()
+		namespace Graphics
 		{
-			return static_cast<int>(MSAA) > 1;
-		}
 
-		inline static TE_SETTING_MSAA GetMSAA()
-		{
-			return MSAA;
-		}
+			enum class TE_RENDERER_API
+			{
+				DirectX12,
+				DirectX11,
+				OpenGL,
+				Vulkan
+			};
 
-		inline static void SetMSAA(TE_SETTING_MSAA _MSAA)
-		{
-			MSAA = _MSAA;
-		}
+			enum class TE_SETTING_MSAA
+			{
+				X1 = 1,
+				X2 = 2,
+				X4 = 4,
+				X8 = 8
+			};
 
-		inline static TE_RENDERER_API GetRendererAPI()
-		{
-			return RendererAPI;
-		}
+			bool IsEnabledMSAA();
+			bool IsEnabledHDR();
 
-	private:
-		static TE_RENDERER_API RendererAPI;
-		static std::string RendererAPISTR;
-		static std::string GPUAdapterSTR;
-		static std::string CPUModelSTR;
-		static std::string CPUThreadNumSTR;
+			TE_SETTING_MSAA GetMSAA();
+			TE_RENDERER_API GetRendererAPI();
+			
+			void SetMSAA(TE_SETTING_MSAA _MSAA);
+			bool SetHDR(bool _EnabledHDR);
+			
+		};
+	}
 
-		static TE_SETTING_MSAA MSAA;
-	};
+	
 
 }

@@ -74,13 +74,12 @@ namespace TruthEngine
 			TE_RENDERER_STATE_PRIMITIVE_TOPOLOGY_POINTLIST
 		);
 
-		Shader* shader = nullptr;
 		//Generate Cube Map Shader
-		auto result = TE_INSTANCE_SHADERMANAGER->AddShader(&shader, TE_IDX_SHADERCLASS::GENERATEIBLAMBIENT, TE_IDX_MESH_TYPE::MESH_POINT, _RendererStates, "Assets/Shaders/GenerateIBLAmbient.hlsl", "vs", "ps", "", "", "", "gs");
+		const auto _ShaderHandle = TE_INSTANCE_SHADERMANAGER->AddShader(TE_IDX_SHADERCLASS::GENERATEIBLAMBIENT, 0, "Assets/Shaders/GenerateIBLAmbient.hlsl", "vs", "ps", "", "", "", "gs");
 
 		TE_RESOURCE_FORMAT rtvFormats[] = { TE_RESOURCE_FORMAT::R16G16B16A16_FLOAT };
 
-		PipelineGraphics::Factory(&m_PipelineGenerateIBL, _RendererStates, shader, _countof(rtvFormats), rtvFormats, TE_RESOURCE_FORMAT::D32_FLOAT, false);
+		PipelineGraphics::Factory(&m_PipelineGenerateIBL, _RendererStates, _ShaderHandle, _countof(rtvFormats), rtvFormats, TE_RESOURCE_FORMAT::D32_FLOAT, {}, false);
 	}
 	void RenderPass_GenerateIBLAmbient::InitRendererCommand()
 	{

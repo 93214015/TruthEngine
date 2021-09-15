@@ -19,6 +19,99 @@
 
 namespace TruthEngine
 {
+
+	enum GenerateGBuffers_Shader_SettingMask : uint64_t
+	{
+		GenerateGBuffers_Shader_SettingMask_ShadingModel_PBR = 1 << 0,
+		GenerateGBuffers_Shader_SettingMask_MeshType_Skinned = 1 << 1,
+		GenerateGBuffers_Shader_SettingMask_Enabled_NormalMap = 1 << 2,
+		GenerateGBuffers_Shader_SettingMask_Enabled_DiffueMap = 1 << 3,
+		GenerateGBuffers_Shader_SettingMask_Enabled_RoughnessMap = 1 << 4,
+		GenerateGBuffers_Shader_SettingMask_Enabled_MetallicMap = 1 << 5,
+		GenerateGBuffers_Shader_SettingMask_Enabled_AmbientOcclusionMap = 1 << 6,
+		GenerateGBuffers_Shader_SettingMask_Enabled_SpecularMap = 1 << 7,
+	};
+
+	static std::pair<uint64_t, std::vector<const wchar_t*>>  GenerateShaderID(const Material* _Material)
+	{
+		std::pair<uint64_t, std::vector<const wchar_t*>> _Pair;
+
+		if (_Material->GetShadingModel() == TE_RENDERER_STATE_SHADING_MODEL::TE_RENDERER_STATE_SHADING_MODEL_PBR)
+		{
+			_Pair.first | GenerateGBuffers_Shader_SettingMask_ShadingModel_PBR;
+		}
+		if (_Material->GetMeshType() == TE_IDX_MESH_TYPE::MESH_SKINNED)
+		{
+			_Pair.first | GenerateGBuffers_Shader_SettingMask_MeshType_Skinned;
+			_Pair.second.emplace_back(L"MESH_TYPE_SKINNED");
+		}
+		if (_Material->GetMapIndexNormal() != -1)
+		{
+			_Pair.first | GenerateGBuffers_Shader_SettingMask_Enabled_NormalMap;
+			_Pair.second.emplace_back(L"ENABLE_MAP_NORMAL");
+		}
+		if (_Material->GetMapIndexDiffuse() != -1)
+		{
+			_Pair.first | GenerateGBuffers_Shader_SettingMask_Enabled_DiffueMap;
+			_Pair.second.emplace_back(L"ENABLE_MAP_DIFFUSE");
+		}
+		if (_Material->GetMapIndexRoughness() != -1)
+		{
+			_Pair.first | GenerateGBuffers_Shader_SettingMask_Enabled_RoughnessMap;
+			_Pair.second.emplace_back(L"ENABLE_MAP_ROUGHNESS");
+		}
+		if (_Material->GetMapIndexMetallic() != -1)
+		{
+			_Pair.first | GenerateGBuffers_Shader_SettingMask_Enabled_MetallicMap;
+			_Pair.second.emplace_back(L"ENABLE_MAP_METALLIC");
+		}
+		if (_Material->GetMapIndexAmbientOcclusion() != -1)
+		{
+			_Pair.first | GenerateGBuffers_Shader_SettingMask_Enabled_AmbientOcclusionMap;
+			_Pair.second.emplace_back(L"ENABLE_MAP_AMBIENTOCCLUSION");
+		}
+
+		return _Pair;
+	}
+
+	static const std::vector<ShaderInputElement>& GetInputElements(TE_IDX_MESH_TYPE _MeshType)
+	{
+		static const std::vector<ShaderInputElement> _ArrayInputElements[] =
+		{
+			{
+				{"POSITION", 0, TE_RESOURCE_FORMAT::R32G32B32_FLOAT, 0, 0, TE_RENDERER_SHADER_INPUT_CLASSIFICATION::PER_VERTEX, 0},
+				{"NORMAL", 0, TE_RESOURCE_FORMAT::R32G32B32_FLOAT, 1, 0, TE_RENDERER_SHADER_INPUT_CLASSIFICATION::PER_VERTEX, 0},
+				{"TANGENT", 0, TE_RESOURCE_FORMAT::R32G32B32_FLOAT, 1, 12, TE_RENDERER_SHADER_INPUT_CLASSIFICATION::PER_VERTEX, 0},
+				{"TEXCOORD", 0, TE_RESOURCE_FORMAT::R32G32_FLOAT, 1, 24, TE_RENDERER_SHADER_INPUT_CLASSIFICATION::PER_VERTEX, 0},
+			},
+			{
+				{"POSITION", 0, TE_RESOURCE_FORMAT::R32G32B32_FLOAT, 0, 0, TE_RENDERER_SHADER_INPUT_CLASSIFICATION::PER_VERTEX, 0},
+				{"NORMAL", 0, TE_RESOURCE_FORMAT::R32G32B32_FLOAT, 1, 0, TE_RENDERER_SHADER_INPUT_CLASSIFICATION::PER_VERTEX, 0},
+				{"TANGENT", 0, TE_RESOURCE_FORMAT::R32G32B32_FLOAT, 1, 12, TE_RENDERER_SHADER_INPUT_CLASSIFICATION::PER_VERTEX, 0},
+				{"TEXCOORD", 0, TE_RESOURCE_FORMAT::R32G32_FLOAT, 1, 24, TE_RENDERER_SHADER_INPUT_CLASSIFICATION::PER_VERTEX, 0},
+				{"BONEWEIGHT", 0, TE_RESOURCE_FORMAT::R32G32B32_FLOAT, 2, 0, TE_RENDERER_SHADER_INPUT_CLASSIFICATION::PER_VERTEX, 0},
+				{"BONEINDEX", 0, TE_RESOURCE_FORMAT::R8G8B8A8_UINT, 2, 12, TE_RENDERER_SHADER_INPUT_CLASSIFICATION::PER_VERTEX, 0}
+			}
+		};
+
+		switch (_MeshType)
+		{
+		case TE_IDX_MESH_TYPE::MESH_NTT:
+			return _ArrayInputElements[0];
+			break;
+		case TE_IDX_MESH_TYPE::MESH_SKINNED:
+			return _ArrayInputElements[1];
+			break;
+		default:
+			TE_ASSERT_CORE(false, "RenderPass Generate GBuffers: Mesh Type is not identified");
+			break;
+		}
+
+	}
+
+
+
+
 	RenderPass_GenerateGBuffers::RenderPass_GenerateGBuffers(RendererLayer* _RendererLayer)
 		: RenderPass(TE_IDX_RENDERPASS::GENERATEGBUFFERS, _RendererLayer)
 	{
@@ -69,31 +162,6 @@ namespace TruthEngine
 
 		const auto _EntityMeshView = _ActiveScene->ViewEntities<MeshComponent>();
 
-		/*_EntityMeshView.each([&, _ActiveScene](entt::entity _Entity, MeshComponent& _Component) 
-			{
-				const auto& _Transform = _ActiveScene->GetComponent<TransformComponent>(_Entity).GetTransform();
-				const auto _XMTransform = Math::ToXM(_Transform);
-
-				const auto& _BoundingBoxLocal = _ActiveScene->GetComponent<BoundingBoxComponent>(_Entity).GetBoundingBox();
-				const auto _BoundingBoxWorld = Math::XMTransformBoundingBox(_BoundingBoxLocal, _XMTransform);
-
-				if (_CameraBoundingFrustum.Contains(_BoundingBoxWorld) == ContainmentType::DISJOINT)
-				{
-					return;
-				}
-
-				auto _MaterialID = _ActiveScene->GetComponent<MaterialComponent>(_Entity).GetMaterial()->GetID();
-
-				*_CBData_PerMesh = ConstantBuffer_Data_Per_Mesh(_Transform, Math::InverseTranspose(_XMTransform), _MaterialID);
-
-				m_RendererCommand.SetPipelineGraphics(m_MapMaterialPipeline[_MaterialID]);
-				m_RendererCommand.SetDirectConstantGraphics(m_ConstantBufferDirect_PerMesh);
-
-				const Mesh* _Mesh = &_ActiveScene->GetComponent<MeshComponent>(_Entity).GetMesh();
-				m_RendererCommand.DrawIndexed(_Mesh);
-			}
-		);*/
-
 		for (const auto _Entity : _EntityMeshView)
 		{
 			const auto& _Transform = _ActiveScene->GetComponent<TransformComponent>(_Entity).GetTransform();
@@ -128,7 +196,7 @@ namespace TruthEngine
 	{
 		Application* _Application = TE_INSTANCE_APPLICATION;
 
-		auto _ColorTextureFormat = m_RendererLayer->IsEnabledHDR() ? TE_RESOURCE_FORMAT::R16G16B16A16_FLOAT : TE_RESOURCE_FORMAT::R8G8B8A8_UNORM;
+		auto _ColorTextureFormat = Settings::Graphics::IsEnabledHDR() ? TE_RESOURCE_FORMAT::R16G16B16A16_FLOAT : TE_RESOURCE_FORMAT::R8G8B8A8_UNORM;
 
 		m_TextureGBufferColor = m_RendererCommand.CreateRenderTarget(TE_IDX_GRESOURCES::Texture_RT_GBuffer_Color
 			, _Application->GetSceneViewportWidth()
@@ -226,16 +294,10 @@ namespace TruthEngine
 
 	void RenderPass_GenerateGBuffers::InitPipelines(const Material* _Material)
 	{
-		Shader* shader = nullptr;
 
-		RendererStateSet _RendererState = _Material->GetRendererStates();
-		SET_RENDERER_STATE(_RendererState, TE_RENDERER_STATE_ENABLED_STENCIL, TE_RENDERER_STATE_ENABLED_STENCIL_TRUE);
-		auto _ShadingModel = GET_RENDERER_STATE(_RendererState, TE_RENDERER_STATE_SHADING_MODEL);
-
-
-
-
+		const RendererStateSet _RendererState = _Material->GetRendererStates();
 		
+		auto _ShadingModel = _Material->GetShadingModel();
 		auto _LambdaGetShaderFilePath = [_ShadingModel]() 
 		{
 			switch (_ShadingModel)
@@ -249,8 +311,9 @@ namespace TruthEngine
 			}
 		};
 
-		auto result = TE_INSTANCE_SHADERMANAGER->AddShader(&shader, TE_IDX_SHADERCLASS::GENERATEGBUFFERS, _Material->GetMeshType(), _RendererState, _LambdaGetShaderFilePath(), "vs", "ps");
-				
+		const auto [_ShaderUniqueID, _Macros] = GenerateShaderID(_Material);
+
+		const auto _ShaderHandle = TE_INSTANCE_SHADERMANAGER->AddShader(TE_IDX_SHADERCLASS::GENERATEGBUFFERS, _ShaderUniqueID, _LambdaGetShaderFilePath(), "vs", "ps", "", "", "", "", _Macros);
 
 		PipelineGraphics* _Pipeline = nullptr;
 
@@ -267,11 +330,13 @@ namespace TruthEngine
 			_Pipeline = _ItrPipeline->second;
 		}
 
-		TE_RESOURCE_FORMAT _ColorFormat = m_RendererLayer->IsEnabledHDR() ? m_RendererLayer->GetFormatRenderTargetSceneHDR() : m_RendererLayer->GetFormatRenderTargetSceneSDR();
+		const TE_RESOURCE_FORMAT _ColorFormat = Settings::Graphics::IsEnabledHDR() ? m_RendererLayer->GetFormatRenderTargetSceneHDR() : m_RendererLayer->GetFormatRenderTargetSceneSDR();
 
-		TE_RESOURCE_FORMAT rtvFormats[] = { _ColorFormat , TE_RESOURCE_FORMAT::R11G11B10_FLOAT, TE_RESOURCE_FORMAT::R16G16B16A16_FLOAT };
+		const TE_RESOURCE_FORMAT rtvFormats[] = { _ColorFormat , TE_RESOURCE_FORMAT::R11G11B10_FLOAT, TE_RESOURCE_FORMAT::R16G16B16A16_FLOAT };
 
-		PipelineGraphics::Factory(_Pipeline, _RendererState, shader, static_cast<uint32_t>(_countof(rtvFormats)), rtvFormats, m_RendererLayer->GetFormatDepthStencilSceneDSV(), false);
+		const auto& _InputElements = GetInputElements(_Material->GetMeshType());
+
+		PipelineGraphics::Factory(_Pipeline, _RendererState, _ShaderHandle, static_cast<uint32_t>(_countof(rtvFormats)), rtvFormats, m_RendererLayer->GetFormatDepthStencilSceneDSV(), _InputElements, false);
 	}
 
 	void RenderPass_GenerateGBuffers::OnRendererViewportResize(const EventRendererViewportResize& _Event)

@@ -140,12 +140,13 @@ namespace TruthEngine
 			TE_RENDERER_STATE_ENABLED_BLEND_FALSE
 		);
 
-		Shader* shader = nullptr;
-		auto result = TE_INSTANCE_SHADERMANAGER->AddShader(&shader, TE_IDX_SHADERCLASS::WIREFRAME, TE_IDX_MESH_TYPE::MESH_SIMPLE, _States, "Assets/Shaders/RenderWireframe.hlsl", "vs", "ps");
+		const auto _ShaderHandle = TE_INSTANCE_SHADERMANAGER->AddShader(TE_IDX_SHADERCLASS::WIREFRAME, 0, "Assets/Shaders/RenderWireframe.hlsl", "vs", "ps");
 
 		TE_RESOURCE_FORMAT rtvFormats[] = { m_RendererLayer->GetFormatRenderTargetSceneSDR() };
 
-		PipelineGraphics::Factory(&m_Pipeline, _States, shader, _countof(rtvFormats), rtvFormats, m_RendererLayer->GetFormatDepthStencilSceneDSV(), false);
+		const std::vector<ShaderInputElement> _InputElements{ ("POSITION", 0, TE_RESOURCE_FORMAT::R32G32B32_FLOAT, 0, 0, TE_RENDERER_SHADER_INPUT_CLASSIFICATION::PER_VERTEX, 0) };
+
+		PipelineGraphics::Factory(&m_Pipeline, _States, _ShaderHandle, _countof(rtvFormats), rtvFormats, m_RendererLayer->GetFormatDepthStencilSceneDSV(), _InputElements, false);
 	}
 
 	void RenderPass_Wireframe::ReleaseTextures()

@@ -47,6 +47,11 @@ namespace TruthEngine
 	}
 
 
+	TE_RENDERER_STATE_SHADING_MODEL Material::GetShadingModel() const noexcept
+	{
+		return static_cast<TE_RENDERER_STATE_SHADING_MODEL>(GET_RENDERER_STATE(m_RendererStates, TE_RENDERER_STATE_SHADING_MODEL));
+	}
+
 	void Material::InvokeEventChangeMaterial()
 	{
 		EventEntityUpdateMaterial event(this);

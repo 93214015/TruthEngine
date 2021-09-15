@@ -160,13 +160,12 @@ namespace TruthEngine
 				TE_RENDERER_STATE_PRIMITIVE_TOPOLOGY_POINTLIST
 			);
 
-			Shader* shader = nullptr;
 			//Generate Cube Map Shader
-			auto result = TE_INSTANCE_SHADERMANAGER->AddShader(&shader, TE_IDX_SHADERCLASS::GENERATEIBLSPECULAR_PREFILTER, TE_IDX_MESH_TYPE::MESH_POINT, _RendererStatesPrefilter, "Assets/Shaders/GenerateIBLSpecular_PrefilterEnvironment.hlsl", "vs", "ps", "", "", "", "gs");
+			const auto _ShaderHandle = TE_INSTANCE_SHADERMANAGER->AddShader(TE_IDX_SHADERCLASS::GENERATEIBLSPECULAR_PREFILTER, 0, "Assets/Shaders/GenerateIBLSpecular_PrefilterEnvironment.hlsl", "vs", "ps", "", "", "", "gs");
 
-			TE_RESOURCE_FORMAT rtvFormats[] = { TE_RESOURCE_FORMAT::R16G16B16A16_FLOAT };
+			const TE_RESOURCE_FORMAT rtvFormats[] = { TE_RESOURCE_FORMAT::R16G16B16A16_FLOAT };
 
-			PipelineGraphics::Factory(&m_PipelinePrefilter, _RendererStatesPrefilter, shader, _countof(rtvFormats), rtvFormats, TE_RESOURCE_FORMAT::D32_FLOAT, false);
+			PipelineGraphics::Factory(&m_PipelinePrefilter, _RendererStatesPrefilter, _ShaderHandle, _countof(rtvFormats), rtvFormats, TE_RESOURCE_FORMAT::D32_FLOAT, {}, false);
 		}
 
 		//Precompute BRDF
@@ -191,12 +190,11 @@ namespace TruthEngine
 				TE_RENDERER_STATE_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP
 			);
 
-			Shader* shader = nullptr;
-			auto result = TE_INSTANCE_SHADERMANAGER->AddShader(&shader, TE_IDX_SHADERCLASS::GENERATEIBLSPECULAR_BRDF, TE_IDX_MESH_TYPE::MESH_SIMPLE, _RendererStatesBRDF, "Assets/Shaders/GenerateIBLSpecular_PrecomputeBRDF.hlsl", "vs", "ps");
+			const auto _ShaderHandle = TE_INSTANCE_SHADERMANAGER->AddShader(TE_IDX_SHADERCLASS::GENERATEIBLSPECULAR_BRDF, 0, "Assets/Shaders/GenerateIBLSpecular_PrecomputeBRDF.hlsl", "vs", "ps");
 
-			TE_RESOURCE_FORMAT rtvFormats[] = { TE_RESOURCE_FORMAT::R16G16_FLOAT };
+			const TE_RESOURCE_FORMAT rtvFormats[] = { TE_RESOURCE_FORMAT::R16G16_FLOAT };
 
-			PipelineGraphics::Factory(&m_PipelineBRDF, _RendererStatesBRDF, shader, _countof(rtvFormats), rtvFormats, TE_RESOURCE_FORMAT::D32_FLOAT, false);
+			PipelineGraphics::Factory(&m_PipelineBRDF, _RendererStatesBRDF, _ShaderHandle, _countof(rtvFormats), rtvFormats, TE_RESOURCE_FORMAT::D32_FLOAT, {}, false);
 		}
 	}
 	void TruthEngine::RenderPass_GenerateIBLSpecular::ReleaseRendererCommand()

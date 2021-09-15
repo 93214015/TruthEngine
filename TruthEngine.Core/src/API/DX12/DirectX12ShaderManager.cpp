@@ -31,34 +31,26 @@ namespace TruthEngine
 			{
 			}
 
-			TE_RESULT DirectX12ShaderManager::AddShader(Shader** outShader, TE_IDX_SHADERCLASS shaderClassID, TE_IDX_MESH_TYPE meshType, RendererStateSet states, std::string_view filePath, std::string_view vsEntry, std::string_view psEntry, std::string_view csEntry, std::string_view dsEntry, std::string_view hsEntry, std::string_view gsEntry, const std::vector<const wchar_t*> _DefinedMacros)
+			ShaderHandle DirectX12ShaderManager::AddShader(TE_IDX_SHADERCLASS shaderClassID, uint64_t shaderUniqueIdentifier, std::string_view filePath, std::string_view vsEntry, std::string_view psEntry, std::string_view csEntry, std::string_view dsEntry, std::string_view hsEntry, std::string_view gsEntry, const std::vector<const wchar_t*>& _DefinedMacros)
 			{
-				states &= m_StateMask;
-
 				auto classID = static_cast<uint32_t>(shaderClassID);
 
-				auto& map = m_ShadersStateMap[classID][static_cast<uint32_t>(meshType)];
+				auto& map = m_Map_Shaders[classID];
 
-				auto item = map.find(states);
+				auto item = map.find(shaderUniqueIdentifier);
 
 				if (item != map.end())
 				{
-					*outShader = item->second.get();
-					return TE_RESULT_RENDERER_SHADER_HAS_EXIST;
+					return item->second;
 				}
 
-				_GetShaderDefines(states, meshType);
+				std::string name = "shader" + std::to_string(m_ArrayShaders.size());
 
-				for (auto _Def : _DefinedMacros)
-					m_Defines.emplace_back(_Def);
-
-				std::string name = "shader" + std::to_string(map.size());
-
-				auto shader = std::make_shared<Shader>(name, shaderClassID, meshType, GetShaderSignature(shaderClassID), filePath);
+				auto _ShaderIndex = static_cast<uint16_t>(m_ArrayShaders.size());
+				auto shader = &m_ArrayShaders.emplace_back(name, shaderClassID, GetShaderSignature(shaderClassID), filePath);
 				shader->m_ID = m_ShaderID++;
 
-				map[states] = shader;
-				*outShader = shader.get();
+				map[shaderUniqueIdentifier] = ShaderHandle{ _ShaderIndex };
 
 				if (csEntry != "")
 				{
@@ -105,6 +97,7 @@ namespace TruthEngine
 					D3D_SHADER_MACRO m{ name.c_str() , "" };
 					macros.emplace_back(m);
 				}
+				m_Defines.clear();
 
 				macros.emplace_back(D3D_SHADER_MACRO{ NULL, NULL });
 
@@ -170,6 +163,8 @@ namespace TruthEngine
 					vargs.emplace_back(L"-D");
 					vargs.emplace_back(d.c_str());
 				}
+				m_Defines.clear();
+
 
 				/*LPCWSTR args[] =
 				{

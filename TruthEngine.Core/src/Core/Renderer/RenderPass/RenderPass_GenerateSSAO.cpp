@@ -163,16 +163,23 @@ namespace TruthEngine
 
 		TE_RESOURCE_FORMAT rtvFormats[] = { TE_RESOURCE_FORMAT::R32_FLOAT };
 
-		Shader* shader = nullptr;
-		auto result = TE_INSTANCE_SHADERMANAGER->AddShader(&shader, TE_IDX_SHADERCLASS::GENERATESSAO, TE_IDX_MESH_TYPE::MESH_SIMPLE, _RendererStates, "Assets/Shaders/GenerateSSAO.hlsl", "vs", "ps");
+		///////////////////////////////////////////////
+		//// SSAO Generation
+		///////////////////////////////////////////////
+		{
+			const auto _ShaderHandle = TE_INSTANCE_SHADERMANAGER->AddShader(TE_IDX_SHADERCLASS::GENERATESSAO, 0, "Assets/Shaders/GenerateSSAO.hlsl", "vs", "ps");
 
-		PipelineGraphics::Factory(&m_Pipeline, _RendererStates, shader, _countof(rtvFormats), rtvFormats, TE_RESOURCE_FORMAT::UNKNOWN, false);
+			PipelineGraphics::Factory(&m_Pipeline, _RendererStates, _ShaderHandle, _countof(rtvFormats), rtvFormats, TE_RESOURCE_FORMAT::UNKNOWN, {}, false);
+		}
 
+		///////////////////////////////////////////////
+		//// SSAO Blurring
+		///////////////////////////////////////////////
+		{
+			const auto _ShaderHandle = TE_INSTANCE_SHADERMANAGER->AddShader(TE_IDX_SHADERCLASS::SSAOBLURRING, 0, "Assets/Shaders/SSAOBlur.hlsl", "vs", "ps");
 
-
-		result = TE_INSTANCE_SHADERMANAGER->AddShader(&shader, TE_IDX_SHADERCLASS::SSAOBLURRING, TE_IDX_MESH_TYPE::MESH_SIMPLE, _RendererStates, "Assets/Shaders/SSAOBlur.hlsl", "vs", "ps");
-
-		PipelineGraphics::Factory(&m_PipelineBlurring, _RendererStates, shader, _countof(rtvFormats), rtvFormats, TE_RESOURCE_FORMAT::UNKNOWN, false);
+			PipelineGraphics::Factory(&m_PipelineBlurring, _RendererStates, _ShaderHandle, _countof(rtvFormats), rtvFormats, TE_RESOURCE_FORMAT::UNKNOWN, {}, false);
+		}
 	}
 
 	void RenderPass_GenerateSSAO::ReleaseRendererCommand()

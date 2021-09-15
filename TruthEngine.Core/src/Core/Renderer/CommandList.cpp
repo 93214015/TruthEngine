@@ -11,7 +11,7 @@ namespace TruthEngine {
 
 	std::shared_ptr<TruthEngine::CommandList> CommandList::Factory(GraphicDevice* graphicDevice, TE_RENDERER_COMMANDLIST_TYPE type, BufferManager* bufferManager, ShaderManager* shaderManager, TE_IDX_RENDERPASS renderPassIDX, TE_IDX_SHADERCLASS shaderClassIDX, uint8_t frameIndex)
 	{
-		switch (Settings::GetRendererAPI())
+		switch (Settings::Graphics::GetRendererAPI())
 		{
 		case TE_RENDERER_API::DirectX12 :
 			return std::make_shared<API::DirectX12::DirectX12CommandList>(graphicDevice, type, bufferManager, shaderManager, renderPassIDX, shaderClassIDX, frameIndex);

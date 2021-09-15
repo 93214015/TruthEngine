@@ -126,6 +126,8 @@ namespace TruthEngine
 				return m_MeshType;
 			}
 
+			TE_RENDERER_STATE_SHADING_MODEL GetShadingModel() const noexcept;
+
 
 			//
 			//////Set Methods

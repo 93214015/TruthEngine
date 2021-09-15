@@ -198,14 +198,11 @@ namespace TruthEngine
 				TE_RENDERER_STATE_ENABLED_BLEND_FALSE
 			);
 
-			Shader* shader = nullptr;
-			auto result = TE_INSTANCE_SHADERMANAGER->AddShader(&shader, TE_IDX_SHADERCLASS::SSREFLECTION, TE_IDX_MESH_TYPE::MESH_POINT, _States_Reflection, "Assets/Shaders/ScreenSpaceReflection_ThirdEdition.hlsl", "vs", "ps");
+			const auto _ShaderHandle = TE_INSTANCE_SHADERMANAGER->AddShader(TE_IDX_SHADERCLASS::SSREFLECTION, 0, "Assets/Shaders/ScreenSpaceReflection_ThirdEdition.hlsl", "vs", "ps");
 
 			TE_RESOURCE_FORMAT rtvFormats[] = { m_RendererLayer->GetFormatRenderTargetSceneHDR() };
-			PipelineGraphics::Factory(&m_Pipeline_Reflection, _States_Reflection, shader, _countof(rtvFormats), rtvFormats, m_RendererLayer->GetFormatDepthStencilSceneDSV(), false);
-
-
-			
+			PipelineGraphics::Factory(&m_Pipeline_Reflection, _States_Reflection, _ShaderHandle, _countof(rtvFormats), rtvFormats, m_RendererLayer->GetFormatDepthStencilSceneDSV(), {}, false);
+						
 
 		}
 
@@ -234,8 +231,7 @@ namespace TruthEngine
 				TE_RENDERER_STATE_ENABLED_BLEND_TRUE
 			);
 
-			Shader* shader = nullptr;
-			auto result = TE_INSTANCE_SHADERMANAGER->AddShader(&shader, TE_IDX_SHADERCLASS::BLENDREFLECTION, TE_IDX_MESH_TYPE::MESH_POINT, _States_Blend, "Assets/Shaders/BlendReflection.hlsl", "vs", "ps");
+			const auto _ShaderHandle = TE_INSTANCE_SHADERMANAGER->AddShader(TE_IDX_SHADERCLASS::BLENDREFLECTION, 0, "Assets/Shaders/BlendReflection.hlsl", "vs", "ps");
 
 			TE_RESOURCE_FORMAT rtvFormats[] = { m_RendererLayer->GetFormatRenderTargetSceneHDR() };
 
@@ -250,19 +246,18 @@ namespace TruthEngine
 				TE_COLOR_WRITE_ENABLE::TE_COLOR_WRITE_ENABLE_ALL
 			};
 
-			PipelineGraphics::Factory(&m_Pipeline_Blend, _States_Blend, shader, _countof(rtvFormats), rtvFormats, m_RendererLayer->GetFormatDepthStencilSceneDSV(), false, _BlendDesc);
+			PipelineGraphics::Factory(&m_Pipeline_Blend, _States_Blend, _ShaderHandle, _countof(rtvFormats), rtvFormats, m_RendererLayer->GetFormatDepthStencilSceneDSV(), {}, false, _BlendDesc);
 		}
 
 		//Init Blurring Reflection's Pipelines
 		{
 			const RendererStateSet _States = InitRenderStates();
 
-			Shader* shader = nullptr;
-			auto result = TE_INSTANCE_SHADERMANAGER->AddShader(&shader, TE_IDX_SHADERCLASS::BLURHORZREFLECTION, TE_IDX_MESH_TYPE::MESH_POINT, _States, "Assets/Shaders/CSGaussianBlur.hlsl", "", "", "HorizontalFilter", "", "", "", { L"KernelHalf=6" });
-			PipelineCompute::Factory(&m_Pipeline_BlurHorz, shader);
+			const auto _ShaderHandle_BlurHorz = TE_INSTANCE_SHADERMANAGER->AddShader(TE_IDX_SHADERCLASS::BLURHORZREFLECTION, 0, "Assets/Shaders/CSGaussianBlur.hlsl", "", "", "HorizontalFilter", "", "", "", { L"KernelHalf=6" });
+			PipelineCompute::Factory(&m_Pipeline_BlurHorz, _ShaderHandle_BlurHorz);
 
-			result = TE_INSTANCE_SHADERMANAGER->AddShader(&shader, TE_IDX_SHADERCLASS::BLURHORZREFLECTION, TE_IDX_MESH_TYPE::MESH_POINT, _States, "Assets/Shaders/CSGaussianBlur.hlsl", "", "", "VerticalFilter", "", "", "", { L"KernelHalf=6" });
-			PipelineCompute::Factory(&m_Pipeline_BlurVert, shader);
+			const auto _ShaderHandle_BlurVert = TE_INSTANCE_SHADERMANAGER->AddShader(TE_IDX_SHADERCLASS::BLURVERTREFLECTION, 0, "Assets/Shaders/CSGaussianBlur.hlsl", "", "", "VerticalFilter", "", "", "", { L"KernelHalf=6" });
+			PipelineCompute::Factory(&m_Pipeline_BlurVert, _ShaderHandle_BlurVert);
 		}
 
 

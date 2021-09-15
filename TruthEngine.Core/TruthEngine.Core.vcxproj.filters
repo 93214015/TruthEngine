@@ -510,6 +510,8 @@
     <ClInclude Include="src\Core\Event\EventDispatcher.h" />
     <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_ScreenSpaceReflection.h" />
     <ClInclude Include="src\Core\Renderer\PipelineDepthStencilDesc.h" />
+    <ClInclude Include="src\Core\Renderer\ShaderSignature.h" />
+    <ClInclude Include="src\Core\Event\EventSettings.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\API\DX12\DirectX12BufferManager.cpp">
@@ -906,5 +908,7 @@
     <ClCompile Include="src\Core\Event\EventDispatcher.cpp" />
     <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_ScreenSpaceReflection.cpp" />
     <ClCompile Include="src\Core\Renderer\PipelineDepthStencilDesc.cpp" />
+    <ClCompile Include="src\Core\Renderer\ShaderSignature.cpp" />
+    <ClCompile Include="src\Core\Event\EventSettings.cpp" />
   </ItemGroup>
 </Project>

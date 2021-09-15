@@ -37,30 +37,28 @@ namespace TruthEngine
 	}
 
 
-	Shader* ShaderManager::GetShader(TE_IDX_SHADERCLASS shaderClassID, TE_IDX_MESH_TYPE _MeshType, RendererStateSet states)
+	ShaderHandle ShaderManager::GetShader(TE_IDX_SHADERCLASS shaderClassID, uint64_t shaderUnqiueIdentifier)
 	{
 		{
-			states &= m_StateMask;
+			auto& map = m_Map_Shaders[static_cast<uint32_t>(shaderClassID)];
 
-			auto& map = m_ShadersStateMap[static_cast<uint32_t>(shaderClassID)][static_cast<uint32_t>(_MeshType)];
-
-			auto itr = map.find(states);
+			auto itr = map.find(shaderUnqiueIdentifier);
 
 			if (itr != map.end())
 			{
-				return itr->second.get();
+				return itr->second;
 			}
 
-			return nullptr;
+			return ShaderHandle{};
 		}
 	}
 
 
 	TruthEngine::ShaderManager* ShaderManager::Factory()
 	{
-		switch (Settings::GetRendererAPI())
+		switch (Settings::Graphics::GetRendererAPI())
 		{
-		case TE_RENDERER_API::DirectX12:
+		case Settings::Graphics::TE_RENDERER_API::DirectX12:
 			return API::DirectX12::DirectX12ShaderManager::GetInstance();
 		default:
 			return nullptr;
@@ -817,13 +815,13 @@ namespace TruthEngine
 		ShaderRequiredResources* _ShaderRequiredResources = &m_Map_ShaderRequiedResources[shaderClassIDX];
 		_ShaderRequiredResources->AddResource(_ShaderSignature);
 
-		_CreateInputElements(_ShaderSignature->InputElements, shaderClassIDX);
+		//_CreateInputElements(_ShaderSignature->InputElements, shaderClassIDX);
 
 		return _ShaderSignature;
 
 	}
 
-
+	/*
 	void ShaderManager::_CreateInputElements(std::vector<ShaderInputElement> shaderInputs[(uint32_t)TE_IDX_MESH_TYPE::TOTALNUM], TE_IDX_SHADERCLASS shaderClassIDX)
 	{
 		switch (shaderClassIDX)
@@ -872,70 +870,7 @@ namespace TruthEngine
 		}
 
 	}
-
-	/*
-
-	std::vector<std::vector<ShaderSignature::ShaderConstantBufferViewSlot>> ShaderManager::_CreateConstantBufferViewSlots(TE_IDX_SHADERCLASS shaderClassIDX)
-	{
-		std::vector<std::vector<ShaderSignature::ShaderConstantBufferViewSlot>> v;
-
-		switch (shaderClassIDX)
-		{
-		case TE_IDX_SHADERCLASS::NONE:
-			break;
-		case TE_IDX_SHADERCLASS::FORWARDRENDERING:
-		case TE_IDX_SHADERCLASS::RENDERENVIRONMENTMAP:
-		{
-			v =
-			{
-				{ ShaderSignature::ShaderConstantBufferViewSlot{0, 0, TE_IDX_GRESOURCES::CBuffer_PerFrame}, ShaderSignature::ShaderConstantBufferViewSlot{1, 0, TE_IDX_GRESOURCES::CBuffer_LightData}, ShaderSignature::ShaderConstantBufferViewSlot{2, 0, TE_IDX_GRESOURCES::CBuffer_Materials}, ShaderSignature::ShaderConstantBufferViewSlot{3, 0, TE_IDX_GRESOURCES::CBuffer_UnFrequent} },
-				{ ShaderSignature::ShaderConstantBufferViewSlot{4, 0, TE_IDX_GRESOURCES::Constant_PerMesh} }
-			};
-			break;
-		}
-		case TE_IDX_SHADERCLASS::GENERATEBASICSHADOWMAP:
-			v =
-			{
-				{ ShaderSignature::ShaderConstantBufferViewSlot{0, 0, TE_IDX_GRESOURCES::Constant_ShadowMapPerLight} },
-				{ ShaderSignature::ShaderConstantBufferViewSlot{1, 0, TE_IDX_GRESOURCES::Constant_ShadowMapPerMesh} }
-			};
-			break;
-		default:
-			throw;
-			break;
-		}
-		return v;
-	}
-
-
-	std::vector<std::vector<ShaderSignature::ShaderShaderResourceViewSlot>> ShaderManager::_CreateShaderResourceViewSlots(TE_IDX_SHADERCLASS shaderClassIDX)
-	{
-		std::vector<std::vector<ShaderSignature::ShaderShaderResourceViewSlot>> v;
-
-		switch (shaderClassIDX)
-		{
-		case TE_IDX_SHADERCLASS::NONE:
-			break;
-		case TE_IDX_SHADERCLASS::FORWARDRENDERING:
-		case TE_IDX_SHADERCLASS::RENDERENVIRONMENTMAP:
-		{
-			v =
-			{
-				{ ShaderSignature::ShaderShaderResourceViewSlot(0, 0, TE_RESOURCE_TYPE::TEXTURE2D, (IDX)TE_IDX_GRESOURCES::Texture_DS_ShadowMap_SunLight), ShaderSignature::ShaderShaderResourceViewSlot{1, 0, TE_RESOURCE_TYPE::TEXTURE2D, (IDX)TE_IDX_GRESOURCES::Texture_CubeMap_Environment} },
-				{ ShaderSignature::ShaderShaderResourceViewSlot{2, 0, TE_RESOURCE_TYPE::TEXTURE2D, (IDX)TE_IDX_GRESOURCES::Texture_MaterialTextures} },
-			};
-			break;
-		}
-		case TE_IDX_SHADERCLASS::GENERATEBASICSHADOWMAP:
-			break;
-		default:
-			throw;
-			break;
-		}
-
-		return v;
-	}*/
-
+	*/
 
 	void ShaderManager::_GetShaderDefines(const RendererStateSet states, TE_IDX_MESH_TYPE _MeshType)
 	{
@@ -994,5 +929,16 @@ namespace TruthEngine
 	}
 
 
+
+
+	Shader* ShaderHandle::GetShader() const
+	{
+		return &TE_INSTANCE_SHADERMANAGER->m_ArrayShaders[m_ShaderIndex];
+	}
+
+	bool ShaderHandle::IsValid() const
+	{
+		return m_ShaderIndex != -1;
+	}
 
 }

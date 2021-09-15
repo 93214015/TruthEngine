@@ -240,49 +240,63 @@ void TruthEngine::RenderPass_PostProcessing_HDR::InitPipelines()
 		TE_RENDERER_STATE_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP
 	);
 
-	//
+	//////////////////////////////////
 	//First Pass Pipeline
-	//
-	Shader* _Shader;
-	ShaderManager::GetInstance()->AddShader(&_Shader, TE_IDX_SHADERCLASS::POSTPROCESSING_HDR_DOWNSACLING_FIRSTPASS, TE_IDX_MESH_TYPE::MESH_SIMPLE, _RendererStates, "Assets/Shaders/HDR_DownScaling.hlsl", "", "", "HDRDownScalingFirstPass");
-	PipelineCompute::Factory(&mPipelineDownScalingFirstPass, _Shader);
+	//////////////////////////////////
+	{
+		const auto _ShaderHandle = ShaderManager::GetInstance()->AddShader(TE_IDX_SHADERCLASS::POSTPROCESSING_HDR_DOWNSACLING_FIRSTPASS, 0, "Assets/Shaders/HDR_DownScaling.hlsl", "", "", "HDRDownScalingFirstPass");
+		PipelineCompute::Factory(&mPipelineDownScalingFirstPass, _ShaderHandle);
+	}
 
-	//
+	//////////////////////////////////
 	//Second Pass Pipeline
-	//
-	ShaderManager::GetInstance()->AddShader(&_Shader, TE_IDX_SHADERCLASS::POSTPROCESSING_HDR_DOWNSACLING_SECONDPASS, TE_IDX_MESH_TYPE::MESH_SIMPLE, _RendererStates, "Assets/Shaders/HDR_DownScaling.hlsl", "", "", "HDRDownScalingSecondPass");
-	PipelineCompute::Factory(&mPipelineDownScalingSecondPass, _Shader);
+	//////////////////////////////////
+	{
+		const auto _ShaderHandle = ShaderManager::GetInstance()->AddShader(TE_IDX_SHADERCLASS::POSTPROCESSING_HDR_DOWNSACLING_SECONDPASS, 0, "Assets/Shaders/HDR_DownScaling.hlsl", "", "", "HDRDownScalingSecondPass");
+		PipelineCompute::Factory(&mPipelineDownScalingSecondPass, _ShaderHandle);
+	}
 
-	//
+	//////////////////////////////////
 	//Bloom Pass Pipeline
-	//
-	ShaderManager::GetInstance()->AddShader(&_Shader, TE_IDX_SHADERCLASS::POSTPROCESSING_HDR_BLOOMPASS, TE_IDX_MESH_TYPE::MESH_SIMPLE, _RendererStates, "Assets/Shaders/HDR_DownScaling.hlsl", "", "", "BloomReveal");
-	PipelineCompute::Factory(&mPipelineBloomPass, _Shader);
+	//////////////////////////////////
+	{
+		const auto _ShaderHandle = ShaderManager::GetInstance()->AddShader(TE_IDX_SHADERCLASS::POSTPROCESSING_HDR_BLOOMPASS, 0, "Assets/Shaders/HDR_DownScaling.hlsl", "", "", "BloomReveal");
+		PipelineCompute::Factory(&mPipelineBloomPass, _ShaderHandle);
+	}
 
 
 	//
 	//Blur Pass Pipeline
 	//
-	ShaderManager::GetInstance()->AddShader(&_Shader, TE_IDX_SHADERCLASS::POSTPROCESSING_GAUSSIANBLUR_HORZ, TE_IDX_MESH_TYPE::MESH_SIMPLE, _RendererStates, "Assets/Shaders/CSGaussianBlur.hlsl", "", "", "HorizontalFilter", "", "", "", {L"KernelHalf=6"});
-	PipelineCompute::Factory(&mPipelineBlurPassHorz, _Shader);
-	ShaderManager::GetInstance()->AddShader(&_Shader, TE_IDX_SHADERCLASS::POSTPROCESSING_GAUSSIANBLUR_VERT, TE_IDX_MESH_TYPE::MESH_SIMPLE, _RendererStates, "Assets/Shaders/CSGaussianBlur.hlsl", "", "", "VerticalFilter", "", "", "", { L"KernelHalf=6" });
-	PipelineCompute::Factory(&mPipelineBlurPassVert, _Shader);
+	{
+		const auto _ShaderHandle_BlurHorz = ShaderManager::GetInstance()->AddShader(TE_IDX_SHADERCLASS::POSTPROCESSING_GAUSSIANBLUR_HORZ, 0, "Assets/Shaders/CSGaussianBlur.hlsl", "", "", "HorizontalFilter", "", "", "", { L"KernelHalf=6" });
+		PipelineCompute::Factory(&mPipelineBlurPassHorz, _ShaderHandle_BlurHorz);
+		const auto _ShaderHandle_BlurVert = ShaderManager::GetInstance()->AddShader(TE_IDX_SHADERCLASS::POSTPROCESSING_GAUSSIANBLUR_VERT, 0, "Assets/Shaders/CSGaussianBlur.hlsl", "", "", "VerticalFilter", "", "", "", { L"KernelHalf=6" });
+		PipelineCompute::Factory(&mPipelineBlurPassVert, _ShaderHandle_BlurVert);
+	}
 
 
-	//
+	////////////////////////////////////
 	//Final Pass Pipeline
-	//
-	//Reinhard Tone Mapping
-	ShaderManager::GetInstance()->AddShader(&_Shader, TE_IDX_SHADERCLASS::POSTPROCESSING_HDR_FINALPASS, TE_IDX_MESH_TYPE::MESH_SIMPLE, _RendererStates, "Assets/Shaders/HDR_PostProcessing.hlsl", "FullScreenQuadVS", "FinalPassPS");
-
+	////////////////////////////////////
 	TE_RESOURCE_FORMAT _RTVFormat[1] = { m_RendererLayer->GetFormatRenderTargetSceneSDR() };
+	///////////////
+	//Reinhard Tone Mapping
+	///////////////
+	{
+		const auto _ShaderHandle = ShaderManager::GetInstance()->AddShader(TE_IDX_SHADERCLASS::POSTPROCESSING_HDR_FINALPASS, 0, "Assets/Shaders/HDR_PostProcessing.hlsl", "FullScreenQuadVS", "FinalPassPS");
 
-	PipelineGraphics::Factory(&mPipelineFinalPass_ReinhardToneMapping, _RendererStates, _Shader, _countof(_RTVFormat), _RTVFormat, TE_RESOURCE_FORMAT::UNKNOWN, false);
 
+		PipelineGraphics::Factory(&mPipelineFinalPass_ReinhardToneMapping, _RendererStates, _ShaderHandle, _countof(_RTVFormat), _RTVFormat, TE_RESOURCE_FORMAT::UNKNOWN, {}, false);
+	}
+	///////////////
 	//ACES Tone Mapping
-	ShaderManager::GetInstance()->AddShader(&_Shader, TE_IDX_SHADERCLASS::POSTPROCESSING_HDR_FINALPASS, TE_IDX_MESH_TYPE::MESH_NTT, _RendererStates, "Assets/Shaders/HDR_PostProcessing.hlsl", "FullScreenQuadVS", "FinalPassPS", "", "", "", "", {L"TONE_MAPPING_ACES"});
+	///////////////
+	{
+		const auto _ShaderHandle = ShaderManager::GetInstance()->AddShader(TE_IDX_SHADERCLASS::POSTPROCESSING_HDR_FINALPASS, 1, "Assets/Shaders/HDR_PostProcessing.hlsl", "FullScreenQuadVS", "FinalPassPS", "", "", "", "", { L"TONE_MAPPING_ACES" });
 
-	PipelineGraphics::Factory(&mPipelineFinalPass_ACESToneMapping, _RendererStates, _Shader, _countof(_RTVFormat), _RTVFormat, TE_RESOURCE_FORMAT::UNKNOWN, false);
+		PipelineGraphics::Factory(&mPipelineFinalPass_ACESToneMapping, _RendererStates, _ShaderHandle, _countof(_RTVFormat), _RTVFormat, TE_RESOURCE_FORMAT::UNKNOWN, {}, false);
+	}
 
 }
 

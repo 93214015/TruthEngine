@@ -94,6 +94,7 @@ namespace TruthEngine::API::DirectX12
 		default:
 			return D3D12_PRIMITIVE_TOPOLOGY_TYPE_UNDEFINED;
 		}
+		
 	}
 
 	inline D3D12_INPUT_CLASSIFICATION DX12_GET_INPUT_CLASSIFICATION(TE_RENDERER_SHADER_INPUT_CLASSIFICATION inputClass)
@@ -216,7 +217,7 @@ namespace TruthEngine::API::DirectX12
 			D3D12Desc.DepthStencilState.BackFace.StencilFunc = D3D12_COMPARISON_FUNC_ALWAYS;*/
 
 			//Input Layout
-			DX12_GET_INPUT_ELEMENTS(*shader->GetInputElements(), m_InputElements);
+			DX12_GET_INPUT_ELEMENTS(_Pipeline->GetShaderInputElements(), m_InputElements);
 			D3D12Desc.InputLayout.NumElements = static_cast<UINT>(m_InputElements.size());
 			D3D12Desc.InputLayout.pInputElementDescs = m_InputElements.data();
 
@@ -227,7 +228,7 @@ namespace TruthEngine::API::DirectX12
 			D3D12Desc.DSVFormat = DX12_GET_FORMAT(_Pipeline->GetDSVFormat());
 
 			//Sample desc
-			D3D12Desc.SampleDesc.Count = _Pipeline->GetEnableMSAA() ? static_cast<uint32_t>(Settings::GetMSAA()) : 1;
+			D3D12Desc.SampleDesc.Count = _Pipeline->GetEnableMSAA() ? static_cast<uint32_t>(Settings::Graphics::GetMSAA()) : 1;
 			D3D12Desc.SampleDesc.Quality = 0;
 
 			D3D12Desc.pRootSignature = DirectX12Manager::GetInstance()->GetD3D12RootSignature(shader->GetShaderClassIDX());
