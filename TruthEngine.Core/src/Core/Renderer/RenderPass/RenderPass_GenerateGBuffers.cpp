@@ -34,40 +34,40 @@ namespace TruthEngine
 
 	static std::pair<uint64_t, std::vector<const wchar_t*>>  GenerateShaderID(const Material* _Material)
 	{
-		std::pair<uint64_t, std::vector<const wchar_t*>> _Pair;
+		std::pair<uint64_t, std::vector<const wchar_t*>> _Pair{ 0, {} };
 
-		if (_Material->GetShadingModel() == TE_RENDERER_STATE_SHADING_MODEL::TE_RENDERER_STATE_SHADING_MODEL_PBR)
+		if (_Material->GetShadingModel() == TE_RENDERER_STATE_SHADING_MODEL_PBR)
 		{
-			_Pair.first | GenerateGBuffers_Shader_SettingMask_ShadingModel_PBR;
+			_Pair.first |= GenerateGBuffers_Shader_SettingMask_ShadingModel_PBR;
 		}
 		if (_Material->GetMeshType() == TE_IDX_MESH_TYPE::MESH_SKINNED)
 		{
-			_Pair.first | GenerateGBuffers_Shader_SettingMask_MeshType_Skinned;
+			_Pair.first |= GenerateGBuffers_Shader_SettingMask_MeshType_Skinned;
 			_Pair.second.emplace_back(L"MESH_TYPE_SKINNED");
 		}
 		if (_Material->GetMapIndexNormal() != -1)
 		{
-			_Pair.first | GenerateGBuffers_Shader_SettingMask_Enabled_NormalMap;
+			_Pair.first |= GenerateGBuffers_Shader_SettingMask_Enabled_NormalMap;
 			_Pair.second.emplace_back(L"ENABLE_MAP_NORMAL");
 		}
 		if (_Material->GetMapIndexDiffuse() != -1)
 		{
-			_Pair.first | GenerateGBuffers_Shader_SettingMask_Enabled_DiffueMap;
+			_Pair.first |= GenerateGBuffers_Shader_SettingMask_Enabled_DiffueMap;
 			_Pair.second.emplace_back(L"ENABLE_MAP_DIFFUSE");
 		}
 		if (_Material->GetMapIndexRoughness() != -1)
 		{
-			_Pair.first | GenerateGBuffers_Shader_SettingMask_Enabled_RoughnessMap;
+			_Pair.first |= GenerateGBuffers_Shader_SettingMask_Enabled_RoughnessMap;
 			_Pair.second.emplace_back(L"ENABLE_MAP_ROUGHNESS");
 		}
 		if (_Material->GetMapIndexMetallic() != -1)
 		{
-			_Pair.first | GenerateGBuffers_Shader_SettingMask_Enabled_MetallicMap;
+			_Pair.first |= GenerateGBuffers_Shader_SettingMask_Enabled_MetallicMap;
 			_Pair.second.emplace_back(L"ENABLE_MAP_METALLIC");
 		}
 		if (_Material->GetMapIndexAmbientOcclusion() != -1)
 		{
-			_Pair.first | GenerateGBuffers_Shader_SettingMask_Enabled_AmbientOcclusionMap;
+			_Pair.first |= GenerateGBuffers_Shader_SettingMask_Enabled_AmbientOcclusionMap;
 			_Pair.second.emplace_back(L"ENABLE_MAP_AMBIENTOCCLUSION");
 		}
 

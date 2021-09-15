@@ -156,10 +156,10 @@ namespace TruthEngine
 
 		auto _LambdaDrawShadingModelComponent = [](Material* _Material)
 		{
-			static const char* _ShadingModelsStr[] = { "Blinn-Phong", "PBR" };
-			static const char* _CurrentShadingModelItem = _ShadingModelsStr[0];
+			static const char* _ShadingModelsStr[] = { "None", "Blinn-Phong", "PBR" };
 
 			TE_RENDERER_STATE_SHADING_MODEL _ShadingModel = static_cast<TE_RENDERER_STATE_SHADING_MODEL>(GET_RENDERER_STATE(_Material->GetRendererStates(), TE_RENDERER_STATE_SHADING_MODEL));
+			const char* _CurrentShadingModelItem = _ShadingModelsStr[static_cast<uint32_t>(_ShadingModel)];
 
 			if (ImGui::BeginCombo("Shading Model: ", _CurrentShadingModelItem))
 			{

@@ -78,7 +78,7 @@ namespace TruthEngine
 
 			EShaderRangeType mShaderRangeType;
 
-			GraphicResource* mGraphicResource;
+			class GraphicResource* mGraphicResource;
 		};
 
 		struct ShaderRange

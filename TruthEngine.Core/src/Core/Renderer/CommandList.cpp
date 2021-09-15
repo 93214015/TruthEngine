@@ -13,7 +13,7 @@ namespace TruthEngine {
 	{
 		switch (Settings::Graphics::GetRendererAPI())
 		{
-		case TE_RENDERER_API::DirectX12 :
+		case Settings::Graphics::TE_RENDERER_API::DirectX12 :
 			return std::make_shared<API::DirectX12::DirectX12CommandList>(graphicDevice, type, bufferManager, shaderManager, renderPassIDX, shaderClassIDX, frameIndex);
 		default:
 			return nullptr;

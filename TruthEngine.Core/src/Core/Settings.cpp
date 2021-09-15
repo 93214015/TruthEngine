@@ -13,7 +13,7 @@ namespace TruthEngine
 		namespace Graphics
 		{
 
-			bool IsEnabledHDR = false;
+			bool EnabledHDR = false;
 			TE_RENDERER_API RendererAPI = Graphics::TE_RENDERER_API::DirectX12;
 			std::string RendererAPISTR = "DirectX 12";
 			std::string GPUAdapterSTR = "AMD Radeon RX570";
@@ -34,7 +34,7 @@ namespace TruthEngine
 
 			bool IsEnabledHDR()
 			{
-				return IsEnabledHDR;
+				return EnabledHDR;
 			}
 			bool IsEnabledMSAA()
 			{
@@ -42,9 +42,9 @@ namespace TruthEngine
 			}
 
 
-			bool SetHDR(bool _EnabledHDR)
+			void SetHDR(bool _EnabledHDR)
 			{
-				IsEnabledHDR = _EnabledHDR;
+				EnabledHDR = _EnabledHDR;
 
 				EventSettingsGraphicsHDR _Event;
 

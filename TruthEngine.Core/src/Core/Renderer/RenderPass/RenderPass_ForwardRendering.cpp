@@ -41,41 +41,41 @@ namespace TruthEngine
 
 		if (_Material->GetShadingModel() == TE_RENDERER_STATE_SHADING_MODEL::TE_RENDERER_STATE_SHADING_MODEL_PBR)
 		{
-			_Pair.first | ForwardRendering_Shader_SettingMask_ShadingModel_PBR;
+			_Pair.first |= ForwardRendering_Shader_SettingMask_ShadingModel_PBR;
 		}
 		if (_Material->GetMeshType() == TE_IDX_MESH_TYPE::MESH_SKINNED)
 		{
-			_Pair.first | ForwardRendering_Shader_SettingMask_MeshType_Skinned;
+			_Pair.first |= ForwardRendering_Shader_SettingMask_MeshType_Skinned;
 			_Pair.second.emplace_back(L"MESH_TYPE_SKINNED");
 		}
 		if (_Material->GetMapIndexNormal() != -1)
 		{
-			_Pair.first | ForwardRendering_Shader_SettingMask_Enabled_NormalMap;
+			_Pair.first |= ForwardRendering_Shader_SettingMask_Enabled_NormalMap;
 			_Pair.second.emplace_back(L"ENABLE_MAP_NORMAL");
 		}
 		if (_Material->GetMapIndexDiffuse() != -1)
 		{
-			_Pair.first | ForwardRendering_Shader_SettingMask_Enabled_DiffueMap;
+			_Pair.first |= ForwardRendering_Shader_SettingMask_Enabled_DiffueMap;
 			_Pair.second.emplace_back(L"ENABLE_MAP_DIFFUSE");
 		}
 		if (_Material->GetMapIndexRoughness() != -1)
 		{
-			_Pair.first | ForwardRendering_Shader_SettingMask_Enabled_RoughnessMap;
+			_Pair.first |= ForwardRendering_Shader_SettingMask_Enabled_RoughnessMap;
 			_Pair.second.emplace_back(L"ENABLE_MAP_ROUGHNESS");
 		}
 		if (_Material->GetMapIndexMetallic() != -1)
 		{
-			_Pair.first | ForwardRendering_Shader_SettingMask_Enabled_MetallicMap;
+			_Pair.first |= ForwardRendering_Shader_SettingMask_Enabled_MetallicMap;
 			_Pair.second.emplace_back(L"ENABLE_MAP_METALLIC");
 		}
 		if (_Material->GetMapIndexAmbientOcclusion() != -1)
 		{
-			_Pair.first | ForwardRendering_Shader_SettingMask_Enabled_AmbientOcclusionMap;
+			_Pair.first |= ForwardRendering_Shader_SettingMask_Enabled_AmbientOcclusionMap;
 			_Pair.second.emplace_back(L"ENABLE_MAP_AMBIENTOCCLUSION");
 		}
 		if (Settings::Graphics::IsEnabledHDR())
 		{
-			_Pair.first | ForwardRendering_Shader_SettingMask_HDR;
+			_Pair.first |= ForwardRendering_Shader_SettingMask_HDR;
 			_Pair.second.emplace_back(L"ENABLE_HDR");
 		}
 

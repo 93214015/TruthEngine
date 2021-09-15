@@ -23,7 +23,7 @@ namespace TruthEngine
 
 		if (_MeshType == TE_IDX_MESH_TYPE::MESH_SKINNED)
 		{
-			_Pair.first | GenerateShadowMap_Shader_SettingMask_MeshType_Skinned;
+			_Pair.first |= GenerateShadowMap_Shader_SettingMask_MeshType_Skinned;
 			_Pair.second.emplace_back(L"MESH_TYPE_SKINNED");
 		}
 

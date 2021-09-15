@@ -144,7 +144,7 @@ namespace TruthEngine
 
 		TE_RESOURCE_FORMAT rtvFormats[] = { m_RendererLayer->GetFormatRenderTargetSceneSDR() };
 
-		const std::vector<ShaderInputElement> _InputElements{ ("POSITION", 0, TE_RESOURCE_FORMAT::R32G32B32_FLOAT, 0, 0, TE_RENDERER_SHADER_INPUT_CLASSIFICATION::PER_VERTEX, 0) };
+		const std::vector<ShaderInputElement> _InputElements = { {"POSITION", 0, TE_RESOURCE_FORMAT::R32G32B32_FLOAT, 0, 0, TE_RENDERER_SHADER_INPUT_CLASSIFICATION::PER_VERTEX, 0} };
 
 		PipelineGraphics::Factory(&m_Pipeline, _States, _ShaderHandle, _countof(rtvFormats), rtvFormats, m_RendererLayer->GetFormatDepthStencilSceneDSV(), _InputElements, false);
 	}

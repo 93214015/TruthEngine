@@ -20,7 +20,7 @@ namespace TruthEngine
 
 		switch (Settings::Graphics::GetRendererAPI())
 		{
-		case TE_RENDERER_API::DirectX12:
+		case Settings::Graphics::TE_RENDERER_API::DirectX12:
 		{
 			static auto dx12BufferManager = API::DirectX12::DirectX12BufferManager::GetInstance().get();
 			id = (ImTextureID)dx12BufferManager->GetDescriptorHeapSRV().GetGPUHandle(viewIndex).ptr;
@@ -40,7 +40,7 @@ namespace TruthEngine
 
 		switch (Settings::Graphics::GetRendererAPI())
 		{
-		case TE_RENDERER_API::DirectX12:
+		case Settings::Graphics::TE_RENDERER_API::DirectX12:
 		{
 			static auto dx12BufferManager = API::DirectX12::DirectX12BufferManager::GetInstance().get();
 			static auto offset = static_cast<API::DirectX12::DirectX12TextureMaterialManager*>(_textureMaterialManager)->GetIndexOffset();
@@ -58,7 +58,7 @@ namespace TruthEngine
 	{
 		switch (Settings::Graphics::GetRendererAPI())
 		{
-		case TE_RENDERER_API::DirectX12:
+		case Settings::Graphics::TE_RENDERER_API::DirectX12:
 			return std::make_shared<API::DirectX12::DirectX12ImGuiLayer>();
 		default:
 			return nullptr;

@@ -448,10 +448,10 @@ namespace TruthEngine
 						std::string api = "";
 						switch (Settings::Graphics::GetRendererAPI())
 						{
-						case TE_RENDERER_API::DirectX12:
+						case Settings::Graphics::TE_RENDERER_API::DirectX12:
 							api = "DirectX 12";
 							break;
-						case TE_RENDERER_API::DirectX11:
+						case Settings::Graphics::TE_RENDERER_API::DirectX11:
 							api = "DirectX";
 						default:
 							break;

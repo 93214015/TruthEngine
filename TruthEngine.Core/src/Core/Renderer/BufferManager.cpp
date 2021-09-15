@@ -16,7 +16,7 @@ namespace TruthEngine {
 	{
 		switch (Settings::Graphics::GetRendererAPI())
 		{
-		case TE_RENDERER_API::DirectX12:
+		case Settings::Graphics::TE_RENDERER_API::DirectX12:
 			return API::DirectX12::DirectX12BufferManager::GetInstance();
 			break;
 		default:

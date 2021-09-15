@@ -33,7 +33,7 @@ namespace TruthEngine
 			TE_RENDERER_API GetRendererAPI();
 			
 			void SetMSAA(TE_SETTING_MSAA _MSAA);
-			bool SetHDR(bool _EnabledHDR);
+			void SetHDR(bool _EnabledHDR);
 			
 		};
 	}

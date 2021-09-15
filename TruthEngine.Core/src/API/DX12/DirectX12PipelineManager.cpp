@@ -248,7 +248,7 @@ namespace TruthEngine::API::DirectX12
 
 		TED3D12ComputePipelineStateDesc(const PipelineCompute* _Pipeline)
 		{
-			Shader* _Shader = _Pipeline->GetShader();
+			const Shader* _Shader = _Pipeline->GetShader();
 			D3D12Desc.CS = CD3DX12_SHADER_BYTECODE(_Shader->GetCS().BufferPointer, _Shader->GetCS().BufferSize);
 			D3D12Desc.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
 			D3D12Desc.NodeMask = 0;

@@ -47,10 +47,13 @@ namespace TruthEngine
 				std::string name = "shader" + std::to_string(m_ArrayShaders.size());
 
 				auto _ShaderIndex = static_cast<uint16_t>(m_ArrayShaders.size());
-				auto shader = &m_ArrayShaders.emplace_back(name, shaderClassID, GetShaderSignature(shaderClassID), filePath);
+				auto shader = &m_ArrayShaders.emplace_back(name.c_str(), shaderClassID, GetShaderSignature(shaderClassID), filePath);
 				shader->m_ID = m_ShaderID++;
 
 				map[shaderUniqueIdentifier] = ShaderHandle{ _ShaderIndex };
+
+				m_Defines.clear();
+				m_Defines.insert(m_Defines.end(), _DefinedMacros.begin(), _DefinedMacros.end());
 
 				if (csEntry != "")
 				{
@@ -78,7 +81,9 @@ namespace TruthEngine
 				}
 
 
-				return DirectX12Manager::GetInstance()->AddRootSignature(shader->GetShaderClassIDX());
+				DirectX12Manager::GetInstance()->AddRootSignature(shader->GetShaderClassIDX());
+
+				return ShaderHandle{ _ShaderIndex };
 
 			}
 
@@ -163,7 +168,6 @@ namespace TruthEngine
 					vargs.emplace_back(L"-D");
 					vargs.emplace_back(d.c_str());
 				}
-				m_Defines.clear();
 
 
 				/*LPCWSTR args[] =
@@ -204,7 +208,7 @@ namespace TruthEngine
 				if (error != nullptr && error->GetStringLength() != 0)
 				{
 					OutputDebugStringA(error->GetStringPointer());
-					TE_LOG_CORE_ERROR("the shader compilation error: {0}", error->GetStringPointer());
+					TE_LOG_CORE_ERROR("the shader compilation error:\n {0} \n {1}", filePath.data(), error->GetStringPointer());
 				}
 
 				HRESULT h;

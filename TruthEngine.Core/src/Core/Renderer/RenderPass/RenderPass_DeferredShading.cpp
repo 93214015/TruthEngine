@@ -20,7 +20,7 @@ namespace TruthEngine
 
 		if (Settings::Graphics::IsEnabledHDR())
 		{
-			_Pair.first | DeferredShading_SettingMask_HDR;
+			_Pair.first |= DeferredShading_SettingMask_HDR;
 			_Pair.second.emplace_back(L"ENABLE_HDR");
 		}
 
