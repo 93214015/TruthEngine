@@ -27,8 +27,9 @@ TextureCube tIBLAmbient : register(t4);
 TextureCube tIBLSpecular : register(t5);
 Texture2D<float2> tPrecomputedBRDF : register(t6);
 Texture2D<float> tSSAO : register(t7);
-Texture2D<float> tShadowMap_SunLight : register(t8);
-Texture2D<float> tShadowMap_SpotLight : register(t9);
+Texture2D<float> tReflection : register(t8);
+Texture2D<float> tShadowMap_SunLight : register(t10);
+Texture2D<float> tShadowMap_SpotLight : register(t11);
 
 
 /////////////////////////////////////////////////////////////////
@@ -93,60 +94,9 @@ float4 ps(VertexOut _VOut) : SV_Target
     _F0 = lerp(_F0, _Albedo, _SpecularFactors.y);
     
     for (uint _DLightIndex = 0; _DLightIndex < gDLightCount; ++_DLightIndex)
-    {
-        
+    {        
         float3 _Lit = ComputeDirectLight(gDLights[_DLightIndex], _Albedo.xyz, _SpecularFactors.x, _SpecularFactors.y, _F0, _NormalWorld, _ToEye);
 		
-        //code for cascaded shadow map; finding corrsponding shadow map cascade and coords
-
-        /***
-
-        bool found = false;
-        float3 shadowMapCoords = float3(0.0f, 0.0f, 0.0f);
-    
-        shadowMapCoords = mul(_PosWorld, gCascadedShadowTransform[0]).xyz;
-
-        if (shadowMapCoords.x >= 0.0f && shadowMapCoords.y >= 0.0f && shadowMapCoords.x <= 0.5f && shadowMapCoords.y <= 0.5f)
-        {
-            found = true;
-        }
-    
-        if (!found)
-        {
-            shadowMapCoords = mul(_PosWorld, gCascadedShadowTransform[1]).xyz;
-
-            if (shadowMapCoords.x >= 0.5f && shadowMapCoords.y >= 0.0f && shadowMapCoords.x <= 1.0f && shadowMapCoords.y <= 0.5f)
-            {
-                found = true;
-            }
-        }
-        if (!found)
-        {
-            shadowMapCoords = mul(_PosWorld, gCascadedShadowTransform[2]).xyz;
-
-            if (shadowMapCoords.x >= 0.0f && shadowMapCoords.y >= 0.5f && shadowMapCoords.x <= 0.5f && shadowMapCoords.y <= 1.0f)
-            {
-                found = true;
-            }
-        }
-        if (!found)
-        {
-            shadowMapCoords = mul(_PosWorld, gCascadedShadowTransform[3]).xyz;
-
-            if (shadowMapCoords.x >= 0.5f && shadowMapCoords.y >= 0.5f && shadowMapCoords.x <= 1.0f && shadowMapCoords.y <= 1.0f)
-            {
-                found = true;
-            }
-        }
-
-        float shadowMapSample = tShadowMap_SunLight.Sample(sampler_point_borderBlack, shadowMapCoords.xy);
-        float shadowFactor = (float) (shadowMapSample > shadowMapCoords.z);
-    
-        
-        _LitColor += _Lit * shadowFactor.xxx;
-
-        ***/
-        
         _LitColor += _Lit;
         
     }
@@ -156,34 +106,7 @@ float4 ps(VertexOut _VOut) : SV_Target
     {
         float3 _Lit = ComputeSpotLight(gSpotLights[_SLightIndex], _Albedo, _SpecularFactors.x, _SpecularFactors.y, _F0, _PosWorld.xyz, _NormalWorld, _ToEye);
 		
-        
-        /*
-        
-        float4 shadowMapCoords = mul(_PosWorld, gSpotLights[_SLightIndex].ShadowTransform);
-        shadowMapCoords.xyz /= shadowMapCoords.w;
-				
-        float shadowFactor = 0.0f;
-		[unroll]
-        for (int i = -2; i < 2; ++i)
-        {
-			[unroll]
-            for (int j = -2; j <= 2; ++j)
-            {
-                float shadowMapSample = tShadowMap_SpotLight.Sample(sampler_point_borderWhite, shadowMapCoords.xy, int2(i, j));
-                shadowFactor += (float) (shadowMapSample > shadowMapCoords.z);
-            }
-        }
-    
-        shadowFactor *= 0.04f;
-        
-        //float _ShadowFactor = tShadowMap_SpotLight.SampleCmp(samplerComparison_less_point_borderWhite, shadowMapCoords.xy, shadowMapCoords.z);
-
-        _LitColor += _Lit * shadowFactor.xxx;
-
-        */        
-        
         _LitColor += _Lit;
-
     }
     
     for (uint _PointLightIndex = 0; _PointLightIndex < gPLightCount; ++_PointLightIndex)

@@ -205,7 +205,7 @@ float4 ps(VertexOut _PixelIn) : SV_Target
         }
     }
     
-    float4 _ReflectColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
+    float4 _Result = float4(0.0f, 0.0f, 0.0f, 0.0f);
     
     if (_Hit == 1)
     {
@@ -225,10 +225,10 @@ float4 ps(VertexOut _PixelIn) : SV_Target
 
         _Visibility = saturate(_Visibility * gReflectionScale);
         
-        _ReflectColor = float4(tHDR.Sample(sampler_point_borderBlack, _UV.xy).xyz * _Visibility, 1.0f);
-        
+        //_ReflectColor = float4(tHDR.Sample(sampler_point_borderBlack, _UV.xy).xyz * _Visibility, 1.0f);
+        _Result = float4(_UV.xy, _Visibility, _Visibility);
     }
     
     
-    return _ReflectColor;
+    return _Result;
 }

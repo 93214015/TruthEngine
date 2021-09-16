@@ -44,6 +44,7 @@ enum class TE_IDX_GRESOURCES : IDX
 	Texture_InputCreateCubeMap,
 	Texture_InputCreateIBLAmbient,
 	Texture_InputCreateIBLSpecular,
+	Texture_InputBlendReflection_SceneBuffer,
 	Texture_RT_BackBuffer,
 	Texture_RT_GBuffer_Color,
 	Texture_RT_GBuffer_Normal,

@@ -82,6 +82,9 @@ namespace TruthEngine
 			void UploadData(Buffer* buffer, const void* data, size_t sizeInByte) override;
 
 
+			void CopyResource(GraphicResource* _Source, GraphicResource* _Dest) override;
+
+
 			void SetDirectConstantGraphics(ConstantBufferDirectBase* cb) override;
 
 
@@ -217,6 +220,15 @@ namespace TruthEngine
 				size_t Size;
 			};
 
+			struct Pending_CopyResource
+			{
+				Pending_CopyResource(GraphicResource* _Source, GraphicResource* _Dest)
+				{}
+
+				GraphicResource* Source;
+				GraphicResource* Dest;
+			};
+
 			struct BindPendingDescriptor
 			{
 				BindPendingDescriptor(ID3D12Resource* _Resource, uint32_t _RootParamterIndex)
@@ -260,6 +272,8 @@ namespace TruthEngine
 			std::vector<CopyPending_DefaultResource> m_QueueCopyDefaultResource;
 
 			std::vector<ResolveResourcePending> m_QueueResolveResource;
+
+			std::vector<Pending_CopyResource> m_QueueCopyResource;
 
 			std::vector<BindPendingDescriptor> mBindPendingGraphicsSRVs;
 			std::vector<BindPendingDescriptor> mBindPendingGraphicsUAVs;

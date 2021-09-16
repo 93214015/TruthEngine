@@ -203,7 +203,7 @@ namespace TruthEngine::API::DirectX12
 		_ChangeResourceState(_DestTexture, TE_RESOURCE_STATES::RESOLVE_DEST);
 
 		ID3D12Resource* _SourceResource = m_BufferManager->GetResource(_SourceTexture);
-		ID3D12Resource* _DestResource =  m_BufferManager->GetResource(_DestTexture);
+		ID3D12Resource* _DestResource = m_BufferManager->GetResource(_DestTexture);
 
 		DXGI_FORMAT _Format = static_cast<DXGI_FORMAT>(_SourceTexture->GetFormat());
 
@@ -449,6 +449,15 @@ namespace TruthEngine::API::DirectX12
 			m_ResourceBarriers.clear();
 		}
 
+		if (m_QueueCopyResource.size() > 0)
+		{
+			for (const auto& _CopyData : m_QueueCopyResource)
+			{
+				mD3D12CommandList->CopyResource(m_BufferManager->GetResource(_CopyData.Dest), m_BufferManager->GetResource(_CopyData.Source));
+			}
+			m_QueueCopyResource.clear();
+		}
+
 		_UploadDefaultBuffers();
 
 		if (m_RTVHandleNum > 0 || m_DSVHandleNum > 0)
@@ -615,6 +624,14 @@ namespace TruthEngine::API::DirectX12
 
 		m_CopyQueueRequiredSize += buffer->GetRequiredSize();
 
+	}
+
+	void DirectX12CommandList::CopyResource(GraphicResource* _Source, GraphicResource* _Dest)
+	{
+		_ChangeResourceState(_Source, TE_RESOURCE_STATES::COPY_SOURCE);
+		_ChangeResourceState(_Dest, TE_RESOURCE_STATES::COPY_DEST);
+
+		m_QueueCopyResource.emplace_back(_Source, _Dest);
 	}
 
 	void DirectX12CommandList::SetDirectConstantGraphics(ConstantBufferDirectBase* cb)
