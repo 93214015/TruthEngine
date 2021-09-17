@@ -1,7 +1,6 @@
 #pragma once
 #include "Core/Renderer/RenderPass.h"
 
-#include "Core/Renderer/RendererLayer.h"
 #include "Core/Renderer/RendererCommand.h"
 #include "Core/Renderer/Pipeline.h"
 #include "Core/Renderer/BufferManager.h"
@@ -9,9 +8,11 @@
 namespace TruthEngine
 {
 
-	class RenderPass_BlendReflection final : public RenderPass
+	class RenderPass_AmbientReflection final : public RenderPass
 	{
 	public:
+		RenderPass_AmbientReflection(class RendererLayer* _RendererLayer);
+
 		// Inherited via RenderPass
 		void OnImGuiRender() override;
 
@@ -47,9 +48,11 @@ namespace TruthEngine
 
 	private:
 
+		RendererCommand m_RendererCommand_CopyResource;
 		RendererCommand m_RendererCommand_Blend;
 		RendererCommand m_RendererCommand_BlurHorz;
 		RendererCommand m_RendererCommand_BlurVert;
+
 
 		PipelineGraphics m_Pipeline_Blend;
 		PipelineCompute m_Pipeline_BlurHorz;
@@ -58,8 +61,6 @@ namespace TruthEngine
 		Texture* m_Texture_SceneBufferBlur;
 		Texture* m_Texture_SceneBufferBlur_Temp;
 		Texture* m_Texture_SceneBuffer;
-
-		RenderTargetView m_RTV_SceneBuffer;
 
 		struct ConstantBufferData_Blur
 		{

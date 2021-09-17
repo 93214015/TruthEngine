@@ -41,7 +41,7 @@
     <FxCompile Include="Assets\Shaders\RenderEntityIcon.hlsl" />
     <FxCompile Include="Assets\Shaders\RenderWireframe.hlsl" />
     <FxCompile Include="Assets\Shaders\ScreenSpaceReflection.hlsl" />
-    <FxCompile Include="Assets\Shaders\BlendReflection.hlsl" />
+    <FxCompile Include="Assets\Shaders\AmbientReflection.hlsl" />
     <FxCompile Include="Assets\Shaders\ScreenSpaceReflection_Old.hlsl" />
     <FxCompile Include="Assets\Shaders\ScreenSpaceReflection_SecondEdition.hlsl" />
     <FxCompile Include="Assets\Shaders\ScreenSpaceReflection_ThirdEdition.hlsl" />

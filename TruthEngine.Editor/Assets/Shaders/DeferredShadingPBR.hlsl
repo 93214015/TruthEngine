@@ -27,7 +27,7 @@ TextureCube tIBLAmbient : register(t4);
 TextureCube tIBLSpecular : register(t5);
 Texture2D<float2> tPrecomputedBRDF : register(t6);
 Texture2D<float> tSSAO : register(t7);
-Texture2D<float> tReflection : register(t8);
+Texture2D<float4> tReflectionUV : register(t8);
 Texture2D<float> tShadowMap_SunLight : register(t10);
 Texture2D<float> tShadowMap_SpotLight : register(t11);
 
@@ -94,7 +94,7 @@ float4 ps(VertexOut _VOut) : SV_Target
     _F0 = lerp(_F0, _Albedo, _SpecularFactors.y);
     
     for (uint _DLightIndex = 0; _DLightIndex < gDLightCount; ++_DLightIndex)
-    {        
+    {
         float3 _Lit = ComputeDirectLight(gDLights[_DLightIndex], _Albedo.xyz, _SpecularFactors.x, _SpecularFactors.y, _F0, _NormalWorld, _ToEye);
 		
         _LitColor += _Lit;
@@ -125,11 +125,19 @@ float4 ps(VertexOut _VOut) : SV_Target
     float3 _Irrediance = tIBLAmbient.Sample(sampler_linear, _NormalWorld).rgb;
     float3 _Diffuse = _Irrediance * _Albedo;
 
-    float3 _ReflectVector = reflect(-_ToEye, _NormalWorld);
-    const float MAX_REFLECTION_LOD = 4.0f;
-    float3 _PrefilteredIBLSpecular = tIBLSpecular.SampleLevel(sampler_linear, _ReflectVector, _SpecularFactors.x * MAX_REFLECTION_LOD).rgb;
-    float2 _PrecomputeBRDF = tPrecomputedBRDF.Sample(sampler_linear, float2(_NdotV, _SpecularFactors.x)).rg;
-    float3 _Specular = _PrefilteredIBLSpecular * (_Ks * _PrecomputeBRDF.x + _PrecomputeBRDF.y);
+    float _ReflectionVisibility = tReflectionUV.Sample(sampler_point_wrap, _VOut.UV).z;
+    
+    float3 _Specular = float3(0.0f, 0.0f, 0.0f);
+    
+    [branch]
+    if (_ReflectionVisibility < 0.1f)
+    {
+        float3 _ReflectVector = reflect(-_ToEye, _NormalWorld);
+        const float MAX_REFLECTION_LOD = 4.0f;
+        float3 _PrefilteredIBLSpecular = tIBLSpecular.SampleLevel(sampler_linear, _ReflectVector, _SpecularFactors.x * MAX_REFLECTION_LOD).rgb;
+        float2 _PrecomputeBRDF = tPrecomputedBRDF.Sample(sampler_linear, float2(_NdotV, _SpecularFactors.x)).rg;
+        _Specular = _PrefilteredIBLSpecular * (_Ks * _PrecomputeBRDF.x + _PrecomputeBRDF.y);
+    }
 
     float3 _Ambient = (_Kd * _Diffuse + _Specular) * _SpecularFactors.z;
     

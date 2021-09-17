@@ -18,6 +18,7 @@
 #include "RenderPass/RenderPass_RenderEntityIcons.h"
 #include "RenderPass/RenderPass_Wireframe.h"
 #include "RenderPass/RenderPass_ScreenSpaceReflection.h"
+#include "RenderPass/RenderPass_AmbientReflection.h"
 
 #include "Core/Entity/Model/MeshHandle.h"
 
@@ -148,6 +149,7 @@ namespace TruthEngine
 		std::shared_ptr<RenderPass_RenderEntityIcons> m_RenderPass_RenderEntityIcons;
 		std::shared_ptr<RenderPass_Wireframe> m_RenderPass_Wireframe;
 		std::shared_ptr<RenderPass_ScreenSpaceReflection> m_RenderPass_SSReflection;
+		std::shared_ptr<RenderPass_AmbientReflection> m_RenderPass_AmbientReflection;
 
 		ModelManager* m_ModelManagers;
 

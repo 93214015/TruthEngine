@@ -30,7 +30,6 @@ cbuffer ConstantBuffer_ScreenSpaceReflection : register(b2)
 Texture2D<float4> tSpecular : register(t0);
 Texture2D<float3> tNormal : register(t1);
 Texture2D<float> tDepth : register(t2);
-Texture2D<float4> tHDR : register(t3);
 
 
 /////////////////////////////////////////////////////////////////
@@ -225,7 +224,6 @@ float4 ps(VertexOut _PixelIn) : SV_Target
 
         _Visibility = saturate(_Visibility * gReflectionScale);
         
-        //_ReflectColor = float4(tHDR.Sample(sampler_point_borderBlack, _UV.xy).xyz * _Visibility, 1.0f);
         _Result = float4(_UV.xy, _Visibility, _Visibility);
     }
     

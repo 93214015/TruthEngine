@@ -13,7 +13,7 @@ namespace TruthEngine
 		namespace Graphics
 		{
 
-			bool EnabledHDR = false;
+			bool EnabledHDR = true;
 			TE_RENDERER_API RendererAPI = Graphics::TE_RENDERER_API::DirectX12;
 			std::string RendererAPISTR = "DirectX 12";
 			std::string GPUAdapterSTR = "AMD Radeon RX570";

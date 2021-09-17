@@ -50,6 +50,7 @@ namespace TruthEngine
 		, m_RenderPass_RenderEntityIcons(std::make_shared<RenderPass_RenderEntityIcons>(this))
 		, m_RenderPass_Wireframe(std::make_shared<RenderPass_Wireframe>(this))
 		, m_RenderPass_SSReflection(std::make_shared<RenderPass_ScreenSpaceReflection>(this))
+		, m_RenderPass_AmbientReflection(std::make_shared<RenderPass_AmbientReflection>(this))
 	{
 	}
 	RendererLayer::~RendererLayer() = default;
@@ -790,12 +791,18 @@ namespace TruthEngine
 		m_RenderPassStack.PushRenderPass(m_RenderPass_GenerateShadowMap.get());
 		//m_RenderPassStack.PushRenderPass(m_RenderPass_ForwardRendering.get());
 		m_RenderPassStack.PushRenderPass(m_RenderPass_GenerateGBuffers.get());
+
+		if (Settings::Graphics::IsEnabledHDR())
+		{
+			m_RenderPassStack.PushRenderPass(m_RenderPass_SSReflection.get());
+		}
+
 		m_RenderPassStack.PushRenderPass(m_RenderPass_GenerateSSAO.get());
 		m_RenderPassStack.PushRenderPass(m_RenderPass_DeferredShading.get());
 
 		if (Settings::Graphics::IsEnabledHDR())
 		{
-			m_RenderPassStack.PushRenderPass(m_RenderPass_SSReflection.get());
+			m_RenderPassStack.PushRenderPass(m_RenderPass_AmbientReflection.get());
 			m_RenderPassStack.PushRenderPass(m_RenderPass_PostProcessing_HDR.get());
 		}
 

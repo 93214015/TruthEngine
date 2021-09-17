@@ -103,6 +103,9 @@ namespace TruthEngine
 			void UploadData(VertexBufferBase* vertexBuffer);
 			void UploadData(IndexBuffer* indexBuffer);
 
+			void CopyResource(GraphicResource* _Source, GraphicResource* _Dest);
+			void CopyResource(TE_IDX_GRESOURCES _SourceIDX, GraphicResource* _Dest);
+
 			void SetVertexBuffer(VertexBufferBase* vertexBuffer);
 			void SetIndexBuffer(IndexBuffer* indexBuffer);
 			

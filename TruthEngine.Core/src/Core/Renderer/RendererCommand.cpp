@@ -191,6 +191,16 @@ namespace TruthEngine
 		m_CurrentCommandList->UploadData(indexBuffer, indexBuffer->GetDataPtr(), indexBuffer->GetBufferSize());
 	}
 
+	void RendererCommand::CopyResource(GraphicResource* _Source, GraphicResource* _Dest)
+	{
+		m_CurrentCommandList->CopyResource(_Source, _Dest);
+	}
+
+	void RendererCommand::CopyResource(TE_IDX_GRESOURCES _SourceIDX, GraphicResource* _Dest)
+	{
+		m_CurrentCommandList->CopyResource(m_BufferManager->GetGraphicResource(_SourceIDX), _Dest);
+	}
+
 	void RendererCommand::SetVertexBuffer(VertexBufferBase* vertexBuffer)
 	{
 		m_CurrentCommandList->SetVertexBuffer(vertexBuffer);

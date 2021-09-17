@@ -55,6 +55,8 @@ namespace TruthEngine
 
 		virtual void UploadData(Buffer* buffer, const void* data, size_t sizeInByte) = 0;
 
+		virtual void CopyResource(GraphicResource* _Source, GraphicResource* _Dest) = 0;
+
 		virtual void SetDirectConstantGraphics(ConstantBufferDirectBase* cb) = 0;
 		virtual void SetDirectConstantCompute(ConstantBufferDirectBase* cb) = 0;
 

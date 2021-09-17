@@ -223,6 +223,7 @@ namespace TruthEngine
 			struct Pending_CopyResource
 			{
 				Pending_CopyResource(GraphicResource* _Source, GraphicResource* _Dest)
+					: Source(_Source), Dest(_Dest)
 				{}
 
 				GraphicResource* Source;

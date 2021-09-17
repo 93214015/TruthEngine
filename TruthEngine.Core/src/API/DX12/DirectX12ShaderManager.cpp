@@ -186,6 +186,7 @@ namespace TruthEngine
 				//
 				COMPTR<IDxcBlobEncoding> pSource;
 				auto hr = utils->LoadFile(filePathW.c_str(), nullptr, &pSource);
+				TE_ASSERT_CORE(SUCCEEDED(hr), "DirectX12 Shader Manager: The shader file is not found");
 				DxcBuffer source{};
 				source.Ptr = pSource->GetBufferPointer();
 				source.Size = pSource->GetBufferSize();

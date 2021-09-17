@@ -273,7 +273,7 @@
     <ClInclude Include="src\Core\Renderer\PipelineDepthStencilDesc.h" />
     <ClInclude Include="src\Core\Renderer\PipelineState.h" />
     <ClInclude Include="src\Core\Renderer\RenderPass.h" />
-    <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_BlendReflection.h" />
+    <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_AmbientReflection.h" />
     <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_DeferredShading.h" />
     <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_ForwardRendering.h" />
     <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_GenerateCubeMap.h" />
@@ -424,7 +424,7 @@
     <ClCompile Include="src\Core\Renderer\PipelineDepthStencilDesc.cpp" />
     <ClCompile Include="src\Core\Renderer\PipelineState.cpp" />
     <ClCompile Include="src\Core\Renderer\RenderPass.cpp" />
-    <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_BlendReflection.cpp" />
+    <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_AmbientReflection.cpp" />
     <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_DeferredShading.cpp" />
     <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_ForwardRendering.cpp" />
     <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_GenerateCubeMap.cpp" />
