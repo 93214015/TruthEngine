@@ -38,7 +38,7 @@ struct Material
     uint MapIndexRoughness;
     uint MapIndexMetallic;
     uint MapIndexAmbientOcclusion;
-    uint _Pad1;
+    uint EnabledSSR;
 };
 
 

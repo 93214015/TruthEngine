@@ -498,10 +498,10 @@ namespace TruthEngine
 							ShaderSignature::ShaderRangeView(TE_IDX_GRESOURCES::Texture_RT_GBuffer_Specular, ShaderSignature::EShaderRangeType::SRV),
 							ShaderSignature::ShaderRangeView(TE_IDX_GRESOURCES::Texture_DS_SceneBuffer, ShaderSignature::EShaderRangeType::SRV),
 							ShaderSignature::ShaderRangeView(TE_IDX_GRESOURCES::Texture_CubeMap_IBLAmbient, ShaderSignature::EShaderRangeType::SRV),
-							ShaderSignature::ShaderRangeView(TE_IDX_GRESOURCES::Texture_CubeMap_IBLSpecular, ShaderSignature::EShaderRangeType::SRV),
-							ShaderSignature::ShaderRangeView(TE_IDX_GRESOURCES::Texture_PrecomputedBRDF, ShaderSignature::EShaderRangeType::SRV),
+							//ShaderSignature::ShaderRangeView(TE_IDX_GRESOURCES::Texture_CubeMap_IBLSpecular, ShaderSignature::EShaderRangeType::SRV),
+							//ShaderSignature::ShaderRangeView(TE_IDX_GRESOURCES::Texture_PrecomputedBRDF, ShaderSignature::EShaderRangeType::SRV),
 							ShaderSignature::ShaderRangeView(TE_IDX_GRESOURCES::Texture_RT_SSAOBlurred, ShaderSignature::EShaderRangeType::SRV),
-							ShaderSignature::ShaderRangeView(TE_IDX_GRESOURCES::Texture_RT_SSReflection, ShaderSignature::EShaderRangeType::SRV),
+							//ShaderSignature::ShaderRangeView(TE_IDX_GRESOURCES::Texture_RT_SSReflection, ShaderSignature::EShaderRangeType::SRV),
 							ShaderSignature::ShaderRangeView(TE_IDX_GRESOURCES::Texture_DS_ShadowMap_SunLight, ShaderSignature::EShaderRangeType::SRV),
 							ShaderSignature::ShaderRangeView(TE_IDX_GRESOURCES::Texture_DS_ShadowMap_SpotLight, ShaderSignature::EShaderRangeType::SRV),
 						})
@@ -740,10 +740,15 @@ namespace TruthEngine
 				, {
 						ShaderSignature::ShaderRange(0, 0, ShaderSignature::EShaderRangeType::SRV, ShaderSignature::EShaderRangeFlags::EShaderRangeFlags_NONE,
 						{
+							ShaderSignature::ShaderRangeView(TE_IDX_GRESOURCES::Texture_RT_GBuffer_Normal, ShaderSignature::EShaderRangeType::SRV),
+							ShaderSignature::ShaderRangeView(TE_IDX_GRESOURCES::Texture_DS_SceneBuffer, ShaderSignature::EShaderRangeType::SRV),
+							ShaderSignature::ShaderRangeView(TE_IDX_GRESOURCES::Texture_RT_GBuffer_Color, ShaderSignature::EShaderRangeType::SRV),
 							ShaderSignature::ShaderRangeView(TE_IDX_GRESOURCES::Texture_RT_SSReflection, ShaderSignature::EShaderRangeType::SRV),
 							ShaderSignature::ShaderRangeView(TE_IDX_GRESOURCES::Texture_InputAmbientReflection_SceneBuffer, ShaderSignature::EShaderRangeType::SRV),
 							ShaderSignature::ShaderRangeView(TE_IDX_GRESOURCES::Texture_RW_SSReflectionBlur, ShaderSignature::EShaderRangeType::SRV),
 							ShaderSignature::ShaderRangeView(TE_IDX_GRESOURCES::Texture_RT_GBuffer_Specular, ShaderSignature::EShaderRangeType::SRV),
+							ShaderSignature::ShaderRangeView(TE_IDX_GRESOURCES::Texture_CubeMap_IBLSpecular, ShaderSignature::EShaderRangeType::SRV),
+							ShaderSignature::ShaderRangeView(TE_IDX_GRESOURCES::Texture_PrecomputedBRDF, ShaderSignature::EShaderRangeType::SRV),
 						})
 				}
 			);

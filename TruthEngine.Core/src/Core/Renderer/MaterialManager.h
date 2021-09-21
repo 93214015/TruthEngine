@@ -52,7 +52,8 @@ namespace TruthEngine
 			, int32_t extraDepthBias
 			, float extraSlopeScaledDepthBias
 			, float extraDepthBiasClamp
-			, TE_IDX_MESH_TYPE meshType);
+			, TE_IDX_MESH_TYPE meshType
+			, bool enabledSSR);
 
 		Material* AddMaterial(Material* material);
 

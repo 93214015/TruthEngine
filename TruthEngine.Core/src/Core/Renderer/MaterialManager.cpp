@@ -35,11 +35,12 @@ namespace TruthEngine
 		, int32_t extraDepthBias
 		, float extraSlopeScaledDepthBias
 		, float extraDepthBiasClamp
-		, TE_IDX_MESH_TYPE meshType)
+		, TE_IDX_MESH_TYPE meshType
+		, bool enabledSSR)
 	{
 		auto ID = static_cast<uint32_t>(m_Map_Materials.size());
 
-		auto material = std::make_shared<Material>(ID, states, colorDiffuse, roughness, metallic, ambientOcclusion, emission, uvScale, uvTranslate, diffuseMapIndex, normalMapIndex, displacementMapIndex, specularMapIndex, roughnessMapIndex, metallicMapIndex, ambientOcclusionMapIndex, extraDepthBias, extraSlopeScaledDepthBias, extraDepthBiasClamp, meshType);
+		auto material = std::make_shared<Material>(ID, states, colorDiffuse, roughness, metallic, ambientOcclusion, emission, uvScale, uvTranslate, diffuseMapIndex, normalMapIndex, displacementMapIndex, specularMapIndex, roughnessMapIndex, metallicMapIndex, ambientOcclusionMapIndex, extraDepthBias, extraSlopeScaledDepthBias, extraDepthBiasClamp, meshType, enabledSSR);
 
 		m_Map_Materials[ID] = material;
 		m_Materials.push_back(material.get());
@@ -55,7 +56,7 @@ namespace TruthEngine
 	{
 		auto ID = static_cast<uint32_t>(m_Map_Materials.size());
 
-		auto _newMaterial = std::make_shared<Material>(ID, material->m_RendererStates, material->m_ColorDiffuse, material->m_Roughness, material->m_Metallic, material->m_AmbientOccclusion, material->m_Emission, material->m_UVScale, material->m_UVTranslate, material->m_MapIndexDiffuse, material->m_MapIndexNormal, material->m_MapIndexDisplacement, material->m_MapIndexSpecular, material->m_MapIndexRoughness, material->m_MapIndexMetallic, material->m_MapIndexAmbientOcclusion, material->m_ExtraDepthBias, material->m_ExtraSlopeScaledDepthBias, material->m_ExtraDepthBiasClamp, material->m_MeshType);
+		auto _newMaterial = std::make_shared<Material>(ID, material->m_RendererStates, material->m_ColorDiffuse, material->m_Roughness, material->m_Metallic, material->m_AmbientOccclusion, material->m_Emission, material->m_UVScale, material->m_UVTranslate, material->m_MapIndexDiffuse, material->m_MapIndexNormal, material->m_MapIndexDisplacement, material->m_MapIndexSpecular, material->m_MapIndexRoughness, material->m_MapIndexMetallic, material->m_MapIndexAmbientOcclusion, material->m_ExtraDepthBias, material->m_ExtraSlopeScaledDepthBias, material->m_ExtraDepthBiasClamp, material->m_MeshType, material->m_EnabledSSR);
 
 		m_Map_Materials[ID] = _newMaterial;
 		m_Materials.push_back(_newMaterial.get());
@@ -91,7 +92,8 @@ namespace TruthEngine
 			, 0
 			, .0f
 			, .0f
-			, meshType);
+			, meshType
+			, false);
 
 		m_Map_Materials[ID] = material;
 		m_Materials.push_back(material.get());

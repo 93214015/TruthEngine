@@ -166,7 +166,7 @@ PixelOut ps(vertexOut pin)
     _PixelOut.Specular.z = _material.AmbientOcclusion;
 #endif
     
-    _PixelOut.Specular.w = 1.0f;
+    _PixelOut.Specular.w = (float)_material.EnabledSSR;
     
     return _PixelOut;
 }

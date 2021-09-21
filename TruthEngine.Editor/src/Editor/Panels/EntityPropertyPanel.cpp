@@ -531,6 +531,16 @@ namespace TruthEngine
 
 		};
 
+		auto _LambdaDrawSSRComponent = [](Material* _Material)
+		{
+			bool _EnabledSSR = _Material->IsEnabledSSR();
+
+			if (ImGui::Checkbox("Enabled SSR", &_EnabledSSR))
+			{
+				_Material->SetEnabledSSR(_EnabledSSR);
+			}
+		};
+
 		switch (_ShadingModel)
 		{
 		case TE_RENDERER_STATE_SHADING_MODEL_BLINNPHONG:
@@ -579,6 +589,10 @@ namespace TruthEngine
 					// Specular Map
 
 					_LambdaDrawSpecularTextureComponent(material);
+
+					//Enabled or Disable SSR
+
+					_LambdaDrawSSRComponent(material);
 
 
 					/*{

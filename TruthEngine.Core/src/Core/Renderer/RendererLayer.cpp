@@ -435,6 +435,7 @@ namespace TruthEngine
 				, material->GetMapIndexRoughness()
 				, material->GetMapIndexMetallic()
 				, material->GetMapIndexAmbientOcclusion()
+				, material->IsEnabledSSR()
 			);
 		});
 	}
@@ -460,6 +461,7 @@ namespace TruthEngine
 				, material->GetMapIndexRoughness()
 				, material->GetMapIndexMetallic()
 				, material->GetMapIndexAmbientOcclusion()
+				, material->IsEnabledSSR()
 			);
 		});
 	}

@@ -26,7 +26,8 @@ namespace TruthEngine
 		, uint32_t metallicMapIndex
 		, uint32_t ambientOcclusionMapIndex
 		, int32_t extraDepthBias
-		, float extraSlopeScaledDepthBias, float extraDepthBiasClamp, TE_IDX_MESH_TYPE meshType)
+		, float extraSlopeScaledDepthBias, float extraDepthBiasClamp, TE_IDX_MESH_TYPE meshType
+		, bool _enabledSSR)
 		: m_ID(ID), m_RendererStates(states)
 		, m_ColorDiffuse(colorDiffuse)
 		//, m_FresnelR0(fresnelR0), m_Shininess(shininess)
@@ -38,7 +39,7 @@ namespace TruthEngine
 		, m_MapIndexDiffuse(diffuseMapIndex), m_MapIndexNormal(normalMapIndex), m_MapIndexDisplacement(displacementMapIndex), m_MapIndexSpecular(specularMapIndex)
 		, m_MapIndexRoughness(roughnessMapIndex), m_MapIndexMetallic(metallicMapIndex), m_MapIndexAmbientOcclusion(ambientOcclusionMapIndex)
 		, m_ExtraDepthBias(extraDepthBias), m_ExtraSlopeScaledDepthBias(extraSlopeScaledDepthBias), m_ExtraDepthBiasClamp(extraDepthBiasClamp)
-		, m_MeshType(meshType)
+		, m_MeshType(meshType), m_EnabledSSR(_enabledSSR)
 	{}
 
 	RendererStateSet Material::GetRendererStates() const noexcept
@@ -213,6 +214,12 @@ namespace TruthEngine
 		{
 			SET_RENDERER_STATE(m_RendererStates, TE_RENDERER_STATE_ENABLED_MAP_AMBIENTOCCLUSION, TE_RENDERER_STATE_ENABLED_MAP_AMBIENTOCCLUSION_FALSE);
 		}
+
+		InvokeEventChangeMaterial();
+	}
+	void Material::SetEnabledSSR(bool enabledSSR)
+	{
+		m_EnabledSSR = enabledSSR;
 
 		InvokeEventChangeMaterial();
 	}

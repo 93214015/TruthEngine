@@ -1,17 +1,26 @@
 #include "MathHelper.hlsli"
+#include "LightsPBR.hlsli"
 
 /////////////////////////////////////////////////////////////////
 //////////////// Constant Buffers
 /////////////////////////////////////////////////////////////////
-
+#define REGISTER_CBPerFrame b0
+#include "CBPerFrame.hlsli"
 
 ///////////////////////////////////////////////////
 //////////////// Textures 
 ///////////////////////////////////////////////////
-Texture2D tReflectionUV : register(t0);
-Texture2D tHDRScene : register(t1);
-Texture2D tHDRSceneBlurred : register(t2);
-Texture2D tSpecularity : register(t3);
+
+Texture2D tNormal : register(t0);
+Texture2D tDepth : register(t1);
+Texture2D tColor : register(t2);
+
+Texture2D tReflectionUV : register(t3);
+Texture2D tHDRScene : register(t4);
+Texture2D tHDRSceneBlurred : register(t5);
+Texture2D tSpecularity : register(t6);
+TextureCube tIBLSpecular : register(t7);
+Texture2D<float2> tPrecomputedBRDF : register(t8);
 
 
 ///////////////////////////////////////////////////
@@ -57,19 +66,57 @@ VertexOut vs(uint vertexID : SV_VertexID)
 float4 ps(VertexOut _PixelIn) : SV_Target
 {
     
-    float3 _ReflectionColor = 0.0f.xxx;
     
-    float4 _ReflectionUV = tReflectionUV.Sample(sampler_point_borderBlack, _PixelIn.UV);
+    float3 _NormalW = tNormal.Sample(sampler_point_wrap, _PixelIn.UV).xyz * 2.0f - 1.0f;
+    float3 _NormalV = normalize(mul(_NormalW, (float3x3) View));
     
-    if(_ReflectionUV.z >= 0.1)
+    
+    float _DepthP = tDepth.Sample(sampler_point_wrap, _PixelIn.UV).x;
+    float _DepthV = ConvertToLinearDepth(_DepthP, ProjectionValues.z, ProjectionValues.w);
+    float4 _PosV = ReconstructViewPosition(_PixelIn.PosCS, _DepthV, ProjectionValues);
+    float3 _PosVDir = normalize(_PosV.xyz);
+    
+    
+    /////////////////////////////////////////
+    ///////     Ambient Lighting
+    /////////////////////////////////////////
+    
+    float _NdotV = max(dot(_NormalV, -_PosVDir), 0.0f);
+    
+    float4 _Color = tColor.Sample(sampler_point_wrap, _PixelIn.UV);
+    float4 _Specularity = tSpecularity.Sample(sampler_point_wrap, _PixelIn.UV);
+
+    float3 _F0 = float3(0.04f, 0.04f, 0.04f);
+    _F0 = lerp(_F0, _Color.xyz, _Specularity.y);
+    
+    float3 _Ks = FresnelSchlickRoughness(_F0, _NdotV, _Specularity.x);
+    
+    float4 _SceneReflectionFactors = tReflectionUV.Sample(sampler_point_wrap, _PixelIn.UV);
+    
+    float4 _AmbientReflection = float4(0.0f, 0.0f, 0.0f, 1.0f);
+    
+    [branch]
+    if (_SceneReflectionFactors.z >= 0.1f)
     {
-        float4 _Specularity = tSpecularity.Sample(sampler_point_borderBlack, _PixelIn.UV);
+        float3 _SceneColor = tHDRScene.Sample(sampler_linear, _SceneReflectionFactors.xy).xyz;
+        float3 _SceneColorBlurred = tHDRSceneBlurred.Sample(sampler_linear, _SceneReflectionFactors.xy).xyz;
         
-        float3 _SceneColor = tHDRScene.Sample(sampler_linear, _ReflectionUV.xy).xyz;
-        float3 _SceneColorBlurred = tHDRSceneBlurred.Sample(sampler_linear, _ReflectionUV.xy).xyz;
-        
-        _ReflectionColor = lerp(_SceneColor, _SceneColorBlurred, _Specularity.x);
+        _AmbientReflection = float4(lerp(_SceneColor, _SceneColorBlurred, _Specularity.x) * _Ks, _SceneReflectionFactors.z);
     }
+    else
+    {
+        float3 _ReflectVectorV = reflect(_PosVDir, _NormalV);
+        float3 _ReflectVectorW = normalize(mul(_ReflectVectorV, (float3x3) ViewInverse));
+        const float MAX_REFLECTION_LOD = 4.0f;
+        float3 _PrefilteredIBLSpecular = tIBLSpecular.SampleLevel(sampler_linear, _ReflectVectorW, _Specularity.x * MAX_REFLECTION_LOD).rgb;
+        float2 _PrecomputeBRDF = tPrecomputedBRDF.Sample(sampler_linear, float2(_NdotV, _Specularity.x)).xy;
+        _AmbientReflection = float4(_PrefilteredIBLSpecular * (_Ks * _PrecomputeBRDF.x + _PrecomputeBRDF.y), 1.0f);
+
+        //float _SSAO = tSSAO.Sample(sampler_linear_clamp, _VOut.UV).x;
+        //_AmbientReflection.xyz *= _SSAO;
+    }
+
+    _AmbientReflection.xyz *= _Specularity.z; // Material SSAO
     
-    return float4(_ReflectionColor, _ReflectionUV.z);
+    return _AmbientReflection;
 }

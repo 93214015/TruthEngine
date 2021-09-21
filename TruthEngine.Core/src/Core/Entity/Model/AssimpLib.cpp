@@ -390,7 +390,11 @@ namespace TruthEngine
 				, -1
 				, specularMapViewIndex
 				, -1, -1, -1
-				, 0, 0.0f, 0.0f, _MeshType);
+				, 0
+				, 0.0f
+				, 0.0f
+				, _MeshType
+				, false);
 		}
 	}
 

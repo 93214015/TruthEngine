@@ -24,12 +24,12 @@ Texture2D<float3> tNormal : register(t1);
 Texture2D<float4> tSpecular : register(t2);
 Texture2D<float> tDepth : register(t3);
 TextureCube tIBLAmbient : register(t4);
-TextureCube tIBLSpecular : register(t5);
-Texture2D<float2> tPrecomputedBRDF : register(t6);
-Texture2D<float> tSSAO : register(t7);
-Texture2D<float4> tReflectionUV : register(t8);
-Texture2D<float> tShadowMap_SunLight : register(t10);
-Texture2D<float> tShadowMap_SpotLight : register(t11);
+//TextureCube tIBLSpecular : register(t5);
+//Texture2D<float2> tPrecomputedBRDF : register(t6);
+Texture2D<float> tSSAO : register(t5);
+//Texture2D<float4> tReflectionUV : register(t8);
+Texture2D<float> tShadowMap_SunLight : register(t6);
+Texture2D<float> tShadowMap_SpotLight : register(t7);
 
 
 /////////////////////////////////////////////////////////////////
@@ -116,6 +116,10 @@ float4 ps(VertexOut _VOut) : SV_Target
         _LitColor += lit;
     }
     
+    /////////////////////////////////////////
+    ///////     Ambient Lighting
+    /////////////////////////////////////////
+    
     float _NdotV = max(dot(_NormalWorld, _ToEye), 0.0f);
     
     float3 _Ks = FresnelSchlickRoughness(_F0, _NdotV, _SpecularFactors.x);
@@ -125,31 +129,33 @@ float4 ps(VertexOut _VOut) : SV_Target
     float3 _Irrediance = tIBLAmbient.Sample(sampler_linear, _NormalWorld).rgb;
     float3 _Diffuse = _Irrediance * _Albedo;
 
-    float _ReflectionVisibility = tReflectionUV.Sample(sampler_point_wrap, _VOut.UV).z;
+    //float _ReflectionVisibility = tReflectionUV.Sample(sampler_point_wrap, _VOut.UV).z;
     
-    float3 _Specular = float3(0.0f, 0.0f, 0.0f);
+    //float3 _Specular = float3(0.0f, 0.0f, 0.0f);
     
-    [branch]
-    if (_ReflectionVisibility < 0.1f)
-    {
-        float3 _ReflectVector = reflect(-_ToEye, _NormalWorld);
-        const float MAX_REFLECTION_LOD = 4.0f;
-        float3 _PrefilteredIBLSpecular = tIBLSpecular.SampleLevel(sampler_linear, _ReflectVector, _SpecularFactors.x * MAX_REFLECTION_LOD).rgb;
-        float2 _PrecomputeBRDF = tPrecomputedBRDF.Sample(sampler_linear, float2(_NdotV, _SpecularFactors.x)).rg;
-        _Specular = _PrefilteredIBLSpecular * (_Ks * _PrecomputeBRDF.x + _PrecomputeBRDF.y);
-    }
+    //[branch]
+    //if (_ReflectionVisibility < 0.1f)
+    //{
+    //    float3 _ReflectVector = reflect(-_ToEye, _NormalWorld);
+    //    const float MAX_REFLECTION_LOD = 4.0f;
+    //    float3 _PrefilteredIBLSpecular = tIBLSpecular.SampleLevel(sampler_linear, _ReflectVector, _SpecularFactors.x * MAX_REFLECTION_LOD).rgb;
+    //    float2 _PrecomputeBRDF = tPrecomputedBRDF.Sample(sampler_linear, float2(_NdotV, _SpecularFactors.x)).rg;
+    //    _Specular = _PrefilteredIBLSpecular * (_Ks * _PrecomputeBRDF.x + _PrecomputeBRDF.y);
+    //}
 
-    float3 _Ambient = (_Kd * _Diffuse + _Specular) * _SpecularFactors.z;
+    //float3 _Ambient = (_Kd * _Diffuse + _Specular) * _SpecularFactors.z;
+    
+    // Diffuse Ambient light -> moved Specular ambient light to AmbientReflection Pass 
+    float3 _AmbientDiffuse = _Kd * _Diffuse * _SpecularFactors.z;
     
     float _SSAO = tSSAO.Sample(sampler_linear_clamp, _VOut.UV).x;
-    
-    _Ambient *= _SSAO;
+    _AmbientDiffuse *= _SSAO;
 	
     float3 _Emission = _Albedo * _Color.w;
     
 	//Add Global Ambient Light Factor
     //litColor += (_MaterialAlbedo * gAmbientLightStrength * _AmbientOcclusion.xxx);
-    _LitColor += _Ambient + _Emission;
+    _LitColor += _AmbientDiffuse + _Emission;
     
     
     //Add Global Ambient Light Factor

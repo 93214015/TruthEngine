@@ -70,11 +70,10 @@ VertexOut vs(uint vertexID : SV_VertexID)
 
 float4 ps(VertexOut _PixelIn) : SV_Target
 {
-    float3 _SpecularValues = tSpecular.Sample(sampler_point_wrap, _PixelIn.UV).xyz;
+    float4 _SpecularValues = tSpecular.Sample(sampler_point_wrap, _PixelIn.UV);
     
-    // SpecularValues.y is "Metalness" and we determine reflective surface according to their metalness factor
-    // if their metalness is less than refernce numebr (0.8f here) we don't move forward anymore.(clipping pixel)
-    clip(_SpecularValues.y - 0.8f);
+    // SpecularValues.w is "EnabledSSR" property of a surface(clipping pixel)
+    clip(_SpecularValues.w - 0.5f);
     
     float3 _NormalW = tNormal.Sample(sampler_point_wrap, _PixelIn.UV).xyz * 2.0f - 1.0f;
     float3 _NormalV = normalize(mul(_NormalW, (float3x3) View));
