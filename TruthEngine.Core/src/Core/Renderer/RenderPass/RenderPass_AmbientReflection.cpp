@@ -4,6 +4,8 @@
 #include "Core/Renderer/RendererLayer.h"
 #include "Core/Event/EventRenderer.h"
 
+#include "Core/Profiler/GPUEvents.h"	
+
 namespace TruthEngine
 {
 	RenderPass_AmbientReflection::RenderPass_AmbientReflection(RendererLayer* _RendererLayer)
@@ -23,6 +25,7 @@ namespace TruthEngine
 		/////////////////////////
 		{
 			m_RendererCommand_CopyResource.BeginGraphics();
+			GPUBEGINEVENT(m_RendererCommand_CopyResource, "CopyHDRSceneBuffer");
 			m_RendererCommand_CopyResource.CopyResource(TE_IDX_GRESOURCES::Texture_RT_SceneBufferHDR, m_Texture_SceneBuffer);
 		}
 
@@ -31,7 +34,9 @@ namespace TruthEngine
 		/////////////////////////
 		{
 			m_RendererCommand_BlurHorz.BeginCompute(&m_Pipeline_BlurHorz);
+			GPUBEGINEVENT(m_RendererCommand_BlurHorz, "BlurringSSReflectionHorzPass");
 			m_RendererCommand_BlurVert.BeginCompute(&m_Pipeline_BlurVert);
+			GPUBEGINEVENT(m_RendererCommand_BlurVert, "BlurringSSReflectionVertPass");
 		}
 
 		/////////////////////////
@@ -39,15 +44,20 @@ namespace TruthEngine
 		/////////////////////////
 		{
 			m_RendererCommand_Blend.BeginGraphics(&m_Pipeline_Blend);
+			GPUBEGINEVENT(m_RendererCommand_BlurVert, "AmbientReflection");
 			m_RendererCommand_Blend.SetViewPort(&m_RendererLayer->GetViewportScene(), &m_RendererLayer->GetViewRectScene());
 			m_RendererCommand_Blend.SetRenderTarget(m_RendererLayer->GetRenderTargetViewSceneHDR());
 		}
 	}
 	void RenderPass_AmbientReflection::EndScene()
 	{
+		GPUENDEVENT(m_RendererCommand_CopyResource);
 		m_RendererCommand_CopyResource.End();
+		GPUENDEVENT(m_RendererCommand_BlurHorz);
 		m_RendererCommand_BlurHorz.End();
+		GPUENDEVENT(m_RendererCommand_BlurVert);
 		m_RendererCommand_BlurVert.End();
+		GPUENDEVENT(m_RendererCommand_Blend);
 		m_RendererCommand_Blend.End();
 	}
 	void RenderPass_AmbientReflection::Render()
@@ -85,7 +95,7 @@ namespace TruthEngine
 		m_RendererCommand_CopyResource.Init(TE_IDX_RENDERPASS::AMBIENTREFLECTION, TE_IDX_SHADERCLASS::NONE);
 		m_RendererCommand_BlurHorz.Init(TE_IDX_RENDERPASS::AMBIENTREFLECTION, TE_IDX_SHADERCLASS::BLURHORZREFLECTION);
 		m_RendererCommand_BlurVert.Init(TE_IDX_RENDERPASS::AMBIENTREFLECTION, TE_IDX_SHADERCLASS::BLURVERTREFLECTION);
-		m_RendererCommand_Blend.Init(TE_IDX_RENDERPASS::AMBIENTREFLECTION, TE_IDX_SHADERCLASS::BLENDREFLECTION);
+		m_RendererCommand_Blend.Init(TE_IDX_RENDERPASS::AMBIENTREFLECTION, TE_IDX_SHADERCLASS::AMBIENTREFLECTION);
 	}
 	void RenderPass_AmbientReflection::InitTextures()
 	{
@@ -104,8 +114,9 @@ namespace TruthEngine
 	}
 	void RenderPass_AmbientReflection::InitPipelines()
 	{
-
+		////////////////////////////////////////////////////
 		//Init Blending Reflection's Pipeline
+		////////////////////////////////////////////////////
 		{
 			const RendererStateSet _States_Blend = InitRenderStates
 			(
@@ -130,7 +141,7 @@ namespace TruthEngine
 				TE_RENDERER_STATE_ENABLED_BLEND_TRUE
 			);
 
-			const auto _ShaderHandle = TE_INSTANCE_SHADERMANAGER->AddShader(TE_IDX_SHADERCLASS::BLENDREFLECTION, 0, "Assets/Shaders/AmbientReflection.hlsl", "vs", "ps");
+			const auto _ShaderHandle = TE_INSTANCE_SHADERMANAGER->AddShader(TE_IDX_SHADERCLASS::AMBIENTREFLECTION, 0, "Assets/Shaders/AmbientReflection.hlsl", "vs", "ps");
 
 			TE_RESOURCE_FORMAT rtvFormats[] = { m_RendererLayer->GetFormatRenderTargetSceneHDR() };
 
@@ -148,7 +159,9 @@ namespace TruthEngine
 			PipelineGraphics::Factory(&m_Pipeline_Blend, _States_Blend, _ShaderHandle, _countof(rtvFormats), rtvFormats, TE_RESOURCE_FORMAT::UNKNOWN, {}, false, _BlendDesc);
 		}
 
+		////////////////////////////////////////////////////
 		//Init Blurring Reflection's Pipelines
+		////////////////////////////////////////////////////
 		{
 			const auto _ShaderHandle_BlurHorz = TE_INSTANCE_SHADERMANAGER->AddShader(TE_IDX_SHADERCLASS::BLURHORZREFLECTION, 0, "Assets/Shaders/CSGaussianBlur.hlsl", "", "", "HorizontalFilter", "", "", "", { L"KernelHalf=15" });
 			PipelineCompute::Factory(&m_Pipeline_BlurHorz, _ShaderHandle_BlurHorz);

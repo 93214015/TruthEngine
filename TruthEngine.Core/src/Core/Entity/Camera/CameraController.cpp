@@ -162,7 +162,7 @@ namespace TruthEngine
 		if (!TE_INSTANCE_APPLICATION->IsHoveredSceneViewPort())
 			return;
 
-		float dt = TE_INSTANCE_APPLICATION->FrameTime();
+		float dt = static_cast<float>(TE_INSTANCE_APPLICATION->FrameTime());
 		switch (event.GetKeyCode())
 		{
 		case 'W':

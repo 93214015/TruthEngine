@@ -26,14 +26,28 @@ namespace TruthEngine
 				X8 = 8
 			};
 
+			enum class TE_SETTINGS_FRAMELIMIT : int
+			{
+				_30 = 30,
+				_60 = 60,
+				Unlimited = 0
+			};
+
 			bool IsEnabledMSAA();
 			bool IsEnabledHDR();
 
 			TE_SETTING_MSAA GetMSAA();
 			TE_RENDERER_API GetRendererAPI();
+
+			//Return frame time's limit setting
+			TE_SETTINGS_FRAMELIMIT GetFrameLimit();
+
+			//Return frame time's limit in seconds
+			double GetFrameLimitTime();
 			
 			void SetMSAA(TE_SETTING_MSAA _MSAA);
 			void SetHDR(bool _EnabledHDR);
+			void SetFrameLimit(TE_SETTINGS_FRAMELIMIT _SettingsFrameLimit);
 			
 		};
 	}

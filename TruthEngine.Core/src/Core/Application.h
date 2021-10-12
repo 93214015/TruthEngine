@@ -104,10 +104,11 @@ namespace TruthEngine {
 		uint32_t m_SceneViewportHeight = 720;
 
 		uint8_t m_CurrentFrameOnTheFly = 0;
-		uint8_t m_FramesOnTheFlyNum = 2;
+		uint8_t m_FramesOnTheFlyNum = 3;
 
 		std::string m_Title;
 
+		bool m_IsRenderingFrame = true;
 		bool m_Running = true;
 		bool m_WindowMode = true;
 		bool m_IsHoveredSceneViewport = false;

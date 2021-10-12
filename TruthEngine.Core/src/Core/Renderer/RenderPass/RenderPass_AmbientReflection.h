@@ -53,7 +53,6 @@ namespace TruthEngine
 		RendererCommand m_RendererCommand_BlurHorz;
 		RendererCommand m_RendererCommand_BlurVert;
 
-
 		PipelineGraphics m_Pipeline_Blend;
 		PipelineCompute m_Pipeline_BlurHorz;
 		PipelineCompute m_Pipeline_BlurVert;
@@ -71,8 +70,6 @@ namespace TruthEngine
 
 
 		std::vector<EventListenerHandle> m_EventListenerList;
-
-
 
 	};
 

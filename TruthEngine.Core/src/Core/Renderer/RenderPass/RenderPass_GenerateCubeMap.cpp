@@ -4,6 +4,8 @@
 #include "Core/Renderer/BufferManager.h"
 #include "Core/Renderer/ShaderManager.h"
 
+#include "Core/Profiler/GPUEvents.h"
+
 namespace TruthEngine
 {
 
@@ -27,6 +29,7 @@ namespace TruthEngine
 	{
 
 		m_RendererCommand_GenerateCubeMap.BeginGraphics(&m_PipelineGenerateCubeMap);
+		GPUBEGINEVENT(m_RendererCommand_GenerateCubeMap, "GenerateCubeMap");
 
 		m_RendererCommand_GenerateCubeMap.SetRenderTarget(m_RenderTartgetViewCubeMap);
 		m_RendererCommand_GenerateCubeMap.ClearRenderTarget(m_RenderTartgetViewCubeMap);
@@ -41,6 +44,7 @@ namespace TruthEngine
 
 	void RenderPass_GenerateCubeMap::EndScene()
 	{
+		GPUENDEVENT(m_RendererCommand_GenerateCubeMap);
 		m_RendererCommand_GenerateCubeMap.End();
 		//m_RendererCommand_GenerateIBL.End();
 	}

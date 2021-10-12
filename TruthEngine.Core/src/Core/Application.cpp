@@ -28,6 +28,7 @@ namespace TruthEngine {
 	Application::Application(const char* title, uint32_t clientWidth, uint32_t clientHeight, uint8_t framesInFlightNum)
 		: m_Title(title), m_ClientWidth(clientWidth), m_ClientHeight(clientHeight), m_FramesOnTheFlyNum(framesInFlightNum)
 		, m_DefautlScene(new Scene())
+		, m_Timer(Settings::Graphics::GetFrameLimitTime())
 	{
 
 		TE_ASSERT_CORE(!s_Instance, "Aplication already exists!");
@@ -88,11 +89,12 @@ namespace TruthEngine {
 
 		while (m_Running)
 		{
-			m_Timer.Tick();
+			if (m_Timer.Tick())
+			{
+				OnUpdate();
 
-			OnUpdate();
-
-			m_Window->OnUpdate();
+				m_Window->OnUpdate();
+			}
 
 			//m_CurrentFrameIndex = (m_CurrentFrameIndex + 1) % m_FramesInFlightNum;
 		}

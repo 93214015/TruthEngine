@@ -11,7 +11,7 @@
 #include "API/DX12/DirectX12SwapChain.h"
 #include "API/DX12/DirectX12BufferManager.h"
 
-
+#include "Core/Profiler/GPUEvents.h"
 
 
 #ifdef TE_API_DX12
@@ -210,6 +210,9 @@ namespace TruthEngine::API::DirectX12 {
 			auto dx12CmdList = m_CommandList[currentFrameIndex]->GetNativeObject();
 			dx12CmdList->Reset(m_CommandList[currentFrameIndex]->GetCommandAllocator()->GetNativeObject(), nullptr);
 
+			GPUBEGINEVENT(m_CommandList[currentFrameIndex].get(), "ImGUI");
+
+
 			auto& sc = TE_INSTANCE_API_DX12_SWAPCHAIN;
 
 			CD3DX12_RESOURCE_BARRIER barriers[3];
@@ -278,6 +281,7 @@ namespace TruthEngine::API::DirectX12 {
 			ImGui::Render();
 			ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), dx12CmdList);
 
+			GPUENDEVENT(m_CommandList[currentFrameIndex].get());
 
 			TE_INSTANCE_API_DX12_COMMANDQUEUEDIRECT->ExecuteCommandList(m_CommandList[currentFrameIndex].get());
 

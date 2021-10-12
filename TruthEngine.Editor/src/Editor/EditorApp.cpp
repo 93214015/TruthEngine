@@ -100,7 +100,6 @@ namespace TruthEngine
 
 	void ApplicationEditor::OnUpdate()
 	{
-
 		TE_INSTANCE_PHYSICSENGINE->Simulate(m_Timer.DeltaTime());
 
 		TE_INSTANCE_ANIMATIONMANAGER->Update(m_Timer.DeltaTime());
@@ -375,6 +374,29 @@ namespace TruthEngine
 				{
 					Settings::Graphics::SetHDR(_IsEnabledHDR);
 				}
+
+				static const char* const _FrameLimitOptionsStr[] = { "30 Frame", "60 Frame", "Unlimited" };
+				static const Settings::Graphics::TE_SETTINGS_FRAMELIMIT _FrameLimitOptions[] = { Settings::Graphics::TE_SETTINGS_FRAMELIMIT::_30, Settings::Graphics::TE_SETTINGS_FRAMELIMIT::_60, Settings::Graphics::TE_SETTINGS_FRAMELIMIT::Unlimited };
+
+				const auto _LambdaCurrentFrameLimitIndex = []() -> int
+				{
+					switch (Settings::Graphics::GetFrameLimit())
+					{
+					case Settings::Graphics::TE_SETTINGS_FRAMELIMIT::_30:
+						return 0;
+					case Settings::Graphics::TE_SETTINGS_FRAMELIMIT::_60:
+						return 1;
+					case Settings::Graphics::TE_SETTINGS_FRAMELIMIT::Unlimited:
+						return 2;
+					}
+				};
+
+				static int _FrameLimitOptionsCurrentIndex = _LambdaCurrentFrameLimitIndex();
+
+				if (ImGui::ListBox("Frame Limit", &_FrameLimitOptionsCurrentIndex, _FrameLimitOptionsStr, 3))
+				{
+					Settings::Graphics::SetFrameLimit(_FrameLimitOptions[_FrameLimitOptionsCurrentIndex]);
+				}
 				
 
 				static float3 _EnvironmentMapMultiplier = m_RendererLayer->GetEnvironmentMapMultiplier();
@@ -419,7 +441,7 @@ namespace TruthEngine
 			{
 				ImGui::Begin("Configuration");
 
-				if (ImGui::BeginTable("##renderersettingsysinfotable", 2, ImGuiTableFlags_ColumnsWidthFixed))
+				if (ImGui::BeginTable("##renderersettingsysinfotable", 2, ImGuiTableFlags_SizingFixedSame))
 				{
 					ImGui::TableSetupColumn("System Informations");
 					ImGui::TableSetupColumn("Profiler", ImGuiTableColumnFlags_WidthStretch);
@@ -429,7 +451,7 @@ namespace TruthEngine
 					ImGui::TableNextColumn();
 
 					auto sysInfo = HardwareInfo::GetSystemInfo();
-					if (ImGui::BeginTable("##renderersettingcpuinfotable", 2, ImGuiTableFlags_ColumnsWidthFixed))
+					if (ImGui::BeginTable("##renderersettingcpuinfotable", 2, ImGuiTableFlags_SizingFixedSame))
 					{
 
 						ImGui::TableNextRow();
@@ -638,6 +660,15 @@ namespace TruthEngine
 		};
 
 		RegisterEventListener(EventType::KeyReleased, onKeyReleased);
+
+
+		auto onEventSettingsGraphicsFrameLimit = [this](Event& _Event)
+		{
+			m_Timer.SetTimeLimit(Settings::Graphics::GetFrameLimitTime());
+		};
+
+		RegisterEventListener(EventType::SettingsGraphicsFrameLimit, onEventSettingsGraphicsFrameLimit);
+
 
 		/*auto onEntityTransform = [this](Event& event)
 		{

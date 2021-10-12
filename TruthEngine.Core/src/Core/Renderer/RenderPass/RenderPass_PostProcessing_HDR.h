@@ -148,7 +148,7 @@ namespace TruthEngine
 		PipelineCompute mPipelineBlurPassVert;
 		PipelineGraphics mPipelineFinalPass_ReinhardToneMapping;
 		PipelineGraphics mPipelineFinalPass_ACESToneMapping;
-		PipelineGraphics* mPipelineFinalPass_Selected = &mPipelineFinalPass_ReinhardToneMapping;
+		PipelineGraphics* mPipelineFinalPass_Selected = &mPipelineFinalPass_ACESToneMapping;
 
 
 		//ScreenSpace Reflection

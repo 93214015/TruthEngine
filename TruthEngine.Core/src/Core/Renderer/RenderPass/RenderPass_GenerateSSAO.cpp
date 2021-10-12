@@ -4,6 +4,8 @@
 #include "Core/Renderer/ShaderManager.h"
 #include "Core/Renderer/RendererLayer.h"
 
+#include "Core/Profiler/GPUEvents.h"
+
 #include <random>
 
 namespace TruthEngine
@@ -77,12 +79,14 @@ namespace TruthEngine
 	void RenderPass_GenerateSSAO::BeginScene()
 	{
 		m_RendererCommand.BeginGraphics(&m_Pipeline);
+		GPUBEGINEVENT(m_RendererCommand, "SSAO");
 
 		m_RendererCommand.SetViewPort(&m_RendererLayer->GetViewportScene(), &m_RendererLayer->GetViewRectScene());
 		m_RendererCommand.SetRenderTarget(m_RTV);
 		m_RendererCommand.ClearRenderTarget(m_RTV);
 
 		m_RendererCommand_Blurring.BeginGraphics(&m_PipelineBlurring);
+		GPUBEGINEVENT(m_RendererCommand_Blurring, "SSAO->Blurring");
 
 		m_RendererCommand_Blurring.SetViewPort(&m_RendererLayer->GetViewportScene(), &m_RendererLayer->GetViewRectScene());
 		m_RendererCommand_Blurring.SetRenderTarget(m_RTVBlurred);
@@ -91,8 +95,10 @@ namespace TruthEngine
 
 	void RenderPass_GenerateSSAO::EndScene()
 	{
+		GPUENDEVENT(m_RendererCommand);
 		m_RendererCommand.End();
 
+		GPUENDEVENT(m_RendererCommand_Blurring);
 		m_RendererCommand_Blurring.End();
 	}
 

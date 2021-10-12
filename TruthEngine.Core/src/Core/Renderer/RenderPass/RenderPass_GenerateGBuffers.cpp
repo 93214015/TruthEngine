@@ -15,6 +15,9 @@
 #include "Core/Entity/Components/TransformComponent.h"
 #include "Core/Entity/Components/BoundingBoxComponent.h"
 #include "Core/Entity/Components/MaterialComponent.h"
+
+#include "Core/Profiler/GPUEvents.h"
+
 #include <iostream>
 
 namespace TruthEngine
@@ -132,6 +135,8 @@ namespace TruthEngine
 	{
 		m_RendererCommand.BeginGraphics();
 
+		Profiler::GPUEvent::BeginEvent(m_RendererCommand, "GenerateGBuffers");
+
 		m_RendererCommand.SetViewPort(&m_RendererLayer->GetViewportScene(), &m_RendererLayer->GetViewRectScene());
 
 		m_RendererCommand.SetRenderTarget(m_RenderTargetViewGBufferColor);
@@ -147,6 +152,8 @@ namespace TruthEngine
 
 	void RenderPass_GenerateGBuffers::EndScene()
 	{
+		Profiler::GPUEvent::EndEvent(m_RendererCommand);
+
 		m_RendererCommand.End();
 	}
 

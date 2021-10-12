@@ -84,6 +84,9 @@
     <ClInclude Include="src\API\DX12\DirectX12GraphicDevice.h">
       <Filter>API\DX12</Filter>
     </ClInclude>
+    <ClInclude Include="src\API\DX12\DirectX12Helpers.h">
+      <Filter>API\DX12</Filter>
+    </ClInclude>
     <ClInclude Include="src\API\DX12\DirectX12ImGuiLayer.h">
       <Filter>API\DX12</Filter>
     </ClInclude>
@@ -153,6 +156,12 @@
     <ClInclude Include="src\Core\Entity\Components\CameraComponent.h">
       <Filter>Core\Entity\Components</Filter>
     </ClInclude>
+    <ClInclude Include="src\Core\Entity\Components\DynamicLightComponent.h">
+      <Filter>Core\Entity\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Entity\Components\EditorEntityIconComponent.h">
+      <Filter>Core\Entity\Components</Filter>
+    </ClInclude>
     <ClInclude Include="src\Core\Entity\Components\EnvironmentComponent.h">
       <Filter>Core\Entity\Components</Filter>
     </ClInclude>
@@ -210,6 +219,9 @@
     <ClInclude Include="src\Core\Entity\Light\LightManager.h">
       <Filter>Core\Entity\Light</Filter>
     </ClInclude>
+    <ClInclude Include="src\Core\Entity\Light\LightPoint.h">
+      <Filter>Core\Entity\Light</Filter>
+    </ClInclude>
     <ClInclude Include="src\Core\Entity\Light\LightSpot.h">
       <Filter>Core\Entity\Light</Filter>
     </ClInclude>
@@ -243,6 +255,9 @@
     <ClInclude Include="src\Core\Entity\Systems\System.h">
       <Filter>Core\Entity\Systems</Filter>
     </ClInclude>
+    <ClInclude Include="src\Core\Entity\Systems\SystemDynamicLights.h">
+      <Filter>Core\Entity\Systems</Filter>
+    </ClInclude>
     <ClInclude Include="src\Core\Entity\Systems\SystemMovement.h">
       <Filter>Core\Entity\Systems</Filter>
     </ClInclude>
@@ -258,16 +273,25 @@
     <ClInclude Include="src\Core\Event\EventApplication.h">
       <Filter>Core\Event</Filter>
     </ClInclude>
+    <ClInclude Include="src\Core\Event\EventDispatcher.h">
+      <Filter>Core\Event</Filter>
+    </ClInclude>
     <ClInclude Include="src\Core\Event\EventEntity.h">
       <Filter>Core\Event</Filter>
     </ClInclude>
     <ClInclude Include="src\Core\Event\EventKey.h">
       <Filter>Core\Event</Filter>
     </ClInclude>
+    <ClInclude Include="src\Core\Event\EventListenerCollector.h">
+      <Filter>Core\Event</Filter>
+    </ClInclude>
     <ClInclude Include="src\Core\Event\EventMouse.h">
       <Filter>Core\Event</Filter>
     </ClInclude>
     <ClInclude Include="src\Core\Event\EventRenderer.h">
+      <Filter>Core\Event</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Event\EventSettings.h">
       <Filter>Core\Event</Filter>
     </ClInclude>
     <ClInclude Include="src\Core\Helper\HardwareInfo.h">
@@ -372,6 +396,9 @@
     <ClInclude Include="src\Core\Renderer\GraphicResource.h">
       <Filter>Core\Renderer</Filter>
     </ClInclude>
+    <ClInclude Include="src\Core\Renderer\IconsIDX.h">
+      <Filter>Core\Renderer</Filter>
+    </ClInclude>
     <ClInclude Include="src\Core\Renderer\IndexBuffer.h">
       <Filter>Core\Renderer</Filter>
     </ClInclude>
@@ -384,11 +411,20 @@
     <ClInclude Include="src\Core\Renderer\Pipeline.h">
       <Filter>Core\Renderer</Filter>
     </ClInclude>
+    <ClInclude Include="src\Core\Renderer\PipelineBlendDesc.h">
+      <Filter>Core\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Renderer\PipelineDepthStencilDesc.h">
+      <Filter>Core\Renderer</Filter>
+    </ClInclude>
     <ClInclude Include="src\Core\Renderer\PipelineState.h">
       <Filter>Core\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="src\Core\Renderer\RenderPass.h">
       <Filter>Core\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_AmbientReflection.h">
+      <Filter>Core\Renderer\RenderPass</Filter>
     </ClInclude>
     <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_DeferredShading.h">
       <Filter>Core\Renderer\RenderPass</Filter>
@@ -405,6 +441,12 @@
     <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_GenerateIBLAmbient.h">
       <Filter>Core\Renderer\RenderPass</Filter>
     </ClInclude>
+    <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_GenerateIBLSpecular.h">
+      <Filter>Core\Renderer\RenderPass</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_GenerateSSAO.h">
+      <Filter>Core\Renderer\RenderPass</Filter>
+    </ClInclude>
     <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_GenerateShadowMap.h">
       <Filter>Core\Renderer\RenderPass</Filter>
     </ClInclude>
@@ -412,6 +454,15 @@
       <Filter>Core\Renderer\RenderPass</Filter>
     </ClInclude>
     <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_RenderBoudingBoxes.h">
+      <Filter>Core\Renderer\RenderPass</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_RenderEntityIcons.h">
+      <Filter>Core\Renderer\RenderPass</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_ScreenSpaceReflection.h">
+      <Filter>Core\Renderer\RenderPass</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_Wireframe.h">
       <Filter>Core\Renderer\RenderPass</Filter>
     </ClInclude>
     <ClInclude Include="src\Core\Renderer\RenderPassStack.h">
@@ -433,6 +484,9 @@
       <Filter>Core\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="src\Core\Renderer\ShaderManager.h">
+      <Filter>Core\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Renderer\ShaderSignature.h">
       <Filter>Core\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="src\Core\Renderer\SwapChain.h">
@@ -495,24 +549,7 @@
     <ClInclude Include="src\TruthEngine.h" />
     <ClInclude Include="src\lib.h" />
     <ClInclude Include="src\pch.h" />
-    <ClInclude Include="src\API\DX12\DirectX12Helpers.h" />
-    <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_GenerateIBLSpecular.h" />
-    <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_GenerateSSAO.h" />
-    <ClInclude Include="src\Core\Entity\Light\LightPoint.h" />
-    <ClInclude Include="src\Core\Entity\Systems\SystemDynamicLights.h" />
-    <ClInclude Include="src\Core\Entity\Components\DynamicLightComponent.h" />
-    <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_RenderEntityIcons.h" />
-    <ClInclude Include="src\Core\Entity\Components\EditorEntityIconComponent.h" />
-    <ClInclude Include="src\Core\Renderer\IconsIDX.h" />
-    <ClInclude Include="src\Core\Renderer\PipelineBlendDesc.h" />
-    <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_Wireframe.h" />
-    <ClInclude Include="src\Core\Event\EventListenerCollector.h" />
-    <ClInclude Include="src\Core\Event\EventDispatcher.h" />
-    <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_ScreenSpaceReflection.h" />
-    <ClInclude Include="src\Core\Renderer\PipelineDepthStencilDesc.h" />
-    <ClInclude Include="src\Core\Renderer\ShaderSignature.h" />
-    <ClInclude Include="src\Core\Event\EventSettings.h" />
-    <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_AmbientReflection.h" />
+    <ClInclude Include="src\Core\Profiler\GPUEvents.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\API\DX12\DirectX12BufferManager.cpp">
@@ -534,6 +571,9 @@
       <Filter>API\DX12</Filter>
     </ClCompile>
     <ClCompile Include="src\API\DX12\DirectX12GraphicDevice.cpp">
+      <Filter>API\DX12</Filter>
+    </ClCompile>
+    <ClCompile Include="src\API\DX12\DirectX12Helpers.cpp">
       <Filter>API\DX12</Filter>
     </ClCompile>
     <ClCompile Include="src\API\DX12\DirectX12ImGuiLayer.cpp">
@@ -599,6 +639,12 @@
     <ClCompile Include="src\Core\Entity\Components\CameraComponent.cpp">
       <Filter>Core\Entity\Components</Filter>
     </ClCompile>
+    <ClCompile Include="src\Core\Entity\Components\DynamicLightComponent.cpp">
+      <Filter>Core\Entity\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Entity\Components\EditorEntityIconComponent.cpp">
+      <Filter>Core\Entity\Components</Filter>
+    </ClCompile>
     <ClCompile Include="src\Core\Entity\Components\EnvironmentComponent.cpp">
       <Filter>Core\Entity\Components</Filter>
     </ClCompile>
@@ -641,6 +687,9 @@
     <ClCompile Include="src\Core\Entity\Light\LightManager.cpp">
       <Filter>Core\Entity\Light</Filter>
     </ClCompile>
+    <ClCompile Include="src\Core\Entity\Light\LightPoint.cpp">
+      <Filter>Core\Entity\Light</Filter>
+    </ClCompile>
     <ClCompile Include="src\Core\Entity\Light\LightSpot.cpp">
       <Filter>Core\Entity\Light</Filter>
     </ClCompile>
@@ -671,6 +720,9 @@
     <ClCompile Include="src\Core\Entity\Scene.cpp">
       <Filter>Core\Entity</Filter>
     </ClCompile>
+    <ClCompile Include="src\Core\Entity\Systems\SystemDynamicLights.cpp">
+      <Filter>Core\Entity\Systems</Filter>
+    </ClCompile>
     <ClCompile Include="src\Core\Entity\Systems\SystemMovement.cpp">
       <Filter>Core\Entity\Systems</Filter>
     </ClCompile>
@@ -683,16 +735,25 @@
     <ClCompile Include="src\Core\Event\EventApplication.cpp">
       <Filter>Core\Event</Filter>
     </ClCompile>
+    <ClCompile Include="src\Core\Event\EventDispatcher.cpp">
+      <Filter>Core\Event</Filter>
+    </ClCompile>
     <ClCompile Include="src\Core\Event\EventEntity.cpp">
       <Filter>Core\Event</Filter>
     </ClCompile>
     <ClCompile Include="src\Core\Event\EventKey.cpp">
       <Filter>Core\Event</Filter>
     </ClCompile>
+    <ClCompile Include="src\Core\Event\EventListenerCollector.cpp">
+      <Filter>Core\Event</Filter>
+    </ClCompile>
     <ClCompile Include="src\Core\Event\EventMouse.cpp">
       <Filter>Core\Event</Filter>
     </ClCompile>
     <ClCompile Include="src\Core\Event\EventRenderer.cpp">
+      <Filter>Core\Event</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Event\EventSettings.cpp">
       <Filter>Core\Event</Filter>
     </ClCompile>
     <ClCompile Include="src\Core\Helper\HardwareInfo.cpp">
@@ -779,6 +840,9 @@
     <ClCompile Include="src\Core\Renderer\GraphicResource.cpp">
       <Filter>Core\Renderer</Filter>
     </ClCompile>
+    <ClCompile Include="src\Core\Renderer\IconsIDX.cpp">
+      <Filter>Core\Renderer</Filter>
+    </ClCompile>
     <ClCompile Include="src\Core\Renderer\IndexBuffer.cpp">
       <Filter>Core\Renderer</Filter>
     </ClCompile>
@@ -791,11 +855,20 @@
     <ClCompile Include="src\Core\Renderer\Pipeline.cpp">
       <Filter>Core\Renderer</Filter>
     </ClCompile>
+    <ClCompile Include="src\Core\Renderer\PipelineBlendDesc.cpp">
+      <Filter>Core\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Renderer\PipelineDepthStencilDesc.cpp">
+      <Filter>Core\Renderer</Filter>
+    </ClCompile>
     <ClCompile Include="src\Core\Renderer\PipelineState.cpp">
       <Filter>Core\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="src\Core\Renderer\RenderPass.cpp">
       <Filter>Core\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_AmbientReflection.cpp">
+      <Filter>Core\Renderer\RenderPass</Filter>
     </ClCompile>
     <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_DeferredShading.cpp">
       <Filter>Core\Renderer\RenderPass</Filter>
@@ -812,6 +885,12 @@
     <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_GenerateIBLAmbient.cpp">
       <Filter>Core\Renderer\RenderPass</Filter>
     </ClCompile>
+    <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_GenerateIBLSpecular.cpp">
+      <Filter>Core\Renderer\RenderPass</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_GenerateSSAO.cpp">
+      <Filter>Core\Renderer\RenderPass</Filter>
+    </ClCompile>
     <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_GenerateShadowMap.cpp">
       <Filter>Core\Renderer\RenderPass</Filter>
     </ClCompile>
@@ -819,6 +898,15 @@
       <Filter>Core\Renderer\RenderPass</Filter>
     </ClCompile>
     <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_RenderBoudingBoxes.cpp">
+      <Filter>Core\Renderer\RenderPass</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_RenderEntityIcons.cpp">
+      <Filter>Core\Renderer\RenderPass</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_ScreenSpaceReflection.cpp">
+      <Filter>Core\Renderer\RenderPass</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_Wireframe.cpp">
       <Filter>Core\Renderer\RenderPass</Filter>
     </ClCompile>
     <ClCompile Include="src\Core\Renderer\RenderPassStack.cpp">
@@ -837,6 +925,9 @@
       <Filter>Core\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="src\Core\Renderer\ShaderManager.cpp">
+      <Filter>Core\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Renderer\ShaderSignature.cpp">
       <Filter>Core\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="src\Core\Renderer\SwapChain.cpp">
@@ -894,23 +985,7 @@
       <Filter>Platform\Windows</Filter>
     </ClCompile>
     <ClCompile Include="src\pch.cpp" />
-    <ClCompile Include="src\API\DX12\DirectX12Helpers.cpp" />
-    <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_GenerateIBLSpecular.cpp" />
-    <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_GenerateSSAO.cpp" />
-    <ClCompile Include="src\Core\Entity\Light\LightPoint.cpp" />
-    <ClCompile Include="src\Core\Entity\Systems\SystemDynamicLights.cpp" />
-    <ClCompile Include="src\Core\Entity\Components\DynamicLightComponent.cpp" />
-    <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_RenderEntityIcons.cpp" />
-    <ClCompile Include="src\Core\Entity\Components\EditorEntityIconComponent.cpp" />
-    <ClCompile Include="src\Core\Renderer\IconsIDX.cpp" />
-    <ClCompile Include="src\Core\Renderer\PipelineBlendDesc.cpp" />
-    <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_Wireframe.cpp" />
-    <ClCompile Include="src\Core\Event\EventListenerCollector.cpp" />
-    <ClCompile Include="src\Core\Event\EventDispatcher.cpp" />
-    <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_ScreenSpaceReflection.cpp" />
-    <ClCompile Include="src\Core\Renderer\PipelineDepthStencilDesc.cpp" />
-    <ClCompile Include="src\Core\Renderer\ShaderSignature.cpp" />
-    <ClCompile Include="src\Core\Event\EventSettings.cpp" />
-    <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_AmbientReflection.cpp" />
+    <ClCompile Include="src\Core\Profiler\GPUEvents.cpp" />
+    <ClCompile Include="src\API\DX\DXGPUEvent.cpp" />
   </ItemGroup>
 </Project>

@@ -17,6 +17,8 @@
 #include "Core/Event/EventRenderer.h"
 #include "Core/Entity/Camera/CameraManager.h"
 
+#include "Core/Profiler/GPUEvents.h"
+
 
 namespace TruthEngine
 {
@@ -133,7 +135,7 @@ namespace TruthEngine
 		if (ImGui::Begin("RenderPass: Forward Rendering"))
 		{
 
-			if (ImGui::BeginTable("##forwardrenderingtable", 3, ImGuiTableFlags_ColumnsWidthStretch))
+			if (ImGui::BeginTable("##forwardrenderingtable", 3, ImGuiTableFlags_SizingStretchSame))
 			{
 				ImGui::TableSetupColumn("Render Time : Draw");
 				ImGui::TableSetupColumn("Drawn Mesh Count");
@@ -170,6 +172,7 @@ namespace TruthEngine
 		//m_TimerBegin.Start();
 
 		m_RendererCommand.BeginGraphics();
+		GPUBEGINEVENT(m_RendererCommand, "ForwardRendering");
 
 		m_RendererCommand.SetViewPort(&m_RendererLayer->GetViewportScene(), &m_RendererLayer->GetViewRectScene());
 
@@ -184,6 +187,7 @@ namespace TruthEngine
 
 	void RenderPass_ForwardRendering::EndScene()
 	{
+		GPUENDEVENT(m_RendererCommand);
 		m_RendererCommand.End();
 	}
 

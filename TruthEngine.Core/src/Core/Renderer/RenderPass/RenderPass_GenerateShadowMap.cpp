@@ -9,6 +9,9 @@
 #include "Core/Entity/Camera/CameraManager.h"
 #include "Core/Entity/Components.h"
 
+#include "Core/Profiler/GPUEvents.h"
+
+
 namespace TruthEngine
 {
 
@@ -92,10 +95,12 @@ namespace TruthEngine
 		m_TimerBegin.Start();
 
 		m_RendererCommand.BeginGraphics();
+		GPUBEGINEVENT(m_RendererCommand, "GenerateShadowMap DirectLights");
 		m_RendererCommand.SetDepthStencil(m_DepthStencilView_SunLight);
 		m_RendererCommand.ClearDepthStencil(m_DepthStencilView_SunLight);
 
 		m_RendererCommand_SpotLights.BeginGraphics();
+		GPUBEGINEVENT(m_RendererCommand_SpotLights, "GenerateShadowMap SpotLight");
 		m_RendererCommand_SpotLights.SetDepthStencil(m_DepthStencilView_SpotLight);
 		m_RendererCommand_SpotLights.ClearDepthStencil(m_DepthStencilView_SpotLight);
 
@@ -104,7 +109,9 @@ namespace TruthEngine
 
 	void RenderPass_GenerateShadowMap::EndScene()
 	{
+		GPUENDEVENT(m_RendererCommand);
 		m_RendererCommand.End();
+		GPUENDEVENT(m_RendererCommand_SpotLights);
 		m_RendererCommand_SpotLights.End();
 	}
 

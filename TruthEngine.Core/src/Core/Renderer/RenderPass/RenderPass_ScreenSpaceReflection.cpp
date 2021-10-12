@@ -5,6 +5,8 @@
 
 #include "Core/Event/EventRenderer.h"
 
+#include "Core/Profiler/GPUEvents.h"
+
 namespace TruthEngine
 {
 	RenderPass_ScreenSpaceReflection::RenderPass_ScreenSpaceReflection(RendererLayer* _RendererLayer)
@@ -91,6 +93,7 @@ namespace TruthEngine
 		/////////////////////////
 		{
 			m_RendererCommand_Reflection.BeginGraphics(&m_Pipeline_Reflection);
+			GPUBEGINEVENT(m_RendererCommand_Reflection, "ScreenSpaceReflection");
 			m_RendererCommand_Reflection.SetViewPort(&m_RendererLayer->GetViewportScene(), &m_RendererLayer->GetViewRectScene());
 			m_RendererCommand_Reflection.SetRenderTarget(m_RTV_Reflection);
 			m_RendererCommand_Reflection.ClearRenderTarget(m_RTV_Reflection);
@@ -115,6 +118,7 @@ namespace TruthEngine
 	}
 	void RenderPass_ScreenSpaceReflection::EndScene()
 	{
+		GPUENDEVENT(m_RendererCommand_Reflection);
 		m_RendererCommand_Reflection.End();
 		//m_RendererCommand_Blend.End();
 		//m_RendererCommand_BlurHorz.End();

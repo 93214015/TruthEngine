@@ -79,8 +79,11 @@ links
 	"PhysXPvdSDK_static_64.lib",
 	"PhysXVehicle_static_64.lib",
 	"DirectXMesh.lib",
-	"DirectXTex.lib"
+	"DirectXTex.lib",
+	"WinPixEventRuntime.lib"
 }
+
+
 
 
 filter "configurations:Debug"

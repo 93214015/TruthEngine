@@ -11,7 +11,7 @@ namespace TruthEngine {
 		MouseButtonPressed, MouseButtonReleased, MouseMoved, MouseScrolled,
 		EntityAddMesh, EntityAddMaterial, EntityUpdatedMaterial, EntityAddLight, EntityUpdatedLight, EntityTransform,
 		RendererNewGraphicsPipeline, RendererNewComputePipeline, RendererViewportResize, RendererTextureResize,
-		SettingsGraphicsHDR,
+		SettingsGraphicsHDR, SettingsGraphicsFrameLimit,
 		EventTypeNum
 	};
 

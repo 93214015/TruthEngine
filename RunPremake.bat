@@ -6,7 +6,10 @@ echo.
 echo. "please enter the lib path"
 echo.
 set /P BoostLibPath=
+echo.
+echo "Please enter the premake's executable file path"
+set /P PremakeExe=
 
 
-CALL "Dependencies\bin\premake5.exe" vs2019 --BoostIncPath=%BoostIncPath% --BoostLibPath=%BoostLibPath%
+CALL %PremakeExe% vs2019 --BoostIncPath=%BoostIncPath% --BoostLibPath=%BoostLibPath%
 PAUSE

@@ -91,7 +91,7 @@ namespace TruthEngine
 			float Thickness = 1.0f;
 			float Steps = 10.0f;
 
-			float ViewAngleThreshold = 0.5f;
+			float ViewAngleThreshold = 0.2f;
 			float ReflectionScale = 1.0f;
 			float DepthBias = 1.0f;
 			float _pad0 = 0.0f;

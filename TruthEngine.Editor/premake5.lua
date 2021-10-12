@@ -36,6 +36,11 @@ project "TruthEngine.Editor"
 		"ImGui",
 	}
 	
+	postbuildcommands {
+    "xcopy /y /d  %{wks.location}Dependencies\\Lib\\WinPixEventRuntime.dll $(TargetDir)",
+	"xcopy /y /d  %{wks.location}Dependencies\\Lib\\dxcompiler.dll $(TargetDir)",
+	"xcopy /y /d  %{wks.location}Dependencies\\Lib\\dxil.dll $(TargetDir)",
+	}
 	
 
 	floatingpoint "Fast"
@@ -57,6 +62,12 @@ project "TruthEngine.Editor"
 		}
 		runtime "Debug"
 		symbols "on"
+		
+		postbuildcommands 
+		{
+			"xcopy /y /d  %{wks.location}Dependencies\\Lib\\Debug\\assimp-vc142-mtd.dll $(TargetDir)",
+			"xcopy /y /d  %{wks.location}Dependencies\\Lib\\Debug\\assimp-vc142-mtd.pdb $(TargetDir)",
+		}
 
 
 	filter "configurations:Release"
@@ -67,6 +78,11 @@ project "TruthEngine.Editor"
 		runtime "Release"
 		optimize "on"
 
+		postbuildcommands 
+		{
+			"xcopy /y /d  %{wks.location}Dependencies\\Lib\\Release\\assimp-vc142-mt.dll $(TargetDir)"
+		}
+
 	filter "configurations:Dist"
 		defines{
 			"TE_DIST",
@@ -74,4 +90,9 @@ project "TruthEngine.Editor"
 		}
 		runtime "Release"
 		optimize "on"
+		
+		postbuildcommands 
+		{
+			"xcopy /y /d  %{wks.location}Dependencies\\Lib\\Release\\assimp-vc142-mt.dll $(TargetDir)"
+		}
 

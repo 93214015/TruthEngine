@@ -745,25 +745,37 @@ namespace TruthEngine
 		//Generate Environment Cube Map
 		//////////////////////////////////////////////////
 
-		/*m_RenderPass_GenerateCubeMap->Initialize(TE_IDX_GRESOURCES::Texture_RT_CubeMap, 2048, TE_RESOURCE_FORMAT::R16G16B16A16_FLOAT, "E:\\3DModels\\2021\\Textures\\IBL\\Desert_Highway\\Road_to_MonumentValley_Ref.hdr");
+		/*
+		m_RenderPass_GenerateCubeMap->Initialize(TE_IDX_GRESOURCES::Texture_RT_CubeMap
+			, 2048
+			, TE_RESOURCE_FORMAT::R16G16B16A16_FLOAT
+			, "D:\\Assets\\Textures\\HDR\\PolyHeaven\\xanderklinge_2k.hdr"
+		);
 		m_RenderPass_GenerateCubeMap->OnAttach();
 		m_RenderPass_GenerateCubeMap->BeginScene();
 		m_RenderPass_GenerateCubeMap->Render();
 		m_RenderPass_GenerateCubeMap->EndScene();
 
-		m_RendererCommand.SaveTextureToFile(TE_IDX_GRESOURCES::Texture_RT_CubeMap, "E:\\3DModels\\2021\\Textures\\GeneratedEnvironmentMap_DesertHighway.dds");*/
+		m_RendererCommand.SaveTextureToFile(TE_IDX_GRESOURCES::Texture_RT_CubeMap, "D:\\Assets\\Textures\\GeneratedHDRI\\GeneratedEnvironmentMap.dds");
+		*/
 
 		//////////////////////////////////////////////////
 		//Generate IBL Ambient
 		//////////////////////////////////////////////////
 
-		/*m_RendererCommand.LoadTextureFromFile(TE_IDX_GRESOURCES::Texture_InputCreateIBLAmbient, "E:\\3DModels\\2021\\Textures\\GeneratedEnvironmentMap_DesertHighway.dds");
+		/*
+		m_RendererCommand.LoadTextureFromFile(TE_IDX_GRESOURCES::Texture_InputCreateIBLAmbient, "D:\\Assets\\Textures\\GeneratedHDRI\\GeneratedEnvironmentMap.dds");
 
-		m_RenderPass_GenerateIBLAmbient->Initialize(TE_IDX_GRESOURCES::Texture_RT_IBL_Ambient, 512, TE_RESOURCE_FORMAT::R16G16B16A16_FLOAT, "E:\\3DModels\\2021\\Textures\\GeneratedIBLAmbient_DesertHighway.dds");
+		m_RenderPass_GenerateIBLAmbient->Initialize(TE_IDX_GRESOURCES::Texture_RT_IBL_Ambient
+			, 512
+			, TE_RESOURCE_FORMAT::R16G16B16A16_FLOAT
+			, "D:\\Assets\\Textures\\GeneratedHDRI\\GeneratedIBLAmbient.dds"
+		);
 		m_RenderPass_GenerateIBLAmbient->OnAttach();
 		m_RenderPass_GenerateIBLAmbient->BeginScene();
 		m_RenderPass_GenerateIBLAmbient->Render();
-		m_RenderPass_GenerateIBLAmbient->EndScene();*/
+		m_RenderPass_GenerateIBLAmbient->EndScene();
+		*/
 
 
 		//////////////////////////////////////////////////
@@ -772,7 +784,7 @@ namespace TruthEngine
 
 
 		/*
-		m_RendererCommand.LoadTextureFromFile(TE_IDX_GRESOURCES::Texture_InputCreateIBLSpecular, "E:\\3DModels\\2021\\Textures\\GeneratedEnvironmentMap_DesertHighway.dds");
+		m_RendererCommand.LoadTextureFromFile(TE_IDX_GRESOURCES::Texture_InputCreateIBLSpecular, "D:\\Assets\\Textures\\GeneratedHDRI\\GeneratedEnvironmentMap.dds");
 
 		m_RenderPass_GenerateIBLSpecular->Initialize(128, 512, 5, TE_RESOURCE_FORMAT::R16G16B16A16_FLOAT);
 		m_RenderPass_GenerateIBLSpecular->OnAttach();
@@ -780,12 +792,15 @@ namespace TruthEngine
 		m_RenderPass_GenerateIBLSpecular->Render();
 		m_RenderPass_GenerateIBLSpecular->EndScene();
 
-		m_RendererCommand.SaveTextureToFile(TE_IDX_GRESOURCES::Texture_RT_IBL_Specular_Prefilter, "E:\\3DModels\\2021\\Textures\\GeneratedIBLMapSpecular_DesertHighway.dds");
-		m_RendererCommand.SaveTextureToFile(TE_IDX_GRESOURCES::Texture_RT_IBL_Specular_BRDF, "E:\\3DModels\\2021\\Textures\\GeneratedIBLMapSpecularBRDF.dds");
+		m_RendererCommand.SaveTextureToFile(TE_IDX_GRESOURCES::Texture_RT_IBL_Specular_Prefilter, "D:\\Assets\\Textures\\GeneratedHDRI\\GeneratedIBLMapSpecular.dds");
+		m_RendererCommand.SaveTextureToFile(TE_IDX_GRESOURCES::Texture_RT_IBL_Specular_BRDF, "D:\\Assets\\Textures\\GeneratedHDRI\\GeneratedIBLMapSpecularBRDF.dds");
 		*/
+		
 
-		/*m_RenderPass_GenerateCubeMap->OnDetach();
-		m_RenderPass_GenerateIBL->OnDetach(); */
+		/*
+		m_RenderPass_GenerateCubeMap->OnDetach();
+		m_RenderPass_GenerateIBL->OnDetach(); 
+		*/
 
 
 		m_RenderPassStack.PopAll();
@@ -870,10 +885,10 @@ namespace TruthEngine
 
 
 
-		m_RendererCommand.LoadTextureFromFile(TE_IDX_GRESOURCES::Texture_CubeMap_Environment, "E:\\3DModels\\2021\\Textures\\GeneratedEnvironmentMap_DesertHighway.dds");
-		m_RendererCommand.LoadTextureFromFile(TE_IDX_GRESOURCES::Texture_CubeMap_IBLAmbient, "E:\\3DModels\\2021\\Textures\\GeneratedIBLAmbient_DesertHighway.dds");
-		m_RendererCommand.LoadTextureFromFile(TE_IDX_GRESOURCES::Texture_CubeMap_IBLSpecular, "E:\\3DModels\\2021\\Textures\\GeneratedIBLMapSpecular_DesertHighway.dds");
-		m_RendererCommand.LoadTextureFromFile(TE_IDX_GRESOURCES::Texture_PrecomputedBRDF, "E:\\3DModels\\2021\\Textures\\GeneratedIBLMapSpecularBRDF.dds");
+		m_RendererCommand.LoadTextureFromFile(TE_IDX_GRESOURCES::Texture_CubeMap_Environment, "D:\\Assets\\Textures\\GeneratedHDRI\\GeneratedEnvironmentMap.dds");
+		m_RendererCommand.LoadTextureFromFile(TE_IDX_GRESOURCES::Texture_CubeMap_IBLAmbient, "D:\\Assets\\Textures\\GeneratedHDRI\\GeneratedIBLAmbient.dds");
+		m_RendererCommand.LoadTextureFromFile(TE_IDX_GRESOURCES::Texture_CubeMap_IBLSpecular, "D:\\Assets\\Textures\\GeneratedHDRI\\GeneratedIBLMapSpecular.dds");
+		m_RendererCommand.LoadTextureFromFile(TE_IDX_GRESOURCES::Texture_PrecomputedBRDF, "D:\\Assets\\Textures\\GeneratedHDRI\\GeneratedIBLMapSpecularBRDF.dds");
 	}
 
 	void RendererLayer::InitBuffers()

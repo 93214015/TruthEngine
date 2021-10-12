@@ -29,19 +29,19 @@
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Dist|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -80,7 +80,7 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>_DEBUG;TE_ENABLE_ASSERTS;TE_API_DX12;TE_PLATFORM_WINDOWS;TE_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;..\Dependencies\spdlog\include;..\Dependencies;..\Dependencies\imgui;..\Dependencies\DirectXGraphicsSamples\Libraries\D3DX12;..\Dependencies\Physx;..\..\Library\Boost\boost_1_71_0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;..\Dependencies\spdlog\include;..\Dependencies;..\Dependencies\imgui;..\Dependencies\DirectXGraphicsSamples\Libraries\D3DX12;..\Dependencies\Physx;..\..\Libraries\Boost\boost_1_77_0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
       <MinimalRebuild>false</MinimalRebuild>
@@ -94,8 +94,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalDependencies>PhysX_static_64.lib;PhysXCharacterKinematic_static_64.lib;PhysXCommon_static_64.lib;PhysXCooking_static_64.lib;PhysXExtensions_static_64.lib;PhysXFoundation_static_64.lib;PhysXPvdSDK_static_64.lib;PhysXVehicle_static_64.lib;DirectXMesh.lib;DirectXTex.lib;assimp-vc142-mtd.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\Dependencies\Lib;..\..\Library\Boost\boost_1_71_0\lib64-msvc-14.2;..\Dependencies\Lib\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>PhysX_static_64.lib;PhysXCharacterKinematic_static_64.lib;PhysXCommon_static_64.lib;PhysXCooking_static_64.lib;PhysXExtensions_static_64.lib;PhysXFoundation_static_64.lib;PhysXPvdSDK_static_64.lib;PhysXVehicle_static_64.lib;DirectXMesh.lib;DirectXTex.lib;WinPixEventRuntime.lib;assimp-vc142-mtd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\Dependencies\Lib;..\..\Libraries\Boost\boost_1_77_0\lib64-msvc-14.2;..\Dependencies\Lib\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -104,7 +104,7 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>NDEBUG;TE_API_DX12;TE_PLATFORM_WINDOWS;TE_RELEASE;TE_NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;..\Dependencies\spdlog\include;..\Dependencies;..\Dependencies\imgui;..\Dependencies\DirectXGraphicsSamples\Libraries\D3DX12;..\Dependencies\Physx;..\..\Library\Boost\boost_1_71_0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;..\Dependencies\spdlog\include;..\Dependencies;..\Dependencies\imgui;..\Dependencies\DirectXGraphicsSamples\Libraries\D3DX12;..\Dependencies\Physx;..\..\Libraries\Boost\boost_1_77_0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -121,8 +121,8 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <Lib>
-      <AdditionalDependencies>PhysX_static_64.lib;PhysXCharacterKinematic_static_64.lib;PhysXCommon_static_64.lib;PhysXCooking_static_64.lib;PhysXExtensions_static_64.lib;PhysXFoundation_static_64.lib;PhysXPvdSDK_static_64.lib;PhysXVehicle_static_64.lib;DirectXMesh.lib;DirectXTex.lib;assimp-vc142-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\Dependencies\Lib;..\..\Library\Boost\boost_1_71_0\lib64-msvc-14.2;..\Dependencies\Lib\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>PhysX_static_64.lib;PhysXCharacterKinematic_static_64.lib;PhysXCommon_static_64.lib;PhysXCooking_static_64.lib;PhysXExtensions_static_64.lib;PhysXFoundation_static_64.lib;PhysXPvdSDK_static_64.lib;PhysXVehicle_static_64.lib;DirectXMesh.lib;DirectXTex.lib;WinPixEventRuntime.lib;assimp-vc142-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\Dependencies\Lib;..\..\Libraries\Boost\boost_1_77_0\lib64-msvc-14.2;..\Dependencies\Lib\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Dist|x64'">
@@ -131,7 +131,7 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>NDEBUG;TE_API_DX12;TE_PLATFORM_WINDOWS;TE_DIST;TE_NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;..\Dependencies\spdlog\include;..\Dependencies;..\Dependencies\imgui;..\Dependencies\DirectXGraphicsSamples\Libraries\D3DX12;..\Dependencies\Physx;..\..\Library\Boost\boost_1_71_0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;..\Dependencies\spdlog\include;..\Dependencies;..\Dependencies\imgui;..\Dependencies\DirectXGraphicsSamples\Libraries\D3DX12;..\Dependencies\Physx;..\..\Libraries\Boost\boost_1_77_0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -148,8 +148,8 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <Lib>
-      <AdditionalDependencies>PhysX_static_64.lib;PhysXCharacterKinematic_static_64.lib;PhysXCommon_static_64.lib;PhysXCooking_static_64.lib;PhysXExtensions_static_64.lib;PhysXFoundation_static_64.lib;PhysXPvdSDK_static_64.lib;PhysXVehicle_static_64.lib;DirectXMesh.lib;DirectXTex.lib;assimp-vc142-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\Dependencies\Lib;..\..\Library\Boost\boost_1_71_0\lib64-msvc-14.2;..\Dependencies\Lib\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>PhysX_static_64.lib;PhysXCharacterKinematic_static_64.lib;PhysXCommon_static_64.lib;PhysXCooking_static_64.lib;PhysXExtensions_static_64.lib;PhysXFoundation_static_64.lib;PhysXPvdSDK_static_64.lib;PhysXVehicle_static_64.lib;DirectXMesh.lib;DirectXTex.lib;WinPixEventRuntime.lib;assimp-vc142-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\Dependencies\Lib;..\..\Libraries\Boost\boost_1_77_0\lib64-msvc-14.2;..\Dependencies\Lib\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -255,6 +255,7 @@
     <ClInclude Include="src\Core\LayerStack.h" />
     <ClInclude Include="src\Core\Log.h" />
     <ClInclude Include="src\Core\PhysicEngine\PhysicsEngine.h" />
+    <ClInclude Include="src\Core\Profiler\GPUEvents.h" />
     <ClInclude Include="src\Core\Renderer\Buffer.h" />
     <ClInclude Include="src\Core\Renderer\BufferManager.h" />
     <ClInclude Include="src\Core\Renderer\BufferStructured.h" />
@@ -280,17 +281,17 @@
     <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_GenerateGBuffers.h" />
     <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_GenerateIBLAmbient.h" />
     <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_GenerateIBLSpecular.h" />
-    <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_GenerateShadowMap.h" />
     <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_GenerateSSAO.h" />
+    <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_GenerateShadowMap.h" />
     <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_PostProcessing_HDR.h" />
     <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_RenderBoudingBoxes.h" />
+    <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_RenderEntityIcons.h" />
+    <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_ScreenSpaceReflection.h" />
+    <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_Wireframe.h" />
     <ClInclude Include="src\Core\Renderer\RenderPassStack.h" />
     <ClInclude Include="src\Core\Renderer\RendererCommand.h" />
     <ClInclude Include="src\Core\Renderer\RendererIDX.h" />
     <ClInclude Include="src\Core\Renderer\RendererLayer.h" />
-    <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_RenderEntityIcons.h" />
-    <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_ScreenSpaceReflection.h" />
-    <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_Wireframe.h" />
     <ClInclude Include="src\Core\Renderer\Shader.h" />
     <ClInclude Include="src\Core\Renderer\ShaderInputLayout.h" />
     <ClInclude Include="src\Core\Renderer\ShaderManager.h" />
@@ -333,6 +334,7 @@
     <ClCompile Include="src\API\DX12\DirectX12ShaderManager.cpp" />
     <ClCompile Include="src\API\DX12\DirectX12SwapChain.cpp" />
     <ClCompile Include="src\API\DX12\DirectX12TextureMaterialManager.cpp" />
+    <ClCompile Include="src\API\DX\DXGPUEvent.cpp" />
     <ClCompile Include="src\API\IDXGI.cpp" />
     <ClCompile Include="src\Core\AnimationEngine\AnimationManager.cpp" />
     <ClCompile Include="src\Core\AnimationEngine\CBone.cpp" />
@@ -409,6 +411,7 @@
     <ClCompile Include="src\Core\LayerStack.cpp" />
     <ClCompile Include="src\Core\Log.cpp" />
     <ClCompile Include="src\Core\PhysicEngine\PhysicsEngine.cpp" />
+    <ClCompile Include="src\Core\Profiler\GPUEvents.cpp" />
     <ClCompile Include="src\Core\Renderer\Buffer.cpp" />
     <ClCompile Include="src\Core\Renderer\BufferManager.cpp" />
     <ClCompile Include="src\Core\Renderer\BufferStructured.cpp" />
@@ -431,16 +434,16 @@
     <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_GenerateGBuffers.cpp" />
     <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_GenerateIBLAmbient.cpp" />
     <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_GenerateIBLSpecular.cpp" />
-    <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_GenerateShadowMap.cpp" />
     <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_GenerateSSAO.cpp" />
+    <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_GenerateShadowMap.cpp" />
     <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_PostProcessing_HDR.cpp" />
     <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_RenderBoudingBoxes.cpp" />
-    <ClCompile Include="src\Core\Renderer\RenderPassStack.cpp" />
-    <ClCompile Include="src\Core\Renderer\RendererCommand.cpp" />
-    <ClCompile Include="src\Core\Renderer\RendererLayer.cpp" />
     <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_RenderEntityIcons.cpp" />
     <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_ScreenSpaceReflection.cpp" />
     <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_Wireframe.cpp" />
+    <ClCompile Include="src\Core\Renderer\RenderPassStack.cpp" />
+    <ClCompile Include="src\Core\Renderer\RendererCommand.cpp" />
+    <ClCompile Include="src\Core\Renderer\RendererLayer.cpp" />
     <ClCompile Include="src\Core\Renderer\Shader.cpp" />
     <ClCompile Include="src\Core\Renderer\ShaderInputLayout.cpp" />
     <ClCompile Include="src\Core\Renderer\ShaderManager.cpp" />

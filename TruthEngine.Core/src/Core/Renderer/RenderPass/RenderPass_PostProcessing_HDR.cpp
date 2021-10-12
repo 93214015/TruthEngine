@@ -8,6 +8,8 @@
 #include <Core/Entity/Camera/Camera.h>
 #include <Core/Entity/Camera/CameraManager.h>
 
+#include "Core/Profiler/GPUEvents.h"
+
 TruthEngine::RenderPass_PostProcessing_HDR::RenderPass_PostProcessing_HDR(RendererLayer* _RendererLayer)
 	: RenderPass(TE_IDX_RENDERPASS::POSTPROCESSING_HDR, _RendererLayer)
 	, mAdaptationPercentage(1.0)
@@ -26,7 +28,7 @@ void TruthEngine::RenderPass_PostProcessing_HDR::OnImGuiRender()
 	{
 
 		static const char* _ToneMappingsListStr[] = { "Reinhard", "ACES" };
-		static const char* _CurrentToneMappingItem = _ToneMappingsListStr[0];
+		static const char* _CurrentToneMappingItem = _ToneMappingsListStr[1];
 
 		if (ImGui::BeginCombo("Tone Mapping: ", _CurrentToneMappingItem))
 		{
@@ -87,21 +89,27 @@ void TruthEngine::RenderPass_PostProcessing_HDR::BeginScene()
 {
 
 	mRendererCommand_DownScaling_FirstPass.BeginCompute(&mPipelineDownScalingFirstPass);
+	GPUBEGINEVENT(mRendererCommand_DownScaling_FirstPass, "HDR->Dowscaling->FirtPass");
 
 
 	mRendererCommand_DownScaling_SecondPass.BeginCompute(&mPipelineDownScalingSecondPass);
+	GPUBEGINEVENT(mRendererCommand_DownScaling_SecondPass, "HDR->Dowscaling->SecondPass");
 
 
 	mRendererCommand_BloomPass.BeginCompute(&mPipelineBloomPass);
+	GPUBEGINEVENT(mRendererCommand_BloomPass, "HDR->Bloom");
 
 
 	mRendererCommand_BlurPassHorz.BeginCompute(&mPipelineBlurPassHorz);
+	GPUBEGINEVENT(mRendererCommand_BlurPassHorz, "HDR->Blur->Horz");
 
 
 	mRendererCommand_BlurPassVert.BeginCompute(&mPipelineBlurPassVert);
+	GPUBEGINEVENT(mRendererCommand_BlurPassVert, "HDR->Blur->Vert");
 
 
 	mRendererCommand_FinalPass.BeginGraphics(mPipelineFinalPass_Selected);
+	GPUBEGINEVENT(mRendererCommand_FinalPass, "HDR->FinalPass");
 	mRendererCommand_FinalPass.SetRenderTarget(m_RendererLayer->GetRenderTargetViewSceneSDR());
 	mRendererCommand_FinalPass.ClearRenderTarget(m_RendererLayer->GetRenderTargetViewSceneSDR());
 	mRendererCommand_FinalPass.SetViewPort(&m_RendererLayer->GetViewportScene(), &m_RendererLayer->GetViewRectScene());
@@ -111,16 +119,22 @@ void TruthEngine::RenderPass_PostProcessing_HDR::BeginScene()
 
 void TruthEngine::RenderPass_PostProcessing_HDR::EndScene()
 {
+	GPUENDEVENT(mRendererCommand_DownScaling_FirstPass);
 	mRendererCommand_DownScaling_FirstPass.End();
 
+	GPUENDEVENT(mRendererCommand_DownScaling_SecondPass);
 	mRendererCommand_DownScaling_SecondPass.End();
 
+	GPUENDEVENT(mRendererCommand_BloomPass);
 	mRendererCommand_BloomPass.End();
 
+	GPUENDEVENT(mRendererCommand_BlurPassHorz);
 	mRendererCommand_BlurPassHorz.End();
 
+	GPUENDEVENT(mRendererCommand_BlurPassVert);
 	mRendererCommand_BlurPassVert.End();
 
+	GPUENDEVENT(mRendererCommand_FinalPass);
 	mRendererCommand_FinalPass.End();
 }
 

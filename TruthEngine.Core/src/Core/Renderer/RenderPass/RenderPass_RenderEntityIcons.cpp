@@ -8,6 +8,8 @@
 #include "Core/Entity/Components/EditorEntityIconComponent.h"
 #include "Core/Entity/Components/TransformComponent.h"
 
+#include "Core/Profiler/GPUEvents.h"
+
 namespace TruthEngine
 {
 
@@ -32,6 +34,7 @@ namespace TruthEngine
 			return;
 
 		m_RendererCommand.BeginGraphics(&m_Pipeline);
+		GPUBEGINEVENT(m_RendererCommand, "Render Entity Icons");
 
 		m_RendererCommand.SetRenderTarget(m_RendererLayer->GetRenderTargetViewSceneSDR());
 		m_RendererCommand.SetDepthStencil(m_RendererLayer->GetDepthStencilViewScene());
@@ -43,6 +46,7 @@ namespace TruthEngine
 		if (m_IsDrawListEmpty)
 			return;
 
+		GPUENDEVENT(m_RendererCommand);
 		m_RendererCommand.End();
 	}
 

@@ -545,8 +545,7 @@ namespace TruthEngine
 		{
 		case TE_RENDERER_STATE_SHADING_MODEL_BLINNPHONG:
 			DrawComponent<MaterialComponent>("Material", m_Context, [=](MaterialComponent& component)
-				{
-
+				{				
 					auto material = component.GetMaterial();
 
 					//Shading Models
@@ -646,7 +645,6 @@ namespace TruthEngine
 		case TE_RENDERER_STATE_SHADING_MODEL_PBR:
 			DrawComponent<MaterialComponent>("Material", m_Context, [=](MaterialComponent& component)
 				{
-
 					auto material = component.GetMaterial();
 
 					_LambdaDrawShadingModelComponent(material);
@@ -674,6 +672,8 @@ namespace TruthEngine
 					_LambdaDrawMetallicTextureComponent(material);
 
 					_LambdaDrawAmbientOcclusionTextureComponent(material);
+
+					_LambdaDrawSSRComponent(material);
 
 					/*{
 
