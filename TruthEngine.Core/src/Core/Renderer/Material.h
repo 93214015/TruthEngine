@@ -30,7 +30,9 @@ namespace TruthEngine
 			, float extraSlopeScaledDepthBias
 			, float extraDepthBiasClamp
 			, TE_IDX_MESH_TYPE meshType
-			, bool _enabledSSR);
+			, bool _enabledSSR
+			, bool _enabledEnvironmentMapReflection
+		);
 
 		//
 		//////Get Methods
@@ -132,6 +134,11 @@ namespace TruthEngine
 			return m_EnabledSSR;
 		}
 
+		bool IsEnabledEnvironmentMapReflectoin() const noexcept
+		{
+			return m_EnabledEnvironmentMapReflection;
+		}
+
 		TE_RENDERER_STATE_SHADING_MODEL GetShadingModel() const noexcept;
 
 
@@ -212,6 +219,8 @@ namespace TruthEngine
 
 		void SetEnabledSSR(bool enabledSSR);
 
+		void SetEnabledEnvironmentMapReflection(bool enabledEnvMapReflection);
+
 	private:
 
 
@@ -248,6 +257,7 @@ namespace TruthEngine
 		float m_ExtraDepthBiasClamp = 0.0f;
 
 		bool m_EnabledSSR = false;
+		bool m_EnabledEnvironmentMapReflection = false;
 		//
 		//Friend Classes
 		//

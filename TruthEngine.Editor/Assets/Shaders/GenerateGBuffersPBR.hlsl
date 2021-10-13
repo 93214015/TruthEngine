@@ -110,7 +110,6 @@ struct PixelOut
     float4 Color : SV_Target0;
     float3 Normal : SV_Target1;
     float4 Specular : SV_Target2;
-    float4 PosView : SV_Target3;
 };
 
 
@@ -166,7 +165,10 @@ PixelOut ps(vertexOut pin)
     _PixelOut.Specular.z = _material.AmbientOcclusion;
 #endif
     
-    _PixelOut.Specular.w = (float)_material.EnabledSSR;
+    uint _LastComponent = _material.EnabledSSR << 0;
+    _LastComponent |= _material.EnabledEnvironmentMapReflection << 1;
+
+    _PixelOut.Specular.w = (float)_LastComponent;
     
     return _PixelOut;
 }

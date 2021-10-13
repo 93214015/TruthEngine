@@ -541,6 +541,16 @@ namespace TruthEngine
 			}
 		};
 
+		auto _LambdaDrawEnvMapReflectComponent = [](Material* _Material)
+		{
+			bool _EnabledEnvMapReflect = _Material->IsEnabledEnvironmentMapReflectoin();
+
+			if (ImGui::Checkbox("Enabled EnvironmentMap Reflection", &_EnabledEnvMapReflect))
+			{
+				_Material->SetEnabledEnvironmentMapReflection(_EnabledEnvMapReflect);
+			}
+		};
+
 		switch (_ShadingModel)
 		{
 		case TE_RENDERER_STATE_SHADING_MODEL_BLINNPHONG:
@@ -589,9 +599,14 @@ namespace TruthEngine
 
 					_LambdaDrawSpecularTextureComponent(material);
 
-					//Enabled or Disable SSR
+					//Enable or Disable SSR
 
 					_LambdaDrawSSRComponent(material);
+
+					//Enable or Disable Environment Map Reflection
+
+					_LambdaDrawEnvMapReflectComponent(material);
+
 
 
 					/*{
@@ -674,6 +689,8 @@ namespace TruthEngine
 					_LambdaDrawAmbientOcclusionTextureComponent(material);
 
 					_LambdaDrawSSRComponent(material);
+
+					_LambdaDrawEnvMapReflectComponent(material);
 
 					/*{
 

@@ -167,11 +167,12 @@ namespace TruthEngine {
 				, uint32_t mapIndexMetallic
 				, uint32_t mapIndexAmbientOcclusion
 				, uint32_t enabledSSR
+				, uint32_t enabledEnvMapReflection
 			)
 				: Diffuse(diffuse), Roughness(_Roughness), Metallic(_Metallic), AmbientOcclusion(_AmbientOcclusion), Emission(_Emission)
 				, MapIndexDiffuse(mapIndexDiffuse), MapIndexNormal(mapIndexNormal), MapIndexDisplacement(mapIndexDisplacement), MapIndexSpecular(mapIndexSpecular)
 				, MapIndexRoughness(mapIndexRoughness), MapIndexMetallic(mapIndexMetallic), MapIndexAmbientOcclusion(mapIndexAmbientOcclusion)
-				, UVScale(uvScale), UVTranslate(uvTranslate), EnabledSSR(enabledSSR)
+				, UVScale(uvScale), UVTranslate(uvTranslate), EnabledSSR(enabledSSR), EnabledEnvMapReflection(enabledEnvMapReflection)
 			{}
 
 			float4 Diffuse = float4{ .0f,.0f,.0f,1.0f };
@@ -194,7 +195,11 @@ namespace TruthEngine {
 			uint32_t MapIndexRoughness = -1;
 			uint32_t MapIndexMetallic = -1;
 			uint32_t MapIndexAmbientOcclusion = -1;
+			uint32_t _pad0 = 0;
+
 			uint32_t EnabledSSR = 0;
+			uint32_t EnabledEnvMapReflection = 0;
+			uint2 _pad1;
 			
 		};
 

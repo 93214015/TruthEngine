@@ -105,13 +105,16 @@ float4 ps(VertexOut _PixelIn) : SV_Target
     }
     else
     {
-        float3 _ReflectVectorV = reflect(_PosVDir, _NormalV);
-        float3 _ReflectVectorW = normalize(mul(_ReflectVectorV, (float3x3) ViewInverse));
-        const float MAX_REFLECTION_LOD = 4.0f;
-        float3 _PrefilteredIBLSpecular = tIBLSpecular.SampleLevel(sampler_linear, _ReflectVectorW, _Specularity.x * MAX_REFLECTION_LOD).rgb;
-        float2 _PrecomputeBRDF = tPrecomputedBRDF.Sample(sampler_linear, float2(_NdotV, _Specularity.x)).xy;
-        _AmbientReflection = float4(_PrefilteredIBLSpecular * (_Ks * _PrecomputeBRDF.x + _PrecomputeBRDF.y), 1.0f);
-
+        bool _EnabledEnvMapReflection = (((uint)(_Specularity.w) & 0x2) >> 1) == 1;
+        if (_EnabledEnvMapReflection)
+        {
+            float3 _ReflectVectorV = reflect(_PosVDir, _NormalV);
+            float3 _ReflectVectorW = normalize(mul(_ReflectVectorV, (float3x3) ViewInverse));
+            const float MAX_REFLECTION_LOD = 4.0f;
+            float3 _PrefilteredIBLSpecular = tIBLSpecular.SampleLevel(sampler_linear, _ReflectVectorW, _Specularity.x * MAX_REFLECTION_LOD).rgb;
+            float2 _PrecomputeBRDF = tPrecomputedBRDF.Sample(sampler_linear, float2(_NdotV, _Specularity.x)).xy;
+            _AmbientReflection = float4(_PrefilteredIBLSpecular * (_Ks * _PrecomputeBRDF.x + _PrecomputeBRDF.y), 1.0f);
+        }
         //float _SSAO = tSSAO.Sample(sampler_linear_clamp, _VOut.UV).x;
         //_AmbientReflection.xyz *= _SSAO;
     }

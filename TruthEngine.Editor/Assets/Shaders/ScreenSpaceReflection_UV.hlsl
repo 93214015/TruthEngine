@@ -73,7 +73,8 @@ float4 ps(VertexOut _PixelIn) : SV_Target
     float4 _SpecularValues = tSpecular.Sample(sampler_point_wrap, _PixelIn.UV);
     
     // SpecularValues.w is "EnabledSSR" property of a surface(clipping pixel)
-    clip(_SpecularValues.w - 0.5f);
+    uint _EnabledSSR = ((uint)(_SpecularValues.w) & 0x1) >> 0;
+    clip(_EnabledSSR - 0.5f);
     
     float3 _NormalW = tNormal.Sample(sampler_point_wrap, _PixelIn.UV).xyz * 2.0f - 1.0f;
     float3 _NormalV = normalize(mul(_NormalW, (float3x3) View));

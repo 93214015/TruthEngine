@@ -53,7 +53,9 @@ namespace TruthEngine
 			, float extraSlopeScaledDepthBias
 			, float extraDepthBiasClamp
 			, TE_IDX_MESH_TYPE meshType
-			, bool enabledSSR);
+			, bool enabledSSR
+			, bool enabledEnvMapReflection
+		);
 
 		Material* AddMaterial(Material* material);
 
