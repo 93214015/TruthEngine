@@ -42,7 +42,7 @@ namespace TruthEngine
 	void RenderPass_DeferredShading::BeginScene()
 	{
 		m_RendererCommand.BeginGraphics(&m_Pipeline);
-		GPUBEGINEVENT(m_RendererCommand, "DeferredShading");
+		TE_GPUBEGINEVENT(m_RendererCommand, "DeferredShading");
 
 		m_RendererCommand.SetViewPort(&m_RendererLayer->GetViewportScene(), &m_RendererLayer->GetViewRectScene());
 		m_RendererCommand.SetRenderTarget(Settings::Graphics::IsEnabledHDR() ? m_RendererLayer->GetRenderTargetViewSceneHDR() : m_RendererLayer->GetRenderTargetViewSceneSDR());
@@ -50,7 +50,7 @@ namespace TruthEngine
 	}
 	void RenderPass_DeferredShading::EndScene()
 	{
-		GPUENDEVENT(m_RendererCommand);
+		TE_GPUENDEVENT(m_RendererCommand);
 		m_RendererCommand.End();
 	}
 	void RenderPass_DeferredShading::Render()

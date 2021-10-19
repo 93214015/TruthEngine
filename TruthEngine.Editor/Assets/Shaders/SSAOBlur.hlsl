@@ -32,7 +32,7 @@ VertexOut vs(uint vertexID : SV_VertexID)
 {
     VertexOut _VOut;
     _VOut.PosH = float4(VertexPositions[vertexID], 0.0f, 1.0f);
-    _VOut.UV = VertexPositions[vertexID] * float2(0.5f, -0.5f) + (0.5f, 0.5f);
+    _VOut.UV = VertexPositions[vertexID] * float2(0.5f, -0.5f) + float2(0.5f, 0.5f);
     
     return _VOut;
 }

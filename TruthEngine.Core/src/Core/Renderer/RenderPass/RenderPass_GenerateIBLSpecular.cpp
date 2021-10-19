@@ -27,7 +27,7 @@ namespace TruthEngine
 			[this, _IndexRendererCommand = 0](RendererCommand& _RendererCommand) mutable
 		{
 			_RendererCommand.BeginGraphics(&m_PipelinePrefilter);
-			GPUBEGINEVENT(_RendererCommand, "GenerateIBLSpecular");
+			TE_GPUBEGINEVENT(_RendererCommand, "GenerateIBLSpecular");
 
 			_RendererCommand.SetViewPort(&m_Viewport, &m_ViewRect);
 
@@ -41,7 +41,7 @@ namespace TruthEngine
 		//BRDF
 
 		m_RendererCommand_BRDF.BeginGraphics(&m_PipelineBRDF);
-		GPUBEGINEVENT(m_RendererCommand_BRDF, "GenerateBRDFMap");
+		TE_GPUBEGINEVENT(m_RendererCommand_BRDF, "GenerateBRDFMap");
 
 		Viewport _ViewportBRDF{ 0.0f, 0.0f, static_cast<float>(m_TextureIBLPrecomputeBRDFSize), static_cast<float>(m_TextureIBLPrecomputeBRDFSize) , 0.0f, 1.0f };
 		ViewRect _ViewRectBRDF{ 0l, 0l, static_cast<long>(m_TextureIBLPrecomputeBRDFSize), static_cast<long>(m_TextureIBLPrecomputeBRDFSize) };
@@ -59,12 +59,12 @@ namespace TruthEngine
 			m_ContainerRendererCommand_Prefilter.end(),
 			[this](RendererCommand& _RendererCommand) mutable
 			{
-				GPUENDEVENT(_RendererCommand);
+				TE_GPUENDEVENT(_RendererCommand);
 				_RendererCommand.End();
 			}
 		);
 
-		GPUENDEVENT(m_RendererCommand_BRDF);
+		TE_GPUENDEVENT(m_RendererCommand_BRDF);
 		m_RendererCommand_BRDF.End();
 	}
 	void RenderPass_GenerateIBLSpecular::Render()

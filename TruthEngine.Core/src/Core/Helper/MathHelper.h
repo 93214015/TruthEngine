@@ -305,6 +305,11 @@ namespace TruthEngine
 
 	struct uint2
 	{
+		uint2() = default;
+		uint2(uint32_t _x, uint32_t _y)
+			: x(_x), y(_y)
+		{}
+
 		uint32_t x = 0;
 		uint32_t y = 0;
 

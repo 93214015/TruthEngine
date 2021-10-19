@@ -49,7 +49,7 @@ namespace TruthEngine
 		void UnRegisterEventListeners() override;
 
 		void InitPipelines(const Material* material);
-		void InitPipelines_Environment();
+		//void InitPipelines_Environment();
 
 		void OnAddMaterial(EventEntityAddMaterial& event);
 		void OnUpdateMaterial(const EventEntityUpdateMaterial& event);
@@ -60,9 +60,10 @@ namespace TruthEngine
 		RendererCommand m_RendererCommand;
 		//RendererCommand m_RendererCommand_ResolveTextures;
 
-		/*RenderTargetView m_RenderTartgetView;
-		DepthStencilView m_DepthStencilView;
+		const RenderTargetView* m_RenderTartgetView = nullptr;
+		const DepthStencilView* m_DepthStencilView = nullptr;
 
+		/*
 		TextureDepthStencil* m_TextureDepthStencil = nullptr;
 		TextureDepthStencil* m_TextureDepthStencilMS = nullptr;
 		TextureRenderTarget* m_TextureRenderTargetHDRMS = nullptr;
@@ -89,7 +90,7 @@ namespace TruthEngine
 		};
 
 		ConstantBufferDirect<ConstantBuffer_Data_Per_Mesh>* m_ConstantBufferDirect_PerMesh;
-		ConstantBufferDirect<ConstantBuffer_Data_EnvironmentMap>* m_ConstantBufferDirect_EnvironmentMap;
+		//ConstantBufferDirect<ConstantBuffer_Data_EnvironmentMap>* m_ConstantBufferDirect_EnvironmentMap;
 
 		uint32_t m_TotalMeshNum = 0;
 		uint32_t m_TotalVertexNum = 0;

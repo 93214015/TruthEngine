@@ -20,5 +20,15 @@ namespace TruthEngine
 
 }
 
-#define GPUBEGINEVENT(_Context, _EventName) Profiler::GPUEvent::BeginEvent(_Context, _EventName)
-#define GPUENDEVENT(_Context) Profiler::GPUEvent::EndEvent(_Context)
+#if (defined(_DEBUG) || defined(_PROFILE))
+
+#define TE_GPUBEGINEVENT(_Context, _EventName) Profiler::GPUEvent::BeginEvent(_Context, _EventName)
+#define TE_GPUENDEVENT(_Context) Profiler::GPUEvent::EndEvent(_Context)
+
+#else
+
+#define TE_GPUBEGINEVENT(_Context, _EventName)
+#define TE_GPUENDEVENT(_Context)
+
+#endif
+

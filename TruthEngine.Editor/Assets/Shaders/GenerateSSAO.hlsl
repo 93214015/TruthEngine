@@ -59,7 +59,7 @@ VertexOut vs(uint vertexID : SV_VertexID)
 {
     VertexOut _VOut;
     _VOut.PosH = float4(VertexPositions[vertexID], 0.0f, 1.0f);
-    _VOut.UV = VertexPositions[vertexID] * float2(0.5f, -0.5f) + (0.5f, 0.5f);
+    _VOut.UV = VertexPositions[vertexID] * float2(0.5f, -0.5f) + float2(0.5f, 0.5f);
     _VOut.PosCS = _VOut.PosH.xy;
     
     return _VOut;
@@ -72,28 +72,30 @@ VertexOut vs(uint vertexID : SV_VertexID)
 /////////////////////////////////////////////////////////////////
 
 #define NOISE_TEXTURE_SIZE 4.0f // 4x4
+#define NOISE_TEXTURE_SIZE_INV (1.0f/NOISE_TEXTURE_SIZE) // 4x4
 #define KernelSize 64u
+#define KernelSize_Inv (1.0f / KernelSize)
 #define Radius 0.5f
 #define DepthBias 0.025f
 
 float ps(VertexOut _PixelIn) : SV_Target
 {
     
-    float _DepthProjection = tDepth.Sample(sampler_point_borderWhite, _PixelIn.UV);
+    const float _DepthProjection = tDepth.Sample(sampler_point_borderWhite, _PixelIn.UV);
     
-    float _DepthView = ConvertToLinearDepth(_DepthProjection, ProjectionValues.z, ProjectionValues.w);
+    const float _DepthView = ConvertToLinearDepth(_DepthProjection, ProjectionValues.z, ProjectionValues.w);
     
-    float4 _PosView = ReconstructViewPosition(_PixelIn.PosCS, _DepthView, ProjectionValues);
+    const float4 _PosView = ReconstructViewPosition(_PixelIn.PosCS, _DepthView, ProjectionValues);
     
-    float3 _NormalWorld = tNormal.Sample(sampler_point_borderWhite, _PixelIn.UV) * 2.0f - 1.0f;
+    const float3 _NormalWorld = tNormal.Sample(sampler_point_borderWhite, _PixelIn.UV) * 2.0f - 1.0f;
     
-    float3 _NormalView = normalize(mul(_NormalWorld, (float3x3) View));
+    const float3 _NormalView = normalize(mul(_NormalWorld, (float3x3) View));
     
-    const float2 _NoiseScale = gSceneViewportSize / NOISE_TEXTURE_SIZE.xx;
+    const float2 _NoiseScale = gSceneViewportSize * NOISE_TEXTURE_SIZE_INV;
     
     float3 _RandomVector = tNoise.Sample(sampler_point_wrap, _PixelIn.UV * _NoiseScale);
     
-    float3 _Tangent = normalize(_RandomVector - _NormalView * dot(_NormalView, _RandomVector)); // Gramm-Schmidt process
+    float3 _Tangent = normalize(_RandomVector - _NormalView *  dot(_NormalView, _RandomVector)); // Gramm-Schmidt process
     
     float3 _BiTangent = cross(_NormalView, _Tangent);
     
@@ -103,9 +105,9 @@ float ps(VertexOut _PixelIn) : SV_Target
     
     for (uint i = 0; i < KernelSize; ++i)
     {
-        float3 _SamplePos = mul(KernelSamples[i], _TBN);
-        _SamplePos = _PosView.xyz + (_SamplePos * gSSAORadius);
-        float4 _Offset = float4(_SamplePos, 1.0f);
+        float3 _OffsetPos = mul(KernelSamples[i], _TBN);
+        _OffsetPos = _PosView.xyz + (_OffsetPos * gSSAORadius);
+        float4 _Offset = float4(_OffsetPos, 1.0f);
         
         _Offset = mul(_Offset, Projection);
         _Offset.xyz /= _Offset.w;
@@ -116,11 +118,11 @@ float ps(VertexOut _PixelIn) : SV_Target
 
         float _RangeCheck = smoothstep(0.0f, 1.0f, gSSAORadius / abs(_SampleDepthView - _DepthView));
         
-        _Occlusion += ((_SampleDepthView <= (_SamplePos.z - gSSAODepthBias)) ? 1.0 : 0.0f) * _RangeCheck;
+        _Occlusion += ((_SampleDepthView + gSSAODepthBias < _OffsetPos.z) ? 1.0 : 0.0f) * _RangeCheck;
 
     }
     
-    _Occlusion = 1.0f - (_Occlusion / KernelSize);
+    _Occlusion = 1.0f - (_Occlusion * KernelSize_Inv);
     
     return _Occlusion;
     

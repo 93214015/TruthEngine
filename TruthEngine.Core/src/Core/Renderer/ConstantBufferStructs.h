@@ -224,5 +224,6 @@ namespace TruthEngine {
 		float3 mEnvironmentMapMultiplier;
 		float _Pad = 0.0f;
 	};
+	
 
 }

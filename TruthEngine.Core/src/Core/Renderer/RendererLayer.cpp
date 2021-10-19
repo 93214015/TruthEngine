@@ -51,6 +51,7 @@ namespace TruthEngine
 		, m_RenderPass_Wireframe(std::make_shared<RenderPass_Wireframe>(this))
 		, m_RenderPass_SSReflection(std::make_shared<RenderPass_ScreenSpaceReflection>(this))
 		, m_RenderPass_AmbientReflection(std::make_shared<RenderPass_AmbientReflection>(this))
+		, m_RenderPass_EnvironmentMap(std::make_shared<RenderPass_EnvironmentMap>(this))
 	{
 	}
 	RendererLayer::~RendererLayer() = default;
@@ -818,6 +819,8 @@ namespace TruthEngine
 
 		m_RenderPassStack.PushRenderPass(m_RenderPass_GenerateSSAO.get());
 		m_RenderPassStack.PushRenderPass(m_RenderPass_DeferredShading.get());
+
+		m_RenderPassStack.PushRenderPass(m_RenderPass_EnvironmentMap.get());
 
 		if (Settings::Graphics::IsEnabledHDR())
 		{

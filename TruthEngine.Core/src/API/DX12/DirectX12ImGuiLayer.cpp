@@ -210,7 +210,7 @@ namespace TruthEngine::API::DirectX12 {
 			auto dx12CmdList = m_CommandList[currentFrameIndex]->GetNativeObject();
 			dx12CmdList->Reset(m_CommandList[currentFrameIndex]->GetCommandAllocator()->GetNativeObject(), nullptr);
 
-			GPUBEGINEVENT(m_CommandList[currentFrameIndex].get(), "ImGUI");
+			TE_GPUBEGINEVENT(m_CommandList[currentFrameIndex].get(), "ImGUI");
 
 
 			auto& sc = TE_INSTANCE_API_DX12_SWAPCHAIN;
@@ -281,7 +281,7 @@ namespace TruthEngine::API::DirectX12 {
 			ImGui::Render();
 			ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), dx12CmdList);
 
-			GPUENDEVENT(m_CommandList[currentFrameIndex].get());
+			TE_GPUENDEVENT(m_CommandList[currentFrameIndex].get());
 
 			TE_INSTANCE_API_DX12_COMMANDQUEUEDIRECT->ExecuteCommandList(m_CommandList[currentFrameIndex].get());
 

@@ -32,7 +32,7 @@ void TruthEngine::RenderPass_RenderBoundingBoxes::BeginScene()
 		return;
 
 	m_RendererCommand.BeginGraphics(&m_Pipeline);
-	GPUBEGINEVENT(m_RendererCommand, "Render BoundingBox");
+	TE_GPUBEGINEVENT(m_RendererCommand, "Render BoundingBox");
 
 	m_RendererCommand.SetViewPort(&m_RendererLayer->GetViewportScene(), &m_RendererLayer->GetViewRectScene());
 	m_RendererCommand.SetRenderTarget(m_RendererLayer->GetRenderTargetViewSceneSDR());
@@ -44,7 +44,7 @@ void TruthEngine::RenderPass_RenderBoundingBoxes::EndScene()
 	if (m_Queue.size() == 0)
 		return;
 
-	GPUENDEVENT(m_RendererCommand);
+	TE_GPUENDEVENT(m_RendererCommand);
 	m_RendererCommand.End();
 
 	m_Queue.clear();

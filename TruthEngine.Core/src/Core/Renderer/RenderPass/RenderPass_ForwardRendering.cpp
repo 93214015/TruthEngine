@@ -172,14 +172,12 @@ namespace TruthEngine
 		//m_TimerBegin.Start();
 
 		m_RendererCommand.BeginGraphics();
-		GPUBEGINEVENT(m_RendererCommand, "ForwardRendering");
+		TE_GPUBEGINEVENT(m_RendererCommand, "ForwardRendering");
 
 		m_RendererCommand.SetViewPort(&m_RendererLayer->GetViewportScene(), &m_RendererLayer->GetViewRectScene());
-
-		const RenderTargetView& _RTV = Settings::Graphics::IsEnabledMSAA() ? (Settings::Graphics::IsEnabledHDR() ? m_RendererLayer->GetRenderTargetViewSceneHDRMS() : m_RendererLayer->GetRenderTargetViewSceneSDRMS()) : (Settings::Graphics::IsEnabledHDR() ? m_RendererLayer->GetRenderTargetViewSceneHDR() : m_RendererLayer->GetRenderTargetViewSceneSDR());
-		const DepthStencilView& _DSV = Settings::Graphics::IsEnabledMSAA() ? m_RendererLayer->GetDepthStencilViewSceneMS() : m_RendererLayer->GetDepthStencilViewScene();
-		m_RendererCommand.SetRenderTarget(_RTV);
-		m_RendererCommand.SetDepthStencil(_DSV);
+		
+		m_RendererCommand.SetRenderTarget(*m_RenderTartgetView);
+		m_RendererCommand.SetDepthStencil(*m_DepthStencilView);
 
 
 		//m_TimerBegin.End();
@@ -187,7 +185,7 @@ namespace TruthEngine
 
 	void RenderPass_ForwardRendering::EndScene()
 	{
-		GPUENDEVENT(m_RendererCommand);
+		TE_GPUENDEVENT(m_RendererCommand);
 		m_RendererCommand.End();
 	}
 
@@ -238,7 +236,7 @@ namespace TruthEngine
 		}
 		/*}*/
 
-		if (m_RendererLayer->IsEnvironmentMapEnabled())
+		/*if (m_RendererLayer->IsEnvironmentMapEnabled())
 		{
 			const auto _EntityViewEnv = _ActiveScene->ViewEntities<EnvironmentComponent>();
 
@@ -251,7 +249,7 @@ namespace TruthEngine
 				m_RendererCommand.DrawIndexed(mesh);
 			}
 
-		}
+		}*/
 
 
 		m_TimerRender.End();
@@ -306,7 +304,7 @@ namespace TruthEngine
 
 	}
 
-	void RenderPass_ForwardRendering::InitPipelines_Environment()
+	/*void RenderPass_ForwardRendering::InitPipelines_Environment()
 	{
 		RendererStateSet states = InitRenderStates();
 		SET_RENDERER_STATE(states, TE_RENDERER_STATE_CULL_MODE, TE_RENDERER_STATE_CULL_MODE::TE_RENDERER_STATE_CULL_MODE_NONE);
@@ -320,7 +318,7 @@ namespace TruthEngine
 		const std::vector<ShaderInputElement> _InputElements{ {"POSITION", 0, TE_RESOURCE_FORMAT::R32G32B32_FLOAT, 0, 0, TE_RENDERER_SHADER_INPUT_CLASSIFICATION::PER_VERTEX, 0 } };
 
 		PipelineGraphics::Factory(&m_PipelineEnvironmentCube, states, _ShaderHandle, 1, rtvFormats, m_RendererLayer->GetFormatDepthStencilSceneDSV(), _InputElements, true, PipelineBlendDesc{}, _PipelineDSDesc);
-	}
+	}*/
 
 	void RenderPass_ForwardRendering::RegisterEventListeners()
 	{
@@ -369,6 +367,8 @@ namespace TruthEngine
 
 	void RenderPass_ForwardRendering::InitTextures()
 	{
+		m_RenderTartgetView = &(Settings::Graphics::IsEnabledMSAA() ? (Settings::Graphics::IsEnabledHDR() ? m_RendererLayer->GetRenderTargetViewSceneHDRMS() : m_RendererLayer->GetRenderTargetViewSceneSDRMS()) : (Settings::Graphics::IsEnabledHDR() ? m_RendererLayer->GetRenderTargetViewSceneHDR() : m_RendererLayer->GetRenderTargetViewSceneSDR()));
+		m_DepthStencilView = &(Settings::Graphics::IsEnabledMSAA() ? m_RendererLayer->GetDepthStencilViewSceneMS() : m_RendererLayer->GetDepthStencilViewScene());
 	}
 
 	void RenderPass_ForwardRendering::InitBuffers()
@@ -376,7 +376,7 @@ namespace TruthEngine
 		m_ConstantBufferDirect_PerMesh = m_RendererCommand.CreateConstantBufferDirect<ConstantBuffer_Data_Per_Mesh>(TE_IDX_GRESOURCES::Constant_PerMesh);
 
 		//this constant buffer is created by RendererLayer
-		m_ConstantBufferDirect_EnvironmentMap = static_cast<ConstantBufferDirect<ConstantBuffer_Data_EnvironmentMap>*>(TE_INSTANCE_BUFFERMANAGER->GetConstantBufferDirect(TE_IDX_GRESOURCES::Constant_EnvironmentMap));
+		//m_ConstantBufferDirect_EnvironmentMap = static_cast<ConstantBufferDirect<ConstantBuffer_Data_EnvironmentMap>*>(TE_INSTANCE_BUFFERMANAGER->GetConstantBufferDirect(TE_IDX_GRESOURCES::Constant_EnvironmentMap));
 	}
 
 	void RenderPass_ForwardRendering::InitPipelines()
@@ -386,7 +386,7 @@ namespace TruthEngine
 			InitPipelines(mat);
 		}
 
-		InitPipelines_Environment();
+		//InitPipelines_Environment();
 
 	}
 

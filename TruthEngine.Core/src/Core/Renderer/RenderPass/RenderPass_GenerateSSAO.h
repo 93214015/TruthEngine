@@ -44,25 +44,37 @@ namespace TruthEngine
 		void RegisterEventListeners() override;
 		void UnRegisterEventListeners() override;
 
+		void SetThreadNum(uint32_t Width, uint32_t Height);
+
 		void OnEventRendererViewportResize(const EventRendererViewportResize& _Event);
 
 	private:
 
 		RendererCommand m_RendererCommand;
 		RendererCommand m_RendererCommand_Blurring;
+		RendererCommand m_RendererCommand_BlurringCS;
+		RendererCommand m_RendererCommand_MedianBlurring;
+		RendererCommand m_RendererCommand_MedianBlurringCS;
 
 		TextureRenderTarget* m_TextureRenderTargetSSAO;
 		TextureRenderTarget* m_TextureRenderTargetSSAOBlurred;
+		TextureRenderTarget* m_TextureRenderTargetSSAOBlurredMedian;
 
 		Texture* m_TextureNoises;
+		Texture* m_TextureRWBlurredMedian;
+		Texture* m_TextureRWBlurred;
 
 		RenderTargetView m_RTV;
 		RenderTargetView m_RTVBlurred;
+		RenderTargetView m_RTVBlurredMedian;
+
 
 		PipelineGraphics m_Pipeline;
 		PipelineGraphics m_PipelineBlurring;
+		PipelineGraphics m_PipelineBlurringMedian;
+		PipelineCompute m_PipelineBlurringCS;
+		PipelineCompute m_PipelineBlurringMedianCS;
 
-		float3 m_KernelSamples[64];
 
 		struct alignas(16) ConstantBufferData_SSAO
 		{
@@ -70,12 +82,22 @@ namespace TruthEngine
 			float SSAODepthBias = 0.025f;
 			float2 _Pad0;
 
-			float3 KernelSamples[64];
+			float3A KernelSamples[64];
+		};
+
+		struct alignas(16) ConstantBufferData_SSAOBlurringCS
+		{
+			uint2 TextureSize;
+			uint2 _Pad0;
 		};
 
 		ConstantBufferUpload<ConstantBufferData_SSAO>* m_ConstantBufferSSAO;
+		ConstantBufferUpload<ConstantBufferData_SSAOBlurringCS>* m_ConstantBufferBlurringCS;
 
-		float3A m_Noises[16];
+		float3 m_Noises[16];
+		float3A m_KernelSamples[64];
+
+		uint2 m_MedianBlurringDispatchThreadNum = uint2{ 0, 0 };
 
 		std::vector<EventListenerHandle> m_EventListenerList;
 

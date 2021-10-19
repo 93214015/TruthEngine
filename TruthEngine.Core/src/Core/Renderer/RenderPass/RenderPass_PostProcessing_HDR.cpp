@@ -89,27 +89,27 @@ void TruthEngine::RenderPass_PostProcessing_HDR::BeginScene()
 {
 
 	mRendererCommand_DownScaling_FirstPass.BeginCompute(&mPipelineDownScalingFirstPass);
-	GPUBEGINEVENT(mRendererCommand_DownScaling_FirstPass, "HDR->Dowscaling->FirtPass");
+	TE_GPUBEGINEVENT(mRendererCommand_DownScaling_FirstPass, "HDR->Dowscaling->FirtPass");
 
 
 	mRendererCommand_DownScaling_SecondPass.BeginCompute(&mPipelineDownScalingSecondPass);
-	GPUBEGINEVENT(mRendererCommand_DownScaling_SecondPass, "HDR->Dowscaling->SecondPass");
+	TE_GPUBEGINEVENT(mRendererCommand_DownScaling_SecondPass, "HDR->Dowscaling->SecondPass");
 
 
 	mRendererCommand_BloomPass.BeginCompute(&mPipelineBloomPass);
-	GPUBEGINEVENT(mRendererCommand_BloomPass, "HDR->Bloom");
+	TE_GPUBEGINEVENT(mRendererCommand_BloomPass, "HDR->Bloom");
 
 
 	mRendererCommand_BlurPassHorz.BeginCompute(&mPipelineBlurPassHorz);
-	GPUBEGINEVENT(mRendererCommand_BlurPassHorz, "HDR->Blur->Horz");
+	TE_GPUBEGINEVENT(mRendererCommand_BlurPassHorz, "HDR->Blur->Horz");
 
 
 	mRendererCommand_BlurPassVert.BeginCompute(&mPipelineBlurPassVert);
-	GPUBEGINEVENT(mRendererCommand_BlurPassVert, "HDR->Blur->Vert");
+	TE_GPUBEGINEVENT(mRendererCommand_BlurPassVert, "HDR->Blur->Vert");
 
 
 	mRendererCommand_FinalPass.BeginGraphics(mPipelineFinalPass_Selected);
-	GPUBEGINEVENT(mRendererCommand_FinalPass, "HDR->FinalPass");
+	TE_GPUBEGINEVENT(mRendererCommand_FinalPass, "HDR->FinalPass");
 	mRendererCommand_FinalPass.SetRenderTarget(m_RendererLayer->GetRenderTargetViewSceneSDR());
 	mRendererCommand_FinalPass.ClearRenderTarget(m_RendererLayer->GetRenderTargetViewSceneSDR());
 	mRendererCommand_FinalPass.SetViewPort(&m_RendererLayer->GetViewportScene(), &m_RendererLayer->GetViewRectScene());
@@ -119,22 +119,22 @@ void TruthEngine::RenderPass_PostProcessing_HDR::BeginScene()
 
 void TruthEngine::RenderPass_PostProcessing_HDR::EndScene()
 {
-	GPUENDEVENT(mRendererCommand_DownScaling_FirstPass);
+	TE_GPUENDEVENT(mRendererCommand_DownScaling_FirstPass);
 	mRendererCommand_DownScaling_FirstPass.End();
 
-	GPUENDEVENT(mRendererCommand_DownScaling_SecondPass);
+	TE_GPUENDEVENT(mRendererCommand_DownScaling_SecondPass);
 	mRendererCommand_DownScaling_SecondPass.End();
 
-	GPUENDEVENT(mRendererCommand_BloomPass);
+	TE_GPUENDEVENT(mRendererCommand_BloomPass);
 	mRendererCommand_BloomPass.End();
 
-	GPUENDEVENT(mRendererCommand_BlurPassHorz);
+	TE_GPUENDEVENT(mRendererCommand_BlurPassHorz);
 	mRendererCommand_BlurPassHorz.End();
 
-	GPUENDEVENT(mRendererCommand_BlurPassVert);
+	TE_GPUENDEVENT(mRendererCommand_BlurPassVert);
 	mRendererCommand_BlurPassVert.End();
 
-	GPUENDEVENT(mRendererCommand_FinalPass);
+	TE_GPUENDEVENT(mRendererCommand_FinalPass);
 	mRendererCommand_FinalPass.End();
 }
 

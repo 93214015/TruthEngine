@@ -34,7 +34,7 @@ namespace TruthEngine
 			return;
 
 		m_RendererCommand.BeginGraphics(&m_Pipeline);
-		GPUBEGINEVENT(m_RendererCommand, "Render Entity Icons");
+		TE_GPUBEGINEVENT(m_RendererCommand, "Render Entity Icons");
 
 		m_RendererCommand.SetRenderTarget(m_RendererLayer->GetRenderTargetViewSceneSDR());
 		m_RendererCommand.SetDepthStencil(m_RendererLayer->GetDepthStencilViewScene());
@@ -46,7 +46,7 @@ namespace TruthEngine
 		if (m_IsDrawListEmpty)
 			return;
 
-		GPUENDEVENT(m_RendererCommand);
+		TE_GPUENDEVENT(m_RendererCommand);
 		m_RendererCommand.End();
 	}
 

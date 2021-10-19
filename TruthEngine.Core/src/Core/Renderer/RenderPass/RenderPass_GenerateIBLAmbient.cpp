@@ -24,7 +24,7 @@ namespace TruthEngine
 	void RenderPass_GenerateIBLAmbient::BeginScene()
 	{
 		m_RendererCommand.BeginGraphics(&m_PipelineGenerateIBL);
-		GPUBEGINEVENT(m_RendererCommand, "GenerateIBLAmbient");
+		TE_GPUBEGINEVENT(m_RendererCommand, "GenerateIBLAmbient");
 
 		m_RendererCommand.SetViewPort(&m_Viewport, &m_ViewRect);
 		m_RendererCommand.SetRenderTarget(m_RenderTartgetViewIBL);
@@ -32,7 +32,7 @@ namespace TruthEngine
 	}
 	void RenderPass_GenerateIBLAmbient::EndScene()
 	{
-		GPUENDEVENT(m_RendererCommand);
+		TE_GPUENDEVENT(m_RendererCommand);
 		m_RendererCommand.End();
 
 		if (m_OutputTextureFilePath.c_str() != "")

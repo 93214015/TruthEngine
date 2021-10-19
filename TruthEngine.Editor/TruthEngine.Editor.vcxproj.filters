@@ -31,4 +31,10 @@
     </ClCompile>
     <ClCompile Include="src\pch.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Assets\Shaders\CSBlurMedian.hlsl" />
+    <FxCompile Include="Assets\Shaders\AmbientReflection.hlsl" />
+    <FxCompile Include="Assets\Shaders\BlurMedian.hlsl" />
+    <FxCompile Include="Assets\Shaders\CSBlurBox.hlsl" />
+  </ItemGroup>
 </Project>

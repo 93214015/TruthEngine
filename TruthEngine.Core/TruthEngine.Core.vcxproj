@@ -276,6 +276,7 @@
     <ClInclude Include="src\Core\Renderer\RenderPass.h" />
     <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_AmbientReflection.h" />
     <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_DeferredShading.h" />
+    <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_EnvironmentMap.h" />
     <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_ForwardRendering.h" />
     <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_GenerateCubeMap.h" />
     <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_GenerateGBuffers.h" />
@@ -429,6 +430,7 @@
     <ClCompile Include="src\Core\Renderer\RenderPass.cpp" />
     <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_AmbientReflection.cpp" />
     <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_DeferredShading.cpp" />
+    <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_EnvironmentMap.cpp" />
     <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_ForwardRendering.cpp" />
     <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_GenerateCubeMap.cpp" />
     <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_GenerateGBuffers.cpp" />

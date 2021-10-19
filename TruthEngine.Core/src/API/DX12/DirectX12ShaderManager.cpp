@@ -57,27 +57,27 @@ namespace TruthEngine
 
 				if (csEntry != "")
 				{
-					shader->m_CS = CompileShader(name, shader->m_ID, filePath, csEntry, "cs");
+					shader->m_CS = CompileShader_DXC(name, shader->m_ID, filePath, csEntry, "cs");
 				}
 				if (vsEntry != "")
 				{
-					shader->m_VS = CompileShader(name, shader->m_ID, filePath, vsEntry, "vs");
+					shader->m_VS = CompileShader_DXC(name, shader->m_ID, filePath, vsEntry, "vs");
 				}
 				if (psEntry != "")
 				{
-					shader->m_PS = CompileShader(name, shader->m_ID, filePath, psEntry, "ps");
+					shader->m_PS = CompileShader_DXC(name, shader->m_ID, filePath, psEntry, "ps");
 				}
 				if (gsEntry != "")
 				{
-					shader->m_GS = CompileShader(name, shader->m_ID, filePath, gsEntry, "gs");
+					shader->m_GS = CompileShader_DXC(name, shader->m_ID, filePath, gsEntry, "gs");
 				}
 				if (dsEntry != "")
 				{
-					shader->m_DS = CompileShader(name, shader->m_ID, filePath, dsEntry, "ds");
+					shader->m_DS = CompileShader_DXC(name, shader->m_ID, filePath, dsEntry, "ds");
 				}
 				if (hsEntry != "")
 				{
-					shader->m_HS = CompileShader(name, shader->m_ID, filePath, hsEntry, "hs");
+					shader->m_HS = CompileShader_DXC(name, shader->m_ID, filePath, hsEntry, "hs");
 				}
 
 
@@ -87,7 +87,7 @@ namespace TruthEngine
 
 			}
 
-			TruthEngine::Shader::ShaderCode DirectX12ShaderManager::CompileShader_OLD(std::string_view shaderName, uint32_t shaderID, std::string_view filePath, std::string_view entry, std::string_view shaderStage)
+			TruthEngine::Shader::ShaderCode DirectX12ShaderManager::CompileShader_FXC(std::string_view shaderName, uint32_t shaderID, std::string_view filePath, std::string_view entry, std::string_view shaderStage)
 			{
 				std::string target = shaderStage.data() + std::string("_5_1");
 
@@ -96,13 +96,26 @@ namespace TruthEngine
 
 				std::vector <D3D_SHADER_MACRO> macros;
 
+				std::vector<std::pair<std::string, std::string>> _MacroValue;
+				_MacroValue.reserve(m_Defines.size());
+
 				for (const auto& d : m_Defines)
 				{
-					std::string name = std::string(d.begin(), d.end());
-					D3D_SHADER_MACRO m{ name.c_str() , "" };
-					macros.emplace_back(m);
+					std::string _Macro = std::string(d.begin(), d.end());
+					auto& _pair = _MacroValue.emplace_back(std::pair(std::string(""), std::string("")));
+					size_t _equalOperator = _Macro.find_first_of('=');
+					if (_equalOperator != std::string::npos)
+					{
+						_pair.first = std::string(_Macro.begin(), _Macro.begin() + _equalOperator);
+						_pair.second = std::string(_Macro.begin() + _equalOperator + 1, _Macro.end());
+					}
+					else
+					{
+						_pair.first = std::string(_Macro);
+					}
+					D3D_SHADER_MACRO m{ _pair.first.c_str() , _pair.second.c_str() };
+					macros.push_back(m);
 				}
-				m_Defines.clear();
 
 				macros.emplace_back(D3D_SHADER_MACRO{ NULL, NULL });
 
@@ -113,11 +126,10 @@ namespace TruthEngine
 					exit(-1);
 				}
 
-
 				return Shader::ShaderCode(codeBlob->GetBufferSize(), codeBlob->GetBufferPointer());
 			}
 
-			Shader::ShaderCode DirectX12ShaderManager::CompileShader(std::string_view shaderName, uint32_t shaderID, std::string_view filePath, std::string_view entry, std::string_view shaderStage)
+			Shader::ShaderCode DirectX12ShaderManager::CompileShader_DXC(std::string_view shaderName, uint32_t shaderID, std::string_view filePath, std::string_view entry, std::string_view shaderStage)
 			{
 
 				// 

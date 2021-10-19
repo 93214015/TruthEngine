@@ -25,7 +25,7 @@ namespace TruthEngine
 		/////////////////////////
 		{
 			m_RendererCommand_CopyResource.BeginGraphics();
-			GPUBEGINEVENT(m_RendererCommand_CopyResource, "CopyHDRSceneBuffer");
+			TE_GPUBEGINEVENT(m_RendererCommand_CopyResource, "CopyHDRSceneBuffer");
 			m_RendererCommand_CopyResource.CopyResource(TE_IDX_GRESOURCES::Texture_RT_SceneBufferHDR, m_Texture_SceneBuffer);
 		}
 
@@ -34,9 +34,9 @@ namespace TruthEngine
 		/////////////////////////
 		{
 			m_RendererCommand_BlurHorz.BeginCompute(&m_Pipeline_BlurHorz);
-			GPUBEGINEVENT(m_RendererCommand_BlurHorz, "BlurringSSReflectionHorzPass");
+			TE_GPUBEGINEVENT(m_RendererCommand_BlurHorz, "BlurringSSReflectionHorzPass");
 			m_RendererCommand_BlurVert.BeginCompute(&m_Pipeline_BlurVert);
-			GPUBEGINEVENT(m_RendererCommand_BlurVert, "BlurringSSReflectionVertPass");
+			TE_GPUBEGINEVENT(m_RendererCommand_BlurVert, "BlurringSSReflectionVertPass");
 		}
 
 		/////////////////////////
@@ -44,20 +44,20 @@ namespace TruthEngine
 		/////////////////////////
 		{
 			m_RendererCommand_Blend.BeginGraphics(&m_Pipeline_Blend);
-			GPUBEGINEVENT(m_RendererCommand_BlurVert, "AmbientReflection");
+			TE_GPUBEGINEVENT(m_RendererCommand_BlurVert, "AmbientReflection");
 			m_RendererCommand_Blend.SetViewPort(&m_RendererLayer->GetViewportScene(), &m_RendererLayer->GetViewRectScene());
 			m_RendererCommand_Blend.SetRenderTarget(m_RendererLayer->GetRenderTargetViewSceneHDR());
 		}
 	}
 	void RenderPass_AmbientReflection::EndScene()
 	{
-		GPUENDEVENT(m_RendererCommand_CopyResource);
+		TE_GPUENDEVENT(m_RendererCommand_CopyResource);
 		m_RendererCommand_CopyResource.End();
-		GPUENDEVENT(m_RendererCommand_BlurHorz);
+		TE_GPUENDEVENT(m_RendererCommand_BlurHorz);
 		m_RendererCommand_BlurHorz.End();
-		GPUENDEVENT(m_RendererCommand_BlurVert);
+		TE_GPUENDEVENT(m_RendererCommand_BlurVert);
 		m_RendererCommand_BlurVert.End();
-		GPUENDEVENT(m_RendererCommand_Blend);
+		TE_GPUENDEVENT(m_RendererCommand_Blend);
 		m_RendererCommand_Blend.End();
 	}
 	void RenderPass_AmbientReflection::Render()
