@@ -32,9 +32,11 @@
     <ClCompile Include="src\pch.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="Assets\Shaders\CSBlurMedian.hlsl" />
+    <FxCompile Include="Assets\Shaders\CSFilterMedian.hlsl" />
     <FxCompile Include="Assets\Shaders\AmbientReflection.hlsl" />
-    <FxCompile Include="Assets\Shaders\BlurMedian.hlsl" />
-    <FxCompile Include="Assets\Shaders\CSBlurBox.hlsl" />
+    <FxCompile Include="Assets\Shaders\FilterMedian.hlsl" />
+    <FxCompile Include="Assets\Shaders\CSFilterBox.hlsl" />
+    <FxCompile Include="Assets\Shaders\CSFilterKuwahara.hlsl" />
+    <FxCompile Include="Assets\Shaders\FilterKuwahara.hlsl" />
   </ItemGroup>
 </Project>

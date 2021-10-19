@@ -96,3 +96,32 @@ void cs(uint3 GTid : SV_GroupThreadID, uint3 DTid : SV_DispatchThreadID)
 	gTexOutput[DTid.xy] = _Result;
 
 }
+
+
+[numthreads(ROW_SIZE + (2 * SIZE), ROW_SIZE + (2 * SIZE), 1)]
+void cs2(uint3 GTid : SV_GroupThreadID, uint3 GroupID : SV_GroupID)
+{
+	uint3 _Pixel = uint3(GroupID.x * ROW_SIZE + GTid.x - SIZE, GroupID.y * ROW_SIZE + GTid.y - SIZE, 0);
+	//Populating shared memory
+	Colors[GTid.y][GTid.x] = gTexInput.Load(_Pixel);
+
+	GroupMemoryBarrierWithGroupSync();
+
+	if (GTid.x < SIZE || GTid.x >= (ROW_SIZE + SIZE) || GTid.y < SIZE || GTid.y >= (ROW_SIZE + SIZE))
+		return;
+
+	TEX_TYPE _Result = 0.0f;
+
+	for (int i = -SIZE; i <= SIZE; ++i)
+	{
+		for (int j = -SIZE; j <= SIZE; ++j)
+		{
+			_Result += Colors[GTid.y + i][GTid.x + j];
+		}
+	}
+
+	_Result /= KERNEL_SIZE;
+
+	gTexOutput[_Pixel.xy] = _Result;
+
+}

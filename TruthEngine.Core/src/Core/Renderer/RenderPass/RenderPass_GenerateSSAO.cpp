@@ -85,6 +85,14 @@ namespace TruthEngine
 		m_RendererCommand.SetRenderTarget(m_RTV);
 		m_RendererCommand.ClearRenderTarget(m_RTV);
 
+		m_RendererCommand_FilterKuwahara.BeginGraphics(&m_Pipeline_FilterKuwahara);
+		TE_GPUBEGINEVENT(m_RendererCommand_FilterKuwahara, "SSAO -> Filter Kuwahara");
+		m_RendererCommand_FilterKuwahara.SetViewPort(&m_RendererLayer->GetViewportScene(), &m_RendererLayer->GetViewRectScene());
+		m_RendererCommand_FilterKuwahara.SetRenderTarget(m_RTVBlurred);
+
+
+		m_RendererCommand_FilterKuwaharaCS.BeginCompute(&m_PipelineFilterKuwaharaCS);
+		TE_GPUBEGINEVENT(m_RendererCommand_FilterKuwaharaCS, "SSAO->Filter Kuwahara CS");
 
 		m_RendererCommand_BlurringCS.BeginCompute(&m_PipelineBlurringCS);
 		TE_GPUBEGINEVENT(m_RendererCommand_BlurringCS, "SSAO->Blurring BoxFilter CS");
@@ -112,6 +120,12 @@ namespace TruthEngine
 		TE_GPUENDEVENT(m_RendererCommand);
 		m_RendererCommand.End();
 
+		TE_GPUENDEVENT(m_RendererCommand_FilterKuwahara);
+		m_RendererCommand_FilterKuwahara.End();
+
+		TE_GPUENDEVENT(m_RendererCommand_FilterKuwaharaCS);
+		m_RendererCommand_FilterKuwaharaCS.End();
+
 		TE_GPUENDEVENT(m_RendererCommand_BlurringCS);
 		m_RendererCommand_BlurringCS.End();
 
@@ -138,10 +152,23 @@ namespace TruthEngine
 
 
 		/////////////////////////////////////////////////////
+		// Filter SSAO by Kuwahara Filter
+		/////////////////////////////////////////////////////
+		m_RendererCommand_FilterKuwahara.ExecutePendingCommands();
+
+		m_RendererCommand_FilterKuwahara.Draw(4, 0);
+
+
+		/////////////////////////////////////////////////////
+		// Filter SSAO by Kuwahara Filter Compute Shader
+		/////////////////////////////////////////////////////
+		m_RendererCommand_FilterKuwaharaCS.Dispatch(m_MedianBlurringDispatchThreadNum.x, m_MedianBlurringDispatchThreadNum.y, 1);
+
+
+		/////////////////////////////////////////////////////
 		// Blurring SSAO by Box Filtering Compute Shader
 		/////////////////////////////////////////////////////
 		m_RendererCommand_BlurringCS.Dispatch(m_MedianBlurringDispatchThreadNum.x, m_MedianBlurringDispatchThreadNum.y, 1);
-
 
 		/*
 		/////////////////////////////////////////////////////
@@ -170,6 +197,8 @@ namespace TruthEngine
 	{
 		m_RendererCommand.Init(TE_IDX_RENDERPASS::GENERATESSAO, TE_IDX_SHADERCLASS::GENERATESSAO);
 		m_RendererCommand_BlurringCS.Init(TE_IDX_RENDERPASS::GENERATESSAO, TE_IDX_SHADERCLASS::SSAOBLURRINGCS);
+		m_RendererCommand_FilterKuwahara.Init(TE_IDX_RENDERPASS::GENERATESSAO, TE_IDX_SHADERCLASS::SSAOFILTERKUWAHARA);
+		m_RendererCommand_FilterKuwaharaCS.Init(TE_IDX_RENDERPASS::GENERATESSAO, TE_IDX_SHADERCLASS::SSAOFILTERKUWAHARACS);
 		/*
 		m_RendererCommand_Blurring.Init(TE_IDX_RENDERPASS::GENERATESSAO, TE_IDX_SHADERCLASS::SSAOBLURRING);
 		m_RendererCommand_MedianBlurring.Init(TE_IDX_RENDERPASS::GENERATESSAO, TE_IDX_SHADERCLASS::SSAOBLURRINGMEDIAN);
@@ -182,11 +211,11 @@ namespace TruthEngine
 		Application* _App = TE_INSTANCE_APPLICATION;
 		m_TextureRenderTargetSSAO = m_RendererCommand.CreateRenderTarget(TE_IDX_GRESOURCES::Texture_RT_SSAO, _App->GetSceneViewportWidth(), _App->GetSceneViewportHeight(), 1, TE_RESOURCE_FORMAT::R32_FLOAT, ClearValue_RenderTarget{ 1.0f, 1.0f, 1.0f, 1.0f }, true, false);
 
-		//m_TextureRenderTargetSSAOBlurred = m_RendererCommand.CreateRenderTarget(TE_IDX_GRESOURCES::Texture_RT_SSAOBlurred, _App->GetSceneViewportWidth(), _App->GetSceneViewportHeight(), 1, TE_RESOURCE_FORMAT::R32_FLOAT, ClearValue_RenderTarget{ 1.0f, 1.0f, 1.0f, 1.0f }, true, false);
+		m_TextureRenderTargetSSAOBlurred = m_RendererCommand.CreateRenderTarget(TE_IDX_GRESOURCES::Texture_RT_SSAOBlurred, _App->GetSceneViewportWidth(), _App->GetSceneViewportHeight(), 1, TE_RESOURCE_FORMAT::R32_FLOAT, ClearValue_RenderTarget{ 1.0f, 1.0f, 1.0f, 1.0f }, true, false);
 		//m_TextureRenderTargetSSAOBlurredMedian = m_RendererCommand.CreateRenderTarget(TE_IDX_GRESOURCES::Texture_RT_SSAOBlurredMedian, _App->GetSceneViewportWidth(), _App->GetSceneViewportHeight(), 1, TE_RESOURCE_FORMAT::R32_FLOAT, ClearValue_RenderTarget{ 1.0f, 1.0f, 1.0f, 1.0f }, true, false);
 
 		m_RendererCommand.CreateRenderTargetView(m_TextureRenderTargetSSAO, &m_RTV);
-		//m_RendererCommand.CreateRenderTargetView(m_TextureRenderTargetSSAOBlurred, &m_RTVBlurred);
+		m_RendererCommand.CreateRenderTargetView(m_TextureRenderTargetSSAOBlurred, &m_RTVBlurred);
 		//m_RendererCommand.CreateRenderTargetView(m_TextureRenderTargetSSAOBlurredMedian, &m_RTVBlurredMedian);
 		
 
@@ -194,6 +223,7 @@ namespace TruthEngine
 
 		m_TextureRWBlurred = m_RendererCommand.CreateTextureRW(TE_IDX_GRESOURCES::Texture_RW_SSAOBlurred, _App->GetSceneViewportWidth(), _App->GetSceneViewportHeight(), TE_RESOURCE_FORMAT::R32_FLOAT, true, false);
 		//m_TextureRWBlurredMedian = m_RendererCommand.CreateTextureRW(TE_IDX_GRESOURCES::Texture_RW_SSAOBlurredMedian, _App->GetSceneViewportWidth(), _App->GetSceneViewportHeight(), TE_RESOURCE_FORMAT::R32_FLOAT, true, false);
+		m_TextureRWFilterKuhawara = m_RendererCommand.CreateTextureRW(TE_IDX_GRESOURCES::Texture_RW_SSAOFilterKuwahara, _App->GetSceneViewportWidth(), _App->GetSceneViewportHeight(), TE_RESOURCE_FORMAT::R32_FLOAT, true, false);
 
 		SetThreadNum(_App->GetSceneViewportWidth(), _App->GetSceneViewportHeight());
 	}
@@ -253,6 +283,31 @@ namespace TruthEngine
 			PipelineGraphics::Factory(&m_Pipeline, _RendererStates, _ShaderHandle, _countof(rtvFormats), rtvFormats, TE_RESOURCE_FORMAT::UNKNOWN, {}, false);
 		}
 
+		///////////////////////////////////////////////
+		//// SSAO KuwaharaFilter
+		///////////////////////////////////////////////
+		{
+			const std::wstring _KernelHalfSize = L"SIZE=" + std::to_wstring(MedianBlurSize);
+			const std::wstring _TextureType = L"TEX_TYPE=float";
+
+			const auto _ShaderHandle = TE_INSTANCE_SHADERMANAGER->AddShader(TE_IDX_SHADERCLASS::SSAOFILTERKUWAHARA, 0, "Assets/Shaders/FilterKuwahara.hlsl", "vs", "ps", "", "", "", "", { _TextureType.c_str(), _KernelHalfSize.c_str() });
+
+			PipelineGraphics::Factory(&m_Pipeline_FilterKuwahara, _RendererStates, _ShaderHandle, _countof(rtvFormats), rtvFormats, TE_RESOURCE_FORMAT::UNKNOWN, {}, false);
+		}
+
+
+		///////////////////////////////////////////////
+		//// SSAO KuwaharaFilter Compute Shader
+		///////////////////////////////////////////////
+		{
+			const std::wstring _TextureType = L"TEX_TYPE=float";
+			const std::wstring _KernelHalfSize = L"SIZE=" + std::to_wstring(MedianBlurSize);
+
+			const auto _ShaderHandle = TE_INSTANCE_SHADERMANAGER->AddShader(TE_IDX_SHADERCLASS::SSAOFILTERKUWAHARACS, 0, "Assets/Shaders/CSFilterKuwahara.hlsl", "", "", "cs2", "", "", "", { _TextureType.c_str(), _KernelHalfSize.c_str()});
+
+			PipelineCompute::Factory(&m_PipelineFilterKuwaharaCS, _ShaderHandle);
+		}
+
 
 		///////////////////////////////////////////////
 		//// SSAO BoxFilter Compute Shader
@@ -261,7 +316,7 @@ namespace TruthEngine
 			const std::wstring _KernelHalfSize = L"SIZE=" + std::to_wstring(MedianBlurSize);
 			const std::wstring _TextureType = L"TEX_TYPE=float";
 
-			const auto _ShaderHandle = TE_INSTANCE_SHADERMANAGER->AddShader(TE_IDX_SHADERCLASS::SSAOBLURRINGCS, 0, "Assets/Shaders/CSBlurBox.hlsl", "", "", "cs", "", "", "", { _TextureType.c_str(), _KernelHalfSize.c_str()});
+			const auto _ShaderHandle = TE_INSTANCE_SHADERMANAGER->AddShader(TE_IDX_SHADERCLASS::SSAOBLURRINGCS, 0, "Assets/Shaders/CSFilterBox.hlsl", "", "", "cs", "", "", "", { _TextureType.c_str(), _KernelHalfSize.c_str()});
 
 			PipelineCompute::Factory(&m_PipelineBlurringCS, _ShaderHandle);
 		}
@@ -272,7 +327,7 @@ namespace TruthEngine
 		//// SSAO Blurring
 		///////////////////////////////////////////////
 		{
-			const auto _ShaderHandle = TE_INSTANCE_SHADERMANAGER->AddShader(TE_IDX_SHADERCLASS::SSAOBLURRING, 0, "Assets/Shaders/SSAOBlur.hlsl", "vs", "ps");
+			const auto _ShaderHandle = TE_INSTANCE_SHADERMANAGER->AddShader(TE_IDX_SHADERCLASS::SSAOBLURRING, 0, "Assets/Shaders/SSAOBoxFilter.hlsl", "vs", "ps");
 
 			PipelineGraphics::Factory(&m_PipelineBlurring, _RendererStates, _ShaderHandle, _countof(rtvFormats), rtvFormats, TE_RESOURCE_FORMAT::UNKNOWN, {}, false);
 		}
@@ -281,7 +336,7 @@ namespace TruthEngine
 		//// SSAO Median Blurring Graphics Shader
 		///////////////////////////////////////////////
 		{
-			const auto _ShaderHandle = TE_INSTANCE_SHADERMANAGER->AddShader(TE_IDX_SHADERCLASS::SSAOBLURRINGMEDIAN, 0, "Assets/Shaders/BlurMedian.hlsl", "vs", "ps", "", "", "", "", {L"TEX_TYPE=float"});
+			const auto _ShaderHandle = TE_INSTANCE_SHADERMANAGER->AddShader(TE_IDX_SHADERCLASS::SSAOBLURRINGMEDIAN, 0, "Assets/Shaders/FilterMedian.hlsl", "vs", "ps", "", "", "", "", {L"TEX_TYPE=float"});
 
 			PipelineGraphics::Factory(&m_PipelineBlurringMedian, _RendererStates, _ShaderHandle, _countof(rtvFormats), rtvFormats, TE_RESOURCE_FORMAT::UNKNOWN, {}, false);
 		}
@@ -294,7 +349,7 @@ namespace TruthEngine
 			const std::wstring _KernelHalfSize = L"SIZE=" + std::to_wstring(MedianBlurSize);
 			const std::wstring _MaxBinSize = L"MAX_BIN_SIZE=" + std::to_wstring(MedianBlurMaxBinSize);
 
-			const auto _ShaderHandle = TE_INSTANCE_SHADERMANAGER->AddShader(TE_IDX_SHADERCLASS::SSAOBLURRINGMEDIANCS, 0, "Assets/Shaders/CSBlurMedian.hlsl", "", "", "cs", "", "", "", { _TextureType.c_str(), _KernelHalfSize.c_str(), _MaxBinSize.c_str()});
+			const auto _ShaderHandle = TE_INSTANCE_SHADERMANAGER->AddShader(TE_IDX_SHADERCLASS::SSAOBLURRINGMEDIANCS, 0, "Assets/Shaders/CSFilterMedian.hlsl", "", "", "cs", "", "", "", { _TextureType.c_str(), _KernelHalfSize.c_str(), _MaxBinSize.c_str()});
 
 			PipelineCompute::Factory(&m_PipelineBlurringMedianCS, _ShaderHandle);
 		}
@@ -306,6 +361,8 @@ namespace TruthEngine
 	{
 		m_RendererCommand.Release();
 		m_RendererCommand_BlurringCS.Release();
+		m_RendererCommand_FilterKuwahara.Release();
+		m_RendererCommand_FilterKuwaharaCS.Release();
 		/*
 		m_RendererCommand_Blurring.Release();
 		m_RendererCommand_MedianBlurring.Release();
@@ -317,8 +374,10 @@ namespace TruthEngine
 	{
 		m_RendererCommand.ReleaseResource(m_TextureRenderTargetSSAO);
 		m_RendererCommand.ReleaseResource(m_TextureRWBlurred);
-		/*
 		m_RendererCommand.ReleaseResource(m_TextureRenderTargetSSAOBlurred);
+		m_RendererCommand.ReleaseResource(m_TextureRWFilterKuhawara);
+
+		/*
 		m_RendererCommand.ReleaseResource(m_TextureNoises);
 		m_RendererCommand.ReleaseResource(m_TextureRenderTargetSSAOBlurredMedian);
 		m_RendererCommand.ReleaseResource(m_TextureRWBlurredMedian);
@@ -362,11 +421,12 @@ namespace TruthEngine
 	void RenderPass_GenerateSSAO::OnEventRendererViewportResize(const EventRendererViewportResize& _Event)
 	{
 		m_RendererCommand.ResizeRenderTarget(m_TextureRenderTargetSSAO, _Event.GetWidth(), _Event.GetHeight(), &m_RTV, nullptr);
-		//m_RendererCommand.ResizeRenderTarget(m_TextureRenderTargetSSAOBlurred, _Event.GetWidth(), _Event.GetHeight(), &m_RTVBlurred, nullptr);
+		m_RendererCommand.ResizeRenderTarget(m_TextureRenderTargetSSAOBlurred, _Event.GetWidth(), _Event.GetHeight(), &m_RTVBlurred, nullptr);
 		//m_RendererCommand.ResizeRenderTarget(m_TextureRenderTargetSSAOBlurredMedian, _Event.GetWidth(), _Event.GetHeight(), &m_RTVBlurredMedian, nullptr);
 
 		//m_TextureRWBlurredMedian = m_RendererCommand_MedianBlurring.CreateTextureRW(TE_IDX_GRESOURCES::Texture_RW_SSAOBlurredMedian, _Event.GetWidth(), _Event.GetHeight(), TE_RESOURCE_FORMAT::R32_FLOAT, true, false);
 		m_TextureRWBlurred = m_RendererCommand_BlurringCS.CreateTextureRW(TE_IDX_GRESOURCES::Texture_RW_SSAOBlurred, _Event.GetWidth(), _Event.GetHeight(), TE_RESOURCE_FORMAT::R32_FLOAT, true, false);
+		m_TextureRWFilterKuhawara = m_RendererCommand_BlurringCS.CreateTextureRW(TE_IDX_GRESOURCES::Texture_RW_SSAOFilterKuwahara, _Event.GetWidth(), _Event.GetHeight(), TE_RESOURCE_FORMAT::R32_FLOAT, true, false);
 
 		m_RendererCommand_BlurringCS.AddUpdateTask([this]()
 			{

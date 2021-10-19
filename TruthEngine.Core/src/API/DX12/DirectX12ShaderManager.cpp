@@ -57,27 +57,27 @@ namespace TruthEngine
 
 				if (csEntry != "")
 				{
-					shader->m_CS = CompileShader_DXC(name, shader->m_ID, filePath, csEntry, "cs");
+					shader->m_CS = CompileShader_FXC(name, shader->m_ID, filePath, csEntry, "cs");
 				}
 				if (vsEntry != "")
 				{
-					shader->m_VS = CompileShader_DXC(name, shader->m_ID, filePath, vsEntry, "vs");
+					shader->m_VS = CompileShader_FXC(name, shader->m_ID, filePath, vsEntry, "vs");
 				}
 				if (psEntry != "")
 				{
-					shader->m_PS = CompileShader_DXC(name, shader->m_ID, filePath, psEntry, "ps");
+					shader->m_PS = CompileShader_FXC(name, shader->m_ID, filePath, psEntry, "ps");
 				}
 				if (gsEntry != "")
 				{
-					shader->m_GS = CompileShader_DXC(name, shader->m_ID, filePath, gsEntry, "gs");
+					shader->m_GS = CompileShader_FXC(name, shader->m_ID, filePath, gsEntry, "gs");
 				}
 				if (dsEntry != "")
 				{
-					shader->m_DS = CompileShader_DXC(name, shader->m_ID, filePath, dsEntry, "ds");
+					shader->m_DS = CompileShader_FXC(name, shader->m_ID, filePath, dsEntry, "ds");
 				}
 				if (hsEntry != "")
 				{
-					shader->m_HS = CompileShader_DXC(name, shader->m_ID, filePath, hsEntry, "hs");
+					shader->m_HS = CompileShader_FXC(name, shader->m_ID, filePath, hsEntry, "hs");
 				}
 
 

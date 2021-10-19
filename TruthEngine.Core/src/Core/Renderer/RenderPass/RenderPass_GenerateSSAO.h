@@ -51,29 +51,34 @@ namespace TruthEngine
 	private:
 
 		RendererCommand m_RendererCommand;
-		RendererCommand m_RendererCommand_Blurring;
+		//RendererCommand m_RendererCommand_Blurring;
 		RendererCommand m_RendererCommand_BlurringCS;
-		RendererCommand m_RendererCommand_MedianBlurring;
-		RendererCommand m_RendererCommand_MedianBlurringCS;
+		//RendererCommand m_RendererCommand_MedianBlurring;
+		//RendererCommand m_RendererCommand_MedianBlurringCS;
+		RendererCommand m_RendererCommand_FilterKuwahara;
+		RendererCommand m_RendererCommand_FilterKuwaharaCS;
 
 		TextureRenderTarget* m_TextureRenderTargetSSAO;
 		TextureRenderTarget* m_TextureRenderTargetSSAOBlurred;
-		TextureRenderTarget* m_TextureRenderTargetSSAOBlurredMedian;
+		//TextureRenderTarget* m_TextureRenderTargetSSAOBlurredMedian;
 
 		Texture* m_TextureNoises;
-		Texture* m_TextureRWBlurredMedian;
+		//Texture* m_TextureRWBlurredMedian;
+		Texture* m_TextureRWFilterKuhawara;
 		Texture* m_TextureRWBlurred;
 
 		RenderTargetView m_RTV;
 		RenderTargetView m_RTVBlurred;
-		RenderTargetView m_RTVBlurredMedian;
+		//RenderTargetView m_RTVBlurredMedian;
 
 
 		PipelineGraphics m_Pipeline;
-		PipelineGraphics m_PipelineBlurring;
-		PipelineGraphics m_PipelineBlurringMedian;
+		PipelineGraphics m_Pipeline_FilterKuwahara;
+		//PipelineGraphics m_PipelineBlurring;
+		//PipelineGraphics m_PipelineBlurringMedian;
 		PipelineCompute m_PipelineBlurringCS;
-		PipelineCompute m_PipelineBlurringMedianCS;
+		//PipelineCompute m_PipelineBlurringMedianCS;
+		PipelineCompute m_PipelineFilterKuwaharaCS;
 
 
 		struct alignas(16) ConstantBufferData_SSAO
