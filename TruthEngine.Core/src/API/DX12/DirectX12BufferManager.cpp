@@ -24,8 +24,6 @@
 #include "DirectXTK12/Inc/DDSTextureLoader.h"
 #include "DirectXTex/DirectXTex.h"
 
-#include <boost/filesystem.hpp>
-
 namespace TruthEngine::API::DirectX12
 {
 
@@ -995,7 +993,7 @@ namespace TruthEngine::API::DirectX12
 	{
 		auto index = static_cast<uint32_t>(m_TexturesCubeMap.size());
 
-		boost::filesystem::path textureFilePath(filePath);
+		std::filesystem::path textureFilePath(filePath);
 		std::string fileName = textureFilePath.filename().string();
 
 		auto d3d12device = static_cast<DirectX12GraphicDevice*>(TE_INSTANCE_GRAPHICDEVICE)->GetDevice();
@@ -1072,7 +1070,8 @@ namespace TruthEngine::API::DirectX12
 
 	Texture* DirectX12BufferManager::LoadTextureFromFile(TE_IDX_GRESOURCES _IDX, const char* _FilePath, uint8_t _MipLevels)
 	{
-		boost::filesystem::path textureFilePath(_FilePath);
+
+		std::filesystem::path textureFilePath(_FilePath);
 		std::string fileName = textureFilePath.filename().string();
 		std::wstring filePathW = textureFilePath.wstring();
 		std::wstring fileExtension = textureFilePath.extension().wstring();
@@ -1149,7 +1148,8 @@ namespace TruthEngine::API::DirectX12
 
 	void DirectX12BufferManager::SaveTextureToFile(const Texture& _Texture, const char* _FilePath)
 	{
-		boost::filesystem::path _BoostFilePath(_FilePath);
+
+		std::filesystem::path _BoostFilePath(_FilePath);
 		std::wstring _FilePathW = _BoostFilePath.wstring();
 		std::wstring _FileName = _BoostFilePath.filename().wstring();
 		std::wstring _Extension = _BoostFilePath.extension().wstring();

@@ -22,7 +22,8 @@
 #include <variant> //std::varinat
 #include <optional> //std::optional
 #include <string_view> //std::string_view
-
+#include <filesystem> //std::filesystem
+ 
 #include "DirectXMath/Inc/DirectXMath.h"
 #include "DirectXMath/Inc/DirectXColors.h"
 #include "DirectXMath/Inc/DirectXPackedVector.h"

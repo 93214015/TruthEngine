@@ -1,8 +1,6 @@
 #include "pch.h"
 #include "DirectX12TextureMaterialManager.h"
 
-#include <boost/filesystem.hpp>
-
 #include "Core/Renderer/TextureMaterial.h"
 
 #include "API/DX12/DirectX12BufferManager.h"
@@ -47,8 +45,8 @@ namespace TruthEngine::API::DirectX12
 
 		auto index = static_cast<uint32_t>(m_Textures.size());
 
-		boost::filesystem::path textureFilePath(_texturefilePath);
-		boost::filesystem::path modelFilePath(_modelFilePath);
+		std::filesystem::path textureFilePath(_texturefilePath);
+		std::filesystem::path modelFilePath(_modelFilePath);
 		std::string fileName = textureFilePath.filename().string();
 
 		std::string extension = textureFilePath.extension().string();
