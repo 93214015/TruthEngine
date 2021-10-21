@@ -13,42 +13,50 @@
 namespace TruthEngine
 {
 
-	constexpr float4x4 m_ProjToUV = float4x4(0.5f, 0.0f, 0.0f, 0.0f,
+	constexpr float4x4A m_ProjToUV = float4x4A(0.5f, 0.0f, 0.0f, 0.0f,
 		0.0f, -0.5, 0.0f, 0.0f,
 		0.0f, 0.0f, 1.0f, 0.0f,
 		0.5f, 0.5f, 0.0f, 1.0f);
 
-	constexpr float4x4 m_ProjToUVCascaded0 = float4x4(
+	constexpr float4x4A m_ProjToUVCascaded0 = float4x4A(
 		0.25f, 0.0f, 0.0f, 0.0f,
 		0.0f, -0.25, 0.0f, 0.0f,
 		0.0f, 0.0f, 1.0f, 0.0f,
 		0.25f, 0.25f, 0.0f, 1.0f);
 
-	constexpr float4x4 m_ProjToUVCascaded1 = float4x4(
+	constexpr float4x4A m_ProjToUVCascaded1 = float4x4A(
 		0.25f, 0.0f, 0.0f, 0.0f,
 		0.0f, -0.25, 0.0f, 0.0f,
 		0.0f, 0.0f, 1.0f, 0.0f,
 		0.75f, 0.25f, 0.0f, 1.0f);
 
-	constexpr float4x4 m_ProjToUVCascaded2 = float4x4(
+	constexpr float4x4A m_ProjToUVCascaded2 = float4x4A(
 		0.25f, 0.0f, 0.0f, 0.0f,
 		0.0f, -0.25, 0.0f, 0.0f,
 		0.0f, 0.0f, 1.0f, 0.0f,
 		0.25f, 0.75f, 0.0f, 1.0f);
 
-	constexpr float4x4 m_ProjToUVCascaded3 = float4x4(
+	constexpr float4x4A m_ProjToUVCascaded3 = float4x4A(
 		0.25f, 0.0f, 0.0f, 0.0f,
 		0.0f, -0.25, 0.0f, 0.0f,
 		0.0f, 0.0f, 1.0f, 0.0f,
 		0.75f, 0.75f, 0.0f, 1.0f);
 
 
+	LightManager::LightManager()
+	{
+		m_LightsDirectional.reserve(10);
+		m_LightsSpot.reserve(20);
+		m_LightsPoint.reserve(100);
+	}
+
 	LightDirectional* LightManager::AddLightDirectional(
 		std::string_view name,
-		const float3& strength,
-		const float3& direction, 
 		const float3& position, 
 		float lightSize, 
+		const float3& strength,
+		float strengthMultiplier,
+		const float3& direction, 
 		uint32_t castShadow, 
 		const float4& CascadesCoveringDepth)
 	{
@@ -72,7 +80,7 @@ namespace TruthEngine
 
 		auto _CascadedCamera = AddLightCameraCascaded<4>(_CameraName.c_str(), position, direction, CascadesCoveringDepth, TE_CAMERA_TYPE::Orthographic);
 
-		auto dlight = &m_LightsDirectional.emplace_back(_id, name, strength, direction, position, lightSize, castShadow, CascadesCoveringDepth, _CascadedCamera);
+		auto dlight = &m_LightsDirectional.emplace_back(_id, name, position, lightSize, strength, strengthMultiplier, direction, castShadow, CascadesCoveringDepth, _CascadedCamera);
 		m_Map_Lights[_id] = dlight;
 		m_Map_LightsName[name] = dlight;
 
@@ -84,10 +92,11 @@ namespace TruthEngine
 
 	LightSpot* LightManager::AddLightSpot(
 		std::string_view _Name, 
-		const float3& _Strength, 
-		const float3& _Direction, 
 		const float3& _Position, 
 		float _LightSize, 
+		const float3& _Strength, 
+		float _StrengthMultiplier,
+		const float3& _Direction, 
 		bool _IsCastShadow, 
 		float _FalloffStart, 
 		float _FalloffEnd, 
@@ -96,7 +105,7 @@ namespace TruthEngine
 	{
 		uint32_t _id = m_Map_Lights.size();
 
-		auto slight = &m_LightsSpot.emplace_back(_id, _Name, _Strength, _LightSize, _Direction, _IsCastShadow, _Position, _FalloffStart, _FalloffEnd, _InnerConeAngle, _OuterConeAngle);
+		auto slight = &m_LightsSpot.emplace_back(_id, _Name, _Position, _LightSize, _Strength, _StrengthMultiplier, _Direction, _IsCastShadow, _FalloffStart, _FalloffEnd, _InnerConeAngle, _OuterConeAngle);
 		m_Map_Lights[_id] = slight;
 		m_Map_LightsName[_Name] = slight;
 
@@ -110,6 +119,20 @@ namespace TruthEngine
 		TE_INSTANCE_APPLICATION->OnEvent(_Event);
 
 		return slight;
+	}
+
+	LightPoint* LightManager::AddLightPoint(std::string_view _Name, const float3& _Position, float _LightSize, const float3& _Strength, float _StrengthMultiplier, bool _CastShadow, float _AttenuationStartRadius, float _AttenuationEndRadius)
+	{
+		uint32_t _id = m_Map_Lights.size();
+
+		auto _PointLight = &m_LightsPoint.emplace_back(_id, _Name.data(), _Position, _LightSize, _Strength, _StrengthMultiplier, _CastShadow, _AttenuationStartRadius, _AttenuationEndRadius);
+		m_Map_Lights[_id] = _PointLight;
+		m_Map_LightsName[_Name] = _PointLight;
+				
+		EventEntityAddLight _Event(_PointLight);
+		TE_INSTANCE_APPLICATION->OnEvent(_Event);
+
+		return _PointLight;
 	}
 
 	LightDirectional* LightManager::GetDirectionalLight(const std::string_view name) const
@@ -228,7 +251,7 @@ namespace TruthEngine
 		return camera;
 	}
 
-	float4x4 LightManager::GetShadowTransform(const ILight* light)
+	float4x4A LightManager::GetShadowTransform(const ILight* light)
 	{
 		if (auto camera = GetLightCamera(light); camera)
 		{
@@ -240,7 +263,7 @@ namespace TruthEngine
 		}
 	}
 
-	void LightManager::GetCascadedShadowTransform(const LightDirectional* light, float4x4 _outTransforms[4])
+	void LightManager::GetCascadedShadowTransform(const LightDirectional* light, float4x4A _outTransforms[4])
 	{
 		auto _Camera = light->GetCamera();
 		_outTransforms[0] = _Camera->GetViewProj(0) * m_ProjToUVCascaded0;
@@ -250,7 +273,7 @@ namespace TruthEngine
 		
 	}
 
-	void LightManager::GetCascadedShadowTransform(const CameraCascadedFrustumBase* _cameraCascaded, float4x4 _outTransforms[4])
+	void LightManager::GetCascadedShadowTransform(const CameraCascadedFrustumBase* _cameraCascaded, float4x4A _outTransforms[4])
 	{
 		_outTransforms[0] = _cameraCascaded->GetViewProj(0) * m_ProjToUVCascaded0;
 		_outTransforms[1] = _cameraCascaded->GetViewProj(1) * m_ProjToUVCascaded1;

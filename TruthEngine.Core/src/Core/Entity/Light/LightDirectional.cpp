@@ -10,15 +10,16 @@ namespace TruthEngine
 	LightDirectional::LightDirectional(
 		uint32_t id
 		, std::string_view name
-		, const float3& strength
-		, const float3& direction
 		, const float3& position
 		, const float lightSize
+		, const float3& strength
+		, float strengthMultiplier
+		, const float3& direction
 		, const int castShadow
 		, const float4& cascadesCoveringDepth
 		, CameraCascadedFrustumBase* cascadedCamera)
 		: ILight(id, name, TE_LIGHT_TYPE::Directional)
-		, m_DLightData(strength, lightSize, direction, castShadow, position)
+		, m_DLightData(position, lightSize, strength, strengthMultiplier, direction, castShadow)
 		, m_Camera(cascadedCamera), m_CascadesDepth(cascadesCoveringDepth)
 	{
 	}
@@ -27,16 +28,21 @@ namespace TruthEngine
 	{
 		m_DLightData.Strength = _Strength;
 
-		EventEntityUpdateLight event(this);
-		TE_INSTANCE_APPLICATION->OnEvent(event);
+		InvokeEventUpdateLight();
+	}
+
+	void LightDirectional::SetStrengthMultiplier(float _StrengthMultiplier) noexcept
+	{
+		m_DLightData.StrengthMultipier = _StrengthMultiplier;
+
+		InvokeEventUpdateLight();
 	}
 
 	void LightDirectional::SetCastShadow(const bool _castshadow) noexcept
 	{
 		m_DLightData.CastShadow = static_cast<uint32_t>(_castshadow);
 
-		EventEntityUpdateLight event(this);
-		TE_INSTANCE_APPLICATION->OnEvent(event);
+		InvokeEventUpdateLight();
 	}
 
 	void LightDirectional::SetView(const float3& _Position, const float3& _Direction, const float3& _Up, const float3& _Right) noexcept
@@ -48,8 +54,7 @@ namespace TruthEngine
 		if (m_Camera)
 			m_Camera->SetViewMatrix(_Position, _Direction, _Up, _Right);
 
-		EventEntityUpdateLight event(this);
-		TE_INSTANCE_APPLICATION->OnEvent(event);
+		InvokeEventUpdateLight();
 	}
 
 	void LightDirectional::SetDirection(const float3& _Direction, const float3& _Up, const float3& _Right) noexcept
@@ -59,8 +64,7 @@ namespace TruthEngine
 		if (m_Camera)
 			m_Camera->SetLook(_Direction, _Up, _Right);
 
-		EventEntityUpdateLight event(this);
-		TE_INSTANCE_APPLICATION->OnEvent(event);
+		InvokeEventUpdateLight();
 	}
 
 	void LightDirectional::SetPosition(const float3& _position) noexcept
@@ -70,8 +74,7 @@ namespace TruthEngine
 		if (m_Camera)
 			m_Camera->SetPosition(m_DLightData.Position);
 
-		EventEntityUpdateLight event(this);
-		TE_INSTANCE_APPLICATION->OnEvent(event);
+		InvokeEventUpdateLight();
 	}
 
 	void LightDirectional::SetPosition(const float x, const float y, const float z) noexcept
@@ -81,8 +84,14 @@ namespace TruthEngine
 		if (m_Camera)
 			m_Camera->SetPosition(m_DLightData.Position);
 
-		EventEntityUpdateLight event(this);
-		TE_INSTANCE_APPLICATION->OnEvent(event);
+		InvokeEventUpdateLight();
+	}
+
+	void LightDirectional::SetLightSize(float _LightSize) noexcept
+	{
+		m_DLightData.LightSize = _LightSize;
+
+		InvokeEventUpdateLight();
 	}
 
 	const float3& LightDirectional::GetPosition() const noexcept
@@ -98,6 +107,11 @@ namespace TruthEngine
 	const float3& LightDirectional::GetStrength() const noexcept
 	{
 		return m_DLightData.Strength;
+	}
+
+	float LightDirectional::GetStrengthMultiplier() const noexcept
+	{
+		return m_DLightData.StrengthMultipier;
 	}
 
 	bool LightDirectional::GetCastShadow() const noexcept

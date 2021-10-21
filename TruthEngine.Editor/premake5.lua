@@ -36,6 +36,11 @@ project "TruthEngine.Editor"
 		"ImGui",
 	}
 	
+	postbuildcommands {
+    "xcopy /y /d  %{wks.location}Dependencies\\Lib\\WinPixEventRuntime.dll $(TargetDir)",
+	"xcopy /y /d  %{wks.location}Dependencies\\Lib\\dxcompiler.dll $(TargetDir)",
+	"xcopy /y /d  %{wks.location}Dependencies\\Lib\\dxil.dll $(TargetDir)",
+	}
 	
 
 	floatingpoint "Fast"
@@ -52,26 +57,31 @@ project "TruthEngine.Editor"
 		}
 
 	filter "configurations:Debug"
-		libdirs{
-			"%{wks.location}/Dependencies/DirectXTK12/Lib/x64/Debug"
-	    }
 		defines{
 			"TE_DEBUG"
 		}
 		runtime "Debug"
 		symbols "on"
+		
+		postbuildcommands 
+		{
+			"xcopy /y /d  %{wks.location}Dependencies\\Lib\\Debug\\assimp-vc142-mtd.dll $(TargetDir)",
+			"xcopy /y /d  %{wks.location}Dependencies\\Lib\\Debug\\assimp-vc142-mtd.pdb $(TargetDir)",
+		}
 
 
 	filter "configurations:Release"
-		libdirs{
-			"%{wks.location}/Dependencies/DirectXTK12/Lib/x64/Release"
-		}
 		defines{
 			"TE_RELEASE",
 			"TE_NDEBUG"
 		}
 		runtime "Release"
 		optimize "on"
+
+		postbuildcommands 
+		{
+			"xcopy /y /d  %{wks.location}Dependencies\\Lib\\Release\\assimp-vc142-mt.dll $(TargetDir)"
+		}
 
 	filter "configurations:Dist"
 		defines{
@@ -80,4 +90,9 @@ project "TruthEngine.Editor"
 		}
 		runtime "Release"
 		optimize "on"
+		
+		postbuildcommands 
+		{
+			"xcopy /y /d  %{wks.location}Dependencies\\Lib\\Release\\assimp-vc142-mt.dll $(TargetDir)"
+		}
 

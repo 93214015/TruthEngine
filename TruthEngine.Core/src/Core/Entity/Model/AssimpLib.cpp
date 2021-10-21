@@ -22,7 +22,7 @@ namespace TruthEngine
 
 	AssimpLib::~AssimpLib() = default;
 
-	std::vector<ImportedMeshMaterials> AssimpLib::ImportModel(const char* filePath, const char* _ModelName)
+	std::vector<ImportedMeshMaterials> AssimpLib::ImportModel(const char* filePath)
 	{
 		TE_TIMER_SCOPE_FUNC;
 
@@ -54,7 +54,6 @@ namespace TruthEngine
 		if (aiscene == nullptr)
 			throw;
 
-		auto meshOffset = m_ModelManager->m_Meshes.size();
 
 		TE_IDX_MESH_TYPE _MeshType = TE_IDX_MESH_TYPE::MESH_NTT;
 		if (aiscene->HasAnimations())
@@ -66,7 +65,7 @@ namespace TruthEngine
 
 		m_ModelManager->GetOffsets(m_BaseVertexOffset, m_BaseIndexOffset, m_MeshOffset, _MeshType);
 		m_MaterialOffset = m_MaterialManager->GetMatrialOffset();
-		
+
 		m_TextureMaterialOffset = TextureMaterialManager::GetInstance()->GetOffset();
 
 		AddSpace(aiscene, _MeshType);
@@ -79,6 +78,7 @@ namespace TruthEngine
 			auto t = assimpTimer.GetTotalTime();
 			TE_LOG_CORE_INFO("Import Model: Process Textures toke {0} ms", t);
 		}
+
 		{
 			assimpTimer.Start();
 			ProcessMaterials(aiscene, _MeshType);
@@ -151,6 +151,8 @@ namespace TruthEngine
 		{
 			auto states = InitRenderStates();
 
+			SET_RENDERER_STATE(states, TE_RENDERER_STATE_SHADING_MODEL, TE_RENDERER_STATE_SHADING_MODEL_BLINNPHONG);
+
 			auto aiMaterial = aiscene->mMaterials[i];
 			aiColor3D aiColorDiffuse;
 			aiMaterial->Get(AI_MATKEY_COLOR_DIFFUSE, aiColorDiffuse);
@@ -174,10 +176,10 @@ namespace TruthEngine
 			{
 				const auto diffuseTextureCount = aiMaterial->GetTextureCount(aiTextureType_DIFFUSE);
 
-				if (diffuseTextureCount > 0)
+				/*if (diffuseTextureCount > 0)
 				{
 					SET_RENDERER_STATE(states, TE_RENDERER_STATE_ENABLED_MAP_DIFFUSE, TE_RENDERER_STATE_ENABLED_MAP_DIFFUSE_TRUE);
-				}
+				}*/
 
 				for (UINT j = 0; j < diffuseTextureCount; ++j)
 				{
@@ -202,11 +204,21 @@ namespace TruthEngine
 						}
 						else
 						{
-							diffuseMapViewIndex = texManager->CreateTexture(ais.C_Str(), m_ModelFilePath)->GetViewIndex();
+							if (TextureMaterial* _Texture = texManager->CreateTexture(ais.C_Str(), m_ModelFilePath); _Texture)
+							{
+								diffuseMapViewIndex = _Texture->GetViewIndex();
+							}
 						}
 
 					}
 				}
+
+				if (diffuseMapViewIndex != -1)
+				{
+					SET_RENDERER_STATE(states, TE_RENDERER_STATE_ENABLED_MAP_DIFFUSE, TE_RENDERER_STATE_ENABLED_MAP_DIFFUSE_TRUE);
+				}
+
+
 			}
 
 			uint32_t normalMapViewIndex = -1;
@@ -214,10 +226,10 @@ namespace TruthEngine
 			{
 				const auto normalTextureCount = aiMaterial->GetTextureCount(aiTextureType_NORMALS);
 
-				if (normalTextureCount > 0)
+				/*if (normalTextureCount > 0)
 				{
 					SET_RENDERER_STATE(states, TE_RENDERER_STATE_ENABLED_MAP_NORMAL, TE_RENDERER_STATE_ENABLED_MAP_NORMAL_TRUE);
-				}
+				}*/
 
 				for (UINT j = 0; j < normalTextureCount; ++j)
 				{
@@ -246,11 +258,72 @@ namespace TruthEngine
 						}*/
 						else
 						{
-							normalMapViewIndex = texManager->CreateTexture(ais.C_Str(), m_ModelFilePath)->GetViewIndex();
+							if (TextureMaterial* _Texture = texManager->CreateTexture(ais.C_Str(), m_ModelFilePath); _Texture)
+							{
+								normalMapViewIndex = _Texture->GetViewIndex();
+							}
 						}
 
 					}
 				}
+
+				if (normalMapViewIndex != -1)
+				{
+					SET_RENDERER_STATE(states, TE_RENDERER_STATE_ENABLED_MAP_NORMAL, TE_RENDERER_STATE_ENABLED_MAP_NORMAL_TRUE);
+				}
+			}
+
+			uint32_t specularMapViewIndex = -1;
+
+			{
+				const auto SpecularTextureCount = aiMaterial->GetTextureCount(aiTextureType_SPECULAR);
+
+				/*if (SpecularTextureCount > 0)
+				{
+					SET_RENDERER_STATE(states, TE_RENDERER_STATE_ENABLED_MAP_SPECULAR, TE_RENDERER_STATE_ENABLED_MAP_SPECULAR_TRUE);
+				}*/
+
+				for (UINT j = 0; j < SpecularTextureCount; ++j)
+				{
+					if (aiMaterial->GetTexture(aiTextureType_SPECULAR, j, &ais) == AI_SUCCESS)
+					{
+						if (auto aitex = aiscene->GetEmbeddedTexture(ais.C_Str()); aitex)
+						{
+							std::string_view name = aitex->mFilename.C_Str();
+							auto index = name.find_last_of('/');
+							name = name.substr(index);
+							//auto index = std::atoi(&ais.C_Str()[1]);
+
+							auto& _Itr = mMapTexFileName.find(name);
+							if (_Itr == mMapTexFileName.end())
+							{
+								throw;
+							}
+
+							specularMapViewIndex = _Itr->second;
+						}
+						/*if (ais.C_Str()[0] == '*')
+						{
+							auto index = std::atoi(&ais.C_Str()[1]);
+
+							normalMapViewIndex = index + m_TextureMaterialOffset;
+						}*/
+						else
+						{
+							if (TextureMaterial* _Texture = texManager->CreateTexture(ais.C_Str(), m_ModelFilePath); _Texture)
+							{
+								specularMapViewIndex = _Texture->GetViewIndex();
+							}
+						}
+
+					}
+				}
+
+				if (specularMapViewIndex != -1)
+				{
+					SET_RENDERER_STATE(states, TE_RENDERER_STATE_ENABLED_MAP_SPECULAR, TE_RENDERER_STATE_ENABLED_MAP_SPECULAR_TRUE);
+				}
+
 			}
 
 			//{
@@ -290,7 +363,7 @@ namespace TruthEngine
 			//	}
 			//}
 
-			m_MaterialManager->AddMaterial(
+			/*m_MaterialManager->AddMaterial(
 				states
 				, float4{ aiColorDiffuse.r, aiColorDiffuse.g, aiColorDiffuse.b, 1.0f }
 				, float3{ aiColorSpecular.r, aiColorSpecular.g, aiColorSpecular.b }
@@ -300,7 +373,30 @@ namespace TruthEngine
 				, diffuseMapViewIndex
 				, normalMapViewIndex
 				, -1
-				, 0, 0.0f, 0.0f, _MeshType);
+				, specularMapViewIndex
+				, 0, 0.0f, 0.0f, _MeshType);*/
+
+			m_MaterialManager->AddMaterial(
+				states
+				, float4{ aiColorDiffuse.r, aiColorDiffuse.g, aiColorDiffuse.b, 1.0f }
+				, (1.0f - aiShininess) //Convert to Roughness
+				, (aiColorSpecular.r + aiColorSpecular.g + aiColorSpecular.b) / 3.0f // Trying to convert imported material reflectivity in term of specularity to engine's metallic workflow
+				, 1.0f //AmbientOcclusion
+				, 0.0f //Emission
+				, float2{ 1.0f, 1.0f }
+				, float2{ .0f, .0f }
+				, diffuseMapViewIndex
+				, normalMapViewIndex
+				, -1
+				, specularMapViewIndex
+				, -1, -1, -1
+				, 0
+				, 0.0f
+				, 0.0f
+				, _MeshType
+				, false
+				, false
+			);
 		}
 	}
 
@@ -461,11 +557,12 @@ namespace TruthEngine
 				}
 			}
 
-			Mesh* _Mesh = m_ModelManager->AddMesh(TE_IDX_MESH_TYPE::MESH_NTT, indexNum, indexOffset, vertexOffset, aimesh->mNumVertices);
+			MeshHandle _MeshHandle = m_ModelManager->AddMesh(TE_IDX_MESH_TYPE::MESH_NTT, indexNum, indexOffset, vertexOffset, aimesh->mNumVertices);
 			Material* _Material = m_MaterialManager->GetMaterial(aimesh->mMaterialIndex + m_MaterialOffset);
-			const char* _MeshName = aimesh->mName.C_Str();
+			std::string _MeshName = std::string_view(aimesh->mName.C_Str(), 15).data();
+			//const char* _MeshName = aimesh->mName.C_Str();
 
-			_MeshCollection.emplace_back(_MeshName, _Mesh, _Material, nullptr);
+			_MeshCollection.emplace_back(_MeshName.c_str(), _MeshHandle, _Material, nullptr);
 
 			//_MeshEntities.emplace_back(AddMeshEntity(meshName, mesh, material, scene, IdentityMatrix));
 
@@ -580,11 +677,11 @@ namespace TruthEngine
 				}
 			}
 
-			auto mesh = m_ModelManager->AddMesh(TE_IDX_MESH_TYPE::MESH_SKINNED, indexNum, indexOffset, vertexOffset, aimesh->mNumVertices);
-			auto material = m_MaterialManager->GetMaterial(aimesh->mMaterialIndex + m_MaterialOffset);
+			MeshHandle _MeshHandle = m_ModelManager->AddMesh(TE_IDX_MESH_TYPE::MESH_SKINNED, indexNum, indexOffset, vertexOffset, aimesh->mNumVertices);
+			Material* material = m_MaterialManager->GetMaterial(aimesh->mMaterialIndex + m_MaterialOffset);
 			const char* meshName = aimesh->mName.C_Str();
 
-			_MeshCollection.emplace_back(meshName, mesh, material, m_LoadedAnimation);
+			_MeshCollection.emplace_back(meshName, _MeshHandle, material, m_LoadedAnimation);
 
 			//_MeshEntities.emplace_back(AddMeshEntity(meshName, mesh, material, scene, IdentityMatrix));
 

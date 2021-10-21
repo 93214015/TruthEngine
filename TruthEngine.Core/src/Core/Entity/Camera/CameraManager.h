@@ -26,7 +26,7 @@ namespace TruthEngine
 			Camera* CreateOrthographicTarget(const char* name, const float3& position, const float3& target, const float3& worldUpVector, float viewWidth, float viewHeight, float zNearPlane, float zFarPlane);
 			Camera* CreateOrthographicDirection(const char* name, const float3& position, const float3& target, const float3& worldUpVector, float viewLeft, float viewTop, float viewRight, float viewBottom, float zNearPlane, float zFarPlane);
 
-			template<uint32_t cascadeNum>
+			template<size_t cascadeNum>
 			CameraCascadedFrustum<cascadeNum>* CreateOrthographicCascaded(const char* name, const float cascadeDepths[cascadeNum], const float3& position, const float3& direction, const float3& worldUpVector);
 
 			inline Camera* GetActiveCamera()
@@ -40,35 +40,41 @@ namespace TruthEngine
 			void OnResizeViewport(const EventSceneViewportResize& event);
 
 			void EditCameraFrustum(Camera* camera);
-			void EditCameraFrustumPerspective(Camera* camera, float aspectRatio, float zNearPlane = -1.0f, float zFarPlane = -1.0f);
-			void EditCameraFrustumPerspective(Camera* camera);
-			void EditCameraFrustumOrthographic(Camera* camera, float aspectRatio, float zNearPlane = -1.0, float zFarPlane = -1.0f);
-			void EditCameraFrustumOrthographic(Camera* camera);
+			static void EditCameraFrustumPerspective(Camera* camera, float aspectRatio, float zNearPlane = -1.0f, float zFarPlane = -1.0f);
+			static void EditCameraFrustumPerspective(Camera* camera);
+			static void EditCameraFrustumOrthographic(Camera* camera, float aspectRatio, float zNearPlane = -1.0, float zFarPlane = -1.0f);
+			static void EditCameraFrustumOrthographic(Camera* camera);
 
-			inline std::unordered_map<uint32_t, Camera>::iterator begin()
+			inline auto begin()
 			{
-				return m_Map_Cameras.begin();
+				return m_Cameras.begin();
 			}
-			inline std::unordered_map<uint32_t, Camera>::const_iterator cbegin() const
+			inline auto cbegin() const
 			{
-				return m_Map_Cameras.cbegin();
+				return m_Cameras.cbegin();
 			}
-			inline std::unordered_map<uint32_t, Camera>::iterator end()
+			inline auto end()
 			{
-				return m_Map_Cameras.end();
+				return m_Cameras.end();
 			}
-			inline std::unordered_map<uint32_t, Camera>::const_iterator cend()
+			inline auto cend()
 			{
-				return m_Map_Cameras.cend();
+				return m_Cameras.cend();
 			}
 
-			static CameraManager* GetInstance();
+			inline static CameraManager* GetInstance()
+			{
+				static CameraManager s_Instance;
+				return &s_Instance;
+			}
 
 		protected:
 
 
 		protected:
-			std::unordered_map<uint32_t, Camera> m_Map_Cameras;
+			std::deque<Camera> m_Cameras;
+
+			//std::unordered_map<uint32_t, Camera*> m_Map_Cameras;
 			std::unordered_map<std::string_view, Camera*> m_Map_CamerasName;
 			std::unordered_map<uint32_t, std::shared_ptr<CameraCascadedFrustumBase>> m_Map_CameraCascaded;
 			std::unordered_map<std::string_view, CameraCascadedFrustumBase*> m_Map_CameraCascadedName;
@@ -80,7 +86,7 @@ namespace TruthEngine
 		};
 
 
-		template<uint32_t cascadeNum>
+		template<size_t cascadeNum>
 		CameraCascadedFrustum<cascadeNum>* TruthEngine::CameraManager::CreateOrthographicCascaded(const char* name, const float cascadeDepths[cascadeNum], const float3& position, const float3& direction, const float3& worldUpVector)
 		{
 			using namespace DirectX;
@@ -105,7 +111,7 @@ namespace TruthEngine
 			else
 			{
 				uint32_t cameraID = m_Map_CameraCascaded.size();
-				auto cameraCascaded = std::make_shared<CameraCascadedFrustum<cascadeNum>>(cameraID, TE_CAMERA_TYPE::Orthographic, cascadeDepths, position, look, up, right);
+				auto cameraCascaded = std::make_shared<CameraCascadedFrustum<cascadeNum>>(cameraID, TE_CAMERA_TYPE::Orthographic, cascadeDepths, static_cast<float3A>(position), static_cast<float3A>(look), static_cast<float3A>(up), static_cast<float3A>(right));
 				m_Map_CameraCascaded[cameraID] = cameraCascaded;
 
 				camera = cameraCascaded.get();

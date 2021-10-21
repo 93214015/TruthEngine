@@ -7,7 +7,6 @@ namespace TruthEngine
 		{
 		public:
 			TagComponent();
-			TagComponent(const std::string& tag);
 			TagComponent(const char* tag);
 
 			~TagComponent();
@@ -18,19 +17,31 @@ namespace TruthEngine
 			TagComponent(TagComponent&&)noexcept;
 			TagComponent& operator=(TagComponent&&)noexcept;
 
-			inline const std::string& GetTag() const noexcept
+			inline char* GetTag() noexcept
+			{
+				return m_Tag;
+			}
+
+			inline const char* GetTag() const noexcept
 			{
 				return m_Tag;
 			}
 
 			inline void SetTag(const char* buffer)
 			{
-				m_Tag = std::string(buffer);
+				strcpy_s(m_Tag, strnlen(buffer, MAX_LENGTH), buffer);
+			}
+
+			inline static constexpr size_t GetTagMaxLength()
+			{
+				return MAX_LENGTH;
 			}
 
 		private:
 
+			static constexpr size_t MAX_LENGTH = 32;
+
 		private:
-			std::string m_Tag;
+			char m_Tag[MAX_LENGTH];
 		};
 }

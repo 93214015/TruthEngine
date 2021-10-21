@@ -13,11 +13,6 @@ namespace TruthEngine
 		_41 = _aiMatrix4x4.d1; _42 = _aiMatrix4x4.d2; _43 = _aiMatrix4x4.d3; _44 = _aiMatrix4x4.d4;
 	}
 
-	float4x4::operator physx::PxMat44()
-	{
-		return physx::PxMat44({ _11, _12, _13, _14 }, { _21, _22, _23, _24 }, { _31, _32, _33, _34 }, { _41, _42, _43, _44 });
-	}
-
 	float4x4::operator physx::PxMat44() const
 	{
 		return physx::PxMat44({ _11, _12, _13, _14 }, { _21, _22, _23, _24 }, { _31, _32, _33, _34 }, { _41, _42, _43, _44 });
@@ -53,21 +48,19 @@ namespace TruthEngine
 		return physx::PxVec3(x, y, z);
 	}
 
-	float2::operator ImVec2()
-	{
-		return ImVec2{ x, y };
-	}
-
-	float2::operator ImVec2() const
-	{
-		return ImVec2{ x, y };
-	}
-
 	namespace Math
 	{
-		void DecomposeMatrix(const float4x4& inMatrix, float4& scale, float4& translate, float4& quaternion)
+		float Min(const float3& _f3)
 		{
-			auto xmMatrix = XMLoadFloat4x4(&inMatrix);
+			return std::min(std::min(_f3.x, _f3.y), _f3.z);
+		}
+		float Max(const float3& _f3)
+		{
+			return std::max(std::max(_f3.x, _f3.y), _f3.z);
+		}
+		void DecomposeMatrix(const float4x4A& inMatrix, float4& scale, float4& translate, float4& quaternion)
+		{
+			auto xmMatrix = XMLoadFloat4x4A(&inMatrix);
 
 			XMVECTOR _scale, _translate, _quaternion;
 
@@ -79,17 +72,72 @@ namespace TruthEngine
 			XMStoreFloat4(&translate, _translate);
 			XMStoreFloat4(&quaternion, _quaternion);
 		}
-		float4x4 TransformMatrixRotation(float _RotationAngle, const float3& _RotationNormal, const float3& _RotationOrigin)
+
+		XMMatrix TransformMatrix(const float3A& _Forward)
 		{
-			float4x4 _Result;
+			return XMTransformMatrix(Math::ToXM(_Forward));
+		}
 
-			XMVECTOR _RotationQuaternion = XMQuaternionRotationNormal(XMLoadFloat3(&_RotationNormal), _RotationAngle);
+		XMMatrix TransformMatrix(const float3A& _Forward, const float3A& _Position)
+		{
+			return XMTransformMatrix(Math::ToXM(_Forward), Math::ToXM(_Position));
+		}
 
-			XMMatrix _Matrix = XMMatrixTransformation(XMVectorZero, XMQuaternionIdentity(), XMVectorOne, XMLoadFloat3(&_RotationOrigin), _RotationQuaternion, XMVectorZero);
-			DirectX::XMStoreFloat4x4(&_Result, _Matrix);
+		XMMatrix XMTransformMatrix(const XMVector& _Forward)
+		{
+			XMVector _Right = Math::XMCross(_Forward, XMVectorUp);
+
+			XMVector _Up = Math::XMCross(_Forward, _Right);
+
+			return  XMMatrix(_Right, _Up, _Forward, _XMVectorRow4);
+		}
+
+		XMMatrix XMTransformMatrix(const XMVector& _Forward, const XMVector& _Position)
+		{
+			XMVector _Right = Math::XMCross(_Forward, XMVectorUp);
+
+			XMVector _Up = Math::XMCross(_Forward, _Right);
+
+			XMVector _Row3 = XMVectorSelect(_Position, XMVectorOne, XMVectorSelectControl(0, 0, 0, 1));
+
+			return  XMMatrix(_Right, _Up, _Forward, _Row3);
+		}
+
+		float3A Rotate(const float3A& _Vector, const float4A& _RotationQuaternion)
+		{
+			float3A _Result;
+			auto _ResultVector = DirectX::XMVector3Rotate(ToXM(_Vector), ToXM(_RotationQuaternion));
+			_Result = FromXM3A(_ResultVector);
+
 			return _Result;
 		}
+
+		XMVector XMDot(const XMVector& _V0, const XMVector& _V1)
+		{
+			return DirectX::XMVector3Dot(_V0, _V1);
+		}
+
+		XMVector XMCross(const XMVector& _V0, const XMVector& _V1)
+		{
+			return DirectX::XMVector3Cross(_V0, _V1);
+		}
+
+		XMVector XMSelect(const XMVector& _V1, const XMVector& _V2, const XMVector& _VSelect)
+		{
+			return DirectX::XMVectorSelect(_V1, _V2, _VSelect);
+		}
+
+		XMVector XMSelectVector(uint32_t _S0, uint32_t _S1, uint32_t _S2, uint32_t _S3)
+		{
+			return DirectX::XMVectorSelectControl(_S0, _S1, _S2, _S3);
+		}
+
 	}
+	
+	float3A::float3A(const float3& _f3)
+		: XMFLOAT3A(_f3.x, _f3.y, _f3.z)
+	{}
+
 }
 
 

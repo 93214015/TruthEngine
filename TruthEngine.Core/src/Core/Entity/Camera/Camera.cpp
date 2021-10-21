@@ -8,7 +8,7 @@ using namespace DirectX;
 namespace TruthEngine
 {
 
-	Camera::Camera(uint32_t id, TE_CAMERA_TYPE cameraType, const float3& position, const float3& look
+	/*Camera::Camera(uint32_t id, TE_CAMERA_TYPE cameraType, const float3& position, const float3& look
 		, const float3& up, const float3& right, const float zNear
 		, const float zFar, const float aspectRatio, const float fovY, const float fovX
 		, const float nearWindowHeight, const float farWindowHeight
@@ -17,6 +17,20 @@ namespace TruthEngine
 		, m_ZNear(zNear), m_ZFar(zFar), m_AspectRatio(aspectRatio), m_FovY(fovY), m_FovX(fovX)
 		, m_NearWindowHeight(nearWindowHeight), m_FarWindowHeight(farWindowHeight)
 		, m_ProjectionMatrix(projMatrix)
+		, m_BoundingFrustumViewSpace(_BoundingFrustumView)
+		, m_FuncEditFrustum(_FuncEditFrustum)
+		, m_IsReversedDepth(_IsReveresedDepth)
+
+	{
+		UpdateViewMatrix();
+	}*/
+
+	Camera::Camera(uint32_t id, TE_CAMERA_TYPE cameraType, const float3& position, const float3& look
+		, const float3& up, const float3& right, const float zNear
+		, const float zFar, const float aspectRatio, const float fovY
+		, const float4x4A& projMatrix, const BoundingFrustum& _BoundingFrustumView, bool _IsReveresedDepth, void(*_FuncEditFrustum)(Camera*))
+		: m_ProjectionMatrix(projMatrix), m_ID(id), m_CameraType(cameraType), m_Position(position), m_Look(look), m_Up(up), m_Right(right)
+		, m_ZNear(zNear), m_ZFar(zFar), m_AspectRatio(aspectRatio), m_FovY(fovY)
 		, m_BoundingFrustumViewSpace(_BoundingFrustumView)
 		, m_FuncEditFrustum(_FuncEditFrustum)
 		, m_IsReversedDepth(_IsReveresedDepth)
@@ -36,21 +50,32 @@ namespace TruthEngine
 
 		// Keep camera's axes orthogonal to each other and of unit length.
 		L = XMVector3Normalize(L);
+		XMStoreFloat3(&m_Look, L);
+
 		U = XMVector3Normalize(XMVector3Cross(L, R));
+		XMStoreFloat3(&m_Up, U);
 
 		// U, L already ortho-normal, so no need to normalize cross product.
 		R = XMVector3Cross(U, L);
+		XMStoreFloat3(&m_Right, R);
 
 		// Fill in the view matrix entries.
-		float x = -XMVectorGetX(XMVector3Dot(P, R));
+		/*float x = -XMVectorGetX(XMVector3Dot(P, R));
 		float y = -XMVectorGetX(XMVector3Dot(P, U));
-		float z = -XMVectorGetX(XMVector3Dot(P, L));
+		float z = -XMVectorGetX(XMVector3Dot(P, L));*/
 
-		XMStoreFloat3(&m_Right, R);
-		XMStoreFloat3(&m_Up, U);
-		XMStoreFloat3(&m_Look, L);
+		XMMatrix _XMView = Math::XMMatrixView(P, L, U);
+		m_ViewMatrix = Math::FromXMA(_XMView);
 
-		m_ViewMatrix(0, 0) = m_Right.x;
+		m_ViewProjMatrix = Math::Multiply(_XMView, Math::ToXM(m_ProjectionMatrix));
+
+		XMMatrix _XMViewInv = Math::XMMatrixInv(_XMView);
+		m_ViewInvMatrix = Math::FromXMA(_XMViewInv);
+
+		//UpdateBoundingFrustumWorld();
+		m_BoundingFrustumViewSpace.Transform(m_BoundingFrustumWorldSpace, _XMViewInv);
+
+		/*m_ViewMatrix(0, 0) = m_Right.x;
 		m_ViewMatrix(1, 0) = m_Right.y;
 		m_ViewMatrix(2, 0) = m_Right.z;
 		m_ViewMatrix(3, 0) = x;
@@ -71,44 +96,28 @@ namespace TruthEngine
 		m_ViewMatrix(3, 3) = 1.0f;
 
 		m_ViewProjMatrix = m_ViewMatrix * m_ProjectionMatrix;
-
-		UpdateBoundingFrustumWorld();
-	}
+		m_ViewInvMatrix  = Math::Inverse(m_ViewMatrix);*/
 
 
-	void Camera::UpdateBoundingFrustumWorld()
-	{
-		auto XMView = XMLoadFloat4x4(&m_ViewMatrix);
-		const auto InvView = XMMatrixInverse(nullptr, XMView);
-		m_BoundingFrustumViewSpace.Transform(m_BoundingFrustumWorldSpace, InvView);
 	}
 
 	void Camera::SetFrustum(float width, float height, float zNearPlane, float zFarPlane)
 	{
 		m_ZNear = zNearPlane;
 		m_ZFar = zFarPlane;
-		m_NearWindowHeight = height;
 		m_AspectRatio = width / height;
 
 		m_FovY = 2.0f * atan(height / (2.0f * zNearPlane));
-		m_FovX = 2.0f * atan(width / (2.0f * zNearPlane));
+		//m_FovX = 2.0f * atan(width / (2.0f * zNearPlane));
 
-		m_FarWindowHeight = 2.0f * tan(m_FovY * 0.5f) * zFarPlane;
+		//m_FarWindowHeight = 2.0f * tan(m_FovY * 0.5f) * zFarPlane;
 
 		m_FuncEditFrustum(this);
 
 		m_ViewProjMatrix = m_ViewMatrix * m_ProjectionMatrix;
 
-
 	}
-
-	void Camera::SetLook(const float3& _Look, const float3& _Up, const float3& _Right)
-	{
-		m_Look = _Look;
-		m_Up = _Up;
-		m_Right = _Right;
-		UpdateViewMatrix();
-	}
+	
 
 	void Camera::SetZNearPlane(const float zNearPlane)
 	{

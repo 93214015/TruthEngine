@@ -13,25 +13,20 @@ namespace TruthEngine
 	class Buffer;
 	class PipelineGraphics;
 	class PipelineCompute;
-	class EventTextureResize;
 
 
 	struct RenderTargetView;
 
-	class RenderPass_PostProcessing_HDR: public RenderPass
+	class RenderPass_PostProcessing_HDR final : public RenderPass
 	{
 	public:
 		RenderPass_PostProcessing_HDR(RendererLayer* _RendererLayer);
-		~RenderPass_PostProcessing_HDR();
-
-
-		void OnAttach() override;
-
-
-		void OnDetach() override;
 
 
 		void OnImGuiRender() override;
+
+
+		void OnUpdate(double _DeltaTime) override;
 
 
 		void BeginScene() override;
@@ -45,15 +40,22 @@ namespace TruthEngine
 
 	private:
 
-		void InitBuffers();
-		void InitTexture();
-		void InitPipeline();
-		void ReleaseResources();
+		void InitRendererCommand() override;
+		void InitTextures() override;
+		void InitBuffers() override;
+		void InitPipelines() override;
+
+		void ReleaseRendererCommand() override;
+		void ReleaseTextures() override;
+		void ReleaseBuffers() override;
+		void ReleasePipelines() override;
+
+		void RegisterEventListeners() override;
+		void UnRegisterEventListeners() override;
 
 		void ResizedViewport(uint32_t _Width, uint32_t Height);
 
-		void OnRenderTargetResize(const EventTextureResize& _Event);
-		void RegisterOnEvents();
+		void OnRendererViewportResize(const class EventRendererViewportResize& _Event);
 
 	private:
 
@@ -63,8 +65,9 @@ namespace TruthEngine
 		RendererCommand mRendererCommand_BlurPassHorz;
 		RendererCommand mRendererCommand_BlurPassVert;
 		RendererCommand mRendererCommand_FinalPass;
+		
 
-		struct ConstantBuffer_Data_DownScaling
+		struct alignas(16) ConstantBuffer_Data_DownScaling
 		{
 			ConstantBuffer_Data_DownScaling() = default;
 			ConstantBuffer_Data_DownScaling(uint32_t _ScreenQuarterSizeReolutionWidth, uint32_t _ScreenQuarterSizeReolutionHeight, uint32_t _Domain, uint32_t _GroupNum, float _Adaption, float _BloomThreshold)
@@ -82,7 +85,7 @@ namespace TruthEngine
 			float2 Pad;
 		};
 
-		struct ConstantBuffer_Data_FinalPass
+		struct alignas(16) ConstantBuffer_Data_FinalPass
 		{
 			ConstantBuffer_Data_FinalPass()
 				: mMiddleGrey(0.0025f), mLumWhiteSqr(1.5f), mBloomScale(1.0f)
@@ -113,8 +116,9 @@ namespace TruthEngine
 			float2 mDOFFarValues;
 		};
 
-		struct ConstantBuffer_Data_BlurPass
+		struct alignas(16) ConstantBuffer_Data_BlurPass
 		{
+			ConstantBuffer_Data_BlurPass() = default;
 			ConstantBuffer_Data_BlurPass(uint32_t _InputResWidth, uint32_t _InputResHeight)
 				: mInputResWidth(_InputResWidth), mInputResHeight(_InputResHeight)
 			{}
@@ -137,17 +141,19 @@ namespace TruthEngine
 		Texture* mRWTextureBluredBloomHorz;
 		Texture* mRWTextureBluredBloom;
 
-		RenderTargetView mRenderTargetView_SceneBuffer;
+		PipelineCompute mPipelineDownScalingFirstPass;
+		PipelineCompute mPipelineDownScalingSecondPass;
+		PipelineCompute mPipelineBloomPass;
+		PipelineCompute mPipelineBlurPassHorz;
+		PipelineCompute mPipelineBlurPassVert;
+		PipelineGraphics mPipelineFinalPass_ReinhardToneMapping;
+		PipelineGraphics mPipelineFinalPass_ACESToneMapping;
+		PipelineGraphics* mPipelineFinalPass_Selected = &mPipelineFinalPass_ACESToneMapping;
 
-		PipelineCompute* mPipelineDownScalingFirstPass = nullptr;
-		PipelineCompute* mPipelineDownScalingSecondPass = nullptr;
-		PipelineCompute* mPipelineBloomPass = nullptr;
-		PipelineCompute* mPipelineBlurPassHorz = nullptr;
-		PipelineCompute* mPipelineBlurPassVert = nullptr;
-		PipelineGraphics* mPipelineFinalPass = nullptr;
 
-		Viewport mViewPort;
-		ViewRect mViewRect;
+		//ScreenSpace Reflection
+		PipelineGraphics m_Pipeline_Reflection;
+		PipelineGraphics m_Pipeline_Blend;
 
 		uint32_t mSceneViewQuarterSize[2];
 		uint32_t mGroupNum = 0;
@@ -157,5 +163,8 @@ namespace TruthEngine
 		float mBloomThreshold = 1.0f;
 		float mDOFFarStart = 40.0f;
 		float mDOFFarRange = 60.0f;
+
+
+		std::vector<EventListenerHandle> m_EventListenerList;
 	};
 }

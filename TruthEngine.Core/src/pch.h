@@ -21,6 +21,7 @@
 #include <map>	   //std::map
 #include <variant> //std::varinat
 #include <optional> //std::optional
+#include <string_view> //std::string_view
 
 #include "DirectXMath/Inc/DirectXMath.h"
 #include "DirectXMath/Inc/DirectXColors.h"
@@ -89,9 +90,12 @@
 #include <windowsx.h>
 #include <wrl/client.h>
 #include <ppl.h>
+#include <wincodec.h>
+#include <wincodecsdk.h>
 
 template<class T>
 using COMPTR = Microsoft::WRL::ComPtr<T>;
+
 
 #endif
 

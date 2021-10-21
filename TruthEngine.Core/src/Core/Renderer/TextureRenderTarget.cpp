@@ -4,10 +4,16 @@
 namespace TruthEngine
 {
 
-	TextureRenderTarget::TextureRenderTarget(TE_IDX_GRESOURCES _IDX, uint32_t width
-		, uint32_t height, TE_RESOURCE_FORMAT format
+	TextureRenderTarget::TextureRenderTarget(
+		TE_IDX_GRESOURCES _IDX
+		, uint32_t width
+		, uint32_t height
+		, uint8_t arraySize
+		, uint8_t mipLevels
+		, TE_RESOURCE_TYPE type
+		, TE_RESOURCE_FORMAT format
 		, ClearValue_RenderTarget clearValue, bool useAsShaderResource, bool enableMSAA)
-		: Texture(_IDX, width, height, format, TE_RESOURCE_USAGE_RENDERTARGET, TE_RESOURCE_TYPE::TEXTURE2D, TE_RESOURCE_STATES::RENDER_TARGET, enableMSAA)
+		: Texture(_IDX, width, height, arraySize, mipLevels, format, TE_RESOURCE_USAGE_RENDERTARGET, type, TE_RESOURCE_STATES::RENDER_TARGET, enableMSAA)
 		,m_ClearValue(clearValue)
 	{
 		if (useAsShaderResource)

@@ -62,8 +62,7 @@ namespace TruthEngine
 		bool m_IsByteAddress = false;
 		bool m_IsUploadHeapBuffer = false;
 
-		std::vector<uint8_t*> m_MappedData;
-
+		std::vector<void*> m_MappedData;
 
 
 		//friend classes

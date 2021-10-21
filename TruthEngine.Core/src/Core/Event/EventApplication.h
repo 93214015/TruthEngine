@@ -45,26 +45,6 @@ namespace TruthEngine {
 
 	};
 
-	class EventTextureResize : public Event 
-	{
-	public:
-		EventTextureResize(const uint16_t width, const uint16_t height, TE_IDX_GRESOURCES texturedIDX)
-			: m_Width(width), m_Height(height), m_TextureIDX(texturedIDX)
-		{}
-
-		uint32_t GetWidth() const noexcept { return m_Width; }
-		uint32_t GetHeight() const noexcept { return m_Height; }
-		TE_IDX_GRESOURCES GetIDX()const noexcept { return m_TextureIDX; }
-
-
-		EVENT_CLASS_TYPE(RenderTargetResize)
-		EVENT_CLASS_CATEGORY(EventCategoryApplication)
-
-	protected:
-		uint16_t m_Width, m_Height;
-		TE_IDX_GRESOURCES m_TextureIDX;
-	};
-
 
 	class EventWindowClose : public Event {
 	public:

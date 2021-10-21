@@ -53,14 +53,13 @@ namespace TruthEngine::API {
 
 		ComPtr<IDXGIAdapter4> adapter;
 
-
-		auto hr = m_Factory->EnumAdapterByGpuPreference(i, DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE, IID_PPV_ARGS(&adapter));
-
-		while (hr != DXGI_ERROR_NOT_FOUND)
+		while (m_Factory->EnumAdapterByGpuPreference(i, DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE, IID_PPV_ARGS(&adapter)) != DXGI_ERROR_NOT_FOUND)
 		{
+			DXGI_ADAPTER_DESC3 _desc;
+			adapter->GetDesc3(&_desc);
+
 			m_Adapters.push_back(adapter);
 			i++;
-			hr = m_Factory->EnumAdapterByGpuPreference(i, DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE, IID_PPV_ARGS(&adapter));
 		}
 	}
 

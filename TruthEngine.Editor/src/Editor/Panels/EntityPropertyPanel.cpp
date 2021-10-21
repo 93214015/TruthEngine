@@ -2,6 +2,7 @@
 #include "EntityPropertyPanel.h"
 
 #include "Core/Application.h"
+#include "Core/Renderer/RendererLayer.h"
 #include "Core/ImGui/ImGuiLayer.h"
 
 #include "Core/Entity/Components.h"
@@ -16,6 +17,7 @@
 #include "Core/Event/EventEntity.h"
 #include "Core/Entity/Light/LightDirectional.h"
 #include "Core/Entity/Light/LightSpot.h"
+#include "Core/Entity/Light/LightPoint.h"
 
 using namespace DirectX;
 
@@ -103,19 +105,26 @@ namespace TruthEngine
 		{
 			DrawPhysicComponent();
 		}
+		if (m_Context.HasComponent<BoundingBoxComponent>())
+		{
+			RenderBoundignBox();
+		}
 	}
 
 
 	void EntityPropertyPanel::DrawTagComponent(TagComponent& component)
 	{
-		char tag[50];
+		/*char tag[50];
 		memset(tag, 0, sizeof(tag));
-		strcpy_s(tag, component.GetTag().c_str());
+		strcpy_s(tag, component.GetTag());*/
+
+		char* tag = component.GetTag();
+
 		ImGui::PushItemWidth(-FLT_MIN);
 		ImGui::PushStyleColor(ImGuiCol_::ImGuiCol_FrameBg, ImVec4{ 0.5, .5, .8, .8 });
-		if (ImGui::InputText("##tagcomponent", tag, sizeof(tag)))
+		if (ImGui::InputText("##tagcomponent", tag, component.GetTagMaxLength()))
 		{
-			component.SetTag(tag);
+			/*component.SetTag(tag);*/
 		}
 		ImGui::PopStyleColor();
 		ImGui::PopItemWidth();
@@ -141,154 +150,599 @@ namespace TruthEngine
 	inline void EntityPropertyPanel::DrawMaterialComponent(MaterialComponent& component)
 	{
 
-		DrawComponent<MaterialComponent>("Material", m_Context, [](MaterialComponent& component)
+		auto material = component.GetMaterial();
+
+		auto _ShadingModel = GET_RENDERER_STATE(material->GetRendererStates(), TE_RENDERER_STATE_SHADING_MODEL);
+
+		auto _LambdaDrawShadingModelComponent = [](Material* _Material)
+		{
+			static const char* _ShadingModelsStr[] = { "None", "Blinn-Phong", "PBR" };
+
+			TE_RENDERER_STATE_SHADING_MODEL _ShadingModel = static_cast<TE_RENDERER_STATE_SHADING_MODEL>(GET_RENDERER_STATE(_Material->GetRendererStates(), TE_RENDERER_STATE_SHADING_MODEL));
+			const char* _CurrentShadingModelItem = _ShadingModelsStr[static_cast<uint32_t>(_ShadingModel)];
+
+			if (ImGui::BeginCombo("Shading Model: ", _CurrentShadingModelItem))
 			{
-
-				auto material = component.GetMaterial();
-
+				if (ImGui::Selectable("Blinn_Phong", _ShadingModel == TE_RENDERER_STATE_SHADING_MODEL_BLINNPHONG))
 				{
-					auto diffuseColor = material->GetColorDiffuse();
-
-					//if (ImGui::DragFloat4("Diffuse Color", &diffuseColor.x, 0.01f, 0.0f, 1.0f, nullptr, 1.0f))
-					ImGui::Text("DiffuseColor: ");
-					if (ImGui::ColorEdit4("##materialdiffusecolor", &diffuseColor.x, ImGuiColorEditFlags_Float))
-					{
-						material->SetColorDiffuse(diffuseColor);
-					}
+					_CurrentShadingModelItem = _ShadingModelsStr[0];
+					_Material->SetShadingModel(TE_RENDERER_STATE_SHADING_MODEL_BLINNPHONG);
 				}
-
+				if (ImGui::Selectable("PBR", _ShadingModel == TE_RENDERER_STATE_SHADING_MODEL_PBR))
 				{
-					auto r0 = material->GetFresnelR0().x;
-
-					if (ImGui::DragFloat("FresnelR0", &r0, 0.01f, 0.0f, 1.0f, nullptr, 1.0f))
-					{
-						material->SetFresnelR0(float3{ r0, r0, r0 });
-					}
-				}
-
-				{
-					auto shininess = material->GetShininess();
-
-					if (ImGui::DragFloat("Shininess", &shininess, 0.01f, 0.0f, 1.0f, nullptr, 1.0f))
-					{
-						material->SetShininess(shininess);
-					}
-				}
-
-				{
-					auto uvScale = material->GetUVScale();
-					static bool s_chainedUVScale = true;
-					if (ImGuiLayer::DrawFloat2ControlUV("UV Scale", &uvScale, s_chainedUVScale))
-					{
-						material->SetUVScale(uvScale);
-					}
-					ImGui::SameLine();
-					ImGui::Checkbox("Chained##uvScale", &s_chainedUVScale);
-				}
-
-				{
-					static bool s_chainedUVTranslate = true;
-					auto uvTranslate = material->GetUVTranslate();
-					if (ImGuiLayer::DrawFloat2ControlUV("UV Translate", &uvTranslate, s_chainedUVTranslate))
-					{
-						material->SetUVTranslate(uvTranslate);
-					}
-					ImGui::SameLine();
-					ImGui::Checkbox("Chained##uvTranslate", &s_chainedUVTranslate);
-				}
-
-				{
-					ImGui::SetNextItemWidth(-100);
-					ImGui::Text("Diffuse Texture: ");
-
-					ImGui::SameLine();
-
-					uint32_t diffuseIndex = material->GetMapIndexDiffuse();
-
-					if (diffuseIndex == -1)
-					{
-						ImGui::Button("None");
-					}
-					else
-					{
-						if (ImGui::Button("Show##diffuseTexture"))
-						{
-							ImGui::OpenPopup("showdiffuseTexturepopup");
-						}
-
-						if (ImGui::BeginPopup("showdiffuseTexturepopup"))
-						{
-							TEImGuiRenderImage_MaterialTexture(diffuseIndex, float2{ 150.0f, 150.0f });
-							ImGui::EndPopup();
-						}
-					}
-
-					ImGui::SameLine();
-					if (ImGui::Button("Pick Texture##pickdiffuseMap"))
-					{
-						auto func = [material](uint32_t _diffuseMapIndex)
-						{
-							material->SetMapIndexDiffuse(_diffuseMapIndex);
-						};
-
-						ImGuiLayer::ShowWindowMaterialTexture(func, true);
-					}
-					ImGui::SameLine();
-					if (ImGui::Button("Clear##diffuseMap"))
-					{
-						material->SetMapIndexDiffuse(-1);
-					}
-
+					_CurrentShadingModelItem = _ShadingModelsStr[1];
+					_Material->SetShadingModel(TE_RENDERER_STATE_SHADING_MODEL_PBR);
 				}
 
 
+				ImGui::EndCombo();
+			}
+		};
+
+		auto _LambdaDrawDiffuseColorComponent = [](Material* _Material)
+		{
+			auto diffuseColor = _Material->GetColorDiffuse();
+
+			//if (ImGui::DragFloat4("Diffuse Color", &diffuseColor.x, 0.01f, 0.0f, 1.0f, nullptr, 1.0f))
+			ImGui::Text("DiffuseColor: ");
+			if (ImGui::ColorEdit4("##materialdiffusecolor", &diffuseColor.x, ImGuiColorEditFlags_Float))
+			{
+				_Material->SetColorDiffuse(diffuseColor);
+			}
+		};
+
+		auto _LambdaDrawRoughnessComponent = [](Material* _Material)
+		{
+			auto _Roughness = _Material->GetRoughness();
+
+			if (ImGui::DragFloat("Roughness", &_Roughness, 0.01f, 0.0f, 1.0f, nullptr, 1.0f))
+			{
+				_Material->SetRoughness(_Roughness);
+			}
+		};
+
+		auto _LambdaDrawMetallicComponent = [](Material* _Material)
+		{
+			float _Metallic = _Material->GetMetallic();
+
+			if (ImGui::DragFloat("Metallic", &_Metallic, 0.01f, 0.0f, 1.0f, nullptr, 1.0f))
+			{
+				_Material->SetMetallic(_Metallic);
+			}
+		};
+
+		auto _LambdaDrawAmbientOcclusionComponent = [](Material* _Material)
+		{
+			float _AmbientOcclusion = _Material->GetAmbientOcclusion();
+
+			if (ImGui::DragFloat("AmbientOcclusion", &_AmbientOcclusion, 0.01f, 0.0f, 1.0f, nullptr, 1.0f))
+			{
+				_Material->SetAmbientOcclusion(_AmbientOcclusion);
+			}
+		};
+
+		auto _LambdaDrawEmissionComponent = [](Material* _Material)
+		{
+			float _Emission = _Material->GetEmission();
+
+			if (ImGui::DragFloat("Emission Factor", &_Emission, 0.01f, 0.0f, 5.0f, nullptr, 1.0f))
+			{
+				_Material->SetEmission(_Emission);
+			}
+		};
+
+		auto _LambdaDrawUVScaleComponent = [](Material* _Material)
+		{
+			auto uvScale = _Material->GetUVScale();
+			static bool s_chainedUVScale = true;
+			if (ImGuiLayer::DrawFloat2ControlUV("UV Scale", &uvScale, s_chainedUVScale))
+			{
+				_Material->SetUVScale(uvScale);
+			}
+			ImGui::SameLine();
+			ImGui::Checkbox("Chained##uvScale", &s_chainedUVScale);
+		};
+
+		auto _LamdaDrawUVTranslationComponent = [](Material* _Material)
+		{
+			static bool s_chainedUVTranslate = true;
+			auto uvTranslate = _Material->GetUVTranslate();
+			if (ImGuiLayer::DrawFloat2ControlUV("UV Translate", &uvTranslate, s_chainedUVTranslate))
+			{
+				_Material->SetUVTranslate(uvTranslate);
+			}
+			ImGui::SameLine();
+			ImGui::Checkbox("Chained##uvTranslate", &s_chainedUVTranslate);
+		};
+
+		auto _LambdaDrawDiffuseTextureComponent = [](Material* _Material)
+		{
+			ImGui::SetNextItemWidth(-100);
+			ImGui::Text("Diffuse Texture: ");
+
+			ImGui::SameLine();
+
+			uint32_t diffuseIndex = _Material->GetMapIndexDiffuse();
+
+			if (diffuseIndex == -1)
+			{
+				ImGui::Button("None");
+			}
+			else
+			{
+				if (ImGui::Button("Show##diffuseTexture"))
 				{
+					ImGui::OpenPopup("showdiffuseTexturepopup");
+				}
 
-					ImGui::SetNextItemWidth(-100);
-					ImGui::Text("Normal Texture: ");
+				if (ImGui::BeginPopup("showdiffuseTexturepopup"))
+				{
+					TEImGuiRenderImage_MaterialTexture(diffuseIndex, float2{ 150.0f, 150.0f });
+					ImGui::EndPopup();
+				}
+			}
 
-					ImGui::SameLine();
+			ImGui::SameLine();
+			if (ImGui::Button("Pick Texture##pickdiffuseMap"))
+			{
+				auto func = [_Material](uint32_t _diffuseMapIndex)
+				{
+					_Material->SetMapIndexDiffuse(_diffuseMapIndex);
+				};
 
-					uint32_t normalIndex = material->GetMapIndexNormal();
+				ImGuiLayer::ShowWindowMaterialTexture(func, true);
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Clear##diffuseMap"))
+			{
+				_Material->SetMapIndexDiffuse(-1);
+			}
+		};
 
-					if (normalIndex == -1)
-					{
-						ImGui::Button("None");
-					}
-					else
-					{
-						if (ImGui::Button("Show##normalTexture"))
-						{
-							ImGui::OpenPopup("shownormalTexturepopup");
-						}
+		auto _LambdaDrawNormalTextureComponent = [](Material* _Material)
+		{
+			ImGui::SetNextItemWidth(-100);
+			ImGui::Text("Normal Texture: ");
 
-						if (ImGui::BeginPopup("shownormalTexturepopup"))
-						{
-							TEImGuiRenderImage_MaterialTexture(normalIndex, float2{ 150.0f, 150.0f });
-							ImGui::EndPopup();
-						}
-					}
-					ImGui::SameLine();
-					if (ImGui::Button("Pick Texture##picknormalMap"))
-					{
-						auto func = [material](uint32_t _normalMapIndex)
-						{
-							material->SetMapIndexNormal(_normalMapIndex);
-						};
+			ImGui::SameLine();
 
-						ImGuiLayer::ShowWindowMaterialTexture(func, true);
-					}
-					ImGui::SameLine();
-					if (ImGui::Button("Clear##normalMap"))
-					{
+			uint32_t normalIndex = _Material->GetMapIndexNormal();
+
+			if (normalIndex == -1)
+			{
+				ImGui::Button("None");
+			}
+			else
+			{
+				if (ImGui::Button("Show##normalTexture"))
+				{
+					ImGui::OpenPopup("shownormalTexturepopup");
+				}
+
+				if (ImGui::BeginPopup("shownormalTexturepopup"))
+				{
+					TEImGuiRenderImage_MaterialTexture(normalIndex, float2{ 150.0f, 150.0f });
+					ImGui::EndPopup();
+				}
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Pick Texture##picknormalMap"))
+			{
+				auto func = [_Material](uint32_t _normalMapIndex)
+				{
+					_Material->SetMapIndexNormal(_normalMapIndex);
+				};
+
+				ImGuiLayer::ShowWindowMaterialTexture(func, true);
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Clear##normalMap"))
+			{
+				ImGui::SameLine();
+				_Material->SetMapIndexNormal(-1);
+			}
+		};
+
+		auto _LambdaDrawRoughnessTextureComponent = [](Material* _Material)
+		{
+			ImGui::SetNextItemWidth(-100);
+			ImGui::Text("Roughness Texture: ");
+
+			ImGui::SameLine();
+
+			uint32_t _RoughnessIndex = _Material->GetMapIndexRoughness();
+
+			if (_RoughnessIndex == -1)
+			{
+				ImGui::Button("None");
+			}
+			else
+			{
+				if (ImGui::Button("Show##RoughnessTexture"))
+				{
+					ImGui::OpenPopup("showRoughnessTexturepopup");
+				}
+
+				if (ImGui::BeginPopup("showRoughnessTexturepopup"))
+				{
+					TEImGuiRenderImage_MaterialTexture(_RoughnessIndex, float2{ 150.0f, 150.0f });
+					ImGui::EndPopup();
+				}
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Pick Texture##pickRoughnessMap"))
+			{
+				auto func = [_Material](uint32_t _RoughnessMapIndex)
+				{
+					_Material->SetMapIndexRoughness(_RoughnessMapIndex);
+				};
+
+				ImGuiLayer::ShowWindowMaterialTexture(func, true);
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Clear##RoughnessMap"))
+			{
+				ImGui::SameLine();
+				_Material->SetMapIndexRoughness(-1);
+			}
+		};
+
+		auto _LambdaDrawMetallicTextureComponent = [](Material* _Material)
+		{
+			ImGui::SetNextItemWidth(-100);
+			ImGui::Text("Metallic Texture: ");
+
+			ImGui::SameLine();
+
+			uint32_t _MetallicIndex = _Material->GetMapIndexMetallic();
+
+			if (_MetallicIndex == -1)
+			{
+				ImGui::Button("None");
+			}
+			else
+			{
+				if (ImGui::Button("Show##MetallicTexture"))
+				{
+					ImGui::OpenPopup("showMetallicTexturepopup");
+				}
+
+				if (ImGui::BeginPopup("showMetallicTexturepopup"))
+				{
+					TEImGuiRenderImage_MaterialTexture(_MetallicIndex, float2{ 150.0f, 150.0f });
+					ImGui::EndPopup();
+				}
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Pick Texture##pickMetallicMap"))
+			{
+				auto func = [_Material](uint32_t _MetallicMapIndex)
+				{
+					_Material->SetMapIndexMetallic(_MetallicMapIndex);
+				};
+
+				ImGuiLayer::ShowWindowMaterialTexture(func, true);
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Clear##MetallicMap"))
+			{
+				ImGui::SameLine();
+				_Material->SetMapIndexMetallic(-1);
+			}
+		};
+
+		auto _LambdaDrawAmbientOcclusionTextureComponent = [](Material* _Material)
+		{
+			ImGui::SetNextItemWidth(-100);
+			ImGui::Text("AO Texture: ");
+
+			ImGui::SameLine();
+
+			uint32_t _AOIndex = _Material->GetMapIndexAmbientOcclusion();
+
+			if (_AOIndex == -1)
+			{
+				ImGui::Button("None");
+			}
+			else
+			{
+				if (ImGui::Button("Show##AOTexture"))
+				{
+					ImGui::OpenPopup("showAOTexturepopup");
+				}
+
+				if (ImGui::BeginPopup("showAOTexturepopup"))
+				{
+					TEImGuiRenderImage_MaterialTexture(_AOIndex, float2{ 150.0f, 150.0f });
+					ImGui::EndPopup();
+				}
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Pick Texture##pickAOMap"))
+			{
+				auto func = [_Material](uint32_t _AOMapIndex)
+				{
+					_Material->SetMapIndexAmbientOcclusion(_AOMapIndex);
+				};
+
+				ImGuiLayer::ShowWindowMaterialTexture(func, true);
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Clear##AOMap"))
+			{
+				ImGui::SameLine();
+				_Material->SetMapIndexAmbientOcclusion(-1);
+			}
+		};
+
+		auto _LambdaDrawFresnelR0Component = [](Material* _Material)
+		{
+			float _Metallic = _Material->GetMetallic();
+
+			if (ImGui::DragFloat("FresnelR0", &_Metallic, 0.01f, 0.0f, 1.0f, nullptr, 1.0f))
+			{
+				_Material->SetMetallic(_Metallic);
+			}
+		};
+
+		auto _LambdaDrawSpecularTextureComponent = [](Material* _Material)
+		{
+
+			ImGui::SetNextItemWidth(-100);
+			ImGui::Text("Specular Texture: ");
+
+			ImGui::SameLine();
+
+			uint32_t _SpecularIndex = _Material->GetMapIndexSpecular();
+
+			if (_SpecularIndex == -1)
+			{
+				ImGui::Button("None");
+			}
+			else
+			{
+				if (ImGui::Button("Show##SpecularTexture"))
+				{
+					ImGui::OpenPopup("showSpecularTexturepopup");
+				}
+
+				if (ImGui::BeginPopup("showSpecularTexturepopup"))
+				{
+					TEImGuiRenderImage_MaterialTexture(_SpecularIndex, float2{ 150.0f, 150.0f });
+					ImGui::EndPopup();
+				}
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Pick Texture##pickSpecularMap"))
+			{
+				auto func = [_Material](uint32_t _SpecularMapIndex)
+				{
+					_Material->SetMapIndexSpecular(_SpecularMapIndex);
+				};
+
+				ImGuiLayer::ShowWindowMaterialTexture(func, true);
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Clear##SpecularMap"))
+			{
+				ImGui::SameLine();
+				_Material->SetMapIndexSpecular(-1);
+			}
+
+		};
+
+		auto _LambdaDrawSSRComponent = [](Material* _Material)
+		{
+			bool _EnabledSSR = _Material->IsEnabledSSR();
+
+			if (ImGui::Checkbox("Enabled SSR", &_EnabledSSR))
+			{
+				_Material->SetEnabledSSR(_EnabledSSR);
+			}
+		};
+
+		auto _LambdaDrawEnvMapReflectComponent = [](Material* _Material)
+		{
+			bool _EnabledEnvMapReflect = _Material->IsEnabledEnvironmentMapReflectoin();
+
+			if (ImGui::Checkbox("Enabled EnvironmentMap Reflection", &_EnabledEnvMapReflect))
+			{
+				_Material->SetEnabledEnvironmentMapReflection(_EnabledEnvMapReflect);
+			}
+		};
+
+		switch (_ShadingModel)
+		{
+		case TE_RENDERER_STATE_SHADING_MODEL_BLINNPHONG:
+			DrawComponent<MaterialComponent>("Material", m_Context, [=](MaterialComponent& component)
+				{				
+					auto material = component.GetMaterial();
+
+					//Shading Models
+
+					_LambdaDrawShadingModelComponent(material);
+
+					// Diffuse Color
+
+					_LambdaDrawDiffuseColorComponent(material);
+
+					// Roughness
+
+					_LambdaDrawRoughnessComponent(material);
+
+					// FresnelR0 (used metallic field)
+
+					_LambdaDrawFresnelR0Component(material);
+
+					// Emission Factor
+
+					_LambdaDrawEmissionComponent(material);
+
+					// UV Scale
+
+					_LambdaDrawUVScaleComponent(material);
+
+					//UV Translate
+
+					_LamdaDrawUVTranslationComponent(material);
+
+					// Diffuse Map
+
+					_LambdaDrawDiffuseTextureComponent(material);
+
+
+					// Normal Map
+
+					_LambdaDrawNormalTextureComponent(material);
+
+					// Specular Map
+
+					_LambdaDrawSpecularTextureComponent(material);
+
+					//Enable or Disable SSR
+
+					_LambdaDrawSSRComponent(material);
+
+					//Enable or Disable Environment Map Reflection
+
+					_LambdaDrawEnvMapReflectComponent(material);
+
+
+
+					/*{
+
+						ImGui::SetNextItemWidth(-100);
+						ImGui::Text("Specular Texture: ");
+
 						ImGui::SameLine();
-						material->SetMapIndexNormal(-1);
-					}
 
-				}
+						uint32_t specularIndex = material->GetMapIndexSpecular();
+
+						if (specularIndex == -1)
+						{
+							ImGui::Button("None");
+						}
+						else
+						{
+							if (ImGui::Button("Show##specularTexture"))
+							{
+								ImGui::OpenPopup("showspecularTexturepopup");
+							}
+
+							if (ImGui::BeginPopup("showspecularTexturepopup"))
+							{
+								TEImGuiRenderImage_MaterialTexture(specularIndex, float2{ 150.0f, 150.0f });
+								ImGui::EndPopup();
+							}
+						}
+						ImGui::SameLine();
+						if (ImGui::Button("Pick Texture##pickspecularMap"))
+						{
+							auto func = [material](uint32_t _specularMapIndex)
+							{
+								material->SetMapIndexSpecular(_specularMapIndex);
+							};
+
+							ImGuiLayer::ShowWindowMaterialTexture(func, true);
+						}
+						ImGui::SameLine();
+						if (ImGui::Button("Clear##specularMap"))
+						{
+							ImGui::SameLine();
+							material->SetMapIndexSpecular(-1);
+						}
+
+					}*/
 
 
-			});
+				});
+			break;
+		case TE_RENDERER_STATE_SHADING_MODEL_PBR:
+			DrawComponent<MaterialComponent>("Material", m_Context, [=](MaterialComponent& component)
+				{
+					auto material = component.GetMaterial();
+
+					_LambdaDrawShadingModelComponent(material);
+
+					_LambdaDrawDiffuseColorComponent(material);
+
+					_LambdaDrawRoughnessComponent(material);
+
+					_LambdaDrawMetallicComponent(material);
+
+					_LambdaDrawAmbientOcclusionComponent(material);
+
+					_LambdaDrawEmissionComponent(material);
+
+					_LambdaDrawUVScaleComponent(material);
+
+					_LamdaDrawUVTranslationComponent(material);
+
+					_LambdaDrawDiffuseTextureComponent(material);
+
+					_LambdaDrawNormalTextureComponent(material);
+
+					_LambdaDrawRoughnessTextureComponent(material);
+
+					_LambdaDrawMetallicTextureComponent(material);
+
+					_LambdaDrawAmbientOcclusionTextureComponent(material);
+
+					_LambdaDrawSSRComponent(material);
+
+					_LambdaDrawEnvMapReflectComponent(material);
+
+					/*{
+
+						ImGui::SetNextItemWidth(-100);
+						ImGui::Text("Specular Texture: ");
+
+						ImGui::SameLine();
+
+						uint32_t specularIndex = material->GetMapIndexSpecular();
+
+						if (specularIndex == -1)
+						{
+							ImGui::Button("None");
+						}
+						else
+						{
+							if (ImGui::Button("Show##specularTexture"))
+							{
+								ImGui::OpenPopup("showspecularTexturepopup");
+							}
+
+							if (ImGui::BeginPopup("showspecularTexturepopup"))
+							{
+								TEImGuiRenderImage_MaterialTexture(specularIndex, float2{ 150.0f, 150.0f });
+								ImGui::EndPopup();
+							}
+						}
+						ImGui::SameLine();
+						if (ImGui::Button("Pick Texture##pickspecularMap"))
+						{
+							auto func = [material](uint32_t _specularMapIndex)
+							{
+								material->SetMapIndexSpecular(_specularMapIndex);
+							};
+
+							ImGuiLayer::ShowWindowMaterialTexture(func, true);
+						}
+						ImGui::SameLine();
+						if (ImGui::Button("Clear##specularMap"))
+						{
+							ImGui::SameLine();
+							material->SetMapIndexSpecular(-1);
+						}
+
+					}*/
+
+
+				});
+			break;
+		}
+
+
 
 	}
 
@@ -364,15 +818,12 @@ namespace TruthEngine
 
 	inline void EntityPropertyPanel::DrawLightComponent(LightComponent& component)
 	{
-		DrawComponent<LightComponent>("Light", m_Context, [](LightComponent& component)
+		DrawComponent<LightComponent>("Light", m_Context, [this](LightComponent& component)
 			{
-
-
 				auto light = component.GetLight();
 
 
 				{
-
 					auto position = light->GetPosition();
 					//ImGui::Text("Light Position: ");
 					//if (ImGui::DragFloat3("##lightpostition", &position.x))
@@ -383,12 +834,23 @@ namespace TruthEngine
 
 					static bool s_MoveWithCamera = false;
 					ImGui::Checkbox("Move With Camera: ", &s_MoveWithCamera);
-
+					
 					if (s_MoveWithCamera)
 					{
 						Camera* _Camera = CameraManager::GetInstance()->GetActiveCamera();
 
-						light->SetView(_Camera->GetPosition(), _Camera->GetLook(), _Camera->GetUp(), _Camera->GetRight());
+						GetActiveScene()->SetTransform(m_Context, _Camera->GetLook(), _Camera->GetPosition());
+
+						/*if (light->GetLightType() == TE_LIGHT_TYPE::Point)
+						{
+							//light->SetPosition(_Camera->GetPosition());
+							_MovementComponent->IsAbsolutePostion = true;
+							_MovementComponent->MovementVector = _Camera->GetPosition();
+						}
+						else
+						{
+							light->SetView(_Camera->GetPosition(), _Camera->GetLook(), _Camera->GetUp(), _Camera->GetRight());
+						}*/
 					}
 
 				}
@@ -415,11 +877,22 @@ namespace TruthEngine
 				}
 
 				{
+					auto _StrengthMultiplier = light->GetStrengthMultiplier();
+
+					ImGui::Text("Light Intensity Multiplier: ");
+					if (ImGui::DragFloat("##lightIntensityMultiplier", &_StrengthMultiplier, 0.01, 0.0f))
+					{
+						light->SetStrengthMultiplier(_StrengthMultiplier);
+					}
+				}
+
+				{
 					TE_LIGHT_TYPE _LightType = light->GetLightType();
 
-					if (_LightType == TE_LIGHT_TYPE::Directional)
+					switch (_LightType)
 					{
-
+					case TE_LIGHT_TYPE::Directional:
+					{
 						LightDirectional* _DLight = static_cast<LightDirectional*>(light);
 						float4 _Depths = _DLight->GetCascadesConveringDepth();
 						ImGui::Text("Directional Light Cascades Depth: ");
@@ -427,12 +900,10 @@ namespace TruthEngine
 						{
 							_DLight->SetCascadesDepth(_Depths);
 						}
-
+						break;
 					}
-
-					if (_LightType == TE_LIGHT_TYPE::Spot)
+					case TE_LIGHT_TYPE::Spot:
 					{
-
 						LightSpot* _SLight = static_cast<LightSpot*>(light);
 
 						ImGui::Text("Spot Light Start Falloff Distance: ");
@@ -451,22 +922,64 @@ namespace TruthEngine
 
 						ImGui::Text("Spot Light Inner Cone Angle: ");
 						float _InnerConeAngle = Math::RadianToDegree(_SLight->GetInnerConeAngle());
-						if (ImGui::DragFloat("##SpotLightInnerConeAngle", &_InnerConeAngle))
+						if (ImGui::DragFloat("##SpotLightInnerConeAngle", &_InnerConeAngle, 1.0f, 1.0f))
 						{
 							_SLight->SetInnerConeAngle(_InnerConeAngle);
 						}
 
 						ImGui::Text("Spot Light Outer Cone Angle: ");
 						float _OuterConeAngle = Math::RadianToDegree(_SLight->GetOuterConeAngle());
-						if (ImGui::DragFloat("##SpotLightOuterConeAngle", &_OuterConeAngle))
+						if (ImGui::DragFloat("##SpotLightOuterConeAngle", &_OuterConeAngle, 1.0f, _InnerConeAngle + 1))
 						{
 							_SLight->SetOuterConeAngle(_OuterConeAngle);
 						}
+						break;
+					}
+					case TE_LIGHT_TYPE::Point:
+					{
+						LightPoint* _PLight = static_cast<LightPoint*>(light);
 
+						ImGui::Text("Attenuation Start Radius: ");
+						float _AttenuationStartRadius = _PLight->GetAttenuationStartRadius();
+						if (ImGui::DragFloat("##PointLightAttenuationConstant", &_AttenuationStartRadius, 0.01f))
+						{
+							_PLight->SetAttenuationStartRadius(_AttenuationStartRadius);
+						}
+
+						ImGui::Text("Attenuation End Radius: ");
+						float _AttenuationEndRadius = _PLight->GetAttenuationEndRadius();
+						if (ImGui::DragFloat("##PointLightAttenuationLinear", &_AttenuationEndRadius, 0.01f))
+						{
+							_PLight->SetAttenuationEndRadius(_AttenuationEndRadius);
+						}
+
+
+						/*
+						* Render Point Light Volumes
+						*/
+
+						float4x4A _Transform = GetActiveScene()->GetComponent<TransformComponent>(m_Context).GetTransform();
+
+						float _EstRadius = _PLight->GetAttenuationStartRadius();
+						XMMatrix _ScaleTransform = Math::XMTransformMatrixScale(Math::ToXM(float3{ _EstRadius,_EstRadius ,_EstRadius }));
+						const Mesh& _Mesh = TE_INSTANCE_MODELMANAGER->GetPrimitiveMeshInstances().Sphere.GetMesh();
+						m_App->GetRendererLayer()->RenderWireframe(&_Mesh, Math::Multiply(_ScaleTransform, Math::ToXM(_Transform)), float4{ 0.8, 1.0, 0.0f, 1.0f });
+
+						_EstRadius = _PLight->GetAttenuationEndRadius();
+						_ScaleTransform = Math::XMTransformMatrixScale(Math::ToXM(float3{ _EstRadius,_EstRadius ,_EstRadius }));
+						m_App->GetRendererLayer()->RenderWireframe(&_Mesh, Math::Multiply(_ScaleTransform, Math::ToXM(_Transform)), float4{ 1.0, 0.7, 0.0f, 1.0f });
+
+						break;
+					}
 					}
 
 				}
 			});
+	}
+
+	void EntityPropertyPanel::RenderBoundignBox()
+	{
+		m_App->GetRendererLayer()->RenderBoundingBox(m_Context);
 	}
 
 
@@ -476,7 +989,7 @@ namespace TruthEngine
 		//
 		////ImGuizmo Rendering
 		//
-		if (m_Context.HasComponent<TransformComponent>() && (m_Context.HasComponent<ModelComponent>() || m_Context.HasComponent<MeshComponent>()))
+		if (m_Context.HasComponent<TransformComponent>() /*&& (m_Context.HasComponent<ModelComponent>() || m_Context.HasComponent<MeshComponent>())*/)
 		{
 			static ImGuizmo::OPERATION _operationMode(ImGuizmo::TRANSLATE);
 			static ImGuizmo::MODE _currentGizmoMode(ImGuizmo::LOCAL);
@@ -513,36 +1026,24 @@ namespace TruthEngine
 
 			auto activeCamera = CameraManager::GetInstance()->GetActiveCamera();
 
-			TransformComponent& _TransformComponent = m_Context.GetComponent<TransformComponent>();
-			float4x4 _transform = _TransformComponent.GetTransformFromWorldCenter();
+			float4x4A& _Transform = m_Context.GetComponent<TransformComponent>().GetTransform();
 
+			float4x4A _DeltaTransform;
 
 			static auto s_CopyingMesh = false;
 
-
-			if (ImGuizmo::Manipulate(&activeCamera->GetView()._11, &activeCamera->GetProjection()._11, _operationMode, _currentGizmoMode, &_transform._11, nullptr))
+			if (ImGuizmo::Manipulate(&activeCamera->GetView()._11, &activeCamera->GetProjection()._11, _operationMode, _currentGizmoMode, &_Transform._11, &_DeltaTransform._11))
 			{
 				if (InputManager::IsKeyPressed(VK_SHIFT) && !s_CopyingMesh)
 				{
 					if (!m_Context.HasComponent<ModelComponent>() && m_Context.HasComponent<MeshComponent>())
 					{
-						m_Context.GetScene()->CopyMeshEntity(m_Context);
+						GetActiveScene()->CopyMeshEntity(m_Context);
 						s_CopyingMesh = true;
 					}
 				}
 
-				const float3& _WorldCenterOffset = _TransformComponent.GetWorldCenterOffset();
-				_transform._41 -= _WorldCenterOffset.x;
-				_transform._42 -= _WorldCenterOffset.y;
-				_transform._43 -= _WorldCenterOffset.z;
-
-
-				float4x4& _OriginalTransform = _TransformComponent.GetTransform();
-				_OriginalTransform = _transform;
-
-
-				EventEntityTransform _eventEntityTransform{ m_Context, ETransformType::Scale & ETransformType::Translate };
-				TE_INSTANCE_APPLICATION->OnEvent(_eventEntityTransform);
+				GetActiveScene()->AddOrReplaceComponent<UpdatedComponent>(m_Context);
 			}
 
 			if (!ImGui::IsMouseDragging(0) && !InputManager::IsKeyPressed(VK_SHIFT))
@@ -858,7 +1359,7 @@ namespace TruthEngine
 				{
 					rigidDesc.mTransform = _Entity.GetTransformHierarchy();
 
-					auto mesh = _Entity.GetComponent<MeshComponent>().GetMesh();
+					const Mesh* mesh = &_Entity.GetComponent<MeshComponent>().GetMesh();
 					auto rigidTriangleMeshDesc = TEPhysicsRigidTriangleMeshDesc(mesh->GetVertexNum()
 						, (void*)mesh->GetVertexBuffer()->GetPosData().data()
 						, sizeof(VertexData::Pos)
@@ -881,7 +1382,7 @@ namespace TruthEngine
 
 				rigidDesc.mTransform = m_Context.GetTransformHierarchy();
 
-				auto mesh = m_Context.GetComponent<MeshComponent>().GetMesh();
+				const Mesh* mesh = &m_Context.GetComponent<MeshComponent>().GetMesh();
 				auto rigidTriangleMeshDesc = TEPhysicsRigidTriangleMeshDesc(mesh->GetVertexNum()
 					, (void*)mesh->GetVertexBuffer()->GetPosData().data()
 					, sizeof(VertexData::Pos)

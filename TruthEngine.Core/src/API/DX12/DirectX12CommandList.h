@@ -61,11 +61,12 @@ namespace TruthEngine
 
 
 			//void SetRenderTarget(TextureRenderTarget* RenderTargets[], const uint32_t RenderTargetNum, const TextureDepthStencil* DepthStencil) override;
-			void SetRenderTarget(const RenderTargetView RTV) override;
-			void SetRenderTarget(SwapChain* swapChain, const RenderTargetView RTV) override;
+			void SetRenderTarget(const RenderTargetView& RTV) override;
+			void SetRenderTarget(SwapChain* swapChain, const RenderTargetView& RTV) override;
 
 
-			void SetDepthStencil(const DepthStencilView DSV) override;
+			void SetDepthStencil(const DepthStencilView& DSV) override;
+			void SetDepthStencil(const DepthStencilView& DSV, uint32_t _StencilRefValue) override;
 
 			void ResolveMultiSampledTexture(Texture* _SourceTexture, Texture* _DestTexture) override;
 
@@ -79,6 +80,9 @@ namespace TruthEngine
 
 
 			void UploadData(Buffer* buffer, const void* data, size_t sizeInByte) override;
+
+
+			void CopyResource(GraphicResource* _Source, GraphicResource* _Dest) override;
 
 
 			void SetDirectConstantGraphics(ConstantBufferDirectBase* cb) override;
@@ -111,12 +115,12 @@ namespace TruthEngine
 			void Dispatch(uint32_t GroupNumX, uint32_t GroupNumY, uint32_t GroupNumZ) override;
 
 
-			void ClearRenderTarget(const RenderTargetView RTV);
-			void ClearRenderTarget(const SwapChain* swapChain, const RenderTargetView RTV);
-			void ClearDepthStencil(const DepthStencilView DSV);
+			void ClearRenderTarget(const RenderTargetView& RTV);
+			void ClearRenderTarget(SwapChain* swapChain, const RenderTargetView& RTV);
+			void ClearDepthStencil(const DepthStencilView& DSV);
 
 
-			void SetViewport(Viewport* viewport, ViewRect* rect);
+			void SetViewport(const Viewport* viewport, const ViewRect* rect) override;
 
 
 			void Submit() override;
@@ -143,6 +147,7 @@ namespace TruthEngine
 			void _SetRootSignatureCompute(bool _NewShaderClass);
 
 			void _ChangeResourceState(GraphicResource* resource, TE_RESOURCE_STATES newState);
+			void _ChangeResourceState(class DirectX12SwapChain* swapChain, TE_RESOURCE_STATES newState);
 
 
 			inline void _QueueBarrierTransition(ID3D12Resource* resource, D3D12_RESOURCE_STATES before, D3D12_RESOURCE_STATES after)
@@ -163,6 +168,7 @@ namespace TruthEngine
 						resource
 					)
 				);
+
 			}
 
 
@@ -214,6 +220,16 @@ namespace TruthEngine
 				size_t Size;
 			};
 
+			struct Pending_CopyResource
+			{
+				Pending_CopyResource(GraphicResource* _Source, GraphicResource* _Dest)
+					: Source(_Source), Dest(_Dest)
+				{}
+
+				GraphicResource* Source;
+				GraphicResource* Dest;
+			};
+
 			struct BindPendingDescriptor
 			{
 				BindPendingDescriptor(ID3D12Resource* _Resource, uint32_t _RootParamterIndex)
@@ -257,6 +273,8 @@ namespace TruthEngine
 			std::vector<CopyPending_DefaultResource> m_QueueCopyDefaultResource;
 
 			std::vector<ResolveResourcePending> m_QueueResolveResource;
+
+			std::vector<Pending_CopyResource> m_QueueCopyResource;
 
 			std::vector<BindPendingDescriptor> mBindPendingGraphicsSRVs;
 			std::vector<BindPendingDescriptor> mBindPendingGraphicsUAVs;

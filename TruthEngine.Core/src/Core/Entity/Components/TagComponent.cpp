@@ -3,13 +3,12 @@
 
 namespace TruthEngine
 {
-	TagComponent::TagComponent(const std::string& tag)
-		: m_Tag(tag)
-	{}
 
 	TagComponent::TagComponent(const char* tag)
-		: m_Tag(tag)
 	{
+		size_t _STRLength = strlen(tag);
+		TE_ASSERT_CORE(_STRLength < MAX_LENGTH, "The Tag should have 32 character Length at most");
+		strcpy_s(m_Tag, _STRLength + 1, tag);
 	}
 
 	TagComponent::TagComponent() = default;

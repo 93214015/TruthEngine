@@ -5,25 +5,54 @@
 #include "Core/Event/EventEntity.h"
 #include "Core/Entity/Model/ModelManager.h"
 
+#include "RendererLayer.h"
+
 namespace TruthEngine
 {
 
 	Material::Material(
 		uint32_t ID, RendererStateSet states
 		, const float4& colorDiffuse
-		, const float3& fresnelR0, float shininess
+		//, const float3& fresnelR0, float shininess
+		, float roughness
+		, float metallic
+		, float ambientOcclusion
+		, float emission
 		, const float2& uvScale, const float2& uvTranslate
 		, uint32_t diffuseMapIndex, uint32_t normalMapIndex
-		, uint32_t displacementMapIndex, int32_t extraDepthBias
-		, float extraSlopeScaledDepthBias, float extraDepthBiasClamp, TE_IDX_MESH_TYPE meshType)
+		, uint32_t displacementMapIndex
+		, uint32_t specularMapIndex
+		, uint32_t roughnessMapIndex
+		, uint32_t metallicMapIndex
+		, uint32_t ambientOcclusionMapIndex
+		, int32_t extraDepthBias
+		, float extraSlopeScaledDepthBias, float extraDepthBiasClamp, TE_IDX_MESH_TYPE meshType
+		, bool _enabledSSR
+		, bool _enabledEnvironmentMapReflection)
 		: m_ID(ID), m_RendererStates(states)
-		, m_ColorDiffuse(colorDiffuse), m_FresnelR0(fresnelR0), m_Shininess(shininess)
+		, m_ColorDiffuse(colorDiffuse)
+		//, m_FresnelR0(fresnelR0), m_Shininess(shininess)
+		, m_Roughness(roughness)
+		, m_Metallic(metallic)
+		, m_AmbientOccclusion(ambientOcclusion)
+		, m_Emission(emission)
 		, m_UVScale(uvScale), m_UVTranslate(uvTranslate)
-		, m_MapIndexDiffuse(diffuseMapIndex), m_MapIndexNormal(normalMapIndex), m_MapIndexDisplacement(displacementMapIndex)
+		, m_MapIndexDiffuse(diffuseMapIndex), m_MapIndexNormal(normalMapIndex), m_MapIndexDisplacement(displacementMapIndex), m_MapIndexSpecular(specularMapIndex)
+		, m_MapIndexRoughness(roughnessMapIndex), m_MapIndexMetallic(metallicMapIndex), m_MapIndexAmbientOcclusion(ambientOcclusionMapIndex)
 		, m_ExtraDepthBias(extraDepthBias), m_ExtraSlopeScaledDepthBias(extraSlopeScaledDepthBias), m_ExtraDepthBiasClamp(extraDepthBiasClamp)
-		, m_MeshType(meshType)
+		, m_MeshType(meshType), m_EnabledSSR(_enabledSSR), m_EnabledEnvironmentMapReflection(_enabledEnvironmentMapReflection)
 	{}
 
+	RendererStateSet Material::GetRendererStates() const noexcept
+	{
+		return m_RendererStates | RendererLayer::GetSharedRendererStates();
+	}
+
+
+	TE_RENDERER_STATE_SHADING_MODEL Material::GetShadingModel() const noexcept
+	{
+		return static_cast<TE_RENDERER_STATE_SHADING_MODEL>(GET_RENDERER_STATE(m_RendererStates, TE_RENDERER_STATE_SHADING_MODEL));
+	}
 
 	void Material::InvokeEventChangeMaterial()
 	{
@@ -31,23 +60,35 @@ namespace TruthEngine
 		Application::GetApplication()->OnEvent(event);
 	}
 
+	void Material::SetShadingModel(TE_RENDERER_STATE_SHADING_MODEL _ShadingModel)
+	{
+		auto _CurrentShadingModel = GET_RENDERER_STATE(m_RendererStates, TE_RENDERER_STATE_SHADING_MODEL);
+
+		if (_CurrentShadingModel == _ShadingModel)
+			return;
+
+		SET_RENDERER_STATE(m_RendererStates, TE_RENDERER_STATE_SHADING_MODEL, _ShadingModel);
+		InvokeEventChangeMaterial();
+	}
+
 	void Material::SetMapIndexDiffuse(uint32_t index)
 	{
-		if (index == m_MapIndexNormal)
+		if (index == m_MapIndexDiffuse)
 		{
 			return;
 		}
 
-		if (m_MapIndexDiffuse == -1 && index != -1)
+		m_MapIndexDiffuse = index;
+
+		if (index != -1)
 		{
 			SET_RENDERER_STATE(m_RendererStates, TE_RENDERER_STATE_ENABLED_MAP_DIFFUSE, TE_RENDERER_STATE_ENABLED_MAP_DIFFUSE_TRUE);
 		}
-		else if (m_MapIndexDiffuse != -1 && index == -1)
+		else if (index == -1)
 		{
 			SET_RENDERER_STATE(m_RendererStates, TE_RENDERER_STATE_ENABLED_MAP_DIFFUSE, TE_RENDERER_STATE_ENABLED_MAP_DIFFUSE_FALSE);
 		}
 
-		m_MapIndexDiffuse = index;
 
 		InvokeEventChangeMaterial();
 	}
@@ -59,22 +100,134 @@ namespace TruthEngine
 			return;
 		}
 
+		m_MapIndexNormal = index;
 
-		if (m_MapIndexNormal == -1 && index != -1)
+		if (index != -1)
 		{
 			SET_RENDERER_STATE(m_RendererStates, TE_RENDERER_STATE_ENABLED_MAP_NORMAL, TE_RENDERER_STATE_ENABLED_MAP_NORMAL_TRUE);
 		}
-		else if (m_MapIndexNormal != -1 && index == -1)
+		else if (index == -1)
 		{
 			SET_RENDERER_STATE(m_RendererStates, TE_RENDERER_STATE_ENABLED_MAP_NORMAL, TE_RENDERER_STATE_ENABLED_MAP_NORMAL_FALSE);
 		}
 
-		m_MapIndexNormal = index;
 
 		InvokeEventChangeMaterial();
 	}
 
 	void Material::SetMapIndexDisplacement(uint32_t index)
 	{
+		if (index == m_MapIndexDisplacement)
+		{
+			return;
+		}
+
+		m_MapIndexDisplacement = index;
+
+		if (index != -1)
+		{
+			SET_RENDERER_STATE(m_RendererStates, TE_RENDERER_STATE_ENABLED_MAP_DISPLACEMENT, TE_RENDERER_STATE_ENABLED_MAP_DISPLACEMENT_TRUE);
+		}
+		else if (index == -1)
+		{
+			SET_RENDERER_STATE(m_RendererStates, TE_RENDERER_STATE_ENABLED_MAP_DISPLACEMENT, TE_RENDERER_STATE_ENABLED_MAP_DISPLACEMENT_FALSE);
+		}
+
+
+		InvokeEventChangeMaterial();
+	}
+	void Material::SetMapIndexSpecular(uint32_t index)
+	{
+		if (index == m_MapIndexSpecular)
+		{
+			return;
+		}
+
+		m_MapIndexSpecular = index;
+
+		if (index != -1)
+		{
+			SET_RENDERER_STATE(m_RendererStates, TE_RENDERER_STATE_ENABLED_MAP_SPECULAR, TE_RENDERER_STATE_ENABLED_MAP_SPECULAR_TRUE);
+		}
+		else if (index == -1)
+		{
+			SET_RENDERER_STATE(m_RendererStates, TE_RENDERER_STATE_ENABLED_MAP_SPECULAR, TE_RENDERER_STATE_ENABLED_MAP_SPECULAR_FALSE);
+		}
+
+
+		InvokeEventChangeMaterial();
+	}
+	void Material::SetMapIndexRoughness(uint32_t index)
+	{
+		if (index == m_MapIndexRoughness)
+		{
+			return;
+		}
+
+		m_MapIndexRoughness = index;
+
+		if (index != -1)
+		{
+			SET_RENDERER_STATE(m_RendererStates, TE_RENDERER_STATE_ENABLED_MAP_ROUGHNESS, TE_RENDERER_STATE_ENABLED_MAP_ROUGHNESS_TRUE);
+		}
+		else if (index == -1)
+		{
+			SET_RENDERER_STATE(m_RendererStates, TE_RENDERER_STATE_ENABLED_MAP_ROUGHNESS, TE_RENDERER_STATE_ENABLED_MAP_ROUGHNESS_FALSE);
+		}
+
+
+		InvokeEventChangeMaterial();
+	}
+	void Material::SetMapIndexMetallic(uint32_t index)
+	{
+		if (index == m_MapIndexMetallic)
+		{
+			return;
+		}
+
+		m_MapIndexMetallic = index;
+
+		if (index != -1)
+		{
+			SET_RENDERER_STATE(m_RendererStates, TE_RENDERER_STATE_ENABLED_MAP_METALLIC, TE_RENDERER_STATE_ENABLED_MAP_METALLIC_TRUE);
+		}
+		else if (index == -1)
+		{
+			SET_RENDERER_STATE(m_RendererStates, TE_RENDERER_STATE_ENABLED_MAP_METALLIC, TE_RENDERER_STATE_ENABLED_MAP_METALLIC_FALSE);
+		}
+
+		InvokeEventChangeMaterial();
+	}
+	void Material::SetMapIndexAmbientOcclusion(uint32_t index)
+	{
+		if (index == m_MapIndexAmbientOcclusion)
+		{
+			return;
+		}
+
+		m_MapIndexAmbientOcclusion = index;
+
+		if (index != -1)
+		{
+			SET_RENDERER_STATE(m_RendererStates, TE_RENDERER_STATE_ENABLED_MAP_AMBIENTOCCLUSION, TE_RENDERER_STATE_ENABLED_MAP_AMBIENTOCCLUSION_TRUE);
+		}
+		else if (index == -1)
+		{
+			SET_RENDERER_STATE(m_RendererStates, TE_RENDERER_STATE_ENABLED_MAP_AMBIENTOCCLUSION, TE_RENDERER_STATE_ENABLED_MAP_AMBIENTOCCLUSION_FALSE);
+		}
+
+		InvokeEventChangeMaterial();
+	}
+	void Material::SetEnabledSSR(bool enabledSSR)
+	{
+		m_EnabledSSR = enabledSSR;
+
+		InvokeEventChangeMaterial();
+	}
+	void Material::SetEnabledEnvironmentMapReflection(bool enabledEnvMapReflection)
+	{
+		m_EnabledEnvironmentMapReflection = enabledEnvMapReflection;
+
+		InvokeEventChangeMaterial();
 	}
 }

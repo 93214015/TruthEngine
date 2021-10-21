@@ -22,7 +22,8 @@ enum class TE_RESOURCE_TYPE
 {
 	UNKNOWN,
 	BUFFER,
-	TEXTURE1D, TEXTURE2D, TEXTURE3D, TEXTURECUBE
+	TEXTURE1D, TEXTURE2D, TEXTURE3D, TEXTURECUBE,
+	TEXTURE1DARRAY, TEXTURE2DARRAY, TEXTURECUBEARRAY
 };
 
 enum class TE_RESOURCE_STATES
@@ -54,6 +55,7 @@ enum class TE_RESOURCE_STATES
 	VIDEO_ENCODE_READ = 0x200000,
 	VIDEO_ENCODE_WRITE = 0x800000
 };
+TE_DEFINE_ENUM_FLAG_OPERATORS(TE_RESOURCE_STATES);
 
 enum class TE_RESOURCE_FORMAT
 {
@@ -192,5 +194,77 @@ enum class TE_RENDERER_COMMANDLIST_TYPE
 	VIDEO_ENCODE = 6
 };
 
-#define DX12_GET_STATE(x) static_cast<D3D12_RESOURCE_STATES>(x)
 #define DXGIFORMAT(x) static_cast<DXGI_FORMAT>(x)
+
+constexpr TE_RESOURCE_FORMAT GetDepthStencilDSVFormat(TE_RESOURCE_FORMAT _TextureFormat)
+{
+	switch (_TextureFormat)
+	{
+	case TE_RESOURCE_FORMAT::R32G8X24_TYPELESS:
+	case TE_RESOURCE_FORMAT::R32_FLOAT_X8X24_TYPELESS:
+	case TE_RESOURCE_FORMAT::X32_TYPELESS_G8X24_UINT:
+		return TE_RESOURCE_FORMAT::D32_FLOAT_S8X24_UINT;
+		break;
+	case TE_RESOURCE_FORMAT::R32_TYPELESS:
+	case TE_RESOURCE_FORMAT::R32_FLOAT:
+		return TE_RESOURCE_FORMAT::D32_FLOAT;
+		break;
+	case TE_RESOURCE_FORMAT::R24G8_TYPELESS:
+	case TE_RESOURCE_FORMAT::R24_UNORM_X8_TYPELESS:
+	case TE_RESOURCE_FORMAT::X24_TYPELESS_G8_UINT:
+		return  TE_RESOURCE_FORMAT::D24_UNORM_S8_UINT;
+		break;
+	case TE_RESOURCE_FORMAT::R16_TYPELESS:
+	case TE_RESOURCE_FORMAT::R16_UNORM:
+	case TE_RESOURCE_FORMAT::R16_FLOAT:
+		return TE_RESOURCE_FORMAT::D16_UNORM;
+		break;
+	default:
+		throw new std::exception("GetDepthStencilDSVFormat() : The Texture Format is not valid for a Depth Stencil Texture");
+		break;
+	}
+}
+
+constexpr TE_RESOURCE_FORMAT GetDepthStencilSRVFormat(TE_RESOURCE_FORMAT _DSVFormat)
+{
+	switch (_DSVFormat)
+	{
+	case TE_RESOURCE_FORMAT::R32G8X24_TYPELESS:
+		return TE_RESOURCE_FORMAT::R32_FLOAT_X8X24_TYPELESS;
+		break;
+	case TE_RESOURCE_FORMAT::R32_TYPELESS:
+		return TE_RESOURCE_FORMAT::R32_FLOAT;
+		break;
+	case  TE_RESOURCE_FORMAT::R24G8_TYPELESS:
+		return TE_RESOURCE_FORMAT::R24_UNORM_X8_TYPELESS;
+		break;
+	case TE_RESOURCE_FORMAT::R16_TYPELESS:
+		return TE_RESOURCE_FORMAT::R16_UNORM;
+		break;
+	default:
+		throw new std::exception("GetDepthStencilSRVFormat() : The DSV Format is not valid");
+		break;
+	}
+}
+
+constexpr TE_RESOURCE_FORMAT GetDepthStencilTextureFormat(TE_RESOURCE_FORMAT _DSVFormat)
+{
+	switch (_DSVFormat)
+	{
+	case TE_RESOURCE_FORMAT::D32_FLOAT_S8X24_UINT:
+		return TE_RESOURCE_FORMAT::R32G8X24_TYPELESS;
+		break;
+	case TE_RESOURCE_FORMAT::D32_FLOAT:
+		return TE_RESOURCE_FORMAT::R32_TYPELESS;
+		break;
+	case  TE_RESOURCE_FORMAT::D24_UNORM_S8_UINT:
+		return TE_RESOURCE_FORMAT::R24G8_TYPELESS;
+		break;
+	case TE_RESOURCE_FORMAT::D16_UNORM:
+		return TE_RESOURCE_FORMAT::R16_TYPELESS;
+		break;
+	default:
+		throw new std::exception("GetDepthStencilTextureFormat() : The DSV Format is not valid");
+		break;
+	}
+}

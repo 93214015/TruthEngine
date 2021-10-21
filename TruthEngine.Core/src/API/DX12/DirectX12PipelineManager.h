@@ -7,6 +7,8 @@ namespace TruthEngine
 		class PipelineGraphics;
 		class PipelineCompute;
 		class Shader;
+		class EventRendererNewGraphicsPipeline;
+		class EventRendererNewComputePipeline;
 
 	namespace API::DirectX12 
 	{
@@ -23,18 +25,23 @@ namespace TruthEngine
 				return s_DX12PipelineManager;
 			}
 
+			D3D12_COMPUTE_PIPELINE_STATE_DESC GetDesc(const PipelineCompute* _Pipeline) const;
+
 			COMPTR<ID3D12PipelineState> GetGraphicsPipeline(PipelineGraphics* pipeline);
 			COMPTR<ID3D12PipelineState> GetComputePipeline(PipelineCompute* pipeline);
 
 		private:
 			//D3D12_GRAPHICS_PIPELINE_STATE_DESC GetGraphicPipelineDesc(const Pipeline* pipeline);
-			TE_RESULT AddGraphicsPipeline(PipelineGraphics* pipeline, COMPTR<ID3D12PipelineState>& PSO, D3D12_GRAPHICS_PIPELINE_STATE_DESC& desc);
-			TE_RESULT AddComputePipeline(PipelineCompute* pipeline, COMPTR<ID3D12PipelineState>& PSO, D3D12_COMPUTE_PIPELINE_STATE_DESC& desc);
+			TE_RESULT AddGraphicsPipeline(PipelineGraphics* pipeline, COMPTR<ID3D12PipelineState>& PSO, const struct TED3D12GraphicsPipelineStateDesc& _Desc);
+			TE_RESULT AddComputePipeline(PipelineCompute* pipeline, COMPTR<ID3D12PipelineState>& PSO, const struct TED3D12ComputePipelineStateDesc& _Desc);
+
+			TE_RESULT OnEventNewPipelineGraphics(const EventRendererNewGraphicsPipeline& _Event);
+			TE_RESULT OnEventNewPipelineCompute(const EventRendererNewComputePipeline& _Event);
 
 		private:
 			COMPTR<ID3D12PipelineLibrary1> m_PiplineLibrary;
-			uint32_t m_PipelineNum = 0;
 
+			std::unordered_map<uint32_t, COMPTR<ID3D12PipelineState>> m_MapPipelineState;
 			
 		};
 

@@ -39,7 +39,7 @@ namespace TruthEngine
 	struct TEPhysicsRigidDesc
 	{
 		TEPhysicsRigidDesc() = default;
-		TEPhysicsRigidDesc(float staticFriction, float dynamicFriction, float restitution, const float4x4& transform)
+		TEPhysicsRigidDesc(float staticFriction, float dynamicFriction, float restitution, const float4x4A& transform)
 			: mStaticFriction(staticFriction), mDynamicFriction(dynamicFriction), mRestitution(restitution), mTransform(transform)
 		{}
 
@@ -47,7 +47,7 @@ namespace TruthEngine
 		float mDynamicFriction = .0f;
 		float mRestitution = .0f;
 
-		float4x4 mTransform = IdentityMatrix;
+		float4x4A mTransform = IdentityMatrix;
 	};
 
 	struct TEPhysicsRigidPlaneDesc : TEPhysicsRigidDesc

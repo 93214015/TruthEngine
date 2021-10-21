@@ -6,11 +6,35 @@
 
 namespace TruthEngine {
 
-
-	TimerEngine::TimerEngine()
+	static bool _LimitedTick(TimerEngine& _TimerEngine, const std::chrono::duration<double, std::ratio<1>> _deltaDuration)
 	{
+		_TimerEngine.m_TimeAccumulator += _deltaDuration.count();
 
+		if (_TimerEngine.m_TimeAccumulator < _TimerEngine.m_TimeLimit)
+		{
+			return false;
+		}
+
+		_TimerEngine.m_FrameCount++;
+		_TimerEngine.m_DeltaTime = _TimerEngine.m_TimeAccumulator;
+
+		_TimerEngine.m_TimeAccumulator = 0.0;
+		return true;
 	}
+
+	static bool _UnlimitedTick(TimerEngine& _TimerEngine, const std::chrono::duration<double, std::ratio<1>> _deltaDuration)
+	{
+		_TimerEngine.m_DeltaTime = _deltaDuration.count();
+
+		_TimerEngine.m_FrameCount++;
+
+		return true;
+	}
+
+
+	TimerEngine::TimerEngine(double _TimeLimit)
+		: m_TimeLimit(_TimeLimit), m_FuncPtrTick(_TimeLimit == 0 ? &_UnlimitedTick : _LimitedTick)
+	{}
 
 	void TimerEngine::Start()
 	{
@@ -44,32 +68,27 @@ namespace TruthEngine {
 			m_StoppedTimePoint = std::chrono::high_resolution_clock::now();
 
 			m_Stopped = true;
+
+			m_DeltaTime = 0.0;
 		}
 	}
 
-	void TimerEngine::Tick()
+	bool TimerEngine::Tick()
 	{
 		if (m_Stopped)
 		{
-			m_DeltaTime = 0.0;
-			return;
+			return false;
 		}
 
 		m_CurrentTimePoint = std::chrono::high_resolution_clock::now();
 
-		std::chrono::duration<double, std::ratio<1>> deltaDurtion = m_CurrentTimePoint - m_PrevTimePoint;
-
-		m_DeltaTime = deltaDurtion.count();
+		std::chrono::duration<double, std::ratio<1>> deltaDuration = m_CurrentTimePoint - m_PrevTimePoint;
 
 		m_PrevTimePoint = m_CurrentTimePoint;
 
-		if (m_DeltaTime < 0.0)
-		{
-			m_DeltaTime = 0.0;
-		}
+		bool _Result = m_FuncPtrTick(*this, deltaDuration);
 
-		m_FrameCount++;
-		m_OneSecondTimer += m_DeltaTime;
+		m_OneSecondTimer += deltaDuration.count();
 
 		if (m_OneSecondTimer > 1.0f)
 		{
@@ -81,6 +100,15 @@ namespace TruthEngine {
 			EventAppOneSecondPoint event;
 			TE_INSTANCE_APPLICATION->OnEvent(event);
 		}
+
+		return _Result;
+	}
+
+	void TimerEngine::SetTimeLimit(double _TimeLimit)
+	{
+		m_TimeLimit = _TimeLimit;
+
+		m_FuncPtrTick = _TimeLimit == 0 ? &_UnlimitedTick : _LimitedTick;
 	}
 
 	double TimerEngine::TotalTime() const

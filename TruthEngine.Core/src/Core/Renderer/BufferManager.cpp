@@ -14,9 +14,9 @@ namespace TruthEngine {
 
 	std::shared_ptr<TruthEngine::BufferManager> BufferManager::Factory()
 	{
-		switch (Settings::RendererAPI)
+		switch (Settings::Graphics::GetRendererAPI())
 		{
-		case TE_RENDERER_API::DirectX12:
+		case Settings::Graphics::TE_RENDERER_API::DirectX12:
 			return API::DirectX12::DirectX12BufferManager::GetInstance();
 			break;
 		default:
@@ -27,7 +27,7 @@ namespace TruthEngine {
 
 	BufferManager::BufferManager()
 	{
-		m_TexturesRenderTarget.reserve(20);
+		m_TexturesRenderTarget.reserve(50);
 		m_TexturesDepthStencil.reserve(20);
 		m_TexturesCubeMap.reserve(20);
 		m_Buffers.reserve(100);
@@ -78,7 +78,7 @@ namespace TruthEngine {
 		}
 		else
 		{
-			_Texture = &m_Textures.emplace_back(_IDX, _Width, _Height, _FORMAT, _Usage, TE_RESOURCE_TYPE::TEXTURE2D, TE_RESOURCE_STATES::UNORDERED_ACCESS, _EnableMSAA);
+			_Texture = &m_Textures.emplace_back(_IDX, _Width, _Height, 1, 1, _FORMAT, _Usage, TE_RESOURCE_TYPE::TEXTURE2D, TE_RESOURCE_STATES::UNORDERED_ACCESS, _EnableMSAA);
 
 			m_Map_Textures[_IDX] = _Texture;
 			m_Map_GraphicResources[_IDX] = _Texture;
@@ -89,7 +89,7 @@ namespace TruthEngine {
 		return _Texture;
 	}
 
-	TruthEngine::TextureRenderTarget* BufferManager::CreateRenderTarget(TE_IDX_GRESOURCES _IDX, uint32_t width, uint32_t height, TE_RESOURCE_FORMAT format, const ClearValue_RenderTarget& clearValue, bool useAsShaderResource, bool enbaleMSAA)
+	TruthEngine::TextureRenderTarget* BufferManager::CreateRenderTarget(TE_IDX_GRESOURCES _IDX, uint32_t width, uint32_t height, uint8_t arraySize, uint8_t mipLevels, TE_RESOURCE_TYPE type, TE_RESOURCE_FORMAT format, const ClearValue_RenderTarget& clearValue, bool useAsShaderResource, bool enbaleMSAA)
 	{
 		auto _Itr = m_Map_GraphicResources.find(_IDX);
 
@@ -97,7 +97,7 @@ namespace TruthEngine {
 
 		if (_Itr == m_Map_GraphicResources.end())
 		{
-			rt = &m_TexturesRenderTarget.emplace_back(_IDX, width, height, format, clearValue, useAsShaderResource, enbaleMSAA);
+			rt = &m_TexturesRenderTarget.emplace_back(_IDX, width, height, arraySize, mipLevels, type, format, clearValue, useAsShaderResource, enbaleMSAA);
 
 			m_Map_Textures[_IDX] = rt;
 			m_Map_GraphicResources[_IDX] = rt;
@@ -110,6 +110,8 @@ namespace TruthEngine {
 			rt->m_Format = format;
 			rt->m_EnableMSAA = enbaleMSAA;
 			rt->m_ClearValue = clearValue;
+			rt->m_MipLevels = mipLevels;
+			rt->m_ArraySize = arraySize;
 			//*rt = TextureRenderTarget(_IDX, width, height, format, clearValue, useAsShaderResource, enbaleMSAA);
 		}
 
@@ -119,7 +121,7 @@ namespace TruthEngine {
 	}
 
 
-	TruthEngine::TextureDepthStencil* BufferManager::CreateDepthStencil(TE_IDX_GRESOURCES _IDX, uint32_t width, uint32_t height, TE_RESOURCE_FORMAT format, const ClearValue_DepthStencil& clearValue, bool useAsShaderResource, bool enbaleMSAA)
+	TruthEngine::TextureDepthStencil* BufferManager::CreateDepthStencil(TE_IDX_GRESOURCES _IDX, uint32_t width, uint32_t height, uint8_t arraySize, uint8_t mipLevels, TE_RESOURCE_FORMAT format, const ClearValue_DepthStencil& clearValue, bool useAsShaderResource, bool enbaleMSAA)
 	{
 
 		auto _Itr = m_Map_GraphicResources.find(_IDX);
@@ -127,7 +129,7 @@ namespace TruthEngine {
 
 		if (_Itr == m_Map_GraphicResources.end())
 		{
-			ds = &m_TexturesDepthStencil.emplace_back(_IDX, width, height, format, clearValue, useAsShaderResource, enbaleMSAA);
+			ds = &m_TexturesDepthStencil.emplace_back(_IDX, width, height, arraySize, mipLevels, format, clearValue, useAsShaderResource, enbaleMSAA);
 
 			m_Map_Textures[_IDX] = ds;
 			m_Map_GraphicResources[_IDX] = ds;
@@ -140,6 +142,8 @@ namespace TruthEngine {
 			ds->m_ClearValue = clearValue;
 			ds->m_EnableMSAA = enbaleMSAA;
 			ds->m_Format = format;
+			ds->m_ArraySize = arraySize;
+			ds->m_MipLevels = mipLevels;
 		}
 
 		CreateResource(ds);

@@ -3,93 +3,144 @@
 
 #include "RenderPass.h";
 
-namespace TruthEngine 
+namespace TruthEngine
 {
 
 
 
-    RenderPassStack::RenderPassStack()
-    {
-        m_Vector.reserve(10);
-    }
+	RenderPassStack::RenderPassStack()
+	{
+		m_Vector.reserve(10);
+	}
 
-    RenderPassStack::~RenderPassStack() = default;
+	RenderPassStack::~RenderPassStack() = default;
 
-    RenderPassStack::RenderPassStack(const RenderPassStack&) = default;
+	RenderPassStack::RenderPassStack(const RenderPassStack&) = default;
 
-    RenderPassStack& RenderPassStack::operator=(const RenderPassStack&) = default;
+	RenderPassStack& RenderPassStack::operator=(const RenderPassStack&) = default;
 
-    RenderPassStack::RenderPassStack(RenderPassStack&&) noexcept = default;
+	RenderPassStack::RenderPassStack(RenderPassStack&&) noexcept = default;
 
-    RenderPassStack& RenderPassStack::operator=(RenderPassStack&&) noexcept = default;
+	RenderPassStack& RenderPassStack::operator=(RenderPassStack&&) noexcept = default;
 
-    void RenderPassStack::PushRenderPass(RenderPass* renderPass, uint32_t placeIndex)
-    {
-        auto index = placeIndex == -1 ? m_Vector.size() : placeIndex;
+	void RenderPassStack::PushRenderPass(RenderPass* renderPass, uint32_t placeIndex)
+	{
+		auto index = placeIndex == -1 ? m_Vector.size() : placeIndex;
 
-        m_Vector.emplace(m_Vector.cbegin() + index, renderPass);
+		m_Vector.emplace(m_Vector.cbegin() + index, renderPass);
 
-        renderPass->OnAttach();
-    }
+		renderPass->OnAttach();
 
-    void RenderPassStack::PopRenderPass(RenderPass* renderPass)
-    {
-        auto itr = std::find(m_Vector.cbegin(), m_Vector.cend(), renderPass);
-        if (itr != m_Vector.cend())
-        {
-            renderPass->OnDetach();
-            m_Vector.erase(itr);
-        }
-    }
+		auto _lambda_end = [renderPass]() { renderPass->EndScene(); };
 
-    void RenderPassStack::PopAll()
-    {
-        for (auto rp : m_Vector)
-        {
-            rp->OnDetach();
-        }
+		m_DelegateList.push_back(_lambda_end);
+	}
 
-        m_Vector.clear();
-    }
+	void RenderPassStack::PushDelegate(std::function<void()> _Delegate)
+	{
+		m_DelegateList.push_back(_Delegate);
+	}
 
-    std::vector<RenderPass*>::iterator RenderPassStack::begin()
-    {
-        return m_Vector.begin();
-    }
+	void RenderPassStack::PopAll()
+	{
+		for (auto rp : m_Vector)
+		{
+			rp->OnDetach();
+		}
 
-    std::vector<RenderPass*>::iterator RenderPassStack::end()
-    {
-        return m_Vector.end();
-    }
+		m_Vector.clear();
+		m_DelegateList.clear();
+	}
 
-    std::vector<RenderPass*>::const_iterator RenderPassStack::begin() const
-    {
-        return m_Vector.begin();
-    }
+	void RenderPassStack::OnUpdate(double _DeltaTime)
+	{
+		for (auto _RenderPass : m_Vector)
+		{
+			_RenderPass->OnUpdate(_DeltaTime);
+		}
+	}
 
-    std::vector<RenderPass*>::const_iterator RenderPassStack::end() const
-    {
-        return m_Vector.end();
-    }
+	void RenderPassStack::BeginScene()
+	{
+		for (auto _RenderPass : m_Vector)
+		{
+			_RenderPass->BeginScene();
+		}
+	}
 
-    std::vector<RenderPass*>::reverse_iterator RenderPassStack::rbegin()
-    {
-        return m_Vector.rbegin();
-    }
+	void RenderPassStack::RenderAsync()
+	{
+		static std::vector<std::future<void>> m_futures;
 
-    std::vector<RenderPass*>::reverse_iterator RenderPassStack::rend()
-    {
-        return m_Vector.rend();
-    }
+		for (auto _RenderPass : m_Vector)
+		{
+			auto _lambda = [_RenderPass]() { _RenderPass->Render(); };
+			m_futures.emplace_back(std::move(ThreadPool::GetInstance()->Queue(_lambda)));
+		}
 
-    std::vector<RenderPass*>::const_reverse_iterator RenderPassStack::rbegin() const
-    {
-        return m_Vector.rbegin();
-    }
+		for (auto& f : m_futures)
+		{
+			f.wait();
+		}
 
-    std::vector<RenderPass*>::const_reverse_iterator RenderPassStack::rend() const
-    {
-        return m_Vector.rend();
-    }
+		m_futures.clear();
+	}
+
+	void RenderPassStack::Render()
+	{
+		for (auto _RenderPass : m_Vector)
+		{
+			_RenderPass->Render();
+		}
+	}
+
+	void RenderPassStack::EndScene()
+	{
+		for (auto& _delegate : m_DelegateList)
+		{
+			_delegate();
+		}
+	}
+
+
+	std::vector<RenderPass*>::iterator RenderPassStack::begin()
+	{
+		return m_Vector.begin();
+	}
+
+	std::vector<RenderPass*>::iterator RenderPassStack::end()
+	{
+		return m_Vector.end();
+	}
+
+	std::vector<RenderPass*>::const_iterator RenderPassStack::begin() const
+	{
+		return m_Vector.begin();
+	}
+
+	std::vector<RenderPass*>::const_iterator RenderPassStack::end() const
+	{
+		return m_Vector.end();
+	}
+
+	std::vector<RenderPass*>::reverse_iterator RenderPassStack::rbegin()
+	{
+		return m_Vector.rbegin();
+	}
+
+	std::vector<RenderPass*>::reverse_iterator RenderPassStack::rend()
+	{
+		return m_Vector.rend();
+	}
+
+	std::vector<RenderPass*>::const_reverse_iterator RenderPassStack::rbegin() const
+	{
+		return m_Vector.rbegin();
+	}
+
+	std::vector<RenderPass*>::const_reverse_iterator RenderPassStack::rend() const
+	{
+		return m_Vector.rend();
+	}
 
 }

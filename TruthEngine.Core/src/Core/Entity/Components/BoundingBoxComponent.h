@@ -7,24 +7,26 @@ namespace TruthEngine
 	{
 	public:
 		BoundingBoxComponent();
-		BoundingBoxComponent(const BoundingBox& boundingBox);
+		BoundingBoxComponent(const BoundingAABox& boundingBox);
 		BoundingBoxComponent(size_t vertexNum, const float3* vertecies, size_t strideSize);
+		BoundingBoxComponent(const class Mesh& _Mesh);
+
 
 		void Init(size_t vertexNum, const float3* vertecies, size_t strideSize);
 
-		const BoundingBox& GetBoundingBox()const noexcept
+		const BoundingAABox& GetBoundingBox()const noexcept
 		{
-			return m_BoundingBox;
+			return m_AABoundingBox;
 		}
 
-		BoundingBox& GetBoundingBox() noexcept
+		BoundingAABox& GetBoundingBox() noexcept
 		{
-			return m_BoundingBox;
+			return m_AABoundingBox;
 		}
 
 	private:
 
 	private:
-		BoundingBox m_BoundingBox;
+		BoundingAABox m_AABoundingBox;
 	};
 }

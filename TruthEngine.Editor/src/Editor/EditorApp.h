@@ -12,7 +12,7 @@ namespace TruthEngine
 
 	class EventKeyReleased;
 
-	class ApplicationEditor : public Application
+	class ApplicationEditor final : public Application
 	{
 	public:
 		ApplicationEditor(uint16_t clientWidth, uint16_t clientHeight, uint8_t framesInFlightNum);

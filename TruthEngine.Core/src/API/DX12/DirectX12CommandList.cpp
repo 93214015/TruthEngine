@@ -8,6 +8,7 @@
 #include "DirectX12BufferManager.h"
 #include "DirectX12ShaderManager.h"
 #include "DirectX12SwapChain.h"
+#include "DirectX12Helpers.h"
 
 
 #include "Core/Renderer/TextureRenderTarget.h"
@@ -21,24 +22,9 @@
 namespace TruthEngine::API::DirectX12
 {
 
-	inline DXGI_FORMAT GetDepthStencilSRVFormat(const TE_RESOURCE_FORMAT format)
+	static DXGI_FORMAT DXGI_GetDepthStencilSRVFormat(const TE_RESOURCE_FORMAT format)
 	{
-		switch (format)
-		{
-		case TE_RESOURCE_FORMAT::R32_TYPELESS:
-			return DXGI_FORMAT_R32_FLOAT;
-		case TE_RESOURCE_FORMAT::R24_UNORM_X8_TYPELESS:
-			return DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
-		case TE_RESOURCE_FORMAT::R24G8_TYPELESS:
-			return DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
-		case TE_RESOURCE_FORMAT::R32_FLOAT_X8X24_TYPELESS:
-			return DXGI_FORMAT_R32_FLOAT_X8X24_TYPELESS;
-		default:
-			TE_ASSERT_CORE(false, "wrong depth stecil format");
-			throw;
-			return DXGI_FORMAT_UNKNOWN;
-		}
-
+		return static_cast<DXGI_FORMAT>(GetDepthStencilSRVFormat(format));
 	}
 
 
@@ -70,7 +56,7 @@ namespace TruthEngine::API::DirectX12
 		TE_ASSERT_CORE(TE_SUCCEEDED(result), "DX12CommandList initialization failed!");
 
 		m_QueueClearRT.reserve(8);
-		m_QueueClearDS.reserve(1);
+		m_QueueClearDS.reserve(8);
 
 
 	}
@@ -173,18 +159,11 @@ namespace TruthEngine::API::DirectX12
 		mD3D12CommandList->SetPipelineState(TE_INSTANCE_API_DX12_PIPELINEMANAGER->GetComputePipeline(pipeline).Get());
 	}
 
-	void DirectX12CommandList::SetRenderTarget(SwapChain* swapChain, const RenderTargetView RTV)
+	void DirectX12CommandList::SetRenderTarget(SwapChain* swapChain, const RenderTargetView& RTV)
 	{
 		auto sc = static_cast<DirectX12SwapChain*>(swapChain);
 
-		if (sc->GetBackBufferState() != D3D12_RESOURCE_STATE_RENDER_TARGET)
-		{
-			_QueueBarrierTransition(sc->GetBackBufferResource()
-				, D3D12_RESOURCE_STATE_PRESENT
-				, D3D12_RESOURCE_STATE_RENDER_TARGET);
-
-			sc->SetBackBufferState(D3D12_RESOURCE_STATE_RENDER_TARGET);
-		}
+		_ChangeResourceState(sc, TE_RESOURCE_STATES::RENDER_TARGET);
 
 		auto frameIndex = sc->GetCurrentFrameIndex();
 
@@ -194,7 +173,7 @@ namespace TruthEngine::API::DirectX12
 
 	}
 
-	void DirectX12CommandList::SetRenderTarget(const RenderTargetView RTV)
+	void DirectX12CommandList::SetRenderTarget(const RenderTargetView& RTV)
 	{
 		_ChangeResourceState(RTV.Resource, TE_RESOURCE_STATES::RENDER_TARGET);
 
@@ -203,7 +182,7 @@ namespace TruthEngine::API::DirectX12
 		m_RTVHandleNum++;
 	}
 
-	void DirectX12CommandList::SetDepthStencil(const DepthStencilView DSV)
+	void DirectX12CommandList::SetDepthStencil(const DepthStencilView& DSV)
 	{
 		_ChangeResourceState(DSV.Resource, TE_RESOURCE_STATES::DEPTH_WRITE);
 
@@ -212,19 +191,25 @@ namespace TruthEngine::API::DirectX12
 		m_DSVHandleNum = 1;
 	}
 
+	void DirectX12CommandList::SetDepthStencil(const DepthStencilView& DSV, uint32_t _StencilRefValue)
+	{
+		SetDepthStencil(DSV);
+		mD3D12CommandList->OMSetStencilRef(_StencilRefValue);
+	}
+
 	void DirectX12CommandList::ResolveMultiSampledTexture(Texture* _SourceTexture, Texture* _DestTexture)
 	{
 		_ChangeResourceState(_SourceTexture, TE_RESOURCE_STATES::RESOLVE_SOURCE);
 		_ChangeResourceState(_DestTexture, TE_RESOURCE_STATES::RESOLVE_DEST);
 
 		ID3D12Resource* _SourceResource = m_BufferManager->GetResource(_SourceTexture);
-		ID3D12Resource* _DestResource =  m_BufferManager->GetResource(_DestTexture);
+		ID3D12Resource* _DestResource = m_BufferManager->GetResource(_DestTexture);
 
 		DXGI_FORMAT _Format = static_cast<DXGI_FORMAT>(_SourceTexture->GetFormat());
 
 		if (_SourceTexture->GetUsage() == TE_RESOURCE_USAGE_DEPTHSTENCIL)
 		{
-			_Format = GetDepthStencilSRVFormat(_SourceTexture->GetFormat());
+			_Format = DXGI_GetDepthStencilSRVFormat(_SourceTexture->GetFormat());
 		}
 
 		m_QueueResolveResource.emplace_back(_SourceResource, _DestResource, _Format);
@@ -361,6 +346,21 @@ namespace TruthEngine::API::DirectX12
 		resource->SetState(newState);
 	}
 
+	void DirectX12CommandList::_ChangeResourceState(DirectX12SwapChain* swapChain, TE_RESOURCE_STATES newState)
+	{
+
+		auto _CurrentState = swapChain->GetBackBufferState();
+
+		if (_CurrentState != static_cast<D3D12_RESOURCE_STATES>(newState))
+		{
+			_QueueBarrierTransition(swapChain->GetBackBufferResource()
+				, _CurrentState
+				, static_cast<D3D12_RESOURCE_STATES>(newState));
+
+			swapChain->SetBackBufferState(static_cast<D3D12_RESOURCE_STATES>(newState));
+		}
+	}
+
 	void DirectX12CommandList::SetVertexBuffer(VertexBufferBase* vertexBuffer)
 	{
 		const auto vbID = vertexBuffer->GetID();
@@ -392,19 +392,16 @@ namespace TruthEngine::API::DirectX12
 
 	void DirectX12CommandList::DrawIndexed(uint32_t indexNum, uint32_t indexOffset, uint32_t vertexOffset)
 	{
-		Commit();
 		mD3D12CommandList->DrawIndexedInstanced(indexNum, 1, indexOffset, vertexOffset, 0);
 	}
 
 	void DirectX12CommandList::Draw(uint32_t vertexNum, uint32_t vertexOffset)
 	{
-		Commit();
 		mD3D12CommandList->DrawInstanced(vertexNum, 1, vertexOffset, 0);
 	}
 
 	void DirectX12CommandList::Dispatch(uint32_t GroupNumX, uint32_t GroupNumY, uint32_t GroupNumZ)
 	{
-		Commit();
 		mD3D12CommandList->Dispatch(GroupNumX, GroupNumY, GroupNumZ);
 	}
 
@@ -416,18 +413,24 @@ namespace TruthEngine::API::DirectX12
 		_ResetContainers();
 	}
 
-	void DirectX12CommandList::ClearRenderTarget(const RenderTargetView RTV)
+	void DirectX12CommandList::ClearRenderTarget(const RenderTargetView& RTV)
 	{
+		_ChangeResourceState(RTV.Resource, TE_RESOURCE_STATES::RENDER_TARGET);
+
 		m_QueueClearRT.emplace_back(m_BufferManager->m_DescHeapRTV.GetCPUHandle(RTV.ViewIndex), RTV.Resource->GetClearValues(), D3D12_RECT{ static_cast<long>(0.0), static_cast <long>(0.0), static_cast<long>(RTV.Resource->GetWidth()), static_cast<long>(RTV.Resource->GetHeight()) });
 	}
 
-	void DirectX12CommandList::ClearRenderTarget(const SwapChain* swapChain, const RenderTargetView RTV)
+	void DirectX12CommandList::ClearRenderTarget(SwapChain* swapChain, const RenderTargetView& RTV)
 	{
+		_ChangeResourceState(static_cast<DirectX12SwapChain*>(swapChain), TE_RESOURCE_STATES::RENDER_TARGET);
+
 		m_QueueClearRT.emplace_back(m_BufferManager->m_DescHeapRTV.GetCPUHandle(RTV.ViewIndex + swapChain->GetCurrentFrameIndex()), swapChain->GetClearValues(), D3D12_RECT{ static_cast<long>(0.0), static_cast<long>(0.0), static_cast<long>(TE_INSTANCE_APPLICATION->GetClientWidth()), static_cast<long>(TE_INSTANCE_APPLICATION->GetClientHeight()) });
 	}
 
-	void DirectX12CommandList::ClearDepthStencil(const DepthStencilView DSV)
+	void DirectX12CommandList::ClearDepthStencil(const DepthStencilView& DSV)
 	{
+		_ChangeResourceState(DSV.Resource, TE_RESOURCE_STATES::DEPTH_WRITE);
+
 		m_QueueClearDS.emplace_back(m_BufferManager->m_DescHeapDSV.GetCPUHandle(DSV.ViewIndex), DSV.Resource->GetClearValues(), D3D12_RECT{ static_cast<long>(0.0), static_cast<long>(0.0), static_cast<long>(DSV.Resource->GetWidth()), static_cast<long>(DSV.Resource->GetHeight()) });
 	}
 
@@ -444,6 +447,15 @@ namespace TruthEngine::API::DirectX12
 		{
 			mD3D12CommandList->ResourceBarrier(m_ResourceBarriers.size(), m_ResourceBarriers.data());
 			m_ResourceBarriers.clear();
+		}
+
+		if (m_QueueCopyResource.size() > 0)
+		{
+			for (const auto& _CopyData : m_QueueCopyResource)
+			{
+				mD3D12CommandList->CopyResource(m_BufferManager->GetResource(_CopyData.Dest), m_BufferManager->GetResource(_CopyData.Source));
+			}
+			m_QueueCopyResource.clear();
 		}
 
 		_UploadDefaultBuffers();
@@ -465,7 +477,7 @@ namespace TruthEngine::API::DirectX12
 
 		for (auto& c : m_QueueClearDS)
 		{
-			mD3D12CommandList->ClearDepthStencilView(c.DSV, D3D12_CLEAR_FLAG_DEPTH, c.ClearValue.depthValue, c.ClearValue.stencilValue, 1, &c.mRect);
+			mD3D12CommandList->ClearDepthStencilView(c.DSV, static_cast<D3D12_CLEAR_FLAGS>(c.ClearValue.flags), c.ClearValue.depthValue, c.ClearValue.stencilValue, 1, &c.mRect);
 		}
 		m_QueueClearDS.clear();
 
@@ -563,10 +575,10 @@ namespace TruthEngine::API::DirectX12
 		sc.Present();
 	}
 
-	void DirectX12CommandList::SetViewport(Viewport* viewport, ViewRect* rect)
+	void DirectX12CommandList::SetViewport(const Viewport* viewport, const ViewRect* rect)
 	{
-		mD3D12CommandList->RSSetViewports(1, reinterpret_cast<D3D12_VIEWPORT*>(viewport));
-		mD3D12CommandList->RSSetScissorRects(1, reinterpret_cast<D3D12_RECT*>(rect));
+		mD3D12CommandList->RSSetViewports(1, reinterpret_cast<const D3D12_VIEWPORT*>(viewport));
+		mD3D12CommandList->RSSetScissorRects(1, reinterpret_cast<const D3D12_RECT*>(rect));
 	}
 
 	bool DirectX12CommandList::IsRunning()
@@ -611,6 +623,15 @@ namespace TruthEngine::API::DirectX12
 		m_QueueCopyDefaultResource.emplace_back(m_BufferManager->m_Resources[buffer->GetResourceIndex()].Get(), data, sizeInByte);
 
 		m_CopyQueueRequiredSize += buffer->GetRequiredSize();
+
+	}
+
+	void DirectX12CommandList::CopyResource(GraphicResource* _Source, GraphicResource* _Dest)
+	{
+		_ChangeResourceState(_Source, TE_RESOURCE_STATES::COPY_SOURCE);
+		_ChangeResourceState(_Dest, TE_RESOURCE_STATES::COPY_DEST);
+
+		m_QueueCopyResource.emplace_back(_Source, _Dest);
 	}
 
 	void DirectX12CommandList::SetDirectConstantGraphics(ConstantBufferDirectBase* cb)

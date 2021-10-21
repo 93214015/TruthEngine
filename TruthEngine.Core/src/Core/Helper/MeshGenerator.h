@@ -1,4 +1,5 @@
 #pragma once
+#include "Core/Entity/Model/MeshHandle.h"
 
 namespace TruthEngine
 {
@@ -9,12 +10,12 @@ namespace TruthEngine
 		public:
 			MeshGenerator();
 
-			Mesh* GenerateBox(float size_x, float size_y, float size_z);
-			Mesh* GenerateRoundedBoxMesh(float size_x, float size_y, float size_z);
-			Mesh* GenerateSphere(float size);
-			Mesh* GenerateCylinder(float size);
-			Mesh* GenerateCappedCylinder(float size);
-			Mesh* GeneratePlane(float size_x, float size_z);
+			MeshHandle GenerateBox(const float3& size, const int3& segments);
+			MeshHandle GenerateRoundedBoxMesh(float radius, const float3& size, int slices, const int3& segments);
+			MeshHandle GenerateSphere(float radius, int slices, int segments);
+			MeshHandle GenerateCylinder(float radius, float size, int slices, int segments);
+			MeshHandle GenerateCappedCylinder(float radius, float size, int slices, int segments, int rings);
+			MeshHandle GeneratePlane(const float2& size, const int2& segments);
 
 
 			static MeshGenerator* GetInstance()

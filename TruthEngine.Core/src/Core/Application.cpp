@@ -5,6 +5,7 @@
 #include "core/Renderer/SwapChain.h"
 #include "Core/Renderer/RendererLayer.h"
 
+#include "Core/Entity/Scene.h"
 #include "Core/Entity/Model/ModelManager.h"
 #include "Core/Entity/Light/LightManager.h"
 
@@ -17,13 +18,23 @@
 
 namespace TruthEngine {
 
+	///////////////////////////////////////////////////////////////////////////////////
+	//Statics Definitions
+	///////////////////////////////////////////////////////////////////////////////////
+	Application* Application::s_Instance = nullptr;
+	/////////////////////////////////////////////////////////////////////////////////
+
+
 	Application::Application(const char* title, uint32_t clientWidth, uint32_t clientHeight, uint8_t framesInFlightNum)
-		: m_Title(title), m_ClientWidth(clientWidth), m_ClientHeight(clientHeight), m_FramesOnTheFlyNum(framesInFlightNum),
-		m_ActiveScene(Scene())
+		: m_Title(title), m_ClientWidth(clientWidth), m_ClientHeight(clientHeight), m_FramesOnTheFlyNum(framesInFlightNum)
+		, m_DefautlScene(new Scene())
+		, m_Timer(Settings::Graphics::GetFrameLimitTime())
 	{
 
 		TE_ASSERT_CORE(!s_Instance, "Aplication already exists!");
 		s_Instance = this;
+
+		Scene::SetActiveScene(m_DefautlScene.get());
 
 		m_Window = TruthEngine::TECreateWindow(title, clientWidth, clientHeight);
 
@@ -46,6 +57,7 @@ namespace TruthEngine {
 	}
 
 	Application::~Application() = default;
+
 
 	void Application::ResizeSceneViewport(uint32_t width, uint32_t height) noexcept
 	{
@@ -77,11 +89,12 @@ namespace TruthEngine {
 
 		while (m_Running)
 		{
-			m_Timer.Tick();
+			if (m_Timer.Tick())
+			{
+				OnUpdate();
 
-			OnUpdate();
-
-			m_Window->OnUpdate();
+				m_Window->OnUpdate();
+			}
 
 			//m_CurrentFrameIndex = (m_CurrentFrameIndex + 1) % m_FramesInFlightNum;
 		}
@@ -90,6 +103,11 @@ namespace TruthEngine {
 	void Application::OnEvent(Event& e)
 	{
 		m_EventDispatcher.OnEvent(e);
+	}
+
+	RendererLayer* Application::GetRendererLayer()
+	{
+		return m_RendererLayer.get();
 	}
 
 	void Application::OnWindowResize(EventWindowResize& event)
@@ -106,6 +124,5 @@ namespace TruthEngine {
 		return TE_INSTANCE_SWAPCHAIN->GetCurrentFrameIndex();
 	}
 
-	Application* Application::s_Instance = nullptr;
 
 }

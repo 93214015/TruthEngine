@@ -51,6 +51,13 @@ namespace TruthEngine::API::DirectX12
 		boost::filesystem::path modelFilePath(_modelFilePath);
 		std::string fileName = textureFilePath.filename().string();
 
+		std::string extension = textureFilePath.extension().string();
+		if (extension == ".tga" || extension == ".tga")
+		{
+			TE_LOG_CORE_ERROR("DX12TextureMaterialManager: The TGA files are not supported at the moment!");
+			return nullptr;
+		}
+
 		std::string fullPath;
 
 		if (textureFilePath.is_relative())

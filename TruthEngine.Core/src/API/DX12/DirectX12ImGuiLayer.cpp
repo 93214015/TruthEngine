@@ -2,7 +2,6 @@
 #include "DirectX12ImGuiLayer.h"
 
 #include "Core/Application.h"
-#include "Core/Event/EventApplication.h"
 #include "Core/Entity/Model/ModelManager.h"
 
 #include "Platform/Windows/WindowsWindow.h"
@@ -12,7 +11,7 @@
 #include "API/DX12/DirectX12SwapChain.h"
 #include "API/DX12/DirectX12BufferManager.h"
 
-
+#include "Core/Profiler/GPUEvents.h"
 
 
 #ifdef TE_API_DX12
@@ -82,7 +81,7 @@ namespace TruthEngine::API::DirectX12 {
 
 		m_D3D12Resource_ScreenBuffer = dx12bufferManager->GetResource(m_RenderTargetScreenBuffer);
 
-		if ( false /*Settings::IsMSAAEnabled()*/)
+		if ( false /*Settings::Graphics::IsEnabledMSAA()*/)
 		{
 			if (m_SRVIndexScreenBuffer == -1)
 			{
@@ -115,10 +114,11 @@ namespace TruthEngine::API::DirectX12 {
 			, m_DescHeapSRV->GetGPUHandle(0));
 
 
-		auto lambda_OnViewportResize = [this](Event& event) { OnTextureResize(static_cast<EventTextureResize&>(event)); };
-		TE_INSTANCE_APPLICATION->RegisterEventListener(EventType::RenderTargetResize, lambda_OnViewportResize);
+		auto lambda_OnTextureResize = [this](Event& event) { OnRendererTextureResize(static_cast<EventRendererTextureResize&>(event)); };
+		TE_INSTANCE_APPLICATION->RegisterEventListener(EventType::RendererTextureResize, lambda_OnTextureResize);
 
-
+		auto lambda_OnViewportResize = [this](Event& event) { OnRendererViewportResize(static_cast<EventRendererViewportResize&>(event)); };
+		TE_INSTANCE_APPLICATION->RegisterEventListener(EventType::RendererViewportResize, lambda_OnViewportResize);
 
 	}
 
@@ -192,7 +192,7 @@ namespace TruthEngine::API::DirectX12 {
 		{
 			GraphicDevice::GetPrimaryDevice()->WaitForGPU();
 			m_CommandList->WaitToFinish();
-			ModelManager::GetInstance()->ImportModel(Application::GetApplication()->GetActiveScene(), m_SelectedFile.c_str());
+			ModelManager::GetInstance()->ImportModel(GetActiveScene(), m_SelectedFile.c_str());
 		}*/
 
 
@@ -209,6 +209,9 @@ namespace TruthEngine::API::DirectX12 {
 			m_CommandList[currentFrameIndex]->GetCommandAllocator()->Reset();
 			auto dx12CmdList = m_CommandList[currentFrameIndex]->GetNativeObject();
 			dx12CmdList->Reset(m_CommandList[currentFrameIndex]->GetCommandAllocator()->GetNativeObject(), nullptr);
+
+			TE_GPUBEGINEVENT(m_CommandList[currentFrameIndex].get(), "ImGUI");
+
 
 			auto& sc = TE_INSTANCE_API_DX12_SWAPCHAIN;
 
@@ -228,7 +231,7 @@ namespace TruthEngine::API::DirectX12 {
 				barrierNum++;
 			}*/
 
-			if (false /*Settings::IsMSAAEnabled()*/)
+			if (false /*Settings::Graphics::IsEnabledMSAA()*/)
 			{
 				if (m_RenderTargetScreenBuffer->GetState() != TE_RESOURCE_STATES::RESOLVE_SOURCE)
 				{
@@ -258,7 +261,7 @@ namespace TruthEngine::API::DirectX12 {
 			}
 
 			CD3DX12_RESOURCE_BARRIER _barriers[1];
-			if (false /*Settings::IsMSAAEnabled()*/)
+			if (false /*Settings::Graphics::IsEnabledMSAA()*/)
 			{
 				dx12CmdList->ResolveSubresource(m_TextureMultiSampleResolved.Get(), 0, m_D3D12Resource_ScreenBuffer, 0, DXGI_FORMAT_R8G8B8A8_UNORM);
 
@@ -278,6 +281,7 @@ namespace TruthEngine::API::DirectX12 {
 			ImGui::Render();
 			ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), dx12CmdList);
 
+			TE_GPUENDEVENT(m_CommandList[currentFrameIndex].get());
 
 			TE_INSTANCE_API_DX12_COMMANDQUEUEDIRECT->ExecuteCommandList(m_CommandList[currentFrameIndex].get());
 
@@ -312,57 +316,56 @@ namespace TruthEngine::API::DirectX12 {
 		ImGui::Image((ImTextureID)m_DescHeapSRV->GetGPUHandle(m_SRVIndexScreenBuffer).ptr, viewportSize);
 	}
 
-	void DirectX12ImGuiLayer::OnTextureResize(const EventTextureResize& event)
+	void DirectX12ImGuiLayer::OnRendererTextureResize(const EventRendererTextureResize& event)
 	{
-		if (event.GetIDX() == TE_IDX_GRESOURCES::Texture_RT_SceneBuffer)
-		{
-			if (false /*Settings::IsMSAAEnabled()*/)
-			{
-
-				//D3D12_CLEAR_VALUE clearValue{ DXGI_FORMAT_R8G8B8A8_UNORM , { 0.0f, .0f, .0f, 1.0f } };
-				auto desc = CD3DX12_RESOURCE_DESC1::Tex2D(DXGI_FORMAT_R8G8B8A8_UNORM, static_cast<uint64_t>(TE_INSTANCE_APPLICATION->GetSceneViewportWidth()), TE_INSTANCE_APPLICATION->GetSceneViewportHeight());
-				TE_INSTANCE_API_DX12_GRAPHICDEVICE->CreateCommittedResource2(
-					&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT)
-					, D3D12_HEAP_FLAG_NONE
-					, &desc
-					, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE
-					, nullptr
-					, nullptr
-					, IID_PPV_ARGS(m_TextureMultiSampleResolved.ReleaseAndGetAddressOf()));
-
-
-				if (m_SRVIndexScreenBuffer == -1)
-				{
-					m_SRVIndexScreenBuffer = m_DescHeapSRV->AddDescriptorSRV(m_TextureMultiSampleResolved.Get(), nullptr);
-				}
-				else
-				{
-					m_DescHeapSRV->ReplaceDescriptorSRV(m_TextureMultiSampleResolved.Get(), nullptr, m_SRVIndexScreenBuffer);
-				}
-			}
-			else
-			{
-				auto dx12bufferManager = static_cast<DirectX12BufferManager*>(TE_INSTANCE_BUFFERMANAGER);
-				m_D3D12Resource_ScreenBuffer = dx12bufferManager->GetResource(m_RenderTargetScreenBuffer);
-
-				if (m_SRVIndexScreenBuffer == -1)
-				{
-					m_SRVIndexScreenBuffer = m_DescHeapSRV->AddDescriptorSRV(m_D3D12Resource_ScreenBuffer, nullptr);
-				}
-				else
-				{
-					m_DescHeapSRV->ReplaceDescriptorSRV(m_D3D12Resource_ScreenBuffer, nullptr, m_SRVIndexScreenBuffer);
-				}
-			}
-
-		}
-
 		if (event.GetIDX() == TE_IDX_GRESOURCES::Texture_RT_BackBuffer)
 		{
 			TE_INSTANCE_API_DX12_SWAPCHAIN.InitRTVs(&m_DescHeapRTV, &m_RTVBackBuffer);
 
 			m_D3D12Viewport = D3D12_VIEWPORT{ 0.0f, 0.0f, static_cast<float>(TE_INSTANCE_APPLICATION->GetClientWidth()), static_cast<float>(TE_INSTANCE_APPLICATION->GetClientHeight()), 0.0f, 1.0f };
 			m_D3D12ViewRect = D3D12_RECT{ static_cast<long>(0.0f), static_cast<long>(0.0f), static_cast<long>(TE_INSTANCE_APPLICATION->GetClientWidth()),  static_cast<long>(TE_INSTANCE_APPLICATION->GetClientHeight()) };
+		}
+	}
+
+	void DirectX12ImGuiLayer::OnRendererViewportResize(const EventRendererViewportResize& event)
+	{
+		if (false /*Settings::Graphics::IsEnabledMSAA()*/)
+		{
+
+			//D3D12_CLEAR_VALUE clearValue{ DXGI_FORMAT_R8G8B8A8_UNORM , { 0.0f, .0f, .0f, 1.0f } };
+			auto desc = CD3DX12_RESOURCE_DESC1::Tex2D(DXGI_FORMAT_R8G8B8A8_UNORM, static_cast<uint64_t>(event.GetWidth()), event.GetHeight());
+			TE_INSTANCE_API_DX12_GRAPHICDEVICE->CreateCommittedResource2(
+				&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT)
+				, D3D12_HEAP_FLAG_NONE
+				, &desc
+				, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE
+				, nullptr
+				, nullptr
+				, IID_PPV_ARGS(m_TextureMultiSampleResolved.ReleaseAndGetAddressOf()));
+
+
+			if (m_SRVIndexScreenBuffer == -1)
+			{
+				m_SRVIndexScreenBuffer = m_DescHeapSRV->AddDescriptorSRV(m_TextureMultiSampleResolved.Get(), nullptr);
+			}
+			else
+			{
+				m_DescHeapSRV->ReplaceDescriptorSRV(m_TextureMultiSampleResolved.Get(), nullptr, m_SRVIndexScreenBuffer);
+			}
+		}
+		else
+		{
+			auto dx12bufferManager = static_cast<DirectX12BufferManager*>(TE_INSTANCE_BUFFERMANAGER);
+			m_D3D12Resource_ScreenBuffer = dx12bufferManager->GetResource(m_RenderTargetScreenBuffer);
+
+			if (m_SRVIndexScreenBuffer == -1)
+			{
+				m_SRVIndexScreenBuffer = m_DescHeapSRV->AddDescriptorSRV(m_D3D12Resource_ScreenBuffer, nullptr);
+			}
+			else
+			{
+				m_DescHeapSRV->ReplaceDescriptorSRV(m_D3D12Resource_ScreenBuffer, nullptr, m_SRVIndexScreenBuffer);
+			}
 		}
 	}
 

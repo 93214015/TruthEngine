@@ -6,6 +6,7 @@
 #include "Core/Event/EventKey.h"
 #include "Core/Application.h"
 #include "Core/Input/InputManager.h"
+#include "Core/Entity/Scene.h"
 #include "Core/Entity/Components/TransformComponent.h"
 
 using namespace DirectX;
@@ -119,15 +120,18 @@ namespace TruthEngine
 			{
 				float3 _RotationOrigin = float3{ .0f, .0f, .0f };
 
-				Scene* _Scene = TE_INSTANCE_APPLICATION->GetActiveScene();
+				Scene* _Scene = GetActiveScene();
 
 				if (Entity _SelectedEntity = _Scene->GetSelectedEntity(); _SelectedEntity)
 				{
-					_RotationOrigin = _RotationOrigin + _SelectedEntity.GetComponent<TransformComponent>().GetWorldCenterOffset();
-					_RotationOrigin = _RotationOrigin + _Scene->GetTranslateHierarchy(_SelectedEntity);
+					//_RotationOrigin = _RotationOrigin + _SelectedEntity.GetComponent<TransformComponent>().GetWorldCenterOffset();
+					//_RotationOrigin += _Scene->GetTranslateHierarchy(_SelectedEntity);
+					auto& _EntityTransform = _Scene->GetComponent<TransformComponent>(_SelectedEntity).GetTransform();
+					float3 _EntityTranslation = float3{ _EntityTransform._41, _EntityTransform._42, _EntityTransform._43 };
+					_RotationOrigin += _EntityTranslation;
 				}
 
-				float4x4 _Transform = Math::TransformMatrixRotation(dx_angle, float3{ .0f, 1.0f, .0f }, _RotationOrigin);
+				float4x4A _Transform = Math::TransformMatrixRotation(dx_angle, float3{ .0f, 1.0f, .0f }, _RotationOrigin);
 				_Transform = _Transform * Math::TransformMatrixRotation(dy_angle, m_Camera->m_Right, _RotationOrigin);
 
 				m_Camera->m_Position = Math::TransformPoint(m_Camera->m_Position, _Transform);
@@ -158,7 +162,7 @@ namespace TruthEngine
 		if (!TE_INSTANCE_APPLICATION->IsHoveredSceneViewPort())
 			return;
 
-		float dt = TE_INSTANCE_APPLICATION->FrameTime();
+		float dt = static_cast<float>(TE_INSTANCE_APPLICATION->FrameTime());
 		switch (event.GetKeyCode())
 		{
 		case 'W':

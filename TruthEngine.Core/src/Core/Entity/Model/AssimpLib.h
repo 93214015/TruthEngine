@@ -1,4 +1,5 @@
 #pragma once
+#include "MeshHandle.h"
 
 
 namespace TruthEngine
@@ -13,11 +14,11 @@ namespace TruthEngine
 
 		struct ImportedMeshMaterials
 		{
-			ImportedMeshMaterials(const char* _Name, Mesh* _Mesh, Material* _Material, SA_Animation* _Animation)
+			ImportedMeshMaterials(const char* _Name, MeshHandle _Mesh, Material* _Material, SA_Animation* _Animation)
 				: mName(_Name), mMesh(_Mesh), mMaterial(_Material), mAnimation(_Animation)
 			{}
 			std::string mName;
-			Mesh* mMesh;
+			MeshHandle mMesh;
 			Material* mMaterial;
 			SA_Animation* mAnimation;
 		};
@@ -28,7 +29,7 @@ namespace TruthEngine
 			AssimpLib();
 			~AssimpLib();
 
-			std::vector<ImportedMeshMaterials> ImportModel(const char* filePath, const char* _ModelName);
+			std::vector<ImportedMeshMaterials> ImportModel(const char* filePath);
 
 			static AssimpLib* GetInstance()
 			{
@@ -44,8 +45,6 @@ namespace TruthEngine
 			void ProcessMeshesSkinned(const aiScene* aiscene, std::vector<ImportedMeshMaterials>& _MeshCollection);
 
 			void AddSpace(const aiScene* scene, TE_IDX_MESH_TYPE _MeshType);
-
-			Entity AddMeshEntity(const char* meshName, Mesh* mesh, Material* material, Scene* scene, const float4x4& transform);
 
 		protected:
 			bool m_IsLoadingAnimatedModel = false;

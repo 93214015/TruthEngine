@@ -8,6 +8,7 @@
 #include "Core/ImGui/ImGuiLayer.h"
 #include "Core/Application.h"
 #include "Core/Entity/Model/ModelManager.h"
+#include "Core/Entity/Light/LightManager.h"
 
 using namespace TruthEngine;
 
@@ -30,7 +31,7 @@ namespace TruthEngine
 		}
 		if (auto _selectedEntity = m_Context->GetSelectedEntity(); _selectedEntity)
 		{
-			ImGui::Text("Selected Entity: %s", _selectedEntity.GetComponent<TagComponent>().GetTag().c_str());
+			ImGui::Text("Selected Entity: %s", _selectedEntity.GetComponent<TagComponent>().GetTag());
 		}
 		ImGui::PopStyleColor(3);
 
@@ -67,7 +68,7 @@ namespace TruthEngine
 
 			static uint16_t _ModelNamePostfix = 0;
 			static char _ModelNameBuffer[50];
-		
+
 
 			if (!m_Context->GetSelectedEntity())
 			{
@@ -76,9 +77,7 @@ namespace TruthEngine
 
 			ImGui::Text("Primitves");
 
-			static float3 _Size = {1.0f, 1.0f, 1.0f};
 			static auto primitiveType = TE_PRIMITIVE_TYPE::BOX;
-			ImGui::InputFloat3("Primitive Size.X/Radius Size.Y Size.Z", &_Size.x);
 
 			if (ImGui::RadioButton("Box", primitiveType == TE_PRIMITIVE_TYPE::BOX))
 			{
@@ -107,34 +106,62 @@ namespace TruthEngine
 
 
 
+			static float3 _Size = { 1.0f, 1.0f, 1.0f };
+			static float _Radius = 1.0f;
+			static int3  _Slices{ 16,16,16 };
+			static int3  _Segments{ 16,16,16 };
+
+			auto _LambdaSize3 = [&size = _Size]() { ImGui::InputFloat3("Size ", &size.x);  };
+			auto _LambdaSize2 = [&size = _Size]() { ImGui::InputFloat2("Size ", &size.x);  };
+			auto _LambdaSize = [&size = _Size]() { ImGui::InputFloat("Size ", &size.x);  };
+			auto _LambdaRadius = [&radius = _Radius]() { ImGui::InputFloat("Radius ", &radius);  };
+			auto _LambdaSlices3 = [&slices = _Slices]() { ImGui::InputInt3("Slices ", &slices.x);  };
+			auto _LambdaSlices = [&slices = _Slices]() { ImGui::InputInt("Slices ", &slices.x);  };
+			auto _LambdaSegments3 = [&segments = _Segments]() { ImGui::InputInt3("Segments ", &segments.x);  };
+			auto _LambdaSegments2 = [&segments = _Segments]() { ImGui::InputInt2("Segments ", &segments.x);  };
+			auto _LambdaSegments = [&segments = _Segments]() { ImGui::InputInt("Segments ", &segments.x);  };
+
+			switch (primitiveType)
+			{
+			case TruthEngine::TE_PRIMITIVE_TYPE::BOX:
+				_LambdaSize3();
+				_LambdaSegments3();
+				break;
+			case TruthEngine::TE_PRIMITIVE_TYPE::ROUNDEDBOX:
+				_LambdaSize3();
+				_LambdaRadius();
+				_LambdaSlices();
+				_LambdaSegments3();
+				break;
+			case TruthEngine::TE_PRIMITIVE_TYPE::SPHERE:
+				_LambdaRadius();
+				_LambdaSlices();
+				_LambdaSegments();
+				break;
+			case TruthEngine::TE_PRIMITIVE_TYPE::CYLINDER:
+			case TruthEngine::TE_PRIMITIVE_TYPE::CAPPEDCYLINDER:
+				_LambdaSize();
+				_LambdaRadius();
+				_LambdaSlices();
+				_LambdaSegments();
+				break;
+			case TruthEngine::TE_PRIMITIVE_TYPE::PLANE:
+				_LambdaSize2();
+				_LambdaSegments2();
+				break;
+			default:
+				break;
+			}
+
+
+
 			if (ImGui::Button("Add"))
 			{
 
 				std::string _MeshName = "Primitive_" + std::to_string(_ModelNamePostfix);
 				_ModelNamePostfix++;
 
-				//Mesh* _Mesh = modelManager->GeneratePrimitiveMesh(primitiveType, _Size.x, _Size.y, _Size.z);
-
-				Entity _ModelEntity;
-				Entity _SelectedEntity = m_Context->GetSelectedEntity();
-				if ( _SelectedEntity)
-				{
-					_ModelEntity = m_Context->GetModelEntity(_SelectedEntity);
-				}
-				else
-				{
-					if (strcmp(_ModelNameBuffer, "") == 0)
-					{
-						std::string _ModelName = "Model_" + std::to_string(_ModelNamePostfix);
-						strcpy_s(_ModelNameBuffer, _ModelName.c_str());
-					}
-					_ModelEntity = m_Context->AddModelEntity(_ModelNameBuffer, IdentityMatrix);
-				}
-
-				/*static MaterialManager* s_MaterialManager = MaterialManager::GetInstance();
-				Entity _MeshEntity = m_Context->AddMeshEntity(_MeshName.c_str(), IdentityMatrix, _Mesh, s_MaterialManager->AddDefaultMaterial(TE_IDX_MESH_TYPE::MESH_NTT), _ModelEntity);*/
-
-				Entity _MeshEntity = m_Context->AddPrimitiveMesh(_MeshName.c_str(), primitiveType, _Size, _ModelEntity);
+				Entity _MeshEntity = m_Context->AddPrimitiveMesh(_MeshName.c_str(), primitiveType, _Size, _Radius, _Slices, _Segments, nullptr /*_ModelEntity*/);
 
 				m_Context->SelectEntity(_MeshEntity);
 
@@ -156,9 +183,10 @@ namespace TruthEngine
 		}
 
 		//auto g = m_Context->ViewEntities<MeshComponent>();
-		auto _ModelEntityCollection = m_Context->ViewEntities<ModelComponent>();
+		//auto _ModelEntityCollection = m_Context->ViewEntities<ModelComponent>();
+		auto _MeshEntityCollection = m_Context->ViewEntities<MeshComponent>();
 
-		if (_ModelEntityCollection.size() < 1)
+		if (_MeshEntityCollection.empty())
 			return;
 
 		ImGui::PushStyleColor(ImGuiCol_Header, ImVec4{ 0.36f, 1.0f, .57f, .31f });
@@ -169,20 +197,20 @@ namespace TruthEngine
 
 		ImGui::Indent();
 
-		for (auto entity : _ModelEntityCollection)
+		for (auto entity : _MeshEntityCollection)
 		{
 			auto& tag = m_Context->GetComponent<TagComponent>(entity);
 
-			auto is_open = ImGui::TreeNodeEx(tag.GetTag().c_str(), flags | (entity == m_Context->GetSelectedEntity() ? ImGuiTreeNodeFlags_Selected : 0));
+			auto is_open = ImGui::TreeNodeEx(tag.GetTag(), flags | (entity == m_Context->GetSelectedEntity() ? ImGuiTreeNodeFlags_Selected : 0));
 
 			if (ImGui::IsItemClicked())
 			{
-				m_Context->SelectEntity(Entity{ m_Context, entity });
+				m_Context->SelectEntity(Entity{ entity });
 			}
 
 			if (is_open)
 			{
-				std::vector<Entity>& _MeshEntityCollection = m_Context->GetComponent<ModelComponent>(entity).GetMeshEntities();
+				/*std::vector<Entity>& _MeshEntityCollection = m_Context->GetComponent<ModelComponent>(entity).GetMeshEntities();
 
 				if (_MeshEntityCollection.size() > 0)
 				{
@@ -193,7 +221,7 @@ namespace TruthEngine
 					{
 						auto& _MeshTag = m_Context->GetComponent<TagComponent>(_MeshEntity);
 
-						if (ImGui::TreeNodeEx(_MeshTag.GetTag().c_str(), flags | (_MeshEntity == m_Context->GetSelectedEntity() ? ImGuiTreeNodeFlags_Selected : 0)))
+						if (ImGui::TreeNodeEx(_MeshTag.GetTag(), flags | (_MeshEntity == m_Context->GetSelectedEntity() ? ImGuiTreeNodeFlags_Selected : 0)))
 						{
 							ImGui::TreePop();
 						}
@@ -206,7 +234,7 @@ namespace TruthEngine
 					}
 
 					ImGui::Unindent();
-				}
+				}*/
 
 				ImGui::TreePop();
 			}
@@ -429,18 +457,18 @@ namespace TruthEngine
 		{
 			auto& tag = m_Context->GetComponent<TagComponent>(entity);
 
-			auto is_open = ImGui::TreeNodeEx(tag.GetTag().c_str(), flags | (entity == m_Context->GetSelectedEntity() ? ImGuiTreeNodeFlags_Selected : 0));
+			auto is_open = ImGui::TreeNodeEx(tag.GetTag(), flags | (entity == m_Context->GetSelectedEntity() ? ImGuiTreeNodeFlags_Selected : 0));
 
 			if (ImGui::IsItemClicked())
 			{
-				m_Context->SelectEntity(Entity{ m_Context, entity });
+				m_Context->SelectEntity(Entity{ entity });
 			}
 
 			if (is_open)
 			{
-				auto& CameraChildrenNodes = m_Context->GetChildrenNodes(entity);
+				/*auto& CameraChildrenNodes = m_Context->GetChildrenNodes(entity);
 
-				DrawChilrenNodes(CameraChildrenNodes);
+				DrawChilrenNodes(CameraChildrenNodes);*/
 
 				ImGui::TreePop();
 			}
@@ -453,7 +481,10 @@ namespace TruthEngine
 
 	void SceneHierarchyPanel::DrawLightEntities() const
 	{
-		auto isHeaderOpen = ImGui::CollapsingHeader("Lights");
+		static char s_LightNameBuffer[50];
+		static float3 s_LightPosition = float3(0.0f, 0.0f, 0.0f);
+
+		auto isHeaderOpen = ImGui::CollapsingHeader("Lights", ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_AllowItemOverlap | ImGuiTreeNodeFlags_FramePadding);
 
 		ImVec2 contentRegionAvailable = ImGui::GetContentRegionAvail();
 		float lineHeight = GImGui->Font->FontSize + (GImGui->Style.FramePadding.y * 2.0f);
@@ -461,9 +492,56 @@ namespace TruthEngine
 
 		if (ImGui::Button("Add Light", ImVec2{ 80, lineHeight }))
 		{
-			// 			auto entity = m_Context->AddEntity("Empty Light");
-			// 			entity.AddComponent<LightComponent>();
-			// 			m_Context->SelectEntity(entity);
+			ImGui::OpenPopup("AddLightPopup");
+		}
+
+		if (ImGui::BeginPopupModal("AddLightPopup"))
+		{
+			ImGui::InputText("Light Name: ", s_LightNameBuffer, sizeof(s_LightNameBuffer));
+
+			static auto s_LightType = TE_LIGHT_TYPE::Point;
+
+			if (ImGui::RadioButton("Point", s_LightType == TE_LIGHT_TYPE::Point))
+			{
+				s_LightType = TE_LIGHT_TYPE::Point;
+			}
+			ImGui::SameLine();
+			if (ImGui::RadioButton("Spot", s_LightType == TE_LIGHT_TYPE::Spot))
+			{
+				s_LightType = TE_LIGHT_TYPE::Spot;
+			}
+			ImGui::SameLine();
+			if (ImGui::RadioButton("Directional", s_LightType == TE_LIGHT_TYPE::Directional))
+			{
+				s_LightType = TE_LIGHT_TYPE::Directional;
+			}
+
+			ImGuiLayer::DrawFloat3Control("AddLightEntityPosition", &s_LightPosition.x);
+
+			if (ImGui::Button("Add##AddLightPopup"))
+			{
+				ILight* _ILight = nullptr;
+				switch (s_LightType)
+				{
+				case TE_LIGHT_TYPE::Directional:
+					m_Context->AddLightEntity_Directional(s_LightNameBuffer, s_LightPosition, 0.1f, float3(0.3f, 0.3f, 0.3f), 1.0f, float3(0.0f, 0.0f, 1.0f), false, float4(1.0f, 2.0f, 10.0f, 100.0f));
+					break;
+				case TE_LIGHT_TYPE::Spot:
+					m_Context->AddLightEntity_Spot(s_LightNameBuffer, s_LightPosition, 0.1f, float3(0.3f, 0.3f, 0.3f), 1.0f, float3(0.0f, 0.0f, 1.0f), false, 10.0f, 100.0f, 45.0f, 90.0f);
+					break;
+				case TE_LIGHT_TYPE::Point:
+					m_Context->AddLightEntity_Point(s_LightNameBuffer, s_LightPosition, 0.1f, float3(0.3f, 0.3f, 0.3f), 1.0f, false, 10.0f, 30.0f);
+					break;
+				}
+				ImGui::CloseCurrentPopup();
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Cancel##AddLightPopup"))
+			{
+				ImGui::CloseCurrentPopup();
+			}
+
+			ImGui::EndPopup();
 		}
 
 
@@ -487,18 +565,18 @@ namespace TruthEngine
 		{
 			auto& tag = m_Context->GetComponent<TagComponent>(lightEntity);
 
-			auto is_open = ImGui::TreeNodeEx(tag.GetTag().c_str(), flags | (lightEntity == m_Context->GetSelectedEntity() ? ImGuiTreeNodeFlags_Selected : 0));
+			auto is_open = ImGui::TreeNodeEx(tag.GetTag(), flags | (lightEntity == m_Context->GetSelectedEntity() ? ImGuiTreeNodeFlags_Selected : 0));
 
 			if (ImGui::IsItemClicked())
 			{
-				m_Context->SelectEntity(Entity{ m_Context, lightEntity });
+				m_Context->SelectEntity(Entity{ lightEntity });
 			}
 
 			if (is_open)
 			{
-				auto& CameraChildrenNodes = m_Context->GetChildrenNodes(lightEntity);
+				/*auto& CameraChildrenNodes = m_Context->GetChildrenNodes(lightEntity);
 
-				DrawChilrenNodes(CameraChildrenNodes);
+				DrawChilrenNodes(CameraChildrenNodes);*/
 
 				ImGui::TreePop();
 			}
@@ -513,9 +591,9 @@ namespace TruthEngine
 	{
 		for (auto& childNode : childrenNodes)
 		{
-			auto meshTag = m_Context->GetComponent<TagComponent>(childNode.mEntity).GetTag();
+			const char* meshTag = m_Context->GetComponent<TagComponent>(childNode.mEntity).GetTag();
 
-			auto is_open = ImGui::TreeNodeEx(meshTag.c_str(), flags | (childNode.mEntity == m_Context->GetSelectedEntity() ? ImGuiTreeNodeFlags_Selected : 0));
+			bool is_open = ImGui::TreeNodeEx(meshTag, flags | (childNode.mEntity == m_Context->GetSelectedEntity() ? ImGuiTreeNodeFlags_Selected : 0));
 
 			if (ImGui::IsItemClicked())
 			{

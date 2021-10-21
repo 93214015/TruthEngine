@@ -1,23 +1,29 @@
 #pragma once
 
 #include "Core/Window.h"
-#include "Core/Event/Event.h"
+#include "Core/Event/EventDispatcher.h"
 #include "Core/LayerStack.h"
 #include "Core/TimerEngine.h"
 
 #include "Core/Entity/Camera/CameraPerspective.h"
-#include "Core/Entity/Scene.h"
 
 namespace TruthEngine {
 
 	class EventWindowResize;
 	class RendererLayer;
+	class Scene;
 
 	class Application {
 
 	public:
 		Application(const char* title, uint32_t clientWidth, uint32_t clientHeight, uint8_t framesInFlightNum);
 		virtual ~Application();
+
+		Application(const Application&) = delete;
+		Application& operator=(const Application&) = delete;
+
+		Application(Application&&) = delete;
+		Application& operator=(Application&&) = delete;
 
 
 		inline uint32_t GetClientWidth() const noexcept { return m_ClientWidth; }
@@ -37,14 +43,15 @@ namespace TruthEngine {
 
 		inline const char* GetTitle() const noexcept { return m_Title.c_str(); }
 
-		inline Scene* GetActiveScene()
+
+		EventListenerHandle RegisterEventListener(EventType eventType, const EventListener& listener)
 		{
-			return &m_ActiveScene;
+			return m_EventDispatcher.RegisterListener(eventType, listener);
 		}
 
-		inline void RegisterEventListener(EventType eventType, const EventListener& listener)
+		void UnRegisterEventListener(EventListenerHandle* _EventListenerHandles, size_t _ListenerCount)
 		{
-			m_EventDispatcher.RegisterListener(eventType, listener);
+			m_EventDispatcher.UnRegisterListener(_EventListenerHandles, _ListenerCount);
 		}
 
 
@@ -68,7 +75,9 @@ namespace TruthEngine {
 		inline bool IsHoveredSceneViewPort() const noexcept { return m_IsHoveredSceneViewport; }
 		inline void IsHoveredSceneViewPort(bool hovered) noexcept { m_IsHoveredSceneViewport = hovered; }
 
-		static inline Application* GetApplication() { return s_Instance; }
+		RendererLayer* GetRendererLayer();
+
+		static Application* GetApplication() { return s_Instance; }		
 
 	protected:
 		void OnWindowResize(EventWindowResize& event);
@@ -77,6 +86,8 @@ namespace TruthEngine {
 	protected:
 		static Application* s_Instance;
 
+		std::unique_ptr<Scene> m_DefautlScene;
+		
 		std::unique_ptr<Window> m_Window;
 		EventDispatcher m_EventDispatcher;
 
@@ -86,7 +97,6 @@ namespace TruthEngine {
 
 		TimerEngine m_Timer;
 
-		Scene m_ActiveScene;
 
 		uint32_t m_ClientWidth;
 		uint32_t m_ClientHeight;
@@ -94,10 +104,11 @@ namespace TruthEngine {
 		uint32_t m_SceneViewportHeight = 720;
 
 		uint8_t m_CurrentFrameOnTheFly = 0;
-		uint8_t m_FramesOnTheFlyNum = 2;
+		uint8_t m_FramesOnTheFlyNum = 3;
 
 		std::string m_Title;
 
+		bool m_IsRenderingFrame = true;
 		bool m_Running = true;
 		bool m_WindowMode = true;
 		bool m_IsHoveredSceneViewport = false;

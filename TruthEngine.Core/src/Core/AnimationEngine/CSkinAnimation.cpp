@@ -142,7 +142,7 @@ namespace TruthEngine
 
 	void SA_Animation::Calculate(float dt)
 	{
-		if (mCurrentAnimationIndex < 0 | mCurrentAnimationIndex > mAnimations.size())
+		if (mCurrentAnimationIndex < 0 || mCurrentAnimationIndex > mAnimations.size())
 			return;
 
 		mAnimations[mCurrentAnimationIndex].Evaluate(dt, mBonesByName);

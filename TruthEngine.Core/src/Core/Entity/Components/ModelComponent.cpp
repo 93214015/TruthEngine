@@ -5,7 +5,6 @@
 
 namespace TruthEngine
 {
-
     ModelComponent::ModelComponent()
     {
         m_EnitiesMesh.reserve(10);

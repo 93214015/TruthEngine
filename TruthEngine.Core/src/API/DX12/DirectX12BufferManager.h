@@ -17,7 +17,7 @@
 namespace TruthEngine::API::DirectX12 {
 
 
-	class DirectX12BufferManager : public BufferManager
+	class DirectX12BufferManager final : public BufferManager
 	{
 
 	public:
@@ -40,13 +40,21 @@ namespace TruthEngine::API::DirectX12 {
 
 		TE_RESULT CreateIndexBuffer(IndexBuffer* ib) override;
 
-		virtual TextureCubeMap* CreateTextureCube(TE_IDX_GRESOURCES idx, const char* filePath);
+		TextureCubeMap* CreateTextureCube(TE_IDX_GRESOURCES idx, const char* filePath) override;
+
+		Texture* CreateTexture(TE_IDX_GRESOURCES _IDX, uint32_t _Width, uint32_t _Height, uint8_t _ArraySize, uint8_t _MipLevels, TE_RESOURCE_FORMAT _Format, TE_RESOURCE_TYPE _ResourceType, TE_RESOURCE_STATES _State, const void* _InitData) override;
+
+		Texture* LoadTextureFromFile(TE_IDX_GRESOURCES _IDX, const char* _FilePath, uint8_t _MipLevels) override;
+
+		void SaveTextureToFile(const Texture& _Texture, const char* _FilePath) override;
 
 
 		//
 		//Create Views Methods
 		//
 		void CreateRenderTargetView(TextureRenderTarget* RT, RenderTargetView* _outRTV) override;
+
+		void CreateRenderTargetView(TextureRenderTarget* RT, RenderTargetView* _outRTV, uint8_t mipSlice, uint8_t arraySlice) override;
 
 		void CreateRenderTargetView(SwapChain* swapChain, RenderTargetView* _outRTV) override;
 
@@ -74,7 +82,7 @@ namespace TruthEngine::API::DirectX12 {
 		D3D12_GPU_DESCRIPTOR_HANDLE AddDescriptorSRV(ID3D12Resource* resource, const D3D12_SHADER_RESOURCE_VIEW_DESC* desc);
 		D3D12_GPU_DESCRIPTOR_HANDLE AddDescriptorCBV(const D3D12_CONSTANT_BUFFER_VIEW_DESC* cbvDesc);
 		D3D12_GPU_DESCRIPTOR_HANDLE AddDescriptorUAV(ID3D12Resource* resource, ID3D12Resource* counterResource, const D3D12_UNORDERED_ACCESS_VIEW_DESC* desc);
-		D3D12_CPU_DESCRIPTOR_HANDLE AddDescriptorRTV(ID3D12Resource* resource);
+		D3D12_CPU_DESCRIPTOR_HANDLE AddDescriptorRTV(ID3D12Resource* resource, const D3D12_RENDER_TARGET_VIEW_DESC* desc = nullptr);
 		D3D12_CPU_DESCRIPTOR_HANDLE AddDescriptorDSV(ID3D12Resource* resource, const D3D12_DEPTH_STENCIL_VIEW_DESC* desc);
 
 		inline DescriptorHeapSRV& GetDescriptorHeapSRV() noexcept
@@ -122,11 +130,6 @@ namespace TruthEngine::API::DirectX12 {
 
 
 	private:
-
-		uint32_t m_OffsetSRVMaterialTexture = 50;
-		uint32_t m_IndexSRVMaterialTexture_Diffuse = 0;
-		uint32_t m_IndexSRVMaterialTexture_Normal = 0;
-		uint32_t m_IndexSRVMaterialTexture_Displacement = 0;
 
 		std::vector<COMPTR<ID3D12Resource>> m_Resources;
 

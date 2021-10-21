@@ -18,9 +18,9 @@ namespace TruthEngine
 	{
 		ImTextureID id;
 
-		switch (Settings::RendererAPI)
+		switch (Settings::Graphics::GetRendererAPI())
 		{
-		case TE_RENDERER_API::DirectX12:
+		case Settings::Graphics::TE_RENDERER_API::DirectX12:
 		{
 			static auto dx12BufferManager = API::DirectX12::DirectX12BufferManager::GetInstance().get();
 			id = (ImTextureID)dx12BufferManager->GetDescriptorHeapSRV().GetGPUHandle(viewIndex).ptr;
@@ -38,9 +38,9 @@ namespace TruthEngine
 		ImTextureID id;
 		static TextureMaterialManager* _textureMaterialManager = TextureMaterialManager::GetInstance();
 
-		switch (Settings::RendererAPI)
+		switch (Settings::Graphics::GetRendererAPI())
 		{
-		case TE_RENDERER_API::DirectX12:
+		case Settings::Graphics::TE_RENDERER_API::DirectX12:
 		{
 			static auto dx12BufferManager = API::DirectX12::DirectX12BufferManager::GetInstance().get();
 			static auto offset = static_cast<API::DirectX12::DirectX12TextureMaterialManager*>(_textureMaterialManager)->GetIndexOffset();
@@ -54,12 +54,11 @@ namespace TruthEngine
 		ImGui::Image(id, size, uv0, uv1);
 	}
 
-
 	std::shared_ptr<TruthEngine::ImGuiLayer> ImGuiLayer::Factory()
 	{
-		switch (Settings::RendererAPI)
+		switch (Settings::Graphics::GetRendererAPI())
 		{
-		case TE_RENDERER_API::DirectX12:
+		case Settings::Graphics::TE_RENDERER_API::DirectX12:
 			return std::make_shared<API::DirectX12::DirectX12ImGuiLayer>();
 		default:
 			return nullptr;
@@ -75,7 +74,6 @@ namespace TruthEngine
 		fileBrowser->Open();
 	}
 
-
 	void ImGuiLayer::OpenFileDialog_MultipleSelection(ImGui::FileBrowser* fileBrowser, const char* title, const std::vector<const char*>& FileExtensions)
 	{
 		fileBrowser->SetTitle(title);
@@ -83,7 +81,6 @@ namespace TruthEngine
 
 		fileBrowser->Open();
 	}
-
 
 	bool ImGuiLayer::CheckFileDialog(ImGui::FileBrowser* fileBrowser, std::string& outSelectedFile)
 	{
@@ -96,7 +93,6 @@ namespace TruthEngine
 		}
 		return false;
 	}
-
 
 	bool ImGuiLayer::CheckFileDialog_MultipleSelection(ImGui::FileBrowser* fileBrowser, std::vector<std::filesystem::path>& outSelectedFile)
 	{
@@ -111,7 +107,6 @@ namespace TruthEngine
 		return false;
 	}
 
-
 	void ImGuiLayer::ShowWindowMaterialTexture(const std::function<void(uint32_t)>& callback, bool show)
 	{
 		m_ShowMaterialTextureWindow = show;
@@ -119,7 +114,6 @@ namespace TruthEngine
 		g_MaterialTextureWindowCallBack = callback;
 
 	}
-
 
 	bool ImGuiLayer::WindowMaterialTextures()
 	{
@@ -141,7 +135,7 @@ namespace TruthEngine
 			{
 				if (ImGui::BeginMenu("Import Texture"))
 				{
-					static const std::vector<const char*> s_textureFileExtensions = { ".jpg", ".jpeg", ".png" };
+					static const std::vector<const char*> s_textureFileExtensions = { ".jpg", ".jpeg", ".png", ".tif"};
 					OpenFileDialog_MultipleSelection(&s_fileDialogImportMaterialTextures, "Import Material Textures", s_textureFileExtensions);
 
 					ImGui::EndMenu();
@@ -242,7 +236,6 @@ namespace TruthEngine
 
 		return m_ShowMaterialTextureWindow;
 	}
-
 
 	bool ImGuiLayer::DrawFloat3Control(const char* label, float* value, float minValue /* = 0.0f*/, float maxValue /* = 0.0f*/, float speed /* = 1.0f*/, float resetValue /*= 0.0f*/, float columnWidth /*= 100.0f*/)
 	{
@@ -403,9 +396,6 @@ namespace TruthEngine
 
 		return active;
 	}
-
-
-
 
 	bool ImGuiLayer::m_ShowMaterialTextureWindow = false;
 

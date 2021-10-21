@@ -5,11 +5,13 @@ namespace TruthEngine {
 
 	enum class EventType : uint8_t {
 		None = 0,
-		WindowClose, WindowResize, WindowFocus, WindowLostFocus, WindowMoved, SceneViewportResize, RenderTargetResize,
+		WindowClose, WindowResize, WindowFocus, WindowLostFocus, WindowMoved, SceneViewportResize,
 		AppTick, AppUpdate, AppProcess, AppOneSecondPoint,
 		KeyPressed, KeyReleased, KeyTyped,
 		MouseButtonPressed, MouseButtonReleased, MouseMoved, MouseScrolled,
 		EntityAddMesh, EntityAddMaterial, EntityUpdatedMaterial, EntityAddLight, EntityUpdatedLight, EntityTransform,
+		RendererNewGraphicsPipeline, RendererNewComputePipeline, RendererViewportResize, RendererTextureResize,
+		SettingsGraphicsHDR, SettingsGraphicsFrameLimit,
 		EventTypeNum
 	};
 
@@ -21,6 +23,8 @@ namespace TruthEngine {
 		EventCategoryMouse =			BIT(3),
 		EventCategoryMouseButton =		BIT(4),
 		EventCategoryEntity =			BIT(5),
+		EventCategoryRenderer =			BIT(6),
+		EventCategorySettings =			BIT(7),
 	};
 
 
@@ -56,19 +60,6 @@ namespace TruthEngine {
 	}
 
 
-	using EventListener = std::function<void(Event&)>;
-
-
-	class EventDispatcher
-	{
-	public:
-
-		void RegisterListener(const EventType eventType, const EventListener& eventFunc);
-		void OnEvent(Event& event);
-
-	protected:
-		std::vector<EventListener> m_EventListerns[static_cast<uint8_t>(EventType::EventTypeNum)];
-
-	};
+	
 
 }

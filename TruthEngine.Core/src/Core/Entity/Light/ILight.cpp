@@ -17,13 +17,6 @@ namespace TruthEngine
 	{
 	}
 
-	ILight::~ILight() = default;
-
-	ILight::ILight(ILight&&)noexcept = default;
-
-	ILight& ILight::operator=(ILight&&)noexcept = default;
-
-
 
 	/*void ILight::SetDirection(const float3& _direction) noexcept
 	{
@@ -35,5 +28,11 @@ namespace TruthEngine
 		TE_INSTANCE_APPLICATION->OnEvent(event);
 	}*/
 
+
+	void ILight::InvokeEventUpdateLight()
+	{
+		EventEntityUpdateLight event(this);
+		TE_INSTANCE_APPLICATION->OnEvent(event);
+	}
 
 }

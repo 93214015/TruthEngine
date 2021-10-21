@@ -33,17 +33,17 @@ namespace TruthEngine::API::DirectX12
 		return TE_SUCCESSFUL;
 	}
 
-	uint32_t DescriptorHeapRTV::AddDescriptor(ID3D12Resource* resource)
+	uint32_t DescriptorHeapRTV::AddDescriptor(ID3D12Resource* resource, const D3D12_RENDER_TARGET_VIEW_DESC* _D3D12RenderTargetViewDesc)
 	{
-		m_Device->GetDevice()->CreateRenderTargetView(resource, nullptr, GetCPUHandleLast());
+		m_Device->GetDevice()->CreateRenderTargetView(resource, _D3D12RenderTargetViewDesc, GetCPUHandleLast());
 		auto insertedIndex = m_CurrentIndex;
 		m_CurrentIndex++;
 		return insertedIndex;
 	}
 
-	void DescriptorHeapRTV::ReplaceDescriptor(ID3D12Resource* resource, uint32_t index)
+	void DescriptorHeapRTV::ReplaceDescriptor(ID3D12Resource* resource, uint32_t index, const D3D12_RENDER_TARGET_VIEW_DESC* _D3D12RenderTargetViewDesc)
 	{
-		m_Device->GetDevice()->CreateRenderTargetView(resource, nullptr, GetCPUHandle(index));
+		m_Device->GetDevice()->CreateRenderTargetView(resource, _D3D12RenderTargetViewDesc, GetCPUHandle(index));
 	}
 
 	TE_RESULT DescriptorHeapSRV::Init(DirectX12GraphicDevice& device, uint32_t descriptorNum, D3D12_DESCRIPTOR_HEAP_FLAGS flags /*= D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE*/, uint32_t nodeMask /*= 0*/)
@@ -117,7 +117,9 @@ namespace TruthEngine::API::DirectX12
 
 	uint32_t DescriptorHeapDSV::AddDescriptor(ID3D12Resource* resource, const D3D12_DEPTH_STENCIL_VIEW_DESC* dsvDesc)
 	{
-		m_Device->GetDevice()->CreateDepthStencilView(resource, dsvDesc, GetCPUHandleLast());
+		TE_ASSERT_CORE(dsvDesc, "DX12::DescriptorHeapDSV::AddDescriptor: the sent D3D12_DEPTH_STENCIL_VIEW_DESC is nullptr");
+
+		m_Device->GetDevice()->CreateDepthStencilView(resource, static_cast<const D3D12_DEPTH_STENCIL_VIEW_DESC*>(dsvDesc), GetCPUHandleLast());
 		auto insertedIndex = m_CurrentIndex;
 		m_CurrentIndex++;
 		return insertedIndex;
@@ -125,6 +127,8 @@ namespace TruthEngine::API::DirectX12
 
 	void DescriptorHeapDSV::ReplaceDescriptor(ID3D12Resource* resource, const D3D12_DEPTH_STENCIL_VIEW_DESC* dsvDesc, uint32_t index)
 	{
+		TE_ASSERT_CORE(dsvDesc, "DX12::DescriptorHeapDSV::AddDescriptor: the sent D3D12_DEPTH_STENCIL_VIEW_DESC is nullptr");
+
 		m_Device->GetDevice()->CreateDepthStencilView(resource, dsvDesc, GetCPUHandle(index));
 	}
 

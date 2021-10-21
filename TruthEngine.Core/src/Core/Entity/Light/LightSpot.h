@@ -12,11 +12,12 @@ namespace TruthEngine
 		LightSpot(
 			uint32_t _ID,
 			std::string_view _Name,
+			const float3& _Position,
+			float _LightSize,
 			const float3& _Strength,
-			const float _LightSize,
+			float _StrengthMultiplier,
 			const float3& _Direction,
 			const bool _CastShadow,
-			const float3& _Position,
 			const float _FalloffStart,
 			const float _FalloffEnd,
 			const float _InnerConeAngle,
@@ -28,6 +29,8 @@ namespace TruthEngine
 		//
 		virtual void SetStrength(const float3& _Strength) noexcept override;
 
+		virtual void SetStrengthMultiplier(float _StrengthMultiplier) noexcept override;
+
 		virtual void SetCastShadow(const bool _Castshadow) noexcept override;
 
 		virtual void SetView(const float3& _Position, const float3& _Direction, const float3& _Up, const float3& _Right) noexcept override;
@@ -37,6 +40,8 @@ namespace TruthEngine
 		virtual void SetPosition(const float3& _Position) noexcept override;
 
 		virtual void SetPosition(const float x, const float y, const float z) noexcept override;
+
+		virtual void SetLightSize(float _LightSize) noexcept override;
 
 		void SetFalloffStart(float _FalloffStart);
 
@@ -49,11 +54,13 @@ namespace TruthEngine
 		//
 		//Get Methods
 		//
-		virtual const float3& GetPosition() const noexcept;
+		virtual const float3& GetPosition() const noexcept override;
 
-		virtual const float3& GetDirection() const noexcept;
+		virtual const float3& GetDirection() const noexcept override;
 
-		virtual const float3& GetStrength() const noexcept;
+		virtual const float3& GetStrength() const noexcept override;
+
+		virtual float GetStrengthMultiplier() const noexcept override;
 
 		virtual bool GetCastShadow()const noexcept;
 

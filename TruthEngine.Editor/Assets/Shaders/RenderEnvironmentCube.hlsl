@@ -1,8 +1,4 @@
 
-//
-//Data Structs
-//
-
 
 ///////////////////////////////////////////////////
 //////////////// Constant Buffers
@@ -16,15 +12,8 @@ cbuffer CBEnvironment : register(b0)
 
 }
 
-cbuffer CBPerFrame : register(b1)
-{
-    row_major matrix viewProj;
-    
-    float3 EyePos;
-    float pad;
-
-    row_major matrix gCascadedShadowTransform[4];
-}
+#define REGISTER_CBPerFrame b1
+#include "CBPerFrame.hlsli"
 
 ///////////////////////////////////////////////////
 //////////////// Textures
@@ -35,10 +24,7 @@ TextureCube tEnvironmentCubeMap : register(t0, space0);
 ///////////////////////////////////////////////////
 //////////////// Samplers
 ///////////////////////////////////////////////////
-sampler sampler_linear : register(s0);
-sampler sampler_point_borderBlack : register(s1);
-sampler sampler_point_borderWhite : register(s2);
-SamplerComparisonState samplerComparison_great_point_borderWhite : register(s3);
+#include "Samplers.hlsli"
 
 
 struct VertexInput
@@ -67,6 +53,6 @@ VertexOutput vs(VertexInput vin)
 
 float4 ps(VertexOutput pin) : SV_Target
 {    
-    return tEnvironmentCubeMap.Sample(sampler_linear, pin.PosL) * float4(gEnvironmentMapMultiplier, 1.0f);
+    return tEnvironmentCubeMap.Sample(sampler_linear, normalize(pin.PosL)) * float4(gEnvironmentMapMultiplier, 1.0f);
 
 }

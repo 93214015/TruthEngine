@@ -111,7 +111,7 @@ namespace TruthEngine
 	};
 
 	template<class T>
-	class ConstantBufferDirect : public ConstantBufferDirectBase
+	class ConstantBufferDirect final : public ConstantBufferDirectBase
 	{
 	public:
 		using ConstantBufferDirectBase::ConstantBufferDirectBase;

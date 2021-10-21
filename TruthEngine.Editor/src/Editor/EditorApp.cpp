@@ -19,6 +19,7 @@
 #include "Core/Entity/PickingEntity.h"
 #include "Core/Event/EventEntity.h"
 #include "Core/AnimationEngine/AnimationManager.h"
+#include "Core/Entity/Scene.h"
 
 std::future<void> gFeaturePickEntity;
 
@@ -46,7 +47,7 @@ namespace TruthEngine
 		InputManager::RegisterKey(Key::Space);
 
 
-		auto mainCamera = CameraManager::GetInstance()->CreatePerspectiveFOV("mainCamera"
+		auto mainCamera = TE_INSTANCE_CAMERAMANAGER->CreatePerspectiveFOV("mainCamera"
 			, float3{ -12.0f, 17.0f, -30.0f }
 			, float3{ 0.48f, -.5f, 0.72f }
 			, float3{ 0.0f, 1.0f, 0.0f }
@@ -57,16 +58,15 @@ namespace TruthEngine
 			, false
 		);
 
+		TE_INSTANCE_CAMERAMANAGER->SetActiveCamera(mainCamera);
 
-		CameraManager::GetInstance()->SetActiveCamera(mainCamera);
-
-		m_ActiveScene.Init();
+		GetActiveScene()->Init();
 
 		//
 		//Add Main Camera
 		//
-		auto entity = m_ActiveScene.AddEntity("MainCamera");
-		entity.AddComponent<CameraComponent>(mainCamera, CameraManager::GetInstance()->GetCameraController());
+		auto entity = GetActiveScene()->AddEntity("MainCamera");
+		entity.AddComponent<CameraComponent>(mainCamera, TE_INSTANCE_CAMERAMANAGER->GetCameraController());
 
 		m_LayerStack.PushLayer(m_RendererLayer.get());
 
@@ -74,13 +74,13 @@ namespace TruthEngine
 		//Adding Lights
 		//
 		/*const float4 _cascadeCoveringPercentage = float4{ 10.0f, 50.0f, 100.f, 200.0f };
-		m_ActiveScene.AddLightEntity_Directional("SunLight", float3{ 0.0f, 0.0f, 0.0f }, float3{ .38f, -.60f, .71f }, float3{ -42.0f, 66.0f, -80.0f }, 0.05f, true, _cascadeCoveringPercentage);*/
-		m_ActiveScene.AddLightEntity_Spot("SpotLight0", float3{ .8f, .8f, .8f }, float3{ .01f, -.71f, .7f }, float3{ -0.3f, 28.0f, -42.0f }, 0.05f, true, 90.0f, 200.0f, 20.0f, 60.0f);
+		GetActiveScene()->AddLightEntity_Directional("SunLight", float3{ 0.0f, 0.0f, 0.0f }, float3{ .38f, -.60f, .71f }, float3{ -42.0f, 66.0f, -80.0f }, 0.05f, true, _cascadeCoveringPercentage);*/
+		GetActiveScene()->AddLightEntity_Spot("SpotLight0", float3{ -0.3f, 28.0f, -42.0f }, 0.05f, float3{ .8f, .8f, .8f }, 1.0f, float3{ .01f, -.71f, .7f }, true, 90.0f, 200.0f, 20.0f, 60.0f);
 
 		//auto lightManager = LightManager::GetInstace();
 		//auto dirLight0 = lightManager->AddLightDirectional("dlight_0", float3{ 0.8f, 0.8f, 0.8f }, float3{ .38f, -.60f, .71f }, float3{ -42.0f, 66.0f, -80.0f }, 0.05f, true, _cascadeCoveringPercentage);
 		////lightManager->AddLightCamera(dirLight0, TE_CAMERA_TYPE::Perspective);
-		//auto entityLight = m_ActiveScene.AddEntity("Directional Light 0");
+		//auto entityLight = GetActiveScene()->AddEntity("Directional Light 0");
 		//entityLight.AddComponent<LightComponent>(dirLight0);
 
 		//must put ModelManager initiation after RendererLayer attachment so that the bufferManager has been initiated 
@@ -88,11 +88,11 @@ namespace TruthEngine
 		modelManager->Init(TE_INSTANCE_BUFFERMANAGER);
 		//modelManager->AddSampleModel();
 
-		m_SceneHierarchyPanel.SetContext(&m_ActiveScene);
+		m_SceneHierarchyPanel.SetContext(GetActiveScene());
 
 		TE_INSTANCE_PHYSICSENGINE->Init();
 
-		m_ActiveScene.AddEnvironmentEntity();
+		GetActiveScene()->AddEnvironmentEntity();
 
 		RegisterOnEvents();
 	}
@@ -100,10 +100,11 @@ namespace TruthEngine
 
 	void ApplicationEditor::OnUpdate()
 	{
-
 		TE_INSTANCE_PHYSICSENGINE->Simulate(m_Timer.DeltaTime());
 
 		TE_INSTANCE_ANIMATIONMANAGER->Update(m_Timer.DeltaTime());
+
+		GetActiveScene()->OnUpdate(m_Timer.DeltaTime());
 
 		InputManager::ProcessInput();
 
@@ -209,18 +210,18 @@ namespace TruthEngine
 
 						if (_Checked)
 						{
-							Entity _SelectedEntity = m_ActiveScene.GetSelectedEntity();
+							Entity _SelectedEntity = GetActiveScene()->GetSelectedEntity();
 							if (_SelectedEntity)
 							{
 								float angle = DirectX::XMConvertToRadians(0.25f * static_cast<float>(InputManager::GetDX()));
 								angle /= 10.0f;
 
-								float4x4& _Transform = _SelectedEntity.GetComponent<TransformComponent>().GetTransform();
+								float4x4A& _Transform = _SelectedEntity.GetComponent<TransformComponent>().GetTransform();
 
 								//float3 _RotationOrigin = float3{ _Transform._41, _Transform._42, _Transform._43 };
 								float3 _RotationOrigin = float3{ 0, 0, 0 };
 
-								float4x4 _RotationTransform = Math::TransformMatrixRotation(angle, float3{ .0f, 1.0f, .0f }, _RotationOrigin);
+								float4x4A _RotationTransform = Math::TransformMatrixRotation(angle, float3{ .0f, 1.0f, .0f }, _RotationOrigin);
 
 								_Transform = _Transform * _RotationTransform;
 							}
@@ -311,7 +312,7 @@ namespace TruthEngine
 					auto dragDelta = ImGui::GetMouseDragDelta(ImGuiMouseButton_Left);
 					if (dragDelta.x == 0 && dragDelta.y == 0)
 					{
-						m_ActiveScene.ClearSelectedEntity();
+						GetActiveScene()->ClearSelectedEntity();
 						m_SceneViewPortPos = ImGui::GetWindowPos();
 						auto _mousePos = ImGui::GetMousePos();
 						m_SceneViewPortAreaMin = ImGui::GetWindowContentRegionMin();
@@ -323,11 +324,11 @@ namespace TruthEngine
 						if ((_windowMousePos.x > 0 && _windowMousePos.y > 0) && (_windowMousePos.x < m_SceneViewPortAreaMax.x && _windowMousePos.y < m_SceneViewPortAreaMax.y))
 						{
 
-							/*std::function<void()> lambda = [this, _windowMousePos]() { PickingEntity::PickEntity(_windowMousePos, &m_ActiveScene, CameraManager::GetInstance()->GetActiveCamera()); };
+							/*std::function<void()> lambda = [this, _windowMousePos]() { PickingEntity::PickEntity(_windowMousePos, &GetActiveScene(), CameraManager::GetInstance()->GetActiveCamera()); };
 
 							gFeaturePickEntity = TE_INSTANCE_THREADPOOL.Queue(lambda);*/
 
-							PickingEntity::PickEntity(_windowMousePos, &m_ActiveScene, CameraManager::GetInstance()->GetActiveCamera());
+							PickingEntity::PickEntity(_windowMousePos, GetActiveScene(), TE_INSTANCE_CAMERAMANAGER->GetActiveCamera());
 						}
 					}
 				}
@@ -337,17 +338,17 @@ namespace TruthEngine
 				auto windowPos = ImGui::GetWindowPos();
 				ImGuizmo::SetRect(windowPos.x, windowPos.y, ImGui::GetWindowWidth(), ImGui::GetWindowHeight());
 
-				auto viewportSize = ImGui::GetContentRegionAvail();
+				auto _ContentRegionAvailable = ImGui::GetContentRegionAvail();
+				uint2 viewportSize{ static_cast<uint32_t>(_ContentRegionAvailable.x), static_cast<uint32_t>(_ContentRegionAvailable.y) };
 				if (viewportSize.x != GetSceneViewportWidth() || viewportSize.y != GetSceneViewportHeight())
 				{
 					if (viewportSize.x > 1 && viewportSize.y > 1)
 					{
-						ResizeSceneViewport(static_cast<uint32_t>(viewportSize.x), static_cast<uint32_t>(viewportSize.y));
+						ResizeSceneViewport(viewportSize.x, viewportSize.y);
 					}
 				}
 
-				imguiLayer->RenderSceneViewport(viewportSize);
-
+				imguiLayer->RenderSceneViewport(_ContentRegionAvailable);
 
 
 				ImGui::End();
@@ -359,20 +360,42 @@ namespace TruthEngine
 				ImGui::Begin("Scene Properties");
 
 
-				bool _IsEnvironmentMapEnabled = m_RendererLayer->IsEnvironmentMapEnabled();
 
 
+				static bool _IsEnvironmentMapEnabled = m_RendererLayer->IsEnvironmentMapEnabled();
 				if (ImGui::Checkbox("Environment Map", &_IsEnvironmentMapEnabled))
 				{
 					m_RendererLayer->SetEnabledEnvironmentMap(_IsEnvironmentMapEnabled);
 				}
 
 
-				static bool _IsEnabledHDR = m_RendererLayer->IsEnabledHDR();
-
+				static bool _IsEnabledHDR = Settings::Graphics::IsEnabledHDR();
 				if (ImGui::Checkbox("HDR", &_IsEnabledHDR))
 				{
-					m_RendererLayer->SetHDR(_IsEnabledHDR);
+					Settings::Graphics::SetHDR(_IsEnabledHDR);
+				}
+
+				static const char* const _FrameLimitOptionsStr[] = { "30 Frame", "60 Frame", "Unlimited" };
+				static const Settings::Graphics::TE_SETTINGS_FRAMELIMIT _FrameLimitOptions[] = { Settings::Graphics::TE_SETTINGS_FRAMELIMIT::_30, Settings::Graphics::TE_SETTINGS_FRAMELIMIT::_60, Settings::Graphics::TE_SETTINGS_FRAMELIMIT::Unlimited };
+
+				const auto _LambdaCurrentFrameLimitIndex = []() -> int
+				{
+					switch (Settings::Graphics::GetFrameLimit())
+					{
+					case Settings::Graphics::TE_SETTINGS_FRAMELIMIT::_30:
+						return 0;
+					case Settings::Graphics::TE_SETTINGS_FRAMELIMIT::_60:
+						return 1;
+					case Settings::Graphics::TE_SETTINGS_FRAMELIMIT::Unlimited:
+						return 2;
+					}
+				};
+
+				static int _FrameLimitOptionsCurrentIndex = _LambdaCurrentFrameLimitIndex();
+
+				if (ImGui::ListBox("Frame Limit", &_FrameLimitOptionsCurrentIndex, _FrameLimitOptionsStr, 3))
+				{
+					Settings::Graphics::SetFrameLimit(_FrameLimitOptions[_FrameLimitOptionsCurrentIndex]);
 				}
 				
 
@@ -407,7 +430,7 @@ namespace TruthEngine
 			{
 				ImGui::Begin("Properties");
 
-				m_EntityPropertyPanel.SetContext(m_ActiveScene.GetSelectedEntity());
+				m_EntityPropertyPanel.SetContext(GetActiveScene()->GetSelectedEntity());
 				m_EntityPropertyPanel.OnImGuiRender();
 
 				ImGui::End();
@@ -418,7 +441,7 @@ namespace TruthEngine
 			{
 				ImGui::Begin("Configuration");
 
-				if (ImGui::BeginTable("##renderersettingsysinfotable", 2, ImGuiTableFlags_ColumnsWidthFixed))
+				if (ImGui::BeginTable("##renderersettingsysinfotable", 2, ImGuiTableFlags_SizingFixedSame))
 				{
 					ImGui::TableSetupColumn("System Informations");
 					ImGui::TableSetupColumn("Profiler", ImGuiTableColumnFlags_WidthStretch);
@@ -428,7 +451,7 @@ namespace TruthEngine
 					ImGui::TableNextColumn();
 
 					auto sysInfo = HardwareInfo::GetSystemInfo();
-					if (ImGui::BeginTable("##renderersettingcpuinfotable", 2, ImGuiTableFlags_ColumnsWidthFixed))
+					if (ImGui::BeginTable("##renderersettingcpuinfotable", 2, ImGuiTableFlags_SizingFixedSame))
 					{
 
 						ImGui::TableNextRow();
@@ -445,12 +468,12 @@ namespace TruthEngine
 						ImGui::TableNextColumn();
 
 						std::string api = "";
-						switch (Settings::RendererAPI)
+						switch (Settings::Graphics::GetRendererAPI())
 						{
-						case TE_RENDERER_API::DirectX12:
+						case Settings::Graphics::TE_RENDERER_API::DirectX12:
 							api = "DirectX 12";
 							break;
-						case TE_RENDERER_API::DirectX11:
+						case Settings::Graphics::TE_RENDERER_API::DirectX11:
 							api = "DirectX";
 						default:
 							break;
@@ -615,7 +638,7 @@ namespace TruthEngine
 
 		if (_ImportModel)
 		{
-			m_ActiveScene.ImportModel(importFilePath.c_str(), _ModelName);
+			GetActiveScene()->ImportModel(importFilePath.c_str(), nullptr);
 			strcpy_s(_ModelName, "Model_");
 			_SelectedModel = false;
 			_ImportModel = false;
@@ -638,18 +661,27 @@ namespace TruthEngine
 
 		RegisterEventListener(EventType::KeyReleased, onKeyReleased);
 
-		auto onEntityTransform = [this](Event& event)
+
+		auto onEventSettingsGraphicsFrameLimit = [this](Event& _Event)
+		{
+			m_Timer.SetTimeLimit(Settings::Graphics::GetFrameLimitTime());
+		};
+
+		RegisterEventListener(EventType::SettingsGraphicsFrameLimit, onEventSettingsGraphicsFrameLimit);
+
+
+		/*auto onEntityTransform = [this](Event& event)
 		{
 			EventEntityTransform& _e = static_cast<EventEntityTransform&>(event);
 
 			Entity _entity = _e.GetEntity();
-			const BoundingBox& _BoundingBox = _entity.GetComponent<BoundingBoxComponent>().GetBoundingBox();
-			BoundingBox _TransformedBoundingBox = Math::TransformBoundingBox(_BoundingBox, _entity.GetComponent<TransformComponent>().GetTransform());
+			const BoundingAABox& _BoundingBox = _entity.GetComponent<BoundingBoxComponent>().GetBoundingBox();
+			BoundingAABox _TransformedBoundingBox = Math::TransformBoundingBox(_BoundingBox, _entity.GetComponent<TransformComponent>().GetTransform());
 
-			m_ActiveScene.UpdateBoundingBox(_TransformedBoundingBox);
+			GetActiveScene()->UpdateBoundingBox(_TransformedBoundingBox);
 		};
 
-		RegisterEventListener(EventType::EntityTransform, onEntityTransform);
+		RegisterEventListener(EventType::EntityTransform, onEntityTransform);*/
 		
 	}
 

@@ -5,6 +5,7 @@
 
 #include "Core/Entity/Model/ModelManager.h"
 #include "Core/Entity/Components.h"
+#include "Core/Entity/Scene.h"
 #include "../Application.h"
 
 using namespace physx;
@@ -155,7 +156,7 @@ namespace TruthEngine
 		{
 			PxRigidActor* _actor = (PxRigidActor*)actors[i];
 
-			PhysicsDynamicComponent& _physicsComponent = TE_INSTANCE_APPLICATION->GetActiveScene()->GetComponent<PhysicsDynamicComponent>((entt::entity)(reinterpret_cast<uint32_t>(_actor->userData)));
+			PhysicsDynamicComponent& _physicsComponent = GetActiveScene()->GetComponent<PhysicsDynamicComponent>((entt::entity)(reinterpret_cast<uint32_t>(_actor->userData)));
 
 			const auto actorPos = _actor->getGlobalPose();
 
@@ -191,7 +192,7 @@ namespace TruthEngine
 		XMVECTOR xmScale;
 		float4 translate; float4 quat;
 
-		auto activeScene = TE_INSTANCE_APPLICATION->GetActiveScene();
+		auto activeScene = GetActiveScene();
 
 
 		auto view_dynamic = activeScene->ViewEntities<PhysicsDynamicComponent>();
@@ -351,11 +352,11 @@ namespace TruthEngine
 
 		if (_LinearVelocity.has_value())
 		{
-			actorDynamic->setLinearVelocity(_LinearVelocity.value());
+			actorDynamic->setLinearVelocity(*_LinearVelocity);
 		}
 		if (_AngularVelocity.has_value())
 		{
-			actorDynamic->setAngularVelocity(_AngularVelocity.value());
+			actorDynamic->setAngularVelocity(*_AngularVelocity);
 		}
 		//PxRigidBodyExt::updateMassAndInertia(*actorDynamic, 1000.0f);
 
@@ -417,18 +418,18 @@ namespace TruthEngine
 
 	bool PhysicsEngine::Reset()
 	{
-		auto scene = TE_INSTANCE_APPLICATION->GetActiveScene();
+		auto scene = GetActiveScene();
 
 		auto& groups = scene->ViewEntities<PhysicsDynamicComponent>();
 
 		for (auto& entity : groups)
 		{
 			auto& physicsComponent = scene->GetComponent<PhysicsDynamicComponent>(entity);
-			const float3& _WorldOffset = scene->GetComponent<TransformComponent>(entity).GetWorldCenterOffset();
-			float4x4 staticTransform = scene->GetStaticTransformHierarchy(entity);
-			staticTransform._41 += _WorldOffset.x;
+			//const float3& _WorldOffset = scene->GetComponent<TransformComponent>(entity).GetWorldCenterOffset();
+			float4x4A staticTransform = scene->GetStaticTransformHierarchy(entity);
+			/*staticTransform._41 += _WorldOffset.x;
 			staticTransform._42 += _WorldOffset.y;
-			staticTransform._43 += _WorldOffset.z;
+			staticTransform._43 += _WorldOffset.z;*/
 
 			auto actor = physicsComponent.GetActor();
 

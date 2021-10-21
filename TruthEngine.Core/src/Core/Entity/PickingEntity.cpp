@@ -10,7 +10,6 @@
 
 #include "Core/Application.h"
 
-using namespace DirectX;
 
 void TruthEngine::PickingEntity::PickEntity(float3 rayOrigin, float3 rayDirection, Scene* scene, Camera* camera)
 {
@@ -24,14 +23,14 @@ void TruthEngine::PickingEntity::PickEntity(float2 mousePosition, Scene* scene, 
 	float vy = (-2.0f * mousePosition.y / TE_INSTANCE_APPLICATION->GetSceneViewportHeight() + 1.0f) / _proj(1, 1);
 
 
-	auto& cameraPosition = camera->GetPosition();
-	XMVECTOR rayOrigin = XMVectorSet(cameraPosition.x, cameraPosition.y, cameraPosition.z, 1.0f);
-	XMVECTOR rayDirection = XMVectorSet(vx, vy, 1.0f, 0.0f);
+	const float3& cameraPosition = camera->GetPosition();
+	XMVector rayOrigin = Math::XMVectorSet(cameraPosition.x, cameraPosition.y, cameraPosition.z, 1.0f);
+	XMVector rayDirection = Math::XMVectorSet(vx, vy, 1.0f, 0.0f);
 
-	const float4x4& _view = camera->GetView();
-	XMMATRIX _viewInv = XMMatrixInverse(nullptr, XMLoadFloat4x4(&_view));
+	const float4x4A& _view = camera->GetView();
+	XMMatrix _viewInv = Math::XMInverse(Math::ToXM(_view));
 
-	rayDirection = XMVector3TransformNormal(rayDirection, _viewInv);
+	rayDirection = Math::XMTransformVector3Normal(rayDirection, _viewInv);
 
 	auto& _entityGroup = scene->ViewEntities<MeshComponent, BoundingBoxComponent>();
 
@@ -39,54 +38,55 @@ void TruthEngine::PickingEntity::PickEntity(float2 mousePosition, Scene* scene, 
 
 	for (auto entity : _entityGroup)
 	{
-		auto tag = scene->GetComponent<TagComponent>(entity).GetTag().c_str();
+		auto tag = scene->GetComponent<TagComponent>(entity).GetTag();
 
-		float4x4 _world = scene->GetTransformHierarchy(entity);
-		auto _scaleVector = XMVectorSet(_world._11, _world._22, _world._33, 0.0f);
+		float4x4A _world = scene->GetTransformHierarchy(entity);
+		auto _scaleVector = Math::XMVectorSet(_world._11, _world._22, _world._33, 0.0f);
 		_world._11 = 1.0f;
 		_world._22 = 1.0f;
 		_world._33 = 1.0f;
 
-		XMMATRIX _worldInv = XMMatrixInverse(nullptr, XMLoadFloat4x4(&_world));
+		XMMatrix _worldInv = Math::XMInverse(Math::ToXM(_world));
 
-		auto _rayOrigin = XMVector3TransformCoord(rayOrigin, _worldInv);
-		auto _rayDirection = XMVector3TransformNormal(rayDirection, _worldInv);
-		_rayDirection = XMVector3NormalizeEst(_rayDirection);
+		rayOrigin = Math::XMTransformVector3Point(rayOrigin, _worldInv);
+		rayDirection = Math::XMTransformVector3Normal(rayDirection, _worldInv);
+		rayDirection = Math::XMNormalizeEst(rayDirection);
 
 
 		float _aabbDistance = 0.0f;
 		bool _aabbIntersected = false;
 		{
-			BoundingBox _aabbScaled;
-			scene->GetComponent<BoundingBoxComponent>(entity).GetBoundingBox().Transform(_aabbScaled, XMMatrixScalingFromVector(_scaleVector));
-			_aabbIntersected = _aabbScaled.Intersects(_rayOrigin, _rayDirection, _aabbDistance);
+			BoundingAABox _aabbScaled;
+			scene->GetComponent<BoundingBoxComponent>(entity).GetBoundingBox().Transform(_aabbScaled, Math::XMTransformMatrixScale(_scaleVector));
+			_aabbIntersected = _aabbScaled.Intersects(rayOrigin, rayDirection, _aabbDistance);
 		}
 
 		if (_aabbIntersected)
 		{
-			Mesh* mesh = scene->GetComponent<MeshComponent>(entity).GetMesh();
+			const Mesh& mesh = scene->GetComponent<MeshComponent>(entity).GetMesh();
 
-			const auto& _verteciesData = mesh->GetVertexBuffer()->GetPosData();
-			const auto& _indeciesData = mesh->GetIndexBuffer()->GetIndecies();
+			const auto& _verteciesData = mesh.GetVertexBuffer()->GetPosData();
+			const auto& _indeciesData = mesh.GetIndexBuffer()->GetIndecies();
 
-			const uint32_t _triNum = mesh->GetIndexNum() / 3;
-			const uint32_t _indexOffset = mesh->GetIndexOffset();
-			const uint32_t _vertexOffset = mesh->GetVertexOffset();
+			const size_t _TriangleNum = mesh.GetIndexNum() / 3;
+			const size_t _indexOffset = mesh.GetIndexOffset();
+			const size_t _vertexOffset = mesh.GetVertexOffset();
 
-			for (uint32_t triIndex = 0; triIndex < _triNum; ++triIndex)
+			for (size_t _TriangleIndex = 0; _TriangleIndex < _TriangleNum; ++_TriangleIndex)
 			{
-				uint32_t _iindex = _indexOffset + (triIndex * 3);
+				size_t _iindex = _indexOffset + (_TriangleIndex * 3);
 
-				uint32_t i0 = _indeciesData[_iindex];
-				uint32_t i1 = _indeciesData[_iindex + 1];
-				uint32_t i2 = _indeciesData[_iindex + 2];
+				size_t i0 = _indeciesData[_iindex];
+				size_t i1 = _indeciesData[_iindex + 1];
+				size_t i2 = _indeciesData[_iindex + 2];
 
-				XMVECTOR v0 = XMVectorMultiply(XMLoadFloat3(&_verteciesData[i0 + _vertexOffset].Position), _scaleVector);
-				XMVECTOR v1 = XMVectorMultiply(XMLoadFloat3(&_verteciesData[i1 + _vertexOffset].Position), _scaleVector);
-				XMVECTOR v2 = XMVectorMultiply(XMLoadFloat3(&_verteciesData[i2 + _vertexOffset].Position), _scaleVector);
+				XMVector v0 = Math::XMMultiply(Math::ToXM(_verteciesData[i0 + _vertexOffset].Position), _scaleVector);
+				XMVector v1 = Math::XMMultiply(Math::ToXM(_verteciesData[i1 + _vertexOffset].Position), _scaleVector);
+				XMVector v2 = Math::XMMultiply(Math::ToXM(_verteciesData[i2 + _vertexOffset].Position), _scaleVector);
 
 				float d = 0.0f;
-				if (TriangleTests::Intersects(_rayOrigin, _rayDirection, v0, v1, v2, d))
+
+				if (Math::TriangleTests::Intersects(rayOrigin, rayDirection, v0, v1, v2, d))
 				{
 					if (d < _closestMeshDistance)
 					{

@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "ModelManager.h"
 
+#include "MeshHandle.h"
 #include "AssimpLib.h"
 
 #include "Core/Application.h"
@@ -13,34 +14,24 @@
 namespace TruthEngine
 {
 
-
 	ModelManager::ModelManager()
 	{
 		m_Meshes.reserve(100000);
-		//m_Models3D.reserve(1000);
 	}
 
 	ModelManager::~ModelManager()
 	{
 	}
 
-	/*void ModelManager::ImportModel(Scene* scene, const char* filePath, std::string _ModelName)
-	{
-
-		AssimpLib::GetInstance()->ImportModel(scene, filePath, _ModelName.c_str());
-
-		InitVertexAndIndexBuffer();
-	}*/
-
 	void ModelManager::InitVertexAndIndexBuffer()
 	{
 
 		TE_INSTANCE_GRAPHICDEVICE->WaitForGPU();
 
-		auto _Lambda = [=](auto&& _VertexBuffer)
+		auto _Lambda = [_BufferManager = m_BufferManager](auto&& _VertexBuffer)
 		{
 			if (_VertexBuffer.GetVertexNum() > 0)
-				m_BufferManager->CreateVertexBuffer(&_VertexBuffer);
+				_BufferManager->CreateVertexBuffer(&_VertexBuffer);
 		};
 
 		std::apply([=](auto&&... _VertexBuffer) { ((_Lambda(_VertexBuffer)), ...);  }, m_VertexBuffers);
@@ -60,11 +51,25 @@ namespace TruthEngine
 		m_RendererCommand->Init(TE_IDX_RENDERPASS::NONE, TE_IDX_SHADERCLASS::NONE);
 
 		m_BufferManager = bufferManager;
+
+		GeneratePrimitiveMeshInstances();
 	}
 
-	Mesh* ModelManager::AddMesh(TE_IDX_MESH_TYPE _MeshType, uint32_t IndexNum, size_t IndexOffset, size_t VertexOffset, size_t vertexNum)
+	uint32_t ModelManager::GenerateMeshID()
 	{
-		Mesh* _Mesh = nullptr;
+		static uint32_t s_ID = 0;
+		return s_ID++;
+	}
+
+	void ModelManager::GeneratePrimitiveMeshInstances()
+	{
+		m_PrimitiveMeshInstances.Sphere = GeneratePrimitiveMesh(TE_PRIMITIVE_TYPE::SPHERE, { 0.0f, 0.0f, 0.0f }, 1.0f, { 8,8,8 }, { 8,8,8 });
+	}
+
+	MeshHandle ModelManager::AddMesh(TE_IDX_MESH_TYPE _MeshType, uint32_t IndexNum, size_t IndexOffset, size_t VertexOffset, size_t vertexNum)
+	{
+
+		VertexBufferBase* _VertexBufferBase = nullptr;
 
 		switch (_MeshType)
 		{
@@ -77,17 +82,18 @@ namespace TruthEngine
 		case TE_IDX_MESH_TYPE::MESH_NTT:
 		{
 			VertexBufferNTT& _VertexBuffer = _GetVertexBuffer<VertexBufferNTT>();
-			BoundingBox bb;
-			CreateBoundingBoxFromPoints(bb, vertexNum, &_VertexBuffer.GetPosData()[VertexOffset].Position, sizeof(VertexData::Pos));
-			_Mesh = &m_Meshes.emplace_back(GenerateMeshID(), IndexNum, IndexOffset, VertexOffset, vertexNum, bb, &_VertexBuffer, &m_IndexBuffer);
+			_VertexBufferBase = &_VertexBuffer;
+			/*BoundingAABox bb;
+			CreateBoundingAABoxFromPoints(bb, vertexNum, &_VertexBuffer.GetPosData()[VertexOffset].Position, sizeof(VertexData::Pos));*/
+			m_Meshes.emplace_back(GenerateMeshID(), IndexNum, IndexOffset, VertexOffset, vertexNum, &_VertexBuffer, &m_IndexBuffer);
 			break;
 		}
 		case TE_IDX_MESH_TYPE::MESH_SKINNED:
 		{
 			VertexBufferSkinned& _VertexBuffer = _GetVertexBuffer<VertexBufferSkinned>();
-			BoundingBox bb;
-			CreateBoundingBoxFromPoints(bb, vertexNum, &_VertexBuffer.GetPosData()[VertexOffset].Position, sizeof(VertexData::Pos));
-			_Mesh = &m_Meshes.emplace_back(GenerateMeshID(), IndexNum, IndexOffset, VertexOffset, vertexNum, bb, &_VertexBuffer, &m_IndexBuffer);
+			_VertexBufferBase = &_VertexBuffer;
+			/*BoundingAABox bb;
+			CreateBoundingAABoxFromPoints(bb, vertexNum, &_VertexBuffer.GetPosData()[VertexOffset].Position, sizeof(VertexData::Pos));*/
 			break;
 		}
 		default:
@@ -95,33 +101,34 @@ namespace TruthEngine
 			break;
 		}
 
-
-		return _Mesh;
+		MeshHandle _MeshHandle{ static_cast<uint32_t>(m_Meshes.size()) };
+		m_Meshes.emplace_back(GenerateMeshID(), IndexNum, IndexOffset, VertexOffset, vertexNum, _VertexBufferBase, &m_IndexBuffer);
+		return _MeshHandle;
 	}
 
-	Mesh* ModelManager::GeneratePrimitiveMesh(TE_PRIMITIVE_TYPE type, float size_x, float size_y, float size_z)
+	MeshHandle ModelManager::GeneratePrimitiveMesh(TE_PRIMITIVE_TYPE type, const float3& size, float radius, const int3& segments, const int3& slices)
 	{
-		Mesh* mesh = nullptr;
+		MeshHandle _MeshHandle{0};
 
 		switch (type)
 		{
 		case TruthEngine::TE_PRIMITIVE_TYPE::BOX:
-			mesh = MeshGenerator::GetInstance()->GenerateBox(size_x, size_y, size_z);
+			_MeshHandle = MeshGenerator::GetInstance()->GenerateBox(size, segments);
 			break;
 		case TruthEngine::TE_PRIMITIVE_TYPE::ROUNDEDBOX:
-			mesh = MeshGenerator::GetInstance()->GenerateRoundedBoxMesh(size_x, size_y, size_z);
+			_MeshHandle = MeshGenerator::GetInstance()->GenerateRoundedBoxMesh(radius, size, slices.x, segments);
 			break;
 		case TruthEngine::TE_PRIMITIVE_TYPE::SPHERE:
-			mesh = MeshGenerator::GetInstance()->GenerateSphere(size_x);
+			_MeshHandle = MeshGenerator::GetInstance()->GenerateSphere(radius, slices.x, segments.x);
 			break;
 		case TruthEngine::TE_PRIMITIVE_TYPE::CYLINDER:
-			mesh = MeshGenerator::GetInstance()->GenerateCylinder(size_x);
+			_MeshHandle = MeshGenerator::GetInstance()->GenerateCylinder(radius, size.x, slices.x, segments.x);
 			break;
 		case TruthEngine::TE_PRIMITIVE_TYPE::CAPPEDCYLINDER:
-			mesh = MeshGenerator::GetInstance()->GenerateCappedCylinder(size_x);
+			_MeshHandle = MeshGenerator::GetInstance()->GenerateCappedCylinder(radius, size.x, slices.x, segments.x, 8);
 			break;
 		case TE_PRIMITIVE_TYPE::PLANE:
-			mesh = MeshGenerator::GetInstance()->GeneratePlane(size_x, size_z);
+			_MeshHandle = MeshGenerator::GetInstance()->GeneratePlane(float2{ size.x, size.y }, int2{ segments.x, segments.y });
 			break;
 		default:
 			break;
@@ -130,33 +137,28 @@ namespace TruthEngine
 		InitVertexAndIndexBuffer();
 
 
-		/*auto scene = TE_INSTANCE_APPLICATION->GetActiveScene();
+		/*auto scene = GetActiveScene();
 		Entity _ModelEntity = scene->AddModelEntity(_ModelName, IdentityMatrix);
 		auto material = m_MaterialManager.AddDefaultMaterial(TE_IDX_MESH_TYPE::MESH_NTT);
 		Entity _MeshEntity =  scene->AddMeshEntity(_meshName.c_str(), transform, mesh, material, _ModelEntity);*/
 
-		return mesh;
+		return _MeshHandle;
 	}
 
 	void ModelManager::GenerateEnvironmentMesh(Mesh** outMesh)
 	{
-		std::string _modelName, _meshName;
 
-
-		*outMesh = MeshGenerator::GetInstance()->GenerateSphere(1.0f);
-		_modelName = "Model Environment";
-		_meshName = "EnvironmentSphere";
+		*outMesh = &MeshGenerator::GetInstance()->GenerateSphere(1.0f, 32, 16).GetMesh();
 
 		InitVertexAndIndexBuffer();
 
 	}
 
-
-	TruthEngine::Mesh* ModelManager::CopyMesh(Mesh* mesh)
+	Mesh& ModelManager::CopyMesh(const Mesh& mesh)
 	{
-		auto& _newMesh = m_Meshes.emplace_back(GenerateMeshID(), mesh->m_IndexNum, mesh->m_IndexOffset, mesh->m_VertexOffset, mesh->m_VertexNum, mesh->m_BoundingBox, mesh->GetVertexBuffer(), &m_IndexBuffer);
+		auto& _newMesh = m_Meshes.emplace_back(GenerateMeshID(), mesh.m_IndexNum, mesh.m_IndexOffset, mesh.m_VertexOffset, mesh.m_VertexNum, mesh.GetVertexBuffer(), &m_IndexBuffer);
 
-		return &_newMesh;
+		return _newMesh;
 	}
 
 	size_t ModelManager::GetVertexOffset(TE_IDX_MESH_TYPE _MeshType) const noexcept
@@ -179,10 +181,32 @@ namespace TruthEngine
 		}
 	}
 
+	BoundingAABox ModelManager::GenerateBoundingAABox(Mesh* _Mesh) const
+	{
+		BoundingAABox _AABB;
+		CreateBoundingAABoxFromPoints(_AABB, _Mesh->GetVertexNum(), &_Mesh->GetVertexBuffer()->GetPosData()[_Mesh->GetVertexOffset()].Position, sizeof(VertexData::Pos));
+		return _AABB;
+	}
+
 	template<class T>
 	T& ModelManager::_GetVertexBuffer()
 	{
 		return std::get<T>(m_VertexBuffers);
+	}
+
+	Mesh& ModelManager::GetMesh(MeshHandle _MeshHandle)
+	{
+		return m_Meshes[_MeshHandle.m_MeshIndex];
+	}
+
+	Mesh& ModelManager::GetMesh(uint32_t _MeshIndex)
+	{
+		return m_Meshes[_MeshIndex];
+	}
+
+	const PrimitiveMeshInstances& ModelManager::GetPrimitiveMeshInstances() const
+	{
+		return m_PrimitiveMeshInstances;
 	}
 
 }

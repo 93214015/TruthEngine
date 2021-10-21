@@ -7,6 +7,9 @@
 #include "API/DX12/DirectX12GraphicDevice.h"
 #include "API/DX12/DirectX12ShaderManager.h"
 #include "API/DX12/DirectX12Manager.h"
+#include "API/DX12/DirectX12Helpers.h"
+
+#include "Core/Event/EventRenderer.h"
 
 namespace TruthEngine::API::DirectX12
 {
@@ -32,12 +35,6 @@ namespace TruthEngine::API::DirectX12
 		TE_ASSERT_CORE(false, "Wrong Cull Mode!");
 	}
 
-	constexpr D3D12_DEPTH_WRITE_MASK DX12_GET_DEPTH_WRITE_MASK(RendererStateSet states)
-	{
-		TE_RENDERER_STATE_DEPTH_WRITE_MASK _DepthWrite = static_cast<TE_RENDERER_STATE_DEPTH_WRITE_MASK>(GET_RENDERER_STATE(states, TE_RENDERER_STATE_DEPTH_WRITE_MASK));
-
-		return static_cast<D3D12_DEPTH_WRITE_MASK>(_DepthWrite);
-	}
 
 	D3D12_FILL_MODE DX12_GET_FILL_MODE(RendererStateSet states)
 	{
@@ -66,9 +63,14 @@ namespace TruthEngine::API::DirectX12
 		return static_cast<bool>(GET_RENDERER_STATE(states, TE_RENDERER_STATE_ENABLED_DEPTH));
 	}
 
+	bool DX12_GET_ENABLED_STENCIL(RendererStateSet states)
+	{
+		return static_cast<bool>(GET_RENDERER_STATE(states, TE_RENDERER_STATE_ENABLED_STENCIL));
+	}
+
 	void DX12_GET_RTV_FORMATS(const TE_RESOURCE_FORMAT* inFormats, DXGI_FORMAT outFormats[8])
 	{
-		memcpy(outFormats, inFormats, sizeof(outFormats));
+		memcpy(outFormats, inFormats, sizeof(DXGI_FORMAT) * 8);
 	}
 
 	D3D12_PRIMITIVE_TOPOLOGY_TYPE DX12_GET_PRIMITIVE_TOPOLOGY_TYPE(RendererStateSet states)
@@ -92,16 +94,7 @@ namespace TruthEngine::API::DirectX12
 		default:
 			return D3D12_PRIMITIVE_TOPOLOGY_TYPE_UNDEFINED;
 		}
-	}
-
-	D3D12_COMPARISON_FUNC DX12_GET_COMPARISON_FUNC(RendererStateSet states)
-	{
-		return static_cast<D3D12_COMPARISON_FUNC>(GET_RENDERER_STATE(states, TE_RENDERER_STATE_COMPARISSON_FUNC));
-	}
-
-	inline DXGI_FORMAT DX12_GET_FORMAT(const TE_RESOURCE_FORMAT format)
-	{
-		return static_cast<DXGI_FORMAT>(format);
+		
 	}
 
 	inline D3D12_INPUT_CLASSIFICATION DX12_GET_INPUT_CLASSIFICATION(TE_RENDERER_SHADER_INPUT_CLASSIFICATION inputClass)
@@ -144,96 +137,151 @@ namespace TruthEngine::API::DirectX12
 		return 0.0f;
 	}
 
+	bool IsBlendEnabled(RendererStateSet _States)
+	{
+		return COMPARE_RENDERER_STATE(_States, TE_RENDERER_STATE_ENABLED_BLEND, TE_RENDERER_STATE_ENABLED_BLEND_TRUE);
+	}
 
+	D3D12_BLEND_DESC DX12_GET_BLEND_DESC(RendererStateSet _States, const PipelineBlendDesc& _BlendMode)
+	{
+		CD3DX12_BLEND_DESC DX12Blend{ CD3DX12_DEFAULT() };
+
+		if (IsBlendEnabled(_States))
+		{
+			DX12Blend.RenderTarget[0].BlendEnable = true;
+			DX12Blend.RenderTarget[0].LogicOpEnable = false;
+			DX12Blend.RenderTarget[0].SrcBlend = static_cast<D3D12_BLEND>(_BlendMode.SourceBlend);
+			DX12Blend.RenderTarget[0].DestBlend = static_cast<D3D12_BLEND>(_BlendMode.DestinationBlend);
+			DX12Blend.RenderTarget[0].BlendOp = static_cast<D3D12_BLEND_OP>(_BlendMode.BlendingOperation);
+			DX12Blend.RenderTarget[0].SrcBlendAlpha = static_cast<D3D12_BLEND>(_BlendMode.SourceBlendAlpha);
+			DX12Blend.RenderTarget[0].DestBlendAlpha = static_cast<D3D12_BLEND>(_BlendMode.DestinationBlendAlpha);
+			DX12Blend.RenderTarget[0].BlendOpAlpha = static_cast<D3D12_BLEND_OP>(_BlendMode.BlendingOperationAlpha);
+			DX12Blend.RenderTarget[0].LogicOp = D3D12_LOGIC_OP_NOOP;
+			DX12Blend.RenderTarget[0].RenderTargetWriteMask = static_cast<D3D12_COLOR_WRITE_ENABLE>(_BlendMode.RenderTargetWriteMask);
+		}
+		
+		return DX12Blend;
+	}
+
+	struct TED3D12GraphicsPipelineStateDesc
+	{
+		D3D12_GRAPHICS_PIPELINE_STATE_DESC D3D12Desc = { 0 };
+
+		TED3D12GraphicsPipelineStateDesc(const PipelineGraphics* _Pipeline)
+		{
+			const Shader* shader = _Pipeline->GetShader();
+			const RendererStateSet	states = _Pipeline->GetStates();
+
+
+			D3D12Desc.VS = CD3DX12_SHADER_BYTECODE(shader->GetVS().BufferPointer, shader->GetVS().BufferSize);
+			D3D12Desc.PS = CD3DX12_SHADER_BYTECODE(shader->GetPS().BufferPointer, shader->GetPS().BufferSize);
+			D3D12Desc.HS = CD3DX12_SHADER_BYTECODE(shader->GetHS().BufferPointer, shader->GetHS().BufferSize);
+			D3D12Desc.DS = CD3DX12_SHADER_BYTECODE(shader->GetDS().BufferPointer, shader->GetDS().BufferSize);
+			D3D12Desc.GS = CD3DX12_SHADER_BYTECODE(shader->GetGS().BufferPointer, shader->GetGS().BufferSize);
+
+			//Blend Desc
+			D3D12Desc.BlendState = DX12_GET_BLEND_DESC(states, _Pipeline->GetBlendMode());
+			
+			D3D12Desc.SampleMask = UINT_MAX;
+
+			//Rasterized Desc
+			D3D12Desc.RasterizerState.CullMode = DX12_GET_CULL_MODE(states);
+			D3D12Desc.RasterizerState.FillMode = DX12_GET_FILL_MODE(states);
+			D3D12Desc.RasterizerState.FrontCounterClockwise = DX12_GET_FRONTCOUNTERCLOCKWISE(states);
+			D3D12Desc.RasterizerState.DepthBias = _Pipeline->GetDepthBias();
+			D3D12Desc.RasterizerState.DepthBiasClamp = _Pipeline->GetDepthBiasClamp();
+			D3D12Desc.RasterizerState.SlopeScaledDepthBias = _Pipeline->GetSlopeScaledDepthBias();
+			D3D12Desc.RasterizerState.DepthClipEnable = true;
+			D3D12Desc.RasterizerState.MultisampleEnable = true;
+			D3D12Desc.RasterizerState.AntialiasedLineEnable = false;
+			D3D12Desc.RasterizerState.ForcedSampleCount = 0;
+			D3D12Desc.RasterizerState.ConservativeRaster = D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF;
+
+			//DepthStencil Desc
+			D3D12Desc.DepthStencilState = static_cast<D3D12_DEPTH_STENCIL_DESC>(_Pipeline->GetDepthStencilDesc());
+			auto depthEnabled = DX12_GET_ENABLED_DEPTH(states);
+			D3D12Desc.DepthStencilState.DepthEnable = depthEnabled;
+			auto stencilEnabled = DX12_GET_ENABLED_STENCIL(states);
+			D3D12Desc.DepthStencilState.StencilEnable = stencilEnabled;
+			/*D3D12Desc.DepthStencilState.DepthWriteMask = DX12_GET_DEPTH_WRITE_MASK(states);
+			D3D12Desc.DepthStencilState.DepthFunc = depthEnabled ? DX12_GET_COMPARISON_FUNC(states) : D3D12_COMPARISON_FUNC_ALWAYS;
+			D3D12Desc.DepthStencilState.StencilReadMask = D3D12_DEFAULT_STENCIL_READ_MASK;
+			D3D12Desc.DepthStencilState.StencilWriteMask = D3D12_DEFAULT_STENCIL_WRITE_MASK;
+			D3D12Desc.DepthStencilState.FrontFace.StencilFailOp = D3D12_STENCIL_OP_KEEP;
+			D3D12Desc.DepthStencilState.FrontFace.StencilDepthFailOp = D3D12_STENCIL_OP_KEEP;
+			D3D12Desc.DepthStencilState.FrontFace.StencilPassOp = D3D12_STENCIL_OP_KEEP;
+			D3D12Desc.DepthStencilState.FrontFace.StencilFunc = D3D12_COMPARISON_FUNC_ALWAYS;
+			D3D12Desc.DepthStencilState.BackFace.StencilFailOp = D3D12_STENCIL_OP_KEEP;
+			D3D12Desc.DepthStencilState.BackFace.StencilDepthFailOp = D3D12_STENCIL_OP_KEEP;
+			D3D12Desc.DepthStencilState.BackFace.StencilPassOp = D3D12_STENCIL_OP_KEEP;
+			D3D12Desc.DepthStencilState.BackFace.StencilFunc = D3D12_COMPARISON_FUNC_ALWAYS;*/
+
+			//Input Layout
+			DX12_GET_INPUT_ELEMENTS(_Pipeline->GetShaderInputElements(), m_InputElements);
+			D3D12Desc.InputLayout.NumElements = static_cast<UINT>(m_InputElements.size());
+			D3D12Desc.InputLayout.pInputElementDescs = m_InputElements.data();
+
+			D3D12Desc.IBStripCutValue = D3D12_INDEX_BUFFER_STRIP_CUT_VALUE_DISABLED;
+			D3D12Desc.PrimitiveTopologyType = DX12_GET_PRIMITIVE_TOPOLOGY_TYPE(states);
+			D3D12Desc.NumRenderTargets = _Pipeline->GetRenderTargetNum();
+			DX12_GET_RTV_FORMATS(_Pipeline->GetRenderTargetFormats(), D3D12Desc.RTVFormats);
+			D3D12Desc.DSVFormat = DX12_GET_FORMAT(_Pipeline->GetDSVFormat());
+
+			//Sample desc
+			D3D12Desc.SampleDesc.Count = _Pipeline->GetEnableMSAA() ? static_cast<uint32_t>(Settings::Graphics::GetMSAA()) : 1;
+			D3D12Desc.SampleDesc.Quality = 0;
+
+			D3D12Desc.pRootSignature = DirectX12Manager::GetInstance()->GetD3D12RootSignature(shader->GetShaderClassIDX());
+
+			D3D12Desc.NodeMask = 0;
+			D3D12Desc.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
+		}
+
+	private:
+		std::vector<D3D12_INPUT_ELEMENT_DESC> m_InputElements;
+
+	};
+
+	struct TED3D12ComputePipelineStateDesc
+	{
+		D3D12_COMPUTE_PIPELINE_STATE_DESC D3D12Desc = { 0 };
+
+		TED3D12ComputePipelineStateDesc(const PipelineCompute* _Pipeline)
+		{
+			const Shader* _Shader = _Pipeline->GetShader();
+			D3D12Desc.CS = CD3DX12_SHADER_BYTECODE(_Shader->GetCS().BufferPointer, _Shader->GetCS().BufferSize);
+			D3D12Desc.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
+			D3D12Desc.NodeMask = 0;
+
+			D3D12Desc.pRootSignature = DirectX12Manager::GetInstance()->GetD3D12RootSignature(_Shader->GetShaderClassIDX());
+		}
+	};
 
 	COMPTR<ID3D12PipelineState> DirectX12PiplineManager::GetGraphicsPipeline(PipelineGraphics* pipeline)
 	{
+
+		if (auto _ItrPipelineState = m_MapPipelineState.find(pipeline->GetID()); _ItrPipelineState != m_MapPipelineState.end())
+		{
+			return _ItrPipelineState->second;
+		}
+
 		COMPTR<ID3D12PipelineState> PSO;
 
 		//
-		////CreatePipline Desc
+		////Get Pipeline Desc
 		//
+		TED3D12GraphicsPipelineStateDesc _TED3D12PipelineGraphicsDesc{ pipeline };
 
-		D3D12_GRAPHICS_PIPELINE_STATE_DESC desc = { 0 };
-
-
-
-		const auto shader = pipeline->GetShader();
-		const auto states = pipeline->GetStates();
-
-
-		desc.VS = CD3DX12_SHADER_BYTECODE(shader->GetVS().BufferPointer, shader->GetVS().BufferSize);
-		desc.PS = CD3DX12_SHADER_BYTECODE(shader->GetPS().BufferPointer, shader->GetPS().BufferSize);
-		desc.HS = CD3DX12_SHADER_BYTECODE(shader->GetHS().BufferPointer, shader->GetHS().BufferSize);
-		desc.DS = CD3DX12_SHADER_BYTECODE(shader->GetDS().BufferPointer, shader->GetDS().BufferSize);
-		desc.GS = CD3DX12_SHADER_BYTECODE(shader->GetGS().BufferPointer, shader->GetGS().BufferSize);
-
-		//Blend Desc
-		desc.BlendState = CD3DX12_BLEND_DESC(CD3DX12_DEFAULT());
-
-		desc.SampleMask = UINT_MAX;
-
-		//Rasterized Desc
-		desc.RasterizerState.CullMode = DX12_GET_CULL_MODE(states);
-		desc.RasterizerState.FillMode = DX12_GET_FILL_MODE(states);
-		desc.RasterizerState.FrontCounterClockwise = DX12_GET_FRONTCOUNTERCLOCKWISE(states);
-		desc.RasterizerState.DepthBias = pipeline->m_DepthBias;
-		desc.RasterizerState.DepthBiasClamp = pipeline->m_DepthBiasClamp;
-		desc.RasterizerState.SlopeScaledDepthBias = pipeline->m_SlopeScaledDepthBias;
-		desc.RasterizerState.DepthClipEnable = true;
-		desc.RasterizerState.MultisampleEnable = true;
-		desc.RasterizerState.AntialiasedLineEnable = false;
-		desc.RasterizerState.ForcedSampleCount = 0;
-		desc.RasterizerState.ConservativeRaster = D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF;
-
-		//Blend Desc
-		auto depthEnabled = DX12_GET_ENABLED_DEPTH(states);
-		desc.DepthStencilState.DepthEnable = depthEnabled;
-		desc.DepthStencilState.DepthWriteMask = DX12_GET_DEPTH_WRITE_MASK(states);
-		desc.DepthStencilState.DepthFunc = depthEnabled ? DX12_GET_COMPARISON_FUNC(states) : D3D12_COMPARISON_FUNC_ALWAYS;
-		desc.DepthStencilState.StencilEnable = false;
-		desc.DepthStencilState.StencilReadMask = D3D12_DEFAULT_STENCIL_READ_MASK;
-		desc.DepthStencilState.StencilWriteMask = D3D12_DEFAULT_STENCIL_WRITE_MASK;
-		desc.DepthStencilState.FrontFace.StencilFailOp = D3D12_STENCIL_OP_KEEP;
-		desc.DepthStencilState.FrontFace.StencilDepthFailOp = D3D12_STENCIL_OP_KEEP;
-		desc.DepthStencilState.FrontFace.StencilPassOp = D3D12_STENCIL_OP_KEEP;
-		desc.DepthStencilState.FrontFace.StencilFunc = D3D12_COMPARISON_FUNC_ALWAYS;
-		desc.DepthStencilState.BackFace.StencilFailOp = D3D12_STENCIL_OP_KEEP;
-		desc.DepthStencilState.BackFace.StencilDepthFailOp = D3D12_STENCIL_OP_KEEP;
-		desc.DepthStencilState.BackFace.StencilPassOp = D3D12_STENCIL_OP_KEEP;
-		desc.DepthStencilState.BackFace.StencilFunc = D3D12_COMPARISON_FUNC_ALWAYS;
-
-		//Input Layout
-		std::vector<D3D12_INPUT_ELEMENT_DESC> inputElements;
-		DX12_GET_INPUT_ELEMENTS(*shader->GetInputElements(), inputElements);
-		desc.InputLayout.NumElements = static_cast<UINT>(inputElements.size());
-		desc.InputLayout.pInputElementDescs = inputElements.data();
-
-		desc.IBStripCutValue = D3D12_INDEX_BUFFER_STRIP_CUT_VALUE_DISABLED;
-		desc.PrimitiveTopologyType = DX12_GET_PRIMITIVE_TOPOLOGY_TYPE(states);
-		desc.NumRenderTargets = pipeline->m_RenderTargetNum;
-		DX12_GET_RTV_FORMATS(pipeline->GetRenderTargetFormats(), desc.RTVFormats);
-		desc.DSVFormat = DX12_GET_FORMAT(pipeline->GetDSVFormat());
-
-		//Sample desc
-		desc.SampleDesc.Count = pipeline->m_EnableMSAA ? static_cast<uint32_t>(Settings::MSAA) : 1;
-		desc.SampleDesc.Quality = 0;
-
-		desc.pRootSignature = DirectX12Manager::GetInstance()->GetD3D12RootSignature(shader->GetShaderClassIDX());
-
-		desc.NodeMask = 0;
-		desc.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
-
-		auto hr = m_PiplineLibrary->LoadGraphicsPipeline(to_wstring(pipeline->m_Name).c_str(), &desc, IID_PPV_ARGS(PSO.GetAddressOf()));
+		auto hr = m_PiplineLibrary->LoadGraphicsPipeline(to_wstring(pipeline->m_Name).c_str(), &_TED3D12PipelineGraphicsDesc.D3D12Desc, IID_PPV_ARGS(PSO.GetAddressOf()));
 
 		if (FAILED(hr))
 		{
 			std::scoped_lock<std::mutex> _ScopedLock(g_MutexPipelineManager);
-			hr = m_PiplineLibrary->LoadGraphicsPipeline(to_wstring(pipeline->m_Name).c_str(), &desc, IID_PPV_ARGS(PSO.GetAddressOf()));
+			hr = m_PiplineLibrary->LoadGraphicsPipeline(to_wstring(pipeline->m_Name).c_str(), &_TED3D12PipelineGraphicsDesc.D3D12Desc, IID_PPV_ARGS(PSO.GetAddressOf()));
 
 			if (FAILED(hr))
 			{
-				AddGraphicsPipeline(pipeline, PSO, desc);
+				AddGraphicsPipeline(pipeline, PSO, _TED3D12PipelineGraphicsDesc);
 			}
 		}
 
@@ -242,57 +290,86 @@ namespace TruthEngine::API::DirectX12
 
 	COMPTR<ID3D12PipelineState> DirectX12PiplineManager::GetComputePipeline(PipelineCompute* pipeline)
 	{
+		if (auto _ItrPipelineState = m_MapPipelineState.find(pipeline->GetID()); _ItrPipelineState != m_MapPipelineState.end())
+		{
+			return _ItrPipelineState->second;
+		}
+
 		COMPTR<ID3D12PipelineState> PSO;
 
-		Shader* _Shader = pipeline->GetShader();
-
-		/*DirectX12ShaderManager _ShaderManager;
-		auto _ShaderCode = _ShaderManager.CompileShader_OLD("shaderTest.hlsl", 200, "Assets/Shaders/HDR_DownScaling.hlsl", "HDRDownScalingFirstPass", "cs");*/
 
 		//
 		////CreatePipline Desc
 		//
 
+		TED3D12ComputePipelineStateDesc _TEDesc{ pipeline };
 
-		D3D12_COMPUTE_PIPELINE_STATE_DESC desc = { 0 };
-		desc.CS = CD3DX12_SHADER_BYTECODE(_Shader->GetCS().BufferPointer, _Shader->GetCS().BufferSize);
-		//desc.CS = CD3DX12_SHADER_BYTECODE(_ShaderCode.BufferPointer, _ShaderCode.BufferSize);
-		desc.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
-		desc.NodeMask = 0;
-
-		desc.pRootSignature = DirectX12Manager::GetInstance()->GetD3D12RootSignature(_Shader->GetShaderClassIDX());
-
-		auto _HR = m_PiplineLibrary->LoadComputePipeline(to_wstring(pipeline->m_Name).c_str(), &desc, IID_PPV_ARGS(PSO.GetAddressOf()));
+		auto _HR = m_PiplineLibrary->LoadComputePipeline(to_wstring(pipeline->m_Name).c_str(), &_TEDesc.D3D12Desc, IID_PPV_ARGS(PSO.GetAddressOf()));
 
 		if (FAILED(_HR))
 		{
-			AddComputePipeline(pipeline, PSO, desc);
+			AddComputePipeline(pipeline, PSO, _TEDesc);
 		}
 
 		return PSO;
 	}
 
-
-	TE_RESULT DirectX12PiplineManager::AddGraphicsPipeline(PipelineGraphics* pipeline, COMPTR<ID3D12PipelineState>& PSO, D3D12_GRAPHICS_PIPELINE_STATE_DESC& desc)
+	TE_RESULT DirectX12PiplineManager::AddGraphicsPipeline(PipelineGraphics* pipeline, COMPTR<ID3D12PipelineState>& PSO, const TED3D12GraphicsPipelineStateDesc& _Desc)
 	{
-		auto hr = TE_INSTANCE_API_DX12_GRAPHICDEVICE->CreateGraphicsPipelineState(&desc, IID_PPV_ARGS(PSO.GetAddressOf()));
+		auto hr = TE_INSTANCE_API_DX12_GRAPHICDEVICE->CreateGraphicsPipelineState(&_Desc.D3D12Desc, IID_PPV_ARGS(PSO.GetAddressOf()));
 		TE_ASSERT_CORE(SUCCEEDED(hr), "PipelineGraphics Creation failed!");
 
 		hr = m_PiplineLibrary->StorePipeline(to_wstring(pipeline->m_Name).c_str(), PSO.Get());
 
-		m_PipelineNum++;
+		m_MapPipelineState[pipeline->GetID()] = PSO;
 
 		return SUCCEEDED(hr) ? TE_SUCCESSFUL : TE_FAIL;
 	}
 
-	TE_RESULT DirectX12PiplineManager::AddComputePipeline(PipelineCompute* pipeline, COMPTR<ID3D12PipelineState>& PSO, D3D12_COMPUTE_PIPELINE_STATE_DESC& desc)
+	TE_RESULT DirectX12PiplineManager::AddComputePipeline(PipelineCompute* pipeline, COMPTR<ID3D12PipelineState>& PSO, const TED3D12ComputePipelineStateDesc& _Desc)
 	{
-		auto hr = TE_INSTANCE_API_DX12_GRAPHICDEVICE->CreateComputePipelineState(&desc, IID_PPV_ARGS(PSO.GetAddressOf()));
+		auto hr = TE_INSTANCE_API_DX12_GRAPHICDEVICE->CreateComputePipelineState(&_Desc.D3D12Desc, IID_PPV_ARGS(PSO.GetAddressOf()));
 		TE_ASSERT_CORE(SUCCEEDED(hr), "PipelineCompute Creation failed!");
 
 		hr = m_PiplineLibrary->StorePipeline(to_wstring(pipeline->m_Name).c_str(), PSO.Get());
 
-		m_PipelineNum++;
+		m_MapPipelineState[pipeline->GetID()] = PSO;
+
+		return SUCCEEDED(hr) ? TE_SUCCESSFUL : TE_FAIL;
+	}
+
+	TE_RESULT DirectX12PiplineManager::OnEventNewPipelineGraphics(const EventRendererNewGraphicsPipeline& _Event)
+	{
+		const PipelineGraphics* _Pipeline = _Event.GetPipeline();
+
+		TED3D12GraphicsPipelineStateDesc _TEDesc{ _Pipeline };
+
+		COMPTR<ID3D12PipelineState> _PSO;
+		auto hr = TE_INSTANCE_API_DX12_GRAPHICDEVICE->CreateGraphicsPipelineState(&_TEDesc.D3D12Desc, IID_PPV_ARGS(_PSO.GetAddressOf()));
+
+		TE_ASSERT_CORE(SUCCEEDED(hr), "PipelineGraphics Creation failed!");
+
+		hr = m_PiplineLibrary->StorePipeline(to_wstring(_Pipeline->m_Name).c_str(), _PSO.Get());
+
+		m_MapPipelineState[_Pipeline->GetID()] = _PSO;
+
+		return SUCCEEDED(hr) ? TE_SUCCESSFUL : TE_FAIL;
+	}
+
+	TE_RESULT DirectX12PiplineManager::OnEventNewPipelineCompute(const EventRendererNewComputePipeline& _Event)
+	{
+		const PipelineCompute* _Pipeline = _Event.GetPipeline();
+
+		TED3D12ComputePipelineStateDesc _TEDesc{ _Pipeline };
+
+		COMPTR<ID3D12PipelineState> _PSO;
+		auto hr = TE_INSTANCE_API_DX12_GRAPHICDEVICE->CreateComputePipelineState(&_TEDesc.D3D12Desc, IID_PPV_ARGS(_PSO.GetAddressOf()));
+
+		TE_ASSERT_CORE(SUCCEEDED(hr), "PipelineCompute Creation failed!");
+
+		hr = m_PiplineLibrary->StorePipeline(to_wstring(_Pipeline->m_Name).c_str(), _PSO.Get());
+
+		m_MapPipelineState[_Pipeline->GetID()] = _PSO;
 
 		return SUCCEEDED(hr) ? TE_SUCCESSFUL : TE_FAIL;
 	}
@@ -300,6 +377,28 @@ namespace TruthEngine::API::DirectX12
 	DirectX12PiplineManager::DirectX12PiplineManager()
 	{
 		TE_INSTANCE_API_DX12_GRAPHICDEVICE->CreatePipelineLibrary(nullptr, 0, IID_PPV_ARGS(m_PiplineLibrary.ReleaseAndGetAddressOf()));
+
+		//////////////////////////////////////////////////////////////////////
+		//Register The EventListener for new Pipelines
+		//////////////////////////////////////////////////////////////////////
+		auto _OnEventNewPipelineGraphics = [this](Event& _Event)
+		{
+			OnEventNewPipelineGraphics(static_cast<EventRendererNewGraphicsPipeline&>(_Event));
+		};
+
+		TE_INSTANCE_APPLICATION->RegisterEventListener(EventType::RendererNewGraphicsPipeline, _OnEventNewPipelineGraphics);
+
+
+		auto _OnEventNewPipelineCompute = [this](Event& _Event)
+		{
+			OnEventNewPipelineCompute(static_cast<EventRendererNewComputePipeline&>(_Event));
+		};
+
+		TE_INSTANCE_APPLICATION->RegisterEventListener(EventType::RendererNewComputePipeline, _OnEventNewPipelineCompute);
+
+		//////////////////////////////////////////////////////////////////////
+
+
 	}
 
 }

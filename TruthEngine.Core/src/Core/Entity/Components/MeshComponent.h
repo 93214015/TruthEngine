@@ -11,21 +11,20 @@ namespace TruthEngine
 		class MeshComponent
 		{
 		public:
-			MeshComponent(Mesh* mesh)
-				: m_Mesh(mesh)
+			MeshComponent(const Mesh& _Mesh)
+				: m_Mesh(_Mesh)
 			{}
 
-			inline Mesh* GetMesh() noexcept
+			const Mesh& GetMesh() const
 			{
 				return m_Mesh;
 			}
 
-
 		private:
 
 
 		private:
-			Mesh* m_Mesh;
+			Mesh m_Mesh;
 
 			//Friend Classes
 			friend class ModelManager;
