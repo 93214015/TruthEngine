@@ -4,6 +4,9 @@
     <Filter Include="API">
       <UniqueIdentifier>{FFD1870B-6BDB-877C-F456-9E7C605F937C}</UniqueIdentifier>
     </Filter>
+    <Filter Include="API\DX">
+      <UniqueIdentifier>{AAD64EA5-9678-797B-7F33-8DCF6B7400CC}</UniqueIdentifier>
+    </Filter>
     <Filter Include="API\DX12">
       <UniqueIdentifier>{AD2F5F34-99FC-B93F-C215-A8E7AE41EFCD}</UniqueIdentifier>
     </Filter>
@@ -40,6 +43,9 @@
     <Filter Include="Core\Helper\SysInfo">
       <UniqueIdentifier>{F74A91D1-63AC-6EDF-EC19-B591587AA59E}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Core\IO">
+      <UniqueIdentifier>{153F7134-811E-F0CF-8A36-7BA6F6945631}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Core\ImGui">
       <UniqueIdentifier>{D8137ACD-C4CB-BB1A-2DD3-947619AA560B}</UniqueIdentifier>
     </Filter>
@@ -48,6 +54,9 @@
     </Filter>
     <Filter Include="Core\PhysicEngine">
       <UniqueIdentifier>{630C3CE5-CF22-3A7B-189A-C59C84EF0A03}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Profiler">
+      <UniqueIdentifier>{40690CF1-AC29-8827-7564-D1A4E1E3CC03}</UniqueIdentifier>
     </Filter>
     <Filter Include="Core\Renderer">
       <UniqueIdentifier>{948B5FDE-004C-DB14-C986-2492350620F1}</UniqueIdentifier>
@@ -342,6 +351,9 @@
     <ClInclude Include="src\Core\Helper\SysInfo\systeminfo.h">
       <Filter>Core\Helper\SysInfo</Filter>
     </ClInclude>
+    <ClInclude Include="src\Core\IO\Serializable.h">
+      <Filter>Core\IO</Filter>
+    </ClInclude>
     <ClInclude Include="src\Core\ImGui\ImGuiLayer.h">
       <Filter>Core\ImGui</Filter>
     </ClInclude>
@@ -368,6 +380,9 @@
     </ClInclude>
     <ClInclude Include="src\Core\PhysicEngine\PhysicsEngine.h">
       <Filter>Core\PhysicEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Profiler\GPUEvents.h">
+      <Filter>Core\Profiler</Filter>
     </ClInclude>
     <ClInclude Include="src\Core\Renderer\Buffer.h">
       <Filter>Core\Renderer</Filter>
@@ -429,6 +444,9 @@
     <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_DeferredShading.h">
       <Filter>Core\Renderer\RenderPass</Filter>
     </ClInclude>
+    <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_EnvironmentMap.h">
+      <Filter>Core\Renderer\RenderPass</Filter>
+    </ClInclude>
     <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_ForwardRendering.h">
       <Filter>Core\Renderer\RenderPass</Filter>
     </ClInclude>
@@ -480,10 +498,16 @@
     <ClInclude Include="src\Core\Renderer\Shader.h">
       <Filter>Core\Renderer</Filter>
     </ClInclude>
+    <ClInclude Include="src\Core\Renderer\ShaderCode.h">
+      <Filter>Core\Renderer</Filter>
+    </ClInclude>
     <ClInclude Include="src\Core\Renderer\ShaderInputLayout.h">
       <Filter>Core\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="src\Core\Renderer\ShaderManager.h">
+      <Filter>Core\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Renderer\ShaderRequiredResource.h">
       <Filter>Core\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="src\Core\Renderer\ShaderSignature.h">
@@ -549,10 +573,11 @@
     <ClInclude Include="src\TruthEngine.h" />
     <ClInclude Include="src\lib.h" />
     <ClInclude Include="src\pch.h" />
-    <ClInclude Include="src\Core\Profiler\GPUEvents.h" />
-    <ClInclude Include="src\Core\Renderer\RenderPass\RenderPass_EnvironmentMap.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\API\DX\DXGPUEvent.cpp">
+      <Filter>API\DX</Filter>
+    </ClCompile>
     <ClCompile Include="src\API\DX12\DirectX12BufferManager.cpp">
       <Filter>API\DX12</Filter>
     </ClCompile>
@@ -802,6 +827,9 @@
     <ClCompile Include="src\Core\Helper\SysInfo\systemcommand.cpp">
       <Filter>Core\Helper\SysInfo</Filter>
     </ClCompile>
+    <ClCompile Include="src\Core\IO\Serialization_Shader.cpp">
+      <Filter>Core\IO</Filter>
+    </ClCompile>
     <ClCompile Include="src\Core\ImGui\ImGuiLayer.cpp">
       <Filter>Core\ImGui</Filter>
     </ClCompile>
@@ -822,6 +850,9 @@
     </ClCompile>
     <ClCompile Include="src\Core\PhysicEngine\PhysicsEngine.cpp">
       <Filter>Core\PhysicEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Profiler\GPUEvents.cpp">
+      <Filter>Core\Profiler</Filter>
     </ClCompile>
     <ClCompile Include="src\Core\Renderer\Buffer.cpp">
       <Filter>Core\Renderer</Filter>
@@ -874,6 +905,9 @@
     <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_DeferredShading.cpp">
       <Filter>Core\Renderer\RenderPass</Filter>
     </ClCompile>
+    <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_EnvironmentMap.cpp">
+      <Filter>Core\Renderer\RenderPass</Filter>
+    </ClCompile>
     <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_ForwardRendering.cpp">
       <Filter>Core\Renderer\RenderPass</Filter>
     </ClCompile>
@@ -920,6 +954,9 @@
       <Filter>Core\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="src\Core\Renderer\Shader.cpp">
+      <Filter>Core\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Renderer\ShaderCode.cpp">
       <Filter>Core\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="src\Core\Renderer\ShaderInputLayout.cpp">
@@ -986,8 +1023,6 @@
       <Filter>Platform\Windows</Filter>
     </ClCompile>
     <ClCompile Include="src\pch.cpp" />
-    <ClCompile Include="src\Core\Profiler\GPUEvents.cpp" />
-    <ClCompile Include="src\API\DX\DXGPUEvent.cpp" />
-    <ClCompile Include="src\Core\Renderer\RenderPass\RenderPass_EnvironmentMap.cpp" />
+    <ClCompile Include="src\Core\IO\Serialization_ShaderCode.cpp" />
   </ItemGroup>
 </Project>

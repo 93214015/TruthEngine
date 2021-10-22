@@ -1,5 +1,7 @@
 #pragma once
 
+#define TE TruthEngine
+
 #define TE_FLAG_TYPE uint32_t
 
 #define TE_DEFINE_ENUM_FLAG_OPERATORS(ENUMTYPE) \

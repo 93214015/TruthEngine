@@ -4,9 +4,19 @@
 namespace TruthEngine
 {
 
-	Shader::Shader(const char* name, TE_IDX_SHADERCLASS shaderClassIDX, ShaderSignature* shaderSignature, std::string_view filePath) 
-		: m_Name(name), m_FilePath(filePath), m_ShaderClassIDX(shaderClassIDX), m_ShaderSignature(shaderSignature)
+	Shader::Shader(TE_ShaderID shaderID, ShaderSignature* shaderSignature, std::string_view filePath) 
+		: m_ID(shaderID), m_FilePath(filePath), m_ShaderSignature(shaderSignature)
 	{
+	}
+
+	Shader::~Shader()
+	{
+		m_VS.Release();
+		m_HS.Release();
+		m_DS.Release();
+		m_GS.Release();
+		m_PS.Release();
+		m_CS.Release();
 	}
 
 
@@ -80,5 +90,6 @@ namespace TruthEngine
 		}
 	}
 
+	
 
 }

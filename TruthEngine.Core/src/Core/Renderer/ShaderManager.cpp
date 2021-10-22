@@ -37,7 +37,7 @@ namespace TruthEngine
 	}
 
 
-	ShaderHandle ShaderManager::GetShader(TE_IDX_SHADERCLASS shaderClassID, uint64_t shaderUnqiueIdentifier)
+	ShaderHandle ShaderManager::GetShader(TE_IDX_SHADERCLASS shaderClassID, TE_ShaderClass_UniqueIdentifier shaderUnqiueIdentifier)
 	{
 		{
 			auto& map = m_Map_Shaders[static_cast<uint32_t>(shaderClassID)];

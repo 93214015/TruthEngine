@@ -29,6 +29,7 @@ project "TruthEngine.Editor"
 		IncludeDir["d3dx12"],
 		IncludeDir["imgui"],
 		IncludeDir["physx"],
+		IncludeDir["boostIncPath"]
 	}
 
 	links{

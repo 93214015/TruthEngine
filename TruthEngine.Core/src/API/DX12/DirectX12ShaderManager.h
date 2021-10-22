@@ -14,7 +14,7 @@ namespace TruthEngine
 		public:
 			DirectX12ShaderManager();
 
-			ShaderHandle AddShader(TE_IDX_SHADERCLASS shaderClassID, uint64_t shaderUniqueIdentifier, std::string_view filePath, std::string_view vsEntry, std::string_view psEntry, std::string_view csEntry, std::string_view dsEntry, std::string_view hsEntry, std::string_view gsEntry, const std::vector<const wchar_t*>& _DefinedMacros) override;
+			ShaderHandle AddShader(TE_IDX_SHADERCLASS shaderClassID, TE_ShaderClass_UniqueIdentifier shaderUniqueIdentifier, std::string_view filePath, std::string_view vsEntry, std::string_view psEntry, std::string_view csEntry, std::string_view dsEntry, std::string_view hsEntry, std::string_view gsEntry, const std::vector<const wchar_t*>& _DefinedMacros) override;
 
 
 
@@ -24,13 +24,11 @@ namespace TruthEngine
 				return &s_Instance;
 			}
 		protected:
-			Shader::ShaderCode CompileShader_DXC(std::string_view shaderName, uint32_t shaderID, std::string_view filePath, std::string_view entry, std::string_view shaderStage);
-			Shader::ShaderCode CompileShader_FXC(std::string_view shaderName, uint32_t shaderID, std::string_view filePath, std::string_view entry, std::string_view shaderStage);
+			ShaderCode CompileShader_DXC(TE_ShaderID shaderID, std::string_view filePath, std::string_view entry, std::string_view shaderStage);
+			ShaderCode CompileShader_FXC(TE_ShaderID shaderID, std::string_view filePath, std::string_view entry, std::string_view shaderStage);
 
 
 		protected:
-			uint32_t m_ShaderID = 0;
-
 			std::wstring compileTargetVersion = L"_6_0";
 
 			struct pImpl;

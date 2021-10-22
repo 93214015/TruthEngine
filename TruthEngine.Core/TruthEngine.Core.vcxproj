@@ -246,6 +246,7 @@
     <ClInclude Include="src\Core\Helper\SysInfo\raminfodelegate.h" />
     <ClInclude Include="src\Core\Helper\SysInfo\systemcommand.h" />
     <ClInclude Include="src\Core\Helper\SysInfo\systeminfo.h" />
+    <ClInclude Include="src\Core\IO\Serializable.h" />
     <ClInclude Include="src\Core\ImGui\ImGuiLayer.h" />
     <ClInclude Include="src\Core\Input\InputManager.h" />
     <ClInclude Include="src\Core\Input\KeyCodes.h" />
@@ -294,8 +295,10 @@
     <ClInclude Include="src\Core\Renderer\RendererIDX.h" />
     <ClInclude Include="src\Core\Renderer\RendererLayer.h" />
     <ClInclude Include="src\Core\Renderer\Shader.h" />
+    <ClInclude Include="src\Core\Renderer\ShaderCode.h" />
     <ClInclude Include="src\Core\Renderer\ShaderInputLayout.h" />
     <ClInclude Include="src\Core\Renderer\ShaderManager.h" />
+    <ClInclude Include="src\Core\Renderer\ShaderRequiredResource.h" />
     <ClInclude Include="src\Core\Renderer\ShaderSignature.h" />
     <ClInclude Include="src\Core\Renderer\SwapChain.h" />
     <ClInclude Include="src\Core\Renderer\Texture.h" />
@@ -321,6 +324,7 @@
     <ClInclude Include="src\pch.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\API\DX\DXGPUEvent.cpp" />
     <ClCompile Include="src\API\DX12\DirectX12BufferManager.cpp" />
     <ClCompile Include="src\API\DX12\DirectX12CommandAllocator.cpp" />
     <ClCompile Include="src\API\DX12\DirectX12CommandList.cpp" />
@@ -335,7 +339,6 @@
     <ClCompile Include="src\API\DX12\DirectX12ShaderManager.cpp" />
     <ClCompile Include="src\API\DX12\DirectX12SwapChain.cpp" />
     <ClCompile Include="src\API\DX12\DirectX12TextureMaterialManager.cpp" />
-    <ClCompile Include="src\API\DX\DXGPUEvent.cpp" />
     <ClCompile Include="src\API\IDXGI.cpp" />
     <ClCompile Include="src\Core\AnimationEngine\AnimationManager.cpp" />
     <ClCompile Include="src\Core\AnimationEngine\CBone.cpp" />
@@ -405,9 +408,11 @@
     <ClCompile Include="src\Core\Helper\SysInfo\raminfo.cpp" />
     <ClCompile Include="src\Core\Helper\SysInfo\raminfodelegate.cpp" />
     <ClCompile Include="src\Core\Helper\SysInfo\systemcommand.cpp" />
+    <ClCompile Include="src\Core\IO\Serialization_Shader.cpp" />
     <ClCompile Include="src\Core\ImGui\ImGuiLayer.cpp" />
     <ClCompile Include="src\Core\Input\InputManager.cpp" />
     <ClCompile Include="src\Core\Input\Mouse.cpp" />
+    <ClCompile Include="src\Core\IO\Serialization_ShaderCode.cpp" />
     <ClCompile Include="src\Core\Layer.cpp" />
     <ClCompile Include="src\Core\LayerStack.cpp" />
     <ClCompile Include="src\Core\Log.cpp" />
@@ -447,6 +452,7 @@
     <ClCompile Include="src\Core\Renderer\RendererCommand.cpp" />
     <ClCompile Include="src\Core\Renderer\RendererLayer.cpp" />
     <ClCompile Include="src\Core\Renderer\Shader.cpp" />
+    <ClCompile Include="src\Core\Renderer\ShaderCode.cpp" />
     <ClCompile Include="src\Core\Renderer\ShaderInputLayout.cpp" />
     <ClCompile Include="src\Core\Renderer\ShaderManager.cpp" />
     <ClCompile Include="src\Core\Renderer\ShaderSignature.cpp" />

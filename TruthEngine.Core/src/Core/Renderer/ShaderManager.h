@@ -29,12 +29,12 @@ namespace TruthEngine
 		ShaderManager() = default;
 		virtual ~ShaderManager() = default;
 
-		virtual ShaderHandle AddShader(TE_IDX_SHADERCLASS shaderClassID, uint64_t shaderUniqueIdentifier, std::string_view filePath, std::string_view vsEntry, std::string_view psEntry, std::string_view csEntry = "", std::string_view dsEntry = "", std::string_view hsEntry = "", std::string_view gsEntry = "", const std::vector<const wchar_t*>& _DefinedMacros = {}) = 0;
+		virtual ShaderHandle AddShader(TE_IDX_SHADERCLASS shaderClassID, TE_ShaderClass_UniqueIdentifier shaderUniqueIdentifier, std::string_view filePath, std::string_view vsEntry, std::string_view psEntry, std::string_view csEntry = "", std::string_view dsEntry = "", std::string_view hsEntry = "", std::string_view gsEntry = "", const std::vector<const wchar_t*>& _DefinedMacros = {}) = 0;
 
 		ShaderSignature* GetShaderSignature(const TE_IDX_SHADERCLASS shaderClassIDX);
 		const ShaderRequiredResources* GetShaderRequiredResources(const TE_IDX_SHADERCLASS _ShaderClassIDX) const;
 
-		ShaderHandle GetShader(TE_IDX_SHADERCLASS shaderClassID, uint64_t shaderUnqiueIdentifier);
+		ShaderHandle GetShader(TE_IDX_SHADERCLASS shaderClassID, TE_ShaderClass_UniqueIdentifier shaderUnqiueIdentifier);
 
 		static ShaderManager* GetInstance()
 		{
@@ -58,7 +58,7 @@ namespace TruthEngine
 
 		std::vector<Shader> m_ArrayShaders;
 
-		std::unordered_map<uint64_t, ShaderHandle> m_Map_Shaders[static_cast<uint32_t>(TE_IDX_SHADERCLASS::TOTALNUM)];
+		std::unordered_map<TE_ShaderClass_UniqueIdentifier, ShaderHandle> m_Map_Shaders[static_cast<uint32_t>(TE_IDX_SHADERCLASS::TOTALNUM)];
 
 		//const RendererStateSet m_StateMask = BIT_MASK_TE_RENDERER_STATE_ENABLED_MAP_DIFFUSE | BIT_MASK_TE_RENDERER_STATE_ENABLED_MAP_DISPLACEMENT | BIT_MASK_TE_RENDERER_STATE_ENABLED_MAP_NORMAL | BIT_MASK_TE_RENDERER_STATE_ENABLED_MAP_SPECULAR | BIT_MASK_TE_RENDERER_STATE_ENABLED_MAP_ROUGHNESS | BIT_MASK_TE_RENDERER_STATE_ENABLED_MAP_METALLIC | BIT_MASK_TE_RENDERER_STATE_ENABLED_MAP_AMBIENTOCCLUSION | BIT_MASK_TE_RENDERER_STATE_ENABLED_HDR | BIT_MASK_TE_RENDERER_STATE_SHADING_MODEL;
 

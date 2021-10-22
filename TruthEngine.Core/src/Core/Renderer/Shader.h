@@ -1,6 +1,12 @@
 #pragma once
+#include "ShaderRequiredResource.h"
+#include "ShaderCode.h"
 #include "BufferManager.h"
 #include "ShaderSignature.h"
+
+#include "Core/IO/Serializable.h"
+
+SERIALIZABLE_SEPARATE1(TruthEngine, Shader);
 
 namespace TruthEngine
 {
@@ -12,44 +18,24 @@ namespace TruthEngine
 		}
 	}
 
-	
-	
+	using TE_ShaderClass_UniqueIdentifier = uint32_t;
 
-	class ShaderRequiredResources
-	{
-	public:
+	using TE_ShaderID = uint64_t;
 
-		void AddResource(const ShaderSignature* _ShaderSignature);
-
-		inline const std::vector<GraphicResource*>& GetSRVResources()const { return mSRV; }
-		inline const std::vector<GraphicResource*>& GetCBVResources()const { return mCBV; }
-		inline const std::vector<GraphicResource*>& GetUAVResources()const { return mUAV; }
-
-	private:
-		std::vector<GraphicResource*> mSRV;
-		std::vector<GraphicResource*> mCBV;
-		std::vector<GraphicResource*> mUAV;
-	};
 
 	class Shader
 	{
 	public:
-		Shader(const char* name, TE_IDX_SHADERCLASS shaderClassIDX, ShaderSignature* shaderSignature, std::string_view filePath);
-		virtual ~Shader() = default;
+		Shader(TE_ShaderID shaderID, ShaderSignature* shaderSignature, std::string_view filePath);
+		virtual ~Shader();
+
+		Shader(const Shader&) = delete;
+		Shader& operator=(const Shader&) = delete;
 
 		Shader(Shader&& shader) noexcept = default;
 		Shader& operator=(Shader&& shader) = default;
 
-		struct ShaderCode
-		{
-			ShaderCode() = default;
-			ShaderCode(size_t bufferSize, void* bufferPointer) : BufferSize(bufferSize), BufferPointer(bufferPointer)
-			{}
-
-			size_t BufferSize = 0;
-			void* BufferPointer = nullptr;
-		};
-
+		
 		inline ShaderCode GetVS() const noexcept { return m_VS; };
 		inline ShaderCode GetDS() const noexcept { return m_DS; };
 		inline ShaderCode GetHS() const noexcept { return m_HS; };
@@ -62,28 +48,35 @@ namespace TruthEngine
 			return &m_ShaderSignature->InputElements[(uint32_t)m_MeshType];
 		}*/
 
-		inline const ShaderSignature* GetSignature() const noexcept
+		const ShaderSignature* GetSignature() const noexcept
 		{
 			return m_ShaderSignature;
 		}
 
 
-		inline TE_IDX_SHADERCLASS GetShaderClassIDX()const noexcept
+		TE_IDX_SHADERCLASS GetShaderClassIDX()const noexcept
 		{
-			return m_ShaderClassIDX;
+			return static_cast<TE_IDX_SHADERCLASS>(m_ID >> 32);
 		}
+
+		TE_ShaderClass_UniqueIdentifier GetShaderClassUniqueIdentifier() const noexcept
+		{
+			return static_cast<TE_ShaderClass_UniqueIdentifier>(m_ID & 0x0000FFFF);
+		}
+		
 
 
 
 	protected:
 
-		uint32_t m_ID = 0;
-		TE_IDX_SHADERCLASS m_ShaderClassIDX = TE_IDX_SHADERCLASS::NONE;
+		//	ID is made of two part: the first 32bit is ShaderClassIDX and the second 32 bit
+		//	is ShaderClass UniqueIdentifier 
+		TE_ShaderID m_ID = 0;
 
 		ShaderSignature* m_ShaderSignature = nullptr;
 
 
-		std::string m_Name = "";
+		//std::string m_Name = "";
 		std::string m_FilePath = "";
 
 		ShaderCode m_VS;
@@ -96,6 +89,8 @@ namespace TruthEngine
 
 		friend class ShaderManager;
 		friend class API::DirectX12::DirectX12ShaderManager;
+
+		SERIALIZE_SEPARATE(TE::Shader);
 
 	};
 

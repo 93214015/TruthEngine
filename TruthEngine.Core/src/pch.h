@@ -23,6 +23,7 @@
 #include <optional> //std::optional
 #include <string_view> //std::string_view
 #include <filesystem> //std::filesystem
+#include <fstream> // std::fstream
  
 #include "DirectXMath/Inc/DirectXMath.h"
 #include "DirectXMath/Inc/DirectXColors.h"
@@ -127,3 +128,11 @@ using COMPTR = Microsoft::WRL::ComPtr<T>;
 #include "d3dx12.h"
 
 #endif
+
+
+
+//////////////////////////////////////////////////////////////////////////
+//// Boost Library
+//////////////////////////////////////////////////////////////////////////
+#include <boost/archive/binary_iarchive.hpp>
+#include <boost/archive/binary_oarchive.hpp>
